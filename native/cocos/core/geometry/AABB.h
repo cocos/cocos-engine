@@ -108,7 +108,7 @@ public:
     static Sphere *toBoundingSphere(Sphere *out, const AABB &a);
 
     static AABB *fromPoints(const Vec3 &minPos, const Vec3 &maxPos, AABB *dst);
-    static void  transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4);
+    static void transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4);
 
     AABB(float px, float py, float pz, float hw, float hh, float hl);
     AABB();
@@ -136,22 +136,22 @@ public:
      */
     bool aabbFrustum(const Frustum &) const;
 
-    int                aabbPlane(const Plane &) const;
-    void               getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
-    void               merge(const AABB &aabb);
-    void               merge(const cc::Vec3 &point);
-    void               merge(const ccstd::vector<cc::Vec3> &points);
-    void               merge(const Frustum &frustum);
-    void               set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
-    void               transform(const Mat4 &m, AABB *out) const;
-    bool               contain(const cc::Vec3 &point) const;
-    inline void        setCenter(float x, float y, float z) { center.set(x, y, z); }
-    inline void        setCenter(const Vec3 &center) { this->center.set(center); }
-    inline void        setValid(bool isValid) { _isValid = isValid; }
+    int aabbPlane(const Plane &) const;
+    void getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
+    void merge(const AABB &aabb);
+    void merge(const cc::Vec3 &point);
+    void merge(const ccstd::vector<cc::Vec3> &points);
+    void merge(const Frustum &frustum);
+    void set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
+    void transform(const Mat4 &m, AABB *out) const;
+    bool contain(const cc::Vec3 &point) const;
+    inline void setCenter(float x, float y, float z) { center.set(x, y, z); }
+    inline void setCenter(const Vec3 &center) { this->center.set(center); }
+    inline void setValid(bool isValid) { _isValid = isValid; }
     inline const Vec3 &getCenter() const { return center; }
-    inline bool        isValid() const { return _isValid; }
-    inline void        setHalfExtents(float x, float y, float z) { halfExtents.set(x, y, z); }
-    inline void        setHalfExtents(const Vec3 &halfExtents) { this->halfExtents.set(halfExtents); }
+    inline bool isValid() const { return _isValid; }
+    inline void setHalfExtents(float x, float y, float z) { halfExtents.set(x, y, z); }
+    inline void setHalfExtents(const Vec3 &halfExtents) { this->halfExtents.set(halfExtents); }
     inline const Vec3 &getHalfExtents() const { return halfExtents; }
 
     cc::Vec3 center;

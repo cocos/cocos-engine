@@ -82,13 +82,17 @@ builtinResMgrProto.initBuiltinRes = function (device: Device): Promise<void> {
 
     return Promise.resolve().then(() => {
         oldInitBuiltinRes.call(this, device);
+
+        legacyCC.game.on(legacyCC.Game.EVENT_GAME_INITED, () => {
+            this.tryCompileAllPasses();
+        });
     }).then(() => this._preloadAssets());
 };
 
 /**
  * @internal
  */
-builtinResMgrProto._preloadAssets = async function () {
+builtinResMgrProto._preloadAssets = function () {
     const resources = this._resources;
     if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
         const preloadedAssets = window._CCSettings.preloadAssets as string[];

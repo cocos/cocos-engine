@@ -49,7 +49,11 @@
 namespace cc {
 
 AAssetManager *FileUtilsAndroid::assetmanager = nullptr;
-ZipFile *      FileUtilsAndroid::obbfile      = nullptr;
+ZipFile *FileUtilsAndroid::obbfile = nullptr;
+
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsAndroid();
+}
 
 void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
@@ -60,25 +64,12 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     cc::FileUtilsAndroid::assetmanager = a;
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = ccnew FileUtilsAndroid();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtilsAndroid::FileUtilsAndroid() {
+    init();
 }
 
-FileUtilsAndroid::FileUtilsAndroid() = default;
-
 FileUtilsAndroid::~FileUtilsAndroid() {
-    if (obbfile) {
-        delete obbfile;
-        obbfile = nullptr;
-    }
+    CC_SAFE_DELETE(obbfile);
 }
 
 bool FileUtilsAndroid::init() {
@@ -186,7 +177,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const ccstd::string &filename, R
     }
 
     ccstd::string relativePath;
-    size_t        position = fullPath.find(ASSETS_FOLDER_NAME);
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));

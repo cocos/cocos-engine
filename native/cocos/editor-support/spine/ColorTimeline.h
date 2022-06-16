@@ -34,47 +34,47 @@
 
 namespace spine {
 class SP_API ColorTimeline : public CurveTimeline {
-	friend class SkeletonBinary;
+    friend class SkeletonBinary;
 
-	friend class SkeletonJson;
+    friend class SkeletonJson;
 
-RTTI_DECL
+    RTTI_DECL
 
 public:
-	static const int ENTRIES;
+    static const int ENTRIES;
 
-	explicit ColorTimeline(int frameCount);
+    explicit ColorTimeline(int frameCount);
 
-	virtual void
-	apply(Skeleton &skeleton, float lastTime, float time, Vector<Event *> *pEvents, float alpha, MixBlend blend,
-		MixDirection direction);
+    virtual void
+    apply(Skeleton &skeleton, float lastTime, float time, Vector<Event *> *pEvents, float alpha, MixBlend blend,
+          MixDirection direction);
 
-	virtual int getPropertyId();
+    virtual int getPropertyId();
 
-	/// Sets the time and value of the specified keyframe.
-	void setFrame(int frameIndex, float time, float r, float g, float b, float a);
+    /// Sets the time and value of the specified keyframe.
+    void setFrame(int frameIndex, float time, float r, float g, float b, float a);
 
-	int getSlotIndex();
+    int getSlotIndex();
 
-	void setSlotIndex(int inValue);
+    void setSlotIndex(int inValue);
 
-	Vector<float> &getFrames();
+    Vector<float> &getFrames();
 
 protected:
-	static const int PREV_TIME;
-	static const int PREV_R;
-	static const int PREV_G;
-	static const int PREV_B;
-	static const int PREV_A;
-	static const int R;
-	static const int G;
-	static const int B;
-	static const int A;
+    static const int PREV_TIME;
+    static const int PREV_R;
+    static const int PREV_G;
+    static const int PREV_B;
+    static const int PREV_A;
+    static const int R;
+    static const int G;
+    static const int B;
+    static const int A;
 
 private:
-	int _slotIndex;
-	Vector<float> _frames;
+    int _slotIndex;
+    Vector<float> _frames;
 };
-}
+} // namespace spine
 
 #endif /* Spine_ColorTimeline_h */

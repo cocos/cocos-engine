@@ -37,15 +37,17 @@ namespace cc {
 
 namespace render {
 
-inline const char* getName(DescriptorIndex e) noexcept {
+inline const char* getName(DescriptorTypeOrder e) noexcept {
     switch (e) {
-        case DescriptorIndex::UNIFORM_BLOCK: return "UNIFORM_BLOCK";
-        case DescriptorIndex::SAMPLER_TEXTURE: return "SAMPLER_TEXTURE";
-        case DescriptorIndex::SAMPLER: return "SAMPLER";
-        case DescriptorIndex::TEXTURE: return "TEXTURE";
-        case DescriptorIndex::STORAGE_BUFFER: return "STORAGE_BUFFER";
-        case DescriptorIndex::STORAGE_TEXTURE: return "STORAGE_TEXTURE";
-        case DescriptorIndex::SUBPASS_INPUT: return "SUBPASS_INPUT";
+        case DescriptorTypeOrder::UNIFORM_BUFFER: return "UNIFORM_BUFFER";
+        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER: return "DYNAMIC_UNIFORM_BUFFER";
+        case DescriptorTypeOrder::SAMPLER_TEXTURE: return "SAMPLER_TEXTURE";
+        case DescriptorTypeOrder::SAMPLER: return "SAMPLER";
+        case DescriptorTypeOrder::TEXTURE: return "TEXTURE";
+        case DescriptorTypeOrder::STORAGE_BUFFER: return "STORAGE_BUFFER";
+        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER: return "DYNAMIC_STORAGE_BUFFER";
+        case DescriptorTypeOrder::STORAGE_IMAGE: return "STORAGE_IMAGE";
+        case DescriptorTypeOrder::INPUT_ATTACHMENT: return "INPUT_ATTACHMENT";
     }
     return "";
 }
@@ -53,7 +55,6 @@ inline const char* getName(const UniformBlockDB& /*v*/) noexcept { return "Unifo
 inline const char* getName(const Descriptor& /*v*/) noexcept { return "Descriptor"; }
 inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
 inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
-inline const char* getName(const DescriptorBlockIndexDx& /*v*/) noexcept { return "DescriptorBlockIndexDx"; }
 inline const char* getName(const DescriptorDB& /*v*/) noexcept { return "DescriptorDB"; }
 inline const char* getName(const RenderStageTag& /*v*/) noexcept { return "RenderStage"; }
 inline const char* getName(const RenderPhaseTag& /*v*/) noexcept { return "RenderPhase"; }
@@ -61,12 +62,14 @@ inline const char* getName(const RenderPhase& /*v*/) noexcept { return "RenderPh
 inline const char* getName(const LayoutGraph& /*v*/) noexcept { return "LayoutGraph"; }
 inline const char* getName(const UniformData& /*v*/) noexcept { return "UniformData"; }
 inline const char* getName(const UniformBlockData& /*v*/) noexcept { return "UniformBlockData"; }
+inline const char* getName(const NameLocalID& /*v*/) noexcept { return "NameLocalID"; }
 inline const char* getName(const DescriptorData& /*v*/) noexcept { return "DescriptorData"; }
 inline const char* getName(const DescriptorBlockData& /*v*/) noexcept { return "DescriptorBlockData"; }
-inline const char* getName(const DescriptorTableData& /*v*/) noexcept { return "DescriptorTableData"; }
+inline const char* getName(const DescriptorSetLayoutData& /*v*/) noexcept { return "DescriptorSetLayoutData"; }
 inline const char* getName(const DescriptorSetData& /*v*/) noexcept { return "DescriptorSetData"; }
 inline const char* getName(const PipelineLayoutData& /*v*/) noexcept { return "PipelineLayoutData"; }
 inline const char* getName(const ShaderProgramData& /*v*/) noexcept { return "ShaderProgramData"; }
+inline const char* getName(const RenderStageData& /*v*/) noexcept { return "RenderStageData"; }
 inline const char* getName(const RenderPhaseData& /*v*/) noexcept { return "RenderPhaseData"; }
 inline const char* getName(const LayoutGraphData& /*v*/) noexcept { return "LayoutGraphData"; }
 

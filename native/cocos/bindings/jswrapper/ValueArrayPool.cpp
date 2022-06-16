@@ -56,8 +56,8 @@ ValueArray &ValueArrayPool::get(uint32_t argc) {
 }
 
 void ValueArrayPool::initPool(uint32_t index) {
-    auto &   pool = _pools[index];
-    uint32_t i    = 0;
+    auto &pool = _pools[index];
+    uint32_t i = 0;
     for (auto &arr : pool) {
         arr.resize(i);
         ++i;

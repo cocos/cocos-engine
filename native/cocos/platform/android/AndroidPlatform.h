@@ -26,44 +26,52 @@
 #pragma once
 
 #include "platform/UniversalPlatform.h"
+#include "base/Timer.h"
 
 struct android_app;
 
 namespace cc {
-    class GameInputProxy;
+class GameInputProxy;
 
-    class CC_DLL AndroidPlatform : public UniversalPlatform {
-    public:
-        AndroidPlatform() = default;
+class CC_DLL AndroidPlatform : public UniversalPlatform {
+public:
+    AndroidPlatform() = default;
 
-        ~AndroidPlatform() override;
+    ~AndroidPlatform() override;
 
-        int init() override;
+    int init() override;
 
-        void pollEvent() override;
+    void pollEvent() override;
 
-        int32_t run(int argc, const char **argv) override;
+    int32_t run(int argc, const char **argv) override;
 
-        int getSdkVersion() const override;
+    int getSdkVersion() const override;
 
-        int32_t loop() override;
+    int32_t loop() override;
 
-        void *getActivity();
+    void *getActivity();
 
-        static void *getEnv();
+    static void *getEnv();
 
-        uintptr_t getWindowHandler() const;
+    uintptr_t getWindowHandler() const;
 
-        int32_t getWidth() const;
+    int32_t getWidth() const;
 
-        int32_t getHeight() const;
+    int32_t getHeight() const;
 
-        void setAndroidApp(android_app *app);
+    void onDestory() override;
 
-    private:
-        GameInputProxy *_inputProxy{nullptr};
-        android_app *_app{nullptr};
+    inline void setAndroidApp(android_app *app) {
+        _app = app;
+    }
 
-        friend class GameInputProxy;
-    };
+private:
+    bool _isLowFrequencyLoopEnabled{false};
+    utils::Timer _lowFrequencyTimer;
+    int _loopTimeOut{-1};
+    GameInputProxy *_inputProxy{nullptr};
+    android_app *_app{nullptr};
+
+    friend class GameInputProxy;
+};
 } // namespace cc

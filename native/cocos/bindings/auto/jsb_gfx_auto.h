@@ -677,11 +677,6 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endQuery);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endRenderPass);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumDrawCalls);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumInstances);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_nextSubpass);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_pipelineBarrier);
@@ -900,9 +895,5 @@ extern se::Class * __jsb_cc_gfx_DeviceManager_class; // NOLINT
 
 bool js_register_cc_gfx_DeviceManager(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_getGFXName);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_isDetachDeviceThread);
 // clang-format on

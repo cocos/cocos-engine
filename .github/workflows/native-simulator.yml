@@ -29,11 +29,18 @@ jobs:
       - name: install vulkan-sdk
         run: |
           choco install vulkan-sdk
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
       - name: pip install
         run: |
           python -m pip install PyYAML==5.4.1 Cheetah3
       - name: generate bindings glue codes
         shell: bash
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           python -V
           cd ./tools/tojs
@@ -42,7 +49,7 @@ jobs:
           rm userconf.ini
       - name: gen simulator
         run: |
-          gulp gen-simulator-release
+          gulp gen-simulator
       - name: check result
         run: |
           Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe

@@ -39,7 +39,7 @@
 namespace cc {
 
 CocosApplication::CocosApplication() {
-    _engine      = BaseEngine::createEngine();
+    _engine = BaseEngine::createEngine();
     _systemWidow = _engine->getInterface<ISystemWindow>();
     CC_ASSERT(_systemWidow != nullptr);
 }
@@ -77,10 +77,10 @@ int CocosApplication::init() {
 
     se->start();
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    auto     logicSize  = _systemWidow->getViewSize();
-    IScreen *screen     = _engine->getInterface<IScreen>();
-    float    pixelRatio = screen->getDevicePixelRatio();
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
+    auto logicSize = _systemWidow->getViewSize();
+    IScreen *screen = _engine->getInterface<IScreen>();
+    float pixelRatio = screen->getDevicePixelRatio();
     cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
 #endif
     return 0;
@@ -143,7 +143,7 @@ void CocosApplication::handleException(const char *location, const char *message
 void CocosApplication::setXXTeaKey(const ccstd::string &key) {
     jsb_set_xxtea_key(key);
 }
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
 void CocosApplication::createWindow(const char *title, int32_t w,
                                     int32_t h, int32_t flags) {
     _systemWidow->createWindow(title, w, h, flags);

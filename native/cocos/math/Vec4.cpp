@@ -20,7 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#include <boost/functional/hash.hpp>
+#include "base/std/hash/hash.h"
 
 #include "math/Vec4.h"
 
@@ -58,7 +58,7 @@ Vec4::Vec4(const Vec4 &copy) {
 
 Vec4 Vec4::fromColor(unsigned int color) {
     float components[4];
-    int   componentIndex = 0;
+    int componentIndex = 0;
     for (int i = 3; i >= 0; --i) {
         uint32_t component = (color >> i * 8) & 0x000000ff;
 
@@ -306,16 +306,16 @@ void Vec4::lerp(const Vec4 &a, const Vec4 &b, float t, Vec4 *dst) {
     dst->w = a.w + t * (b.w - a.w);
 }
 
-const Vec4 Vec4::ZERO   = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
-const Vec4 Vec4::ONE    = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
+const Vec4 Vec4::ZERO = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
+const Vec4 Vec4::ONE = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
 const Vec4 Vec4::UNIT_X = Vec4(1.0F, 0.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Y = Vec4(0.0F, 1.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
 const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
 
 template <>
-size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
-    return boost::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
+ccstd::hash_t Hasher<Vec4>::operator()(const Vec4 &v) const {
+    return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
                              reinterpret_cast<const uint64_t *>(&v.x + 4));
 }
 

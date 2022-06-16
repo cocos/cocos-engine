@@ -39,11 +39,11 @@ CCVKRenderPass::~CCVKRenderPass() {
 }
 
 void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
-    _gpuRenderPass                         = ccnew CCVKGPURenderPass;
-    _gpuRenderPass->colorAttachments       = _colorAttachments;
+    _gpuRenderPass = ccnew CCVKGPURenderPass;
+    _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
-    _gpuRenderPass->subpasses              = _subpasses;
-    _gpuRenderPass->dependencies           = _dependencies;
+    _gpuRenderPass->subpasses = _subpasses;
+    _gpuRenderPass->dependencies = _dependencies;
 
     // assign a dummy subpass if not specified
     uint32_t colorCount = utils::toUint(_gpuRenderPass->colorAttachments.size());

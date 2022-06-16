@@ -414,6 +414,10 @@ export class MeshUtils {
     /**
      * @en create a static mesh.
      * @zh 创建一个静态网格。
+     * @param geometry @en geometry data use for creating @zh 用于创建的几何数据
+     * @param out @en output static mesh @zh 输出的静态网格
+     * @param options @en options of creating @zh 创建选项
+     * @return @en The created static mesh, which is same as out @zh 新创建的静态网格，同 out 参数
      */
     static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
         return createMesh(geometry, out, options);
@@ -422,6 +426,11 @@ export class MeshUtils {
     /**
      * @en create a dynamic mesh.
      * @zh 创建一个动态网格。
+     * @param primitiveIndex @en sub mesh index @zh 子网格索引
+     * @param geometry @en geometry data use for creating @zh 用于创建的几何数据
+     * @param out @en output dynamic mesh @zh 输出的动态网格
+     * @param options @en options of creating @zh 创建选项
+     * @return @en The created dynamic mesh, which is same as out @zh 新创建的动态网格，同 out 参数
      */
     static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
         return createDynamicMesh(primitiveIndex, geometry, out, options);

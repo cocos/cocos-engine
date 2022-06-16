@@ -26,27 +26,21 @@
 #include <jni.h>
 
 #include "platform/android/AndroidPlatform.h"
-#include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
-
 
 extern "C" {
 
 void android_main(struct android_app *app) {
-    cc::FileUtilsAndroid::setassetmanager(app->activity->assetManager);
-
     auto *platform = cc::BasePlatform::getPlatform();
     auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
     androidPlatform->setAndroidApp(app);
-    platform->init();
-    platform->loop();
+    androidPlatform->init();
+    androidPlatform->run(0, nullptr);
 }
-
 
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity) {
     cc::JniHelper::init(env, activity);
 }
-
 }

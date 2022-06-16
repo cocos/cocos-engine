@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { UITransform } from '../2d/framework';
@@ -229,7 +224,7 @@ export class ScrollBar extends Component {
      * @zh
      * 重置滚动条位置。
      *
-     * @param outOfBoundary - 滚动位移。
+     * @param outOfBoundary @en Rolling displacement @zh 滚动位移。
      */
     public onScroll (outOfBoundary: Vec2 | Readonly<Vec2>) {
         if (!this._scrollView) {
@@ -289,10 +284,13 @@ export class ScrollBar extends Component {
     }
 
     /**
+     * @en
+     * Sets the scroll view.
+     *
      * @zh
      * 滚动视窗设置。
      *
-     * @param scrollView - 滚动视窗。
+     * @param scrollView @en The scroll view which is attached with this scroll bar @zh 当前滚动条附着的滚动视窗
      */
     public setScrollView (scrollView: ScrollView) {
         this._scrollView = scrollView;

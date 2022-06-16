@@ -13,6 +13,7 @@
 #include "math/Quaternion.h"
 #include "math/Color.h"
 #include "core/data/Object.h"
+#include "core/data/JSBNativeDataHolder.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -20,6 +21,15 @@
 
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
+#endif
+
+#if CC_DEBUG
+static bool js_engine_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_getter_return_true)
 #endif
 se::Object* __jsb_cc_FileUtils_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_FileUtils_class = nullptr;  // NOLINT
@@ -803,16 +813,14 @@ static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_normalizePath_static)
-static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
 bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("FileUtils", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addSearchPath", _SE(js_engine_FileUtils_addSearchPath));
     cls->defineFunction("createDirectory", _SE(js_engine_FileUtils_createDirectory));
     cls->defineFunction("fullPathForFilename", _SE(js_engine_FileUtils_fullPathForFilename));
@@ -848,7 +856,6 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir_static));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance_static));
     cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath_static));
-    cls->defineFinalizeFunction(_SE(js_cc_FileUtils_finalize));
     cls->install();
     JSBClassType::registerClass<cc::FileUtils>(cls);
 
@@ -981,6 +988,9 @@ bool js_register_engine_Vec2(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Vec2", obj, nullptr, _SE(js_engine_Vec2_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineProperty("x", _SE(js_engine_Vec2_get_x), _SE(js_engine_Vec2_set_x));
     cls->defineProperty("y", _SE(js_engine_Vec2_get_y), _SE(js_engine_Vec2_set_y));
     cls->defineFinalizeFunction(_SE(js_cc_Vec2_finalize));
@@ -1001,6 +1011,9 @@ bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("OSInterface", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->install();
     JSBClassType::registerClass<cc::OSInterface>(cls);
 
@@ -1039,6 +1052,9 @@ bool js_register_engine_ICanvasGradient(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("ICanvasGradient", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addColorStop", _SE(js_engine_ICanvasGradient_addColorStop));
     cls->install();
     JSBClassType::registerClass<cc::ICanvasGradient>(cls);
@@ -1782,6 +1798,9 @@ bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(rea
 {
     auto* cls = se::Class::create("ICanvasRenderingContext2D", obj, __jsb_cc_OSInterface_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineProperty("width", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setWidth_asSetter));
     cls->defineProperty("height", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setHeight_asSetter));
     cls->defineProperty("fillStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFillStyle_asSetter));
@@ -1849,6 +1868,9 @@ bool js_register_engine_CanvasGradient(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("CanvasGradient", obj, __jsb_cc_ICanvasGradient_proto, _SE(js_engine_CanvasGradient_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineFinalizeFunction(_SE(js_cc_CanvasGradient_finalize));
     cls->install();
     JSBClassType::registerClass<cc::CanvasGradient>(cls);
@@ -1890,6 +1912,9 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(read
 {
     auto* cls = se::Class::create("CanvasRenderingContext2D", obj, __jsb_cc_ICanvasRenderingContext2D_proto, _SE(js_engine_CanvasRenderingContext2D_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineFinalizeFunction(_SE(js_cc_CanvasRenderingContext2D_finalize));
     cls->install();
     JSBClassType::registerClass<cc::CanvasRenderingContext2D>(cls);
@@ -2095,6 +2120,9 @@ bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getBatteryLevel", _SE(js_engine_Device_getBatteryLevel_static));
     cls->defineStaticFunction("getDPI", _SE(js_engine_Device_getDPI_static));
     cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel_static));
@@ -2145,6 +2173,9 @@ bool js_register_engine_SAXParser(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("init", _SE(js_engine_SAXParser_init));
     cls->install();
     JSBClassType::registerClass<cc::SAXParser>(cls);
@@ -2348,6 +2379,9 @@ bool js_register_engine_Color(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Color", obj, nullptr, _SE(js_engine_Color_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineProperty("r", _SE(js_engine_Color_get_r), _SE(js_engine_Color_set_r));
     cls->defineProperty("g", _SE(js_engine_Color_get_g), _SE(js_engine_Color_set_g));
     cls->defineProperty("b", _SE(js_engine_Color_get_b), _SE(js_engine_Color_set_b));
@@ -2618,6 +2652,17 @@ static bool js_engine_CCObject_set__name(se::State& s) // NOLINT(readability-ide
     return true;
 }
 SE_BIND_PROP_SET(js_engine_CCObject_set__name)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_CCObject_finalize)
+
+static bool js_engine_CCObject_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CCObject);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_engine_CCObject_constructor, __jsb_cc_CCObject_class, js_cc_CCObject_finalize)
+
 static bool js_cc_CCObject_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -2626,15 +2671,18 @@ SE_BIND_FINALIZE_FUNC(js_cc_CCObject_finalize)
 
 bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("CCObject", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("CCObject", obj, nullptr, _SE(js_engine_CCObject_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_objFlags", _SE(js_engine_CCObject_get__objFlags), _SE(js_engine_CCObject_set__objFlags));
     cls->defineProperty("_name", _SE(js_engine_CCObject_get__name), _SE(js_engine_CCObject_set__name));
     cls->defineProperty("name", _SE(js_engine_CCObject_getName_asGetter), _SE(js_engine_CCObject_setName_asSetter));
     cls->defineProperty("hideFlags", _SE(js_engine_CCObject_getHideFlags_asGetter), _SE(js_engine_CCObject_setHideFlags_asSetter));
     cls->defineProperty("replicated", _SE(js_engine_CCObject_isReplicated_asGetter), _SE(js_engine_CCObject_setReplicated_asSetter));
     cls->defineProperty("isValid", _SE(js_engine_CCObject_isValid_asGetter), nullptr);
-    cls->defineFunction("destroy", _SE(js_engine_CCObject_destroy));
+    cls->defineFunction("_destroy", _SE(js_engine_CCObject_destroy));
     cls->defineFunction("_destroyImmediate", _SE(js_engine_CCObject_destroyImmediate));
     cls->defineFunction("toString", _SE(js_engine_CCObject_toString));
     cls->defineStaticFunction("deferredDestroy", _SE(js_engine_CCObject_deferredDestroy_static));
@@ -2644,6 +2692,78 @@ bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifi
 
     __jsb_cc_CCObject_proto = cls->getProto();
     __jsb_cc_CCObject_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_JSBNativeDataHolder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_JSBNativeDataHolder_class = nullptr;  // NOLINT
+
+static bool js_engine_JSBNativeDataHolder_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::JSBNativeDataHolder>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_JSBNativeDataHolder_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_JSBNativeDataHolder_destroy)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_JSBNativeDataHolder_finalize)
+
+static bool js_engine_JSBNativeDataHolder_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 1) {
+            HolderType<unsigned char*, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::JSBNativeDataHolder, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::JSBNativeDataHolder);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_engine_JSBNativeDataHolder_constructor, __jsb_cc_JSBNativeDataHolder_class, js_cc_JSBNativeDataHolder_finalize)
+
+static bool js_cc_JSBNativeDataHolder_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_JSBNativeDataHolder_finalize)
+
+bool js_register_engine_JSBNativeDataHolder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("JSBNativeDataHolder", obj, nullptr, _SE(js_engine_JSBNativeDataHolder_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("destroy", _SE(js_engine_JSBNativeDataHolder_destroy));
+    cls->defineFinalizeFunction(_SE(js_cc_JSBNativeDataHolder_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::JSBNativeDataHolder>(cls);
+
+    __jsb_cc_JSBNativeDataHolder_proto = cls->getProto();
+    __jsb_cc_JSBNativeDataHolder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -2670,6 +2790,7 @@ bool register_all_engine(se::Object* obj)    // NOLINT
     js_register_engine_Color(ns);
     js_register_engine_Device(ns);
     js_register_engine_FileUtils(ns);
+    js_register_engine_JSBNativeDataHolder(ns);
     js_register_engine_SAXParser(ns);
     js_register_engine_Vec2(ns);
     return true;

@@ -23,15 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { Address, Filter as GFXFilter, Format } from '../gfx';
 
 // define a specified number for the pixel format which gfx do not have a standard definition.
-let CUSTOM_PIXEL_FORMAT = 1024;
+const CUSTOM_PIXEL_FORMAT = 1024;
 
 /**
  * @en
@@ -131,7 +126,7 @@ export enum PixelFormat {
      * @zh 包含 RGBA 通道的 PVR 2BPP 压缩纹理格式
      * 这种压缩纹理格式贴图的高度是普通 RGB_PVRTC_2BPPV1 贴图高度的两倍，使用上半部分作为原始 RGB 通道数据，下半部分用来存储透明通道数据。
      */
-    RGB_A_PVRTC_2BPPV1 = CUSTOM_PIXEL_FORMAT++,
+    RGB_A_PVRTC_2BPPV1 = CUSTOM_PIXEL_FORMAT,
     /**
      * @en A pixel format containing red, green, and blue channels that is PVR 4bpp compressed.
      * @zh 包含 RGB 通道的 PVR 4BPP 压缩纹理格式
@@ -147,9 +142,9 @@ export enum PixelFormat {
      * RGB_A_PVRTC_4BPPV1 texture is a 2x height RGB_PVRTC_4BPPV1 format texture.
      * It separate the origin alpha channel to the bottom half atlas, the origin rgb channel to the top half atlas.
      * @zh 包含 RGBA 通道的 PVR 4BPP 压缩纹理格式
-     * 这种压缩纹理格式贴图的高度是普通 RGB_PVRTC_4BPPV1 贴图高度的两倍，使用上半部分作为原始 RGB 通道数据，下半部分用来存储透明通道数据。
+    * 这种压缩纹理格式贴图的高度是普通 RGB_PVRTC_4BPPV1 贴图高度的两倍，使用上半部分作为原始 RGB 通道数据，下半部分用来存储透明通道数据。
      */
-    RGB_A_PVRTC_4BPPV1 = CUSTOM_PIXEL_FORMAT++,
+    RGB_A_PVRTC_4BPPV1 = CUSTOM_PIXEL_FORMAT + 1,
     /**
      * @en A pixel format containing red, green, and blue channels that is ETC1 compressed.
      * @zh 包含 RGB 通道的 ETC1 压缩纹理格式
@@ -159,7 +154,7 @@ export enum PixelFormat {
      * @en A pixel format containing red, green, blue, and alpha channels that is ETC1 compressed.
      * @zh 包含 RGBA 通道的 ETC1 压缩纹理格式
      */
-    RGBA_ETC1 = CUSTOM_PIXEL_FORMAT++,
+    RGBA_ETC1 = CUSTOM_PIXEL_FORMAT + 2,
     /**
      * @en A pixel format containing red, green, and blue channels that is ETC2 compressed.
      * @zh 包含 RGB 通道的 ETC2 压缩纹理格式

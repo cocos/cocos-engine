@@ -71,10 +71,10 @@ static void deserializeArray(const rapidjson::Value &valArray, ccstd::vector<T> 
 static MacroRecord jsonToMacroRecord(const rapidjson::Value &embeddedMacrosVal) {
     MacroRecord cEmbeddedMacros;
     for (const auto &macro : embeddedMacrosVal.GetObject()) {
-        const auto *name  = macro.name.GetString();
+        const auto *name = macro.name.GetString();
         const auto &value = macro.value;
 
-        // using MacroValue = cc::variant<int32_t, float, bool, ccstd::string>;
+        // using MacroValue = ccstd::variant<int32_t, float, bool, ccstd::string>;
         // MacroValue only support one of int32_t, float, bool, ccstd::string
         if (value.IsInt()) {
             cEmbeddedMacros.emplace(name, value.GetInt());
@@ -100,9 +100,9 @@ static IPropertyHandleInfo jsonToPropertyHandleInfo(const rapidjson::Value &hand
     if (handleInfoVal.IsArray()) {
         // using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
         ccstd::string t0;
-        uint32_t      t1 = 0;
-        gfx::Type     t2 = gfx::Type::UNKNOWN;
-        int32_t       i  = 0;
+        uint32_t t1 = 0;
+        gfx::Type t2 = gfx::Type::UNKNOWN;
+        int32_t i = 0;
 
         for (const auto &e : handleInfoVal.GetArray()) {
             switch (i) {
@@ -158,8 +158,8 @@ static IPropertyInfo jsonToPropertyInfo(const rapidjson::Value &propertyInfoVal)
     }
 
     if (propertyInfoVal.HasMember("samplerHash")) {
-        ret.samplerHash = propertyInfoVal.GetUint64();
-        //        CC_LOG_DEBUG("samplerHash: %lu", ret.samplerHash.value());
+        ret.samplerHash = propertyInfoVal.GetUint();
+        //        CC_LOG_DEBUG("samplerHash: %u", ret.samplerHash.value());
     }
 
     return ret;
@@ -169,7 +169,7 @@ static PassPropertyInfoMap jsonToPassPropertyInfoMap(const rapidjson::Value &pro
     PassPropertyInfoMap propertyInfoMap;
 
     for (const auto &propertyVal : propertyInfoMapVal.GetObject()) {
-        const auto *name  = propertyVal.name.GetString();
+        const auto *name = propertyVal.name.GetString();
         const auto &value = propertyVal.value;
         propertyInfoMap.emplace(name, jsonToPropertyInfo(value));
     }
@@ -358,7 +358,7 @@ static void jsonToBlendTarget(const rapidjson::Value &val, BlendTargetInfo *outB
     }
 }
 
-static void deserializeGfxColor(const rapidjson::Value &color, cc::optional<gfx::Color> &gfxColor) {
+static void deserializeGfxColor(const rapidjson::Value &color, ccstd::optional<gfx::Color> &gfxColor) {
     if (gfxColor.has_value()) {
         if (color.HasMember("x")) {
             gfxColor->x = color["x"].GetFloat();
@@ -397,7 +397,7 @@ static BlendStateInfo jsonToBlendState(const rapidjson::Value &val) {
 
     if (val.HasMember("targets")) {
         if (val["targets"].IsArray()) {
-            const auto &        targetsVal = val["targets"].GetArray();
+            const auto &targetsVal = val["targets"].GetArray();
             BlendTargetInfoList targets;
             targets.resize(targetsVal.Size());
             int32_t i = 0;
@@ -549,7 +549,7 @@ static void deserializeShaderDefine(const rapidjson::Value &defineVal, IDefineIn
     }
 
     if (defineVal.HasMember("range")) {
-        auto &      cRange   = cDefine.range;
+        auto &cRange = cDefine.range;
         const auto &rangeVal = defineVal["range"];
 
         cRange = ccstd::vector<int32_t>{};
@@ -557,7 +557,7 @@ static void deserializeShaderDefine(const rapidjson::Value &defineVal, IDefineIn
     }
 
     if (defineVal.HasMember("options")) {
-        auto &      cOptions   = cDefine.options;
+        auto &cOptions = cDefine.options;
         const auto &optionsVal = defineVal["options"];
 
         cOptions = ccstd::vector<ccstd::string>{};
@@ -591,7 +591,7 @@ static void deserializeShaderBlock(const rapidjson::Value &blockVal, IBlockInfo 
     CC_ASSERT(blockVal.IsObject());
 
     if (blockVal.HasMember("binding")) {
-        cBlock.binding = blockVal["binding"].GetInt();
+        cBlock.binding = static_cast<uint32_t>(blockVal["binding"].GetUint());
     }
 
     if (blockVal.HasMember("name")) {
@@ -611,7 +611,7 @@ static void deserializeShaderSamplerTexture(const rapidjson::Value &samplerTextu
     CC_ASSERT(samplerTextureVal.IsObject());
 
     if (samplerTextureVal.HasMember("binding")) {
-        cSamplerTexture.binding = samplerTextureVal["binding"].GetInt();
+        cSamplerTexture.binding = static_cast<uint32_t>(samplerTextureVal["binding"].GetUint());
     }
 
     if (samplerTextureVal.HasMember("name")) {
@@ -639,7 +639,7 @@ static void deserializeShaderSampler(const rapidjson::Value &samplerVal, ISample
     }
 
     if (samplerVal.HasMember("binding")) {
-        cSampler.binding = samplerVal["binding"].GetInt();
+        cSampler.binding = static_cast<uint32_t>(samplerVal["binding"].GetUint());
     }
 
     if (samplerVal.HasMember("name")) {
@@ -663,7 +663,7 @@ static void deserializeShaderTexture(const rapidjson::Value &textureVal, ITextur
     }
 
     if (textureVal.HasMember("binding")) {
-        cTexture.binding = textureVal["binding"].GetInt();
+        cTexture.binding = static_cast<uint32_t>(textureVal["binding"].GetUint());
     }
 
     if (textureVal.HasMember("name")) {
@@ -687,7 +687,7 @@ static void deserializeShaderBuffer(const rapidjson::Value &bufferVal, IBufferIn
     CC_ASSERT(bufferVal.IsObject());
 
     if (bufferVal.HasMember("binding")) {
-        cBuffer.binding = bufferVal["binding"].GetInt();
+        cBuffer.binding = static_cast<uint32_t>(bufferVal["binding"].GetUint());
     }
 
     if (bufferVal.HasMember("name")) {
@@ -707,7 +707,7 @@ static void deserializeShaderImage(const rapidjson::Value &imageVal, IImageInfo 
     CC_ASSERT(imageVal.IsObject());
 
     if (imageVal.HasMember("binding")) {
-        cImage.binding = imageVal["binding"].GetInt();
+        cImage.binding = static_cast<uint32_t>(imageVal["binding"].GetUint());
     }
 
     if (imageVal.HasMember("name")) {
@@ -739,7 +739,7 @@ static void deserializeShaderInputAttachment(const rapidjson::Value &inputAttach
     }
 
     if (inputAttachmentVal.HasMember("binding")) {
-        cInputAttachment.binding = inputAttachmentVal["binding"].GetInt();
+        cInputAttachment.binding = static_cast<uint32_t>(inputAttachmentVal["binding"].GetUint());
     }
 
     if (inputAttachmentVal.HasMember("name")) {
@@ -775,7 +775,7 @@ static void deserializeShaderAttribute(const rapidjson::Value &gfxAttributeVal, 
     }
 
     if (gfxAttributeVal.HasMember("isInstanced")) {
-        cAttribute.isNormalized = gfxAttributeVal["isInstanced"].GetBool();
+        cAttribute.isInstanced = gfxAttributeVal["isInstanced"].GetBool();
     }
 
     if (gfxAttributeVal.HasMember("location")) {
@@ -796,7 +796,7 @@ static void deserializeShader(const rapidjson::Value &shaderVal, IShaderInfo &cS
     CC_ASSERT(shaderVal.IsObject());
 
     cShader.name = shaderVal["name"].GetString();
-    cShader.hash = shaderVal["hash"].GetUint64();
+    cShader.hash = shaderVal["hash"].GetUint();
     //NOTE: glsl1, glsl3, glsl4 are not initialized here
 
     deserializeShaderBuiltins(shaderVal["builtins"], cShader.builtins);

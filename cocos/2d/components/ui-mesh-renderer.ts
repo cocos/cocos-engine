@@ -24,13 +24,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
-import { RenderableComponent } from '../../core/components/renderable-component';
+import { ModelRenderer } from '../../core/components/model-renderer';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
 import { Stage } from '../renderer/stencil-manager';
@@ -41,11 +36,11 @@ import { legacyCC } from '../../core/global-exports';
  * @en
  * The component of model.
  * When you place particles or models in the UI, you must add this component to render.
- * The component must be placed on a node with the [[MeshRenderer]] or the [[Particle]].
+ * The component must be placed on a node with the [[MeshRenderer]] or the [[ParticleSystem]].
  *
  * @zh
  * UI 模型基础组件。
- * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[MeshRenderer]] 或者 [[Particle]] 组件的节点上。
+ * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[MeshRenderer]] 或者 [[ParticleSystem]] 组件的节点上。
  */
 @ccclass('cc.UIMeshRenderer')
 @help('i18n:cc.UIMeshRenderer')
@@ -57,7 +52,7 @@ export class UIMeshRenderer extends Component {
         return this._modelComponent;
     }
 
-    private _modelComponent: RenderableComponent | null = null;
+    private _modelComponent: ModelRenderer | null = null;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -68,7 +63,7 @@ export class UIMeshRenderer extends Component {
             this.node.addComponent('cc.UITransform');
         }
 
-        this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
+        this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
             console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
         }
@@ -78,7 +73,7 @@ export class UIMeshRenderer extends Component {
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
-        this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
+        this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
             return;
         }

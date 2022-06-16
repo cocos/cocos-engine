@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Node, Quat, Vec3 } from '../../core';
 import { PhysXRigidBody } from './physx-rigid-body';

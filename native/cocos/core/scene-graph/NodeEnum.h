@@ -34,12 +34,12 @@ enum class NodeSpace {
 };
 
 enum class TransformBit : uint32_t {
-    NONE     = 0,
+    NONE = 0,
     POSITION = (1 << 0),
     ROTATION = (1 << 1),
-    SCALE    = (1 << 2),
-    RS       = ROTATION | SCALE,
-    TRS      = POSITION | ROTATION | SCALE,
+    SCALE = (1 << 2),
+    RS = ROTATION | SCALE,
+    TRS = POSITION | ROTATION | SCALE,
     TRS_MASK = ~TRS,
 };
 CC_ENUM_BITWISE_OPERATORS(TransformBit);

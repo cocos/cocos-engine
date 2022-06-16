@@ -23,13 +23,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
-import { Renderable2D } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 import { IBatcher } from '../renderer/i-batcher';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';
@@ -54,7 +49,7 @@ import { StaticVBAccessor } from '../renderer/static-vb-accessor';
 @help('i18n:cc.UIStaticBatch')
 @menu('2D/UIStaticBatch')
 @executionOrder(110)
-export class UIStaticBatch extends Renderable2D {
+export class UIStaticBatch extends UIRenderer {
     @override
     @visible(false)
     get color (): Readonly<Color> {

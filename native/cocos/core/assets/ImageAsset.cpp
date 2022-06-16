@@ -37,26 +37,26 @@ ImageAsset::~ImageAsset() {
     }
 }
 
-void ImageAsset::setNativeAsset(const cc::any &obj) {
+void ImageAsset::setNativeAsset(const ccstd::any &obj) {
     if (obj.has_value()) {
-        auto **pImage = const_cast<Image **>(cc::any_cast<Image *>(&obj));
+        auto **pImage = const_cast<Image **>(ccstd::any_cast<Image *>(&obj));
         if (pImage != nullptr) {
             Image *image = *pImage;
             image->takeData(&_data);
             _needFreeData = true;
 
-            _width  = image->getWidth();
+            _width = image->getWidth();
             _height = image->getHeight();
             _format = static_cast<PixelFormat>(image->getRenderFormat());
-            _url    = image->getFilePath();
+            _url = image->getFilePath();
         } else {
-            const auto *imageSource = cc::any_cast<IMemoryImageSource>(&obj);
+            const auto *imageSource = ccstd::any_cast<IMemoryImageSource>(&obj);
             if (imageSource != nullptr) {
                 _arrayBuffer = imageSource->data;
-                _data        = const_cast<uint8_t *>(_arrayBuffer->getData());
-                _width       = imageSource->width;
-                _height      = imageSource->height;
-                _format      = imageSource->format;
+                _data = const_cast<uint8_t *>(_arrayBuffer->getData());
+                _width = imageSource->width;
+                _height = imageSource->height;
+                _format = imageSource->format;
             } else {
                 CC_LOG_WARNING("ImageAsset::setNativeAsset, unknown type!");
             }
@@ -84,7 +84,7 @@ bool ImageAsset::isCompressed() const {
     return (_format >= PixelFormat::RGB_ETC1 && _format <= PixelFormat::RGBA_ASTC_12X12) || (_format >= PixelFormat::RGB_A_PVRTC_2BPPV1 && _format <= PixelFormat::RGBA_ETC1);
 }
 
-ccstd::string ImageAsset::getUrl() const {
+const ccstd::string &ImageAsset::getUrl() const {
     return _url;
 }
 

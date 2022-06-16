@@ -44,10 +44,10 @@ public:
     }
 
     template <typename Function, typename... Args>
-    auto lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
+    auto lockRead(Function &&func, Args &&... args) noexcept -> decltype(func(std::forward<Args>(args)...));
 
     template <typename Function, typename... Args>
-    auto lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
+    auto lockWrite(Function &&func, Args &&... args) noexcept -> decltype(func(std::forward<Args>(args)...));
 
 private:
     uv_rwlock_t _lock;
@@ -62,7 +62,7 @@ private:
 };
 
 template <typename Function, typename... Args>
-auto ReadWriteLock::lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
+auto ReadWriteLock::lockRead(Function &&func, Args &&... args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
     uv_rwlock_rdlock(&_lock);
     auto defer = Defer([&]() {
         uv_rwlock_rdunlock(&_lock);
@@ -71,7 +71,7 @@ auto ReadWriteLock::lockRead(Function &&func, Args &&...args) noexcept -> declty
 }
 
 template <typename Function, typename... Args>
-auto ReadWriteLock::lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
+auto ReadWriteLock::lockWrite(Function &&func, Args &&... args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
     uv_rwlock_wrlock(&_lock);
     auto defer = Defer([&]() {
         uv_rwlock_wrunlock(&_lock);

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import { GFXObject, ObjectType, SurfaceTransform, SwapchainInfo } from './define';
 import { Texture } from './texture';
 

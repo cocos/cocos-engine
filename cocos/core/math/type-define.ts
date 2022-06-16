@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 export interface IColorLike {
     r: number;
     g: number;

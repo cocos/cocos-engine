@@ -29,7 +29,7 @@
 
 #import <OpenAL/alc.h>
 #import <AVFoundation/AVFoundation.h>
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     #import <UIKit/UIApplication.h>
 #endif
 
@@ -61,7 +61,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
     return AL_INVALID_VALUE;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
 @interface AudioEngineSessionHandler : NSObject {
 }
 
@@ -72,8 +72,6 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
 
 @implementation AudioEngineSessionHandler
 
-    // only enable it on iOS. Disable it on tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
 void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruption_state) {
     if (kAudioSessionBeginInterruption == interruption_state) {
         alcMakeContextCurrent(nullptr);
@@ -84,7 +82,6 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         alcMakeContextCurrent(s_ALContext);
     }
 }
-    #endif
 
 - (id)init {
     if (self = [super init]) {
@@ -93,16 +90,12 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
         }
-        // only enable it on iOS. Disable it on tvOS
-        // AudioSessionInitialize removed from tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
         else {
             AudioSessionInitialize(NULL, NULL, AudioEngineInterruptionListenerCallback, self);
         }
-    #endif
 
         BOOL success = [[AVAudioSession sharedInstance]
-            setCategory:AVAudioSessionCategoryAmbient
+            setCategory:AVAudioSessionCategoryPlayback
                   error:nil];
         if (!success)
             ALOGE("Fail to set audio session.");
@@ -152,15 +145,14 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             resumeOnBecomingActive = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
-            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
             if (!success) {
                 ALOGE("Fail to set audio session.");
                 return;
             }
             [[AVAudioSession sharedInstance] setActive:YES error:&error];
             alcMakeContextCurrent(s_ALContext);
-        }
-        else if (isAudioSessionInterrupted) {
+        } else if (isAudioSessionInterrupted) {
             isAudioSessionInterrupted = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
@@ -228,7 +220,7 @@ AudioEngineImpl::~AudioEngineImpl() {
         alcCloseDevice(s_ALDevice);
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     [s_AudioEngineSessionHandler release];
 #endif
     s_instance = nullptr;
@@ -237,7 +229,7 @@ AudioEngineImpl::~AudioEngineImpl() {
 bool AudioEngineImpl::init() {
     bool ret = false;
     do {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
         s_AudioEngineSessionHandler = [[AudioEngineSessionHandler alloc] init];
 #endif
 
@@ -403,14 +395,10 @@ void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
     if (!*cache->_isDestroyed && cache->_state == AudioCache::State::READY) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
-        if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
-            if (auto sche = _scheduler.lock()) {
-                sche->performFunctionInCocosThread([audioID]() {
-                    if (AudioEngine::sAudioIDInfoMap.find(audioID) != AudioEngine::sAudioIDInfoMap.end()) {
-                        AudioEngine::sAudioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
-                    }
-                });
-            }
+        if (playerIt != _audioPlayers.end()) {
+            // Trust it, or assert it out.
+            bool res = playerIt->second->play2d();
+            CC_ASSERT(res);
         }
         _threadMutex.unlock();
     } else {
@@ -635,7 +623,6 @@ void AudioEngineImpl::update(float dt) {
             delete player;
             _unusedSourcesPool.push_back(alSource);
         } else if (player->_ready && sourceState == AL_STOPPED) {
-
             ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];

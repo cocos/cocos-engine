@@ -24,13 +24,7 @@
 */
 import { ccclass, override } from 'cc.decorator';
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
-import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
+import { Format, FormatFeatureBit } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
 import { warnID } from '../platform';
@@ -130,6 +124,18 @@ imageAssetProto.reset = function (data: ImageSource) {
     this._syncDataToNative();
 };
 
+const superDestroy = jsb.Asset.prototype.destroy;
+imageAssetProto.destroy = function () {
+    if(this.data && this.data instanceof HTMLImageElement) {
+        this.data.src = '';
+        this._setRawAsset('');
+        this.data.destroy();
+    } else if (isImageBitmap(this.data)) {
+        this.data.close && this.data.close();
+    }
+    return superDestroy.call(this);
+};
+
 Object.defineProperty(imageAssetProto, 'width', {
     configurable: true,
     enumerable: true,
@@ -153,7 +159,7 @@ imageAssetProto._syncDataToNative = function () {
 
     this.setWidth(this._width);
     this.setHeight(this._height);
-    this.setUrl(this.nativeUrl);
+    this.url = this.nativeUrl;
 
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);
@@ -249,12 +255,10 @@ imageAssetProto._deserialize = function (data: any) {
     }
 };
 
-const clsDecorator = ccclass('cc.ImageAsset');
-
-const _class2$a = ImageAsset;
-
-// cjh FIXME:  _applyDecoratedDescriptor(_class2$a.prototype, '_nativeAsset', [override], Object.getOwnPropertyDescriptor(_class2$a.prototype, '_nativeAsset'), _class2$a.prototype);
-
-clsDecorator(ImageAsset);
-
 legacyCC.ImageAsset = jsb.ImageAsset;
+
+// handle meta data, it is generated automatically
+const ImageAssetProto = ImageAsset.prototype;
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(ImageAssetProto, '_nativeAsset');
+override(ImageAssetProto, '_nativeAsset', _nativeAssetDescriptor);
+ccclass('cc.ImageAsset')(ImageAsset);

@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include "3d/assets/Mesh.h"
-#include "cocos/base/Variant.h"
+#include "base/std/variant.h"
 #include "primitive/Box.h"
 #include "primitive/Capsule.h"
 #include "primitive/Circle.h"
@@ -41,16 +41,16 @@
 #include "primitive/PrimitiveDefine.h"
 namespace cc {
 
-using PrimitiveOptions = cc::variant<IGeometryOptions, IBoxOptions, ICapsuleOptions, ICircleOptions, ICylinderOptions, IConeOptions, IPlaneOptions, ISphereOptions, ITorusOptions>;
+using PrimitiveOptions = ccstd::variant<IGeometryOptions, IBoxOptions, ICapsuleOptions, ICircleOptions, ICylinderOptions, IConeOptions, IPlaneOptions, ISphereOptions, ITorusOptions>;
 enum class PrimitiveType {
-    BOX      = 0,
-    SPHERE   = 1,
+    BOX = 0,
+    SPHERE = 1,
     CYLINDER = 2,
-    CONE     = 3,
-    CAPSULE  = 4,
-    TORUS    = 5,
-    PLANE    = 6,
-    QUAD     = 7,
+    CONE = 3,
+    CAPSULE = 4,
+    TORUS = 5,
+    PLANE = 6,
+    QUAD = 7,
 };
 
 /**
@@ -94,6 +94,6 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Primitive);
 };
 
-IGeometry createGeometry(PrimitiveType type, const cc::optional<PrimitiveOptions> &options = cc::nullopt);
+IGeometry createGeometry(PrimitiveType type, const ccstd::optional<PrimitiveOptions> &options = ccstd::nullopt);
 
 } // namespace cc

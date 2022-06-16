@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_video_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_video_getter_return_true)
+#endif
 se::Object* __jsb_cc_VideoPlayer_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_VideoPlayer_class = nullptr;  // NOLINT
 
@@ -79,6 +88,21 @@ static bool js_video_VideoPlayer_currentTime(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_video_VideoPlayer_currentTime)
+
+static bool js_video_VideoPlayer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
+    SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_video_VideoPlayer_destroy)
 
 static bool js_video_VideoPlayer_duration(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -317,24 +341,17 @@ static bool js_cc_VideoPlayer_finalize(se::State& s) // NOLINT(readability-ident
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_VideoPlayer_finalize)
-static bool js_cc_VideoPlayer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto objIter = se::NativePtrToObjectMap::find(SE_THIS_OBJECT<cc::VideoPlayer>(s));
-    if(objIter != se::NativePtrToObjectMap::end())
-    {
-        objIter->second->clearPrivateData(true);
-        objIter->second->decRef();
-    }
-    return true;
-}
-SE_BIND_FUNC(js_cc_VideoPlayer_destroy)
 
 bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("VideoPlayer", obj, nullptr, _SE(js_video_VideoPlayer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_video_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addEventListener", _SE(js_video_VideoPlayer_addEventListener));
     cls->defineFunction("currentTime", _SE(js_video_VideoPlayer_currentTime));
+    cls->defineFunction("destroy", _SE(js_video_VideoPlayer_destroy));
     cls->defineFunction("duration", _SE(js_video_VideoPlayer_duration));
     cls->defineFunction("isKeepAspectRatioEnabled", _SE(js_video_VideoPlayer_isKeepAspectRatioEnabled));
     cls->defineFunction("onPlayEvent", _SE(js_video_VideoPlayer_onPlayEvent));
@@ -347,7 +364,6 @@ bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("setURL", _SE(js_video_VideoPlayer_setURL));
     cls->defineFunction("setVisible", _SE(js_video_VideoPlayer_setVisible));
     cls->defineFunction("stop", _SE(js_video_VideoPlayer_stop));
-    cls->defineFunction("destroy", _SE(js_cc_VideoPlayer_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_VideoPlayer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::VideoPlayer>(cls);

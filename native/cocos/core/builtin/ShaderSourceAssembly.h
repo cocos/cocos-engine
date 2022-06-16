@@ -31,8 +31,8 @@
 #include "base/std/container/vector.h"
 namespace cc {
 
-using ShaderInfo      = ccstd::unordered_map<ccstd::string, GzipedString>;
-using ShaderSource    = ccstd::vector<ccstd::vector<ShaderInfo>>;
+using ShaderInfo = ccstd::unordered_map<ccstd::string, GzipedString>;
+using ShaderSource = ccstd::vector<ccstd::vector<ShaderInfo>>;
 using ShaderSourceMap = ccstd::unordered_map<ccstd::string, const ShaderSource *>;
 
 class ShaderSourceAssembly final {

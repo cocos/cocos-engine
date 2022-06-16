@@ -34,9 +34,9 @@ THE SOFTWARE.
 
 namespace {
 
-std::mutex                          __playerContainerMutex;
+std::mutex __playerContainerMutex;
 ccstd::vector<cc::UrlAudioPlayer *> __playerContainer;
-std::once_flag                      __onceFlag;
+std::once_flag __onceFlag;
 
 } // namespace
 
@@ -48,7 +48,7 @@ public:
         UrlAudioPlayer *thiz = (UrlAudioPlayer *)context;
         // We must use a mutex for the whole block of the following function invocation.
         std::lock_guard<std::mutex> lk(__playerContainerMutex);
-        auto                        iter = std::find(__playerContainer.begin(), __playerContainer.end(), thiz);
+        auto iter = std::find(__playerContainer.begin(), __playerContainer.end(), thiz);
         if (iter != __playerContainer.end()) {
             thiz->playEventCallback(caller, playEvent);
         }
@@ -200,7 +200,7 @@ float UrlAudioPlayer::getVolume() const {
 
 void UrlAudioPlayer::setAudioFocus(bool isFocus) {
     _isAudioFocus = isFocus;
-    float volume  = _isAudioFocus ? _volume : 0.0f;
+    float volume = _isAudioFocus ? _volume : 0.0f;
     setVolumeToSLPlayer(volume);
 }
 
@@ -210,7 +210,7 @@ float UrlAudioPlayer::getDuration() const {
     }
 
     SLmillisecond duration;
-    SLresult      r = (*_playItf)->GetDuration(_playItf, &duration);
+    SLresult r = (*_playItf)->GetDuration(_playItf, &duration);
     SL_RETURN_VAL_IF_FAILED(r, 0.0f, "UrlAudioPlayer::getDuration failed");
 
     if (duration == SL_TIME_UNKNOWN) {
@@ -227,21 +227,21 @@ float UrlAudioPlayer::getDuration() const {
 
 float UrlAudioPlayer::getPosition() const {
     SLmillisecond millisecond;
-    SLresult      r = (*_playItf)->GetPosition(_playItf, &millisecond);
+    SLresult r = (*_playItf)->GetPosition(_playItf, &millisecond);
     SL_RETURN_VAL_IF_FAILED(r, 0.0f, "UrlAudioPlayer::getPosition failed");
     return millisecond / 1000.0f;
 }
 
 bool UrlAudioPlayer::setPosition(float pos) {
     SLmillisecond millisecond = 1000.0f * pos;
-    SLresult      r           = (*_seekItf)->SetPosition(_seekItf, millisecond, SL_SEEKMODE_ACCURATE);
+    SLresult r = (*_seekItf)->SetPosition(_seekItf, millisecond, SL_SEEKMODE_ACCURATE);
     SL_RETURN_VAL_IF_FAILED(r, false, "UrlAudioPlayer::setPosition %f failed", pos);
     return true;
 }
 
 bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start,
                              int length) {
-    _url     = url;
+    _url = url;
     _assetFd = assetFd;
 
     const char *locatorTypeStr = "UNKNOWN";
@@ -259,7 +259,7 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
     SLDataSource audioSrc;
 
     SLDataFormat_MIME formatMime = {SL_DATAFORMAT_MIME, nullptr, SL_CONTAINERTYPE_UNSPECIFIED};
-    audioSrc.pFormat             = &formatMime;
+    audioSrc.pFormat = &formatMime;
 
     //Note: locFd & locUri should be outside of the following if/else block
     // Although locFd & locUri are only used inside if/else block, its lifecycle
@@ -268,24 +268,24 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
     // while invoking Engine::createAudioPlayer interface. So be care of change the position
     // of these two variables.
     SLDataLocator_AndroidFD locFd;
-    SLDataLocator_URI       locUri;
+    SLDataLocator_URI locUri;
 
     if (locatorType == SL_DATALOCATOR_ANDROIDFD) {
-        locFd             = {locatorType, _assetFd->getFd(), start, length};
+        locFd = {locatorType, _assetFd->getFd(), start, length};
         audioSrc.pLocator = &locFd;
     } else if (locatorType == SL_DATALOCATOR_URI) {
-        locUri            = {locatorType, (SLchar *)_url.c_str()};
+        locUri = {locatorType, (SLchar *)_url.c_str()};
         audioSrc.pLocator = &locUri;
         ALOGV("locUri: locatorType: %d", (int)locUri.locatorType);
     }
 
     // configure audio sink
     SLDataLocator_OutputMix locOutmix = {SL_DATALOCATOR_OUTPUTMIX, _outputMixObj};
-    SLDataSink              audioSnk  = {&locOutmix, nullptr};
+    SLDataSink audioSnk = {&locOutmix, nullptr};
 
     // create audio player
     const SLInterfaceID ids[3] = {SL_IID_SEEK, SL_IID_PREFETCHSTATUS, SL_IID_VOLUME};
-    const SLboolean     req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     SLresult result = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &audioSrc, &audioSnk, 3, ids, req);
     SL_RETURN_VAL_IF_FAILED(result, false, "CreateAudioPlayer failed");
@@ -328,7 +328,7 @@ void UrlAudioPlayer::setLoop(bool isLoop) {
     _isLoop = isLoop;
 
     SLboolean loopEnable = _isLoop ? SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE;
-    SLresult  r          = (*_seekItf)->SetLoop(_seekItf, loopEnable, 0, SL_TIME_UNKNOWN);
+    SLresult r = (*_seekItf)->SetLoop(_seekItf, loopEnable, 0, SL_TIME_UNKNOWN);
     SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::setLoop %d failed", _isLoop ? 1 : 0);
 }
 

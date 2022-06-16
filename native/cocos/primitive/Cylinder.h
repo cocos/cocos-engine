@@ -38,8 +38,8 @@ namespace cc {
 struct ICylinderOptions : public IGeometryOptions {
     uint32_t radialSegments{32};
     uint32_t heightSegments{1};
-    bool     capped{true};
-    float    arc{math::PI_2};
+    bool capped{true};
+    float arc{math::PI_2};
 };
 
 /**
@@ -51,6 +51,6 @@ struct ICylinderOptions : public IGeometryOptions {
  * @param options 参数选项。
  */
 
-IGeometry cylinder(float radiusTop = 0.5, float radiusBottom = 0.5, float height = 2, const cc::optional<ICylinderOptions> &opts = cc::nullopt);
+IGeometry cylinder(float radiusTop = 0.5, float radiusBottom = 0.5, float height = 2, const ccstd::optional<ICylinderOptions> &opts = ccstd::nullopt);
 
 } // namespace cc

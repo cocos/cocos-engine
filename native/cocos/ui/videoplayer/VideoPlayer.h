@@ -50,7 +50,7 @@ namespace cc {
  * It's mean VideoPlayer displays a video file above all graphical elements of cocos2d-x.
  * @js NA
  */
-class VideoPlayer : public RefCounted {
+class VideoPlayer final {
 public:
     /**
      * Videoplayer play event type.
@@ -66,6 +66,12 @@ public:
     };
 
     VideoPlayer();
+    ~VideoPlayer();
+
+    /**
+     * Destroy VideoPlayer, remove it from parent
+     */
+    void destroy();
 
     /**
      * A callback which will be called after specific VideoPlayer event happens.
@@ -151,8 +157,6 @@ public:
     virtual void setFrame(float x, float y, float width, float height);
 
 protected:
-    ~VideoPlayer() override;
-
     enum class Source {
         FILENAME = 0,
         URL
@@ -164,9 +168,9 @@ protected:
     bool _keepAspectRatioEnabled;
 
     ccstd::string _videoURL;
-    Source        _videoSource;
+    Source _videoSource;
 
-    int                                                        _videoPlayerIndex;
+    int _videoPlayerIndex;
     ccstd::unordered_map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;

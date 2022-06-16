@@ -48,7 +48,7 @@
 using namespace cc; //NOLINT
 
 se::Object *__jsbObj = nullptr; //NOLINT
-se::Object *__glObj  = nullptr; //NOLINT
+se::Object *__glObj = nullptr;  //NOLINT
 
 static std::basic_string<unsigned char> xxteaKey;
 
@@ -68,10 +68,10 @@ static ccstd::string removeFileExt(const ccstd::string &filePath) {
 
 static int selectPort(int port) {
     struct sockaddr_in addr;
-    static uv_tcp_t    server;
-    uv_loop_t          loop;
+    static uv_tcp_t server;
+    uv_loop_t loop;
     uv_loop_init(&loop);
-    int tryTimes  = 200;
+    int tryTimes = 200;
     int startPort = port;
     while (tryTimes-- > 0) {
         uv_tcp_init(&loop, &server);
@@ -104,7 +104,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
                 uint32_t dataLen = 0;
-                uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
+                uint8_t *data = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
                                               const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 
@@ -197,6 +197,9 @@ void jsb_init_file_operation_delegate() { //NOLINT
         CC_ASSERT(delegate.isValid());
 
         se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+    } else {
+        // Games may be restarted in the same process and run in different threads. Android may restart from recent task list.
+        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
     }
 }
 
@@ -208,6 +211,17 @@ bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port,
     port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
 
     auto *se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    if (se != nullptr) {
+        se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    } else {
+        // NOTE: jsb_enable_debugger may be invoked before se::ScriptEngine is initialized,
+        // So cache the debugger information in global and use it in se::ScriptEngine::start.
+        // This strategy keeps the compatibility of se::ScriptEngine::enableDebugger.
+        se::ScriptEngine::DebuggerInfo debuggerInfo;
+        debuggerInfo.serverAddr = debuggerServerAddr;
+        debuggerInfo.port = port;
+        debuggerInfo.isWait = isWaitForConnect;
+        se::ScriptEngine::_setDebuggerInfo(debuggerInfo);
+    }
     return true;
 }

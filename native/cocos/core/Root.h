@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -45,8 +45,18 @@ class Device;
 } // namespace gfx
 namespace render {
 class PipelineRuntime;
+class Pipeline;
 } // namespace render
 class CallbacksInvoker;
+
+
+struct CC_DLL DebugViewConfig {
+    uint8_t singleMode;
+    uint8_t compositeModeBitCount;
+    uint32_t compositeModeValue;
+    bool lightingWithAlbedo;
+    bool csmLayerColoration;
+};
 
 class Root final {
 public:
@@ -155,7 +165,7 @@ public:
      * GFX 设备
      */
     inline gfx::Device *getDevice() const { return _device; }
-    inline void         setDevice(gfx::Device *device) { _device = device; }
+    inline void setDevice(gfx::Device *device) { _device = device; }
 
     /**
      * @zh
@@ -199,6 +209,12 @@ public:
 
     /**
      * @zh
+     * 自定义渲染管线
+     */
+    render::Pipeline *getCustomPipeline() const;
+
+    /**
+     * @zh
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
@@ -209,6 +225,13 @@ public:
      * 场景列表
      */
     inline const ccstd::vector<IntrusivePtr<scene::RenderScene>> &getScenes() const { return _scenes; }
+
+    /**
+     * @zh
+     * 渲染调试数据
+     */
+    inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config; }
+    inline const DebugViewConfig &getDebugViewConfig() const { return _debugViewConfig; }
 
     /**
      * @zh
@@ -249,29 +272,30 @@ public:
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
 private:
-    gfx::Device *                                    _device{nullptr};
-    gfx::Swapchain *                                 _swapchain{nullptr};
-    IntrusivePtr<scene::RenderWindow>                _mainWindow;
-    IntrusivePtr<scene::RenderWindow>                _curWindow;
-    IntrusivePtr<scene::RenderWindow>                _tempWindow;
+    gfx::Device *_device{nullptr};
+    gfx::Swapchain *_swapchain{nullptr};
+    IntrusivePtr<scene::RenderWindow> _mainWindow;
+    IntrusivePtr<scene::RenderWindow> _curWindow;
+    IntrusivePtr<scene::RenderWindow> _tempWindow;
     ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
-    IntrusivePtr<pipeline::RenderPipeline>           _pipeline{nullptr};
-    std::unique_ptr<render::PipelineRuntime>         _pipelineRuntime;
-    scene::DrawBatch2D *                             _batcher2D{nullptr};
+    IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};
+    std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
+    scene::DrawBatch2D *_batcher2D{nullptr};
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
-    float                                           _cumulativeTime{0.F};
-    float                                           _frameTime{0.F};
-    float                                           _fpsTime{0.F};
-    uint32_t                                        _frameCount{0};
-    uint32_t                                        _fps{0};
-    uint32_t                                        _fixedFPS{0};
-    bool                                            _useDeferredPipeline{false};
-    bool                                            _usesCustomPipeline{false};
-    CallbacksInvoker *                              _eventProcessor{nullptr};
+    DebugViewConfig _debugViewConfig;
+    float _cumulativeTime{0.F};
+    float _frameTime{0.F};
+    float _fpsTime{0.F};
+    uint32_t _frameCount{0};
+    uint32_t _fps{0};
+    uint32_t _fixedFPS{0};
+    bool _useDeferredPipeline{false};
+    bool _usesCustomPipeline{false};
+    CallbacksInvoker *_eventProcessor{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
-    ccstd::vector<scene::Camera *>  _cameraList;
+    ccstd::vector<scene::Camera *> _cameraList;
     ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };

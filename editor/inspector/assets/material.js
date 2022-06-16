@@ -5,7 +5,7 @@ const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = re
 const { join, sep, normalize } = require('path');
 
 exports.style = `
-ui-button.location { flex: none; margin-left: 6px; }
+ui-button.location { flex: none; margin-left: 4px; }
 `;
 
 exports.template = /* html */ `
@@ -192,7 +192,11 @@ exports.methods = {
             return;
         }
 
-        this.useCache();
+        if (this.requestInitCache) {
+            this.initCache();
+        } else {
+            this.useCache();
+        }
 
         if (technique.passes) {
             // The interface is not a regular data loop, which needs to be completely cleared and placed, but the UI-prop element is still reusable
@@ -349,6 +353,57 @@ exports.methods = {
         Editor.Message.broadcast('material-inspector:change-dump');
     },
 
+    initCache() {
+        const excludeNames = [
+            'children',
+            'defines',
+            'extends',
+            'pipelineStates',
+        ];
+
+        const cacheData = this.cacheData;
+        this.technique.passes.forEach((pass, i) => {
+            if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
+                return;
+            }
+
+            cacheProperty(pass.value);
+        });
+
+        function cacheProperty(prop) {
+            for (const name in prop) {
+                // 这些字段是基础类型或配置性的数据，不需要变动
+                if (excludeNames.includes(name)) {
+                    continue;
+                }
+
+                if (prop[name] && typeof prop[name] === 'object') {
+                    if (!(name in cacheData)) {
+                        const { type, value } = prop[name];
+                        if (type) {
+                            if (value !== undefined) {
+                                cacheData[name] = { type };
+                                if (value && typeof value === 'object') {
+                                    cacheData[name].value = JSON.parse(JSON.stringify(value));
+                                } else {
+                                    cacheData[name].value = value;
+                                }
+                            }
+                        }
+                    }
+
+                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                        cacheProperty(prop[name].childMap);
+                    }
+                }
+            }
+        }
+
+        this.requestInitCache = false;
+        this.updateInstancing();
+        this.updatePreview();
+    },
+
     storeCache(dump) {
         const { name, type, value, default: defaultValue } = dump;
 
@@ -417,7 +472,9 @@ exports.update = async function(assetList, metaList) {
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
+        this.dirtyData.realtime = '';
         this.cacheData = {};
+        this.requestInitCache = true;
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);

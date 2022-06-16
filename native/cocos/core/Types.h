@@ -28,7 +28,7 @@
 #include <utility>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include <cstdint>
 
@@ -39,10 +39,8 @@
 namespace cc {
 
 struct Error {
-    cc::optional<ccstd::string> msg;
+    ccstd::optional<ccstd::string> msg;
 };
-
-using HTMLElement = void *;
 
 struct BoundingBox {
     Vec3 min;
@@ -57,7 +55,7 @@ struct VertexIdChannel {
 struct NativeDep {
     ccstd::string uuid;
     ccstd::string ext;
-    bool          __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
+    bool __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
 
     explicit NativeDep() = default;
 

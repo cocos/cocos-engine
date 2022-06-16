@@ -57,7 +57,7 @@ public:
     void setupTimerWithInterval(float seconds, unsigned int repeat, float delay);
 
     virtual void trigger(float dt) = 0;
-    virtual void cancel()          = 0;
+    virtual void cancel() = 0;
 
     /** triggers the timer */
     void update(float dt);
@@ -65,14 +65,14 @@ public:
 protected:
     Timer() = default;
 
-    Scheduler *  _scheduler     = nullptr;
-    float        _elapsed       = 0.F;
-    bool         _runForever    = false;
-    bool         _useDelay      = false;
+    Scheduler *_scheduler = nullptr;
+    float _elapsed = 0.F;
+    bool _runForever = false;
+    bool _useDelay = false;
     unsigned int _timesExecuted = 0;
-    unsigned int _repeat        = 0; //0 = once, 1 is 2 x executed
-    float        _delay         = 0.F;
-    float        _interval      = 0.F;
+    unsigned int _repeat = 0; //0 = once, 1 is 2 x executed
+    float _delay = 0.F;
+    float _interval = 0.F;
 };
 
 class CC_DLL TimerTargetCallback final : public Timer {
@@ -83,15 +83,15 @@ public:
     bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay);
 
     inline const ccSchedulerFunc &getCallback() const { return _callback; };
-    inline const ccstd::string &  getKey() const { return _key; };
+    inline const ccstd::string &getKey() const { return _key; };
 
     void trigger(float dt) override;
     void cancel() override;
 
 private:
-    void *          _target   = nullptr;
+    void *_target = nullptr;
     ccSchedulerFunc _callback = nullptr;
-    ccstd::string   _key;
+    ccstd::string _key;
 };
 
 /**
@@ -276,11 +276,11 @@ private:
     // Hash Element used for "selectors with interval"
     struct HashTimerEntry {
         ccstd::vector<Timer *> timers;
-        void *                 target;
-        int                    timerIndex;
-        Timer *                currentTimer;
-        bool                   currentTimerSalvaged;
-        bool                   paused;
+        void *target;
+        int timerIndex;
+        Timer *currentTimer;
+        bool currentTimerSalvaged;
+        bool paused;
     };
 
     void removeHashElement(struct HashTimerEntry *element);
@@ -290,14 +290,14 @@ private:
 
     // Used for "selectors with interval"
     ccstd::unordered_map<void *, HashTimerEntry *> _hashForTimers;
-    struct HashTimerEntry *                        _currentTarget         = nullptr;
-    bool                                           _currentTargetSalvaged = false;
+    struct HashTimerEntry *_currentTarget = nullptr;
+    bool _currentTargetSalvaged = false;
     // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
     bool _updateHashLocked = false;
 
     // Used for "perform Function"
     ccstd::vector<std::function<void()>> _functionsToPerform;
-    std::mutex                           _performMutex;
+    std::mutex _performMutex;
 };
 
 // end of base group

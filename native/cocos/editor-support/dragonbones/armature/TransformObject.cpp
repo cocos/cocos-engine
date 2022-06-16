@@ -10,8 +10,7 @@ Matrix TransformObject::_helpMatrix;
 Transform TransformObject::_helpTransform;
 Point TransformObject::_helpPoint;
 
-void TransformObject::_onClear()
-{
+void TransformObject::_onClear() {
     globalTransformMatrix.identity();
     global.identity();
     offset.identity();
@@ -22,10 +21,8 @@ void TransformObject::_onClear()
     _armature = nullptr;
 }
 
-void TransformObject::updateGlobalTransform()
-{
-    if (_globalDirty)
-    {
+void TransformObject::updateGlobalTransform() {
+    if (_globalDirty) {
         _globalDirty = false;
         global.fromMatrix(globalTransformMatrix);
     }

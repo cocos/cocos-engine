@@ -29,16 +29,16 @@
 #include <functional>
 #include <type_traits>
 #include <utility>
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
+#include "base/std/any.h"
+#include "base/std/container/vector.h"
+#include "base/std/optional.h"
+#include "base/std/variant.h"
 #include "bindings/jswrapper/HandleObject.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
-#include "base/Any.h"
-#include "base/Macros.h"
-#include "base/Optional.h"
-#include "base/RefCounted.h"
-#include "base/Ptr.h"
-#include "base/Variant.h"
-#include "base/std/container/vector.h"
 #include "jsb_conversions_spec.h"
 
 #if CC_USE_SPINE
@@ -172,7 +172,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
         return T();
     }
     T *nativeObj = static_cast<T *>(v.toObject()->getPrivateData());
-    ok           = true;
+    ok = true;
     return *nativeObj;
 }
 
@@ -228,9 +228,9 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
     se::Object *obj = v.toObject();
     CC_ASSERT(obj->isArray());
 
-    bool     ok  = true;
+    bool ok = true;
     uint32_t len = 0;
-    ok           = obj->getArrayLength(&len);
+    ok = obj->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -248,7 +248,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
         if (tmp.isObject()) {
             T nativeObj = static_cast<T>(tmp.toObject()->getPrivateData());
-            (*ret)[i]   = nativeObj;
+            (*ret)[i] = nativeObj;
         } else if (tmp.isNullOrUndefined()) {
             (*ret)[i] = nullptr;
         } else {
@@ -268,9 +268,9 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
     se::Object *obj = v.toObject();
     CC_ASSERT(obj->isArray());
 
-    bool     ok  = true;
+    bool ok = true;
     uint32_t len = 0;
-    ok           = obj->getArrayLength(&len);
+    ok = obj->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -301,7 +301,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, T> *r
     se::Object *obj = v.toObject();
 
     ccstd::vector<ccstd::string> allKeys;
-    bool                         ok = obj->getAllKeys(&allKeys);
+    bool ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -343,7 +343,7 @@ template <typename T>
 typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<decltype(v_ref)>::type>::type;
-    auto *v      = const_cast<DecayT *>(&v_ref);
+    auto *v = const_cast<DecayT *>(&v_ref);
 
     CC_ASSERT(ret != nullptr);
     if (v == nullptr) {
@@ -351,8 +351,8 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
         return true;
     }
 
-    se::Object *obj  = nullptr;
-    auto        iter = se::NativePtrToObjectMap::find(v);
+    se::Object *obj = nullptr;
+    auto iter = se::NativePtrToObjectMap::find(v);
     if (iter == se::NativePtrToObjectMap::end()) { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
         // CC_LOG_DEBUGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class *cls = JSBClassType::findClass(v);
@@ -384,8 +384,8 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
         return true;
     }
 
-    se::Object *obj  = nullptr;
-    auto        iter = se::NativePtrToObjectMap::find(reinterpret_cast<void *>(v));
+    se::Object *obj = nullptr;
+    auto iter = se::NativePtrToObjectMap::find(reinterpret_cast<void *>(v));
     if (iter == se::NativePtrToObjectMap::end()) { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
         se::Class *cls = JSBClassType::findClass(v);
         CC_ASSERT(cls != nullptr);
@@ -412,15 +412,15 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
 template <typename T>
 bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<T>::type>::type;
-    auto *v      = const_cast<DecayT *>(vp);
+    auto *v = const_cast<DecayT *>(vp);
     CC_ASSERT(ret != nullptr);
     if (v == nullptr) {
         ret->setNull();
         return true;
     }
 
-    se::Object *obj  = nullptr;
-    auto        iter = se::NativePtrToObjectMap::find(v);
+    se::Object *obj = nullptr;
+    auto iter = se::NativePtrToObjectMap::find(v);
     if (iter == se::NativePtrToObjectMap::end()) { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
                                                    //        CC_LOG_DEBUGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         CC_ASSERT(cls != nullptr);
@@ -444,15 +444,15 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
 template <typename T>
 bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<T>::type>::type;
-    auto *v      = const_cast<DecayT *>(vp);
+    auto *v = const_cast<DecayT *>(vp);
     CC_ASSERT(ret != nullptr);
     if (v == nullptr) {
         ret->setNull();
         return true;
     }
 
-    se::Object *obj  = nullptr;
-    auto        iter = se::NativePtrToObjectMap::find(v);
+    se::Object *obj = nullptr;
+    auto iter = se::NativePtrToObjectMap::find(v);
     if (iter == se::NativePtrToObjectMap::end()) { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
                                                    //        CC_LOG_DEBUGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class *cls = JSBClassType::findClass(v);
@@ -477,10 +477,10 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
 template <typename T>
 bool std_vector_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
-    bool             ok = true;
+    bool ok = true;
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
 
-    uint32_t  i = 0;
+    uint32_t i = 0;
     se::Value tmp;
     for (const auto &e : v) {
         native_ptr_to_seval(e, &tmp);
@@ -535,10 +535,10 @@ holder_convert_to(In &input) { // NOLINT(readability-identifier-naming)
 
 template <typename T, bool is_reference>
 struct HolderType {
-    using type       = typename std::remove_const<T>::type;
+    using type = typename std::remove_const<typename std::remove_reference<T>::type>::type;
     using local_type = typename std::conditional_t<is_reference && is_jsb_object_v<T>, std::add_pointer_t<type>, type>;
     local_type data;
-    type *     ptr = nullptr;
+    type *ptr = nullptr;
     struct alignas(T) EmbedField {
         uint8_t inlineObject[is_reference && is_jsb_object_v<T> ? sizeof(T) : 1];
     } inlineObject;
@@ -550,37 +550,37 @@ struct HolderType {
     ~HolderType() {
         //delete ptr;
         if (ptr) {
-            ptr->~T();
+            ptr->~type();
         }
     }
 };
 
 template <>
 struct HolderType<char *, false> {
-    using type       = const char *;
+    using type = const char *;
     using local_type = ccstd::string;
-    local_type                 data;
+    local_type data;
     std::remove_const_t<type> *ptr = nullptr;
-    inline type                value() const { return data.c_str(); }
+    inline type value() const { return data.c_str(); }
 };
 
 template <>
 struct HolderType<const char *, false> {
-    using type       = const char *;
+    using type = const char *;
     using local_type = ccstd::string;
-    local_type                 data;
+    local_type data;
     std::remove_const_t<type> *ptr = nullptr;
-    inline type                value() const { return data.c_str(); }
+    inline type value() const { return data.c_str(); }
 };
 
 #define HOLD_UNBOUND_TYPE(FromType, IsReference)                         \
     template <>                                                          \
     struct HolderType<FromType, IsReference> {                           \
-        using type       = FromType;                                     \
+        using type = FromType;                                           \
         using local_type = typename std::remove_pointer<FromType>::type; \
         std::remove_const_t<local_type> data;                            \
-        std::remove_const_t<type> *     ptr = nullptr;                   \
-        inline type                     value() { return &data; }        \
+        std::remove_const_t<type> *ptr = nullptr;                        \
+        inline type value() { return &data; }                            \
     }
 
 HOLD_UNBOUND_TYPE(cc::Vec3 *, false);
@@ -592,26 +592,26 @@ HOLD_UNBOUND_TYPE(cc::geometry::AABB *, false);
 
 template <>
 struct HolderType<cc::ArrayBuffer, true> {
-    using type       = cc::ArrayBuffer;
+    using type = cc::ArrayBuffer;
     using local_type = cc::ArrayBuffer;
-    local_type                 data;
+    local_type data;
     std::remove_const_t<type> *ptr = nullptr;
-    inline type &              value() { return data; }
+    inline type &value() { return data; }
 };
 
 template <typename R, typename... ARGS>
 struct HolderType<std::function<R(ARGS...)>, true> {
-    using type       = std::function<R(ARGS...)>;
+    using type = std::function<R(ARGS...)>;
     using local_type = std::function<R(ARGS...)>;
-    local_type                 data;
+    local_type data;
     std::remove_const_t<type> *ptr = nullptr;
-    inline type                value() { return data; }
+    inline type value() { return data; }
 };
 
 //template <typename T>
-//struct HolderType<cc::optional<T>, true> {
+//struct HolderType<ccstd::optional<T>, true> {
 //    using NonconstT  = typename std::remove_const<T>::type;
-//    using type       = cc::optional<NonconstT>;
+//    using type       = ccstd::optional<NonconstT>;
 //    using local_type = NonconstT;
 //    local_type                 data;
 //    std::remove_const_t<type> *ptr = nullptr;
@@ -625,19 +625,19 @@ template <typename T, typename Enable = void>
 struct is_optional : std::false_type {}; // NOLINT
 
 template <typename T>
-struct is_optional<cc::optional<T>> : std::true_type {}; // NOLINT
+struct is_optional<ccstd::optional<T>> : std::true_type {}; // NOLINT
 
 template <typename... Args>
 struct is_variant : std::false_type {}; // NOLINT
 template <typename... Args>
-struct is_variant<cc::variant<Args...>> : std::true_type {}; // NOLINT
+struct is_variant<ccstd::variant<Args...>> : std::true_type {}; // NOLINT
 
 template <typename T>
 inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value && !is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value & /*from*/, T * /*to*/, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
-    SE_LOGE("Can not convert type ???\n - [[ %s ]]\n", typeid(T).name());
+    SE_LOGE("Missing conversion impl `sevalue_to_native` for type [[%s]]\n", typeid(T).name());
     CC_STATIC_ASSERT(!is_variant<T>::value, "should not match cc::variant");
-    CC_STATIC_ASSERT((std::is_same<T, void>::value), "sevalue_to_native not implemented for T");
+    CC_STATIC_ASSERT((std::is_same<T, void>::value), "Type incorrect or implementation not found!");
     return false;
 }
 
@@ -657,19 +657,19 @@ template <typename T>
 inline typename std::enable_if_t<std::is_enum<T>::value, bool>
 sevalue_to_native(const se::Value &from, T *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     typename std::underlying_type_t<T> tmp;
-    bool                               ret = sevalue_to_native(from, &tmp, ctx);
+    bool ret = sevalue_to_native(from, &tmp, ctx);
     if (ret) *to = static_cast<T>(tmp);
     return ret;
 }
 
 //////////////////////////////// forward declaration : sevalue_to_native ////////////////////////////////
 
-// cc::variant<...>>ss
+// ccstd::variant<...>>ss
 template <typename... Args>
-bool sevalue_to_native(const se::Value &from, cc::variant<Args...> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::variant<Args...> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, cc::optional<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 /// ccstd::unordered_map<ccstd::string, V>
 template <typename V>
 bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
@@ -716,14 +716,14 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
     CC_ASSERT(array->isArray() || array->isArrayBuffer() || array->isTypedArray());
     if (array->isTypedArray()) {
         uint8_t *data = nullptr;
-        size_t   size = 0;
+        size_t size = 0;
         array->getTypedArrayData(&data, &size);
         for (size_t i = 0; i < std::min(size, CNT); i++) {
             (*to)[i] = data[i];
         }
     } else if (array->isArrayBuffer()) {
         uint8_t *data = nullptr;
-        size_t   size = 0;
+        size_t size = 0;
         array->getArrayBufferData(&data, &size);
         for (size_t i = 0; i < std::min(size, CNT); i++) {
             (*to)[i] = data[i];
@@ -744,7 +744,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
 }
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, cc::variant<T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
+bool sevalue_to_native(const se::Value &from, ccstd::variant<T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
     se::Object *array = from.toObject();
     if (array->isArray()) {
         ccstd::vector<T> result;
@@ -786,7 +786,7 @@ template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && std::is_arithmetic<T>::value, bool>
 sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::Object *data = from.toObject();
-    uint8_t *   tmp;
+    uint8_t *tmp;
     if (data->isArrayBuffer()) {
         data->getArrayBufferData(&tmp, nullptr);
     } else if (data->isTypedArray()) {
@@ -839,8 +839,8 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     if (array->isTypedArray()) {
         CC_ASSERT(std::is_arithmetic<T>::value);
-        uint8_t *data    = nullptr;
-        size_t   dataLen = 0;
+        uint8_t *data = nullptr;
+        size_t dataLen = 0;
         array->getTypedArrayData(&data, &dataLen);
         to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
         return true;
@@ -851,21 +851,48 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 }
 
 ///////////////////// function
+///
+
+template <typename... Args>
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args); // NOLINT(readability-identifier-naming)
+
+template <typename R>
+inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self]() {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            se::Value rval;
+            bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+
+            R rawRet{};
+            sevalue_to_native(rval, &rawRet, self);
+            return rawRet;
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
 
 template <typename R, typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
     if (from.isObject() && from.toObject()->isFunction()) {
-        se::Object *callback = from.toObject();
-        self->attachObject(callback);
-        *func = [callback, self](Args... inargs) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self](Args... inargs) {
             se::AutoHandleScope hs;
-            bool                ok = true;
-            se::ValueArray      args;
-            int                 idx = 0;
+            bool ok = true;
+            se::ValueArray args;
+            int idx = 0;
             args.resize(sizeof...(Args));
             nativevalue_to_se_args_v(args, inargs...);
             se::Value rval;
-            bool      succeed = callback->call(args, self, &rval);
+            bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
                 se::ScriptEngine::getInstance()->clearException();
             }
@@ -881,10 +908,52 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
     return true;
 }
 
-//////////////////////// cc::variant
+inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self]() {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            se::Value rval;
+            bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
 
 template <typename... Args>
-inline bool sevalue_to_native(const se::Value & /*from*/, cc::variant<Args...> * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self](Args... inargs) {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            int idx = 0;
+            args.resize(sizeof...(Args));
+            nativevalue_to_se_args_v(args, inargs...);
+            se::Value rval;
+            bool succeed = from.toObject()->call(args, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
+
+//////////////////////// ccstd::variant
+
+template <typename... Args>
+inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::variant<Args...> * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     static_assert(sizeof...(Args) == 0, "should not pass variant from js -> native");
     CC_ASSERT(false);
     return false;
@@ -900,7 +969,7 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference>
             return true;
         }
         if CC_CONSTEXPR (std::is_constructible<T>::value) {
-            holder->ptr = ccnew_placement (&holder->inlineObject) T;
+            holder->ptr = ccnew_placement(&holder->inlineObject) T;
         } else {
             CC_ASSERT(false); // default construtor not provided
         }
@@ -928,7 +997,7 @@ inline typename std::enable_if<is_jsb_object_v<T>, bool>::type sevalue_to_native
         return true;
     } else {
         // holder->ptr = ccnew T;
-        holder->ptr = ccnew_placement (&holder->inlineObject) T;
+        holder->ptr = ccnew_placement(&holder->inlineObject) T;
         return sevalue_to_native(from, holder->ptr, ctx);
     }
 }
@@ -1032,9 +1101,9 @@ bool sevalue_to_native(const se::Value &from, cc::IntrusivePtr<T> *to, se::Objec
 
     auto *privateObject = from.toObject()->getPrivateObject();
     if (!privateObject) {
-        T *  tmp = nullptr;
-        bool ok  = sevalue_to_native(from, &tmp, ctx);
-        *to      = tmp;
+        T *tmp = nullptr;
+        bool ok = sevalue_to_native(from, &tmp, ctx);
+        *to = tmp;
         return ok;
     }
 
@@ -1061,7 +1130,7 @@ void se_for_each_tuple(Tuple &&tuple, F &&f) { // NOLINT(readability-identifier-
 template <typename... Args>
 bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Object *ctx) { // NOLINT
     constexpr size_t argsize = std::tuple_size<std::tuple<Args...>>::value;
-    bool             result  = true;
+    bool result = true;
     se_for_each_tuple(*to, [&](auto i, auto &param) {
         se::Value tmp;
         from.toObject()->getArrayElement(static_cast<uint32_t>(i), &tmp);
@@ -1073,10 +1142,10 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
 ////////////// ccstd::unordered_map
 template <typename V>
 bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string, V> *to, se::Object *ctx) { //NOLINT
-    se::Object *                 jsmap = from.toObject();
+    se::Object *jsmap = from.toObject();
     ccstd::vector<ccstd::string> allKeys;
     jsmap->getAllKeys(&allKeys);
-    bool      ret = true;
+    bool ret = true;
     se::Value property;
     for (auto &it : allKeys) {
         if (jsmap->getProperty(it.c_str(), &property)) {
@@ -1087,15 +1156,15 @@ bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string
     return true;
 }
 
-///////////////// cc::optional
+///////////////// ccstd::optional
 template <typename T>
-bool sevalue_to_native(const se::Value &from, cc::optional<T> *to, se::Object *ctx) { //NOLINT
+bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object *ctx) { //NOLINT
     static_assert(!is_optional<T>::value, "bad match ?");
     if (from.isNullOrUndefined()) {
         to->reset();
         return true;
     }
-    T    tmp{};
+    T tmp{};
     bool ret = sevalue_to_native(from, &tmp, ctx);
     if CC_CONSTEXPR (std::is_move_assignable<T>::value) {
         *to = std::move(tmp);
@@ -1118,37 +1187,56 @@ template <typename T>
 inline bool nativevalue_to_se(T &&from, se::Value &to); // NOLINT(readability-identifier-naming)
 
 template <typename... ARGS>
-bool nativevalue_to_se(const cc::variant<ARGS...> &from, se::Value &to, se::Object *ctx); // NOLINT
+bool nativevalue_to_se(const ccstd::variant<ARGS...> &from, se::Value &to, se::Object *ctx); // NOLINT
 
 template <typename... ARGS>
-bool nativevalue_to_se(const cc::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
+bool nativevalue_to_se(const ccstd::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
     return nativevalue_to_se(*from, to, ctx);
 }
 
-#if HAS_CONSTEXPR
-
-template <typename T>
-inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    if CC_CONSTEXPR (std::is_enum<T>::value) {
-        to.setInt32(static_cast<int32_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
-        to.setInt64(static_cast<int64_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
-        to.setDouble(static_cast<double>(from));
-        return true;
-    } else {
-        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
-        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
-    }
+template <typename... ARGS>
+bool nativevalue_to_se(ccstd::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
+    return nativevalue_to_se(*from, to, ctx);
 }
 
-#else
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx); // NOLINT
+
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> *from, se::Value &to, se::Object *ctx) {
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+template <typename T>
+inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) {
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+//TODO(): just comment it to make compiler work. Should use CONSTEXPR version.
+//#if HAS_CONSTEXPR
+//
+//template <typename T>
+//inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+//    if CC_CONSTEXPR (std::is_enum<T>::value) {
+//        to.setInt32(static_cast<int32_t>(from));
+//        return true;
+//    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
+//        return native_ptr_to_seval(from, &to);
+//    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
+//        return native_ptr_to_seval(from, &to);
+//    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+//        to.setInt64(static_cast<int64_t>(from));
+//        return true;
+//    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
+//        to.setDouble(static_cast<double>(from));
+//        return true;
+//    } else {
+//        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
+//        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
+//    }
+//}
+//
+//#else
 
 template <typename T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type
@@ -1176,7 +1264,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
     return true;
 }
 
-#endif // HAS_CONSTEXPR
+//#endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 
@@ -1201,9 +1289,9 @@ inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value 
 template <typename T>
 inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value &to, se::Object *ctx); // NOLINT
 
-/// nativevalue_to_se cc::optional
+/// nativevalue_to_se ccstd::optional
 template <typename T>
-bool nativevalue_to_se(const cc::optional<T> &from, se::Value &to, se::Object *ctx) { // NOLINT
+bool nativevalue_to_se(const ccstd::optional<T> &from, se::Value &to, se::Object *ctx) { // NOLINT
     if (!from.has_value()) {
         to.setUndefined();
         return true;
@@ -1220,7 +1308,7 @@ inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value
 template <typename T>
 inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     se::HandleObject array(se::Object::createArrayObject(from.size()));
-    se::Value        tmp;
+    se::Value tmp;
     for (size_t i = 0; i < from.size(); i++) {
         // If from[i] is on stack, then should create a new object, or
         // JS will hold a freed object.
@@ -1229,11 +1317,10 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
             nativevalue_to_se(pFrom, tmp, ctx);
             tmp.toObject()->clearPrivateData();
             tmp.toObject()->setPrivateData(pFrom);
-        }
-        else {
+        } else {
             nativevalue_to_se(from[i], tmp, ctx);
         }
-        
+
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
     }
     to.setObject(array, true);
@@ -1260,52 +1347,47 @@ typename std::enable_if<!std::is_convertible<T, ccstd::string>::value, void>::ty
 
 template <typename K, typename V>
 inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::Object *ret = se::Object::createPlainObject();
-    se::Value   value;
-    bool        ok = true;
+    se::HandleObject ret{se::Object::createPlainObject()};
+    se::Value value;
+    bool ok = true;
     for (auto &it : from) {
         ok &= nativevalue_to_se(it.second, value, ctx);
         cc_tmp_set_property(ret, it.first, value);
     }
     to.setObject(ret);
-    ret->decRef();
     return true;
 }
 
 template <typename T, size_t N>
 inline bool nativevalue_to_se(const ccstd::array<T, N> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createArrayObject(N);
-    se::Value   tmp;
+    se::HandleObject array{se::Object::createArrayObject(N)};
+    se::Value tmp;
     for (size_t i = 0; i < N; i++) {
         nativevalue_to_se(from[i], tmp, ctx);
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
     }
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<uint8_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N);
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N)};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<uint16_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t));
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t))};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<float, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float));
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float))};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
@@ -1337,7 +1419,7 @@ bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args) { // NOLINT(
 template <typename T>
 bool nativevalue_to_se(const spine::Vector<T> &v, se::Value &ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool             ok = true;
+    bool ok = true;
 
     spine::Vector<T> tmpv = v;
 
@@ -1362,7 +1444,7 @@ bool nativevalue_to_se(const spine::Vector<T> &v, se::Value &ret, se::Object * /
 template <typename T>
 bool nativevalue_to_se(const spine::Vector<T *> &v, se::Value &ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool             ok = true;
+    bool ok = true;
 
     spine::Vector<T *> tmpv = v;
 
@@ -1388,9 +1470,9 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<T *> *ret, se::Object *
     se::Object *obj = v.toObject();
     CC_ASSERT(obj->isArray());
 
-    bool     ok  = true;
+    bool ok = true;
     uint32_t len = 0;
-    ok           = obj->getArrayLength(&len);
+    ok = obj->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -1419,9 +1501,9 @@ inline bool nativevalue_to_se(T &&from, se::Value &to) { // NOLINT(readability-i
 }
 
 template <typename... ARGS>
-bool nativevalue_to_se(const cc::variant<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se(const ccstd::variant<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     bool ok = false;
-    cc::visit(
+    ccstd::visit(
         [&](auto param) {
             ok = nativevalue_to_se(param, to, ctx);
         },
@@ -1478,9 +1560,9 @@ inline bool nativevalue_to_se(const cc::IntrusivePtr<T> &from, se::Value &to, se
 
 template <typename... ARGS>
 bool nativevalue_to_se(const std::tuple<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    bool        ok = true;
-    se::Value   tmp;
-    se::Object *array = se::Object::createArrayObject(sizeof...(ARGS));
+    bool ok = true;
+    se::Value tmp;
+    se::HandleObject array{se::Object::createArrayObject(sizeof...(ARGS))};
     se_for_each_tuple(
         from, [&](auto i, auto &param) {
             ok &= nativevalue_to_se(param, tmp, ctx);

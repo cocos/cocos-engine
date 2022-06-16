@@ -29,8 +29,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class ActionTimelineState : public TimelineState
-{
+class ActionTimelineState : public TimelineState {
     BIND_CLASS_TYPE_A(ActionTimelineState);
 
     void _onCrossFrame(unsigned frameIndex) const;
@@ -46,8 +45,7 @@ public:
 /**
  * @internal
  */
-class ZOrderTimelineState : public TimelineState 
-{
+class ZOrderTimelineState : public TimelineState {
     BIND_CLASS_TYPE_A(ZOrderTimelineState);
 
 protected:
@@ -57,8 +55,7 @@ protected:
 /**
  * @internal
  */
-class BoneAllTimelineState : public BoneTimelineState
-{
+class BoneAllTimelineState : public BoneTimelineState {
     BIND_CLASS_TYPE_A(BoneAllTimelineState);
 
 protected:
@@ -71,8 +68,7 @@ public:
 /**
  * @internal
  */
-class BoneTranslateTimelineState : public BoneTimelineState
-{
+class BoneTranslateTimelineState : public BoneTimelineState {
     BIND_CLASS_TYPE_A(BoneTranslateTimelineState);
 
 protected:
@@ -82,8 +78,7 @@ protected:
 /**
  * @internal
  */
-class BoneRotateTimelineState : public BoneTimelineState
-{
+class BoneRotateTimelineState : public BoneTimelineState {
     BIND_CLASS_TYPE_A(BoneRotateTimelineState);
 
 protected:
@@ -96,8 +91,7 @@ public:
 /**
  * @internal
  */
-class BoneScaleTimelineState : public BoneTimelineState
-{
+class BoneScaleTimelineState : public BoneTimelineState {
     BIND_CLASS_TYPE_A(BoneScaleTimelineState);
 
 protected:
@@ -107,8 +101,7 @@ protected:
 /**
  * @internal
  */
-class SlotDislayTimelineState : public SlotTimelineState
-{
+class SlotDislayTimelineState : public SlotTimelineState {
     BIND_CLASS_TYPE_A(SlotDislayTimelineState);
 
 protected:
@@ -117,8 +110,7 @@ protected:
 /**
  * @internal
  */
-class SlotColorTimelineState : public SlotTimelineState
-{
+class SlotColorTimelineState : public SlotTimelineState {
     BIND_CLASS_TYPE_B(SlotColorTimelineState);
 
 private:
@@ -128,15 +120,12 @@ private:
     float* _result;
 
 public:
-    SlotColorTimelineState() :
-        _current(new int[8]{ 0 }),
-        _delta(new int[8]{ 0 }),
-        _result(new float[8]{ 0.0f })
-    { 
-        _onClear(); 
+    SlotColorTimelineState() : _current(new int[8]{0}),
+                               _delta(new int[8]{0}),
+                               _result(new float[8]{0.0f}) {
+        _onClear();
     }
-    ~SlotColorTimelineState()
-    {
+    ~SlotColorTimelineState() {
         _onClear();
 
         delete _current;
@@ -156,8 +145,7 @@ public:
 /**
  * @internal
  */
-class DeformTimelineState : public SlotTimelineState
-{
+class DeformTimelineState : public SlotTimelineState {
     BIND_CLASS_TYPE_A(DeformTimelineState);
 
 public:
@@ -187,8 +175,7 @@ public:
 /**
  * @internal
  */
-class IKConstraintTimelineState : public ConstraintTimelineState 
-{
+class IKConstraintTimelineState : public ConstraintTimelineState {
     BIND_CLASS_TYPE_A(IKConstraintTimelineState);
 
 private:

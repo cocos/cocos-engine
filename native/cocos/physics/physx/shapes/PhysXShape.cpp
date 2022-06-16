@@ -34,7 +34,7 @@ namespace physics {
 
 void PhysXShape::initialize(Node *node) {
     PhysXWorld &ins = PhysXWorld::getInstance();
-    _mSharedBody    = ins.getSharedBody(node);
+    _mSharedBody = ins.getSharedBody(node);
     getSharedBody().reference(true);
     onComponentSet();
     insertToShapeMap();
@@ -123,7 +123,7 @@ void PhysXShape::updateFilterData(const physx::PxFilterData &data) {
 
 void PhysXShape::updateCenter() {
     if (!_mShape) return;
-    auto &sb   = getSharedBody();
+    auto &sb = getSharedBody();
     auto *node = sb.getNode();
     node->updateWorldTransform();
     physx::PxTransform local{_mCenter * node->getWorldScale(), _mRotation};

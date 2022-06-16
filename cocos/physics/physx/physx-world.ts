@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
@@ -71,6 +69,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
+        if (this.wrappedBodies.length === 0) return;
         this._simulate(deltaTime);
         if (!PX.MULTI_THREAD) {
             this._fetchResults();

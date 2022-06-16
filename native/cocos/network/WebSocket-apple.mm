@@ -43,22 +43,22 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 //
 
 @implementation WebSocketImpl {
-    SRWebSocket *                     _ws;
-    cc::network::WebSocket *          _ccws;
+    SRWebSocket *_ws;
+    cc::network::WebSocket *_ccws;
     cc::network::WebSocket::Delegate *_delegate;
 
     ccstd::string _url;
     ccstd::string _selectedProtocol;
-    bool        _isDestroyed;
+    bool _isDestroyed;
 }
 
 - (id)initWithURL:(const ccstd::string &)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cc::network::WebSocket *)ccws delegate:(const cc::network::WebSocket::Delegate &)delegate {
     if (self = [super init]) {
-        _ccws        = ccws;
-        _delegate    = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
-        _url         = url;
+        _ccws = ccws;
+        _delegate = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
+        _url = url;
         NSURL *nsUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:_url.c_str()]];
-        _ws          = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
+        _ws = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
         _ws.delegate = self;
         [_ws open];
         _isDestroyed = false;
@@ -92,7 +92,7 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 
 - (cc::network::WebSocket::State)getReadyState {
     cc::network::WebSocket::State ret;
-    SRReadyState                  state = _ws.readyState;
+    SRReadyState state = _ws.readyState;
     switch (state) {
         case SR_OPEN:
             ret = cc::network::WebSocket::State::OPEN;
@@ -150,11 +150,11 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(nonnull NSString *)string {
     if (!_isDestroyed) {
         cc::network::WebSocket::Data data;
-        data.bytes    = const_cast<char *>([string cStringUsingEncoding:NSUTF8StringEncoding]);
-        data.len      = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        data.bytes = const_cast<char *>([string cStringUsingEncoding:NSUTF8StringEncoding]);
+        data.len = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         data.isBinary = false;
-        data.issued   = 0;
-        data.ext      = nullptr;
+        data.issued = 0;
+        data.ext = nullptr;
 
         _delegate->onMessage(_ccws, data);
     } else {
@@ -165,11 +165,11 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)nsData {
     if (!_isDestroyed) {
         cc::network::WebSocket::Data data;
-        data.bytes    = (char *)nsData.bytes;
-        data.len      = nsData.length;
+        data.bytes = (char *)nsData.bytes;
+        data.len = nsData.length;
         data.isBinary = true;
-        data.issued   = 0;
-        data.ext      = nullptr;
+        data.issued = 0;
+        data.ext = nullptr;
         _delegate->onMessage(_ccws, data);
     } else {
         NSLog(@"WebSocketImpl didReceiveMessageWithData was destroyed!");
@@ -198,7 +198,7 @@ void WebSocket::closeAllConnections() {
         (*iter)->close();
         ++iter;
     }
-    
+
     websocketInstances.clear();
 }
 
@@ -220,10 +220,10 @@ WebSocket::~WebSocket() {
     }
 }
 
-bool WebSocket::init(const Delegate &                delegate,
-                     const ccstd::string &             url,
+bool WebSocket::init(const Delegate &delegate,
+                     const ccstd::string &url,
                      const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
-                     const ccstd::string &             caFilePath /* = ""*/) {
+                     const ccstd::string &caFilePath /* = ""*/) {
     if (url.empty())
         return false;
 

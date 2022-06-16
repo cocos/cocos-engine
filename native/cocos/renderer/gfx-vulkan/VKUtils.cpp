@@ -244,7 +244,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageAspectFlags mapVkImageAspectFlags(Format format) {
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    const FormatInfo & info       = GFX_FORMAT_INFOS[toNumber(format)];
+    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(format)];
     if (info.hasDepth) aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     if (info.hasStencil) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
     return aspectMask;
@@ -497,7 +497,7 @@ const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[] = {
 const VkSampleCountFlags VK_SAMPLE_COUNT_FLAGS[] = {
     VK_SAMPLE_COUNT_1_BIT,
     VK_SAMPLE_COUNT_2_BIT,
-#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_IOS
     VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
 #else // desktop platforms
     VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,

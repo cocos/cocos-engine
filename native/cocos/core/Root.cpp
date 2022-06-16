@@ -52,7 +52,7 @@ Root *Root::getInstance() {
 
 Root::Root(gfx::Device *device)
 : _device(device) {
-    instance        = this;
+    instance = this;
     _eventProcessor = new CallbacksInvoker();
     // TODO(minggo):
     //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
@@ -62,8 +62,9 @@ Root::Root(gfx::Device *device)
 }
 
 Root::~Root() {
-    instance = nullptr;
+    destroy();
     CC_SAFE_DELETE(_eventProcessor);
+    instance = nullptr;
 }
 
 void Root::initialize(gfx::Swapchain *swapchain) {
@@ -75,18 +76,18 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     colorAttachment.format = swapchain->getColorTexture()->getFormat();
     renderPassInfo.colorAttachments.emplace_back(colorAttachment);
 
-    auto &depthStencilAttachment          = renderPassInfo.depthStencilAttachment;
-    depthStencilAttachment.format         = swapchain->getDepthStencilTexture()->getFormat();
-    depthStencilAttachment.depthStoreOp   = gfx::StoreOp::DISCARD;
+    auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
+    depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
+    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
     depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
 
     scene::IRenderWindowInfo info;
-    info.title          = ccstd::string{"rootMainWindow"};
-    info.width          = swapchain->getWidth();
-    info.height         = swapchain->getHeight();
+    info.title = ccstd::string{"rootMainWindow"};
+    info.width = swapchain->getWidth();
+    info.height = swapchain->getHeight();
     info.renderPassInfo = renderPassInfo;
-    info.swapchain      = swapchain;
-    _mainWindow         = createWindow(info);
+    info.swapchain = swapchain;
+    _mainWindow = createWindow(info);
 
     _curWindow = _mainWindow;
 
@@ -94,10 +95,14 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 }
 
+render::Pipeline *Root::getCustomPipeline() const {
+    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
+}
+
 void Root::destroy() {
     destroyScenes();
 
-    if (_usesCustomPipeline) {
+    if (_usesCustomPipeline && _pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
     _pipelineRuntime.reset();
@@ -155,11 +160,23 @@ public:
     void setProfiler(scene::Model *profiler) override {
         pipeline->setProfiler(profiler);
     }
+    pipeline::GeometryRenderer  *getGeometryRenderer() const override {
+        return pipeline->getGeometryRenderer();
+    }
     float getShadingScale() const override {
         return pipeline->getShadingScale();
     }
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
+    }
+    void setMacroString(const ccstd::string& name, const ccstd::string& value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroInt(const ccstd::string& name, int32_t value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroBool(const ccstd::string& name, bool value) override {
+        pipeline->setValue(name, value);
     }
     void onGlobalPipelineStateChanged() override {
         pipeline->onGlobalPipelineStateChanged();
@@ -191,7 +208,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             isCreateDefaultPipeline = true;
         }
 
-        _pipeline        = rppl;
+        _pipeline = rppl;
         _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
 
         // now cluster just enabled in deferred pipeline
@@ -210,7 +227,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>();
+        _pipelineRuntime = std::make_unique<render::NativePipeline>(
+            boost::container::pmr::get_default_resource());
         if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
@@ -259,15 +277,18 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
     if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
         return;
     }
+
+    CCObject::deferredDestroy();
+
     _frameTime = deltaTime;
 
     ++_frameCount;
     _cumulativeTime += deltaTime;
     _fpsTime += deltaTime;
     if (_fpsTime > 1.0F) {
-        _fps        = _frameCount;
+        _fps = _frameCount;
         _frameCount = 0;
-        _fpsTime    = 0.0;
+        _fpsTime = 0.0;
     }
 
     for (const auto &scene : _scenes) {
@@ -310,7 +331,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
             return a->getPriority() < b->getPriority();
         });
+#if !defined(CC_SERVER_MODE)
         _pipelineRuntime->render(_cameraList);
+#endif
         _device->present();
     }
 

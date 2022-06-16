@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { Vec3 } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -48,7 +43,7 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.dataLength = 2;
+        renderData.dataLength = 4;
         renderData.resize(4, 6);
         return renderData;
     },
@@ -84,60 +79,20 @@ export const simple: IAssembler = {
 
         const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
-
-        const data0 = dataList[0];
-        const data3 = dataList[1];
         const matrix = node.worldMatrix;
-        const a = matrix.m00; const b = matrix.m01;
-        const c = matrix.m04; const d = matrix.m05;
 
-        const justTranslate = a === 1 && b === 0 && c === 0 && d === 1;
+        const stride = renderData.floatStride;
 
-        const tx = matrix.m12; const ty = matrix.m13;
-        const vl = data0.x; const vr = data3.x;
-        const vb = data0.y; const vt = data3.y;
-
-        if (justTranslate) {
-            const vltx = vl + tx;
-            const vrtx = vr + tx;
-            const vbty = vb + ty;
-            const vtty = vt + ty;
-
-            // left bottom
-            vData[0] = vltx;
-            vData[1] = vbty;
-            // right bottom
-            vData[9] = vrtx;
-            vData[10] = vbty;
-            // left top
-            vData[18] = vltx;
-            vData[19] = vtty;
-            // right top
-            vData[27] = vrtx;
-            vData[28] = vtty;
-        } else {
-            const al = a * vl; const ar = a * vr;
-            const bl = b * vl; const br = b * vr;
-            const cb = c * vb; const ct = c * vt;
-            const db = d * vb; const dt = d * vt;
-
-            const cbtx = cb + tx;
-            const cttx = ct + tx;
-            const dbty = db + ty;
-            const dtty = dt + ty;
-
-            // left bottom
-            vData[0] = al + cbtx;
-            vData[1] = bl + dbty;
-            // right bottom
-            vData[9] = ar + cbtx;
-            vData[10] = br + dbty;
-            // left top
-            vData[18] = al + cttx;
-            vData[19] = bl + dtty;
-            // right top
-            vData[27] = ar + cttx;
-            vData[28] = br + dtty;
+        const vec3_temp = vec3_temps[0];
+        let offset = 0;
+        for (let i = 0; i < dataList.length; i++) {
+            const curData = dataList[i];
+            Vec3.set(vec3_temp, curData.x, curData.y, 0);
+            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            offset = i * stride;
+            vData[offset++] = vec3_temp.x;
+            vData[offset++] = vec3_temp.y;
+            vData[offset++] = vec3_temp.z;
         }
     },
 
@@ -217,7 +172,13 @@ export const simple: IAssembler = {
         dataList[0].y = b;
 
         dataList[1].x = r;
-        dataList[1].y = t;
+        dataList[1].y = b;
+
+        dataList[2].x = l;
+        dataList[2].y = t;
+
+        dataList[3].x = r;
+        dataList[3].y = t;
 
         renderData.vertDirty = true;
     },

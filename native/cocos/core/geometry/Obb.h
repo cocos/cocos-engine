@@ -93,7 +93,7 @@ public:
      * @return {OBB} out
      */
 
-    static OBB *set(OBB * out,
+    static OBB *set(OBB *out,
                     float cx, float cy, float cz,
                     float hw, float hh, float hl,
                     float ox1, float ox2, float ox3,

@@ -41,10 +41,10 @@ public:
     ~Scene() override;
 
     inline scene::RenderScene *getRenderScene() const { return _renderScene; }
-    inline SceneGlobals *      getSceneGlobals() const { return _globals.get(); }
-    void                       setSceneGlobals(SceneGlobals *globals);
-    inline bool                isAutoReleaseAssets() const { return _autoReleaseAssets; }
-    inline void                setAutoReleaseAssets(bool val) { _autoReleaseAssets = val; }
+    inline SceneGlobals *getSceneGlobals() const { return _globals.get(); }
+    void setSceneGlobals(SceneGlobals *globals);
+    inline bool isAutoReleaseAssets() const { return _autoReleaseAssets; }
+    inline void setAutoReleaseAssets(bool val) { _autoReleaseAssets = val; }
 
     void load();
     void activate(bool active = true);
@@ -55,14 +55,14 @@ public:
 protected:
     void updateScene() override { _scene = this; }
 
-    scene::RenderScene *_renderScene{nullptr};
+    IntrusivePtr<scene::RenderScene> _renderScene;
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
      */
     //    @serializable
     IntrusivePtr<SceneGlobals> _globals;
-    bool                       _inited{false};
+    bool _inited{false};
 
     /**
      * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.

@@ -42,24 +42,24 @@ public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;
 
-    bool  init();
-    int   play2d(const ccstd::string &filePath, bool loop, float volume);
-    void  setVolume(int audioID, float volume);
-    void  setLoop(int audioID, bool loop);
-    bool  pause(int audioID);
-    bool  resume(int audioID);
-    void  stop(int audioID);
-    void  stopAll();
+    bool init();
+    int play2d(const ccstd::string &filePath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
+    void setLoop(int audioID, bool loop);
+    bool pause(int audioID);
+    bool resume(int audioID);
+    void stop(int audioID);
+    void stopAll();
     float getDuration(int audioID);
     float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int audioID);
-    bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
+    bool setCurrentTime(int audioID, float time);
+    void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
-    void        uncache(const ccstd::string &filePath);
-    void        uncacheAll();
+    void uncache(const ccstd::string &filePath);
+    void uncacheAll();
     AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
-    void        update(float dt);
+    void update(float dt);
 
 private:
     bool checkAudioIdValid(int audioID);
@@ -75,11 +75,11 @@ private:
 
     //audioID,AudioInfo
     ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
-    std::mutex                               _threadMutex;
+    std::mutex _threadMutex;
 
     bool _lazyInitLoop;
 
-    int                      _currentAudioID;
+    int _currentAudioID;
     std::weak_ptr<Scheduler> _scheduler;
 };
 } // namespace cc

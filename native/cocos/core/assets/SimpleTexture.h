@@ -116,6 +116,12 @@ public:
      */
     void setMipRange(uint32_t baseLevel, uint32_t maxLevel);
 
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
+    virtual bool isUsingOfflineMipmaps();
+
 protected:
     SimpleTexture();
     void textureReady();
@@ -136,7 +142,7 @@ protected:
 
     void tryReset();
 
-    void          createTexture(gfx::Device *device);
+    void createTexture(gfx::Device *device);
     gfx::Texture *createTextureView(gfx::Device *device);
 
     void tryDestroyTexture();

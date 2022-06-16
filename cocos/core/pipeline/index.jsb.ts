@@ -30,6 +30,7 @@ import { setClassName } from '../../core/utils/js';
 import { PipelineEventType } from './pipeline-event';
 import * as pipeline from './define';
 export { pipeline };
+
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -48,7 +49,7 @@ export const LightingStage = nr.LightingStage;
 export const PostProcessStage = nr.PostProcessStage;
 export const GbufferStage = nr.GbufferStage;
 export const BloomStage = nr.BloomStage;
-export const GeometryRenderer = nr.GeometryRenderer;
+export { GeometryRenderer } from './geometry-renderer';
 export { PipelineEventType } from './pipeline-event';
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;

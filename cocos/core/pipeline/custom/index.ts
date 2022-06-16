@@ -28,14 +28,16 @@
  * @module custom-pipeline
  */
 
-import { DescriptorHierarchy, Pipeline } from './pipeline';
+import { Pipeline } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
-
-export function createDescriptorHierarchy (): DescriptorHierarchy {
-    return new WebDescriptorHierarchy();
-}
+import { rebuildLayoutGraph } from './effect';
+import { legacyCC } from '../../global-exports';
 
 export function createCustomPipeline (): Pipeline {
-    return new WebPipeline();
+    const ppl = new WebPipeline();
+    const director = legacyCC.director;
+    if (director.root.usesCustomPipeline) {
+        director.on(legacyCC.Director.EVENT_BEFORE_DRAW, rebuildLayoutGraph);
+    }
+    return ppl;
 }

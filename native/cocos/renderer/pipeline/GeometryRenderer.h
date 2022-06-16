@@ -68,7 +68,7 @@ public:
     GeometryRenderer();
     ~GeometryRenderer() override;
     GeometryRenderer(const GeometryRenderer &) = delete;
-    GeometryRenderer(GeometryRenderer &&)      = delete;
+    GeometryRenderer(GeometryRenderer &&) = delete;
     GeometryRenderer &operator=(const GeometryRenderer &) = delete;
     GeometryRenderer &operator=(GeometryRenderer &&) = delete;
 
@@ -104,7 +104,7 @@ private:
     void update();
     void reset();
 
-    gfx::Device *          _device{nullptr};
+    gfx::Device *_device{nullptr};
     GeometryVertexBuffers *_buffers{nullptr};
 };
 

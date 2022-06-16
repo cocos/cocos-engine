@@ -55,8 +55,8 @@ public:
     }
 
     Pool(const Pool &) = delete;
-    Pool(Pool &&)      = delete;
-    ~Pool()            = default;
+    Pool(Pool &&) = delete;
+    ~Pool() = default;
     Pool &operator=(const Pool &) = delete;
     Pool &operator=(Pool &&) = delete;
 
@@ -117,9 +117,9 @@ public:
 
 private:
     std::function<T *()> _ctor{nullptr};
-    uint32_t             _elementsPerBatch{0};
-    index_t              _nextAvail{-1};
-    ccstd::vector<T *>   _freepool;
+    uint32_t _elementsPerBatch{0};
+    index_t _nextAvail{-1};
+    ccstd::vector<T *> _freepool;
 };
 
 } // namespace memop

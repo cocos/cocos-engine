@@ -27,6 +27,9 @@
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
 namespace pipeline {
@@ -46,12 +49,12 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    for (auto *instanceBuffer : _queues) {
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds, uint offset) {
+    for (const auto *instanceBuffer : _queues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 
         const auto &instances = instanceBuffer->getInstances();
-        const auto *pass      = instanceBuffer->getPass();
+        const auto *pass = instanceBuffer->getPass();
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
         for (const auto &instance : instances) {
@@ -63,6 +66,7 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Re
                 cmdBuffer->bindPipelineState(pso);
                 lastPSO = pso;
             }
+            if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
             cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
             cmdBuffer->bindInputAssembler(instance.ia);
             cmdBuffer->draw(instance.ia);

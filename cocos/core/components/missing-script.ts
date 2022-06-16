@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { ccclass, inspector, editorOnly, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { _getClassById } from '../utils/js';

@@ -112,7 +112,8 @@ void AudioPlayer::destroy() {
                         std::this_thread::sleep_for(std::chrono::milliseconds(2));
                         alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
                     }
-                    alSourceUnqueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds); CHECK_AL_ERROR_DEBUG();
+                    alSourceUnqueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds);
+                    CHECK_AL_ERROR_DEBUG();
                 }
                 ALOGVV("UnqueueBuffers Before alSourceStop");
 #endif
@@ -204,10 +205,19 @@ bool AudioPlayer::play2d() {
             ALOGE("%s:alSourcePlay error code:%x", __PRETTY_FUNCTION__, alError);
             break;
         }
-
-        ALint state;
-        alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
-        CC_ASSERT(state == AL_PLAYING);
+        /** Due to the bug of OpenAL, when the second time OpenAL trying to mix audio into bus, the mRampState become kRampingComplete, and for those oalSource whose mRampState == kRampingComplete, nothing happens.
+         * OALSource::Play{
+         *      switch(mState){
+         *       case kTransitionToStop:
+         *       case kTransitionToStop:
+         *         if(mRampState != kRampingComplete){..}
+         *         break;
+         *      }
+         * }
+         * So the assert here will trigger this bug as aolSource is reused.
+         * Replace OpenAL with AVAudioEngine on V3.6 mightbe helpful
+        */
+//        CC_ASSERT(state == AL_PLAYING);
         _ready = true;
         ret = true;
     } while (false);
@@ -328,7 +338,6 @@ bool AudioPlayer::setLoop(bool loop) {
 
 bool AudioPlayer::setTime(float time) {
     if (!_isDestroyed && time >= 0.0f && time < _audioCache->_duration) {
-
         _currTime = time;
         _timeDirty = true;
 

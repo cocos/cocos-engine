@@ -41,11 +41,11 @@ public:
 
 private:
     physx::PxHeightField *_mTerrain;
-    float                 _mRowScale;
-    float                 _mColScale;
-    float                 _mHeightScale;
-    bool                  _mIsTrigger;
-    void                  onComponentSet() override;
+    float _mRowScale;
+    float _mColScale;
+    float _mHeightScale;
+    bool _mIsTrigger;
+    void onComponentSet() override;
 };
 
 } // namespace physics

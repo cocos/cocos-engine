@@ -1,6 +1,26 @@
-/**
- * @packageDocumentation
- * @module spine
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { EDITOR } from 'internal:constants';
@@ -9,7 +29,7 @@ import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, RecyclePool } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
@@ -125,13 +145,13 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends Renderable2D
+ * @extends UIRenderer
  */
 @ccclass('sp.Skeleton')
 @help('i18n:sp.Skeleton')
 @menu('Spine/Skeleton')
 @executeInEditMode
-export class Skeleton extends Renderable2D {
+export class Skeleton extends UIRenderer {
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;
@@ -441,24 +461,6 @@ export class Skeleton extends Renderable2D {
     }
 
     get socketNodes () { return this._socketNodes; }
-
-    /*
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-     */
-    // @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
-    // get enableBatch () { return this._enableBatch; }
-    // set enableBatch (value) {
-    //     if (value != this._enableBatch) {
-    //         this._enableBatch = value;
-    //         this._updateBatch();
-    //     }
-    // }
-
-    // @serializable
-    // private _enableBatch: boolean = true;
-
-    public enableBatch = false;
     // Frame cache
     /**
      * @internal
@@ -574,8 +576,10 @@ export class Skeleton extends Renderable2D {
 
     // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
     /**
-     * @en The name of default skin.
-     * @zh 默认的皮肤名称。
+     * @en
+     * The name of default skin.
+     * @zh
+     * 默认的皮肤名称。
      * @property {String} defaultSkin
      */
     @serializable
@@ -583,8 +587,10 @@ export class Skeleton extends Renderable2D {
     protected defaultSkin = '';
 
     /**
-     * @en The name of default animation.
-     * @zh 默认的动画名称。
+     * @en
+     * The name of default animation.
+     * @zh
+     * 默认的动画名称。
      * @property {String} defaultAnimation
      */
     @visible(false)

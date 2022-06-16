@@ -45,14 +45,14 @@ void View::engineHandleCmd(int cmd) {
                 return;
             } else {
                 cc::CustomEvent event;
-                event.name         = EVENT_RECREATE_WINDOW;
+                event.name = EVENT_RECREATE_WINDOW;
                 event.args->ptrVal = cocosApp.pendingWindow;
                 cc::EventDispatcher::dispatchCustomEvent(event);
             }
             break;
         case ABILITY_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
-            event.name         = EVENT_DESTROY_WINDOW;
+            event.name = EVENT_DESTROY_WINDOW;
             event.args->ptrVal = cocosApp.pendingWindow;
             cc::EventDispatcher::dispatchCustomEvent(event);
         } break;

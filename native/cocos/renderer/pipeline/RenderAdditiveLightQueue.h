@@ -45,10 +45,10 @@ class ForwardPipeline;
 
 struct AdditiveLightPass {
     const scene::SubModel *subModel = nullptr;
-    const scene::Pass *    pass     = nullptr;
-    gfx::Shader *          shader   = nullptr;
-    ccstd::vector<uint>    dynamicOffsets;
-    ccstd::vector<uint>    lights;
+    const scene::Pass *pass = nullptr;
+    gfx::Shader *shader = nullptr;
+    ccstd::vector<uint> dynamicOffsets;
+    ccstd::vector<uint> lights;
 };
 
 class RenderAdditiveLightQueue final {
@@ -62,6 +62,7 @@ public:
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
+    static bool isInstancedOrBatched(const scene::Model *model);
 
     void clear();
     void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
@@ -70,26 +71,26 @@ private:
     bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint> *lightPassIndices) const;
     void lightCulling(const scene::Model *model);
 
-    RenderPipeline *                                _pipeline = nullptr;
+    RenderPipeline *_pipeline = nullptr;
     ccstd::vector<ccstd::vector<scene::SubModel *>> _sortedSubModelsArray;
-    ccstd::vector<ccstd::vector<uint>>              _sortedPSOCIArray;
-    ccstd::vector<const scene::Light *>             _validPunctualLights;
-    ccstd::vector<uint>                             _lightIndices;
-    ccstd::vector<AdditiveLightPass>                _lightPasses;
-    ccstd::vector<uint>                             _dynamicOffsets;
-    ccstd::vector<float>                            _lightBufferData;
-    RenderInstancedQueue *                          _instancedQueue       = nullptr;
-    RenderBatchedQueue *                            _batchedQueue         = nullptr;
-    gfx::Buffer *                                   _lightBuffer          = nullptr;
-    gfx::Buffer *                                   _firstLightBufferView = nullptr;
+    ccstd::vector<ccstd::vector<uint>> _sortedPSOCIArray;
+    ccstd::vector<const scene::Light *> _validPunctualLights;
+    ccstd::vector<uint> _lightIndices;
+    ccstd::vector<AdditiveLightPass> _lightPasses;
+    ccstd::vector<uint> _dynamicOffsets;
+    ccstd::vector<float> _lightBufferData;
+    RenderInstancedQueue *_instancedQueue = nullptr;
+    RenderBatchedQueue *_batchedQueue = nullptr;
+    gfx::Buffer *_lightBuffer = nullptr;
+    gfx::Buffer *_firstLightBufferView = nullptr;
 
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO{};
 
-    uint  _lightBufferStride       = 0;
-    uint  _lightBufferElementCount = 0;
-    uint  _lightBufferCount        = 16;
-    float _lightMeterScale         = 10000.0F;
-    uint  _phaseID                 = 0;
+    uint _lightBufferStride = 0;
+    uint _lightBufferElementCount = 0;
+    uint _lightBufferCount = 16;
+    float _lightMeterScale = 10000.0F;
+    uint _phaseID = 0;
 };
 
 } // namespace pipeline

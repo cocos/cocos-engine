@@ -36,8 +36,8 @@ namespace cc {
 struct ICapsuleOptions {
     uint32_t sides{32};
     uint32_t heightSegments{32};
-    bool     capped{true};
-    float    arc{math::PI_2};
+    bool capped{true};
+    float arc{math::PI_2};
 };
 
 /**
@@ -49,6 +49,6 @@ struct ICapsuleOptions {
  * @param radiusBottom 底部半径。
  * @param opts 胶囊体参数选项。
  */
-IGeometry capsule(float radiusTop = 0.5, float radiusBottom = 0.5, float height = 2, const cc::optional<ICapsuleOptions> &opts = cc::nullopt);
+IGeometry capsule(float radiusTop = 0.5, float radiusBottom = 0.5, float height = 2, const ccstd::optional<ICapsuleOptions> &opts = ccstd::nullopt);
 
 } // namespace cc

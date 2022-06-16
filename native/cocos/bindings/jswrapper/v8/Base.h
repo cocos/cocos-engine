@@ -45,5 +45,5 @@
 #include "HelperMacros.h"
 
 namespace se {
-using V8FinalizeFunc = void (*)(PrivateObjectBase *nativeObj);
+using V8FinalizeFunc = void (*)(Object *seObj);
 } // namespace se
