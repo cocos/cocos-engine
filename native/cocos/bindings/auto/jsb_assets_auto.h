@@ -51,10 +51,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::Material);
 JSB_REGISTER_OBJECT_TYPE(cc::TextureBase);
 JSB_REGISTER_OBJECT_TYPE(cc::IRenderTextureCreateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderTexture);
-JSB_REGISTER_OBJECT_TYPE(cc::IMeshBufferView);
-JSB_REGISTER_OBJECT_TYPE(cc::MorphTarget);
-JSB_REGISTER_OBJECT_TYPE(cc::SubMeshMorph);
-JSB_REGISTER_OBJECT_TYPE(cc::Morph);
 JSB_REGISTER_OBJECT_TYPE(cc::IGeometricInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::IFlatBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderingSubMesh);
@@ -66,11 +62,17 @@ JSB_REGISTER_OBJECT_TYPE(cc::ITexture2DCreateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::Texture2D);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeMipmap);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeMipmapData);
-JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeData);
+JSB_REGISTER_OBJECT_TYPE(cc::MipmapAtlasLayoutInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::TextureCubeMipmapAtlasInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::TextureCubeSerializeData);
 JSB_REGISTER_OBJECT_TYPE(cc::TextureCube);
 JSB_REGISTER_OBJECT_TYPE(cc::BuiltinResMgr);
-JSB_REGISTER_OBJECT_TYPE(cc::MorphRendering);
+JSB_REGISTER_OBJECT_TYPE(cc::IMeshBufferView);
+JSB_REGISTER_OBJECT_TYPE(cc::MorphTarget);
+JSB_REGISTER_OBJECT_TYPE(cc::SubMeshMorph);
+JSB_REGISTER_OBJECT_TYPE(cc::Morph);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphRenderingInstance);
+JSB_REGISTER_OBJECT_TYPE(cc::MorphRendering);
 JSB_REGISTER_OBJECT_TYPE(cc::StdMorphRendering);
 JSB_REGISTER_OBJECT_TYPE(cc::CustomAttribute);
 JSB_REGISTER_OBJECT_TYPE(cc::IGeometry);
@@ -323,8 +325,10 @@ bool js_register_cc_EffectAsset(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_EffectAsset_get);
 SE_DECLARE_FUNC(js_assets_EffectAsset_getAll);
+SE_DECLARE_FUNC(js_assets_EffectAsset_isLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_registerAsset);
 SE_DECLARE_FUNC(js_assets_EffectAsset_remove);
+SE_DECLARE_FUNC(js_assets_EffectAsset_setLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_EffectAsset);
 
 extern se::Object *__jsb_cc_IMemoryImageSource_proto; // NOLINT
@@ -382,6 +386,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4Array);
+SE_DECLARE_FUNC(js_assets_Material_setPropertyNull);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternion);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternionArray);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyTextureBase);
@@ -392,7 +397,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4Array);
-SE_DECLARE_FUNC(js_assets_Material_getHashForMaterialForJS);
+SE_DECLARE_FUNC(js_assets_Material_getHashForMaterial);
 SE_DECLARE_FUNC(js_assets_Material_Material);
 
 extern se::Object *__jsb_cc_TextureBase_proto; // NOLINT
@@ -403,7 +408,7 @@ bool js_register_cc_TextureBase(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_TextureBase_getAnisotropy);
 SE_DECLARE_FUNC(js_assets_TextureBase_getGFXSampler);
 SE_DECLARE_FUNC(js_assets_TextureBase_getGFXTexture);
-SE_DECLARE_FUNC(js_assets_TextureBase_getHashForJS);
+SE_DECLARE_FUNC(js_assets_TextureBase_getHash);
 SE_DECLARE_FUNC(js_assets_TextureBase_getId);
 SE_DECLARE_FUNC(js_assets_TextureBase_getPixelFormat);
 SE_DECLARE_FUNC(js_assets_TextureBase_getSamplerInfo);
@@ -432,38 +437,6 @@ SE_DECLARE_FUNC(js_assets_RenderTexture_readPixels);
 SE_DECLARE_FUNC(js_assets_RenderTexture_reset);
 SE_DECLARE_FUNC(js_assets_RenderTexture_resize);
 SE_DECLARE_FUNC(js_assets_RenderTexture_RenderTexture);
-
-extern se::Object *__jsb_cc_IMeshBufferView_proto; // NOLINT
-extern se::Class * __jsb_cc_IMeshBufferView_class; // NOLINT
-
-bool js_register_cc_IMeshBufferView(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::IMeshBufferView *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_MorphTarget_proto; // NOLINT
-extern se::Class * __jsb_cc_MorphTarget_class; // NOLINT
-
-bool js_register_cc_MorphTarget(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::MorphTarget *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_SubMeshMorph_proto; // NOLINT
-extern se::Class * __jsb_cc_SubMeshMorph_class; // NOLINT
-
-bool js_register_cc_SubMeshMorph(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::SubMeshMorph *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_Morph_proto; // NOLINT
-extern se::Class * __jsb_cc_Morph_class; // NOLINT
-
-bool js_register_cc_Morph(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::Morph *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_IGeometricInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IGeometricInfo_class; // NOLINT
@@ -522,6 +495,7 @@ bool js_register_cc_SimpleTexture(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_SimpleTexture_assignImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_checkTextureLoaded);
+SE_DECLARE_FUNC(js_assets_SimpleTexture_isUsingOfflineMipmaps);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_setMipRange);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateMipmaps);
@@ -579,13 +553,29 @@ bool js_register_cc_ITextureCubeSerializeMipmapData(se::Object *obj); // NOLINT
 template <>
 bool sevalue_to_native(const se::Value &, cc::ITextureCubeSerializeMipmapData *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_ITextureCubeSerializeData_proto; // NOLINT
-extern se::Class * __jsb_cc_ITextureCubeSerializeData_class; // NOLINT
+extern se::Object *__jsb_cc_MipmapAtlasLayoutInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_MipmapAtlasLayoutInfo_class; // NOLINT
 
-bool js_register_cc_ITextureCubeSerializeData(se::Object *obj); // NOLINT
+bool js_register_cc_MipmapAtlasLayoutInfo(se::Object *obj); // NOLINT
 
 template <>
-bool sevalue_to_native(const se::Value &, cc::ITextureCubeSerializeData *, se::Object *ctx); //NOLINT
+bool sevalue_to_native(const se::Value &, cc::MipmapAtlasLayoutInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_TextureCubeMipmapAtlasInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_TextureCubeMipmapAtlasInfo_class; // NOLINT
+
+bool js_register_cc_TextureCubeMipmapAtlasInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::TextureCubeMipmapAtlasInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_TextureCubeSerializeData_proto; // NOLINT
+extern se::Class * __jsb_cc_TextureCubeSerializeData_class; // NOLINT
+
+bool js_register_cc_TextureCubeSerializeData(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::TextureCubeSerializeData *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_TextureCube_proto; // NOLINT
 extern se::Class * __jsb_cc_TextureCube_class; // NOLINT
@@ -595,13 +585,16 @@ bool js_register_cc_TextureCube(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureCreateInfo);
 SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureViewCreateInfo);
 SE_DECLARE_FUNC(js_assets_TextureCube_getImage);
+SE_DECLARE_FUNC(js_assets_TextureCube_getMipmapAtlas);
 SE_DECLARE_FUNC(js_assets_TextureCube_getMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_initialize);
 SE_DECLARE_FUNC(js_assets_TextureCube_releaseTexture);
 SE_DECLARE_FUNC(js_assets_TextureCube_reset);
 SE_DECLARE_FUNC(js_assets_TextureCube_setImage);
+SE_DECLARE_FUNC(js_assets_TextureCube_setMipmapAtlasForJS);
 SE_DECLARE_FUNC(js_assets_TextureCube_setMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_setMipmapsForJS);
+SE_DECLARE_FUNC(js_assets_TextureCube_setmipmapAtlas);
 SE_DECLARE_FUNC(js_assets_TextureCube_fromTexture2DArray);
 SE_DECLARE_FUNC(js_assets_TextureCube_TextureCube);
 
@@ -618,12 +611,37 @@ SE_DECLARE_FUNC(js_assets_BuiltinResMgr_tryCompileAllPasses);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getInstance);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_BuiltinResMgr);
 
-extern se::Object *__jsb_cc_MorphRendering_proto; // NOLINT
-extern se::Class * __jsb_cc_MorphRendering_class; // NOLINT
+extern se::Object *__jsb_cc_IMeshBufferView_proto; // NOLINT
+extern se::Class * __jsb_cc_IMeshBufferView_class; // NOLINT
 
-bool js_register_cc_MorphRendering(se::Object *obj); // NOLINT
+bool js_register_cc_IMeshBufferView(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_assets_MorphRendering_createInstance);
+template <>
+bool sevalue_to_native(const se::Value &, cc::IMeshBufferView *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_MorphTarget_proto; // NOLINT
+extern se::Class * __jsb_cc_MorphTarget_class; // NOLINT
+
+bool js_register_cc_MorphTarget(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::MorphTarget *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_SubMeshMorph_proto; // NOLINT
+extern se::Class * __jsb_cc_SubMeshMorph_class; // NOLINT
+
+bool js_register_cc_SubMeshMorph(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::SubMeshMorph *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_Morph_proto; // NOLINT
+extern se::Class * __jsb_cc_Morph_class; // NOLINT
+
+bool js_register_cc_Morph(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::Morph *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_MorphRenderingInstance_proto; // NOLINT
 extern se::Class * __jsb_cc_MorphRenderingInstance_class; // NOLINT
@@ -634,6 +652,13 @@ SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_adaptPipelineState);
 SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_destroy);
 SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_requiredPatches);
 SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_setWeights);
+
+extern se::Object *__jsb_cc_MorphRendering_proto; // NOLINT
+extern se::Class * __jsb_cc_MorphRendering_class; // NOLINT
+
+bool js_register_cc_MorphRendering(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_assets_MorphRendering_createInstance);
 
 extern se::Object *__jsb_cc_StdMorphRendering_proto; // NOLINT
 extern se::Class * __jsb_cc_StdMorphRendering_class; // NOLINT

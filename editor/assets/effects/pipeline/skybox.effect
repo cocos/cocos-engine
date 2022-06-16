@@ -50,6 +50,7 @@ CCProgram sky-fs %{
   precision mediump float;
   #include <cc-global>
   #include <cc-environment>
+  #include <texture-lod>
   #include <unpack>
   #include <gamma>
   #include <output-standard>
@@ -58,9 +59,9 @@ CCProgram sky-fs %{
 
   vec4 frag () {
     #if USE_RGBE_CUBEMAP
-      vec3 c = unpackRGBE(texture(cc_environment, viewDir.xyz));
+      vec3 c = unpackRGBE(fragTextureLod(cc_environment, viewDir.xyz, 0.0));
     #else
-      vec3 c = SRGBToLinear(texture(cc_environment, viewDir.xyz).rgb);
+      vec3 c = SRGBToLinear(fragTextureLod(cc_environment, viewDir.xyz, 0.0).rgb);
     #endif
     return CCFragOutput(vec4(c * cc_ambientSky.w, 1.0));
   }

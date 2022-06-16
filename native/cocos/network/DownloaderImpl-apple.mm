@@ -105,13 +105,17 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
     DownloadTaskApple *coTask = ccnew DownloadTaskApple();
     DeclareDownloaderImplVar;
     if (task->storagePath.length()) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
         if (impl.hasUnfinishedTask == YES) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
                     coTask->downloadTask = [impl createFileTask:task];
                 },this , 0, 0, 0.1F, false, "DownloaderApple");
             } else {
-            coTask->downloadTask = [impl createFileTask:task];
-        }
+                coTask->downloadTask = [impl createFileTask:task];
+            }
+#else
+        coTask->downloadTask = [impl createFileTask:task];
+#endif
     } else {
         coTask->dataTask = [impl createDataTask:task];
     }
@@ -197,7 +201,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // create task dictionary
     self.taskDict = [NSMutableDictionary dictionary];
 
-    // create backgroundSession to support background download
+#if CC_PLATFORM == CC_PLATFORM_IOS 
+    // create backgroundSession for iOS to support background download
     self.downloadSession = [self backgroundURLSession];
 
     self.hasUnfinishedTask = YES;
@@ -218,7 +223,10 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
             }
         }
     }];
-    
+#else
+    NSURLSessionConfiguration *defaultConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+    self.downloadSession = [NSURLSession sessionWithConfiguration:defaultConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]]; 
+#endif
     return self;
 }
 
@@ -599,52 +607,52 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     }
 
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
-    const char *storagePath = [wrapper get]->storagePath.c_str();
-    NSString *destPath = [NSString stringWithUTF8String:storagePath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *destURL = nil;
+    if (wrapper) {
+        const char *storagePath = [wrapper get]->storagePath.c_str();
+        NSString *destPath = [NSString stringWithUTF8String:storagePath];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSURL *destURL = nil;
 
-    do {
-        if ([destPath hasPrefix:@"file://"]) {
-            break;
+        do {
+            if ([destPath hasPrefix:@"file://"]) {
+                break;
+            }
+
+            if ('/' == [destPath characterAtIndex:0]) {
+                destURL = [NSURL fileURLWithPath:destPath];
+                break;
+            }
+
+            // relative path, store to user domain default
+            NSArray *URLs = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+            NSURL *documentsDirectory = URLs[0];
+            destURL = [documentsDirectory URLByAppendingPathComponent:destPath];
+        } while (0);
+
+        // Make sure we overwrite anything that's already there
+        [fileManager removeItemAtURL:destURL error:NULL];
+
+        // copy file to dest location
+        int errorCode = cc::network::DownloadTask::ERROR_NO_ERROR;
+        int errorCodeInternal = 0;
+        ccstd::string errorString;
+
+        NSError *error = nil;
+        if ([fileManager copyItemAtURL:location toURL:destURL error:&error]) {
+            // success, remove temp file if it exist
+            if (_hints.tempFileNameSuffix.length()) {
+                NSString *tempStr = [[destURL absoluteString] stringByAppendingFormat:@"%s", _hints.tempFileNameSuffix.c_str()];
+                NSURL *tempDestUrl = [NSURL URLWithString:tempStr];
+                [fileManager removeItemAtURL:tempDestUrl error:NULL];
+            }
+        } else {
+            errorCode = cc::network::DownloadTask::ERROR_FILE_OP_FAILED;
+            if (error) {
+                errorCodeInternal = static_cast<int32_t>(error.code);
+                errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
+            }
         }
-
-        if ('/' == [destPath characterAtIndex:0]) {
-            destURL = [NSURL fileURLWithPath:destPath];
-            break;
-        }
-
-        // relative path, store to user domain default
-        NSArray *URLs = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-        NSURL *documentsDirectory = URLs[0];
-        destURL = [documentsDirectory URLByAppendingPathComponent:destPath];
-    } while (0);
-
-    // Make sure we overwrite anything that's already there
-    [fileManager removeItemAtURL:destURL error:NULL];
-
-    // copy file to dest location
-    int errorCode = cc::network::DownloadTask::ERROR_NO_ERROR;
-    int errorCodeInternal = 0;
-    ccstd::string errorString;
-
-    NSError *error = nil;
-    if ([fileManager copyItemAtURL:location toURL:destURL error:&error]) {
-        // success, remove temp file if it exist
-        if (_hints.tempFileNameSuffix.length()) {
-            NSString *tempStr = [[destURL absoluteString] stringByAppendingFormat:@"%s", _hints.tempFileNameSuffix.c_str()];
-            NSURL *tempDestUrl = [NSURL URLWithString:tempStr];
-            [fileManager removeItemAtURL:tempDestUrl error:NULL];
-        }
-    } else {
-        errorCode = cc::network::DownloadTask::ERROR_FILE_OP_FAILED;
-        if (error) {
-            errorCodeInternal = static_cast<int32_t>(error.code);
-            errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
-        }
-    }
-    ccstd::vector<unsigned char> buf; // just a placeholder
-    if (wrapper) { 
+        ccstd::vector<unsigned char> buf; // just a placeholder
         _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf);
         self.hasUnfinishedTask = NO;
     }

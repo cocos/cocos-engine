@@ -118,7 +118,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    void stop(const std::string& animationName);
+    void stop(const std::string& animationName = "");
     /**
      * - Play animation with a specific animation config.
      * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.

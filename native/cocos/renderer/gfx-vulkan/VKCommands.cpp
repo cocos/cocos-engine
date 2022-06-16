@@ -333,8 +333,9 @@ struct SubpassDependencyManager final {
 private:
     // only the src/dst attributes differs
     struct DependencyHasher {
-        size_t operator()(const VkSubpassDependency2 &info) const {
-            return boost::hash_range(reinterpret_cast<const uint64_t *>(&info.srcSubpass),
+        ccstd::hash_t operator()(const VkSubpassDependency2 &info) const {
+            static_assert(std::is_trivially_copyable<VkSubpassDependency2>::value && sizeof(VkSubpassDependency2) % 8 == 0, "VkSubpassDependency2 must be 8 bytes aligned and trivially copyable");
+            return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&info.srcSubpass),
                                      reinterpret_cast<const uint64_t *>(&info.dependencyFlags));
         }
     };

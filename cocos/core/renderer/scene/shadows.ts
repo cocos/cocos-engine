@@ -106,18 +106,88 @@ export const PCFType = Enum({
     HARD: 0,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x4 次采样
+     * @en x4 times
      * @readonly
      */
     SOFT: 1,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x9 次采样
+     * @en x9 times
      * @readonly
      */
     SOFT_2X: 2,
+
+    /**
+     * @zh x16 次采样
+     * @en x16 times
+     * @readonly
+     */
+    SOFT_4X: 3,
+});
+
+/**
+ * @zh 级联阴影贴图层级。
+ * @en The CSM shadow level
+ * @enum Shadows.CSMLevel
+ */
+export const CSMLevel = Enum({
+    /**
+     * @zh 1 个层级
+     * @en level 1
+     * @readonly
+     */
+    LEVEL_1: 1,
+
+    /**
+     * @zh 2 个层级
+     * @en level 2
+     * @readonly
+     */
+    LEVEL_2: 2,
+
+    /**
+     * @zh 3 个层级
+     * @en level 3
+     * @readonly
+     */
+    LEVEL_3: 3,
+
+    /**
+     * @zh 4 个层级
+     * @en level 4
+     * @readonly
+     */
+    LEVEL_4: 4,
+});
+
+/**
+ * @zh 级联阴影性能优化模式。
+ * @en The CSM performance optimization mode
+ * @enum Shadows.CSMOptimizationMode
+ */
+export const CSMOptimizationMode = Enum({
+    /**
+     * @zh 没有性能优化
+     * @en has no performance optimization
+     * @readonly
+     */
+    NONE: 1,
+
+    /**
+     * @zh 剔除层与层之间重复物体
+     * @en Eliminate duplicate objects between layers
+     * @readonly
+     */
+    RemoveDuplicates: 2,
+
+    /**
+      * @zh 取消稳抖
+      * @en Disable rotation fix
+      * @readonly
+      */
+    DisableRotationFix: 3,
 });
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
@@ -251,29 +321,6 @@ export class Shadows {
     public maxReceived = 4;
 
     // local set
-    /**
-     * @internal
-     */
-    /**
-     * @en The far clip plane of the shadow camera
-     * @zh 阴影相机的远裁剪平面
-     */
-    public shadowCameraFar = 0;
-    /**
-     * @en Shadow camera's view matrix
-     * @zh 阴影相机的视图矩阵
-     */
-    public matShadowView = new Mat4();
-    /**
-     * @en Shadow camera's projection matrix
-     * @zh 阴影相机的投影矩阵
-     */
-    public matShadowProj = new Mat4();
-    /**
-     * @en Shadow camera's view projection matrix
-     * @zh 阴影相机的视图投影矩阵
-     */
-    public matShadowViewProj = new Mat4();
     protected _matLight = new Mat4();
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
@@ -284,7 +331,7 @@ export class Shadows {
     protected _distance = 0;
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
-    protected _size: Vec2 = new Vec2(512, 512);
+    protected _size: Vec2 = new Vec2(1024, 1024);
     protected _shadowMapDirty = false;
 
     /**
@@ -325,7 +372,7 @@ export class Shadows {
         this.distance = shadowsInfo.planeHeight;
         this.shadowColor = shadowsInfo.shadowColor;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.size = shadowsInfo.size;
+        this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
     }
 
     public activate () {

@@ -22,12 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, editable, serializable, type } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 
 const textAssetProto: any = jsb.TextAsset.prototype;
@@ -37,23 +32,14 @@ textAssetProto.createNode = null!;
 export type TextAsset = jsb.TextAsset;
 export const TextAsset = jsb.TextAsset;
 
-const clsDecorator = ccclass('cc.TextAsset');
-
-const _class2$F = TextAsset;
-const _descriptor$y = _applyDecoratedDescriptor(_class2$F.prototype, 'text', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return '';
-    },
-});
-
 textAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
-    // _initializerDefineProperty(_this, 'text', _descriptor$y, _assertThisInitialized(_this));
 };
 
-clsDecorator(TextAsset);
-
 legacyCC.TextAsset = jsb.TextAsset;
+
+// handle meta data, it is generated automatically
+const TextAssetProto = TextAsset.prototype;
+editable(TextAssetProto, 'text');
+serializable(TextAssetProto, 'text');
+ccclass('cc.TextAsset')(TextAsset);

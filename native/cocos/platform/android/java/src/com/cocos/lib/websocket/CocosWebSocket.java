@@ -2,11 +2,21 @@ package com.cocos.lib.websocket;
 
 import android.os.Build;
 import android.util.Log;
-import com.cocos.lib.CocosActivity;
+
 import com.cocos.lib.CocosHelper;
+
+import org.cocos2dx.okhttp3.CipherSuite;
+import org.cocos2dx.okhttp3.Dispatcher;
+import org.cocos2dx.okhttp3.OkHttpClient;
+import org.cocos2dx.okhttp3.Request;
+import org.cocos2dx.okhttp3.Response;
+import org.cocos2dx.okhttp3.WebSocketListener;
+import org.cocos2dx.okio.ByteString;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -14,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -22,13 +33,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.cocos2dx.okhttp3.CipherSuite;
-import org.cocos2dx.okhttp3.Dispatcher;
-import org.cocos2dx.okhttp3.OkHttpClient;
-import org.cocos2dx.okhttp3.Request;
-import org.cocos2dx.okhttp3.Response;
-import org.cocos2dx.okhttp3.WebSocketListener;
-import org.cocos2dx.okio.ByteString;
 
 @SuppressWarnings("unused")
 public class CocosWebSocket extends WebSocketListener {
@@ -55,7 +59,7 @@ public class CocosWebSocket extends WebSocketListener {
     private OkHttpClient                   _client;
 
     CocosWebSocket(long ptr, long handler, String[] header, boolean tcpNoDelay,
-        boolean perMessageDeflate, long timeout) {
+                   boolean perMessageDeflate, long timeout) {
         _wsContext.identifier = ptr;
         _wsContext.handlerPtr = handler;
         _header               = header;
@@ -123,12 +127,14 @@ public class CocosWebSocket extends WebSocketListener {
     }
 
     private void _connect(final String url, final String protocols,
-        final String caFilePath) {
+                          final String caFilePath) {
         Log.d(_TAG, "connect ws url: '" + url + "' ,protocols: '" + protocols + "' ,ca_: '" + caFilePath + "'");
         Request.Builder requestBuilder = new Request.Builder().url(url);
+        URI uriObj = null;
         try {
-            requestBuilder = requestBuilder.url(url);
-        } catch (NullPointerException | IllegalArgumentException e) {
+            requestBuilder = requestBuilder.url(url.trim());
+            uriObj = URI.create(url);
+        } catch (NullPointerException | IllegalArgumentException  e) {
             synchronized (_wsContext) {
                 nativeOnError("invalid url", _wsContext.identifier,
                     _wsContext.handlerPtr);
@@ -143,6 +149,11 @@ public class CocosWebSocket extends WebSocketListener {
                 requestBuilder.header(_header[index], _header[index + 1]);
             }
         }
+
+        String originProtocol =uriObj.getScheme().toLowerCase();
+        String uriScheme = (originProtocol.equals("wss") || originProtocol.equals("https"))? "https" : "http";
+        requestBuilder.addHeader("Origin", uriScheme + "://" + uriObj.getHost() + (uriObj.getPort() < 0 ? "" : ":" + uriObj.getPort()));
+
         Request request = requestBuilder.build();
 
         if(dispatcher == null) {
@@ -282,13 +293,13 @@ public class CocosWebSocket extends WebSocketListener {
 
     @Override
     public void onClosing(org.cocos2dx.okhttp3.WebSocket _webSocket, int code,
-        String reason) {
+                          String reason) {
         output("Closing : " + code + " / " + reason);
     }
 
     @Override
     public void onFailure(org.cocos2dx.okhttp3.WebSocket _webSocket, Throwable t,
-        Response response) {
+                          Response response) {
         String msg = "";
         if (t != null) {
             msg = t.getMessage() == null ?  t.getClass().getSimpleName() : t.getMessage();
@@ -301,7 +312,7 @@ public class CocosWebSocket extends WebSocketListener {
 
     @Override
     public void onClosed(org.cocos2dx.okhttp3.WebSocket _webSocket, int code,
-        String reason) {
+                         String reason) {
         output("onClosed : " + code + " / " + reason);
         synchronized (_wsContext) {
             nativeOnClosed(code, reason, _wsContext.identifier,
@@ -312,18 +323,18 @@ public class CocosWebSocket extends WebSocketListener {
     private static native void NativeInit();
 
     private native void nativeOnStringMessage(final String msg, long identifier,
-        long handler);
+                                              long handler);
 
     private native void nativeOnBinaryMessage(final byte[] msg, long identifier,
-        long handler);
+                                              long handler);
 
     private native void nativeOnOpen(final String protocol,
-        final String headerString, long identifier,
-        long handler);
+                                     final String headerString, long identifier,
+                                     long handler);
 
     private native void nativeOnClosed(final int code, final String reason,
-        long identifier, long handler);
+                                       long identifier, long handler);
 
     private native void nativeOnError(final String msg, long identifier,
-        long handler);
+                                      long handler);
 }

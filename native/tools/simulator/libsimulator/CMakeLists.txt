@@ -208,7 +208,7 @@ target_include_directories(${libsimulator_name}
 )
 
 set_property(TARGET ${libsimulator_name} PROPERTY
-    CXX_STANDARD 14
+    CXX_STANDARD 17
 )
 
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "Source Files" FILES ${LIBSIMULATOR_SOURCE_LIST})

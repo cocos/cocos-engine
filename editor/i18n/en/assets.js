@@ -43,6 +43,7 @@ module.exports = {
             mipFilterTip: 'Mip Filter',
             wrapModeSTip: 'Wrap Mode S',
             wrapModeTTip: 'Wrap Mode T',
+            bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
                 title: 'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
@@ -325,7 +326,7 @@ module.exports = {
             smartMaterialEnabled: {
                 name: 'Smart Material Conversion',
                 title: 'Convert DCC materials to engine builtin materials which match the internal lighting model.',
-                warn: 'The laboratory feature "Smart Material Conversion" in the preferences is turned off, please enable this feature to modify model level settings.',
+                warn: 'The model feature "Smart Material Conversion" in the project settings is turned off, please enable this feature to modify model level settings.',
             },
         },
         textureCube: {

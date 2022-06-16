@@ -26,7 +26,7 @@
 #include "primitive/Sphere.h"
 
 namespace cc {
-IGeometry sphere(float radius, const cc::optional<ISphereOptions> &opts) {
+IGeometry sphere(float radius, const ccstd::optional<ISphereOptions> &opts) {
     const uint32_t segments = opts.has_value() ? opts->segments : 32;
 
     // lat === latitude

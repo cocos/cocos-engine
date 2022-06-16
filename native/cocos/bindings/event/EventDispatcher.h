@@ -221,12 +221,12 @@ public:
     // TODO(mingo): support caps lock?
 };
 union EventParameterType {
-	void *  ptrVal;
-	int32_t longVal;
-    int     intVal;
+    void *ptrVal;
+    int32_t longVal;
+    int intVal;
     int16_t shortVal;
-    char    charVal;
-    bool    boolVal;
+    char charVal;
+    bool boolVal;
 };
 
 class CustomEvent : public OSEvent {
@@ -242,12 +242,12 @@ class DeviceEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(DeviceEvent, OSEventType::DEVICE_OSEVENT)
     enum class Type {
-        DEVICE_MEMORY,
-        DEVICE_ORIENTATION,
+        MEMORY,
+        ORIENTATION,
         UNKNOWN
     };
     EventParameterType args[3];
-    Type type{Type::DEVICE_MEMORY}; // NOLINT(modernize-use-nullptr)
+    Type type{Type::UNKNOWN}; // NOLINT(modernize-use-nullptr)
 };
 
 class EventDispatcher {

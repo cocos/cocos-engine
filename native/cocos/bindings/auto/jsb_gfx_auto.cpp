@@ -16935,7 +16935,7 @@ static bool js_gfx_Buffer_computeHash_static(se::State& s) // NOLINT(readability
         HolderType<cc::gfx::BufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::Buffer::computeHash(arg0.value());
+        unsigned int result = cc::gfx::Buffer::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -17035,7 +17035,7 @@ static bool js_gfx_InputAssembler_getAttributesHash(se::State& s) // NOLINT(read
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        size_t result = cobj->getAttributesHash();
+        unsigned int result = cobj->getAttributesHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_InputAssembler_getAttributesHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -17997,7 +17997,7 @@ static bool js_gfx_CommandBuffer_getNumDrawCalls(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getNumDrawCalls)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_CommandBuffer_getNumDrawCalls)
 
 static bool js_gfx_CommandBuffer_getNumInstances(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18016,7 +18016,7 @@ static bool js_gfx_CommandBuffer_getNumInstances(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getNumInstances)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_CommandBuffer_getNumInstances)
 
 static bool js_gfx_CommandBuffer_getNumTris(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18035,7 +18035,7 @@ static bool js_gfx_CommandBuffer_getNumTris(se::State& s) // NOLINT(readability-
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getNumTris)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_CommandBuffer_getNumTris)
 
 static bool js_gfx_CommandBuffer_getQueue(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18054,7 +18054,7 @@ static bool js_gfx_CommandBuffer_getQueue(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getQueue)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_CommandBuffer_getQueue)
 
 static bool js_gfx_CommandBuffer_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18073,7 +18073,7 @@ static bool js_gfx_CommandBuffer_getType(se::State& s) // NOLINT(readability-ide
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getType)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_CommandBuffer_getType)
 
 static bool js_gfx_CommandBuffer_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18375,6 +18375,11 @@ bool js_register_gfx_CommandBuffer(se::Object* obj) // NOLINT(readability-identi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_gfx_getter_return_true), nullptr);
 #endif
+    cls->defineProperty("type", _SE(js_gfx_CommandBuffer_getType_asGetter), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_CommandBuffer_getQueue_asGetter), nullptr);
+    cls->defineProperty("numDrawCalls", _SE(js_gfx_CommandBuffer_getNumDrawCalls_asGetter), nullptr);
+    cls->defineProperty("numInstances", _SE(js_gfx_CommandBuffer_getNumInstances_asGetter), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_CommandBuffer_getNumTris_asGetter), nullptr);
     cls->defineFunction("begin", _SE(js_gfx_CommandBuffer_begin));
     cls->defineFunction("beginQuery", _SE(js_gfx_CommandBuffer_beginQuery));
     cls->defineFunction("beginRenderPass", _SE(js_gfx_CommandBuffer_beginRenderPass));
@@ -18389,11 +18394,6 @@ bool js_register_gfx_CommandBuffer(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("end", _SE(js_gfx_CommandBuffer_end));
     cls->defineFunction("endQuery", _SE(js_gfx_CommandBuffer_endQuery));
     cls->defineFunction("endRenderPass", _SE(js_gfx_CommandBuffer_endRenderPass));
-    cls->defineFunction("getNumDrawCalls", _SE(js_gfx_CommandBuffer_getNumDrawCalls));
-    cls->defineFunction("getNumInstances", _SE(js_gfx_CommandBuffer_getNumInstances));
-    cls->defineFunction("getNumTris", _SE(js_gfx_CommandBuffer_getNumTris));
-    cls->defineFunction("getQueue", _SE(js_gfx_CommandBuffer_getQueue));
-    cls->defineFunction("getType", _SE(js_gfx_CommandBuffer_getType));
     cls->defineFunction("initialize", _SE(js_gfx_CommandBuffer_initialize));
     cls->defineFunction("nextSubpass", _SE(js_gfx_CommandBuffer_nextSubpass));
     cls->defineFunction("pipelineBarrier", _SE(js_gfx_CommandBuffer_pipelineBarrier));
@@ -19107,7 +19107,7 @@ static bool js_gfx_Framebuffer_computeHash_static(se::State& s) // NOLINT(readab
         HolderType<cc::gfx::FramebufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::Framebuffer::computeHash(arg0.value());
+        unsigned int result = cc::gfx::Framebuffer::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19898,7 +19898,7 @@ static bool js_gfx_RenderPass_getHash(se::State& s) // NOLINT(readability-identi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        size_t result = cobj->getHash();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19956,7 +19956,7 @@ static bool js_gfx_RenderPass_computeHash_static(se::State& s) // NOLINT(readabi
         HolderType<cc::gfx::RenderPassInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::RenderPass::computeHash(arg0.value());
+        unsigned int result = cc::gfx::RenderPass::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20326,7 +20326,7 @@ static bool js_gfx_Texture_getHash(se::State& s) // NOLINT(readability-identifie
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        size_t result = cobj->getHash();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Texture_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20482,7 +20482,7 @@ static bool js_gfx_Texture_computeHash_static(se::State& s) // NOLINT(readabilit
             HolderType<cc::gfx::TextureViewInfo, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            size_t result = cc::gfx::Texture::computeHash(arg0.value());
+            unsigned int result = cc::gfx::Texture::computeHash(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash_static : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20494,7 +20494,7 @@ static bool js_gfx_Texture_computeHash_static(se::State& s) // NOLINT(readabilit
             HolderType<cc::gfx::TextureInfo, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            size_t result = cc::gfx::Texture::computeHash(arg0.value());
+            unsigned int result = cc::gfx::Texture::computeHash(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash_static : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20835,7 +20835,7 @@ static bool js_gfx_GeneralBarrier_getHash(se::State& s) // NOLINT(readability-id
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const size_t& result = cobj->getHash();
+        const unsigned int& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20874,7 +20874,7 @@ static bool js_gfx_GeneralBarrier_computeHash_static(se::State& s) // NOLINT(rea
         HolderType<cc::gfx::GeneralBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::GeneralBarrier::computeHash(arg0.value());
+        unsigned int result = cc::gfx::GeneralBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20933,7 +20933,7 @@ static bool js_gfx_Sampler_getHash(se::State& s) // NOLINT(readability-identifie
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const size_t& result = cobj->getHash();
+        const unsigned int& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20972,7 +20972,7 @@ static bool js_gfx_Sampler_computeHash_static(se::State& s) // NOLINT(readabilit
         HolderType<cc::gfx::SamplerInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::Sampler::computeHash(arg0.value());
+        unsigned int result = cc::gfx::Sampler::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20989,7 +20989,7 @@ static bool js_gfx_Sampler_unpackFromHash_static(se::State& s) // NOLINT(readabi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<size_t, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_unpackFromHash_static : Error processing arguments");
         cc::gfx::SamplerInfo result = cc::gfx::Sampler::unpackFromHash(arg0.value());
@@ -21052,7 +21052,7 @@ static bool js_gfx_TextureBarrier_getHash(se::State& s) // NOLINT(readability-id
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const size_t& result = cobj->getHash();
+        const unsigned int& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -21091,7 +21091,7 @@ static bool js_gfx_TextureBarrier_computeHash_static(se::State& s) // NOLINT(rea
         HolderType<cc::gfx::TextureBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::TextureBarrier::computeHash(arg0.value());
+        unsigned int result = cc::gfx::TextureBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());

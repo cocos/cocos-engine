@@ -117,25 +117,17 @@ export class KeyboardInputSource {
         this._registerEvent();
     }
 
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
+
+    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
+        this._eventTarget.on(eventType, callback,  target);
+    }
+
     private _registerEvent () {
         const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        canvas?.addEventListener('keydown', (event: any) => {
-            event.stopPropagation();
-            event.preventDefault();
-            if (!event.repeat) {
-                const keyDownInputEvent = this._getInputEvent(event, InputEventType.KEY_DOWN);
-                this._eventTarget.emit(InputEventType.KEY_DOWN, keyDownInputEvent);
-            } else {
-                const keyPressingInputEvent = this._getInputEvent(event, InputEventType.KEY_PRESSING);
-                this._eventTarget.emit(InputEventType.KEY_PRESSING, keyPressingInputEvent);
-            }
-        });
-        canvas?.addEventListener('keyup', (event: any) => {
-            const inputEvent = this._getInputEvent(event, InputEventType.KEY_UP);
-            event.stopPropagation();
-            event.preventDefault();
-            this._eventTarget.emit(InputEventType.KEY_UP, inputEvent);
-        });
+        canvas?.addEventListener('keydown', this._handleKeyboardDown.bind(this));
+        canvas?.addEventListener('keyup', this._handleKeyboardUp.bind(this));
     }
 
     private _getInputEvent (event: any, eventType: InputEventType) {
@@ -144,7 +136,22 @@ export class KeyboardInputSource {
         return eventKeyboard;
     }
 
-    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
-        this._eventTarget.on(eventType, callback,  target);
+    private _handleKeyboardDown (event: KeyboardEvent) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (!event.repeat) {
+            const keyDownInputEvent = this._getInputEvent(event, InputEventType.KEY_DOWN);
+            this._eventTarget.emit(InputEventType.KEY_DOWN, keyDownInputEvent);
+        } else {
+            const keyPressingInputEvent = this._getInputEvent(event, InputEventType.KEY_PRESSING);
+            this._eventTarget.emit(InputEventType.KEY_PRESSING, keyPressingInputEvent);
+        }
+    }
+
+    private _handleKeyboardUp (event: KeyboardEvent) {
+        const inputEvent = this._getInputEvent(event, InputEventType.KEY_UP);
+        event.stopPropagation();
+        event.preventDefault();
+        this._eventTarget.emit(InputEventType.KEY_UP, inputEvent);
     }
 }

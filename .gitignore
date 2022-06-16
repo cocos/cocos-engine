@@ -20,6 +20,8 @@ playground/library
 3d-api-docs
 scripts/build-engine/node_modules
 scripts/build-engine/dist
+scripts/native-pack-tool/dist
+scripts/native-pack-tool/node_modules
 
 tests/core/serialization/ccob-serialized-gallery
 
@@ -44,3 +46,5 @@ native/external/
 
 scripts/typedoc-plugin/lib/
 !templates/**/*
+
+@types/consts.d.ts

@@ -31,6 +31,12 @@
 #include "base/std/container/vector.h"
 #include "math/Math.h"
 
+#ifdef Status
+// Fix linux compile errors 
+// In /usr/include/X11/Xlib.h Status defined as int
+#undef Status
+#endif
+
 /**
  * Some general guide lines:
  * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout

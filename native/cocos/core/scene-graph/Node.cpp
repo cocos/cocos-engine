@@ -283,11 +283,11 @@ Scene *Node::getScene() const {
     return _scene;
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc) {
+void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc) {
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) {
     index_t index{1};
     index_t i{0};
     const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;

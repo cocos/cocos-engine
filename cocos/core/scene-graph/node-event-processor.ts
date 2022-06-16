@@ -69,35 +69,30 @@ export enum DispatcherEventType {
  * @zh 节点事件类。
  */
 export class NodeEventProcessor {
+    /**
+     * @internal
+     */
     public static _maskComp: Constructor<Component> | null = null;
+    /**
+     * @internal
+     */
     public static callbacksInvoker = new CallbacksInvoker<DispatcherEventType>();
 
-    private _isEnabled = false;
+    /**
+     * Whether the node event is enabled
+     */
     public get isEnabled () {
         return this._isEnabled;
     }
-    public setEnabled (value: boolean, recursive = false) {
-        if (this._isEnabled === value) {
-            return;
-        }
-        this._isEnabled = value;
-        const node = this.node;
-        const children = node.children;
-        if (value) {
-            this._attachMask();
-        }
-        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
-        if (recursive && children.length > 0) {
-            for (let i = 0; i < children.length; ++i) {
-                const child = children[i];
-                // @ts-expect-error child._eventProcessor is a protected property.
-                child._eventProcessor.setEnabled(value, true);
-            }
-        }
-    }
 
+    /**
+     * The list of claimed touch ids
+     */
     public claimedTouchIdList: number[] = [];
 
+    /**
+     * The masks in the parent chain of the node
+     */
     public maskList: IMask[] | null = null;
 
     /**
@@ -136,41 +131,37 @@ export class NodeEventProcessor {
      */
     public shouldHandleEventTouch = false;
 
+    private _isEnabled = false;
     private _node: Node;
 
     constructor (node: Node) {
         this._node = node;
     }
 
-    private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null) {
-        const node = this.node;
-        if (ctor) {
-            let index = 0;
-            let list: IMask[] = [];
-            for (let curr: Node | null = node; curr && Node.isNode(curr); curr = curr.parent, ++index) {
-                const comp = curr.getComponent(ctor);
-                if (comp) {
-                    const next = {
-                        index,
-                        comp,
-                    };
-
-                    if (list) {
-                        list.push(next);
-                    } else {
-                        list = [next];
-                    }
-                }
-            }
-
-            return list.length > 0 ? list : null;
+    /**
+     * Set enable state of the node event processor
+     * @param value Enable state
+     * @param recursive Recursively set the state or not
+     * @returns void
+     */
+    public setEnabled (value: boolean, recursive = false) {
+        if (this._isEnabled === value) {
+            return;
         }
-
-        return null;
-    }
-
-    private _attachMask () {
-        this.maskList = this._searchComponentsInParent(NodeEventProcessor._maskComp);
+        this._isEnabled = value;
+        const node = this.node;
+        const children = node.children;
+        if (value) {
+            this._attachMask();
+        }
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
+        if (recursive && children.length > 0) {
+            for (let i = 0; i < children.length; ++i) {
+                const child = children[i];
+                // @ts-expect-error child._eventProcessor is a protected property.
+                child._eventProcessor.setEnabled(value, true);
+            }
+        }
     }
 
     public reattach (): void {
@@ -191,79 +182,6 @@ export class NodeEventProcessor {
         if (this.capturingTarget) this.capturingTarget.clear();
         if (this.bubblingTarget) this.bubblingTarget.clear();
         NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
-    }
-
-    private _isTouchEvent (type: NodeEventType) {
-        const index = _touchEvents.indexOf(type);
-        return index !== -1;
-    }
-
-    private _isMouseEvent (type: NodeEventType) {
-        const index = _mouseEvents.indexOf(type);
-        return index !== -1;
-    }
-
-    private _hasTouchListeners () {
-        for (let i = 0; i < _touchEvents.length; ++i) {
-            const eventType = _touchEvents[i];
-            if (this.hasEventListener(eventType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private _hasMouseListeners () {
-        for (let i = 0; i < _mouseEvents.length; ++i) {
-            const eventType = _mouseEvents[i];
-            if (this.hasEventListener(eventType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private _hasPointerListeners () {
-        const has = this._hasTouchListeners();
-        if (has) {
-            return true;
-        }
-        return this._hasMouseListeners();
-    }
-
-    private _tryEmittingAddEvent (typeToAdd: NodeEventType) {
-        const isTouchEvent = this._isTouchEvent(typeToAdd);
-        const isMouseEvent = this._isMouseEvent(typeToAdd);
-        if (isTouchEvent) {
-            this.shouldHandleEventTouch = true;
-        } else if (isMouseEvent) {
-            this.shouldHandleEventMouse = true;
-        }
-        if ((isTouchEvent || isMouseEvent) && !this._hasPointerListeners()) {
-            NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this);
-        }
-    }
-
-    /**
-     * Fix when reigster 'once' event callback, `this.off` method isn't be invoked after event is emitted.
-     * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
-     * @returns {CallbacksInvoker<SystemEventTypeUnion>} decorated callbacks invoker
-     */
-    private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
-        const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
-        // @ts-expect-error Property '_registerOffCallback' is private
-        callbacksInvoker._registerOffCallback(() => {
-            if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
-                this.shouldHandleEventTouch = false;
-            }
-            if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
-                this.shouldHandleEventMouse = false;
-            }
-            if (!this._hasPointerListeners()) {
-                NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
-            }
-        });
-        return callbacksInvoker;
     }
 
     public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
@@ -430,6 +348,110 @@ export class NodeEventProcessor {
             }
             parent = parent.parent;
         }
+    }
+
+    private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null) {
+        const node = this.node;
+        if (ctor) {
+            let index = 0;
+            let list: IMask[] = [];
+            for (let curr: Node | null = node; curr && Node.isNode(curr); curr = curr.parent, ++index) {
+                const comp = curr.getComponent(ctor);
+                if (comp) {
+                    const next = {
+                        index,
+                        comp,
+                    };
+
+                    if (list) {
+                        list.push(next);
+                    } else {
+                        list = [next];
+                    }
+                }
+            }
+
+            return list.length > 0 ? list : null;
+        }
+
+        return null;
+    }
+
+    private _attachMask () {
+        this.maskList = this._searchComponentsInParent(NodeEventProcessor._maskComp);
+    }
+
+    private _isTouchEvent (type: NodeEventType) {
+        const index = _touchEvents.indexOf(type);
+        return index !== -1;
+    }
+
+    private _isMouseEvent (type: NodeEventType) {
+        const index = _mouseEvents.indexOf(type);
+        return index !== -1;
+    }
+
+    private _hasTouchListeners () {
+        for (let i = 0; i < _touchEvents.length; ++i) {
+            const eventType = _touchEvents[i];
+            if (this.hasEventListener(eventType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private _hasMouseListeners () {
+        for (let i = 0; i < _mouseEvents.length; ++i) {
+            const eventType = _mouseEvents[i];
+            if (this.hasEventListener(eventType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private _hasPointerListeners () {
+        const has = this._hasTouchListeners();
+        if (has) {
+            return true;
+        }
+        return this._hasMouseListeners();
+    }
+
+    private _tryEmittingAddEvent (typeToAdd: NodeEventType) {
+        const isTouchEvent = this._isTouchEvent(typeToAdd);
+        const isMouseEvent = this._isMouseEvent(typeToAdd);
+        if (isTouchEvent) {
+            this.shouldHandleEventTouch = true;
+        } else if (isMouseEvent) {
+            this.shouldHandleEventMouse = true;
+        }
+        if ((isTouchEvent || isMouseEvent) && !this._hasPointerListeners()) {
+            NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this);
+        }
+    }
+
+    /**
+     * Fix when reigster 'once' event callback, `this.off` method isn't be invoked after event is emitted.
+     * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
+     * @returns {CallbacksInvoker<SystemEventTypeUnion>} decorated callbacks invoker
+     */
+    private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
+        const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
+        // @ts-expect-error Property '_registerOffCallback' is private
+        callbacksInvoker._registerOffCallback(() => {
+            if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
+                this.shouldHandleEventTouch = false;
+            }
+            if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
+                this.shouldHandleEventMouse = false;
+            }
+            if (!this._hasPointerListeners()) {
+                NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
+            }
+        });
+        return callbacksInvoker;
     }
 
     // #region handle mouse event

@@ -28,9 +28,12 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+    #include <cfloat>
     #include "Class.h"
     #include "Object.h"
     #include "ScriptEngine.h"
+    #include "base/Log.h"
+    #include "base/Macros.h"
 
 namespace se {
 
@@ -143,6 +146,19 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     }
 }
 
+template <int N>
+static void warnWithinTimesInReleaseMode(const char *msg) {
+    static int timesLimit = N;
+    #if CC_DEBUG
+    CC_LOG_DEBUG(msg);
+    #else
+    if (timesLimit > 0) {
+        CC_LOG_WARNING(msg);
+        timesLimit--;
+    }
+    #endif
+}
+
 template <typename T>
 void setReturnValueTemplate(const Value &data, const T &argv) {
     if (data.getType() == Value::Type::Undefined) {
@@ -152,8 +168,13 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
     } else if (data.getType() == Value::Type::Number) {
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
     } else if (data.getType() == Value::Type::BigInt) {
-        // Notice: Most return value of type `size_t` should be treated as Number.
-        // argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
+        constexpr int64_t maxSafeInt = 9007199254740991LL;  // value refer to JS Number.MAX_SAFE_INTEGER
+        constexpr int64_t minSafeInt = -9007199254740991LL; // value refer to JS Number.MIN_SAFE_INTEGER
+        if (data.toInt64() > maxSafeInt || data.toInt64() < minSafeInt) {
+            // NOTICE: Precision loss will happend here.
+            warnWithinTimesInReleaseMode<100>("int64 value is out of range for double");
+            CC_ASSERT(false); // should be fixed in debug mode.
+        }
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
     } else if (data.getType() == Value::Type::String) {
         v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);

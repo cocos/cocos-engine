@@ -25,21 +25,20 @@
 
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';
-import { Device, RenderPass, Shader, CommandBuffer, DescriptorSet } from '../gfx';
+import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
-import { BatchedBuffer } from './batched-buffer';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType } from '../renderer/scene/light';
 import { AABB, intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { RenderPipeline } from './render-pipeline';
-import { Camera } from '../renderer/scene';
+import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
 import { Mat4 } from '../math';
+import { shadowCulling } from './scene-culling';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -84,38 +83,56 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (globalDS: DescriptorSet, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
         this.clear();
 
-        const pipelineSceneData = this._pipeline.pipelineSceneData;
-        const shadowInfo = pipelineSceneData.shadows;
+        const sceneData = this._pipeline.pipelineSceneData;
+        const shadowInfo = sceneData.shadows;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            const dirShadowObjects = pipelineSceneData.dirShadowObjects;
-            const castShadowObjects = pipelineSceneData.castShadowObjects;
-
             switch (light.type) {
             case LightType.DIRECTIONAL:
-                for (let i = 0; i < dirShadowObjects.length; i++) {
-                    const ro = dirShadowObjects[i];
-                    const model = ro.model;
-                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                    this.add(model, _shadowPassIndices);
+                if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+                    const dirLight = light as DirectionalLight;
+                    if (dirLight.shadowEnabled) {
+                        const csmLayers = sceneData.csmLayers;
+                        let layer;
+                        if (dirLight.shadowFixedArea) {
+                            layer = csmLayers.specialLayer;
+                        } else {
+                            layer = csmLayers.layers[level];
+                        }
+                        shadowCulling(camera, sceneData, layer);
+                        const dirShadowObjects = layer.shadowObjects;
+                        if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
+                        for (let i = 0; i < dirShadowObjects.length; i++) {
+                            const ro = dirShadowObjects[i];
+                            const model = ro.model;
+                            if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                            this.add(model, _shadowPassIndices);
+                        }
+                    }
                 }
+
                 break;
             case LightType.SPOT:
-                Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
-                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-                for (let i = 0; i < castShadowObjects.length; i++) {
-                    const ro = castShadowObjects[i];
-                    const model = ro.model;
-                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                    if (model.worldBounds) {
-                        AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
-                        if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
-                    }
+                // eslint-disable-next-line no-case-declarations
+                const spotLight = light as SpotLight;
+                if (spotLight.shadowEnabled) {
+                    Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
+                    Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                    Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                    const castShadowObjects = sceneData.csmLayers.castShadowObjects;
+                    for (let i = 0; i < castShadowObjects.length; i++) {
+                        const ro = castShadowObjects[i];
+                        const model = ro.model;
+                        if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                        if (model.worldBounds) {
+                            AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
+                            if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
+                        }
 
-                    this.add(model, _shadowPassIndices);
+                        this.add(model, _shadowPassIndices);
+                    }
                 }
                 break;
             default:
@@ -143,6 +160,7 @@ export class RenderShadowMapBatchedQueue {
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
             const shadowPassIdx = _shadowPassIndices[j];
+            if (shadowPassIdx < 0) { return; }
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
 

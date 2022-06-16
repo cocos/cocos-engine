@@ -124,8 +124,7 @@ void MessageQueue::runConsumerThread() noexcept {
     _reader.terminateConsumerThread = false;
     _reader.flushingFinished = false;
 
-    std::thread consumerThread(&MessageQueue::consumerThreadLoop, this);
-    consumerThread.detach();
+    _consumerThread = ccnew std::thread(&MessageQueue::consumerThreadLoop, this);
     _workerAttached = true;
 }
 
@@ -141,6 +140,13 @@ void MessageQueue::terminateConsumerThread() noexcept {
 
     kick();
     event.wait();
+
+    if (_consumerThread != nullptr) {
+        if (_consumerThread->joinable()) {
+            _consumerThread->join();
+        }
+    }
+    CC_SAFE_DELETE(_consumerThread);
 }
 
 void MessageQueue::finishWriting() noexcept {

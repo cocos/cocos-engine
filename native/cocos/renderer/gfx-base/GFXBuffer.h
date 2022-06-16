@@ -36,7 +36,7 @@ public:
     Buffer();
     ~Buffer() override;
 
-    static size_t computeHash(const BufferInfo &info);
+    static ccstd::hash_t computeHash(const BufferInfo &info);
 
     void initialize(const BufferInfo &info);
     void initialize(const BufferViewInfo &info);

@@ -2538,3 +2538,6 @@ function blur() {}
 
 /******/ });
 //# sourceMappingURL=my-adapter.js.map
+
+require('../../../common/xmldom/dom-parser');
+require('./unify');

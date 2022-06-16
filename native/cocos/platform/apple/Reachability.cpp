@@ -42,7 +42,7 @@ static void PrintReachabilityFlags(SCNetworkReachabilityFlags flags, const char 
 #if ShouldPrintReachabilityFlags
 
     printf("Reachability Flag Status: %c%c %c%c%c%c%c%c%c %s\n",
-    #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    #if CC_PLATFORM == CC_PLATFORM_IOS
            (flags & kSCNetworkReachabilityFlagsIsWWAN) ? 'W' : '-',
     #else
            '-',
@@ -90,7 +90,7 @@ cc::Reachability::NetworkStatus getNetworkStatusForFlags(SCNetworkReachabilityFl
         }
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
         /*
              ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.

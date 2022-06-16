@@ -26,10 +26,10 @@
 #include "RenderBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "PipelineStateManager.h"
-#include "scene/Pass.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXRenderPass.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

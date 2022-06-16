@@ -30,7 +30,7 @@
 #include "network/Downloader.h"
 
 // include platform specific implement class
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
 
     #include "network/DownloaderImpl-apple.h"
     #define DownloaderImpl DownloaderApple //NOLINT(readability-identifier-naming)

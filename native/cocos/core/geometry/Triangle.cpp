@@ -10,33 +10,33 @@ Triangle *Triangle::create(float ax, float ay, float az,
     return ccnew Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
 }
 
-auto Triangle::clone(const Triangle &t) -> Triangle * {
+Triangle *Triangle::clone(const Triangle &t) {
     return ccnew Triangle(
         t.a.x, t.a.y, t.a.z,
         t.b.x, t.b.y, t.b.z,
         t.c.x, t.c.y, t.c.z);
 }
 
-auto Triangle::copy(Triangle *out, const Triangle &t) -> Triangle * {
+Triangle *Triangle::copy(Triangle *out, const Triangle &t) {
     out->a = t.a;
     out->b = t.b;
     out->c = t.c;
     return out;
 }
 
-auto Triangle::fromPoints(Triangle *out, const Vec3 &a,
-                          const Vec3 &b,
-                          const Vec3 &c) -> Triangle * {
+Triangle *Triangle::fromPoints(Triangle *out, const Vec3 &a,
+                               const Vec3 &b,
+                               const Vec3 &c) {
     out->a = a;
     out->b = b;
     out->c = c;
     return out;
 }
 
-auto Triangle::set(Triangle *out,
-                   float ax, float ay, float az,
-                   float bx, float by, float bz,
-                   float cx, float cy, float cz) -> Triangle * {
+Triangle *Triangle::set(Triangle *out,
+                        float ax, float ay, float az,
+                        float bx, float by, float bz,
+                        float cx, float cy, float cz) {
     out->a.x = ax;
     out->a.y = ay;
     out->a.z = az;
