@@ -209,56 +209,8 @@ void Pass::bindTexture(uint32_t binding, gfx::Texture *value, uint32_t index) {
     _descriptorSet->bindTexture(binding, value, index);
 }
 
-void Pass::setTexture(const ccstd::string &name, gfx::Texture *value) {
-    const uint32_t binding = Pass::getBinding(name);
-    CC_ASSERT(binding != 0xFFFFFFFF);
-    _descriptorSet->bindTexture(binding, value, 0);
-}
-
-void Pass::setTextureArray(const ccstd::string &name, const ccstd::vector<gfx::Texture *> &value) {
-    const uint32_t binding = Pass::getBinding(name);
-    CC_ASSERT(binding != 0xFFFFFFFF);
-    for (uint32_t i = 0; i != value.size(); ++i) {
-        _descriptorSet->bindTexture(binding, value[i], i);
-    }
-}
-
 void Pass::bindSampler(uint32_t binding, gfx::Sampler *value, uint32_t index) {
-    _descriptorSet->bindSampler(binding, value, index != CC_INVALID_INDEX ? index : 0);
-}
-
-void Pass::setSampler(const ccstd::string &name, gfx::Sampler *value) {
-    const uint32_t binding = Pass::getBinding(name);
-    CC_ASSERT(binding != 0xFFFFFFFF);
-    _descriptorSet->bindSampler(binding, value, 0);
-}
-
-void Pass::setSamplerArray(const ccstd::string &name, const ccstd::vector<gfx::Sampler *> &value) {
-    const uint32_t binding = Pass::getBinding(name);
-    CC_ASSERT(binding != 0xFFFFFFFF);
-    for (uint32_t i = 0; i != value.size(); ++i) {
-        _descriptorSet->bindSampler(binding, value[i], i);
-    }
-}
-
-void Pass::setTextureAndSampler(const ccstd::string &name, gfx::Texture *texture, gfx::Sampler *sampler) {
-    const uint32_t binding = Pass::getBinding(name);
-    CC_ASSERT(binding != 0xFFFFFFFF);
-    _descriptorSet->bindTexture(binding, texture, 0);
-    _descriptorSet->bindSampler(binding, sampler, 0);
-}
-
-void Pass::setTextureAndSamplerArray(
-    const ccstd::string &name,
-    const ccstd::vector<gfx::Texture *> &textures,
-    const ccstd::vector<gfx::Sampler *> &samplers) {
-    const uint32_t binding = Pass::getBinding(name);
-    CC_ASSERT(binding != 0xFFFFFFFF);
-    CC_ASSERT(textures.size() == samplers.size());
-    for (uint32_t i = 0; i != textures.size(); ++i) {
-        _descriptorSet->bindTexture(binding, textures[i], i);
-        _descriptorSet->bindSampler(binding, samplers[i], i);
-    }
+    _descriptorSet->bindSampler(binding, value, index);
 }
 
 void Pass::setDynamicState(gfx::DynamicStateFlagBit state, float value) {

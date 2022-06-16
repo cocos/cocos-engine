@@ -183,65 +183,12 @@ public:
     void bindTexture(uint32_t binding, gfx::Texture *value, uint32_t index = 0);
 
     /**
-     * @en Set a GFX [[gfx.Texture]] by name
-     * @zh 设置 GFX [[gfx.Texture]] 到指定名字。
-     * @param name The binding name for target uniform of texture type
-     * @param value Target texture
-     */
-    void setTexture(const ccstd::string &name, gfx::Texture *value);
-
-    /**
-     * @en Set a GFX [[gfx.Texture]] Array by name
-     * @zh 设置 GFX [[gfx.Texture]] 数组到指定名字。
-     * @param name The binding name for target uniform of texture type
-     * @param value Target texture array
-     */
-    void setTextureArray(const ccstd::string &name, const ccstd::vector<gfx::Texture *> &value);
-
-    /**
      * @en Bind a GFX [[Sampler]] the the given uniform binding
      * @zh 绑定实际 GFX [[Sampler]] 到指定 binding。
      * @param binding The binding for target uniform of sampler type
      * @param value Target sampler
      */
     void bindSampler(uint32_t binding, gfx::Sampler *value, uint32_t index = 0);
-
-    /**
-     * @en Set a GFX [[gfx.Sampler]] by name
-     * @zh 设置 GFX [[gfx.Sampler]] 到指定名字。
-     * @param name The binding name for target uniform of sampler type
-     * @param value Target sampler
-     */
-    void setSampler(const ccstd::string &name, gfx::Sampler *value);
-
-    /**
-     * @en Set a GFX [[gfx.Sampler]] Array by name
-     * @zh 设置 GFX [[gfx.Sampler]] 数组到指定名字。
-     * @param name The binding name for target uniform of sampler type
-     * @param value Target sampler array
-     */
-    void setSamplerArray(const ccstd::string &name, const ccstd::vector<gfx::Sampler *> &value);
-
-    /**
-     * @en Set GFX [[gfx.Texture]] and GFX [[gfx.Sampler]] by name
-     * @zh 设置 GFX [[gfx.Texture]] 和 GFX [[gfx.Sampler]] 到指定名字。
-     * @param name The binding name for target uniform of texture and sampler type
-     * @param texture Target texture
-     * @param sampler Target sampler
-     */
-    void setTextureAndSampler(const ccstd::string &name, gfx::Texture *texture, gfx::Sampler *sampler);
-
-    /**
-     * @en Set GFX [[gfx.Texture]] and GFX [[gfx.Sampler]] array by name
-     * @zh 设置 GFX [[gfx.Texture]] 和 GFX [[gfx.Sampler]] 数组到指定名字。
-     * @param name The binding name for target uniform of texture and sampler type
-     * @param texture Target texture array
-     * @param sampler Target sampler array
-     */
-    void setTextureAndSamplerArray(
-        const ccstd::string &name,
-        const ccstd::vector<gfx::Texture *> &textures,
-        const ccstd::vector<gfx::Sampler *> &samplers);
 
     /**
      * @en Sets the dynamic pipeline state property at runtime

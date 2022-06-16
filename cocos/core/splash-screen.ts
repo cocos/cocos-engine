@@ -306,9 +306,12 @@ export class SplashScreen {
         ));
 
         const pass = this.logoMat.passes[0];
-        pass.setTextureAndSampler('mainTexture', this.logoTexture, this.sampler);
+        const binding = pass.getBinding('mainTexture');
+        pass.bindTexture(binding, this.logoTexture);
         this.shader = pass.getShaderVariant()!;
-        pass.descriptorSet.update();
+        const descriptorSet = pass.descriptorSet;
+        descriptorSet.bindSampler(binding, this.sampler);
+        descriptorSet.update();
 
         const region = new BufferTextureCopy();
         region.texExtent.width = this.logoImage.width;
@@ -341,7 +344,8 @@ export class SplashScreen {
         this.watermarkMat = new Material();
         this.watermarkMat.initialize({ effectName: 'splash-screen' });
         const pass = this.watermarkMat.passes[0];
-        pass.setTexture('mainTexture', this.watermarkTexture);
+        const binding = pass.getBinding('mainTexture');
+        pass.bindTexture(binding, this.watermarkTexture);
         pass.descriptorSet.update();
     }
 

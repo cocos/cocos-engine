@@ -397,24 +397,25 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
         }
     } else if (val.index() == MATERIAL_PROPERTY_INDEX_LIST) {
         const auto &textureArray = ccstd::get<MaterialPropertyList>(val);
-        if (!textureArray.empty()) {
-            bindTextureArray(pass, name, textureArray);
+        for (size_t i = 0; i < textureArray.size(); i++) {
+            bindTexture(pass, handle, textureArray[i], static_cast<index_t>(i));
         }
     } else if (val.index() == MATERIAL_PROPERTY_INDEX_SINGLE) {
-        bindTexture(pass, name, ccstd::get<MaterialProperty>(val));
+        bindTexture(pass, handle, ccstd::get<MaterialProperty>(val));
     } else {
         pass->resetTexture(name);
     }
     return true;
 }
 
-void Material::bindTexture(scene::Pass *pass, const ccstd::string& name, const MaterialProperty &val) {
+void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index) {
     if (pass == nullptr) {
         return;
     }
 
+    const uint32_t binding = scene::Pass::getBindingFromHandle(handle);
     if (const auto *pTexture = ccstd::get_if<IntrusivePtr<gfx::Texture>>(&val)) {
-        pass->setTexture(name, const_cast<gfx::Texture *>(pTexture->get()));
+        pass->bindTexture(binding, const_cast<gfx::Texture *>(pTexture->get()), index);
     } else if (const auto *pTextureBase = ccstd::get_if<IntrusivePtr<TextureBase>>(&val)) {
         auto *textureBase = pTextureBase->get();
         gfx::Texture *texture = nullptr;
@@ -431,40 +432,9 @@ void Material::bindTexture(scene::Pass *pass, const ccstd::string& name, const M
             CC_LOG_WARNING("Material(%p, %s)::bindTexture failed, texture size is 0", this, _uuid.c_str());
             return;
         }
-        pass->setTextureAndSampler(name, texture, textureBase->getGFXSampler());
+        pass->bindTexture(binding, texture, index);
+        pass->bindSampler(binding, textureBase->getGFXSampler(), index);
     }
-}
-
-void Material::bindTextureArray(scene::Pass *pass, const ccstd::string& name, const MaterialPropertyList &val) {
-    ccstd::vector<gfx::Texture *> textures(val.size());
-    ccstd::vector<gfx::Sampler *> samplers(val.size());
-
-    uint32_t i = 0;
-    for (const auto& v : val) {
-        if (const auto *pTexture = ccstd::get_if<IntrusivePtr<gfx::Texture>>(&v)) {
-            textures[i] = pTexture->get();
-        } else if (const auto *pTextureBase = ccstd::get_if<IntrusivePtr<TextureBase>>(&v)) {
-            auto *textureBase = pTextureBase->get();
-            gfx::Texture *texture = nullptr;
-            if (textureBase != nullptr) {
-                texture = textureBase->getGFXTexture();
-            }
-
-            if (texture == nullptr) {
-                CC_LOG_WARNING("Material(%p, %s)::bindTexture failed, texture is nullptr", this, _uuid.c_str());
-                continue;
-            }
-
-            if (texture->getWidth() == 0 || texture->getHeight() == 0) {
-                CC_LOG_WARNING("Material(%p, %s)::bindTexture failed, texture size is 0", this, _uuid.c_str());
-                continue;
-            }
-            textures[i] = texture;
-            samplers[i] = textureBase->getGFXSampler();
-        }
-        ++i;
-    }
-    pass->setTextureAndSamplerArray(name, textures, samplers);
 }
 
 void Material::initDefault(const ccstd::optional<ccstd::string> &uuid) {

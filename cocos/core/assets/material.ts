@@ -26,7 +26,7 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { Sampler, Texture, Type } from '../gfx';
+import { Texture, Type } from '../gfx';
 import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
@@ -441,49 +441,30 @@ export class Material extends Asset {
                 pass.resetUniform(name);
             }
         } else if (Array.isArray(val)) {
-            if (val.length !== 0) {
-                this._bindTextureArray(pass, name, val);
+            for (let i = 0; i < val.length; i++) {
+                this._bindTexture(pass, handle, val[i], i);
             }
         } else if (val) {
-            this._bindTexture(pass, name, val);
+            this._bindTexture(pass, handle, val);
         } else {
             pass.resetTexture(name);
         }
         return true;
     }
 
-    protected _bindTexture (pass: Pass, name: string, val: MaterialPropertyFull) {
+    protected _bindTexture (pass: Pass, handle: number, val: MaterialPropertyFull, index?: number) {
+        const binding = Pass.getBindingFromHandle(handle);
         if (val instanceof Texture) {
-            pass.setTexture(name, val);
+            pass.bindTexture(binding, val, index);
         } else if (val instanceof TextureBase) {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
                 return;
             }
-            pass.setTextureAndSampler(name, texture, val.getGFXSampler());
+            pass.bindTexture(binding, texture, index);
+            pass.bindSampler(binding, val.getGFXSampler(), index);
         }
-    }
-
-    protected _bindTextureArray (pass: Pass, name: string, val: MaterialPropertyFull[]) {
-        const textures = new Array<Texture>(val.length);
-        const samplers = new Array<Sampler>(val.length);
-        for (let i = 0; i !== val.length; ++i) {
-            const tex = val[i];
-            if (tex instanceof Texture) {
-                textures[i] = tex;
-            } else if (tex instanceof TextureBase) {
-                const base = val[i] as TextureBase;
-                const texture = base.getGFXTexture();
-                if (!texture || !texture.width || !texture.height) {
-                    // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
-                    continue;
-                }
-                textures[i] = texture;
-                samplers[i] = base.getGFXSampler();
-            }
-        }
-        pass.setTextureAndSamplerArray(name, textures, samplers);
     }
 
     protected _doDestroy () {

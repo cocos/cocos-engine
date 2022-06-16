@@ -348,9 +348,10 @@ export class Profiler {
         _material.initialize({ effectName: 'profiler' });
 
         const pass = this.pass = _material.passes[0];
+        const hTexture = pass.getBinding('mainTexture');
         const bDigits = pass.getBinding('digits');
         const bOffset = pass.getBinding('offset');
-        pass.setTexture('mainTexture', this._texture!);
+        pass.bindTexture(hTexture, this._texture!);
         this.digitsData = pass.blocks[bDigits];
         this.offsetData = pass.blocks[bOffset];
         this.offsetData[3] = -1; // ensure init on the first frame
