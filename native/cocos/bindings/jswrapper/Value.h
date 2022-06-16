@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <string_view>
 #include "HandleObject.h"
 #include "base/Macros.h"
 #include "base/std/container/string.h"
@@ -301,6 +302,12 @@ public:
          *  @param[in] v The string value to be set.
          */
     void setString(const ccstd::string &v);
+
+    /**
+         *  @brief Sets se::Value to string value by string_view.
+         *  @param[in] v The string_view
+         */
+    void setString(const std::string_view &v);
 
     /**
          *  @brief Sets se::Value to se::Object value.

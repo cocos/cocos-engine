@@ -25,7 +25,7 @@
 
 #import "../gfx-base/GFXDef-common.h"
 #import "MTLSwapchain.h"
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     #import <AppKit/NSView.h>
 #else
     #import <UIKit/UIView.h>
@@ -38,7 +38,7 @@ namespace cc {
 namespace gfx {
 
 namespace {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
 using CCView = NSView;
 #else
 using CCView = UIView;
@@ -73,7 +73,7 @@ void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
     //setDisplaySyncEnabled : physic device refresh rate.
     //setPresentsWithTransaction : Core Animation transactions update rate.
     auto syncModeFunc = [&](BOOL sync, BOOL transaction) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
         [layer setDisplaySyncEnabled:sync];
 #endif
         [layer setPresentsWithTransaction:transaction];

@@ -95,7 +95,7 @@ enum class GPUFamily {
     Mac2,
 };
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
 ccstd::string getIOSFeatureSetToString(MTLFeatureSet featureSet) {
     if (@available(iOS 8.0, *)) {
         switch (featureSet) {
@@ -423,7 +423,7 @@ MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     else if (hasFlag(MemoryUsage::DEVICE, usage))
         return MTLResourceStorageModePrivate;
     else
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
         return MTLResourceStorageModeShared;
 #else
         return MTLResourceStorageModeManaged;
@@ -514,7 +514,7 @@ MTLVertexFormat mu::toMTLVertexFormat(Format format, bool isNormalized) {
         case Format::RGB10A2: return isNormalized ? MTLVertexFormatInt1010102Normalized : MTLVertexFormatInvalid;
         case Format::RGB10A2UI: return isNormalized ? MTLVertexFormatUInt1010102Normalized : MTLVertexFormatInvalid;
         case Format::BGRA8: {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
             if (@available(iOS 11.0, *)) {
                 if (isNormalized) {
                     return MTLVertexFormatUChar4Normalized_BGRA;
@@ -603,7 +603,7 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
         case Format::DEPTH: return MTLPixelFormatDepth32Float;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         // FIXME: works fine on imac, but invalid pixel format on intel macbook.
         //case Format::DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
         case Format::DEPTH_STENCIL: return MTLPixelFormatDepth32Float_Stencil8;
@@ -866,7 +866,7 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
         case Address::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
         case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
         case Address::BORDER: {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
             return MTLSamplerAddressModeClampToBorderColor;
 #endif
         }
@@ -876,7 +876,7 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
 }
 
 int mu::toMTLSamplerBorderColor(const Color &color) {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     float diff = color.x - 0.5f;
     if (math::IsEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
@@ -914,7 +914,7 @@ bool mu::isImageBlockSupported() {
     if (!mu::isFramebufferFetchSupported()) {
         return false;
     }
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
     return true;
 #else
     return false;
@@ -922,7 +922,7 @@ bool mu::isImageBlockSupported() {
 }
 
 bool mu::isFramebufferFetchSupported() {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
     return true;
 #else
     return false;
@@ -946,16 +946,16 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
     options.enable_decoration_binding = true;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
 #endif
     options.emulate_subgroups = true;
     options.pad_fragment_output_components = true;
     if (isFramebufferFetchSupported()) {
         options.use_framebuffer_fetch_subpasses = true;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         options.set_msl_version(2, 3, 0);
 #endif
     }
@@ -1144,7 +1144,7 @@ const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
 NSUInteger mu::highestSupportedFeatureSet(id<MTLDevice> device) {
     NSUInteger maxKnownFeatureSet;
     NSUInteger defaultFeatureSet;
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     defaultFeatureSet = MTLFeatureSet_iOS_GPUFamily1_v1;
     if (@available(iOS 12.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v2;
@@ -1178,7 +1178,7 @@ NSUInteger mu::highestSupportedFeatureSet(id<MTLDevice> device) {
 }
 
 uint mu::getGPUFamily(MTLFeatureSet featureSet) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return static_cast<uint>(getIOSGPUFamily(featureSet));
 #else
     return static_cast<uint>(getMacGPUFamily(featureSet));
@@ -1471,7 +1471,7 @@ bool mu::isDDepthStencilFilterSupported(uint family) {
 }
 
 bool mu::isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     if (@available(iOS 12.0, *)) {
         return featureSet >= MTLFeatureSet_iOS_GPUFamily3_v4;
     }
@@ -1517,7 +1517,7 @@ bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint
     //                    return true;
     //            }
     //        case Format::D24S8:
-    //#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    //#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     //            return [device isDepth24Stencil8PixelFormatSupported];
     //#else
     //            return false;
@@ -1528,7 +1528,7 @@ bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint
 }
 
 bool mu::isIndirectDrawSupported(uint family) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return static_cast<GPUFamily>(family) < GPUFamily::Apple3 ? false : true; //is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later'
 #else
     return true;
@@ -1536,7 +1536,7 @@ bool mu::isIndirectDrawSupported(uint family) {
 }
 
 MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint family, uint &depthBits) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     return MTLPixelFormatDepth24Unorm_Stencil8;
 #else
     return MTLPixelFormatDepth32Float_Stencil8;
@@ -1544,7 +1544,7 @@ MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint fam
 }
 
 ccstd::string mu::featureSetToString(MTLFeatureSet featureSet) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return getIOSFeatureSetToString(featureSet);
 #else
     return getMacFeatureSetToString(featureSet);
@@ -1687,7 +1687,7 @@ uint mu::getBytesPerRow(Format format, uint width) {
 bool mu::pixelFormatIsColorRenderable(Format format) {
     MTLPixelFormat pixelFormat = toMTLPixelFormat(format);
     BOOL isCompressedFormat = false;
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     isCompressedFormat = (pixelFormat >= MTLPixelFormatASTC_4x4_sRGB && pixelFormat <= MTLPixelFormatASTC_12x12_LDR) ||
                          (pixelFormat >= MTLPixelFormatPVRTC_RGB_2BPP && pixelFormat <= MTLPixelFormatPVRTC_RGBA_4BPP_sRGB) ||
                          (pixelFormat >= MTLPixelFormatEAC_R11Unorm && pixelFormat <= MTLPixelFormatETC2_RGB8A1_sRGB);
@@ -1701,7 +1701,7 @@ bool mu::pixelFormatIsColorRenderable(Format format) {
 
 //CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later
 bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return (static_cast<GPUFamily>(family) < GPUFamily::Apple3) ? false : true;
 #else
     return true;

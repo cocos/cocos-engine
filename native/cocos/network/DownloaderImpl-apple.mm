@@ -105,7 +105,7 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
     DownloadTaskApple *coTask = ccnew DownloadTaskApple();
     DeclareDownloaderImplVar;
     if (task->storagePath.length()) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
         if (impl.hasUnfinishedTask == YES) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
                     coTask->downloadTask = [impl createFileTask:task];
@@ -201,7 +201,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // create task dictionary
     self.taskDict = [NSMutableDictionary dictionary];
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS 
+#if CC_PLATFORM == CC_PLATFORM_IOS 
     // create backgroundSession for iOS to support background download
     self.downloadSession = [self backgroundURLSession];
 

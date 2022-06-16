@@ -40,7 +40,7 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
   VSOutput_texcoord1 = In.texCoord1;
 #endif
 
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
   VSOutput_fogFactor = In.fogFactor;
 #endif
 
@@ -106,7 +106,7 @@ void CCSurfacesVertexTransformUV(inout SurfacesStandardVertexIntermediate In)
 // Shading
 void CCSurfacesVertexTransferFog(inout SurfacesStandardVertexIntermediate In)
 {
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
     CC_TRANSFER_FOG_BASE(vec4(In.worldPos, 1.0), In.fogFactor);
 #endif
 }

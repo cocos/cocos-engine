@@ -10,16 +10,16 @@
 #include <common>
 
 // Functional
-#include <builtin/internal-functions/world-transform>
+#include <builtin/functionalities/world-transform>
 
 #if CC_USE_MORPH
-  #include <builtin/internal-functions/morph-animation>
+  #include <builtin/functionalities/morph-animation>
 #endif
 
 #if CC_USE_SKINNING
-  #include <builtin/internal-functions/skinning-animation-lbs>
+  #include <builtin/functionalities/skinning-animation-lbs>
 #endif
 
-#if !CC_USE_ACCURATE_FOG
-  #include <builtin/internal-functions/fog>
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  #include <builtin/functionalities/fog>
 #endif

@@ -34,7 +34,7 @@ This file was modified to fit the cocos2d-x project
 //#define USE_SSE           : SSE code used
 //#define INCLUDE_SSE       : SSE code included
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
     #if defined(__arm64__)
         #define USE_NEON64
         #define INCLUDE_NEON64
