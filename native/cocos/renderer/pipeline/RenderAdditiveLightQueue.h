@@ -77,6 +77,8 @@ private:
     ccstd::vector<const scene::Light *> _validPunctualLights;
     ccstd::vector<uint> _lightIndices;
     ccstd::vector<AdditiveLightPass> _lightPasses;
+    ccstd::vector<uint> _lightInstancedPasses;
+    ccstd::vector<uint> _lightBatchedPasses;
     ccstd::vector<uint> _dynamicOffsets;
     ccstd::vector<float> _lightBufferData;
     RenderInstancedQueue *_instancedQueue = nullptr;
