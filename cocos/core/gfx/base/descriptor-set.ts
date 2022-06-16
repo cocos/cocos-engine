@@ -56,6 +56,15 @@ export abstract class DescriptorSet extends GFXObject {
     public abstract update (): void;
 
     /**
+     * @en Force update the contents of the descriptor set.
+     * @zh 强制更新 descriptorSet 中的内容。
+     */
+    public forceUpdate () : void {
+        this._isDirty = true;
+        this.update();
+    }
+
+    /**
      * @en Bind buffer to the specified descriptor.
      * @zh 在指定的描述符位置上绑定缓冲。
      * @param binding The target binding.
