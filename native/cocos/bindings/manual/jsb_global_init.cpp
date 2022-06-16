@@ -73,6 +73,23 @@ static int selectPort(int port) {
     uv_loop_init(&loop);
     int tryTimes = 200;
     int startPort = port;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    if (startPort < 37000) {
+        uv_interface_address_t *info = nullptr;
+        int count = 0;
+
+        uv_interface_addresses(&info, &count);
+        if (count == 0) {
+            SE_LOGE("Failed to accquire interfaces, error: %s\n Re-select port after 37000", strerror(errno));
+            //  cat /proc/sys/net/ipv4/ip_local_port_range
+            //  37000   50000
+            startPort = 37000 + port % 1000;
+        }
+        if (info) {
+            uv_free_interface_addresses(info, count);
+        }
+    }
+#endif
     while (tryTimes-- > 0) {
         uv_tcp_init(&loop, &server);
         uv_ip4_addr("0.0.0.0", startPort, &addr);
