@@ -413,7 +413,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
 
         memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, shadowInfo->getShadowColor4f().data(), sizeof(float) * 4);
 
-        descriptorSet->update();
+        descriptorSet->forceUpdate();
 
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
     }
