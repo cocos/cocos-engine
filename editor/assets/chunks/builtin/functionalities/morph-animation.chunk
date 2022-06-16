@@ -1,4 +1,4 @@
-#include <common> // decode32
+#include <common/common-define> // decode32
 #include <builtin/uniforms/cc-morph>
 
 /**

@@ -4,10 +4,10 @@
 #include <shading-entries/data-structures/vs-intermediate>
 
 // UBO
-#include <cc-global>
-#include <cc-shadow>
+#include <builtin/uniforms/cc-global>
+#include <builtin/uniforms/cc-shadow>
 
-#include <common>
+#include <common/common-define>
 
 // Functional
 #include <builtin/functionalities/world-transform>

@@ -56,8 +56,8 @@ CCEffect %{
 
 CCProgram gizmo-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in vec3 a_position;
   in vec3 a_normal;
@@ -85,10 +85,10 @@ CCProgram gizmo-vs %{
 
 CCProgram gizmo-fs %{
   precision mediump float;
-  #include <rect-area-light>
-  #include <cc-global>
-  #include <gamma>
-  #include <output>
+  #include <common/lighting/rect-area-light>
+  #include <builtin/uniforms/cc-global>
+  #include <common/color/gamma>
+  #include <legacy/output>
 
   in vec3 normal_w;
   in vec3 pos_w;
@@ -125,8 +125,8 @@ CCProgram gizmo-fs %{
 
 CCProgram line-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in highp vec3 a_position;
 
@@ -147,7 +147,7 @@ CCProgram line-vs %{
 
 CCProgram line-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   uniform Constant {
     vec4 mainColor;
@@ -178,8 +178,8 @@ CCProgram line-fs %{
 
 CCProgram sprite-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -198,7 +198,7 @@ CCProgram sprite-vs %{
 
 CCProgram sprite-fs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 uv0;
   uniform Constant {
