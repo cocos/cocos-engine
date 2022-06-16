@@ -196,8 +196,10 @@ void ShadowFlow::resizeShadowMap() {
         }
 
         auto renderTargets = framebuffer->getColorTextures();
-        for (const auto *renderTarget : renderTargets) {
-            delete renderTarget;
+        for (auto *renderTarget : renderTargets) {
+            auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
+            _usedTextures.erase(iter);
+            CC_SAFE_DESTROY_AND_DELETE(renderTarget);
         }
         renderTargets.clear();
         renderTargets.emplace_back(gfx::Device::getInstance()->createTexture({
@@ -212,7 +214,9 @@ void ShadowFlow::resizeShadowMap() {
         }
 
         auto *depth = framebuffer->getDepthStencilTexture();
-        delete depth;
+        auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), depth);
+        _usedTextures.erase(iter);
+        CC_SAFE_DESTROY_AND_DELETE(depth);
         depth = device->createTexture({
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
