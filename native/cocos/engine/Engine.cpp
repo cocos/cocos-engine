@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "engine/Engine.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <sstream>
