@@ -848,6 +848,79 @@ static bool js_scene_RenderScene_root_getter(se::State &s) { // NOLINT(readabili
 }
 SE_BIND_PROP_GET(js_scene_RenderScene_root_getter)
 
+static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_Model_setInstancedAttribute : Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    auto *thiz = s.thisObject();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        ccstd::string name;
+        ok &= sevalue_to_native(args[0], &name, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_Model_setInstancedAttribute : Error processing arguments");
+
+        const auto &val = args[1];
+        if (val.isObject()) {
+            if (val.toObject()->isArray()) {
+                uint32_t len = 0;
+                val.toObject()->getArrayLength(&len);
+
+                se::Value dataVal;
+                ccstd::array<float, 64> stackData;
+                float *pData = nullptr;
+                bool needFree = false;
+
+                if (len <= static_cast<uint32_t>(stackData.size())) {
+                    pData = stackData.data();
+                } else {
+                    pData = static_cast<float *>(CC_MALLOC(len));
+                    needFree = true;
+                }
+
+                for (uint32_t i = 0; i < len; ++i) {
+                    ok = val.toObject()->getArrayElement(i, &dataVal);
+                    CC_ASSERT(ok && dataVal.isNumber());
+                    pData[i] = dataVal.toFloat();
+                }
+
+                cobj->setInstancedAttribute(name, pData, len * sizeof(float));
+
+                if (needFree) {
+                    CC_FREE(pData);
+                }
+                return true;
+            }
+
+            if (val.toObject()->isTypedArray()) {
+                se::Object::TypedArrayType type = val.toObject()->getTypedArrayType();
+                switch (type) {
+                    case se::Object::TypedArrayType::FLOAT32: {
+                        uint8_t *data = nullptr;
+                        size_t byteLength = 0;
+                        if (val.toObject()->getTypedArrayData(&data, &byteLength) && data != nullptr && byteLength > 0) {
+                            cobj->setInstancedAttribute(name, reinterpret_cast<const float *>(data), static_cast<uint32_t>(byteLength));
+                        }
+                    } break;
+
+                    default:
+                        // FIXME:
+                        CC_ASSERT(false); // NOLINT
+                        break;
+                }
+                return true;
+            }
+        }
+
+        SE_REPORT_ERROR("js_Model_setInstancedAttribute : Error processing arguments");
+        return false;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_Model_setInstancedAttribute)
+
 static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -995,6 +1068,8 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_scene_Pass_proto->defineProperty("blocks", _SE(js_scene_Pass_blocks_getter), nullptr);
 
     __jsb_cc_scene_RenderScene_proto->defineProperty("root", _SE(js_scene_RenderScene_root_getter), nullptr);
+
+    __jsb_cc_scene_Model_proto->defineFunction("_setInstancedAttribute", _SE(js_Model_setInstancedAttribute));
 
     __jsb_cc_scene_Model_proto->defineFunction("_registerListeners", _SE(js_Model_registerListeners));
     __jsb_cc_MaterialInstance_proto->defineFunction("_registerListeners", _SE(js_assets_MaterialInstance_registerListeners));
