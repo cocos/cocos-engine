@@ -660,9 +660,9 @@ const Elements = {
                     if (!envmapAssetMeta) {
                         return;
                     }
-                    const num = event.target.getAttribute('num');
+                    const num = event.target.getAttribute('num') || 0;
                     envmapAssetMeta.userData.mipBakeMode = parseInt(num);
-                    Editor.Message.send('asset-db', 'save-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid, JSON.stringify(envmapAssetMeta));
+                    await Editor.Message.request('asset-db', 'save-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid, JSON.stringify(envmapAssetMeta));
                     $skyboxBakeLoading.style.display = '';
                     $skyboxBakeButtonList[0].style.display = 'none';
                     $skyboxBakeButtonList[1].style.display = 'none';
