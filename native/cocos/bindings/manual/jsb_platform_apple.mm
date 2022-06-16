@@ -45,7 +45,7 @@ const ccstd::unordered_map<ccstd::string, ccstd::string> &getFontFamilyNameMap()
 static ccstd::vector<ccstd::string> getAvailableFontFamilyNames() {
     ccstd::vector<ccstd::string> ret;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
 #else
     CFArrayRef allFamilyNames = (CFArrayRef)[[NSClassFromString(@"UIFont") familyNames] retain];
