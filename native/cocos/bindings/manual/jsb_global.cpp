@@ -195,9 +195,9 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
         //            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
         //            fclose(fp);
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
         ccstd::string reletivePath = fullPath;
-    #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #if CC_PLATFORM == CC_PLATFORM_MACOS
         const ccstd::string reletivePathKey = "/Contents/Resources";
     #else
         const ccstd::string reletivePathKey = ".app";
@@ -325,7 +325,7 @@ static bool JSBCore_os(se::State &s) { // NOLINT
     se::Value os;
 
     // osx, ios, android, windows, linux, etc..
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
     os.setString("iOS");
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     os.setString("Android");
@@ -335,7 +335,7 @@ static bool JSBCore_os(se::State &s) { // NOLINT
     os.setString("Linux");
 #elif (CC_PLATFORM == CC_PLATFORM_QNX)
     os.setString("Qnx");
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     os.setString("OS X");
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     os.setString("OHOS");

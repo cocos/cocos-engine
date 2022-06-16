@@ -432,6 +432,9 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     attrs.buffer = Uint8Array(size);
     attrs.views.clear();
     attrs.attributes.clear();
+    attrs.views.reserve(attributes.size());
+    attrs.attributes.reserve(attributes.size());
+
     uint32_t offset = 0;
 
     for (const gfx::Attribute &attribute : attributes) {
@@ -514,6 +517,37 @@ void Model::updateLocalShadowBias() {
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
     _localDataUpdated = true;
+}
+
+void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
+    const auto &attributes = getInstancedAttributeBlock().attributes;
+    auto &views = getInstancedAttributeBlock().views;
+
+    for (size_t i = 0, len = attributes.size(); i < len; ++i) {
+        const auto &attribute = attributes[i];
+        if (attribute.name == name) {
+            const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+            switch (info.type) {
+                case gfx::FormatType::NONE:
+                case gfx::FormatType::UNORM:
+                case gfx::FormatType::SNORM:
+                case gfx::FormatType::UINT:
+                case gfx::FormatType::INT: {
+                    CC_ASSERT(false); // NOLINT
+                } break;
+                case gfx::FormatType::FLOAT:
+                case gfx::FormatType::UFLOAT: {
+                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
+                    auto &view = ccstd::get<Float32Array>(views[i]);
+                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
+                    CC_ASSERT(byteLength <= view.byteLength());
+                    memcpy(dstData, value, byteLength);
+                } break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 } // namespace scene

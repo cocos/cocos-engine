@@ -120,7 +120,7 @@ void PrintDebuggerReadyMessage(const std::string &host,
             SE_LOGE("failed to get addresses %s\n", strerror(errno));
         }
 
-        printf("Number of interfaces: %d\n", count);
+        SE_LOGD("Number of interfaces: %d\n", count);
         while (i--) {
             auto &network_interface = info[i];
 
@@ -130,6 +130,13 @@ void PrintDebuggerReadyMessage(const std::string &host,
             }
         }
         uv_free_interface_addresses(info, count);
+    }
+    // failed to query device interfaces,
+    if (ipList.empty()) {
+    #if ANDROID
+        SE_LOGD("Please query IP by running the following command in terminal: adb shell ip -4 -br addr\n");
+    #endif
+        ipList.emplace_back("none", false, "IP_ADDR_OF_THIS_DEVICE");
     }
 
     for (const std::string &id : ids) {

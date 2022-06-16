@@ -52,7 +52,7 @@ namespace cc {
 
 // Implement DictMaker
 
-#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM != CC_PLATFORM_IOS) && (CC_PLATFORM != CC_PLATFORM_MACOS)
 
 using SAXState = enum {
     SAX_NONE = 0,
@@ -473,7 +473,7 @@ ValueMap FileUtils::getValueMapFromData(const char *filedata, int filesize) { re
 ValueVector FileUtils::getValueVectorFromFile(const ccstd::string &filename) { return ValueVector(); }
 bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath) { return false; }
 
-#endif /* (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX) */
+#endif /* (CC_PLATFORM != CC_PLATFORM_IOS) && (CC_PLATFORM != CC_PLATFORM_MACOS) */
 
 // Implement FileUtils
 FileUtils *FileUtils::sharedFileUtils = nullptr;
