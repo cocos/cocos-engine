@@ -1,7 +1,6 @@
 name: run test cases
 
 on: 
-  pull_request:
   pull_request_target:
   issue_comment:
     types: [created, edited]
