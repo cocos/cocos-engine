@@ -302,6 +302,7 @@ SE_DECLARE_FUNC(js_scene_Model_onMacroPatchesStateChanged);
 SE_DECLARE_FUNC(js_scene_Model_setBounds);
 SE_DECLARE_FUNC(js_scene_Model_setCalledFromJS);
 SE_DECLARE_FUNC(js_scene_Model_setInstMatWorldIdx);
+SE_DECLARE_FUNC(js_scene_Model_setInstancedAttribute);
 SE_DECLARE_FUNC(js_scene_Model_setInstancedAttributesViewData);
 SE_DECLARE_FUNC(js_scene_Model_setShadowBias);
 SE_DECLARE_FUNC(js_scene_Model_setShadowNormalBias);
