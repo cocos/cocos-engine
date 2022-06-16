@@ -5,7 +5,7 @@ if (typeof branchName === 'undefined') {
     console.error('Need to specify the current branch name in git repository');
     process.exit(1);
 }
-const branchRegExp = /^v?(\d+\.\d+\.\d+)(?:-.*)?$/
+const branchRegExp = /^v?(\d+\.\d+\.\d+(?:-.*)?)$/
 const matchResult = branchName.match(branchRegExp);
 if (!(matchResult && matchResult[1])) {
     console.warn(`Invalid branch name: "${branchName}", skip engine version validation.`)

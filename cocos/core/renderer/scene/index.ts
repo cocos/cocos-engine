@@ -35,5 +35,5 @@ export * from './light';
 export * from './directional-light';
 export * from './sphere-light';
 export * from './spot-light';
-// Need to remove later
+// Need to remove later, it's been exported in renderer/index, might be some internal module still import it from here.
 export * from '../core/render-scene';
