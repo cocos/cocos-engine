@@ -98,7 +98,7 @@ private:
         float_t* vbBuffer = entity->getVbBuffer();
 
         Vec3 temp;
-        uint8_t offset = 0;
+        uint32_t offset = 0;
         for (int i = 0; i < size; i += stride) {
             Render2dLayout* curLayout = entity->getRender2dLayout(i);
             temp.transformMat4(curLayout->position, matrix);
