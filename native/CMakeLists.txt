@@ -37,7 +37,7 @@ if(NX)
     cc_set_if_undefined(CC_USE_NVN ON)
     
     if(USE_SE_V8)
-        set(USE_V8_DEBUGGER OFF)
+        set(USE_V8_DEBUGGER ON)
         set(USE_SE_QUICKJS OFF)    
     else()
         set(USE_SE_QUICKJS ON)        
