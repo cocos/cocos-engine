@@ -142,6 +142,28 @@ rootProto.destroyLight = function (l) {
     l.destroy();
 };
 
+rootProto.recycleLight = function (l) {
+    const p = this._lightPools.get(l.constructor);
+    if (p) {
+        p.free(l);
+        if (l.scene) {
+            switch (l.type) {
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+};
+
 rootProto._onBatch2DInit = function () {
     if (!this._batcher && legacyCC.internal.Batcher2D) {
         this._batcher = new legacyCC.internal.Batcher2D(this);
