@@ -49,7 +49,7 @@ import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderEntity } from './render-entity';
-import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity, NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
+import { NativeBatcher2d, NativeRenderEntity, NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
 import { mapBuffer, readBuffer } from '../../3d/misc';
 import { MeshBuffer } from './mesh-buffer';
 import { propertyDefine } from '../../core/utils/misc';
@@ -118,20 +118,6 @@ export class Batcher2D implements IBatcher {
     private _descriptorSetCache = new DescriptorSetCache();
 
     private _meshDataArray :MeshRenderData[] = [];
-
-    // 当前组件的渲染顺序
-    private _currCompSortingOrder = 0;
-    get currCompSortingOrder () {
-        return this._currCompSortingOrder;
-    }
-
-    private _currRenderEntity: RenderEntity | null= null;
-    get currRenderEntity () {
-        return this._currRenderEntity!;
-    }
-    set currRenderEntity (newEntity:RenderEntity) {
-        this._currRenderEntity = newEntity;
-    }
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -283,8 +269,7 @@ export class Batcher2D implements IBatcher {
     public reset () {
         if (JSB) {
             this._nativeObj.reset();
-        } else { // (下面是web的逻辑，等native写好，本行else注释就得打开)}
-            // Reset batches
+        } else {
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
                 if (batch.isStatic) {
@@ -709,15 +694,7 @@ export class Batcher2D implements IBatcher {
             //render.updateAssembler(this);
             render.updateRenderData();// for collecting data
             if (!JSB) {
-                //这句的功能挪到native了
                 render.fillBuffers(this);// for rendering
-            }
-            if (JSB) {
-                if (!this._currRenderEntity) {
-                    this._currRenderEntity = render.renderData!.renderEntity;
-                } else {
-                    render.updateEntityIndices();
-                }
             }
         }
 
@@ -730,9 +707,6 @@ export class Batcher2D implements IBatcher {
                 buffer.setDirty();
             }
         }
-
-        // 每walk一个组件便自增
-        this._currCompSortingOrder++;
 
         if (children.length > 0 && !node._static) {
             for (let i = 0; i < children.length; ++i) {
@@ -777,118 +751,6 @@ export class Batcher2D implements IBatcher {
             this._nativeObj.syncMeshBuffersToNative(nativeBuffers, buffers.length);
         }
     }
-
-    // // render entity dictionary
-    // private entityArr : RenderEntity[] =[];
-    // public addRenderEntity (entity:RenderEntity) {
-    //     const repeatIndex =  this.entityArr.findIndex((x) => x.entityId === entity.entityId);
-    //     if (repeatIndex >= 0 && repeatIndex < this.entityArr.length) {
-    //         this.entityArr[repeatIndex] = entity;
-    //     } else {
-    //         this.entityArr.push(entity);
-    //     }
-    // }
-
-    // public removeRenderEntity (entityId:number) {
-    //     const removeIndex =  this.entityArr.findIndex((x) => x.entityId === entityId);
-    //     if (removeIndex >= 0 && removeIndex < this.entityArr.length) {
-    //         delete this.entityArr[removeIndex];
-    //     }
-    // }
-
-    // public syncRenderEntitiesToNative () {
-    //     if (JSB) {
-    //         const nativeEntityArr:NativeRenderEntity[] = [];
-    //         this.entityArr.forEach((x) => {
-    //             nativeEntityArr.push(x.nativeObj);
-    //         });
-    //         this._nativeObj.syncRenderEntitiesToNative(nativeEntityArr);
-    //     }
-    // }
-
-    // // sync some attribute of MeshBuffer
-    // protected _meshBufferAttrArr:MeshBufferAttr[] = [];
-    // protected declare _AttrBuffer: Uint32Array;
-    // protected _needToSyncToNative = true;
-    // //protected _meshBufferAttrBuffer!:Array<number>;
-    // protected _attrStride = 2;//后期需要改为结构体的长度
-    // protected _attrCapacity = 4;
-
-    // public initAttrBuffer () {
-    //     if (JSB) {
-    //         this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
-    //     }
-    // }
-
-    // public updateAttrBuffer (chunk: StaticVBChunk) {
-    //     if (JSB) {
-    //         const index = this._meshBufferAttrArr.findIndex((x) => x.bufferId === chunk.bufferId);
-    //         if (index >= 0 && index < this._meshBufferAttrArr.length) {
-    //             this._meshBufferAttrArr[index].setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
-    //             this.refreshAttrInSharedBuffer();
-    //         } else {
-    //             const temp: MeshBufferAttr = new MeshBufferAttr();
-    //             temp.setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
-    //             this._meshBufferAttrArr.push(temp);
-
-    //             if (this._attrCapacity < this._meshBufferAttrArr.length) {
-    //                 this.resizeAttrBufferAndSync();
-    //             } else {
-    //                 this._needToSyncToNative = true;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // public resizeAttrBufferAndSync () {
-    //     this._attrCapacity *= 2;
-    //     this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
-    //     this._needToSyncToNative = true;
-    //     this.syncMeshBufferAttrToNative();
-    // }
-
-    // public refreshAttrInSharedBuffer () {
-    //     const length = this._attrStride * this._meshBufferAttrArr.length;
-    //     if (!this._AttrBuffer || this._AttrBuffer.length < length) {
-    //         return false;
-    //     }
-    //     for (let i = 0; i < this._meshBufferAttrArr.length; i++) {
-    //         const temp  = this._meshBufferAttrArr[i];
-    //         this._AttrBuffer[i * this._attrStride] = temp.bufferId;
-    //         this._AttrBuffer[i * this._attrStride + 1] = temp.indexOffset;
-    //     }
-    //     return true;
-    // }
-
-    // public syncMeshBufferAttrToNative () {
-    //     if (JSB) {
-    //         if (this._needToSyncToNative) {
-    //             const success = this.refreshAttrInSharedBuffer();
-    //             if (success) {
-    //                 const length = this._attrStride * this._meshBufferAttrArr.length;
-    //                 this._nativeObj.syncMeshBufferAttrToNative(this._AttrBuffer, this._attrStride, length);
-    //             }
-    //             this._needToSyncToNative = false;
-    //         }
-    //     }
-    // }
-}
-
-class MeshBufferAttr {
-    bufferId = 0;
-    indexOffset = 0;
-
-    public setAttr (bufferId:number, indexOffset:number) {
-        this.bufferId = bufferId;
-        this.indexOffset = indexOffset;
-    }
-
-    // public toArray () {
-    //     const arr:number[]  = [];
-    //     arr.push(this.bufferId);
-    //     arr.push(this.indexOffset);
-    //     return arr;
-    // }
 }
 
 class LocalDescriptorSet  {

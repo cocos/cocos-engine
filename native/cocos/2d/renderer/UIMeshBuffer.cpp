@@ -19,26 +19,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
 }
 
 void UIMeshBuffer::initialize(gfx::Device* device, ccstd::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount) {
-    //_initVDataCount = vFloatCount;
-    //_initIDataCount = iCount;
-    //_attributes = std::move(attrs);
-    //if (!_vData || !_iData) {
-    //    _vData = new float[_initVDataCount];
-    //    _iData = new uint16_t[_initIDataCount];
-    //    _needDeleteVData = true;
-    //} else {
-    //    _needDeleteVData = false;
-    //}
-    //
 
-    // 估计要拆到sharedbuffer里传过来
-    //if (attrs.size() > 0) {
-    //    _attributes.clear();
-    //}
-    //for (index_t i = 0; i < attrs.size(); i++) {
-    //    _attributes.push_back(*attrs[i]);
-    //}
-    // _iaPool.push_back(createNewIA(device));
 }
 
 void UIMeshBuffer::reset() {
@@ -72,7 +53,7 @@ void UIMeshBuffer::destroy() {
     for (index_t i = 0; i < _iaPool.size();i++) {
         gfx::InputAssembler* ia = _iaPool[i];
         ia->destroy();
-        delete ia; //关闭时还会崩溃
+        delete ia;
     }
     _iaPool.clear();
 }
@@ -153,7 +134,6 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
     _iaPool.emplace_back(ia);
 
     return ia;
-    // return _iaPool.back();
 }
 
 void UIMeshBuffer::syncSharedBufferToNative(index_t* buffer) {

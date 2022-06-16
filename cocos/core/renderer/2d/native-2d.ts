@@ -88,44 +88,10 @@ export class NativeUIMeshBuffer {
 
 export class NativeBatcher2d {
     syncMeshBuffersToNative (buffers: NativeUIMeshBuffer[], length:number) {}
-    syncRenderEntitiesToNative (renderEntities: NativeRenderEntity[]) {}
-    //syncMeshBufferAttrToNative (data:TypedArray, stride:number, size:number) {}
-    ItIsDebugFuncInBatcher2d () {}
 
     update () {}
     uploadBuffers () {}
     reset () {}
 
     addRootNode (node:Node) {}
-}
-
-export class NativeAdvanceRenderData {
-    ParseRender2dData (data:TypedArray) {}
-
-    get x () { return 0; }
-    set x (val) {}
-
-    get y () { return 0; }
-    set y (val) {}
-
-    get z () { return 0; }
-    set z (val) {}
-
-    get u () { return 0; }
-    set u (val) {}
-
-    get v () { return 0; }
-    set v (val) {}
-
-    get colorR () { return 0; }
-    set colorR (val) {}
-
-    get colorG () { return 0; }
-    set colorG (val) {}
-
-    get colorB () { return 0; }
-    set colorB (val) {}
-
-    get colorA () { return 0; }
-    set colorA (val) {}
 }

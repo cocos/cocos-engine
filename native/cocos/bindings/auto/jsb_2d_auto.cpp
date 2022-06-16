@@ -42,63 +42,6 @@ static bool js_2d_UIMeshBuffer_destroy(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_2d_UIMeshBuffer_destroy)
 
-static bool js_2d_UIMeshBuffer_getByteOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getByteOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getByteOffset();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_getByteOffset : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_getByteOffset)
-
-static bool js_2d_UIMeshBuffer_getDirty(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getDirty : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->getDirty();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_getDirty : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_getDirty)
-
-static bool js_2d_UIMeshBuffer_getFloatsPerVertex(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getFloatsPerVertex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getFloatsPerVertex();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_getFloatsPerVertex : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_getFloatsPerVertex)
-
 static bool js_2d_UIMeshBuffer_getIData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
@@ -118,25 +61,6 @@ static bool js_2d_UIMeshBuffer_getIData(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_UIMeshBuffer_getIData)
 
-static bool js_2d_UIMeshBuffer_getIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getIndexOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getIndexOffset();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_getIndexOffset : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_getIndexOffset)
-
 static bool js_2d_UIMeshBuffer_getVData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
@@ -155,25 +79,6 @@ static bool js_2d_UIMeshBuffer_getVData(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_UIMeshBuffer_getVData)
-
-static bool js_2d_UIMeshBuffer_getVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getVertexOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getVertexOffset();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_getVertexOffset : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_getVertexOffset)
 
 static bool js_2d_UIMeshBuffer_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -200,21 +105,6 @@ static bool js_2d_UIMeshBuffer_initialize(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_2d_UIMeshBuffer_initialize)
 
-static bool js_2d_UIMeshBuffer_parseLayout(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_parseLayout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->parseLayout();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_parseLayout)
-
 static bool js_2d_UIMeshBuffer_reset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
@@ -229,74 +119,6 @@ static bool js_2d_UIMeshBuffer_reset(se::State& s) // NOLINT(readability-identif
     return false;
 }
 SE_BIND_FUNC(js_2d_UIMeshBuffer_reset)
-
-static bool js_2d_UIMeshBuffer_setByteOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setByteOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_setByteOffset : Error processing arguments");
-        cobj->setByteOffset(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_setByteOffset)
-
-static bool js_2d_UIMeshBuffer_setDirty(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2( cobj, false, "js_2d_UIMeshBuffer_setDirty : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<bool, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            cobj->setDirty(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 0) {
-
-            cobj->setDirty();
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_setDirty)
-
-static bool js_2d_UIMeshBuffer_setFloatsPerVertex(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setFloatsPerVertex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_setFloatsPerVertex : Error processing arguments");
-        cobj->setFloatsPerVertex(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_setFloatsPerVertex)
 
 static bool js_2d_UIMeshBuffer_setIData(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -317,25 +139,6 @@ static bool js_2d_UIMeshBuffer_setIData(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_UIMeshBuffer_setIData)
 
-static bool js_2d_UIMeshBuffer_setIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setIndexOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_setIndexOffset : Error processing arguments");
-        cobj->setIndexOffset(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_setIndexOffset)
-
 static bool js_2d_UIMeshBuffer_setVData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
@@ -354,25 +157,6 @@ static bool js_2d_UIMeshBuffer_setVData(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_UIMeshBuffer_setVData)
-
-static bool js_2d_UIMeshBuffer_setVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setVertexOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_UIMeshBuffer_setVertexOffset : Error processing arguments");
-        cobj->setVertexOffset(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_UIMeshBuffer_setVertexOffset)
 
 static bool js_2d_UIMeshBuffer_syncSharedBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -434,19 +218,8 @@ bool js_register_2d_UIMeshBuffer(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("vData", _SE(js_2d_UIMeshBuffer_getVData_asGetter), _SE(js_2d_UIMeshBuffer_setVData_asSetter));
     cls->defineProperty("iData", _SE(js_2d_UIMeshBuffer_getIData_asGetter), _SE(js_2d_UIMeshBuffer_setIData_asSetter));
     cls->defineFunction("destroy", _SE(js_2d_UIMeshBuffer_destroy));
-    cls->defineFunction("getByteOffset", _SE(js_2d_UIMeshBuffer_getByteOffset));
-    cls->defineFunction("getDirty", _SE(js_2d_UIMeshBuffer_getDirty));
-    cls->defineFunction("getFloatsPerVertex", _SE(js_2d_UIMeshBuffer_getFloatsPerVertex));
-    cls->defineFunction("getIndexOffset", _SE(js_2d_UIMeshBuffer_getIndexOffset));
-    cls->defineFunction("getVertexOffset", _SE(js_2d_UIMeshBuffer_getVertexOffset));
     cls->defineFunction("initialize", _SE(js_2d_UIMeshBuffer_initialize));
-    cls->defineFunction("parseLayout", _SE(js_2d_UIMeshBuffer_parseLayout));
     cls->defineFunction("reset", _SE(js_2d_UIMeshBuffer_reset));
-    cls->defineFunction("setByteOffset", _SE(js_2d_UIMeshBuffer_setByteOffset));
-    cls->defineFunction("setDirty", _SE(js_2d_UIMeshBuffer_setDirty));
-    cls->defineFunction("setFloatsPerVertex", _SE(js_2d_UIMeshBuffer_setFloatsPerVertex));
-    cls->defineFunction("setIndexOffset", _SE(js_2d_UIMeshBuffer_setIndexOffset));
-    cls->defineFunction("setVertexOffset", _SE(js_2d_UIMeshBuffer_setVertexOffset));
     cls->defineFunction("syncSharedBufferToNative", _SE(js_2d_UIMeshBuffer_syncSharedBufferToNative));
     cls->defineFunction("uploadBuffers", _SE(js_2d_UIMeshBuffer_uploadBuffers));
     cls->defineFinalizeFunction(_SE(js_cc_UIMeshBuffer_finalize));
@@ -462,21 +235,6 @@ bool js_register_2d_UIMeshBuffer(se::Object* obj) // NOLINT(readability-identifi
 }
 se::Object* __jsb_cc_RenderEntity_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_RenderEntity_class = nullptr;  // NOLINT
-
-static bool js_2d_RenderEntity_ItIsDebugFuncInRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_ItIsDebugFuncInRenderEntity : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->ItIsDebugFuncInRenderEntity();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity)
 
 static bool js_2d_RenderEntity_getBlendHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -534,6 +292,25 @@ static bool js_2d_RenderEntity_getDataHash(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getDataHash)
+
+static bool js_2d_RenderEntity_getEnabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getEnabled();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getEnabled : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderEntity_getEnabled)
 
 static bool js_2d_RenderEntity_getIDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -686,28 +463,6 @@ static bool js_2d_RenderEntity_getNode(se::State& s) // NOLINT(readability-ident
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getNode)
-
-static bool js_2d_RenderEntity_getRender2dLayout(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getRender2dLayout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getRender2dLayout : Error processing arguments");
-        cc::Render2dLayout* result = cobj->getRender2dLayout(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getRender2dLayout : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_RenderEntity_getRender2dLayout)
 
 static bool js_2d_RenderEntity_getSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1360,9 +1115,8 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("textureHash", _SE(js_2d_RenderEntity_getTextureHash_asGetter), _SE(js_2d_RenderEntity_setTextureHash_asSetter));
     cls->defineProperty("sampler", _SE(js_2d_RenderEntity_getSampler_asGetter), _SE(js_2d_RenderEntity_setSampler_asSetter));
     cls->defineProperty("blendHash", _SE(js_2d_RenderEntity_getBlendHash_asGetter), _SE(js_2d_RenderEntity_setBlendHash_asSetter));
-    cls->defineFunction("ItIsDebugFuncInRenderEntity", _SE(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity));
+    cls->defineFunction("getEnabled", _SE(js_2d_RenderEntity_getEnabled));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderEntity_getMeshBuffer));
-    cls->defineFunction("getRender2dLayout", _SE(js_2d_RenderEntity_getRender2dLayout));
     cls->defineFunction("setRender2dBufferToNative", _SE(js_2d_RenderEntity_setRender2dBufferToNative));
     cls->defineFunction("syncSharedBufferToNative", _SE(js_2d_RenderEntity_syncSharedBufferToNative));
     cls->defineFinalizeFunction(_SE(js_cc_RenderEntity_finalize));
@@ -1378,21 +1132,6 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
 }
 se::Object* __jsb_cc_Batcher2d_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Batcher2d_class = nullptr;  // NOLINT
-
-static bool js_2d_Batcher2d_ItIsDebugFuncInBatcher2d(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_ItIsDebugFuncInBatcher2d : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->ItIsDebugFuncInBatcher2d();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d)
 
 static bool js_2d_Batcher2d_addRootNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1412,100 +1151,6 @@ static bool js_2d_Batcher2d_addRootNode(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_addRootNode)
-
-static bool js_2d_Batcher2d_addVertDirtyRenderer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_addVertDirtyRenderer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::RenderEntity*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_addVertDirtyRenderer : Error processing arguments");
-        cobj->addVertDirtyRenderer(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_addVertDirtyRenderer)
-
-static bool js_2d_Batcher2d_fillBuffersAndMergeBatches(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_fillBuffersAndMergeBatches : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->fillBuffersAndMergeBatches();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_fillBuffersAndMergeBatches)
-
-static bool js_2d_Batcher2d_generateBatch(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_generateBatch : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::RenderEntity*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_generateBatch : Error processing arguments");
-        cobj->generateBatch(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_generateBatch)
-
-static bool js_2d_Batcher2d_getDevice(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_getDevice : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::Device* result = cobj->getDevice();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_getDevice : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_getDevice)
-
-static bool js_2d_Batcher2d_getMeshBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_getMeshBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_getMeshBuffer : Error processing arguments");
-        cc::UIMeshBuffer* result = cobj->getMeshBuffer(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_getMeshBuffer : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_getMeshBuffer)
 
 static bool js_2d_Batcher2d_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1541,21 +1186,6 @@ static bool js_2d_Batcher2d_reset(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_2d_Batcher2d_reset)
 
-static bool js_2d_Batcher2d_resetRenderStates(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_resetRenderStates : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->resetRenderStates();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_resetRenderStates)
-
 static bool js_2d_Batcher2d_syncMeshBuffersToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
@@ -1577,25 +1207,6 @@ static bool js_2d_Batcher2d_syncMeshBuffersToNative(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative)
 
-static bool js_2d_Batcher2d_syncRenderEntitiesToNative(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_syncRenderEntitiesToNative : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<cc::RenderEntity *>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_syncRenderEntitiesToNative : Error processing arguments");
-        cobj->syncRenderEntitiesToNative(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_syncRenderEntitiesToNative)
-
 static bool js_2d_Batcher2d_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
@@ -1610,21 +1221,6 @@ static bool js_2d_Batcher2d_update(se::State& s) // NOLINT(readability-identifie
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_update)
-
-static bool js_2d_Batcher2d_updateDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_updateDescriptorSet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->updateDescriptorSet();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_updateDescriptorSet)
 
 static bool js_2d_Batcher2d_updateVertDirtyRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1655,25 +1251,6 @@ static bool js_2d_Batcher2d_uploadBuffers(se::State& s) // NOLINT(readability-id
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_uploadBuffers)
-
-static bool js_2d_Batcher2d_walk(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_walk : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Node*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_walk : Error processing arguments");
-        cobj->walk(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_walk)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_Batcher2d_finalize)
 
@@ -1717,23 +1294,13 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
-    cls->defineFunction("ItIsDebugFuncInBatcher2d", _SE(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d));
     cls->defineFunction("addRootNode", _SE(js_2d_Batcher2d_addRootNode));
-    cls->defineFunction("addVertDirtyRenderer", _SE(js_2d_Batcher2d_addVertDirtyRenderer));
-    cls->defineFunction("fillBuffersAndMergeBatches", _SE(js_2d_Batcher2d_fillBuffersAndMergeBatches));
-    cls->defineFunction("generateBatch", _SE(js_2d_Batcher2d_generateBatch));
-    cls->defineFunction("getDevice", _SE(js_2d_Batcher2d_getDevice));
-    cls->defineFunction("getMeshBuffer", _SE(js_2d_Batcher2d_getMeshBuffer));
     cls->defineFunction("initialize", _SE(js_2d_Batcher2d_initialize));
     cls->defineFunction("reset", _SE(js_2d_Batcher2d_reset));
-    cls->defineFunction("resetRenderStates", _SE(js_2d_Batcher2d_resetRenderStates));
     cls->defineFunction("syncMeshBuffersToNative", _SE(js_2d_Batcher2d_syncMeshBuffersToNative));
-    cls->defineFunction("syncRenderEntitiesToNative", _SE(js_2d_Batcher2d_syncRenderEntitiesToNative));
     cls->defineFunction("update", _SE(js_2d_Batcher2d_update));
-    cls->defineFunction("updateDescriptorSet", _SE(js_2d_Batcher2d_updateDescriptorSet));
     cls->defineFunction("updateVertDirtyRenderer", _SE(js_2d_Batcher2d_updateVertDirtyRenderer));
     cls->defineFunction("uploadBuffers", _SE(js_2d_Batcher2d_uploadBuffers));
-    cls->defineFunction("walk", _SE(js_2d_Batcher2d_walk));
     cls->defineFinalizeFunction(_SE(js_cc_Batcher2d_finalize));
     cls->install();
     JSBClassType::registerClass<cc::Batcher2d>(cls);

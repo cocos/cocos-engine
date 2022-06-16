@@ -20,9 +20,6 @@ public:
     ~Batcher2d();
 
     void syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length);
-    void syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities);
-
-    void ItIsDebugFuncInBatcher2d();
 
     bool initialize();
     void update();
@@ -30,16 +27,11 @@ public:
     void reset();
     void updateVertDirtyRenderer();
 
-    //void addNewRenderEntity(RenderEntity* entity);
-    void addVertDirtyRenderer(RenderEntity* entity);
-
-    //inline RenderEntity* getFirstEntity() const { return _firstEntity; };
-    //void setFirstEntity(RenderEntity* entity);
-
-    //inline Node* getRootNode() const { return _rootNode; }
     void addRootNode(Node* node);
 
 public:
+    void addVertDirtyRenderer(RenderEntity* entity);
+
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
     gfx::Device* getDevice();
 
@@ -55,13 +47,7 @@ public:
 
 private:
     Root* _root{nullptr};
-
-    //ccstd::vector<RenderEntity*> _renderEntities{};
-    //ccstd::vector<RenderEntity*> _newRenderEntities{};
-    //RenderEntity* _firstEntity;
     ccstd::vector<Node*> _rootNodeArr{};
-    //ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator _mapEnd;
-    //ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
@@ -83,13 +69,12 @@ private:
     index_t _currSamplerHash{0};
 
 private:
-    //TODO:destroy
     ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
     gfx::DescriptorSetInfo _dsInfo{};
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
 private:
-    inline void fillBuffers(RenderEntity* entity){
+    inline void fillIndexBuffers(RenderEntity* entity){
         index_t vertexOffset = entity->getVertexOffset();
         uint16_t* ib = entity->getIDataBuffer();
 
@@ -102,12 +87,10 @@ private:
         memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
         indexOffset += indexCount;
 
-        // set index offset back
         buffer->setIndexOffset(indexOffset);
     }
 
-    inline void updateWorldVerts(RenderEntity* entity){
-        //ccstd::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
+    inline void fillVertexBuffers(RenderEntity* entity){
         Node* node = entity->getNode();
         const Mat4& matrix = node->getWorldMatrix();
         uint8_t stride = entity->getStride();
@@ -117,7 +100,6 @@ private:
         Vec3 temp;
         uint8_t offset = 0;
         for (int i = 0; i < size; i += stride) {
-            //Render2dLayout* curLayout = dataList[i];
             Render2dLayout* curLayout = entity->getRender2dLayout(i);
             temp.transformMat4(curLayout->position, matrix);
 

@@ -25,18 +25,19 @@ public:
 public:
     void initialize(gfx::Device* device, ccstd::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount);
     void reset();
-    void resetIA();
     void destroy();
     void setDirty();
-    void recycleIA(gfx::InputAssembler* ia);
     void uploadBuffers();
+
+    void syncSharedBufferToNative(index_t* buffer);
+
+public:
+    void resetIA();
+    void recycleIA(gfx::InputAssembler* ia);
+    void parseLayout();
 
     gfx::InputAssembler* requireFreeIA(gfx::Device* device);
     gfx::InputAssembler* createNewIA(gfx::Device* device);
-
-public:
-    void syncSharedBufferToNative(index_t* buffer);
-    void parseLayout();
 
     inline index_t getByteOffset() { return _meshBufferLayout->byteOffset; }
     void setByteOffset(index_t byteOffset);
@@ -57,7 +58,6 @@ private:
     index_t* _sharedBuffer{nullptr};
     bool _dirty{false};
     uint32_t _vertexFormatBytes{0};
-    //uint32_t _floatsPerVertex{0};//from ts, put it into layout
     index_t _initVDataCount{0};
     index_t _initIDataCount{0};
     ccstd::vector<gfx::Attribute> _attributes{

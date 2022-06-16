@@ -102,67 +102,18 @@ void RenderEntity::setBlendHash(index_t blendHash) {
     this->_blendHash = blendHash;
 }
 
-//void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
-//    this->_dataArr = std::move(arr);
-//}
-
 void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) {
     this->_stride = stride;
     this->_size = size;
     this->_sharedBuffer = buffer;
-    //parseLayout();
 }
-
-//ccstd::vector<Render2dLayout*>& RenderEntity::getRenderDataArr() {
-//    return this->_render2dLayoutArr;
-//}
-
-//void RenderEntity::setCurrIndex(index_t currIndex) {
-//    _entityAttrLayout->currIndex = currIndex;
-//}
-//
-//void RenderEntity::setNextIndex(index_t nextIndex) {
-//    _entityAttrLayout->nextIndex = nextIndex;
-//}
 
 void RenderEntity::syncSharedBufferToNative(index_t* buffer) {
     _attrSharedBuffer = buffer;
     parseAttrLayout();
-
-    //解析后加入batcher管理
-    if (_batcher != nullptr) {
-        //_batcher->addNewRenderEntity(this);
-        
-    }
 }
 
 void RenderEntity::parseAttrLayout() {
     _entityAttrLayout = reinterpret_cast<EntityAttrLayout*>(_attrSharedBuffer);
-}
-
-//void RenderEntity::parseLayout() {
-//    index_t vertexCount = this->_size / this->_stride;
-//    this->_render2dLayoutArr.clear();
-//    for (index_t i = 0; i < this->_size; i += this->_stride) {
-//        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
-//        this->_render2dLayoutArr.push_back(temp);
-//    }
-//}
-
-//void RenderEntity::refreshLayout() {
-//    index_t vertexCount = this->_size / this->_stride;
-//    //这里涉及到dirty，可以考虑
-//    for (index_t i = 0; i < this->_size; i += this->_stride) {
-//        //可以考虑直接用偏移，而不用reinterpret_cast
-//        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
-//        Render2dLayout* thisLayout = this->_render2dLayoutArr[i];
-//        thisLayout->position.set(temp->position);
-//        thisLayout->uv.set(temp->uv);
-//        thisLayout->color.set(temp->color);
-//    }
-//}
-
-void RenderEntity::ItIsDebugFuncInRenderEntity() {
-    std::cout << "It is debug func in RenderEntity.";
 }
 } // namespace cc

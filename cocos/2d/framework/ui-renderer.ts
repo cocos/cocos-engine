@@ -207,6 +207,29 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * @en Indicates whether this component is enabled or not.
+     * @zh 表示该组件自身是否启用。
+     * @default true
+     * @example
+     * ```ts
+     * import { log } from 'cc';
+     * comp.enabled = true;
+     * log(comp.enabled);
+     * ```
+     */
+    get enabled () {
+        return this._enabled;
+    }
+    set enabled (value) {
+        super.enabled = value;
+        if (this.renderData) {
+            if (this.renderData.renderEntity) {
+                this.renderData.renderEntity.enabled = value;
+            }
+        }
+    }
+
+    /**
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -371,12 +394,6 @@ export class UIRenderer extends Renderer {
     public fillBuffers (render: IBatcher) {
         if (this._renderFlag) {
             this._render(render);
-        }
-    }
-
-    public updateEntityIndices () {
-        if (this._renderData) {
-            this._renderData.updateRenderEntityIndex();
         }
     }
 

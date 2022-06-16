@@ -2,7 +2,7 @@ import { b2Controller } from '@cocos/box2d/src/box2d';
 import { BaseRenderData, IRenderData } from './render-data';
 import { Stage } from './stencil-manager';
 import { JSB } from '../../core/default-constants';
-import { NativeAdvanceRenderData, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
+import { NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
 import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
@@ -10,8 +10,7 @@ import { Batcher2D } from './batcher-2d';
 import IDGenerator from '../../core/utils/id-generator';
 
 export enum RenderEntitySharedBufferView{
-    currIndex,
-    nextIndex,
+    enabled,
     count,
 }
 
@@ -19,34 +18,17 @@ export class RenderEntity {
     public renderData: BaseRenderData=null!;
     public stencilStage:Stage = Stage.DISABLED;
 
-    //节点树渲染顺序
-    //protected _currIndex = 0;
-    get currIndex () {
-        if (JSB) {
-            return this._sharedBuffer[RenderEntitySharedBufferView.currIndex];
-        }
-        return 0;
+    protected _enabled = true;
+    get enabled () {
+        return this._enabled;
     }
-    set currIndex (val:number) {
+    set enabled (val:boolean) {
+        this._enabled = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.currIndex] = val;
+            this._sharedBuffer[RenderEntitySharedBufferView.enabled] = val ? 1 : 0;
         }
     }
 
-    //protected _nextIndex=0;
-    get nextIndex () {
-        if (JSB) {
-            return this._sharedBuffer[RenderEntitySharedBufferView.nextIndex];
-        }
-        return 0;
-    }
-    set nextIndex (val:number) {
-        if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.nextIndex] = val;
-        }
-    }
-
-    //具体的渲染数据
     protected _bufferId: number | undefined;
     protected _vertexOffset: number | undefined;
     protected _indexOffset: number | undefined;
@@ -58,7 +40,6 @@ export class RenderEntity {
     protected _vertDirty: boolean | undefined;
     protected _vbCount: number | undefined;
     protected _ibCount: number | undefined;
-
     protected _dataHash :number |undefined;
     protected _stencilStage :number |undefined;
     protected _isMeshBuffer :boolean |undefined;
@@ -70,10 +51,10 @@ export class RenderEntity {
 
     protected declare _nativeObj: NativeRenderEntity;
 
-    // 顶点数据存储的共享内存 set dataLength 时就可以确定这个buffer的长度
+    // SharedBuffer of pos/uv/color
     protected declare _render2dBuffer: Float32Array;
 
-    // 除顶点数据外的共享内存，可以存储渲染顺序
+    // SharedBuffer of extra attributes
     protected declare _sharedBuffer: Int32Array;
 
     protected _vertexCount = 0;
@@ -99,7 +80,6 @@ export class RenderEntity {
     }
 
     public clear () {
-        //vb,vData,iData这些应该是由accessor负责销毁
         this._bufferId = 0;
         this._vertexOffset = 0;
         this._indexOffset = 0;
@@ -253,7 +233,6 @@ export class RenderEntity {
         this._blendHash = blendHash;
     }
 
-    //初始化sharedBuffer
     public initRender2dBuffer (vertexCount:number, stride:number) {
         if (JSB) {
             this._stride = stride;
@@ -262,7 +241,6 @@ export class RenderEntity {
         }
     }
 
-    //填充所有顶点
     public fillRender2dBuffer (vertexDataArr:IRenderData[]) {
         if (JSB) {
             const fillLength = Math.min(this._vertexCount, vertexDataArr.length);
@@ -274,7 +252,6 @@ export class RenderEntity {
         }
     }
 
-    //更新某个顶点buffer
     public updateVertexBuffer (bufferOffset:number, vertexData:IRenderData) {
         if (JSB) {
             if (bufferOffset >= this.render2dBuffer.length) {
@@ -293,10 +270,8 @@ export class RenderEntity {
         }
     }
 
-    //同步到native
     public setRender2dBufferToNative () {
         if (JSB) {
-            //this._nativeObj.setRender2dBufferToNativeNew(this._render2dBuffer);
             this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride);
         }
     }

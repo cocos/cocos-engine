@@ -1,25 +1,24 @@
 #pragma once
+#include <cocos/2d/renderer/UIMeshBuffer.h>
 #include <cocos/base/TypeDef.h>
-#include <vector>
+#include <cocos/core/assets/Material.h>
+#include <cocos/core/scene-graph/Node.h>
+#include <cocos/renderer/gfx-base/states/GFXSampler.h>
+#include <math/Color.h>
 #include <math/Vec2.h>
 #include <math/Vec3.h>
 #include <math/Vec4.h>
-#include <math/Color.h>
-#include <cocos/core/scene-graph/Node.h>
-#include <cocos/core/assets/Material.h>
-#include <cocos/renderer/gfx-base/states/GFXSampler.h>
-#include <cocos/2d/renderer/UIMeshBuffer.h>
+#include <vector>
 
 namespace cc {
 struct Render2dLayout {
     cc::Vec3 position;
     cc::Vec2 uv;
-    cc::Vec4 color; // use Vec4 instead of Color because of bytes alignment
+    cc::Vec4 color;
 };
 
 struct EntityAttrLayout {
-    index_t currIndex;
-    index_t nextIndex;
+    index_t enabledIndex;
 };
 
 class Batcher2d;
@@ -29,7 +28,7 @@ public:
     explicit RenderEntity(Batcher2d* batcher);
     RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset);
     ~RenderEntity();
-    
+
     inline index_t getBufferId() const { return this->_bufferId; }
     void setBufferId(index_t bufferId);
     inline index_t getVertexOffset() const { return this->_vertexOffset; }
@@ -70,32 +69,19 @@ public:
     inline index_t getBlendHash() const { return this->_blendHash; }
     void setBlendHash(index_t blendHash);
 
-    //inline ccstd::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
-    //void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
-
-    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size); // size 为 冗余数据
-
-    // for debug
-    void ItIsDebugFuncInRenderEntity();
+    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
+    void syncSharedBufferToNative(index_t* buffer);
 
 public:
-    //inline index_t getCurrIndex() const { return _entityAttrLayout->currIndex; }
-    //void setCurrIndex(index_t currIndex);
-    //inline index_t getNextIndex() const { return _entityAttrLayout->nextIndex; }
-    //void setNextIndex(index_t nextIndex);
+    inline bool getEnabled() const { return _entityAttrLayout->enabledIndex != 0; }
 
-    void syncSharedBufferToNative(index_t* buffer);
     void parseAttrLayout();
 
 public:
-    //这里每次获取时都应该对buffer做一次解析
-    //ccstd::vector<Render2dLayout*>& getRenderDataArr();
     inline Render2dLayout* getRender2dLayout(index_t dataOffset) {
-        return reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + dataOffset * sizeof(float_t));;
+        return reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + dataOffset * sizeof(float_t));
     }
 
-    //void parseLayout();
-    //void refreshLayout();
     inline uint8_t getStride() { return this->_stride; }
     inline uint32_t getSize() { return this->_size; }
 
@@ -103,8 +89,6 @@ private:
     Batcher2d* _batcher;
 
 private:
-    // use this
-    //ccstd::vector<Render2dLayout*> _render2dLayoutArr{};
     uint8_t* _sharedBuffer{nullptr};
     uint8_t _stride{0};
     uint32_t _size{0};
@@ -113,11 +97,9 @@ private:
     index_t* _attrSharedBuffer{nullptr};
 
 private:
-    // updateWorld 数据计算用到
     index_t _bufferId{0};
     index_t _vertexOffset{0};
 
-    // 这个要使用batcher2d里的字段，它不跟这entity走
     index_t _indexOffset{0};
 
     float_t* _vbBuffer{nullptr};
@@ -145,4 +127,4 @@ private: // for merging batches
     index_t _blendHash{0};
 };
 
-}
+} // namespace cc

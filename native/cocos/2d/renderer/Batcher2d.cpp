@@ -3,11 +3,10 @@
 #include <cocos/core/Root.h>
 #include <renderer/pipeline/Define.h>
 #include <scene/Pass.h>
-#include <iostream>
 #include <deque>
+#include <iostream>
 
 namespace cc {
-//batcher2d是从ts调JSB过来的的，所以不会走构造
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
     _device = Root::getInstance()->getDevice();
 }
@@ -18,7 +17,6 @@ Batcher2d::Batcher2d(Root* root) : _drawBatchPool([]() { return ccnew scene::Dra
 }
 
 Batcher2d::~Batcher2d() {
-
     _drawBatchPool.destroy();
 
     for (auto iter = _descriptorSetCache.begin(); iter != _descriptorSetCache.end(); iter++) {
@@ -30,35 +28,6 @@ Batcher2d::~Batcher2d() {
 void Batcher2d::syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length) {
     _meshBuffers = std::move(buffers);
 }
-
-void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities) {
-    //_renderEntities = std::move(renderEntities);
-}
-
-//void Batcher2d::syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size) {
-//    _attrSize = size;
-//    _attrStride = stride;
-//    _attrBuffer = buffer;
-//    parseAttr();
-//}
-
-//void Batcher2d::parseAttr() {
-//    index_t group = _attrSize / _attrStride;
-//    _meshBufferAttrArr.clear();
-//    for (index_t i = 0; i < _attrSize; i += _attrStride) {
-//        MeshBufferAttr* temp = reinterpret_cast<MeshBufferAttr*>(_attrBuffer + i);
-//        _meshBufferAttrArr.push_back(temp);
-//    }
-//}
-
-//MeshBufferAttr* Batcher2d::getMeshBufferAttr(index_t bufferId) {
-//    for (index_t i = 0; i < _meshBufferAttrArr.size(); i++) {
-//        if (_meshBufferAttrArr[i]->bufferId == bufferId) {
-//            return _meshBufferAttrArr[i];
-//        }
-//    }
-//    return nullptr;
-//}
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
     assert(this->_meshBuffers[bufferId]);
@@ -80,10 +49,6 @@ void Batcher2d::addRootNode(Node* node) {
     _rootNodeArr.push_back(node);
 }
 
-//bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* entity2) {
-//    return entity1->getCurrIndex() < entity2->getCurrIndex();
-//}
-
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
     for (index_t i = 0; i < _rootNodeArr.size(); i++) {
@@ -100,14 +65,13 @@ void Batcher2d::walk(Node* node) {
     while (length > 0) {
         Node* curNode = nodeStack[--length];
         RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
-        if (entity) {
-            //判断是否能合批，不能合批则需要generateBatch
+        if (entity && entity->getEnabled()) {
             uint32_t dataHash = entity->getDataHash();
             if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
-                /* || stencilmanager */) { //这个暂时只有mask才考虑，后续补充
+                /* || stencilmanager */) {//stencilStage for Mask component
+                // Generate a batch if not batching
                 generateBatch(_currEntity);
                 if (!entity->getIsMeshBuffer()) {
-                    //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
                     if (_currBID != entity->getBufferId()) {
                         UIMeshBuffer* buffer = entity->getMeshBuffer();
                         _currBID = entity->getBufferId();
@@ -132,28 +96,22 @@ void Batcher2d::walk(Node* node) {
                 }
             }
 
-            //暂时不修改vb和ib，验证下目前native的行为
-            //最后调通时再把这里打开
             if (node->getChangedFlags()) {
-                updateWorldVerts(entity);
+                fillVertexBuffers(entity);
             }
-            fillBuffers(entity);
+            fillIndexBuffers(entity);
         }
-        //递归调用
+
         auto& children = curNode->getChildren();
         for (index_t i = children.size() - 1; i >= 0; i--) {
             assert(length < 1000000);
             nodeStack[length++] = children[i];
         }
     }
-    generateBatch(_currEntity);
-    
 }
 
-//如果不传参数，说明是最后一个组件结束，直接合批
 void Batcher2d::generateBatch(RenderEntity* entity) {
-    //这里主要负责的是ts.automergebatches
-    //边循环，边判断当前entity是否能合批
+
     if (entity == nullptr) {
         return;
     }
@@ -247,7 +205,7 @@ void Batcher2d::update() {
 void Batcher2d::updateVertDirtyRenderer() {
     size_t size = _vertDirtyRenderers.size();
     for (uint32_t i = 0; i < size; i++) {
-        updateWorldVerts(_vertDirtyRenderers[i]);
+        fillVertexBuffers(_vertDirtyRenderers[i]);
     }
     _vertDirtyRenderers.clear();
 }
@@ -256,7 +214,6 @@ void Batcher2d::uploadBuffers() {
     if (_batches.size() > 0) {
         //_meshDataArray.forEach(),uploadBuffers
 
-        //当前只考虑一个accessor
         for (index_t i = 0; i < _meshBuffers.size(); i++) {
             UIMeshBuffer* buffer = _meshBuffers[i];
             buffer->uploadBuffers();
@@ -295,16 +252,7 @@ void Batcher2d::reset() {
     //stencilManager
 }
 
-//void Batcher2d::addNewRenderEntity(RenderEntity* entity) {
-//    entity->setCurrIndex(_newRenderEntities.size());
-//    _newRenderEntities.push_back(entity);
-//}
-
 void Batcher2d::addVertDirtyRenderer(RenderEntity* entity) {
     _vertDirtyRenderers.push_back(entity);
-}
-
-void Batcher2d::ItIsDebugFuncInBatcher2d() {
-    std::cout << "It is debug func in Batcher2d.";
 }
 } // namespace cc

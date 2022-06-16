@@ -177,10 +177,6 @@ export class BaseRenderData {
  */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
-        // if (!_pool) {
-        //     _pool = new RecyclePool(() => new RenderData(), 32);
-        // }
-        // const rd = _pool.add();
         const rd = new RenderData();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
@@ -332,6 +328,7 @@ export class RenderData extends BaseRenderData {
                 return;
             }
             this._renderEntity.setNode(comp.node);
+            this._renderEntity.enabled = comp.enabled;
         }
     }
 
@@ -431,13 +428,6 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateRenderEntityIndex () {
-        if (this._renderEntity) {
-            this.batcher.currRenderEntity.nextIndex = this._renderEntity.currIndex;
-            this.batcher.currRenderEntity = this._renderEntity;
-        }
-    }
-
     copyRenderDataToSharedBuffer () {
         if (JSB) {
             const entity = this._renderEntity;
@@ -448,7 +438,6 @@ export class RenderData extends BaseRenderData {
                 return;
             }
 
-            // 同步顶点数据共享内存
             entity.fillRender2dBuffer(this._data);
         }
     }
