@@ -671,7 +671,7 @@ export class Root {
     /**
      * @en recycle the given light to light object pool
      * @zh 回收指定的光源到对象池
-     * @param l @en The light to be destroyed @zh 要回收的光源
+     * @param l @en The light to be recycled @zh 要回收的光源
      */
     public recycleLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
