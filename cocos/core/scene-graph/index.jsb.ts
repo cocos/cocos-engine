@@ -1,6 +1,7 @@
+import './node-event-processor';
+
 export * from './node';
 export * from './scene';
-
 export { Layers } from './layers';
 export * from './deprecated';
 export * from './scene-globals';

@@ -24,7 +24,6 @@
 */
 import { ccclass, serializable } from 'cc.decorator';
 import {
-    _applyDecoratedDescriptor,
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
@@ -91,73 +90,6 @@ TextureBase.Filter = Filter;
 TextureBase.PixelFormat = PixelFormat;
 TextureBase.WrapMode = WrapMode;
 
-const clsDecorator = ccclass('cc.TextureBase');
-
-const _class2$b = TextureBase;
-const _descriptor$9 = _applyDecoratedDescriptor(_class2$b.prototype, '_format', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return PixelFormat.RGBA8888;
-    },
-});
-const _descriptor2$6 = _applyDecoratedDescriptor(_class2$b.prototype, '_minFilter', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return Filter.LINEAR;
-    },
-});
-const _descriptor3$5 = _applyDecoratedDescriptor(_class2$b.prototype, '_magFilter', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return Filter.LINEAR;
-    },
-});
-const _descriptor4$4 = _applyDecoratedDescriptor(_class2$b.prototype, '_mipFilter', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return Filter.NONE;
-    },
-});
-const _descriptor5$3 = _applyDecoratedDescriptor(_class2$b.prototype, '_wrapS', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return WrapMode.REPEAT;
-    },
-});
-const _descriptor6$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_wrapT', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return WrapMode.REPEAT;
-    },
-});
-const _descriptor7$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_wrapR', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return WrapMode.REPEAT;
-    },
-});
-const _descriptor8$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_anisotropy', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
 textureBaseProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._gfxSampler = null;
@@ -165,15 +97,6 @@ textureBaseProto._ctor = function () {
     this._textureHash = 0;
 
     this._registerGFXSamplerUpdatedListener();
-    // for deserialization
-    // _initializerDefineProperty(_this, "_format", _descriptor$9, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_minFilter", _descriptor2$6, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_magFilter", _descriptor3$5, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_mipFilter", _descriptor4$4, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_wrapS", _descriptor5$3, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_wrapT", _descriptor6$1, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_wrapR", _descriptor7$1, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_anisotropy", _descriptor8$1, _assertThisInitialized(_this));
 };
 
 const oldGetGFXSampler = textureBaseProto.getGFXSampler;
@@ -214,6 +137,16 @@ textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerInfo) {
     this._samplerInfo = samplerInfo;
 };
 
-clsDecorator(TextureBase);
-
 legacyCC.TextureBase = jsb.TextureBase;
+
+// handle meta data, it is generated automatically
+const TextureBaseProto = TextureBase.prototype;
+serializable(TextureBaseProto, '_format');
+serializable(TextureBaseProto, '_minFilter');
+serializable(TextureBaseProto, '_magFilter');
+serializable(TextureBaseProto, '_mipFilter');
+serializable(TextureBaseProto, '_wrapS');
+serializable(TextureBaseProto, '_wrapT');
+serializable(TextureBaseProto, '_wrapR');
+serializable(TextureBaseProto, '_anisotropy');
+ccclass('cc.TextureBase')(TextureBase);

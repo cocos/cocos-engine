@@ -22,12 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { Material } from '../../assets';
 import { Renderer } from '../../components/renderer';
 
@@ -75,10 +69,3 @@ materialInstanceProto._onRebuildPSO = function () {
         this._owner._onRebuildPSO(this._subModelIdx, this);
     }
 };
-
-const clsDecorator = ccclass('cc.MaterialInstance');
-
-// TODO:
-// _applyDecoratedDescriptor
-
-clsDecorator(MaterialInstance);

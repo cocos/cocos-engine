@@ -146,19 +146,25 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             console.error('empty block');
             return;
         }
-        /*
+        if (block.descriptorNames.length !== block.descriptors.length) {
+            console.error('error descriptor');
+            return;
+        }
+        if (block.uniformBlockNames.length !== block.uniformBlocks.length) {
+            console.error('error uniform');
+            return;
+        }
         const layout: DescriptorSetLayoutData | undefined = ppl.descriptorSets.get(index.updateFrequency)?.descriptorSetLayoutData;
         if (layout !== undefined) {
             const dstBlock = new DescriptorBlockData(index.descriptorType, index.visibility, block.capacity);
             layout.descriptorBlocks.push(dstBlock);
             dstBlock.offset = layout.capacity;
             dstBlock.capacity = block.capacity;
-            block.descriptors.forEach((value, key) => {
-                const name: string = key;
-                const d: Descriptor = value;
+            for (let j = 0; j < block.descriptors.length; ++j) {
+                const name: string = block.descriptorNames[j];
+                const d: Descriptor = block.descriptors[j];
                 let nameID: number | undefined = g.attributeIndex.get(name);
                 if (nameID === undefined) {
-                    //console.error('attribute not found');
                     const id = g.valueNames.length;
                     g.attributeIndex.set(name, id);
                     g.valueNames.push(name);
@@ -168,12 +174,11 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                 const data: DescriptorData = new DescriptorData(nameID);
                 data.count = d.count;
                 dstBlock.descriptors.push(data);
-            });
+            }
             layout.capacity += block.capacity;
         } else {
             console.error('no layout');
         }
-*/
     }
 
     public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
@@ -256,5 +261,9 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             });
         }
         return oss;
+    }
+
+    public get data () {
+        return this._data;
     }
 }

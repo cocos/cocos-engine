@@ -21,13 +21,7 @@
 
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from "internal:constants";
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
-import { SceneGlobals } from './scene-globals';
 import { Node } from './node';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../utils/prefab/utils";
 import { assert } from "../platform/debug";
@@ -35,11 +29,9 @@ import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 
 export const Scene = jsb.Scene;
 export type Scene = jsb.Scene;
-
-const clsDecorator = ccclass('cc.Scene');
+legacyCC.Scene = Scene;
 
 const sceneProto: any = Scene.prototype;
-const _class2$x = Scene;
 
 Object.defineProperty(sceneProto, '_globals', {
     enumerable: true,
@@ -83,35 +75,12 @@ Object.defineProperty(sceneProto, 'renderScene', {
     }
 });
 
-_applyDecoratedDescriptor(_class2$x.prototype, 'globals', [editable], Object.getOwnPropertyDescriptor(_class2$x.prototype, 'globals'), _class2$x.prototype);
-const _descriptor$r = _applyDecoratedDescriptor(_class2$x.prototype, 'autoReleaseAssets', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return false;
-    },
-});
-
-const _descriptor2$k = _applyDecoratedDescriptor(_class2$x.prototype, '_globals', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return new SceneGlobals();
-    },
-});
-
 sceneProto._ctor = function () {
     Node.prototype._ctor.apply(this, arguments);
     this._inited = false;
     this._renderSceneInternal = null;
     this._globalRef = null;
     this._prefabSyncedInLiveReload = false;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    // const _this = this;
-    // _initializerDefineProperty(_this, "autoReleaseAssets", _descriptor$r, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_globals", _descriptor2$k, _assertThisInitialized(_this));
 };
 
 sceneProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
@@ -145,7 +114,6 @@ sceneProto._load = function () {
     oldLoad.call(this);
 };
 
-const oldActivate = sceneProto._activate;
 sceneProto._activate = function (active: boolean) {
     active = (active !== false);
     if (EDITOR) {
@@ -162,5 +130,11 @@ sceneProto._activate = function (active: boolean) {
     }
 };
 
-clsDecorator(Scene);
-legacyCC.Scene = Scene;
+// handle meta data, it is generated automatically
+const SceneProto = Scene.prototype;
+const globalsDescriptor = Object.getOwnPropertyDescriptor(SceneProto, 'globals');
+editable(SceneProto, 'globals', globalsDescriptor);
+editable(SceneProto, 'autoReleaseAssets');
+serializable(SceneProto, 'autoReleaseAssets');
+serializable(SceneProto, '_globals');
+ccclass('cc.Scene')(Scene);

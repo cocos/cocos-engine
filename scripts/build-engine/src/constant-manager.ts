@@ -43,19 +43,19 @@ export class ConstantManager {
         if (config[mode]) {
             config[mode].value = true;
         } else {
-            throw new Error(`Unknown mode: ${mode}`);
+            console.warn(`Unknown mode: ${mode}`);
         }
         if (config[platform]) {
             config[platform].value = true;
         } else {
-            throw new Error(`Unknown platform: ${platform}`);
+            console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
             const value = flags[key as FlagType] as boolean;
             if (config[key]) {
                 config[key].value = value;
             } else {
-                throw new Error(`Unknown flag: ${key}`);
+                console.warn(`Unknown flag: ${key}`);
             }
         }
 
@@ -95,19 +95,19 @@ export class ConstantManager {
         if (config[mode]) {
             config[mode].value = true;
         } else {
-            throw new Error(`Unknown mode: ${mode}`);
+            console.warn(`Unknown mode: ${mode}`);
         }
         if (config[platform]) {
             config[platform].value = true;
         } else {
-            throw new Error(`Unknown platform: ${platform}`);
+            console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
             const value = flags[key as FlagType] as boolean;
             if (config[key]) {
                 config[key].value = value;
             } else {
-                throw new Error(`Unknown flag: ${key}`);
+                console.warn(`Unknown flag: ${key}`);
             }
         }
 
@@ -144,19 +144,19 @@ export class ConstantManager {
         if (config[mode]) {
             config[mode].value = true;
         } else {
-            throw new Error(`Unknown mode: ${mode}`);
+            console.warn(`Unknown mode: ${mode}`);
         }
         if (config[platform]) {
             config[platform].value = true;
         } else {
-            throw new Error(`Unknown platform: ${platform}`);
+            console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
             const value = flags[key as FlagType] as boolean;
             if (config[key]) {
                 config[key].value = value;
             } else {
-                throw new Error(`Unknown flag: ${key}`);
+                console.warn(`Unknown flag: ${key}`);
             }
         }
 
