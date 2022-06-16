@@ -547,7 +547,6 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 }
 
 //
-
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
@@ -868,7 +867,8 @@ void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
     setWorldRotation(qTemp);
 }
 
-void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
+Vec3 Node::inverseTransformPoint(const Vec3 &p) {
+    Vec3 out;
     out.set(p.x, p.y, p.z);
     Node *cur{this};
     index_t i{0};
@@ -879,8 +879,9 @@ void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
     while (i >= 0) {
         Vec3::transformInverseRTS(out, cur->getRotation(), cur->getPosition(), cur->getScale(), &out);
         --i;
-        cur = dirtyNodes[i];
+        cur = getDirtyNode(i);
     }
+    return out;
 }
 
 void Node::setMatrix(const Mat4 &val) {
