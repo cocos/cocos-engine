@@ -14,3 +14,5 @@ export type {
 } from '../../cocos/core/animation/marionette/blend-2d';
 
 export * from '../../cocos/core/animation/marionette/asset-creation';
+
+export { viewVariableBindings } from '../src/marionette';
