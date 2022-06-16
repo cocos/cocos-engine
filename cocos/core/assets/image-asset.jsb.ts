@@ -45,7 +45,7 @@ export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSou
 const extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
 function isImageBitmap (imageSource: any): boolean {
-    return !!(legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap);
+    return !!(legacyCC.sys.hasFeature(legacyCC.sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
@@ -237,7 +237,7 @@ imageAssetProto._deserialize = function (data: any) {
             } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
                 && (!device || !(device.getFormatFeatures(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                 continue;
-            } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
+            } else if (tmpExt === '.webp' && !legacyCC.sys.hasFeature(legacyCC.sys.Feature.WEBP)) {
                 continue;
             }
             preferedExtensionIndex = index;
