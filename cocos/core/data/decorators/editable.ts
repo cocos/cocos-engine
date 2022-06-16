@@ -69,8 +69,9 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
 export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
 
 /**
- * @en When [[executeInEditMode]] is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
- * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
+ * @en When [[_decorator.executeInEditMode]] is set,
+ * this decorator will make the editor running in high FPS mode when a node with the component is focused
+ * @zh 当指定了 [[_decorator.executeInEditMode]] 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
  * ```ts
  * import { _decorator, Component } from 'cc';
@@ -124,7 +125,8 @@ export const inspector: (url: string) => ClassDecorator =    DEV ? makeEditorCla
 export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
 
 /**
- * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given.
+ * @en Define the help documentation url,
+ * if given, the component section in the **Inspector** will have a help documentation icon reference to the web page given.
  * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  * @param url The url of the help documentation
  * @example
