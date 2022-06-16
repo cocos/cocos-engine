@@ -215,7 +215,7 @@ void Engine::close() { // NOLINT
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
     
 
-    // TODO:(timlyeee) The code below is a hack on v3.6, and should be replaced in the future.
+    // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
     destroy();
     exit(0);
 }
