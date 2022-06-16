@@ -54,7 +54,7 @@ private:
 
     void clearShadowMap(scene::Camera *camera);
 
-    void resizeShadowMap();
+    void resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds);
 
     void initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light);
 
