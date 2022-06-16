@@ -83,6 +83,8 @@ MESSAGE(STATUS "platform: ${CMAKE_SYSTEM_NAME}")
 add_definitions(-DCC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS})
 add_definitions(-DCC_PLATFORM_MACOS=${CC_PLATFORM_MACOS})
 add_definitions(-DCC_PLATFORM_IOS=${CC_PLATFORM_IOS})
+add_definitions(-DCC_PLATFORM_MAC_OSX=${CC_PLATFORM_MACOS}) # keep compatible
+add_definitions(-DCC_PLATFORM_MAC_IOS=${CC_PLATFORM_IOS}) # keep compatible
 add_definitions(-DCC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID})
 add_definitions(-DCC_PLATFORM_OHOS=${CC_PLATFORM_OHOS})
 add_definitions(-DCC_PLATFORM_LINUX=${CC_PLATFORM_LINUX})
