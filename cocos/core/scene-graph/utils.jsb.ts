@@ -23,6 +23,19 @@
  THE SOFTWARE.
  */
 
+import { IMat4Like, Mat4 } from '../math';
+
+declare const jsb: any;
+
 // For optimize getPosition, getRotation, getScale
 export const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(20 * 4));
+
+export const fillMat4WithTempFloatArray = function fillMat4WithTempFloatArray (out: IMat4Like) {
+    Mat4.set(out,
+        _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3],
+        _tempFloatArray[4], _tempFloatArray[5], _tempFloatArray[6], _tempFloatArray[7],
+        _tempFloatArray[8], _tempFloatArray[9], _tempFloatArray[10], _tempFloatArray[11],
+        _tempFloatArray[12], _tempFloatArray[13], _tempFloatArray[14], _tempFloatArray[15]
+    );
+};
 //
