@@ -107,7 +107,6 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
     public set enable (value: boolean) {
         this._enable = value;
-        console.log('!!!!!!!!!!!!!!!!!!set enable =', value);
     }
 
     /**
