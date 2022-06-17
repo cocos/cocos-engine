@@ -211,11 +211,8 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
     if (self = [super init]) {
         tViewOnView = inputOnView;
         tViewOnToolbar = inputOnToolbar;
-        return self;
-    } else {
-        [self release];
-        return nil;
     }
+    return self;
 }
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     // REFINE: check length limit before text changed
@@ -242,12 +239,9 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
     if (self = [super init]) {
         textFieldOnView = inputOnView;
         textFieldOntoolbar = inputOnToolbar;
-        return self;
-    } else {
-        [self release];
-        return nil;
+        
     }
-    
+    return self;
 }
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     // REFINE: check length limit before text changed
