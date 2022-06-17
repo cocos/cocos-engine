@@ -266,9 +266,9 @@ public:
     inline Node *getParent() const { return _parent; }
     inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
 
-    Node *getChildByUuid(const ccstd::string &) const;
-    Node *getChildByName(const ccstd::string &) const;
-    Node *getChildByPath(const ccstd::string &) const;
+    Node *getChildByUuid(const ccstd::string &uuid) const;
+    Node *getChildByName(const ccstd::string &name) const;
+    Node *getChildByPath(const ccstd::string &path) const;
     inline index_t getSiblingIndex() const { return _siblingIndex; }
     inline UserData *getUserData() { return _userData.get(); }
     inline void setUserData(UserData *data) { _userData = data; }
@@ -357,10 +357,10 @@ public:
     /**
      * @en Inversely transform a point from world coordinate system to local coordinate system.
      * @zh 逆向变换一个空间点，一般用于将世界坐标转换到本地坐标系中。
-     * @param out The result point in local coordinate system will be stored in this vector
      * @param p A position in world coordinate system
+     * @return The result point in local coordinate system will be stored in this vector
      */
-    void inverseTransformPoint(Vec3 &out, const Vec3 &p);
+    Vec3 inverseTransformPoint(const Vec3 &p);
 
     /**
      * @en Set position in world coordinate system
@@ -664,8 +664,7 @@ protected:
 
     uint32_t _eventMask{0};
 
-    Mat4 _rtMat{Mat4::IDENTITY};
-    cc::Mat4 _worldMatrix{Mat4::IDENTITY};
+    Mat4 _worldMatrix{Mat4::IDENTITY};
 
     uint32_t _flagChange{0};
     uint32_t _dirtyFlag{0};
@@ -688,13 +687,13 @@ public:
 private:
     ccstd::vector<IntrusivePtr<Node>> _children;
     // local transform
-    cc::Vec3 _localPosition{Vec3::ZERO};
-    cc::Quaternion _localRotation{Quaternion::identity()};
-    cc::Vec3 _localScale{Vec3::ONE};
+    Vec3 _localPosition{Vec3::ZERO};
+    Quaternion _localRotation{Quaternion::identity()};
+    Vec3 _localScale{Vec3::ONE};
     // world transform
-    cc::Vec3 _worldPosition{Vec3::ZERO};
-    cc::Quaternion _worldRotation{Quaternion::identity()};
-    cc::Vec3 _worldScale{Vec3::ONE};
+    Vec3 _worldPosition{Vec3::ZERO};
+    Quaternion _worldRotation{Quaternion::identity()};
+    Vec3 _worldScale{Vec3::ONE};
     //
     Vec3 _euler{0, 0, 0};
 
