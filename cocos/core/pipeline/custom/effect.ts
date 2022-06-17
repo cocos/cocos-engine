@@ -2,8 +2,9 @@ import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
-import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue, UniformBlockDB } from './layout-graph';
+import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
 import { Pipeline } from './pipeline';
+import { UniformBlock } from '../../gfx';
 
 function descriptorBlock2Flattened (block: DescriptorBlock, flattened: DescriptorBlockFlattened): void {
     block.descriptors.forEach((value, key) => {
@@ -14,7 +15,7 @@ function descriptorBlock2Flattened (block: DescriptorBlock, flattened: Descripto
     });
     block.uniformBlocks.forEach((value, key) => {
         const name: string = key;
-        const u: UniformBlockDB = value;
+        const u: UniformBlock = value;
         flattened.uniformBlockNames.push(name);
         flattened.uniformBlocks.push(u);
     });
