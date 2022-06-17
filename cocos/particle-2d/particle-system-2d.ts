@@ -43,6 +43,7 @@ import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { builtinResMgr } from '../core';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * Image formats
@@ -187,7 +188,7 @@ export class ParticleSystem2D extends UIRenderer {
         return this._custom;
     }
     public set custom (value) {
-        if (EDITOR && !value && !this._file) {
+        if (EDITOR && !legacyCC.GAME_VIEW && !value && !this._file) {
             warnID(6000);
             return;
         }
@@ -822,7 +823,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
 
         // auto play
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this.playOnLoad) {
                 this.resetSystem();
             }
@@ -1170,7 +1171,7 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _finishedSimulation () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
                 this.resetSystem();
             }

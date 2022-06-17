@@ -40,7 +40,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -56,7 +56,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
@@ -352,7 +352,7 @@ director.once(Director.EVENT_INIT, () => {
 });
 
 function initPhysicsSystem () {
-    if (!PhysicsSystem2D.PHYSICS_NONE && !EDITOR) {
+    if (!PhysicsSystem2D.PHYSICS_NONE && (!EDITOR || legacyCC.GAME_VIEW)) {
         director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
     }
 }

@@ -125,7 +125,7 @@ export class Collider2D extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._shape = createShape(this.TYPE);
             this._shape.initialize(this);
 

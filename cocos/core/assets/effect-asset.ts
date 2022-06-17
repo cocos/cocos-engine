@@ -260,7 +260,7 @@ export class EffectAsset extends Asset {
     public onLoaded () {
         programLib.register(this);
         EffectAsset.register(this);
-        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        if (!EDITOR || legacyCC.GAME_VIEW) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 
     protected _precompile () {

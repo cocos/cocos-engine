@@ -468,7 +468,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(23)
     @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._colorOverLifetimeModule) {
                 this._colorOverLifetimeModule = new ColorOverLifetimeModule();
                 this._colorOverLifetimeModule.bindTarget(this.processor);
@@ -492,7 +492,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(17)
     @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._shapeModule) {
                 this._shapeModule = new ShapeModule();
                 this._shapeModule.onInit(this);
@@ -516,7 +516,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(21)
     @tooltip('i18n:particle_system.sizeOvertimeModule')
     public get sizeOvertimeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._sizeOvertimeModule) {
                 this._sizeOvertimeModule = new SizeOvertimeModule();
                 this._sizeOvertimeModule.bindTarget(this.processor);
@@ -540,7 +540,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(18)
     @tooltip('i18n:particle_system.velocityOvertimeModule')
     public get velocityOvertimeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._velocityOvertimeModule) {
                 this._velocityOvertimeModule = new VelocityOvertimeModule();
                 this._velocityOvertimeModule.bindTarget(this.processor);
@@ -564,7 +564,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(19)
     @tooltip('i18n:particle_system.forceOvertimeModule')
     public get forceOvertimeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._forceOvertimeModule) {
                 this._forceOvertimeModule = new ForceOvertimeModule();
                 this._forceOvertimeModule.bindTarget(this.processor);
@@ -589,7 +589,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(20)
     @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
     public get limitVelocityOvertimeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._limitVelocityOvertimeModule) {
                 this._limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
                 this._limitVelocityOvertimeModule.bindTarget(this.processor);
@@ -613,7 +613,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(22)
     @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOvertimeModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._rotationOvertimeModule) {
                 this._rotationOvertimeModule = new RotationOvertimeModule();
                 this._rotationOvertimeModule.bindTarget(this.processor);
@@ -637,7 +637,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(24)
     @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._textureAnimationModule) {
                 this._textureAnimationModule = new TextureAnimationModule();
                 this._textureAnimationModule.bindTarget(this.processor);
@@ -661,7 +661,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(25)
     @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._trailModule) {
                 this._trailModule = new TrailModule();
                 this._trailModule.onInit(this);
@@ -961,7 +961,7 @@ export class ParticleSystem extends ModelRenderer {
 
     protected onEnable () {
         legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
-        if (this.playOnAwake && !EDITOR) {
+        if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
         }
         this.processor.onEnable();
@@ -1061,7 +1061,7 @@ export class ParticleSystem extends ModelRenderer {
                     const camera:Camera = cameraLst[i];
                     const visibility = camera.visibility;
                     if ((visibility & this.node.layer) === this.node.layer) {
-                        if (EDITOR) {
+                        if (EDITOR && !legacyCC.GAME_VIEW) {
                             if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
                                 culled = false;
                                 break;

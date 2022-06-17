@@ -107,6 +107,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
     public set enable (value: boolean) {
         this._enable = value;
+        console.log('!!!!!!!!!!!!!!!!!!set enable =', value);
     }
 
     /**
@@ -280,7 +281,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 

@@ -287,7 +287,7 @@ export class Director extends EventTarget {
 
         this._nodeActivator.reset();
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
             }
@@ -364,7 +364,7 @@ export class Director extends EventTarget {
         if (legacyCC.isValid(oldScene)) {
             oldScene!.destroy();
         }
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             // auto release assets
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
@@ -683,7 +683,7 @@ export class Director extends EventTarget {
     public tick (dt: number) {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
-            if (!EDITOR) {
+            if (!EDITOR || legacyCC.GAME_VIEW) {
                 // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }

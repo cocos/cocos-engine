@@ -496,7 +496,7 @@ export class RigidBody2D extends Component {
 
     /// COMPONENT LIFECYCLE ///
     protected onLoad () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._body = createRigidBody();
             this._body.initialize(this);
         }

@@ -6,6 +6,7 @@ import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
+import legacyCC from '../../../predefine';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -128,7 +129,7 @@ export class OneShotAudioWeb {
     }
 
     public play (): void {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._bufferSourceNode.start();
@@ -302,7 +303,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     play (): Promise<void> {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return Promise.resolve();
         }
         return this._doPlay();
