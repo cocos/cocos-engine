@@ -331,7 +331,7 @@ void ShadowFlow::destroy() {
     }
     renderPassHashMap.clear();
 
-    for (auto texture : _usedTextures) {
+    for (auto &texture : _usedTextures) {
         texture = nullptr;
     }
     _usedTextures.clear();
