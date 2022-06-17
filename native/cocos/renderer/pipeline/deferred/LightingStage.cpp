@@ -750,12 +750,12 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 
         _reflectionComp->getDenoiseDescriptorSet()->update();
 
-        elem.set->bindTexture(static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION), denoiseTex);
-        elem.set->bindSampler(static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION), _defaultSampler);
+        elem.set->bindTexture(static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION), denoiseTex);
+        elem.set->bindSampler(static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION), _defaultSampler);
 
         // for render stage usage
-        elem.set->bindTexture(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), denoiseTex);
-        elem.set->bindSampler(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), _defaultSampler);
+        elem.set->bindTexture(static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION), denoiseTex);
+        elem.set->bindSampler(static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION), _defaultSampler);
         elem.set->update();
 
         cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_reflectionComp->getDenoisePipelineState(useEnvmap)));

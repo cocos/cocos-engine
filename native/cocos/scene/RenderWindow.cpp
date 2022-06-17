@@ -75,15 +75,13 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
                                        _width,
                                        _height}));
         }
-    }
-
-    // Use the sign bit to indicate depth attachment
-    if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
-        _depthStencilTexture = device->createTexture({gfx::TextureType::TEX2D,
-                                                      gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-                                                      info.renderPassInfo.depthStencilAttachment.format,
-                                                      _width,
-                                                      _height});
+        if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
+            _depthStencilTexture = device->createTexture({gfx::TextureType::TEX2D,
+                                                          gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+                                                          info.renderPassInfo.depthStencilAttachment.format,
+                                                          _width,
+                                                          _height});
+        }
     }
 
     _frameBuffer = device->createFramebuffer(gfx::FramebufferInfo{

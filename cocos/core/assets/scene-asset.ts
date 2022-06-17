@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { Scene } from '../scene-graph';
 import { Asset } from './asset';

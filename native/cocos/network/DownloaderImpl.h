@@ -28,6 +28,7 @@
 
 #include <functional>
 #include <memory>
+#include "base/Log.h"
 #include "base/Macros.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
@@ -35,7 +36,7 @@
 
 //#define CC_DOWNLOADER_DEBUG
 #ifdef CC_DOWNLOADER_DEBUG
-    #define DLLOG(format, ...) cc::log(format, ##__VA_ARGS__)
+    #define DLLOG(format, ...) CC_LOG_DEBUG(format, ##__VA_ARGS__)
 #else
     #define DLLOG(...) \
         do {           \

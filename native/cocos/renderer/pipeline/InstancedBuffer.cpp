@@ -130,11 +130,13 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
         static_cast<uint>(stride),
     });
 
+    const auto &instancedAttributes = model->getInstanceAttributes();
     auto vertexBuffers = sourceIA->getVertexBuffers();
     auto attributes = sourceIA->getAttributes();
     auto *indexBuffer = sourceIA->getIndexBuffer();
 
-    for (const auto &attribute : model->getInstanceAttributes()) {
+    attributes.reserve(instancedAttributes.size());
+    for (const auto &attribute : instancedAttributes) {
         attributes.emplace_back(gfx::Attribute{
             attribute.name,
             attribute.format,

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { selector } from '../framework/physics-selector';
 
 import { CannonRigidBody } from './cannon-rigid-body';

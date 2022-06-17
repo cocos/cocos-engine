@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <boost/functional/hash.hpp>
+#include "base/std/hash/hash.h"
 
 #include "GFXBuffer.h"
 #include "GFXInputAssembler.h"
@@ -38,15 +38,15 @@ InputAssembler::InputAssembler()
 
 InputAssembler::~InputAssembler() = default;
 
-size_t InputAssembler::computeAttributesHash() const {
-    size_t seed = _attributes.size() * 6;
+ccstd::hash_t InputAssembler::computeAttributesHash() const {
+    ccstd::hash_t seed = static_cast<uint32_t>(_attributes.size()) * 6;
     for (const auto &attribute : _attributes) {
-        boost::hash_combine(seed, attribute.name);
-        boost::hash_combine(seed, attribute.format);
-        boost::hash_combine(seed, attribute.isNormalized);
-        boost::hash_combine(seed, attribute.stream);
-        boost::hash_combine(seed, attribute.isInstanced);
-        boost::hash_combine(seed, attribute.location);
+        ccstd::hash_combine(seed, attribute.name);
+        ccstd::hash_combine(seed, attribute.format);
+        ccstd::hash_combine(seed, attribute.isNormalized);
+        ccstd::hash_combine(seed, attribute.stream);
+        ccstd::hash_combine(seed, attribute.isInstanced);
+        ccstd::hash_combine(seed, attribute.location);
     }
     return seed;
 }

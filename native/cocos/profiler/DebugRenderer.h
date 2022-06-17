@@ -77,13 +77,14 @@ using DebugFontArray = ccstd::array<DebugFontInfo, DEBUG_FONT_COUNT>;
 
 class DebugRenderer {
 public:
+    static DebugRenderer *getInstance();
+
+    DebugRenderer();
     DebugRenderer(const DebugRenderer &) = delete;
     DebugRenderer(DebugRenderer &&) = delete;
     DebugRenderer &operator=(const DebugRenderer &) = delete;
     DebugRenderer &operator=(DebugRenderer &&) = delete;
-
-    static DebugRenderer *getInstance();
-    static void destroyInstance();
+    ~DebugRenderer();
 
     void activate(gfx::Device *device, const DebugRendererInfo &info = DebugRendererInfo());
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
@@ -92,9 +93,6 @@ public:
     void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info = DebugTextInfo());
 
 private:
-    DebugRenderer() = default;
-    ~DebugRenderer() = default;
-
     static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
     uint32_t getLineHeight(bool bold = false, bool italic = false);
 

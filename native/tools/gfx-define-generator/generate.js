@@ -40,6 +40,16 @@ const ignoreList = { PipelineStateInfo: true, BlendTarget: true, BlendState: tru
 let header = fs.readFileSync(ps.join(__dirname, '/../../cocos/renderer/gfx-base/GFXDef-common.h')).toString();
 header = header.replace(/\r\n/g, '\n');
 
+
+// save & strip block comments
+const blockComments = [];
+const blockCommentsRE = /(\/\*\*.*?\*\/)\s*(.+?\n)/gs;
+header = header.replace(blockCommentsRE, (_, comments, succeeding) => {
+    blockComments.push({ succeeding, source: comments });
+    return succeeding;
+});
+
+// enum
 const enumRE = /enum\s+class\s+(\w+).*?{\s*?\n(.+?)};/gs;
 const enumValueRE = /(\w+).*?(?:=\s*(.*?))?,/g;
 const enumMap = {};
@@ -47,6 +57,7 @@ let enumCap = enumRE.exec(header);
 while (enumCap) {
     const e = enumMap[enumCap[1]] = {};
     e.keys = {};
+    e.comments = blockComments.find((c) => enumCap[0].startsWith(c.succeeding))?.source;
 
     if (options.nonVerbatimCopy) {
         let values = enumCap[2].replace(/\s*\/\/.*$/gm, '');
@@ -72,13 +83,6 @@ while (enumCap) {
     enumCap = enumRE.exec(header);
 }
 
-// save & strip block comments
-const blockComments = [];
-const blockCommentsRE = /(\/\*\*.*?\*\/)\s*(.+?\n)/gs;
-header = header.replace(blockCommentsRE, (_, comments, succeeding) => {
-    blockComments.push({ succeeding, source: comments });
-    return succeeding;
-});
 // discard preprocessors
 header = header.replace(/\s*#(if|else|elif|end).*/gm, '');
 // replace vector<x>
@@ -237,6 +241,7 @@ let output = '';
 
 for (const name of Object.keys(enumMap)) {
     const e = enumMap[name];
+    if (e.comments) { output += e.comments + '\n'; }
     output += `export enum ${name} {\n`;
 
     if (options.nonVerbatimCopy) {

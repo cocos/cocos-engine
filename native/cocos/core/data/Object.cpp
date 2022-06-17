@@ -57,14 +57,51 @@ CCObject::CCObject(ccstd::string name /* = ""*/)
 : _name(std::move(name)) {
 }
 
+CCObject::~CCObject() = default;
+
 bool CCObject::destroy() {
+    //NOTE: _objFlags will be set to TO_DESTROY when destroy method in TS is triggered.
+    // CCObject::destroy method will be invoked at the end. Refer to cocos/core/data/object.ts
+    /*
+     public destroy (): boolean {
+         if (this._objFlags & Destroyed) {
+             warnID(5000);
+             return false;
+         }
+         ... ...
+
+         if (JSB) {
+             // @ts-ignore
+             // _destroy is a JSB method
+             this._destroy();
+         }
+
+         return true;
+     }
+     */
+
+    if (static_cast<bool>(_objFlags & Flags::TO_DESTROY)) {
+        //NOTE: Should not return false because _objFlags is already set to TO_DESTROY in TS.
+        // And Scene::destroy depends on the return value. Refer to:
+        /*
+         bool Scene::destroy() {
+             bool success = Super::destroy();
+             if (success) {
+                 for (auto &child : _children) {
+                     child->setActive(false);
+                 }
+             }
+             ......
+         }
+         */
+        return true;
+    }
+
     if (static_cast<bool>(_objFlags & Flags::DESTROYED)) {
         debug::warnID(5000);
         return false;
     }
-    if (static_cast<bool>(_objFlags & Flags::TO_DESTROY)) {
-        return false;
-    }
+
     _objFlags |= Flags::TO_DESTROY;
     addRef();
     objectsToDestroy.emplace_back(this);

@@ -205,10 +205,19 @@ bool AudioPlayer::play2d() {
             ALOGE("%s:alSourcePlay error code:%x", __PRETTY_FUNCTION__, alError);
             break;
         }
-
-        ALint state;
-        alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
-        CC_ASSERT(state == AL_PLAYING);
+        /** Due to the bug of OpenAL, when the second time OpenAL trying to mix audio into bus, the mRampState become kRampingComplete, and for those oalSource whose mRampState == kRampingComplete, nothing happens.
+         * OALSource::Play{
+         *      switch(mState){
+         *       case kTransitionToStop:
+         *       case kTransitionToStop:
+         *         if(mRampState != kRampingComplete){..}
+         *         break;
+         *      }
+         * }
+         * So the assert here will trigger this bug as aolSource is reused.
+         * Replace OpenAL with AVAudioEngine on V3.6 mightbe helpful
+        */
+//        CC_ASSERT(state == AL_PLAYING);
         _ready = true;
         ret = true;
     } while (false);

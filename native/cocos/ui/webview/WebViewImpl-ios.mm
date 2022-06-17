@@ -312,11 +312,21 @@ WebViewImpl::WebViewImpl(WebView *webView)
 }
 
 WebViewImpl::~WebViewImpl() {
-    [_uiWebViewWrapper release];
-    _uiWebViewWrapper = nullptr;
+   destroy();
+}
+
+void WebViewImpl::destroy() {
+    if (_uiWebViewWrapper != nil) {
+        [_uiWebViewWrapper release];
+        _uiWebViewWrapper = nil;
+    }
 }
 
 void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setJavascriptInterfaceScheme:scheme];
 }
 
@@ -324,64 +334,122 @@ void WebViewImpl::loadData(const Data &data,
                            const ccstd::string &MIMEType,
                            const ccstd::string &encoding,
                            const ccstd::string &baseURL) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()), static_cast<unsigned int>(data.getSize()));
     [_uiWebViewWrapper loadData:dataString MIMEType:MIMEType textEncodingName:encoding baseURL:baseURL];
 }
 
 void WebViewImpl::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper loadHTMLString:string baseURL:baseURL];
 }
 
 void WebViewImpl::loadURL(const ccstd::string &url) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper loadUrl:url];
 }
 
 void WebViewImpl::loadFile(const ccstd::string &fileName) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     auto fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
     [_uiWebViewWrapper loadFile:fullPath];
 }
 
 void WebViewImpl::stopLoading() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper stopLoading];
 }
 
 void WebViewImpl::reload() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper reload];
 }
 
 bool WebViewImpl::canGoBack() {
+    if (_uiWebViewWrapper == nil) {
+        return false;
+    }
     return _uiWebViewWrapper.canGoBack;
 }
 
 bool WebViewImpl::canGoForward() {
+    if (_uiWebViewWrapper == nil) {
+        return false;
+    }
     return _uiWebViewWrapper.canGoForward;
 }
 
 void WebViewImpl::goBack() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper goBack];
 }
 
 void WebViewImpl::goForward() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper goForward];
 }
 
 void WebViewImpl::evaluateJS(const ccstd::string &js) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper evaluateJS:js];
 }
 
 void WebViewImpl::setBounces(bool bounces) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setBounces:bounces];
 }
 
 void WebViewImpl::setScalesPageToFit(bool scalesPageToFit) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setScalesPageToFit:scalesPageToFit];
 }
 
 void WebViewImpl::setVisible(bool visible) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setVisible:visible];
 }
 
 void WebViewImpl::setFrame(float x, float y, float width, float height) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     UIView *view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
     auto scaleFactor = [view contentScaleFactor];
     [_uiWebViewWrapper setFrameWithX:x / scaleFactor
@@ -391,6 +459,10 @@ void WebViewImpl::setFrame(float x, float y, float width, float height) {
 }
 
 void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setBackgroundTransparent:isTransparent];
 }
 } //namespace cc

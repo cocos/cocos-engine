@@ -33,7 +33,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     #import <Cocoa/Cocoa.h>
 #else
     #import <CoreText/CoreText.h>
@@ -60,7 +60,7 @@
     CGFloat _height;
     CGContextRef _context;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     NSGraphicsContext *_currentGraphicsContext;
     NSGraphicsContext *_oldGraphicsContext;
 #else
@@ -106,7 +106,7 @@
         _context = nil;
         _colorSpace = nil;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
         _currentGraphicsContext = nil;
         _oldGraphicsContext = nil;
 #endif
@@ -126,13 +126,13 @@
     // release the context
     CGContextRelease(_context);
     [_path release];
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     [_currentGraphicsContext release];
 #endif
     [super dealloc];
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
 
 - (NSFont *)_createSystemFont {
     NSFontTraitMask mask = NSUnitalicFontMask;
@@ -238,7 +238,7 @@
         _context = nil;
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     if (_currentGraphicsContext != nil) {
         [_currentGraphicsContext release];
         _currentGraphicsContext = nil;
@@ -259,7 +259,7 @@
         _colorSpace = nil;
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped:NO];
     [_currentGraphicsContext retain];
 #else
@@ -298,7 +298,7 @@
         point.x -= textSize.width;
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     // The origin on macOS is bottom-left by default,
     // so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
@@ -441,7 +441,7 @@
 
     NSColor *color = [NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3]];
     [color setFill];
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     CGRect tmpRect = CGRectMake(rect.origin.x, _height - rect.origin.y - rect.size.height, rect.size.width, rect.size.height);
     [NSBezierPath fillRect:tmpRect];
 #else
@@ -452,7 +452,7 @@
 }
 
 - (void)saveContext {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     // save the old graphics context
     _oldGraphicsContext = [NSGraphicsContext currentContext];
     // store the current context
@@ -470,7 +470,7 @@
 }
 
 - (void)restoreContext {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     // pop the context
     [NSGraphicsContext restoreGraphicsState];
     // reset the old graphics context
@@ -496,7 +496,7 @@
 }
 
 - (void)moveToX:(float)x y:(float)y {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     [_path moveToPoint:NSMakePoint(x, _height - y)];
 #else
     [_path moveToPoint:NSMakePoint(x, y)];
@@ -504,7 +504,7 @@
 }
 
 - (void)lineToX:(float)x y:(float)y {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     [_path lineToPoint:NSMakePoint(x, _height - y)];
 #else
     [_path addLineToPoint:NSMakePoint(x, y)];

@@ -168,8 +168,18 @@ WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
 }
 
 WebViewImpl::~WebViewImpl() {
-    JniHelper::callStaticVoidMethod(CLASS_NAME, "removeWebView", _viewTag);
-    sWebViewImpls.erase(_viewTag);
+    destroy();
+}
+
+void WebViewImpl::destroy() {
+    if (_viewTag != -1) {
+        JniHelper::callStaticVoidMethod(CLASS_NAME, "removeWebView", _viewTag);
+        auto iter = sWebViewImpls.find(_viewTag);
+        if (iter != sWebViewImpls.end()) {
+            sWebViewImpls.erase(iter);
+        }
+        _viewTag = -1;
+    }
 }
 
 void WebViewImpl::loadData(const Data &data, const ccstd::string &mimeType,

@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import type { Node } from '../../scene-graph/node';
@@ -188,7 +186,8 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
 
-                    if (!childNode) {
+                    // @ts-expect-error private member access
+                    if (!childNode || target._children.includes(childNode)) {
                         continue;
                     }
 
@@ -402,6 +401,8 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance) {
         createNodeWithPrefab(node);
+        // nested prefab children's id will be the same: 3dtask#12511
+        // applyNodeAndComponentId(node, node.uuid);
 
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
@@ -430,5 +431,19 @@ export function expandNestedPrefabInstanceNode (node: BaseNode) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
         });
+    }
+}
+
+export function applyNodeAndComponentId (node: Node, rootId: string) {
+    const { components, children } = node;
+    for (let i = 0; i < components.length; i++) {
+        const comp = components[i];
+        comp._id = `${rootId}${comp.__prefab?.fileId}`;
+    }
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        // @ts-expect-error private member access
+        child._id = `${rootId}${child._prefab?.fileId}`;
+        applyNodeAndComponentId(child, rootId);
     }
 }

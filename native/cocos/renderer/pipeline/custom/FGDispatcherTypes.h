@@ -80,6 +80,7 @@ struct ResourceTransition {
 
 struct ResourceAccessNode {
     std::vector<AccessStatus> attachemntStatus;
+    uint32_t                  circuitFlag;
 };
 
 struct ResourceAccessGraph {
@@ -203,8 +204,96 @@ struct ResourceAccessGraph {
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
     ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
-    std::vector<RenderGraph::vertex_descriptor>         presentPasses;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
+    RenderGraph::vertex_descriptor                      presentPassID{0xFFFFFFFF};
+    ccstd::pmr::vector<RenderGraph::vertex_descriptor>  externalPasses;
+};
+
+struct EmptyGraph {
+    EmptyGraph() = default;
+    EmptyGraph(EmptyGraph&& rhs)      = delete;
+    EmptyGraph(EmptyGraph const& rhs) = delete;
+    EmptyGraph& operator=(EmptyGraph&& rhs) = delete;
+    EmptyGraph& operator=(EmptyGraph const& rhs) = delete;
+
+    // Graph
+    using directed_category      = boost::bidirectional_tag;
+    using vertex_descriptor      = uint32_t;
+    using edge_descriptor        = impl::EdgeDescriptor<directed_category, vertex_descriptor>;
+    using edge_parallel_category = boost::allow_parallel_edge_tag;
+    struct traversal_category // NOLINT
+    : virtual boost::incidence_graph_tag,
+      virtual boost::bidirectional_graph_tag,
+      virtual boost::adjacency_graph_tag,
+      virtual boost::vertex_list_graph_tag,
+      virtual boost::edge_list_graph_tag {};
+
+    constexpr static vertex_descriptor null_vertex() noexcept { // NOLINT
+        return std::numeric_limits<vertex_descriptor>::max();
+    }
+
+    // IncidenceGraph
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
+    using out_edge_iterator = impl::OutEdgeIter<
+        std::vector<OutEdge>::iterator,
+        vertex_descriptor, edge_descriptor, int32_t>;
+    using degree_size_type = uint32_t;
+
+    // BidirectionalGraph
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
+    using in_edge_iterator = impl::InEdgeIter<
+        std::vector<InEdge>::iterator,
+        vertex_descriptor, edge_descriptor, int32_t>;
+
+    // AdjacencyGraph
+    using adjacency_iterator = boost::adjacency_iterator_generator<
+        EmptyGraph, vertex_descriptor, out_edge_iterator>::type;
+
+    // VertexListGraph
+    using vertex_iterator    = boost::integer_range<vertex_descriptor>::iterator;
+    using vertices_size_type = uint32_t;
+
+    // VertexList help functions
+    inline std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+        return vertices[v].outEdges;
+    }
+    inline const std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+        return vertices[v].outEdges;
+    }
+
+    inline std::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+        return vertices[v].inEdges;
+    }
+    inline const std::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+        return vertices[v].inEdges;
+    }
+
+    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+        return {0, static_cast<vertices_size_type>(vertices.size())};
+    }
+
+    inline vertex_descriptor getCurrentID() const noexcept {
+        return static_cast<vertex_descriptor>(vertices.size());
+    }
+
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    }
+
+    // EdgeListGraph
+    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, EmptyGraph>;
+    using edges_size_type = uint32_t;
+
+    // ContinuousContainer
+    void reserve(vertices_size_type sz);
+
+    // Members
+    struct Vertex {
+        std::vector<OutEdge> outEdges;
+        std::vector<InEdge>  inEdges;
+    };
+    // Vertices
+    std::vector<Vertex> vertices;
 };
 
 struct Barrier {
@@ -230,13 +319,28 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    void buildBarriers();
+    void enablePassReorder(bool enable);
+
+    // how much paralell-execution weights during pass reorder,
+    // eg:0.3 means 30% of effort aim to paralellize execution, other 70% aim to decrease memory using.
+    // 0 by default 
+    void setParalellWeight(float paralellExecWeight);
+
+    void enableMemoryAliasing(bool enable);
+
+    void run();
 
     ResourceGraph&                                     resourceGraph;
     RenderGraph&                                       graph;
     LayoutGraphData&                                   layoutGraph;
     boost::container::pmr::memory_resource*            scratch{nullptr};
-    PmrFlatMap<ccstd::pmr::string, ResourceTransition> _externalResMap;
+    PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
+    EmptyGraph                                         relationGraph;
+    bool                                               _enablePassReorder{false};
+    bool                                               _enableAutoBarrier{true};
+    bool                                               _enableMemoryAliasing{false};
+    bool                                               _accessGraphBuilt{false};
+    float                                              _paralellExecWeight{0.0F};
 };
 
 } // namespace render

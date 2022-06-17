@@ -13,6 +13,7 @@
 #include "math/Quaternion.h"
 #include "math/Color.h"
 #include "core/data/Object.h"
+#include "core/data/JSBNativeDataHolder.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -812,11 +813,6 @@ static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_normalizePath_static)
-static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
 bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -860,7 +856,6 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir_static));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance_static));
     cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath_static));
-    cls->defineFinalizeFunction(_SE(js_cc_FileUtils_finalize));
     cls->install();
     JSBClassType::registerClass<cc::FileUtils>(cls);
 
@@ -2657,6 +2652,17 @@ static bool js_engine_CCObject_set__name(se::State& s) // NOLINT(readability-ide
     return true;
 }
 SE_BIND_PROP_SET(js_engine_CCObject_set__name)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_CCObject_finalize)
+
+static bool js_engine_CCObject_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CCObject);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_engine_CCObject_constructor, __jsb_cc_CCObject_class, js_cc_CCObject_finalize)
+
 static bool js_cc_CCObject_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -2665,7 +2671,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_CCObject_finalize)
 
 bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("CCObject", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("CCObject", obj, nullptr, _SE(js_engine_CCObject_constructor));
 
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
@@ -2676,7 +2682,7 @@ bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("hideFlags", _SE(js_engine_CCObject_getHideFlags_asGetter), _SE(js_engine_CCObject_setHideFlags_asSetter));
     cls->defineProperty("replicated", _SE(js_engine_CCObject_isReplicated_asGetter), _SE(js_engine_CCObject_setReplicated_asSetter));
     cls->defineProperty("isValid", _SE(js_engine_CCObject_isValid_asGetter), nullptr);
-    cls->defineFunction("destroy", _SE(js_engine_CCObject_destroy));
+    cls->defineFunction("_destroy", _SE(js_engine_CCObject_destroy));
     cls->defineFunction("_destroyImmediate", _SE(js_engine_CCObject_destroyImmediate));
     cls->defineFunction("toString", _SE(js_engine_CCObject_toString));
     cls->defineStaticFunction("deferredDestroy", _SE(js_engine_CCObject_deferredDestroy_static));
@@ -2686,6 +2692,78 @@ bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifi
 
     __jsb_cc_CCObject_proto = cls->getProto();
     __jsb_cc_CCObject_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_JSBNativeDataHolder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_JSBNativeDataHolder_class = nullptr;  // NOLINT
+
+static bool js_engine_JSBNativeDataHolder_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::JSBNativeDataHolder>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_JSBNativeDataHolder_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_JSBNativeDataHolder_destroy)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_JSBNativeDataHolder_finalize)
+
+static bool js_engine_JSBNativeDataHolder_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 1) {
+            HolderType<unsigned char*, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::JSBNativeDataHolder, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::JSBNativeDataHolder);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_engine_JSBNativeDataHolder_constructor, __jsb_cc_JSBNativeDataHolder_class, js_cc_JSBNativeDataHolder_finalize)
+
+static bool js_cc_JSBNativeDataHolder_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_JSBNativeDataHolder_finalize)
+
+bool js_register_engine_JSBNativeDataHolder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("JSBNativeDataHolder", obj, nullptr, _SE(js_engine_JSBNativeDataHolder_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("destroy", _SE(js_engine_JSBNativeDataHolder_destroy));
+    cls->defineFinalizeFunction(_SE(js_cc_JSBNativeDataHolder_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::JSBNativeDataHolder>(cls);
+
+    __jsb_cc_JSBNativeDataHolder_proto = cls->getProto();
+    __jsb_cc_JSBNativeDataHolder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -2712,6 +2790,7 @@ bool register_all_engine(se::Object* obj)    // NOLINT
     js_register_engine_Color(ns);
     js_register_engine_Device(ns);
     js_register_engine_FileUtils(ns);
+    js_register_engine_JSBNativeDataHolder(ns);
     js_register_engine_SAXParser(ns);
     js_register_engine_Vec2(ns);
     return true;

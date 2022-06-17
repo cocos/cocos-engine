@@ -31,7 +31,7 @@
         #include <cxxabi.h>
         #include <dlfcn.h>
         #include <pthread.h>
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
         #include <execinfo.h>
     #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
         #include <DbgHelp.h>
@@ -53,7 +53,7 @@ ccstd::string StackFrame::toString() {
 
     return stream.str();
 
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     std::stringstream stream;
     stream << "\tfile: " << (file.empty() ? unknown : file);
 
@@ -157,7 +157,7 @@ ccstd::vector<void *> CallStack::backtrace() {
 
     return callstack;
 
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     ccstd::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
@@ -211,7 +211,7 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
     }
     return frames;
 
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     size_t size = callstack.size();
     if (size == 0) {
         return {};

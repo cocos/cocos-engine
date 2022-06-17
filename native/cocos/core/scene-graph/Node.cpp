@@ -283,11 +283,11 @@ Scene *Node::getScene() const {
     return _scene;
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc) {
+void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc) {
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) {
     index_t index{1};
     index_t i{0};
     const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
@@ -415,12 +415,16 @@ bool Node::onPreDestroyBase() {
             _parent->emit(NodeEventType::CHILD_REMOVED, this);
         }
     }
-    emit(NodeEventType::NODE_DESTROYED, this);
-    for (const auto &child : _children) {
-        child->destroyImmediate();
-    }
 
-    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+    //NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
+    // and the logic will be done in TS.
+    //    emit(NodeEventType::NODE_DESTROYED, this);
+    //    for (const auto &child : _children) {
+    //        child->destroyImmediate();
+    //    }
+    //
+    //    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+
     _eventProcessor->destroy();
     return destroyByParent;
 }

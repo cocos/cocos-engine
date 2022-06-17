@@ -1,0 +1,12 @@
+function defined (name) {
+    const _global = typeof window === 'undefined' ? global : window;
+    return typeof _global[name] === 'object';
+}
+
+export const TEST = tryDefineGlobal('CC_TEST', defined('tap') || defined('QUnit'));
+export const EDITOR = tryDefineGlobal('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
+export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
+export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
+export const NATIVE = JSB;
+export const HTML5 = !(EDITOR && NATIVE);
+export const DEV = tryDefineGlobal('CC_DEV', true);

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
@@ -247,7 +242,10 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * The weight.
+     * @en
+     * The weight of this animation state.
+     * @zh
+     * 此动画状态的权重。
      */
     get weight () {
         return this._weight;
@@ -263,12 +261,12 @@ export class AnimationState extends Playable {
     public frameRate = 0;
 
     /**
-     * This field is only visible from within internal.
+     * @internal This field is only visible from within internal.
      */
     protected _targetNode: Node | null = null;
 
     /**
-     * This field is only visible from within internal.
+     * @internal This field is only visible from within internal.
      */
     protected _curveLoaded = false;
 
@@ -300,7 +298,7 @@ export class AnimationState extends Playable {
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
     /**
-     * For internal usage. Really hack...
+     * @internal For internal usage. Really hack...
      */
     protected _doNotCreateEval = false;
 
@@ -443,7 +441,7 @@ export class AnimationState extends Playable {
 
     /**
      * This method is used for internal purpose only.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public _setEventTarget (target) {
         this._target = target;
@@ -515,6 +513,9 @@ export class AnimationState extends Playable {
         this.emit(EventType.PAUSE, this);
     }
 
+    /**
+     * @internal
+     */
     protected _sampleCurves (time: number) {
         const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
         if (poseOutput) {

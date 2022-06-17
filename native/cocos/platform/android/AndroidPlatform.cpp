@@ -63,6 +63,14 @@
 
 #define INPUT_ACTION_COUNT 6
 
+//Interval time per frame, in milliseconds
+#define LOW_FREQUENCY_TIME_INTERVAL 50
+
+//Maximum runtime of game threads while in the background, in seconds
+#define LOW_FREQUENCY_EXPIRED_DURATION_SECONDS 60
+
+#define CC_ENABLE_SUSPEND_GAME_THREAD true
+
 extern int cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
 
 namespace cc {
@@ -295,15 +303,19 @@ public:
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
+                _isActive = true;
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_GAINED_FOCUS");
                 break;
             case APP_CMD_LOST_FOCUS:
+                _isActive = false;
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOST_FOCUS");
                 break;
             case APP_CMD_PAUSE:
+                _isActive = false;
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_PAUSE");
                 break;
             case APP_CMD_RESUME: {
+                _isActive = true;
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_RESUME");
                 break;
             }
@@ -354,7 +366,7 @@ public:
                 // cooperate by deallocating all of our graphic resources.
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
                 DeviceEvent ev;
-                ev.type = DeviceEvent::Type::DEVICE_MEMORY;
+                ev.type = DeviceEvent::Type::MEMORY;
                 _androidPlatform->dispatchEvent(ev);
                 break;
             }
@@ -376,19 +388,33 @@ public:
                 CC_LOG_INFO("AndroidPlatform: (unknown command).");
                 break;
         }
+        if (_eventCallback) {
+            _eventCallback(cmd);
+        }
     }
 
-    bool isAnimating() const {
+    using AppEventCallback = std::function<void(int32_t)>;
+    void registerAppEventCallback(AppEventCallback callback) {
+        _eventCallback = std::move(callback);
+    }
+
+    inline bool isAnimating() const {
         return _isVisible && _hasWindow;
     }
 
+    inline bool isActive() const {
+        return _isActive;
+    }
+
 private:
+    AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
     int32_t _gameControllerIndex{-1}; // Most recently connected game controller index
     bool _launched{false};
     bool _isVisible{false};
     bool _hasWindow{false};
+    bool _isActive{false};
 };
 
 static void handleCmdProxy(struct android_app *app, int32_t cmd) {
@@ -430,6 +456,18 @@ AndroidPlatform::~AndroidPlatform() = default;
 int AndroidPlatform::init() {
     cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
+    _inputProxy->registerAppEventCallback([this](int32_t cmd) {
+        if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {
+            if (_inputProxy->isAnimating()) {
+                _isLowFrequencyLoopEnabled = false;
+                _loopTimeOut = 0;
+            }
+        } else if(APP_CMD_STOP == cmd) {
+            _lowFrequencyTimer.reset();
+            _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
+            _isLowFrequencyLoopEnabled = true;
+        }
+    });
     _app->userData = _inputProxy;
     _app->onAppCmd = handleCmdProxy;
 
@@ -469,8 +507,8 @@ int32_t AndroidPlatform::loop() {
         int events;
         struct android_poll_source *source;
 
-        // If not animating, block until we get an event; if animating, don't block.
-        while ((ALooper_pollAll(_inputProxy->isAnimating() ? 0 : -1, nullptr, &events,
+        // suspend thread while _loopTimeOut set to -1
+        while ((ALooper_pollAll(_loopTimeOut, nullptr, &events,
                                 reinterpret_cast<void **>(&source))) >= 0) {
             // process event
             if (source != nullptr) {
@@ -483,12 +521,23 @@ int32_t AndroidPlatform::loop() {
             }
         }
         _inputProxy->handleInput();
-        runTask();
-
-        flushTasksOnGameThreadJNI();
         if (_inputProxy->isAnimating()) {
-            flushTasksOnGameThreadAtForegroundJNI();
+            runTask();
+            if (_inputProxy->isActive()) {
+                flushTasksOnGameThreadAtForegroundJNI();
+            }
         }
+        flushTasksOnGameThreadJNI();
+
+#if CC_ENABLE_SUSPEND_GAME_THREAD
+        if (_isLowFrequencyLoopEnabled) {
+            //Suspend a game thread after it has been running in the background for a specified amount of time
+            if (_lowFrequencyTimer.getSeconds() > LOW_FREQUENCY_EXPIRED_DURATION_SECONDS) {
+                _isLowFrequencyLoopEnabled = false;
+                _loopTimeOut = -1;
+            }
+        }
+#endif
     }
 }
 

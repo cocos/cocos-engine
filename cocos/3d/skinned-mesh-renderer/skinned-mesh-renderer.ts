@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
 } from 'cc.decorator';
@@ -77,7 +72,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     /**
      * @en The skinning root. (The node where the controlling Animation is located)
-     * 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
+     * @zh 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
     @type(Node)
     @tooltip('i18n:model.skinning_root')
@@ -142,6 +137,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._models.length = 0;
             this._updateModels();
             this._updateCastShadow();
+            this._updateReceiveShadow();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }

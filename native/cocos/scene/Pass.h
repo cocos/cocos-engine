@@ -28,7 +28,6 @@
 #include <cstdint>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
-#include "base/TypeDef.h"
 #include "base/std/container/string.h"
 #include "core/ArrayBuffer.h"
 #include "core/TypedArray.h"
@@ -112,7 +111,7 @@ public:
      *
      * @param pass Handle of the pass info used to compute hash value.
      */
-    static uint64_t getPassHash(Pass *pass);
+    static ccstd::hash_t getPassHash(Pass *pass);
 
     Pass();
     explicit Pass(Root *root);
@@ -181,7 +180,7 @@ public:
      * @param binding The binding for target uniform of texture type
      * @param value Target texture
      */
-    void bindTexture(uint32_t binding, gfx::Texture *value, index_t index = CC_INVALID_INDEX);
+    void bindTexture(uint32_t binding, gfx::Texture *value, uint32_t index = 0);
 
     /**
      * @en Bind a GFX [[Sampler]] the the given uniform binding
@@ -189,7 +188,7 @@ public:
      * @param binding The binding for target uniform of sampler type
      * @param value Target sampler
      */
-    void bindSampler(uint32_t binding, gfx::Sampler *value, index_t index = CC_INVALID_INDEX);
+    void bindSampler(uint32_t binding, gfx::Sampler *value, uint32_t index = 0);
 
     /**
      * @en Sets the dynamic pipeline state property at runtime
@@ -225,11 +224,13 @@ public:
      */
     void resetUniform(const ccstd::string &name);
 
+    void resetTexture(const ccstd::string &name);
+
     /**
      * @en Resets the value of the given texture by name to the default value in [[EffectAsset]].
      * @zh 重置指定贴图为 [[EffectAsset]] 默认值。
      */
-    void resetTexture(const ccstd::string &name, index_t index = CC_INVALID_INDEX);
+    void resetTexture(const ccstd::string &name, uint32_t index);
 
     /**
      * @en Resets all uniform buffer objects to the default values in [[EffectAsset]]
@@ -248,7 +249,7 @@ public:
      * @zh 尝试编译 shader 并获取相关资源引用。
      */
     virtual bool tryCompile();
-    virtual bool tryCompile(const cc::optional<MacroRecord> & /*defineOverrides*/) { return Pass::tryCompile(); }
+    virtual bool tryCompile(const ccstd::optional<MacroRecord> & /*defineOverrides*/) { return Pass::tryCompile(); }
 
     /**
      * @en Gets the shader variant of the current pass and given macro patches
@@ -292,12 +293,11 @@ public:
     inline gfx::DynamicStateFlagBit getDynamicStates() const { return _dynamicStates; }
     inline BatchingSchemes getBatchingScheme() const { return _batchingScheme; }
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
-    inline uint64_t getHash() const { return _hash; }
-    inline double getHashForJS() const { return static_cast<double>(getHash()); }
+    inline ccstd::hash_t getHash() const { return _hash; }
     inline gfx::PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
 
     // Only for UI
-    void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, uint64_t hashFactor);
+    void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor);
 
     //  internal use
     /**
@@ -342,7 +342,7 @@ protected:
     Record<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
     Record<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
 
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
     // external references
     Root *_root{nullptr};
     gfx::Device *_device{nullptr};

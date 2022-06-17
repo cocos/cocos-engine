@@ -930,7 +930,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointers());
 
     class_<cc::gfx::RenderPass>("RenderPass")
-        .class_function("computeHash", select_overload<size_t(const RenderPassInfo &)>(&RenderPass::computeHash), allow_raw_pointer<arg<0>>())
+        .class_function("computeHash", select_overload<ccstd::hash_t(const RenderPassInfo &)>(&RenderPass::computeHash), allow_raw_pointer<arg<0>>())
         .function("initialize", &cc::gfx::RenderPass::initialize, allow_raw_pointer<arg<0>>())
         .function("destroy", &cc::gfx::RenderPass::destroy)
         .function("getColorAttachments", &cc::gfx::RenderPass::getColorAttachments)
@@ -943,7 +943,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("getThis", select_overload<CCWGPURenderPass *(CCWGPURenderPass *)>(&cc::gfx::getThis), allow_raw_pointer<arg<0>>());
 
     class_<cc::gfx::Texture>("Texture")
-        .class_function("computeHash", select_overload<size_t(const TextureInfo &)>(&Texture::computeHash), allow_raw_pointer<arg<0>>())
+        .class_function("computeHash", select_overload<ccstd::hash_t(const TextureInfo &)>(&Texture::computeHash), allow_raw_pointer<arg<0>>())
         .function("initialize", select_overload<void(const TextureInfo &)>(&cc::gfx::Texture::initialize), allow_raw_pointer<arg<0>>())
         .function("initialize", select_overload<void(const TextureViewInfo &)>(&cc::gfx::Texture::initialize), allow_raw_pointer<arg<0>>())
         .function("destroy", &cc::gfx::Texture::destroy)
@@ -952,7 +952,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .constructor<>();
 
     class_<cc::gfx::Framebuffer>("Framebuffer")
-        .class_function("computeHash", select_overload<size_t(const FramebufferInfo &)>(&Framebuffer::computeHash), allow_raw_pointer<arg<0>>())
+        .class_function("computeHash", select_overload<ccstd::hash_t(const FramebufferInfo &)>(&Framebuffer::computeHash), allow_raw_pointer<arg<0>>())
         .function("initialize", &cc::gfx::Framebuffer::initialize, allow_raw_pointer<arg<0>>())
         .function("destroy", &cc::gfx::Framebuffer::destroy)
         .function("getRenderPass", &cc::gfx::Framebuffer::getRenderPass, allow_raw_pointer<arg<0>>())

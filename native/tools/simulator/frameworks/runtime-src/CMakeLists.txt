@@ -27,11 +27,6 @@ if(USE_SE_JSC AND APPLE)
     set(USE_V8_DEBUGGER OFF)
 endif()
 
-if(CMAKE_OSX_SYSROOT STREQUAL "iphonesimulator")
-    set(TARGET_IOS_VERSION "9.0")
-else()
-    set(TARGET_IOS_VERSION "8.0")
-endif()
 set(TARGET_OSX_VERSION "10.14")
 
 set(cocosdir ${CMAKE_CURRENT_LIST_DIR}/../../../..)

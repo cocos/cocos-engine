@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { BaseNode } from './base-node';
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
@@ -34,8 +34,7 @@ import { Size } from '../math/size';
 import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
-import { SceneGlobals } from './scene-globals';
-import { JSB } from '../default-constants';
+import { SceneGlobals, ShadowsInfo } from './scene-globals';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
 import { NodeUIProperties } from './node-ui-properties';
@@ -202,6 +201,10 @@ replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'normal',
         newName: 'planeDirection',
+    },
+    {
+        name: 'size',
+        newName: 'shadowMapSize',
     },
 ]);
 

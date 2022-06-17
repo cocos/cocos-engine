@@ -32,6 +32,8 @@ namespace cc {
 class Mat4;
 namespace scene {
 class Camera;
+class Shadows;
+class DirectionalLight;
 }
 namespace pipeline {
 class RenderPipeline;
@@ -39,8 +41,10 @@ class CC_DLL PipelineUBO final {
 public:
     static void updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView);
     static void updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
-    static void updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera);
-    static void updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Light *light);
+    static void updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
+                                    const scene::Camera *camera);
+    static void updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
+        const scene::Light *light, uint level);
     static uint8_t getCombineSignY();
 
     PipelineUBO() = default;
@@ -51,13 +55,16 @@ public:
     void updateCameraUBO(const scene::Camera *camera);
     void updateMultiCameraUBO(const ccstd::vector<scene::Camera *> &cameras);
     void updateShadowUBO(const scene::Camera *camera);
-    void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light);
+    void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light, uint level = 0U);
     void updateShadowUBORange(uint offset, const Mat4 *data);
 
     uint getCurrentCameraUBOOffset() const;
     void incCameraUBOOffset();
 
 private:
+    static float getPCFRadius(const scene::Shadows *shadowInfo, const scene::DirectionalLight *dirLight);
+    void initCombineSignY() const;
+
     RenderPipeline *_pipeline = nullptr;
     gfx::Device *_device = nullptr;
 
@@ -65,8 +72,8 @@ private:
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO;
 
     ccstd::vector<gfx::Buffer *> _ubos;
-    void initCombineSignY();
     ccstd::vector<float> _cameraUBOs;
+
     gfx::Buffer *_cameraBuffer{nullptr};
     uint _currentCameraUBOOffset{0};
     uint _alignedCameraUBOSize{0};

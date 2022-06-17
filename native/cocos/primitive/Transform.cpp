@@ -26,7 +26,7 @@
 #include "primitive/Transform.h"
 
 namespace cc {
-IGeometry translate(IGeometry &geometry, const cc::optional<Vec3> &offset) {
+IGeometry translate(IGeometry &geometry, const ccstd::optional<Vec3> &offset) {
     const float x = offset.has_value() ? offset->x : 0;
     const float y = offset.has_value() ? offset->y : 0;
     const float z = offset.has_value() ? offset->z : 0;
@@ -57,7 +57,7 @@ IGeometry translate(IGeometry &geometry, const cc::optional<Vec3> &offset) {
     return geometry;
 }
 
-IGeometry scale(IGeometry &geometry, const cc::optional<Vec3> &value) {
+IGeometry scale(IGeometry &geometry, const ccstd::optional<Vec3> &value) {
     const float x = value.has_value() ? value->x : 0;
     const float y = value.has_value() ? value->y : 0;
     const float z = value.has_value() ? value->z : 0;

@@ -24,7 +24,7 @@
 ****************************************************************************/
 #pragma once
 
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "core/TypedArray.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
@@ -82,7 +82,7 @@ struct IGeometry {
      * @zh
      * 顶点法线。
      */
-    cc::optional<ccstd::vector<float>> normals;
+    ccstd::optional<ccstd::vector<float>> normals;
 
     /**
      * @en
@@ -90,7 +90,7 @@ struct IGeometry {
      * @zh
      * 纹理坐标。
      */
-    cc::optional<ccstd::vector<float>> uvs;
+    ccstd::optional<ccstd::vector<float>> uvs;
 
     /**
      * @en
@@ -98,7 +98,7 @@ struct IGeometry {
      * @zh
      * 顶点切线。
      */
-    cc::optional<ccstd::vector<float>> tangents;
+    ccstd::optional<ccstd::vector<float>> tangents;
 
     /**
      * @en
@@ -106,7 +106,7 @@ struct IGeometry {
      * @zh
      * 顶点颜色。
      */
-    cc::optional<ccstd::vector<float>> colors;
+    ccstd::optional<ccstd::vector<float>> colors;
 
     /**
      * @en
@@ -114,7 +114,7 @@ struct IGeometry {
      * @zh
      * 顶点属性。
      */
-    cc::optional<gfx::AttributeList> attributes;
+    ccstd::optional<gfx::AttributeList> attributes;
 
     /**
      * @en
@@ -122,7 +122,7 @@ struct IGeometry {
      * @zh
      * 定制属性列表。
      */
-    cc::optional<ccstd::vector<CustomAttribute>> customAttributes;
+    ccstd::optional<ccstd::vector<CustomAttribute>> customAttributes;
 
     /**
      * @en
@@ -130,7 +130,7 @@ struct IGeometry {
      * @zh
      * 包围球半径。
      */
-    cc::optional<float> boundingRadius;
+    ccstd::optional<float> boundingRadius;
 
     /**
      * @en
@@ -138,7 +138,7 @@ struct IGeometry {
      * @zh
      * 最小位置。
      */
-    cc::optional<Vec3> minPos;
+    ccstd::optional<Vec3> minPos;
 
     /**
      * @en
@@ -146,7 +146,7 @@ struct IGeometry {
      * @zh
      * 最大位置。
      */
-    cc::optional<Vec3> maxPos;
+    ccstd::optional<Vec3> maxPos;
 
     /**
      * @en
@@ -154,7 +154,7 @@ struct IGeometry {
      * @zh
      * 几何索引，当使用索引绘制时。
      */
-    cc::optional<ccstd::vector<uint32_t>> indices; //cjh uint16_t ?
+    ccstd::optional<ccstd::vector<uint32_t>> indices; //cjh uint16_t ?
 
     /**
      * @en
@@ -162,7 +162,7 @@ struct IGeometry {
      * @zh
      * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST。
      */
-    cc::optional<gfx::PrimitiveMode> primitiveMode;
+    ccstd::optional<gfx::PrimitiveMode> primitiveMode;
 
     /**
      * @en
@@ -170,7 +170,7 @@ struct IGeometry {
      * @zh
      * 是否是双面，用于判断来自于几何体背面的射线检测。
      */
-    cc::optional<bool> doubleSided;
+    ccstd::optional<bool> doubleSided;
 };
 
 struct DynamicCustomAttribute {
@@ -199,7 +199,7 @@ struct IDynamicGeometry {
      * @zh
      * 顶点法线：3个float分量。
      */
-    cc::optional<Float32Array> normals;
+    ccstd::optional<Float32Array> normals;
 
     /**
      * @en
@@ -207,7 +207,7 @@ struct IDynamicGeometry {
      * @zh
      * 纹理坐标：2个float分量。
      */
-    cc::optional<Float32Array> uvs;
+    ccstd::optional<Float32Array> uvs;
 
     /**
      * @en
@@ -215,7 +215,7 @@ struct IDynamicGeometry {
      * @zh
      * 顶点切线：4个float分量。
      */
-    cc::optional<Float32Array> tangents;
+    ccstd::optional<Float32Array> tangents;
 
     /**
      * @en
@@ -223,7 +223,7 @@ struct IDynamicGeometry {
      * @zh
      * 顶点颜色：4个float分量。
      */
-    cc::optional<Float32Array> colors;
+    ccstd::optional<Float32Array> colors;
 
     /**
      * @en
@@ -231,7 +231,7 @@ struct IDynamicGeometry {
      * @zh
      * 定制属性列表。
      */
-    cc::optional<ccstd::vector<DynamicCustomAttribute>> customAttributes;
+    ccstd::optional<ccstd::vector<DynamicCustomAttribute>> customAttributes;
 
     /**
      * @en
@@ -239,7 +239,7 @@ struct IDynamicGeometry {
      * @zh
      * 最小位置。包围盒大小由用户提供，更高效。
      */
-    cc::optional<Vec3> minPos;
+    ccstd::optional<Vec3> minPos;
 
     /**
      * @en
@@ -247,7 +247,7 @@ struct IDynamicGeometry {
      * @zh
      * 最大位置。包围盒大小由用户提供，更高效。
      */
-    cc::optional<Vec3> maxPos;
+    ccstd::optional<Vec3> maxPos;
 
     /**
      * @en
@@ -255,7 +255,7 @@ struct IDynamicGeometry {
      * @zh
      * 16位几何索引，当使用索引绘制时。
      */
-    cc::optional<Uint16Array> indices16;
+    ccstd::optional<Uint16Array> indices16;
 
     /**
      * @en
@@ -263,7 +263,7 @@ struct IDynamicGeometry {
      * @zh
      * 32位几何索引，当使用索引绘制时。
      */
-    cc::optional<Uint32Array> indices32;
+    ccstd::optional<Uint32Array> indices32;
 
     /**
      * @en
@@ -271,7 +271,7 @@ struct IDynamicGeometry {
      * @zh
      * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST。
      */
-    cc::optional<gfx::PrimitiveMode> primitiveMode;
+    ccstd::optional<gfx::PrimitiveMode> primitiveMode;
 
     /**
      * @en
@@ -279,7 +279,7 @@ struct IDynamicGeometry {
      * @zh
      * 是否是双面，用于判断来自于几何体背面的射线检测。
      */
-    cc::optional<bool> doubleSided;
+    ccstd::optional<bool> doubleSided;
 };
 
 } // namespace cc

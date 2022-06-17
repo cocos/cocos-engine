@@ -7,6 +7,12 @@ import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['X', 'Y', 'Z', 'W'];
 
+/**
+ * @en
+ * A vector track animates a vector(in 2, 3, 4 dimension) attribute of target.
+ * @zh
+ * 向量轨道描述目标上某个（二、三、四维）向量属性的动画。
+ */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}VectorTrack`)
 export class VectorTrack extends Track {
     constructor () {
@@ -19,6 +25,10 @@ export class VectorTrack extends Track {
         }
     }
 
+    /**
+     * @en Gets or sets the count of components(dimension) available while evaluating of this track.
+     * @zh 获取或设置此轨道在求值时有效的分量数（维度）。
+     */
     get componentsCount () {
         return this._nComponents;
     }
@@ -27,6 +37,12 @@ export class VectorTrack extends Track {
         this._nComponents = value;
     }
 
+    /**
+     * @en The four channel of the track.
+     * @zh 返回此轨道的四条通道。
+     * @returns An readonly four length array in which
+     * the element at n denotes the channel of n-th vector component.
+     */
     public channels () {
         return this._channels;
     }

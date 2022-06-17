@@ -48,10 +48,6 @@ class CC_DLL FileUtilsAndroid : public FileUtils {
 
 public:
     FileUtilsAndroid();
-    /**
-     * @js NA
-     * @lua NA
-     */
     ~FileUtilsAndroid() override;
 
     static void setassetmanager(AAssetManager *a);

@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
 import { BYTEDANCE, EDITOR } from 'internal:constants';
 import { minigame } from 'pal/minigame';
@@ -444,7 +439,7 @@ export class Label extends UIRenderer {
         // if delete the font, we should change isSystemFontUsed to true
         this._isSystemFontUsed = !value;
 
-        if (EDITOR && value) {
+        if (EDITOR) {
             this._userDefinedFont = value;
         }
 

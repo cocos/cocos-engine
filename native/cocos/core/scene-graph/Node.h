@@ -27,7 +27,7 @@
 
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -115,8 +115,9 @@ public:
 
     Scene *getScene() const;
 
-    void walk(const std::function<void(Node *)> &preFunc);
-    void walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc);
+    using WalkCallback = std::function<void(Node *)>;
+    void walk(const WalkCallback &preFunc);
+    void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
@@ -190,7 +191,7 @@ public:
     void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
@@ -615,9 +616,10 @@ public:
     inline uint32_t getEventMask() const { return _eventMask; }
     inline void setEventMask(uint32_t mask) { _eventMask = mask; }
 
-protected:
     bool onPreDestroy() override;
+    bool onPreDestroyBase();
 
+protected:
     void onSetParent(Node *oldParent, bool keepWorldTransform);
 
     virtual void updateScene();
@@ -626,8 +628,6 @@ protected:
     void onHierarchyChangedBase(Node *oldParent);
 
     virtual void onBatchCreated(bool dontChildPrefab);
-
-    bool onPreDestroyBase();
 
 #if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {
@@ -682,11 +682,11 @@ public:
     index_t _siblingIndex{0};
     // For deserialization
     ccstd::string _id;
-    ccstd::vector<IntrusivePtr<Node>> _children;
     Node *_parent{nullptr};
     bool _active{true};
 
 private:
+    ccstd::vector<IntrusivePtr<Node>> _children;
     // local transform
     cc::Vec3 _localPosition{Vec3::ZERO};
     cc::Quaternion _localRotation{Quaternion::identity()};
@@ -716,7 +716,7 @@ bool Node::isNode(T *obj) {
 }
 
 template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
+void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
     _eventProcessor->emit(type, std::forward<Args>(args)...);
 }
 

@@ -1,10 +1,6 @@
 function __initApp () {  // init app
-require('./libs/wrapper/builtin/index');
+require('./web-adapter');
 const firstScreen = require('./first-screen');
-window.DOMParser = require('./libs/common/xmldom/dom-parser').DOMParser;
-window.__globalAdapter = {};
-require('./libs/wrapper/unify');
-require('./libs/wrapper/fs-utils');
 
 <%- include(cocosTemplate, {}) %>
 
@@ -78,9 +74,7 @@ function onApplicationCreated(application) {
     return application.import('cc').then((module) => {
         return firstScreen.setProgress(0.6).then(() => Promise.resolve(module));
     }).then((cc) => {
-        require('./libs/common/engine/index.js');
-        require('./libs/wrapper/engine/index');
-        require('./libs/common/cache-manager.js');
+        require('./engine-adapter');
         // Adjust devicePixelRatio
         cc.view._maxPixelRatio = 4;
         // Release Image objects after uploaded gl texture

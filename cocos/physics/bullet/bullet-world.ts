@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';

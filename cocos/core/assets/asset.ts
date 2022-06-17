@@ -24,21 +24,16 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, serializable } from 'cc.decorator';
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
-import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
 import { debug, getError, warn } from '../platform/debug';
+import { CCObject } from '../data/object';
 
 /**
  * @en
@@ -62,9 +57,10 @@ import { debug, getError, warn } from '../platform/debug';
  * @extends CCObject
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventify(GCObject) {
+export class Asset extends Eventify(CCObject) {
     /**
      * 应 AssetDB 要求提供这个方法。
+     * @internal
      * @method deserialize
      * @param {String} data
      * @return {Asset}
@@ -89,6 +85,9 @@ export class Asset extends Eventify(GCObject) {
      */
     public declare _uuid: string;
 
+    /**
+     * @internal
+     */
     public declare isDefault: boolean;
 
     /**
@@ -103,7 +102,7 @@ export class Asset extends Eventify(GCObject) {
     @serializable
     public _native = '';
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public _nativeUrl = '';
 
@@ -157,7 +156,7 @@ export class Asset extends Eventify(GCObject) {
         this._file = obj;
     }
 
-    constructor (...args: ConstructorParameters<typeof GCObject>) {
+    constructor (...args: ConstructorParameters<typeof CCObject>) {
         super(...args);
 
         Object.defineProperty(this, '_uuid', {

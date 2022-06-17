@@ -27,7 +27,7 @@
 
 namespace cc {
 
-IGeometry capsule(float radiusTop, float radiusBottom, float height, const cc::optional<ICapsuleOptions> &opts) {
+IGeometry capsule(float radiusTop, float radiusBottom, float height, const ccstd::optional<ICapsuleOptions> &opts) {
     const float torsoHeight = height - radiusTop - radiusBottom;
     const uint32_t sides = opts.has_value() ? opts->sides : 32;
     const uint32_t heightSegments = opts.has_value() ? opts->heightSegments : 32;

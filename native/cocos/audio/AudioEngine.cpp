@@ -36,7 +36,7 @@
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/AudioEngine-inl.h"
-#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     #include "audio/apple/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS
     #include "audio/oalsoft/AudioEngine-soft.h"
@@ -246,6 +246,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             audioRef.volume = volume;
             audioRef.loop = loop;
             audioRef.filePath = &it->first;
+            audioRef.state = AudioState::PLAYING;
 
             if (profileHelper) {
                 profileHelper->lastPlayTime = std::chrono::high_resolution_clock::now();

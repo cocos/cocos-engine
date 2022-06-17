@@ -31,7 +31,7 @@
 #include "core/assets/AssetEnum.h"
 #include "renderer/gfx-base/GFXDef.h"
 
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
 
 namespace cc {
 
@@ -165,12 +165,8 @@ public:
      * @en Gets the texture hash.
      * @zh 获取此贴图的哈希值。
      */
-    inline uint64_t getHash() const {
+    inline ccstd::hash_t getHash() const {
         return _textureHash;
-    }
-
-    inline double getHashForJS() const {
-        return static_cast<double>(getHash());
     }
 
     /**
@@ -182,7 +178,7 @@ public:
     }
 
     /**
-     * @en Gets the internal GFX sampler hash.
+     * @en Gets the internal GFX sampler information.
      * @zh 获取此贴图内部使用的 GFX 采样器信息。
      * @private
      */
@@ -200,13 +196,13 @@ public:
     /**
      * @return
      */
-    cc::any serialize(const cc::any &ctxForExporting) override;
+    ccstd::any serialize(const ccstd::any &ctxForExporting) override;
 
     /**
      *
      * @param data
      */
-    void deserialize(const cc::any &serializedData, const cc::any &handle) override;
+    void deserialize(const ccstd::any &serializedData, const ccstd::any &handle) override;
 
 protected:
     static gfx::Device *getGFXDevice();
@@ -214,7 +210,7 @@ protected:
 
     gfx::Format getGFXFormat() const;
 
-    void setGFXFormat(const cc::optional<PixelFormat> &format);
+    void setGFXFormat(const ccstd::optional<PixelFormat> &format);
 
 private:
     void notifySamplerUpdated();
@@ -253,7 +249,7 @@ protected:
     gfx::Sampler *_gfxSampler{nullptr};
     gfx::Device *_gfxDevice{nullptr};
 
-    uint32_t _textureHash{0};
+    ccstd::hash_t _textureHash{0U};
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureBase);

@@ -15,7 +15,7 @@ macro(cc_linux_before_target target_name)
 	
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
     set(CMAKE_INSTALL_RPATH "\${ORIGIN}")
-    set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} 
+    list(APPEND CC_ALL_SOURCES ${CC_PROJ_SOURCES} 
         ${CC_COMMON_SOURCES}
         ${CC_ASSET_FILES}
     )

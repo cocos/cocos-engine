@@ -72,19 +72,12 @@ static void _checkPath() {
     }
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = ccnew FileUtilsWin32();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsWin32");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsWin32();
 }
 
 FileUtilsWin32::FileUtilsWin32() {
+    init();
 }
 
 bool FileUtilsWin32::init() {

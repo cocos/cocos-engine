@@ -24,12 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/data
- */
-
-import { DEV } from 'internal:constants';
+import { DEV, JSB } from 'internal:constants';
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject, isCCObject } from './object';
@@ -38,8 +33,8 @@ import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets/prefab';
 import { Node } from '../scene-graph/node';
-import { JSB } from '../default-constants';
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
+import { isCCClassOrFastDefined } from './class';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -206,7 +201,7 @@ function enumerateObject (obj, clone, parent) {
     js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
-    if (legacyCC.Class._isCCClass(klass)) {
+    if (isCCClassOrFastDefined(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
     } else {
         // primitive javascript object
@@ -283,7 +278,7 @@ function instantiateObj (obj, parent) {
     }
 
     const ctor = obj.constructor;
-    if (legacyCC.Class._isCCClass(ctor)) {
+    if (isCCClassOrFastDefined(ctor)) {
         if (parent) {
             if (parent instanceof legacyCC.Component) {
                 if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {

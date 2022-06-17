@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
