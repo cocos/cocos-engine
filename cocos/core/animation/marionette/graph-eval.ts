@@ -5,7 +5,7 @@ import {
 } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
-import { Node } from '../../scene-graph/node';
+import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value, VarInstance, TriggerResetMode } from './variable';
 import { BindContext, bindOr, validateVariableExistence, validateVariableType, VariableType } from './parametric';
