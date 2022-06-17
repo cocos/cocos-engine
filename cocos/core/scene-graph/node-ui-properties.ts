@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
 import { UIRenderer } from '../../2d/framework/ui-renderer';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
