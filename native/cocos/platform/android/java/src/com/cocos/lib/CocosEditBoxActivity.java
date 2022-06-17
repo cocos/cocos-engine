@@ -277,14 +277,21 @@ public class CocosEditBoxActivity extends Activity {
             extras = intent.getExtras();
         }
         if(extras == null){
-            extras = new Bundle();
-        }
-        show(extras.getString("defaultValue"),
+            show("",
+                10,
+                false,
+                false,
+                "done",
+                "text"
+                );
+        } else {
+            show(extras.getString("defaultValue"),
                 extras.getInt("maxLength"),
                 extras.getBoolean("isMultiline"),
                 extras.getBoolean("confirmHold"),
                 extras.getString("confirmType"),
                 extras.getString("inputType"));
+        }
     }
 
     /***************************************************************************************

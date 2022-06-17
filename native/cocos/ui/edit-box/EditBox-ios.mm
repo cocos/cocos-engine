@@ -211,8 +211,11 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
     if (self = [super init]) {
         tViewOnView = inputOnView;
         tViewOnToolbar = inputOnToolbar;
+        return self;
+    } else {
+        [self release];
+        return nil;
     }
-    return self;
 }
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     // REFINE: check length limit before text changed
@@ -239,8 +242,12 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
     if (self = [super init]) {
         textFieldOnView = inputOnView;
         textFieldOntoolbar = inputOnToolbar;
+        return self;
+    } else {
+        [self release];
+        return nil;
     }
-    return self;
+    
 }
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     // REFINE: check length limit before text changed
@@ -295,6 +302,9 @@ static EditboxManager *instance = nil;
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
+        if (instance == nil) {
+            CC_LOG_ERROR("Editbox manager init failed, plz check if you have enough space left");
+        }
     });
     return instance;
 }
@@ -311,7 +321,12 @@ static EditboxManager *instance = nil;
 }
 - (id)init {
     if (self = [super init]) {
+        
         textInputDictionnary = [NSMutableDictionary new];
+        if (textInputDictionnary == nil) {
+            [self release];
+            return nil;
+        }
         
         cc::EventDispatcher::addCustomEventListener(EVENT_RESIZE, [&](const cc::CustomEvent& event) -> void {
                 [[EditboxManager sharedInstance] onOrientationChanged];
