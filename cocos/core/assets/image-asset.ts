@@ -25,12 +25,14 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { Device, Format, FormatFeatureBit } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
+import { macro } from '../platform/macro';
+import { sys } from '../platform/sys';
 
 /**
  * @en Image source in memory
@@ -51,7 +53,7 @@ export interface IMemoryImageSource {
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
 function isImageBitmap (imageSource: any): boolean {
-    return !!(legacyCC.sys.hasFeature(legacyCC.sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
+    return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -259,7 +261,7 @@ export class ImageAsset extends Asset {
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
-        const SupportTextureFormats = legacyCC.macro.SUPPORT_TEXTURE_FORMATS as string[];
+        const SupportTextureFormats = macro.SUPPORT_TEXTURE_FORMATS;
         for (const extensionID of extensionIDs) {
             const extFormat = extensionID.split('@');
 
@@ -280,7 +282,7 @@ export class ImageAsset extends Asset {
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
                     && (!device || !(device.getFormatFeatures(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
-                } else if (tmpExt === '.webp' && !legacyCC.sys.hasFeature(legacyCC.sys.Feature.WEBP)) {
+                } else if (tmpExt === '.webp' && !sys.hasFeature(sys.Feature.WEBP)) {
                     continue;
                 }
                 preferedExtensionIndex = index;
