@@ -104,6 +104,10 @@ public:
         ccstd::optional<uint32_t> jointMapIndex;
     };
 
+    /**
+    * @en The info use to create dynamic mesh.
+    * @zh 描述了创建动态网格需要的预分配信息。
+    */
     struct IDynamicInfo {
         /**
          * @en max submesh count
@@ -124,6 +128,10 @@ public:
         uint32_t maxSubMeshIndices{0U};
     };
 
+    /**
+    * @en The structure use to create dynamic mesh.
+    * @zh 描述了创建动态网格的结构。
+    */
     struct IDynamicStruct {
         /**
          * @en dynamic mesh info
@@ -403,6 +411,15 @@ public:
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
     bool copyIndices(index_t primitiveIndex, TypedArray &outputArray);
+    
+    /**
+     * @en Read the format by attributeName of submesh
+     * @zh 根据属性名读取子网格的属性信息。
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param attributeName @en Attribute name @zh 属性名称
+     * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
+     */
+    const gfx::FormatInfo* readAttributeFormat(index_t primitiveIndex, const char *attributeName);
 
     /**
      * @en update dynamic sub mesh geometry
