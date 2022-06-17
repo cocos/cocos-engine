@@ -93,11 +93,11 @@ void ShadowFlow::render(scene::Camera *camera) {
 
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     const scene::DirectionalLight *mainLight = camera->getScene()->getMainLight();
-    if (mainLight && mainLight->isShadowEnabled()) {
+    if (mainLight) {
         gfx::DescriptorSet *globalDS = _pipeline->getDescriptorSet();
         if (!shadowFramebufferMap.count(mainLight)) {
             initShadowFrameBuffer(_pipeline, mainLight);
-        }else {
+        } else {
             if (shadowInfo->isShadowMapDirty()) {
                 resizeShadowMap(mainLight, globalDS);
             }
@@ -246,6 +246,9 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         renderTargets,
         depth,
     });
+
+    // sometimes there has equivalent pointers from createTetxure function, so we need force update descriptor set binding here
+    ds->forceUpdate();
 }
 
 void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light) {
