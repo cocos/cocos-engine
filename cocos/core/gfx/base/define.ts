@@ -34,9 +34,9 @@ import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
 import { GCObject } from '../../data/gc-object';
 
-interface ICopyable { copy(info: ICopyable): ICopyable; }
+interface ICopyable { copy (info: ICopyable): ICopyable; }
 
-const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Constructor<T>) => {
+const deepCopy = <T extends ICopyable> (target: T[], source: T[], Ctor: Constructor<T>) => {
     for (let i = 0; i < source.length; ++i) {
         if (target.length <= i) target.push(new Ctor());
         target[i].copy(source[i]);
@@ -348,14 +348,14 @@ export enum Type {
 }
 
 export enum BufferUsageBit {
-    NONE         = 0,
+    NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
-    INDEX        = 0x4,
-    VERTEX       = 0x8,
-    UNIFORM      = 0x10,
-    STORAGE      = 0x20,
-    INDIRECT     = 0x40,
+    INDEX = 0x4,
+    VERTEX = 0x8,
+    UNIFORM = 0x10,
+    STORAGE = 0x20,
+    INDIRECT = 0x40,
 }
 
 export enum BufferFlagBit {
@@ -363,16 +363,16 @@ export enum BufferFlagBit {
 }
 
 export enum MemoryAccessBit {
-    NONE       = 0,
-    READ_ONLY  = 0x1,
+    NONE = 0,
+    READ_ONLY = 0x1,
     WRITE_ONLY = 0x2,
     READ_WRITE = READ_ONLY | WRITE_ONLY,
 }
 
 export enum MemoryUsageBit {
-    NONE   = 0,
+    NONE = 0,
     DEVICE = 0x1, // for rarely-updated resources, use MemoryUsageBit::DEVICE
-    HOST   = 0x2, // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
+    HOST = 0x2, // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
 export enum TextureType {
@@ -385,28 +385,28 @@ export enum TextureType {
 }
 
 export enum TextureUsageBit {
-    NONE                     = 0,
-    TRANSFER_SRC             = 0x1,
-    TRANSFER_DST             = 0x2,
-    SAMPLED                  = 0x4,
-    STORAGE                  = 0x8,
-    COLOR_ATTACHMENT         = 0x10,
+    NONE = 0,
+    TRANSFER_SRC = 0x1,
+    TRANSFER_DST = 0x2,
+    SAMPLED = 0x4,
+    STORAGE = 0x8,
+    COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
-    INPUT_ATTACHMENT         = 0x40,
+    INPUT_ATTACHMENT = 0x40,
 }
 
 export enum TextureFlagBit {
-    NONE           = 0,
-    GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
+    NONE = 0,
+    GEN_MIPMAP = 0x1, // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
 }
 
 export enum FormatFeatureBit {
-    NONE             = 0,
-    RENDER_TARGET    = 0x1,  // Allow usages as render pass attachments
-    SAMPLED_TEXTURE  = 0x2,  // Allow sampled reads in shaders
-    LINEAR_FILTER    = 0x4,  // Allow linear filtering when sampling in shaders or blitting
-    STORAGE_TEXTURE  = 0x8,  // Allow storage reads & writes in shaders
+    NONE = 0,
+    RENDER_TARGET = 0x1,  // Allow usages as render pass attachments
+    SAMPLED_TEXTURE = 0x2,  // Allow sampled reads in shaders
+    LINEAR_FILTER = 0x4,  // Allow linear filtering when sampling in shaders or blitting
+    STORAGE_TEXTURE = 0x8,  // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
 }
 
@@ -505,22 +505,22 @@ export enum BlendOp {
 
 export enum ColorMask {
     NONE = 0x0,
-    R    = 0x1,
-    G    = 0x2,
-    B    = 0x4,
-    A    = 0x8,
-    ALL  = R | G | B | A,
+    R = 0x1,
+    G = 0x2,
+    B = 0x4,
+    A = 0x8,
+    ALL = R | G | B | A,
 }
 
 export enum ShaderStageFlagBit {
-    NONE       = 0x0,
-    VERTEX     = 0x1,
-    CONTROL    = 0x2,
+    NONE = 0x0,
+    VERTEX = 0x1,
+    CONTROL = 0x2,
     EVALUATION = 0x4,
-    GEOMETRY   = 0x8,
-    FRAGMENT   = 0x10,
-    COMPUTE    = 0x20,
-    ALL        = 0x3f,
+    GEOMETRY = 0x8,
+    FRAGMENT = 0x10,
+    COMPUTE = 0x20,
+    ALL = 0x3f,
 }
 
 export enum LoadOp {
@@ -538,35 +538,35 @@ export enum AccessFlagBit {
     NONE = 0,
 
     // Read accesses
-    INDIRECT_BUFFER                                     = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER                                        = 1 << 1,  // Read as an index buffer for drawing
-    VERTEX_BUFFER                                       = 1 << 2,  // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER                   = 1 << 3,  // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE                          = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER                            = 1 << 5,  // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER                 = 1 << 6,  // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE                        = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT         = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
+    INDIRECT_BUFFER = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER = 1 << 1,  // Read as an index buffer for drawing
+    VERTEX_BUFFER = 1 << 2,  // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER = 1 << 3,  // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER = 1 << 5,  // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER = 1 << 6,  // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
     FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9,  // Read as an input attachment with a depth/stencil format in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER                          = 1 << 10, // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ                               = 1 << 11, // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ                       = 1 << 12, // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER                  = 1 << 13, // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE                         = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER                           = 1 << 15, // Read as any other resource in a compute shader
-    TRANSFER_READ                                       = 1 << 16, // Read as the source of a transfer operation
-    HOST_READ                                           = 1 << 17, // Read on the host
-    PRESENT                                             = 1 << 18, // Read by the presentation engine
+    FRAGMENT_SHADER_READ_OTHER = 1 << 10, // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ = 1 << 11, // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ = 1 << 12, // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER = 1 << 13, // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER = 1 << 15, // Read as any other resource in a compute shader
+    TRANSFER_READ = 1 << 16, // Read as the source of a transfer operation
+    HOST_READ = 1 << 17, // Read on the host
+    PRESENT = 1 << 18, // Read by the presentation engine
 
     // Write accesses
-    VERTEX_SHADER_WRITE            = 1 << 19, // Written as any resource in a vertex shader
-    FRAGMENT_SHADER_WRITE          = 1 << 20, // Written as any resource in a fragment shader
-    COLOR_ATTACHMENT_WRITE         = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
+    VERTEX_SHADER_WRITE = 1 << 19, // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE = 1 << 20, // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
     DEPTH_STENCIL_ATTACHMENT_WRITE = 1 << 22, // Written as a depth/stencil attachment during rendering, or via a subpass store op
-    COMPUTE_SHADER_WRITE           = 1 << 23, // Written as any resource in a compute shader
-    TRANSFER_WRITE                 = 1 << 24, // Written as the destination of a transfer operation
-    HOST_PREINITIALIZED            = 1 << 25, // Data pre-filled by host before device access starts
-    HOST_WRITE                     = 1 << 26, // Written on the host
+    COMPUTE_SHADER_WRITE = 1 << 23, // Written as any resource in a compute shader
+    TRANSFER_WRITE = 1 << 24, // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED = 1 << 25, // Data pre-filled by host before device access starts
+    HOST_WRITE = 1 << 26, // Written on the host
 }
 
 export enum ResolveMode {
@@ -619,32 +619,32 @@ export enum CullMode {
 }
 
 export enum DynamicStateFlagBit {
-    NONE                 = 0x0,
-    LINE_WIDTH           = 0x1,
-    DEPTH_BIAS           = 0x2,
-    BLEND_CONSTANTS      = 0x4,
-    DEPTH_BOUNDS         = 0x8,
-    STENCIL_WRITE_MASK   = 0x10,
+    NONE = 0x0,
+    LINE_WIDTH = 0x1,
+    DEPTH_BIAS = 0x2,
+    BLEND_CONSTANTS = 0x4,
+    DEPTH_BOUNDS = 0x8,
+    STENCIL_WRITE_MASK = 0x10,
     STENCIL_COMPARE_MASK = 0x20,
 }
 
 export enum StencilFace {
     FRONT = 0x1,
-    BACK  = 0x2,
-    ALL   = 0x3,
+    BACK = 0x2,
+    ALL = 0x3,
 }
 
 export enum DescriptorType {
-    UNKNOWN                = 0,
-    UNIFORM_BUFFER         = 0x1,
+    UNKNOWN = 0,
+    UNIFORM_BUFFER = 0x1,
     DYNAMIC_UNIFORM_BUFFER = 0x2,
-    STORAGE_BUFFER         = 0x4,
+    STORAGE_BUFFER = 0x4,
     DYNAMIC_STORAGE_BUFFER = 0x8,
-    SAMPLER_TEXTURE        = 0x10,
-    SAMPLER                = 0x20,
-    TEXTURE                = 0x40,
-    STORAGE_IMAGE          = 0x80,
-    INPUT_ATTACHMENT       = 0x100,
+    SAMPLER_TEXTURE = 0x10,
+    SAMPLER = 0x20,
+    TEXTURE = 0x40,
+    STORAGE_IMAGE = 0x80,
+    INPUT_ATTACHMENT = 0x100,
 }
 
 export enum QueueType {
@@ -665,12 +665,12 @@ export enum CommandBufferType {
 }
 
 export enum ClearFlagBit {
-    NONE          = 0,
-    COLOR         = 0x1,
-    DEPTH         = 0x2,
-    STENCIL       = 0x4,
+    NONE = 0,
+    COLOR = 0x1,
+    DEPTH = 0x2,
+    STENCIL = 0x4,
     DEPTH_STENCIL = DEPTH | STENCIL,
-    ALL           = COLOR | DEPTH | STENCIL,
+    ALL = COLOR | DEPTH | STENCIL,
 }
 
 export type BufferUsage = BufferUsageBit;
@@ -1580,6 +1580,10 @@ export class TextureBarrierInfo {
     constructor (
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
+        public baseMipLevel: number = 0,
+        public levelCount: number = 1,
+        public baseSlice: number = 0,
+        public sliceCount: number = 1,
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
@@ -1588,6 +1592,35 @@ export class TextureBarrierInfo {
     public copy (info: Readonly<TextureBarrierInfo>) {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
+        this.baseMipLevel = info.baseMipLevel;
+        this.levelCount = info.levelCount;
+        this.baseSlice = info.baseSlice;
+        this.sliceCount = info.sliceCount;
+        this.discardContents = info.discardContents;
+        this.srcQueue = info.srcQueue;
+        this.dstQueue = info.dstQueue;
+        return this;
+    }
+}
+
+export class BufferBarrierInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
+        public offset: number = 0,
+        public size: number = 0,
+        public discardContents: boolean = false,
+        public srcQueue: Queue | null = null,
+        public dstQueue: Queue | null = null,
+    ) {}
+
+    public copy (info: Readonly<BufferBarrierInfo>) {
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
+        this.offset = info.offset;
+        this.size = info.size;
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;
@@ -2013,10 +2046,10 @@ export const FormatInfos = Object.freeze([
 ]);
 
 export const DESCRIPTOR_BUFFER_TYPE = DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER
-                                      | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
+    | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
 
 export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER_TEXTURE | DescriptorType.SAMPLER | DescriptorType.TEXTURE
-                                       | DescriptorType.STORAGE_IMAGE | DescriptorType.INPUT_ATTACHMENT;
+    | DescriptorType.STORAGE_IMAGE | DescriptorType.INPUT_ATTACHMENT;
 
 export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
 
@@ -2041,94 +2074,94 @@ export function FormatSize (format: Format, width: number, height: number, depth
         return (width * height * depth * FormatInfos[format].size);
     } else {
         switch (format) {
-        case Format.BC1:
-        case Format.BC1_ALPHA:
-        case Format.BC1_SRGB:
-        case Format.BC1_SRGB_ALPHA:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
-        case Format.BC2:
-        case Format.BC2_SRGB:
-        case Format.BC3:
-        case Format.BC3_SRGB:
-        case Format.BC4:
-        case Format.BC4_SNORM:
-        case Format.BC6H_SF16:
-        case Format.BC6H_UF16:
-        case Format.BC7:
-        case Format.BC7_SRGB:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-        case Format.BC5:
-        case Format.BC5_SNORM:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
+            case Format.BC1:
+            case Format.BC1_ALPHA:
+            case Format.BC1_SRGB:
+            case Format.BC1_SRGB_ALPHA:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            case Format.BC2:
+            case Format.BC2_SRGB:
+            case Format.BC3:
+            case Format.BC3_SRGB:
+            case Format.BC4:
+            case Format.BC4_SNORM:
+            case Format.BC6H_SF16:
+            case Format.BC6H_UF16:
+            case Format.BC7:
+            case Format.BC7_SRGB:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            case Format.BC5:
+            case Format.BC5_SNORM:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
 
-        case Format.ETC_RGB8:
-        case Format.ETC2_RGB8:
-        case Format.ETC2_SRGB8:
-        case Format.ETC2_RGB8_A1:
-        case Format.EAC_R11:
-        case Format.EAC_R11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
-        case Format.ETC2_RGBA8:
-        case Format.ETC2_SRGB8_A1:
-        case Format.EAC_RG11:
-        case Format.EAC_RG11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            case Format.ETC_RGB8:
+            case Format.ETC2_RGB8:
+            case Format.ETC2_SRGB8:
+            case Format.ETC2_RGB8_A1:
+            case Format.EAC_R11:
+            case Format.EAC_R11SN:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            case Format.ETC2_RGBA8:
+            case Format.ETC2_SRGB8_A1:
+            case Format.EAC_RG11:
+            case Format.EAC_RG11SN:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
 
-        case Format.PVRTC_RGB2:
-        case Format.PVRTC_RGBA2:
-        case Format.PVRTC2_2BPP:
-            return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 4) * depth;
-        case Format.PVRTC_RGB4:
-        case Format.PVRTC_RGBA4:
-        case Format.PVRTC2_4BPP:
-            return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
+            case Format.PVRTC_RGB2:
+            case Format.PVRTC_RGBA2:
+            case Format.PVRTC2_2BPP:
+                return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 4) * depth;
+            case Format.PVRTC_RGB4:
+            case Format.PVRTC_RGBA4:
+            case Format.PVRTC2_4BPP:
+                return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
 
-        case Format.ASTC_RGBA_4X4:
-        case Format.ASTC_SRGBA_4X4:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-        case Format.ASTC_RGBA_5X4:
-        case Format.ASTC_SRGBA_5X4:
-            return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
-        case Format.ASTC_RGBA_5X5:
-        case Format.ASTC_SRGBA_5X5:
-            return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_6X5:
-        case Format.ASTC_SRGBA_6X5:
-            return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_6X6:
-        case Format.ASTC_SRGBA_6X6:
-            return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
-        case Format.ASTC_RGBA_8X5:
-        case Format.ASTC_SRGBA_8X5:
-            return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_8X6:
-        case Format.ASTC_SRGBA_8X6:
-            return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
-        case Format.ASTC_RGBA_8X8:
-        case Format.ASTC_SRGBA_8X8:
-            return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
-        case Format.ASTC_RGBA_10X5:
-        case Format.ASTC_SRGBA_10X5:
-            return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_10X6:
-        case Format.ASTC_SRGBA_10X6:
-            return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
-        case Format.ASTC_RGBA_10X8:
-        case Format.ASTC_SRGBA_10X8:
-            return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
-        case Format.ASTC_RGBA_10X10:
-        case Format.ASTC_SRGBA_10X10:
-            return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
-        case Format.ASTC_RGBA_12X10:
-        case Format.ASTC_SRGBA_12X10:
-            return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
-        case Format.ASTC_RGBA_12X12:
-        case Format.ASTC_SRGBA_12X12:
-            return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
+            case Format.ASTC_RGBA_4X4:
+            case Format.ASTC_SRGBA_4X4:
+                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            case Format.ASTC_RGBA_5X4:
+            case Format.ASTC_SRGBA_5X4:
+                return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
+            case Format.ASTC_RGBA_5X5:
+            case Format.ASTC_SRGBA_5X5:
+                return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
+            case Format.ASTC_RGBA_6X5:
+            case Format.ASTC_SRGBA_6X5:
+                return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
+            case Format.ASTC_RGBA_6X6:
+            case Format.ASTC_SRGBA_6X6:
+                return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
+            case Format.ASTC_RGBA_8X5:
+            case Format.ASTC_SRGBA_8X5:
+                return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
+            case Format.ASTC_RGBA_8X6:
+            case Format.ASTC_SRGBA_8X6:
+                return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
+            case Format.ASTC_RGBA_8X8:
+            case Format.ASTC_SRGBA_8X8:
+                return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
+            case Format.ASTC_RGBA_10X5:
+            case Format.ASTC_SRGBA_10X5:
+                return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
+            case Format.ASTC_RGBA_10X6:
+            case Format.ASTC_SRGBA_10X6:
+                return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
+            case Format.ASTC_RGBA_10X8:
+            case Format.ASTC_SRGBA_10X8:
+                return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
+            case Format.ASTC_RGBA_10X10:
+            case Format.ASTC_SRGBA_10X10:
+                return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
+            case Format.ASTC_RGBA_12X10:
+            case Format.ASTC_SRGBA_12X10:
+                return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
+            case Format.ASTC_RGBA_12X12:
+            case Format.ASTC_SRGBA_12X12:
+                return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
 
-        default: {
-            return 0;
-        }
+            default: {
+                return 0;
+            }
         }
     }
 }
@@ -2204,30 +2237,30 @@ export function GetTypeSize (type: Type): number {
 export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstructor {
     const stride = info.size / info.count;
     switch (info.type) {
-    case FormatType.UNORM:
-    case FormatType.UINT: {
-        switch (stride) {
-        case 1: return Uint8Array;
-        case 2: return Uint16Array;
-        case 4: return Uint32Array;
-        default:
+        case FormatType.UNORM:
+        case FormatType.UINT: {
+            switch (stride) {
+                case 1: return Uint8Array;
+                case 2: return Uint16Array;
+                case 4: return Uint32Array;
+                default:
+            }
+            break;
         }
-        break;
-    }
-    case FormatType.SNORM:
-    case FormatType.INT: {
-        switch (stride) {
-        case 1: return Int8Array;
-        case 2: return Int16Array;
-        case 4: return Int32Array;
-        default:
+        case FormatType.SNORM:
+        case FormatType.INT: {
+            switch (stride) {
+                case 1: return Int8Array;
+                case 2: return Int16Array;
+                case 4: return Int32Array;
+                default:
+            }
+            break;
         }
-        break;
-    }
-    case FormatType.FLOAT: {
-        return Float32Array;
-    }
-    default:
+        case FormatType.FLOAT: {
+            return Float32Array;
+        }
+        default:
     }
     return Float32Array;
 }

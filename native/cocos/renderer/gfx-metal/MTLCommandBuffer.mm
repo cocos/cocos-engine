@@ -919,8 +919,8 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
     _computeEncoder.endEncoding();
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
-    // Metal tracks non-heap resources automatically, which means no need to add a barrier same encoder.
+void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+    // Metal tracks non-heap resources automatically, which means no need to add a barrier in the same encoder.
 }
 
 void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
