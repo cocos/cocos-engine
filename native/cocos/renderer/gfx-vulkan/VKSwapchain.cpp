@@ -32,8 +32,11 @@
 #include "VKTexture.h"
 #include "VKUtils.h"
 
-#if CC_SWAPPY_ENABLED
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/AndroidPlatform.h"
+#endif
+
+#if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
     #include "swappy/swappy_common.h"
 #endif
@@ -212,7 +215,12 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     textureInfo.format = depthStencilFmt;
     initTexture(textureInfo, _depthStencilTexture);
 
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    checkSwapchainStatus(platform->getWidth(), platform->getHeight());
+#else
     checkSwapchainStatus();
+#endif
 
     // Android Game Frame Pacing:swappy
 #if CC_SWAPPY_ENABLED
@@ -274,6 +282,13 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     uint32_t newHeight = height ? height : surfaceCapabilities.currentExtent.height;
 
     VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    // system input (oriented size) exist, we should not rotate surface
+    if (width != 0 && height != 0) {
+        preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    }
+#endif
     if (ENABLE_PRE_ROTATION) {
         if (preTransform & TRANSFORMS_THAT_REQUIRE_FLIPPING) {
             std::swap(newWidth, newHeight);
@@ -413,7 +428,12 @@ void CCVKSwapchain::doDestroySurface() {
 void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface != VK_NULL_HANDLE) return;
     createVkSurface();
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    checkSwapchainStatus(platform->getWidth(), platform->getHeight());
+#else
     checkSwapchainStatus();
+#endif
 #if CC_SWAPPY_ENABLED
     auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(windowHandle));
