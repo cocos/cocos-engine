@@ -698,7 +698,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) {
         const uint32_t hasChangedFlags = cur->getChangedFlags();
         if (cur->isValid() && (cur->getDirtyFlag() & hasChangedFlags & curDirtyBit) != curDirtyBit) {
             cur->setDirtyFlag(cur->getDirtyFlag() | curDirtyBit);
-            cur->_uiTransformDirty[0] = 1; // UIOnly TRS dirty
             cur->setChangedFlags(hasChangedFlags | curDirtyBit);
 
             for (Node *curChild : cur->getChildren()) {
