@@ -25,8 +25,8 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../assets';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase, UniformBlockDB } from './layout-graph';
-import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, UBOForwardLight, UBOLocalBatched, UBOMorph } from '../define';
 
@@ -58,17 +58,17 @@ export class WebDescriptorHierarchy {
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
 
-    private getUniformBlock (blockName: string, targetBlock: DescriptorBlock): UniformBlockDB {
+    private getUniformBlock (blockName: string, targetBlock: DescriptorBlock): UniformBlock {
         if (targetBlock.uniformBlocks.get(blockName) === undefined) {
-            const uniformDB: UniformBlockDB = new UniformBlockDB();
+            const uniformDB: UniformBlock = new UniformBlock();
             targetBlock.uniformBlocks.set(blockName, uniformDB);
         }
-        return targetBlock.uniformBlocks.get(blockName) as UniformBlockDB;
+        return targetBlock.uniformBlocks.get(blockName) as UniformBlock;
     }
 
-    private setUniform (uniformDB: UniformBlockDB, name: string, type: Type, count: number) {
+    private setUniform (uniformDB: UniformBlock, name: string, type: Type, count: number) {
         const uniform: Uniform = new Uniform(name, type, count);
-        uniformDB.values.set(uniform.name, uniform);
+        // uniformDB.values.set(uniform.name, uniform);
     }
 
     private setDescriptor (targetBlock: DescriptorBlock, name: string, type: Type) {
@@ -156,10 +156,10 @@ export class WebDescriptorHierarchy {
                 const blockInfo: EffectAsset.IBlockInfo = shader.blocks[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
                     ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, blockInfo.stageFlags, queueDB);
-                const uniformDB: UniformBlockDB = this.getUniformBlock(blockInfo.name, targetBlock);
+                const uniformDB: UniformBlock = this.getUniformBlock(blockInfo.name, targetBlock);
                 for (let kk = 0; kk < blockInfo.members.length; ++kk) {
                     const uniform: Uniform = blockInfo.members[kk];
-                    uniformDB.values.set(uniform.name, uniform);
+                    // uniformDB.values.set(uniform.name, uniform);
                 }
             }
 
@@ -224,37 +224,37 @@ export class WebDescriptorHierarchy {
             for (let k = 0; k < shader.builtins.locals.blocks.length; ++k) {
                 const blockName: string = shader.builtins.locals.blocks[k].name;
                 if (blockName === 'CCMorph') {
-                    const morphDB: UniformBlockDB = this.getUniformBlock('CCMorph', localUniformTarget);
+                    const morphDB: UniformBlock = this.getUniformBlock('CCMorph', localUniformTarget);
                     this.setUniform(morphDB, 'cc_displacementWeights', Type.FLOAT4, UBOMorph.MAX_MORPH_TARGET_COUNT / 4);
                     this.setUniform(morphDB, 'cc_displacementTextureInfo', Type.FLOAT4, 1);
                 } else if (blockName === 'CCSkinningTexture') {
-                    const skinningTexDB: UniformBlockDB = this.getUniformBlock('CCSkinningTexture', localUniformTarget);
+                    const skinningTexDB: UniformBlock = this.getUniformBlock('CCSkinningTexture', localUniformTarget);
                     this.setUniform(skinningTexDB, 'cc_jointTextureInfo', Type.FLOAT4, 1);
                 } else if (blockName === 'CCSkinningAnimation') {
-                    const skinningAnimDB: UniformBlockDB = this.getUniformBlock('CCSkinningAnimation', localUniformTarget);
+                    const skinningAnimDB: UniformBlock = this.getUniformBlock('CCSkinningAnimation', localUniformTarget);
                     this.setUniform(skinningAnimDB, 'cc_jointAnimInfo', Type.FLOAT4, 1);
                 } else if (blockName === 'CCSkinning') {
-                    const skinningDB: UniformBlockDB = this.getUniformBlock('CCSkinning', localUniformTarget);
+                    const skinningDB: UniformBlock = this.getUniformBlock('CCSkinning', localUniformTarget);
                     this.setUniform(skinningDB, 'cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3);
                 } else if (blockName === 'CCUILocal') {
-                    const uiDB: UniformBlockDB = this.getUniformBlock('CCUILocal', localUITarget);
+                    const uiDB: UniformBlock = this.getUniformBlock('CCUILocal', localUITarget);
                     this.setUniform(uiDB, 'cc_local_data', Type.FLOAT4, 1);
                 } else if (blockName === 'CCForwardLight') {
-                    const lightDB: UniformBlockDB = this.getUniformBlock('CCForwardLight', localLightTarget);
+                    const lightDB: UniformBlock = this.getUniformBlock('CCForwardLight', localLightTarget);
                     this.setUniform(lightDB, 'cc_lightPos', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                     this.setUniform(lightDB, 'cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                     this.setUniform(lightDB, 'cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                     this.setUniform(lightDB, 'cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                 } else if (blockName === 'CCLocal') {
-                    const localDB: UniformBlockDB = this.getUniformBlock('CCLocal', localModelTarget);
+                    const localDB: UniformBlock = this.getUniformBlock('CCLocal', localModelTarget);
                     this.setUniform(localDB, 'cc_matWorld', Type.MAT4, 1);
                     this.setUniform(localDB, 'cc_matWorldIT', Type.MAT4, 1);
                     this.setUniform(localDB, 'cc_lightingMapUVParam', Type.FLOAT4, 1);
                 } else if (blockName === 'CCLocalBatched') {
-                    const batchDB: UniformBlockDB = this.getUniformBlock('CCLocalBatched', localModelTarget);
+                    const batchDB: UniformBlock = this.getUniformBlock('CCLocalBatched', localModelTarget);
                     this.setUniform(batchDB, 'cc_matWorlds', Type.MAT4, UBOLocalBatched.BATCHING_COUNT);
                 } else if (blockName === 'CCWorldBound') {
-                    const boundDB: UniformBlockDB = this.getUniformBlock('CCWorldBound', localModelTarget);
+                    const boundDB: UniformBlock = this.getUniformBlock('CCWorldBound', localModelTarget);
                     this.setUniform(boundDB, 'cc_worldBoundCenter', Type.FLOAT4, 1);
                     this.setUniform(boundDB, 'cc_worldBoundHalfExtents', Type.FLOAT4, 1);
                 }
@@ -307,14 +307,14 @@ export class WebDescriptorHierarchy {
             ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
 
         if (hasCCGlobal) {
-            const globalDB: UniformBlockDB = this.getUniformBlock('CCGlobal', globalUniformTarget);
+            const globalDB: UniformBlock = this.getUniformBlock('CCGlobal', globalUniformTarget);
             this.setUniform(globalDB, 'cc_time', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_screenSize', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_nativeSize', Type.FLOAT4, 1);
         }
 
         if (hasCCCamera) {
-            const cameraDB: UniformBlockDB = this.getUniformBlock('CCCamera', globalUniformTarget);
+            const cameraDB: UniformBlock = this.getUniformBlock('CCCamera', globalUniformTarget);
             this.setUniform(cameraDB, 'cc_matView', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matViewInv', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matProj', Type.MAT4, 1);
@@ -337,7 +337,7 @@ export class WebDescriptorHierarchy {
         }
 
         if (hasCCShadow) {
-            const shadowDB: UniformBlockDB = this.getUniformBlock('CCShadow', globalUniformTarget);
+            const shadowDB: UniformBlock = this.getUniformBlock('CCShadow', globalUniformTarget);
             this.setUniform(shadowDB, 'cc_matLightPlaneProj', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightView', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightViewProj', Type.MAT4, 1);
@@ -365,7 +365,8 @@ export class WebDescriptorHierarchy {
 
         const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, vName, passDB);
 
-        this.mergeDBs(dbsToMerge, passDB);
+        //this.mergeDBs(dbsToMerge, passDB);
+        this.merge(passDB);
         this.sort(passDB);
 
         return vid;
