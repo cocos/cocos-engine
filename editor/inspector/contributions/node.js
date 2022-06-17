@@ -656,7 +656,7 @@ const Elements = {
                 const $skyboxBakeButtonList = panel.$.sceneSkybox.querySelectorAll('ui-button');
                 let envmapAssetMeta = null;
                 // eslint-disable-next-line no-inner-declarations
-                function switchBake(event) {
+                async function switchBake(event) {
                     if (!envmapAssetMeta) {
                         return;
                     }
