@@ -414,13 +414,6 @@ class BuiltinResMgr {
         resources[defaultGraphicsMtl._uuid] = defaultGraphicsMtl;
         materialsToBeCompiled.push(defaultGraphicsMtl);
 
-        // sprite renderer material
-        const spriteRendererMtl = new legacyCC.Material();
-        spriteRendererMtl._uuid = 'sprite-renderer-material';
-        spriteRendererMtl.initialize({ effectName: 'spriteRender' });
-        resources[spriteRendererMtl._uuid] = spriteRendererMtl;
-        materialsToBeCompiled.push(spriteRendererMtl);
-
         // default particle material
         const defaultParticleMtl = new legacyCC.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
