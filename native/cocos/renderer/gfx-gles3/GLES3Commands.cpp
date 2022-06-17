@@ -1654,7 +1654,7 @@ void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gp
     gpuFBO->uberInstance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
 }
 
-void completeBarrier(GLES3Device * /*device*/, GLES3GPUGeneralBarrier *barrier) {
+void completeBarrier(GLES3GPUGeneralBarrier *barrier) {
     bool hasShaderWrites = false;
     for (uint32_t mask = toNumber(barrier->prevAccesses); mask; mask = utils::clearLowestBit(mask)) {
         switch (static_cast<AccessFlagBit>(utils::getLowestBit(mask))) {

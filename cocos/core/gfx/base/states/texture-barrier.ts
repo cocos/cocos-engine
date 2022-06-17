@@ -45,6 +45,7 @@ export class TextureBarrier extends GFXObject {
 
     static computeHash (info: Readonly<TextureBarrierInfo>) {
         let res = `${info.prevAccesses} ${info.nextAccesses}`;
+        res += info.type;
         res += info.baseMipLevel;
         res += info.levelCount;
         res += info.baseSlice;

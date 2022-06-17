@@ -45,6 +45,7 @@ export class BufferBarrier extends GFXObject {
 
     static computeHash (info: Readonly<BufferBarrierInfo>) {
         let res = `${info.prevAccesses} ${info.nextAccesses}`;
+        res += info.type;
         res += info.offset;
         res += info.size;
         res += info.discardContents;

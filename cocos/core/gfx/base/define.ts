@@ -673,6 +673,12 @@ export enum ClearFlagBit {
     ALL = COLOR | DEPTH | STENCIL,
 }
 
+export enum BarrierType {
+    FULL,
+    SPLIT_BEGIN,
+    SPLIT_END,
+}
+
 export type BufferUsage = BufferUsageBit;
 export type BufferFlags = BufferFlagBit;
 export type MemoryAccess = MemoryAccessBit;
@@ -1565,11 +1571,13 @@ export class GeneralBarrierInfo {
     constructor (
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
+        public type: BarrierType = BarrierType.FULL,
     ) {}
 
     public copy (info: Readonly<GeneralBarrierInfo>) {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
+        this.type = info.type;
         return this;
     }
 }
@@ -1580,6 +1588,7 @@ export class TextureBarrierInfo {
     constructor (
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
+        public type: BarrierType = BarrierType.FULL,
         public baseMipLevel: number = 0,
         public levelCount: number = 1,
         public baseSlice: number = 0,
@@ -1592,6 +1601,7 @@ export class TextureBarrierInfo {
     public copy (info: Readonly<TextureBarrierInfo>) {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
+        this.type = info.type;
         this.baseMipLevel = info.baseMipLevel;
         this.levelCount = info.levelCount;
         this.baseSlice = info.baseSlice;
@@ -1609,6 +1619,7 @@ export class BufferBarrierInfo {
     constructor (
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
+        public type: BarrierType = BarrierType.FULL,
         public offset: number = 0,
         public size: number = 0,
         public discardContents: boolean = false,
@@ -1619,6 +1630,7 @@ export class BufferBarrierInfo {
     public copy (info: Readonly<BufferBarrierInfo>) {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
+        this.type = info.type;
         this.offset = info.offset;
         this.size = info.size;
         this.discardContents = info.discardContents;
