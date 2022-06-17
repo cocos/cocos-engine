@@ -203,10 +203,9 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     for (auto *renderTarget : renderTargets) {
         const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
         _usedTextures.erase(iter);
-        renderTarget = nullptr;
     }
     renderTargets.clear();
-    auto *texture = gfx::Device::getInstance()->createTexture({
+    IntrusivePtr<gfx::Texture> texture = gfx::Device::getInstance()->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         format,
@@ -225,27 +224,25 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
             break;
     }
     ds->forceUpdate();
-    _usedTextures.emplace_back(texture);
+    _usedTextures.emplace_back(std::move(texture));
 
-    auto *depth = framebuffer->getDepthStencilTexture();
-    const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), depth);
+    auto *uesedDetph = framebuffer->getDepthStencilTexture();
+    const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), uesedDetph);
     _usedTextures.erase(iter);
-    depth = nullptr;
-    depth = device->createTexture({
+    IntrusivePtr<gfx::Texture> depth = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
         gfx::Format::DEPTH,
         width,
         height,
     });
-    _usedTextures.emplace_back(depth);
-
     framebuffer->destroy();
     framebuffer->initialize({
         _renderPass,
         renderTargets,
-        depth,
+        depth.get(),
     });
+    _usedTextures.emplace_back(std::move(depth));
 
     // sometimes there has equivalent pointers from createTetxure function, so we need force update descriptor set binding here
     ds->forceUpdate();
