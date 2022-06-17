@@ -28,6 +28,7 @@ cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
 cc_set_if_undefined(USE_CCACHE               OFF)
+cc_set_if_undefined(USE_PLUGINS              ON)
 
 add_definitions()
 
@@ -101,6 +102,9 @@ if(USE_JOB_SYSTEM_TASKFLOW)
 endif()
 
 if(ANDROID)
+    if(USE_CCACHE AND NOT CCACHE_EXECUTABLE)
+       message(AUTHOR_WARNING "ccache executable not found!")
+    endif()
     if(CCACHE_EXECUTABLE AND USE_CCACHE)
         set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_EXECUTABLE}")
         set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_EXECUTABLE}")
@@ -133,6 +137,7 @@ cc_inspect_values(
     USE_SERVER_MODE
     USE_CCACHE
     CCACHE_EXECUTABLE
+    NODE_EXECUTABLE
 )
 
 ################################# external source code ################################
@@ -295,6 +300,15 @@ if(USE_AUDIO)
     endif()
 
 endif()
+
+##### plugins
+cocos_source_files(
+    cocos/plugins/Plugins.h
+    cocos/plugins/Plugins.cpp
+    cocos/plugins/bus/BusTypes.h
+    cocos/plugins/bus/EventBus.h
+    cocos/plugins/bus/EventBus.cpp
+)
 
 ##### base
 cocos_source_files(

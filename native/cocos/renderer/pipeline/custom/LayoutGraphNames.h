@@ -51,7 +51,6 @@ inline const char* getName(DescriptorTypeOrder e) noexcept {
     }
     return "";
 }
-inline const char* getName(const UniformBlockDB& /*v*/) noexcept { return "UniformBlockDB"; }
 inline const char* getName(const Descriptor& /*v*/) noexcept { return "Descriptor"; }
 inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
 inline const char* getName(const DescriptorBlockFlattened& /*v*/) noexcept { return "DescriptorBlockFlattened"; }

@@ -25,6 +25,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { Texture2D } from '../../core/assets';
 import { Material } from '../../core/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -466,12 +467,19 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     public setInstancedAttribute (name: string, value: ArrayLike<number>) {
-        if (!this.model) { return; }
-        const { attributes, views } = this.model.instancedAttributes;
-        for (let i = 0; i < attributes.length; i++) {
-            if (attributes[i].name === name) {
-                views[i].set(value);
-                break;
+        if (!this.model) {
+            return;
+        }
+
+        if (JSB) {
+            (this.model as any)._setInstancedAttribute(name, value);
+        } else {
+            const { attributes, views } = this.model.instancedAttributes;
+            for (let i = 0; i < attributes.length; i++) {
+                if (attributes[i].name === name) {
+                    views[i].set(value);
+                    break;
+                }
             }
         }
     }

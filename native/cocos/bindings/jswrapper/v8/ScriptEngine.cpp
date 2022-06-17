@@ -34,6 +34,7 @@
     #include "Object.h"
     #include "Utils.h"
     #include "base/std/container/unordered_map.h"
+    #include "plugins/bus/EventBus.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
@@ -210,7 +211,7 @@ public:
         flags.append(" --expose-gc-as=" EXPOSE_GC);
         flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
                                                         // flags.append(" --trace-gc"); // v8 trace gc
-        #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        #if (CC_PLATFORM == CC_PLATFORM_IOS)
         flags.append(" --jitless");
         #endif
         if (!flags.empty()) {
@@ -554,6 +555,8 @@ bool ScriptEngine::postInit() {
     }
 
     _isValid = true;
+
+    cc::plugin::send(cc::plugin::BusType::SCRIPT_ENGINE, cc::plugin::ScriptEngineEvent::POST_INIT);
 
     for (const auto &hook : _afterInitHookArray) {
         hook();

@@ -37,7 +37,7 @@
     #include "platform/win32/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
     #include "platform/apple/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
@@ -314,7 +314,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         //font-variant: normal, small-caps
         _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, isItalic, isOblique, isSmallCaps);
     }
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#elif CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
     if (_font != font) {
         _font = font;
 

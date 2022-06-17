@@ -42,7 +42,7 @@ import {
     ShadeModel,
     StencilOp,
     Color,
-} from './base/define';
+} from './define';
 export class RasterizerState {
     protected _nativeObj;
     protected _isDiscard: boolean = false;

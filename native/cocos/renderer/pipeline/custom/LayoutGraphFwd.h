@@ -41,7 +41,6 @@ namespace render {
 
 enum class DescriptorTypeOrder;
 
-struct UniformBlockDB;
 struct Descriptor;
 struct DescriptorBlock;
 struct DescriptorBlockFlattened;

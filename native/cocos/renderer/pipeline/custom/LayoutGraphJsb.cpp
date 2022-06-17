@@ -34,17 +34,6 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 
-bool nativevalue_to_se(const cc::render::UniformBlockDB &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value        tmp;
-
-    nativevalue_to_se(from.values, tmp, ctx);
-    obj->setProperty("values", tmp);
-
-    to.setObject(obj);
-    return true;
-}
-
 bool nativevalue_to_se(const cc::render::Descriptor &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
@@ -103,20 +92,6 @@ bool nativevalue_to_se(const cc::render::DescriptorBlockIndex &from, se::Value &
 
     to.setObject(obj);
     return true;
-}
-
-template <>
-bool sevalue_to_native<cc::render::UniformBlockDB>(const se::Value &from, cc::render::UniformBlockDB *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to UniformBlockDB failed !");
-
-    auto *obj = const_cast<se::Object *>(from.toObject());
-    bool ok = true;
-    se::Value field;
-    obj->getProperty("values", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->values), ctx);
-    }
-    return ok;
 }
 
 template <>

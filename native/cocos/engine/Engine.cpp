@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "engine/Engine.h"
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <sstream>
@@ -212,6 +213,11 @@ void Engine::close() { // NOLINT
     _scheduler->unscheduleAll();
 
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
+    
+
+    // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
+    destroy();
+    exit(0);
 }
 
 uint Engine::getTotalFrames() const {

@@ -28,7 +28,7 @@
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     #include "WebViewImpl-ios.h"
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     #include "WebViewImpl-java.h"
