@@ -144,6 +144,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
     se::ValueArray args;
     args.emplace_back(se::Value(jsTouchObjArray));
     EventDispatcher::doDispatchJsEvent(eventName, args);
+    EventDispatcher::dispatchCustomEvent(eventName,0);
 }
 
 void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
