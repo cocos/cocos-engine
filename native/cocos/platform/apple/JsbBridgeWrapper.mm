@@ -42,10 +42,7 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
-        if (instance == nil) {
-            NSLog(@"JsbBridgeWrapper init failed, plz check if you have enough space left");
-        }
-        
+        NSAssert(instance != nil, @"alloc or init failed");
     });
     return instance;
 }
