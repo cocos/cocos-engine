@@ -31,6 +31,7 @@ import { Camera, Light, Model } from './renderer/scene';
 import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/core/render-scene';
+import { DirectionalLight } from './renderer/scene/directional-light';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { legacyCC } from './global-exports';
@@ -649,11 +650,38 @@ export class Root {
      * @param l @en The light to be destroyed @zh 要销毁的光源
      */
     public destroyLight (l: Light) {
+        if (l.scene) {
+            switch (l.type) {
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l as DirectionalLight);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l as SphereLight);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l as SpotLight);
+                break;
+            default:
+                break;
+            }
+        }
+        l.destroy();
+    }
+
+    /**
+     * @en recycle the given light to light object pool
+     * @zh 回收指定的光源到对象池
+     * @param l @en The light to be recycled @zh 要回收的光源
+     */
+    public recycleLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
         if (p) {
             p.free(l);
             if (l.scene) {
                 switch (l.type) {
+                case LightType.DIRECTIONAL:
+                    l.scene.removeDirectionalLight(l as DirectionalLight);
+                    break;
                 case LightType.SPHERE:
                     l.scene.removeSphereLight(l as SphereLight);
                     break;
@@ -665,7 +693,6 @@ export class Root {
                 }
             }
         }
-        l.destroy();
     }
 }
 
