@@ -2654,7 +2654,7 @@ function pixelBufferPick (buffer: ArrayBufferView,
 
     for (let i = 0; i < extent.depth; i++) {
         bufferOffset = offset + sliceStrideSize * i;
-        for (let j = 0; j < extent.width; j += blockHeight) {
+        for (let j = 0; j < extent.height; j += blockHeight) {
             stagingBuffer.subarray(destOffset, destOffset + destRowSize).set(
                 new Uint8Array(buffer.buffer, buffer.byteOffset + bufferOffset, destRowSize),
             );

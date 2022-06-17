@@ -2077,11 +2077,12 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.PVRTC_RGB2:
         case Format.PVRTC_RGBA2:
         case Format.PVRTC2_2BPP:
-            return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 4) * depth;
+            return Math.ceil(width / 8) * Math.ceil(height / 4) * 8 * depth;
+
         case Format.PVRTC_RGB4:
         case Format.PVRTC_RGBA4:
         case Format.PVRTC2_4BPP:
-            return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
 
         case Format.ASTC_RGBA_4X4:
         case Format.ASTC_SRGBA_4X4:
@@ -2202,6 +2203,9 @@ export function GetTypeSize (type: Type): number {
 }
 
 export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstructor {
+    if (info.isCompressed) {
+        return Uint8Array;
+    }
     const stride = info.size / info.count;
     switch (info.type) {
     case FormatType.UNORM:
@@ -2211,8 +2215,8 @@ export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstruct
         case 2: return Uint16Array;
         case 4: return Uint32Array;
         default:
+            return Uint8Array;
         }
-        break;
     }
     case FormatType.SNORM:
     case FormatType.INT: {
@@ -2221,8 +2225,8 @@ export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstruct
         case 2: return Int16Array;
         case 4: return Int32Array;
         default:
+            return Int8Array;
         }
-        break;
     }
     case FormatType.FLOAT: {
         return Float32Array;
@@ -2265,15 +2269,17 @@ export function formatAlignment (format: Format) : FormatAlignment {
     case Format.ETC2_SRGB8_A1:
     case Format.EAC_RG11:
     case Format.EAC_RG11SN:
+        return { width: 4, height: 4 };
+
     case Format.PVRTC_RGB2:
     case Format.PVRTC_RGBA2:
     case Format.PVRTC2_2BPP:
-        return { width: 4, height: 4 };
+        return { width: 8, height: 4 };
 
     case Format.PVRTC_RGB4:
     case Format.PVRTC_RGBA4:
     case Format.PVRTC2_4BPP:
-        return { width: 2, height: 2 };
+        return { width: 4, height: 4 };
 
     case Format.ASTC_RGBA_4X4:
     case Format.ASTC_SRGBA_4X4:
