@@ -26,8 +26,7 @@
 
 #pragma once
 
-#import <OpenAL/al.h>
-
+#import <AVFoundation/AVAudioPlayer.h>
 #include <mutex>
 #include "base/std/container/string.h"
 

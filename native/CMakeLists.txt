@@ -348,11 +348,11 @@ if(USE_AUDIO)
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
                                     cocos/audio/apple/AudioPlayer.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-inl.mm
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-newImpl.mm
                                     cocos/audio/apple/AudioMacros.h
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
                                     cocos/audio/apple/AudioCache.h
-                                    cocos/audio/apple/AudioEngine-inl.h
+                                    cocos/audio/apple/AudioEngine-newImpl.h
         )
     endif()
 

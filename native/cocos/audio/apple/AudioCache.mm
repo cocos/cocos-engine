@@ -29,7 +29,6 @@
 #include "audio/apple/AudioCache.h"
 
 #import <Foundation/Foundation.h>
-#import <OpenAL/alc.h>
 #include <thread>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
