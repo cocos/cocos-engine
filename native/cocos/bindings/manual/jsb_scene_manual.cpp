@@ -160,21 +160,6 @@ static void registerOnBatchCreated(cc::Node *node, se::Object *jsObject) {
         skip);
 }
 
-static void registerOnUiTransformDirty(cc::Node *node, se::Object *jsObject) {
-    se::Value uiPropsVal;
-    jsObject->getProperty("_uiProps", &uiPropsVal, true);
-    SE_PRECONDITION2_VOID(uiPropsVal.isObject(), "Not property named _uiProps.");
-    se::Value uiTransformDirtyVal;
-    uiPropsVal.toObject()->getProperty("_uiTransformDirty", &uiTransformDirtyVal, true);
-    SE_PRECONDITION2_VOID(uiTransformDirtyVal.isObject() && uiTransformDirtyVal.toObject()->isTypedArray() && uiTransformDirtyVal.toObject()->getTypedArrayType() == se::Object::TypedArrayType::UINT32,
-                          "_uiTransformDirtyVal is not a TypedArray");
-    uint8_t *pDirty{nullptr};
-    size_t dirtyArrBytes{0};
-    bool ok = uiTransformDirtyVal.toObject()->getTypedArrayData(&pDirty, &dirtyArrBytes);
-    CC_ASSERT(ok && pDirty != nullptr && dirtyArrBytes == 4);
-    node->setUIPropsTransformDirtyPtr(reinterpret_cast<uint32_t *>(pDirty));
-}
-
 static void registerActiveInHierarchyArr(cc::Node *node, se::Object *jsObject) {
     se::Value activeInHierarchyArrVal;
     bool ok = jsObject->getProperty("_activeInHierarchyArr", &activeInHierarchyArrVal);
@@ -268,9 +253,7 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
     NODE_DISPATCH_EVENT_TO_JS(cc::EventTypesToJS::NODE_REATTACH, _onReAttach);
     NODE_DISPATCH_EVENT_TO_JS(cc::EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE, _onRemovePersistRootNode);
     NODE_DISPATCH_EVENT_TO_JS(cc::EventTypesToJS::NODE_DESTROY_COMPONENTS, _onDestroyComponents);
-    //    NODE_DISPATCH_EVENT_TO_JS(cc::EventTypesToJS::NODE_UI_TRANSFORM_DIRTY, _onUiTransformDirty);
     //    NODE_DISPATCH_EVENT_TO_JS(cc::NodeEventType::SIBLING_ORDER_CHANGED, _onSiblingOrderChanged);
-    registerOnUiTransformDirty(cobj, jsObject);
 
     cobj->on(
         cc::NodeEventType::NODE_DESTROYED,
