@@ -200,11 +200,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     gfx::Framebuffer *framebuffer = sceneData->getShadowFramebufferMap().at(light);
 
     auto renderTargets = framebuffer->getColorTextures();
-    for (auto *renderTarget : renderTargets) {
-        const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
-        _usedTextures.erase(iter);
-    }
-    renderTargets.clear();
+
     IntrusivePtr<gfx::Texture> texture = gfx::Device::getInstance()->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
@@ -212,6 +208,11 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         width,
         height,
     });
+    for (auto *renderTarget : renderTargets) {
+        const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
+        _usedTextures.erase(iter);
+    }
+    renderTargets.clear();
     renderTargets.emplace_back(texture);
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
