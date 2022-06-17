@@ -684,8 +684,7 @@ bool register_javascript_java_bridge(se::Object *obj) { //NOLINT(readability-ide
 se::Class *__jsb_ScriptNativeBridge_class = nullptr; // NOLINT
 
 static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    //bridgeCxxInstance is an se object which will be deleted in se holder.
     ScriptNativeBridge::bridgeCxxInstance = nullptr;
     return true;
 }

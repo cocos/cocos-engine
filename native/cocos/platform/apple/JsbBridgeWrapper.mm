@@ -42,6 +42,10 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
+        if (instance == nil) {
+            NSLog(@"JsbBridgeWrapper init failed, plz check if you have enough space left");
+        }
+        
     });
     return instance;
 }
@@ -103,7 +107,15 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
 - (id)init {
     if (self = [super init]) {
         cbDictionnary = [NSMutableDictionary new];
+        if (cbDictionnary == nil) {
+            [self release];
+            return nil;
+        }
         jb = [JsbBridge sharedInstance];
+        if (jb == nil) {
+            [self release];
+            return nil;
+        }
         [jb setCallback:cb];
         cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
             [[JsbBridge sharedInstance] release];

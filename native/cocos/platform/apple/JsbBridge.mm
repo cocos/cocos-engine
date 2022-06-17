@@ -48,6 +48,9 @@ static JsbBridge *instance = nil;
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
+        if (instance == nil) {
+            CC_LOG_ERROR("JsbBridge init failed, plz check if space is enough");
+        }
     });
     return instance;
 }
