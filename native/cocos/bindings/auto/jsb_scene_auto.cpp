@@ -417,16 +417,17 @@ static bool js_scene_Node_inverseTransformPoint(se::State& s) // NOLINT(readabil
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
+    if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
-        HolderType<cc::Vec3, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Node_inverseTransformPoint : Error processing arguments");
-        cobj->inverseTransformPoint(arg0.value(), arg1.value());
+        cc::Vec3 result = cobj->inverseTransformPoint(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Node_inverseTransformPoint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
 SE_BIND_FUNC(js_scene_Node_inverseTransformPoint)
