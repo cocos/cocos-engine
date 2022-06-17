@@ -203,7 +203,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     for (auto *renderTarget : renderTargets) {
         const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
         _usedTextures.erase(iter);
-        CC_SAFE_DESTROY_AND_DELETE(renderTarget);
+        renderTarget = nullptr;
     }
     renderTargets.clear();
     auto *texture = gfx::Device::getInstance()->createTexture({
@@ -230,7 +230,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     auto *depth = framebuffer->getDepthStencilTexture();
     const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), depth);
     _usedTextures.erase(iter);
-    CC_SAFE_DESTROY_AND_DELETE(depth);
+    depth = nullptr;
     depth = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
@@ -334,8 +334,8 @@ void ShadowFlow::destroy() {
     }
     renderPassHashMap.clear();
 
-    for (auto *texture : _usedTextures) {
-        CC_SAFE_DESTROY_AND_DELETE(texture);
+    for (auto texture : _usedTextures) {
+        texture = nullptr;
     }
     _usedTextures.clear();
 
