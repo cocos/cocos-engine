@@ -1,5 +1,3 @@
-
-
 import { EDITOR } from 'internal:constants';
 import { IRigidBody2D } from '../../spec/i-rigid-body';
 import { _decorator, Vec2, Component, error, Layers, IVec2Like } from '../../../core';
@@ -8,6 +6,7 @@ import { ccclass } from '../../../core/data/class-decorator';
 import { createRigidBody } from '../instance';
 import { Joint2D } from './joints/joint-2d';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
+import { legacyCC } from '../../../core/global-exports';
 
 const { property, type, menu } = _decorator;
 
