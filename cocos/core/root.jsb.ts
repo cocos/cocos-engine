@@ -124,20 +124,41 @@ rootProto.createLight = function (LightCtor) {
 };
 
 rootProto.destroyLight = function (l) {
-    const p = this._lightPools.get(l.constructor);
+    if (l.scene) {
+        switch (l.type) {
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
+        }
+    }
     l.destroy();
+};
+
+rootProto.recycleLight = function (l) {
+    const p = this._lightPools.get(l.constructor);
     if (p) {
         p.free(l);
         if (l.scene) {
             switch (l.type) {
-                case LightType.SPHERE:
-                    l.scene.removeSphereLight(l);
-                    break;
-                case LightType.SPOT:
-                    l.scene.removeSpotLight(l);
-                    break;
-                default:
-                    break;
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
             }
         }
     }
