@@ -49,9 +49,23 @@ export class ModelRenderer extends Renderer {
         this._onVisibilityChange(val);
     }
 
+    /**
+     * @en The sorting priority which will be applied to the committed models.
+     * @zh 应用于所有提交渲染的 Model 的排序优先级
+     */
+    get sortingPriority () {
+        return this._sortingPriority;
+    }
+
+    set sortingPriority (val) {
+        if (val === this._sortingPriority) return;
+        this._updateSortingPriority();
+    }
+
     @serializable
     protected _visFlags = Layers.Enum.NONE;
     protected _models: scene.Model[] = [];
+    protected _sortingPriority = 0;
 
     /**
      * @zh 收集组件中的 models
@@ -62,6 +76,10 @@ export class ModelRenderer extends Renderer {
         return this._models;
     }
 
+    protected onEnable () {
+        this._updateSortingPriority();
+    }
+
     protected _attachToScene () {
     }
 
@@ -69,5 +87,13 @@ export class ModelRenderer extends Renderer {
     }
 
     protected _onVisibilityChange (val) {
+    }
+
+    protected _updateSortingPriority () {
+        if (this._models.length > 0) {
+            for (let i = 0; i < this._models.length; i++) {
+                this._models[i].sortingPriority = this._sortingPriority;
+            }
+        }
     }
 }

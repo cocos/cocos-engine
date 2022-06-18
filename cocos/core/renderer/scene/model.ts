@@ -267,6 +267,18 @@ export class Model {
     }
 
     /**
+     * @en Rendering priority of model.
+     * @zh Model 的渲染排序优先级
+     */
+    get sortingPriority () : number {
+        return this._sortingPriority;
+    }
+
+    set sortingPriority (val: number) {
+        this._sortingPriority = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -411,6 +423,8 @@ export class Model {
      * @zh 可见性标志位
      */
     protected _visFlags = Layers.Enum.NONE;
+
+    protected _sortingPriority = 0;
 
     /**
      * @internal

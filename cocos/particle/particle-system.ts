@@ -961,6 +961,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected onEnable () {
+        super.onEnable();
         legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         if (this.playOnAwake && !EDITOR) {
             this.play();
