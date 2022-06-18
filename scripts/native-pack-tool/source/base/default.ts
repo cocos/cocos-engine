@@ -3,7 +3,6 @@ import * as fs from 'fs-extra';
 import { cchelper, Paths } from "../utils";
 import { CocosProjectTasks } from './cocosProjectTypes';
 import { gzipSync } from 'zlib';
-import { jsxSpreadAttribute } from '@babel/types';
 const globby = require('globby');
 const xxtea = require('xxtea-node');
 
