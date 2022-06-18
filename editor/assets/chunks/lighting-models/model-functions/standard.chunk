@@ -55,7 +55,11 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
       {
           float rT, rB;
           GetAnisotropicRoughness(roughness, anisotropyShape, rT, rB);
-          float coef = pow(abs(float(i)) / float(SAMPLE_STEP_COUNT), 1.3) * float(SAMPLE_STEP_COUNT);
+          #if CC_IBL_CONVOLUTED
+            float coef = abs(float(i)) / float(SAMPLE_STEP_COUNT) * float(SAMPLE_STEP_COUNT);
+          #else
+            float coef = pow(abs(float(i)) / float(SAMPLE_STEP_COUNT), 1.3) * float(SAMPLE_STEP_COUNT);
+          #endif
           vec3 H = normalize(N + stepOffset * sign(float(i)) * coef);
           vec3 L = reflect(-V, H);
           float NoHSat = saturate(dot(N, H));
