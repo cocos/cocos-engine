@@ -1,4 +1,4 @@
-name: <Native> Check Template Version
+name: <Native> Template Validation
 
 #on: [pull_request]
 on:
