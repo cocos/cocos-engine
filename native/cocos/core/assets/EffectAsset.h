@@ -36,7 +36,6 @@
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
-//#include "scene/Define.h"
 
 namespace cc {
 
@@ -135,20 +134,20 @@ struct DepthStencilStateInfo {
 
     ccstd::optional<gfx::ComparisonFunc> depthFunc;
     ccstd::optional<gfx::ComparisonFunc> stencilFuncFront;
-    ccstd::optional<uint> stencilReadMaskFront;
-    ccstd::optional<uint> stencilWriteMaskFront;
+    ccstd::optional<uint32_t> stencilReadMaskFront;
+    ccstd::optional<uint32_t> stencilWriteMaskFront;
     ccstd::optional<gfx::StencilOp> stencilFailOpFront;
     ccstd::optional<gfx::StencilOp> stencilZFailOpFront;
     ccstd::optional<gfx::StencilOp> stencilPassOpFront;
-    ccstd::optional<uint> stencilRefFront;
+    ccstd::optional<uint32_t> stencilRefFront;
 
     ccstd::optional<gfx::ComparisonFunc> stencilFuncBack;
-    ccstd::optional<uint> stencilReadMaskBack;
-    ccstd::optional<uint> stencilWriteMaskBack;
+    ccstd::optional<uint32_t> stencilReadMaskBack;
+    ccstd::optional<uint32_t> stencilWriteMaskBack;
     ccstd::optional<gfx::StencilOp> stencilFailOpBack;
     ccstd::optional<gfx::StencilOp> stencilZFailOpBack;
     ccstd::optional<gfx::StencilOp> stencilPassOpBack;
-    ccstd::optional<uint> stencilRefBack;
+    ccstd::optional<uint32_t> stencilRefBack;
 
     void fromGFXDepthStencilState(const gfx::DepthStencilState &ds) {
         depthTest = ds.depthTest;

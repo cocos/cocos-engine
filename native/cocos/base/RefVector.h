@@ -36,7 +36,6 @@
 #include "base/Log.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
-#include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "core/TypedArray.h"
 

@@ -338,7 +338,7 @@ static bool js_gfx_GFXBuffer_update(se::State &s) { // NOLINT(readability-identi
 
     if (argc == 1) {
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
-        cobj->update(arg0, static_cast<uint>(dataLength));
+        cobj->update(arg0, static_cast<uint32_t>(dataLength));
         return true;
     }
     if (argc == 2) {
@@ -422,7 +422,7 @@ static bool js_gfx_CommandBuffer_updateBuffer(se::State &s) { // NOLINT(readabil
 
     if (argc == 2) {
         SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
-        cobj->updateBuffer(arg0, arg1, static_cast<uint>(dataLength));
+        cobj->updateBuffer(arg0, arg1, static_cast<uint32_t>(dataLength));
         return true;
     }
 

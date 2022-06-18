@@ -224,7 +224,7 @@ const Elements = {
             this.$.mipBakeMode.addEventListener('change', this.dataChange.bind(this, 'mipBakeMode'));
         },
         update() {
-            this.$.mipBakeMode.value = this.meta.userData.mipBakeMode === 1 ? true : false;
+            this.$.mipBakeMode.value = this.meta.userData.mipBakeMode === 2 ? true : false;
             this.updateInvalid(this.$.mipBakeMode, 'mipBakeMode');
             this.updateReadonly(this.$.mipBakeMode);
         },
@@ -249,7 +249,7 @@ exports.methods = {
     dataChange(key, event) {
         let value = event.target.value;
         if (key === 'mipBakeMode') {
-            value = event.target.value ? 1 : 0;
+            value = event.target.value ? 2 : 1;
         }
         this.metaList.forEach((meta) => {
             meta.userData[key] = value || undefined;
