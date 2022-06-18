@@ -113,9 +113,9 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
         auto *descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
         _descriptorSetMap.emplace(idx, descriptorSet);
 
-        const auto begin = static_cast<uint>(PipelineGlobalBindings::UBO_GLOBAL);
-        const auto end = static_cast<uint>(PipelineGlobalBindings::COUNT);
-        for (uint i = begin; i < end; ++i) {
+        const auto begin = static_cast<uint32_t>(PipelineGlobalBindings::UBO_GLOBAL);
+        const auto end = static_cast<uint32_t>(PipelineGlobalBindings::COUNT);
+        for (uint32_t i = begin; i < end; ++i) {
             auto *const buffer = _globalDescriptorSet->getBuffer(i);
             if (buffer != nullptr) {
                 descriptorSet->bindBuffer(i, buffer);

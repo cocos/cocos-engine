@@ -26,12 +26,9 @@
 ****************************************************************************/
 
 #include "base/Utils.h"
-#include "base/base64.h"
-#include "base/memory/MemoryHook.h"
-#include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
-    #include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <cmath>
@@ -40,6 +37,10 @@
 
 #define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
 #include "boost/stacktrace.hpp"
+
+#include "base/base64.h"
+#include "base/memory/MemoryHook.h"
+#include "platform/FileUtils.h"
 
 namespace cc {
 namespace utils {
@@ -62,7 +63,7 @@ double atof(const char *str) {
     return ::atof(buf);
 }
 
-uint nextPOT(uint x) {
+uint32_t nextPOT(uint32_t x) {
     x = x - 1;
     x = x | (x >> 1);
     x = x | (x >> 2);
@@ -73,7 +74,7 @@ uint nextPOT(uint x) {
 }
 
 // painfully slow to execute, use with caution
-ccstd::string getStacktrace(uint skip, uint maxDepth) {
+ccstd::string getStacktrace(uint32_t skip, uint32_t maxDepth) {
     return boost::stacktrace::to_string(boost::stacktrace::stacktrace(skip, maxDepth));
 }
 

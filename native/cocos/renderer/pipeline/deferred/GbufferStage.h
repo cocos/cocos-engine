@@ -62,7 +62,7 @@ private:
     PlanarShadowQueue *_planarShadowQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;
     RenderInstancedQueue *_instancedQueue = nullptr;
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 };
 
 } // namespace pipeline

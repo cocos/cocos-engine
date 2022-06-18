@@ -43,21 +43,21 @@ public:
     explicit ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline){};
     ~ClusterLightCulling();
 
-    static constexpr uint CLUSTERS_X = 16;
-    static constexpr uint CLUSTERS_Y = 8;
-    static constexpr uint CLUSTERS_Z = 24;
+    static constexpr uint32_t CLUSTERS_X = 16;
+    static constexpr uint32_t CLUSTERS_Y = 8;
+    static constexpr uint32_t CLUSTERS_Z = 24;
 
     // z threads varies to meet limit number of threads
-    static constexpr uint CLUSTERS_X_THREADS = 16;
-    static constexpr uint CLUSTERS_Y_THREADS = 8;
+    static constexpr uint32_t CLUSTERS_X_THREADS = 16;
+    static constexpr uint32_t CLUSTERS_Y_THREADS = 8;
 
-    uint clusterZThreads = 1;
+    uint32_t clusterZThreads = 1;
 
-    static constexpr uint CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
+    static constexpr uint32_t CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
 
-    static constexpr uint MAX_LIGHTS_PER_CLUSTER = 100;
+    static constexpr uint32_t MAX_LIGHTS_PER_CLUSTER = 100;
 
-    static constexpr uint MAX_LIGHTS_GLOBAL = 1000;
+    static constexpr uint32_t MAX_LIGHTS_GLOBAL = 1000;
 
     void initialize(gfx::Device *dev);
 
@@ -92,7 +92,7 @@ private:
     void updateLights();
 
     static bool isProjMatChange(const Mat4 &curProj, const Mat4 &oldProj) {
-        for (uint i = 0; i < sizeof(curProj.m) / sizeof(float); i++) {
+        for (uint32_t i = 0; i < sizeof(curProj.m) / sizeof(float); i++) {
             if (math::IsNotEqualF(curProj.m[i], oldProj.m[i])) {
                 return true;
             }
@@ -122,10 +122,10 @@ private:
     gfx::PipelineState *_cullingPipelineState{nullptr};
     gfx::DescriptorSet *_cullingDescriptorSet{nullptr};
 
-    static constexpr uint NEAR_FAR_OFFSET = 0;
-    static constexpr uint VIEW_PORT_OFFSET = 4;
-    static constexpr uint MAT_VIEW_OFFSET = 8;
-    static constexpr uint MAT_PROJ_INV_OFFSET = 24;
+    static constexpr uint32_t NEAR_FAR_OFFSET = 0;
+    static constexpr uint32_t VIEW_PORT_OFFSET = 4;
+    static constexpr uint32_t MAT_VIEW_OFFSET = 8;
+    static constexpr uint32_t MAT_PROJ_INV_OFFSET = 24;
 
     ccstd::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
     gfx::Buffer *_constantsBuffer{nullptr};
@@ -140,8 +140,8 @@ private:
     gfx::DispatchInfo _cullingDispatchInfo;
 
     bool _lightBufferResized{false};
-    uint _lightBufferStride{0};
-    uint _lightBufferCount{0};
+    uint32_t _lightBufferStride{0};
+    uint32_t _lightBufferCount{0};
     float _lightMeterScale{10000.0F};
 
     // only rebuild clusters when camera project matrix changed

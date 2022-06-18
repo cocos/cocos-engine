@@ -33,11 +33,11 @@
 
 namespace cc {
 namespace pipeline {
-ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
+ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, InstancedBuffer *>> InstancedBuffer::buffers;
 InstancedBuffer *InstancedBuffer::get(scene::Pass *pass) {
     return InstancedBuffer::get(pass, 0);
 }
-InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
+InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint32_t extraKey) {
     auto &record = buffers[pass];
     auto &buffer = record[extraKey];
     if (buffer == nullptr) buffer = ccnew InstancedBuffer(pass);
@@ -47,7 +47,7 @@ InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
 
 void InstancedBuffer::destroyInstancedBuffer() {
     for (auto &pair : InstancedBuffer::buffers) {
-        const ccstd::unordered_map<uint, InstancedBuffer *> &instanceItem = pair.second;
+        const ccstd::unordered_map<uint32_t, InstancedBuffer *> &instanceItem = pair.second;
         for (const auto &item : instanceItem) {
             InstancedBuffer *instanceBuffer = item.second;
             if (instanceBuffer) {
@@ -74,11 +74,11 @@ void InstancedBuffer::destroy() {
     _instances.clear();
 }
 
-void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx) {
+void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint32_t passIdx) {
     merge(model, subModel, passIdx, nullptr);
 }
 
-void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx, gfx::Shader *shaderImplant) {
+void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint32_t passIdx, gfx::Shader *shaderImplant) {
     auto stride = model->getInstancedBufferSize();
     const auto *instancedBuffer = model->getInstancedBuffer();
 
@@ -126,8 +126,8 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
     auto *vb = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::DEVICE,
-        static_cast<uint>(newSize),
-        static_cast<uint>(stride),
+        static_cast<uint32_t>(newSize),
+        static_cast<uint32_t>(stride),
     });
 
     const auto &instancedAttributes = model->getInstanceAttributes();
@@ -141,7 +141,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
             attribute.name,
             attribute.format,
             attribute.isNormalized,
-            static_cast<uint>(vertexBuffers.size()), // stream
+            static_cast<uint32_t>(vertexBuffers.size()), // stream
             true,
             attribute.location});
     }
@@ -172,7 +172,7 @@ void InstancedBuffer::clear() {
     _hasPendingModels = false;
 }
 
-void InstancedBuffer::setDynamicOffset(uint idx, uint value) {
+void InstancedBuffer::setDynamicOffset(uint32_t idx, uint32_t value) {
     if (_dynamicOffsets.size() <= idx) _dynamicOffsets.resize(idx + 1);
     _dynamicOffsets[idx] = value;
 }

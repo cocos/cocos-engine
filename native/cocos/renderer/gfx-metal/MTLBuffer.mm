@@ -96,7 +96,7 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
     _isBufferView = true;
 }
 
-bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
+bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
     if (!size) {
         return false;
     }
@@ -163,7 +163,7 @@ void CCMTLBuffer::doDestroy() {
     CC_SAFE_DELETE(_gpuBuffer);
 }
 
-void CCMTLBuffer::doResize(uint size, uint count) {
+void CCMTLBuffer::doResize(uint32_t size, uint32_t count) {
     if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
         hasFlag(_usage, BufferUsageBit::INDEX) ||
         hasFlag(_usage, BufferUsageBit::UNIFORM)) {
@@ -188,7 +188,7 @@ void CCMTLBuffer::doResize(uint size, uint count) {
     }
 }
 
-void CCMTLBuffer::update(const void *buffer, uint size) {
+void CCMTLBuffer::update(const void *buffer, uint32_t size) {
     CC_PROFILE(CCMTLBufferUpdate);
     if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
@@ -198,7 +198,7 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
     _isDrawIndirectByIndex = false;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        uint drawInfoCount = size / _stride;
+        uint32_t drawInfoCount = size / _stride;
         const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
         if (drawInfoCount > 0) {
             if (drawInfo->indexCount) {
@@ -209,9 +209,9 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
         if (_isIndirectDrawSupported) {
             if (drawInfoCount > 0) {
                 if (_isDrawIndirectByIndex) {
-                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
+                    uint32_t stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
 
-                    for (uint i = 0; i < drawInfoCount; ++i) {
+                    for (uint32_t i = 0; i < drawInfoCount; ++i) {
                         auto &arguments = _indexedPrimitivesIndirectArguments[i];
                         arguments.indexCount = drawInfo->indexCount;
                         arguments.instanceCount = std::max(drawInfo->instanceCount, 1U);
@@ -222,9 +222,9 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
                     }
                     updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), 0, drawInfoCount * stride);
                 } else {
-                    uint stride = sizeof(MTLDrawPrimitivesIndirectArguments);
+                    uint32_t stride = sizeof(MTLDrawPrimitivesIndirectArguments);
 
-                    for (uint i = 0; i < drawInfoCount; ++i) {
+                    for (uint32_t i = 0; i < drawInfoCount; ++i) {
                         auto &arguments = _primitiveIndirectArguments[i];
                         arguments.vertexCount = drawInfo->vertexCount;
                         arguments.instanceCount = std::max(drawInfo->instanceCount, 1U);
@@ -243,7 +243,7 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
     }
 }
 
-void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size) {
+void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint32_t size) {
     if (_gpuBuffer->mtlBuffer) {
         CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
         cmdBuffer->begin();
@@ -256,7 +256,7 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size
     }
 }
 
-void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages) {
+void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, uint32_t binding, ShaderStageFlags stages) {
     if (_isBufferView) {
         offset += _bufferViewOffset;
     }

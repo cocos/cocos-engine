@@ -1,6 +1,10 @@
 name: <Native> Linux
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'templates/**'
+    - 'native/**'
 
 jobs:
   compile_linux:

@@ -43,8 +43,8 @@ struct CC_DLL BatchedItem {
     ccstd::vector<uint8_t *> vbDatas;
     gfx::Buffer *indexBuffer = nullptr;
     float *indexData = nullptr;
-    uint vbCount = 0;
-    uint mergeCount = 0;
+    uint32_t vbCount = 0;
+    uint32_t mergeCount = 0;
     gfx::InputAssembler *ia = nullptr;
     gfx::Buffer *ubo = nullptr;
     ccstd::array<float, UBOLocalBatched::COUNT> uboData;
@@ -53,28 +53,28 @@ struct CC_DLL BatchedItem {
     gfx::Shader *shader = nullptr;
 };
 using BatchedItemList = ccstd::vector<BatchedItem>;
-using DynamicOffsetList = ccstd::vector<uint>;
+using DynamicOffsetList = ccstd::vector<uint32_t>;
 
 class CC_DLL BatchedBuffer : public RefCounted {
 public:
     static BatchedBuffer *get(scene::Pass *pass);
-    static BatchedBuffer *get(scene::Pass *pass, uint extraKey);
+    static BatchedBuffer *get(scene::Pass *pass, uint32_t extraKey);
     static void destroyBatchedBuffer();
 
     explicit BatchedBuffer(const scene::Pass *pass);
     ~BatchedBuffer() override;
 
     void destroy();
-    void merge(const scene::SubModel *, uint passIdx, const scene::Model *);
+    void merge(const scene::SubModel *, uint32_t passIdx, const scene::Model *);
     void clear();
-    void setDynamicOffset(uint idx, uint value);
+    void setDynamicOffset(uint32_t idx, uint32_t value);
 
     inline const BatchedItemList &getBatches() const { return _batches; }
     inline const scene::Pass *getPass() const { return _pass; }
     inline const DynamicOffsetList &getDynamicOffset() const { return _dynamicOffsets; }
 
 private:
-    static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, BatchedBuffer *>> buffers;
+    static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, BatchedBuffer *>> buffers;
     DynamicOffsetList _dynamicOffsets;
     BatchedItemList _batches;
     const scene::Pass *_pass = nullptr;

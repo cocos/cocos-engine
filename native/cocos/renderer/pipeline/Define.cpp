@@ -38,9 +38,9 @@ static uint32_t localUBOCount = static_cast<uint32_t>(ModelLocalBindings::SAMPLE
 static uint32_t localSamplerCount = static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION) - localUBOCount;
 static uint32_t localStorageImageCount = static_cast<uint32_t>(ModelLocalBindings::COUNT) - localUBOCount - localSamplerCount;
 
-uint globalSet = static_cast<uint>(SetIndex::GLOBAL);
-uint materialSet = static_cast<uint>(SetIndex::MATERIAL);
-uint localSet = static_cast<uint>(SetIndex::LOCAL);
+uint32_t globalSet = static_cast<uint32_t>(SetIndex::GLOBAL);
+uint32_t materialSet = static_cast<uint32_t>(SetIndex::MATERIAL);
+uint32_t localSet = static_cast<uint32_t>(SetIndex::LOCAL);
 
 gfx::BindingMappingInfo bindingMappingInfo = {
     {globalUBOCount, 0, localUBOCount},         // Uniform Buffer Counts
@@ -93,7 +93,7 @@ const gfx::UniformBlock UBOLocalBatched::LAYOUT = {
     UBOLocalBatched::BINDING,
     UBOLocalBatched::NAME,
     {
-        {"cc_matWorlds", gfx::Type::MAT4, static_cast<uint>(UBOLocalBatched::BATCHING_COUNT)},
+        {"cc_matWorlds", gfx::Type::MAT4, static_cast<uint32_t>(UBOLocalBatched::BATCHING_COUNT)},
     },
     1,
 };
@@ -222,10 +222,10 @@ const gfx::UniformBlock UBOForwardLight::LAYOUT = {
     UBOForwardLight::BINDING,
     UBOForwardLight::NAME,
     {
-        {"cc_lightPos", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
-        {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
-        {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
-        {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightPos", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
     },
     1,
 };
@@ -284,8 +284,8 @@ const gfx::UniformBlock UBOSkinning::LAYOUT = {
     1,
 };
 
-const uint UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
-const uint UBOMorph::SIZE = UBOMorph::COUNT_BASE_4_BYTES * 4;
+const uint32_t UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint32_t>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
+const uint32_t UBOMorph::SIZE = UBOMorph::COUNT_BASE_4_BYTES * 4;
 const ccstd::string UBOMorph::NAME = "CCMorph";
 const gfx::DescriptorSetLayoutBinding UBOMorph::DESCRIPTOR = {
     UBOMorph::BINDING,
@@ -299,7 +299,7 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
     UBOMorph::BINDING,
     UBOMorph::NAME,
     {
-        {"cc_displacementWeights", gfx::Type::FLOAT4, static_cast<uint>(UBOMorph::MAX_MORPH_TARGET_COUNT / 4)},
+        {"cc_displacementWeights", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOMorph::MAX_MORPH_TARGET_COUNT / 4)},
         {"cc_displacementTextureInfo", gfx::Type::FLOAT4, 1},
     },
     1,
@@ -476,7 +476,7 @@ const gfx::DescriptorSetLayoutBinding SPRITETEXTURE::DESCRIPTOR = {
 };
 const gfx::UniformSamplerTexture SPRITETEXTURE::LAYOUT = {
     localSet,
-    static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
+    static_cast<uint32_t>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
     gfx::Type::SAMPLER2D,
     1,
@@ -492,7 +492,7 @@ const gfx::DescriptorSetLayoutBinding REFLECTIONTEXTURE::DESCRIPTOR = {
 };
 const gfx::UniformSamplerTexture REFLECTIONTEXTURE::LAYOUT = {
     localSet,
-    static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION),
+    static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION),
     "cc_reflectionTexture",
     gfx::Type::SAMPLER2D,
     1,
@@ -508,15 +508,15 @@ const gfx::DescriptorSetLayoutBinding REFLECTIONSTORAGE::DESCRIPTOR = {
 };
 const gfx::UniformStorageImage REFLECTIONSTORAGE::LAYOUT = {
     localSet,
-    static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION),
+    static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION),
     "cc_reflectionStorage",
     gfx::Type::IMAGE2D,
     1,
 };
 
-uint skyboxFlag = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
+uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
 
-uint nextPow2(uint val) {
+uint32_t nextPow2(uint32_t val) {
     --val;
     val |= (val >> 1);
     val |= (val >> 2);
@@ -538,7 +538,7 @@ bool supportsR32FloatTexture(const gfx::Device* device) {
 static ccstd::unordered_map<ccstd::string, uint32_t> phases; //cjh how to clear this global variable when exiting game?
 static uint32_t phaseNum = 0;
 
-uint getPhaseID(const ccstd::string &phaseName) {
+uint32_t getPhaseID(const ccstd::string &phaseName) {
     const auto iter = phases.find(phaseName);
     if (iter == phases.end()) {
         phases.emplace(phaseName, 1 << phaseNum);

@@ -91,7 +91,7 @@ void CCWGPUBuffer::doDestroy() {
     _internalChanged = true;
 }
 
-void CCWGPUBuffer::doResize(uint size, uint count) {
+void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
     if (_isBufferView) {
         printf("Resize is not support on buffer view!");
         return;
@@ -126,7 +126,7 @@ void bufferUpdateCallback(WGPUBufferMapAsyncStatus status, void *userdata) {
     }
 }
 
-void CCWGPUBuffer::update(const void *buffer, uint size) {
+void CCWGPUBuffer::update(const void *buffer, uint32_t size) {
     // uint32_t alignedSize = ceil(size / 4.0) * 4;
     // size_t   buffSize    = alignedSize;
     // // if (hasFlag(_memUsage, MemoryUsageBit::DEVICE)) {

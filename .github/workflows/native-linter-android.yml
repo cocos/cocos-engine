@@ -1,6 +1,10 @@
 name: <Native> Linter
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+    - 'templates/**'
+    - 'native/**'
 
 jobs:
   # Set the job key. The key is displayed as the job name

@@ -38,12 +38,12 @@ public:
     explicit TFJobGraph(TFJobSystem *system) noexcept : _executor(&system->_executor) {}
 
     template <typename Function>
-    uint createJob(Function &&func) noexcept;
+    uint32_t createJob(Function &&func) noexcept;
 
     template <typename Function>
-    uint createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept;
+    uint32_t createForEachIndexJob(uint32_t begin, uint32_t end, uint32_t step, Function &&func) noexcept;
 
-    void makeEdge(uint j1, uint j2) noexcept;
+    void makeEdge(uint32_t j1, uint32_t j2) noexcept;
 
     void run() noexcept;
 
@@ -65,15 +65,15 @@ private:
 };
 
 template <typename Function>
-uint TFJobGraph::createJob(Function &&func) noexcept {
+uint32_t TFJobGraph::createJob(Function &&func) noexcept {
     _tasks.emplace_back(_flow.emplace(func));
-    return static_cast<uint>(_tasks.size() - 1u);
+    return static_cast<uint32_t>(_tasks.size() - 1u);
 }
 
 template <typename Function>
-uint TFJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept {
+uint32_t TFJobGraph::createForEachIndexJob(uint32_t begin, uint32_t end, uint32_t step, Function &&func) noexcept {
     _tasks.emplace_back(_flow.for_each_index(begin, end, step, func));
-    return static_cast<uint>(_tasks.size() - 1u);
+    return static_cast<uint32_t>(_tasks.size() - 1u);
 }
 
 } // namespace cc

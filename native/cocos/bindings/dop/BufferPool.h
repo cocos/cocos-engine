@@ -29,25 +29,23 @@
 #include "PoolType.h"
 #include "base/std/container/vector.h"
 #include "cocos/base/Macros.h"
-#include "cocos/base/Object.h"
-#include "cocos/base/TypeDef.h"
 #include "cocos/bindings/jswrapper/Object.h"
 
 namespace se {
 
-class CC_DLL BufferPool final : public cc::Object {
+class CC_DLL BufferPool final {
 public:
     using Chunk = uint8_t *;
 
-    inline static uint getPoolFlag() { return POOL_FLAG; }
+    inline static uint32_t getPoolFlag() { return POOL_FLAG; }
 
-    BufferPool(PoolType type, uint entryBits, uint bytesPerEntry);
-    ~BufferPool() override;
+    BufferPool(PoolType type, uint32_t entryBits, uint32_t bytesPerEntry);
+    ~BufferPool();
 
     template <class T>
-    T *getTypedObject(uint id) const {
-        uint chunk = (_chunkMask & id) >> _entryBits;
-        uint entry = _entryMask & id;
+    T *getTypedObject(uint32_t id) const {
+        uint32_t chunk = (_chunkMask & id) >> _entryBits;
+        uint32_t entry = _entryMask & id;
         CC_ASSERT(chunk < _chunks.size() && entry < _entriesPerChunk);
         return reinterpret_cast<T *>(_chunks[chunk] + (entry * _bytesPerEntry));
     }
@@ -55,17 +53,17 @@ public:
     se::Object *allocateNewChunk();
 
 private:
-    static constexpr uint POOL_FLAG = 1 << 30;
+    static constexpr uint32_t POOL_FLAG{1 << 30};
 
     BufferAllocator _allocator;
     ccstd::vector<Chunk> _chunks;
-    uint _entryBits = 1 << 8;
-    uint _chunkMask = 0;
-    uint _entryMask = 0;
-    uint _bytesPerChunk = 0;
-    uint _entriesPerChunk = 0;
-    uint _bytesPerEntry = 0;
-    PoolType _type = PoolType::UNKNOWN;
+    uint32_t _entryBits{1 << 8};
+    uint32_t _chunkMask{0};
+    uint32_t _entryMask{0};
+    uint32_t _bytesPerChunk{0};
+    uint32_t _entriesPerChunk{0};
+    uint32_t _bytesPerEntry{0};
+    PoolType _type{PoolType::UNKNOWN};
 };
 
 } // namespace se

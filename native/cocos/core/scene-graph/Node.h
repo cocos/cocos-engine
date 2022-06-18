@@ -26,7 +26,6 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "base/TypeDef.h"
 #include "base/std/any.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"

@@ -54,7 +54,7 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 
 ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;
 
-void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer, uint level) {
+void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer, uint32_t level) {
     clear();
 
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
