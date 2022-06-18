@@ -1,6 +1,6 @@
 #pragma once
 #include <2d/renderer/UIMeshBuffer.h>
-#include <cocos/2d/renderer/RenderEntity.h>
+#include <cocos/2d/renderer/RenderDrawInfo.h>
 #include <cocos/2d/renderer/UIMeshBuffer.h>
 #include <cocos/base/TypeDef.h>
 #include <cocos/core/assets/Material.h>
@@ -30,7 +30,7 @@ public:
     void addRootNode(Node* node);
 
 public:
-    void addVertDirtyRenderer(RenderEntity* entity);
+    void addVertDirtyRenderer(RenderDrawInfo* entity);
 
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
     gfx::Device* getDevice();
@@ -42,7 +42,7 @@ public:
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
-    void generateBatch(RenderEntity* entity);
+    void generateBatch(RenderDrawInfo* entity);
     void resetRenderStates();
 
 private:
@@ -51,12 +51,12 @@ private:
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
-    ccstd::vector<RenderEntity*> _vertDirtyRenderers{};
+    ccstd::vector<RenderDrawInfo*> _vertDirtyRenderers{};
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
     gfx::Device* _device{nullptr}; //use getDevice()
 
-    RenderEntity* _currEntity{nullptr};
+    RenderDrawInfo* _currEntity{nullptr};
     index_t _currBID{-1};
     index_t _indexStart{0};
     uint32_t _currHash{0};
@@ -74,7 +74,7 @@ private:
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
 private:
-    inline void fillIndexBuffers(RenderEntity* entity){
+    inline void fillIndexBuffers(RenderDrawInfo* entity){
         index_t vertexOffset = entity->getVertexOffset();
         uint16_t* ib = entity->getIDataBuffer();
 
@@ -90,7 +90,7 @@ private:
         buffer->setIndexOffset(indexOffset);
     }
 
-    inline void fillVertexBuffers(RenderEntity* entity){
+    inline void fillVertexBuffers(RenderDrawInfo* entity){
         Node* node = entity->getNode();
         const Mat4& matrix = node->getWorldMatrix();
         uint8_t stride = entity->getStride();

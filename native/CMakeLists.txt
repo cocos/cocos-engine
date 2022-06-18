@@ -1629,10 +1629,12 @@ endif()
 cocos_source_files(
     cocos/2d/renderer/Batcher2d.h
     cocos/2d/renderer/Batcher2d.cpp
-    cocos/2d/renderer/RenderEntity.h
-    cocos/2d/renderer/RenderEntity.cpp
+    cocos/2d/renderer/RenderDrawInfo.h
+    cocos/2d/renderer/RenderDrawInfo.cpp
     cocos/2d/renderer/UIMeshBuffer.h
     cocos/2d/renderer/UIMeshBuffer.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
 )
 
 ##### 3d

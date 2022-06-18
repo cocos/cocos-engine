@@ -1,10 +1,10 @@
-import { RenderEntity } from '../../../2d/renderer/render-entity';
+import { RenderDrawInfo } from '../../../2d/renderer/render-draw-info';
 import { Material } from '../../assets';
 import { Attribute, Device, Sampler, SamplerInfo, Texture } from '../../gfx';
 import { EmptyTexture } from '../../gfx/empty/empty-texture';
 import { Node } from '../../scene-graph';
 
-export class NativeRenderEntity {
+export class NativeRenderDrawInfo {
     constructor (batcher: NativeBatcher2d) {}
 
     get bufferId ():number { return 0; }
@@ -67,6 +67,10 @@ export class NativeRenderEntity {
     //setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
     syncSharedBufferToNative (data:TypedArray) {}
+}
+
+export class NativeRenderEntity {
+
 }
 
 export class NativeUIMeshBuffer {

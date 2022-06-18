@@ -36,7 +36,7 @@ import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { RenderEntity } from './render-entity';
+import { RenderDrawInfo } from './render-draw-info';
 import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
 
@@ -88,9 +88,9 @@ export class BaseRenderData {
     public chunk: StaticVBChunk = null!;
 
     // entity for native
-    protected _renderEntity: RenderEntity = null!;
-    public get renderEntity () {
-        return this._renderEntity;
+    protected _renderDrawInfo: RenderDrawInfo = null!;
+    public get renderDrawInfo () {
+        return this._renderDrawInfo;
     }
 
     protected _material: Material | null = null;
@@ -99,8 +99,8 @@ export class BaseRenderData {
     }
     set material (val: Material | null) {
         this._material = val;
-        if (this._renderEntity) {
-            this._renderEntity.setMaterial(val!);
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setMaterial(val!);
         }
     }
 
@@ -110,8 +110,8 @@ export class BaseRenderData {
     }
     set dataHash (val:number) {
         this._dataHash = val;
-        if (this._renderEntity) {
-            this._renderEntity.setDataHash(val);
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setDataHash(val);
         }
     }
 
@@ -142,8 +142,8 @@ export class BaseRenderData {
     protected initRenderEntity () {
         if (JSB) {
         // Instantiate RenderEntity and put it into Batcher2d
-            if (!this._renderEntity) {
-                this._renderEntity = new RenderEntity(this.batcher);
+            if (!this._renderDrawInfo) {
+                this._renderDrawInfo = new RenderDrawInfo(this.batcher);
                 //batcher.addRenderEntity(this._renderEntity);
             }
         }
@@ -151,23 +151,23 @@ export class BaseRenderData {
 
     protected setRenderEntityAttributes () {
         if (JSB) {
-            if (!this._renderEntity) {
+            if (!this._renderDrawInfo) {
                 return;
             }
-            this._renderEntity.setBufferId(this.chunk.bufferId);
-            this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
-            this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-            this._renderEntity.setVB(this.chunk.vb);
-            this._renderEntity.setIB(this.chunk.ib);
-            this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
-            this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
-            this._renderEntity.setVBCount(this._vc);
-            this._renderEntity.setIBCount(this._ic);
+            this._renderDrawInfo.setBufferId(this.chunk.bufferId);
+            this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
+            this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+            this._renderDrawInfo.setVB(this.chunk.vb);
+            this._renderDrawInfo.setIB(this.chunk.ib);
+            this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+            this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            this._renderDrawInfo.setVBCount(this._vc);
+            this._renderDrawInfo.setIBCount(this._ic);
 
-            this._renderEntity.setDataHash(this.dataHash);
-            this._renderEntity.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
-            this._renderEntity.setIsMeshBuffer(this.isMeshBuffer);
-            this._renderEntity.setMaterial(this.material!);
+            this._renderDrawInfo.setDataHash(this.dataHash);
+            this._renderDrawInfo.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
+            this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
+            this._renderDrawInfo.setMaterial(this.material!);
         }
     }
 }
@@ -233,8 +233,8 @@ export class RenderData extends BaseRenderData {
     }
     set vertDirty (val: boolean) {
         this._vertDirty = val;
-        if (this._renderEntity) {
-            this._renderEntity.setVertDirty(val);
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setVertDirty(val);
         }
     }
 
@@ -244,9 +244,9 @@ export class RenderData extends BaseRenderData {
     }
     set textureHash (val:number) {
         this._textureHash = val;
-        if (this._renderEntity) {
-            this._renderEntity.setTexture(this.frame.getGFXTexture());
-            this._renderEntity.setTextureHash(val);
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setTexture(this.frame.getGFXTexture());
+            this._renderDrawInfo.setTextureHash(val);
         }
     }
 
@@ -256,8 +256,8 @@ export class RenderData extends BaseRenderData {
     }
     set blendHash (val:number) {
         this._blendHash = val;
-        if (this._renderEntity) {
-            this._renderEntity.setBlendHash(val);
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setBlendHash(val);
         }
     }
 
@@ -311,35 +311,35 @@ export class RenderData extends BaseRenderData {
 
     protected setRenderEntityAttributes () {
         if (JSB) {
-            if (!this._renderEntity) {
+            if (!this._renderDrawInfo) {
                 return;
             }
             super.setRenderEntityAttributes();
-            this._renderEntity.setTexture(this.frame?.getGFXTexture());
-            this._renderEntity.setTextureHash(this.textureHash);
-            this._renderEntity.setSampler(this.frame?.getGFXSampler());
-            this._renderEntity.setBlendHash(this.blendHash);
+            this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
+            this._renderDrawInfo.setTextureHash(this.textureHash);
+            this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
+            this._renderDrawInfo.setBlendHash(this.blendHash);
         }
     }
 
     public assignExtraEntityAttrs (comp: UIRenderer) {
         if (JSB) {
-            if (!this._renderEntity || !comp) {
+            if (!this._renderDrawInfo || !comp) {
                 return;
             }
-            this._renderEntity.setNode(comp.node);
-            this._renderEntity.enabled = comp.enabled;
+            this._renderDrawInfo.setNode(comp.node);
+            this._renderDrawInfo.enabled = comp.enabled;
         }
     }
 
     // Initial advance render data for native
     protected syncRender2dBuffer () {
         if (JSB) {
-            if (!this._renderEntity) {
+            if (!this._renderDrawInfo) {
                 return;
             }
-            this.renderEntity.initRender2dBuffer(this.dataLength, this.floatStride);
-            this.renderEntity.setRender2dBufferToNative();
+            this.renderDrawInfo.initRender2dBuffer(this.dataLength, this.floatStride);
+            this.renderDrawInfo.setRender2dBufferToNative();
         }
     }
 
@@ -430,7 +430,7 @@ export class RenderData extends BaseRenderData {
 
     copyRenderDataToSharedBuffer () {
         if (JSB) {
-            const entity = this._renderEntity;
+            const entity = this._renderDrawInfo;
             const sharedBuffer = entity.render2dBuffer;
 
             if (sharedBuffer.length < this.floatStride * this._data.length) {
@@ -477,7 +477,7 @@ export class RenderData extends BaseRenderData {
         this.textureHash = 0;
         this.dataHash = 0;
         if (JSB) {
-            this._renderEntity.clear();
+            this._renderDrawInfo.clear();
         }
     }
 }

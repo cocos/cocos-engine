@@ -42,6 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { Renderer } from '../../core/components/renderer';
 import { Batcher2D } from '../renderer/batcher-2d';
+import { RenderDrawInfo } from '../renderer/render-draw-info';
 import { RenderEntity } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 
@@ -223,8 +224,8 @@ export class UIRenderer extends Renderer {
     set enabled (value) {
         super.enabled = value;
         if (this.renderData) {
-            if (this.renderData.renderEntity) {
-                this.renderData.renderEntity.enabled = value;
+            if (this.renderData.renderDrawInfo) {
+                this.renderData.renderDrawInfo.enabled = value;
             }
         }
     }
@@ -244,9 +245,13 @@ export class UIRenderer extends Renderer {
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
+
+    // RenderEntity
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
+
+    protected _renderEntity :RenderEntity|null = null;
 
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
@@ -276,6 +281,10 @@ export class UIRenderer extends Renderer {
     }
 
     protected _lastParent: Node | null = null;
+
+    public onLoad () {
+        this.initRenderEntity();
+    }
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -322,6 +331,8 @@ export class UIRenderer extends Renderer {
         if (this._blendState) {
             this._blendState.destroy();
         }
+
+        this.disposeRenderEntity();
     }
 
     /**
@@ -541,6 +552,15 @@ export class UIRenderer extends Renderer {
         if (this.renderData) {
             this.renderData.textureDirty = true;
         }
+    }
+
+    // RenderEntity
+    private initRenderEntity () {
+
+    }
+
+    private disposeRenderEntity () {
+
     }
 }
 

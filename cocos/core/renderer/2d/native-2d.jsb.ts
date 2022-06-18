@@ -1,7 +1,7 @@
 // 2d
 declare const n2d: any;
 
-export const NativeRenderEntity = n2d.RenderEntity;
+export const NativeRenderDrawInfo = n2d.RenderDrawInfo;
 export const NativeBatcher2d = n2d.Batcher2d;
 export const NativeUIMeshBuffer = n2d.UIMeshBuffer;
-export const NativeAdvanceRenderData = n2d.AdvanceRenderData;
+export const NativeRenderEntity = n2d.NativeRenderEntity;

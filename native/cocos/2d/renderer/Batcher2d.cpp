@@ -64,7 +64,7 @@ void Batcher2d::walk(Node* node) {
     size_t length = 1;
     while (length > 0) {
         Node* curNode = nodeStack[--length];
-        RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
+        RenderDrawInfo* entity = static_cast<RenderDrawInfo*>(curNode->getUserData());
         if (entity && entity->getEnabled()) {
             uint32_t dataHash = entity->getDataHash();
             if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
@@ -110,7 +110,7 @@ void Batcher2d::walk(Node* node) {
     }
 }
 
-void Batcher2d::generateBatch(RenderEntity* entity) {
+void Batcher2d::generateBatch(RenderDrawInfo* entity) {
 
     if (entity == nullptr) {
         return;
@@ -252,7 +252,7 @@ void Batcher2d::reset() {
     //stencilManager
 }
 
-void Batcher2d::addVertDirtyRenderer(RenderEntity* entity) {
+void Batcher2d::addVertDirtyRenderer(RenderDrawInfo* entity) {
     _vertDirtyRenderers.push_back(entity);
 }
 } // namespace cc
