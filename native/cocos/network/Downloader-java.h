@@ -28,7 +28,7 @@
 
 #include "network/DownloaderImpl.h"
 
-class _jobject;
+class _jobject; // NOLINT(bugprone-reserved-identifier)
 
 namespace cc {
 namespace network {
