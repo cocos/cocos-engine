@@ -31,8 +31,6 @@
 #include "base/Log.h"
 #include "core/assets/EffectAsset.h"
 #include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/pipeline/Define.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
@@ -390,7 +388,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             tmplInfo.blockSizes.emplace_back(getSize(block));
             tmplInfo.bindings.emplace_back();
             auto &bindingsInfo = tmplInfo.bindings.back();
-            bindingsInfo.binding = static_cast<uint>(block.binding);
+            bindingsInfo.binding = block.binding;
             bindingsInfo.descriptorType = gfx::DescriptorType::UNIFORM_BUFFER;
             bindingsInfo.count = 1;
             bindingsInfo.stageFlags = block.stageFlags;
@@ -408,8 +406,8 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             }
             tmplInfo.shaderInfo.blocks.emplace_back();
             auto &blocksInfo = tmplInfo.shaderInfo.blocks.back();
-            blocksInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
-            blocksInfo.binding = static_cast<uint>(block.binding);
+            blocksInfo.set = static_cast<uint32_t>(pipeline::SetIndex::MATERIAL);
+            blocksInfo.binding = block.binding;
             blocksInfo.name = block.name;
             blocksInfo.members = uniforms;
             blocksInfo.count = 1; // effect compiler guarantees block count = 1
@@ -417,15 +415,15 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         for (const auto &samplerTexture : tmpl.samplerTextures) {
             tmplInfo.bindings.emplace_back();
             auto &descriptorLayoutBindingInfo = tmplInfo.bindings.back();
-            descriptorLayoutBindingInfo.binding = static_cast<uint>(samplerTexture.binding);
+            descriptorLayoutBindingInfo.binding = samplerTexture.binding;
             descriptorLayoutBindingInfo.descriptorType = gfx::DescriptorType::SAMPLER_TEXTURE;
             descriptorLayoutBindingInfo.count = samplerTexture.count;
             descriptorLayoutBindingInfo.stageFlags = samplerTexture.stageFlags;
 
             tmplInfo.shaderInfo.samplerTextures.emplace_back();
             auto &samplerTextureInfo = tmplInfo.shaderInfo.samplerTextures.back();
-            samplerTextureInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
-            samplerTextureInfo.binding = static_cast<uint>(samplerTexture.binding);
+            samplerTextureInfo.set = static_cast<uint32_t>(pipeline::SetIndex::MATERIAL);
+            samplerTextureInfo.binding = samplerTexture.binding;
             samplerTextureInfo.name = samplerTexture.name;
             samplerTextureInfo.type = samplerTexture.type;
             samplerTextureInfo.count = samplerTexture.count;
@@ -433,14 +431,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &sampler : tmpl.samplers) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(sampler.binding),
+                sampler.binding,
                 gfx::DescriptorType::SAMPLER,
                 sampler.count,
                 sampler.stageFlags});
 
             tmplInfo.shaderInfo.samplers.emplace_back(gfx::UniformSampler{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(sampler.binding),
+                sampler.binding,
                 sampler.name,
                 sampler.count,
             });
@@ -448,14 +446,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &texture : tmpl.textures) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(texture.binding),
+                texture.binding,
                 gfx::DescriptorType::TEXTURE,
                 texture.count,
                 texture.stageFlags});
 
             tmplInfo.shaderInfo.textures.emplace_back(gfx::UniformTexture{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(texture.binding),
+                texture.binding,
                 texture.name,
                 texture.type,
                 texture.count,
@@ -464,14 +462,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &buffer : tmpl.buffers) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(buffer.binding),
+                buffer.binding,
                 gfx::DescriptorType::STORAGE_BUFFER,
                 1,
                 buffer.stageFlags});
 
             tmplInfo.shaderInfo.buffers.emplace_back(gfx::UniformStorageBuffer{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(buffer.binding),
+                buffer.binding,
                 buffer.name,
                 1,
                 buffer.memoryAccess}); // effect compiler guarantees buffer count = 1
@@ -479,14 +477,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &image : tmpl.images) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(image.binding),
+                image.binding,
                 gfx::DescriptorType::STORAGE_IMAGE,
                 image.count,
                 image.stageFlags});
 
             tmplInfo.shaderInfo.images.emplace_back(gfx::UniformStorageImage{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(image.binding),
+                image.binding,
                 image.name,
                 image.type,
                 image.count,
@@ -495,14 +493,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &subpassInput : tmpl.subpassInputs) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(subpassInput.binding),
+               subpassInput.binding,
                 gfx::DescriptorType::INPUT_ATTACHMENT,
                 subpassInput.count,
                 subpassInput.stageFlags});
 
             tmplInfo.shaderInfo.subpassInputs.emplace_back(gfx::UniformInputAttachment{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(subpassInput.binding),
+                subpassInput.binding,
                 subpassInput.name,
                 subpassInput.count});
         }
