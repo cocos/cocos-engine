@@ -26,6 +26,7 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, t
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr, Color, Material, ModelRenderer, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+import { ModelLocalBindings } from '../../core/pipeline/define';
 import { Model } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -63,11 +64,7 @@ export class SpriteRenderer extends ModelRenderer {
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }
-        // TODO
-        // if (EDITOR) {
-        //     lastSprite?.off();
-        //     this._spriteFrame?.on();
-        // }
+        // TODO Update on Editor
     }
 
     get model () {
@@ -200,10 +197,18 @@ export class SpriteRenderer extends ModelRenderer {
         if (!this._spriteFrame || !this._model || !this._model.inited) {
             return;
         }
-        // For Local descriptorSet,Need a manager to cache it
+
         const texture = this._spriteFrame.getGFXTexture()!;
         const sampler = this._spriteFrame.getGFXSampler();
-        this._model.updateTexture(texture, sampler);
+        // We need a api like updateLocalDescriptors(texture,sampler,binding) from model
+        const subModels = this._model.subModels;
+        const binding = ModelLocalBindings.SAMPLER_SPRITE;
+        for (let i = 0; i < subModels.length; i++) {
+            const { descriptorSet } = subModels[i];
+            descriptorSet.bindTexture(binding, texture);
+            descriptorSet.bindSampler(binding, sampler);
+            descriptorSet.update();
+        }
     }
 
     protected _attachToScene () {

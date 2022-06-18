@@ -558,7 +558,8 @@ const Elements = {
             const panel = this;
 
             let optionsHtml = '';
-            const types = ['rect', 'polygon'];
+            // const types = ['rect', 'polygon']; // polygon is not ready
+            const types = ['rect'];
             types.forEach((name, index) => {
                 optionsHtml += `<option value="${index}">${name}</option>`;
             });
