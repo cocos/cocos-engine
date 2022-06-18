@@ -153,7 +153,7 @@ void BloomStage::render(scene::Camera *camera) {
     colorAttachmentInfo.clearColor = _clearColors[0];
     colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
 
-    uint32_t insertPoint = static_cast<uint32_t>(CommonInsertPoint::DIP_BLOOM);
+    auto insertPoint = static_cast<uint32_t>(CommonInsertPoint::DIP_BLOOM);
 
     // prefilter pass
     struct PrefilterRenderData {

@@ -239,7 +239,7 @@ void LightingStage::initLightingBuffer() {
     auto *const device = _pipeline->getDevice();
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
-    uint32_t stride = utils::alignTo<uint32_t>(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
+    auto stride = utils::alignTo<uint32_t>(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
     uint32_t totalSize = stride * _maxDeferredLights;
 
     // create lighting buffer and view
@@ -852,7 +852,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         }
     }
 
-    uint32_t insertPoint = static_cast<uint32_t>(DeferredInsertPoint::DIP_SSPR);
+    auto insertPoint = static_cast<uint32_t>(DeferredInsertPoint::DIP_SSPR);
     for (uint32_t i = 0; i < _reflectionElems.size(); ++i) {
         // add clear and comp passes here
         pipeline->getFrameGraph().addPass<DataClear>(insertPoint++, ssprClearPass[i], clearSetup, clearExec);

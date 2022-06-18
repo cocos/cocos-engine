@@ -172,7 +172,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     CC_ASSERT(dirLight);
 
-    const uint32_t levelCount = static_cast<uint32_t>(dirLight->getCSMLevel());
+    const auto levelCount = static_cast<uint32_t>(dirLight->getCSMLevel());
     CC_ASSERT(levelCount <= static_cast<uint32_t>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
 
@@ -223,7 +223,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const uint32_t level = static_cast<uint32_t>(dirLight->getCSMLevel());
+    const auto level = static_cast<uint32_t>(dirLight->getCSMLevel());
     const float lambda = dirLight->getCSMLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
     for (uint32_t i = 1; i < level; ++i) {

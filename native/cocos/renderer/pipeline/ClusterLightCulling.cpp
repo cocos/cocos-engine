@@ -820,7 +820,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
     };
 
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
-    uint32_t insertPoint = static_cast<uint32_t>(DeferredInsertPoint::DIP_CLUSTER);
+    auto insertPoint = static_cast<uint32_t>(DeferredInsertPoint::DIP_CLUSTER);
     pipeline->getFrameGraph().addPass<DataClusterBuild>(insertPoint++, fgStrHandleClusterBuildPass, clusterBuildSetup, clusterBuildExec);
     pipeline->getFrameGraph().addPass<DataLightCulling>(insertPoint++, fgStrHandleClusterCullingPass, lightCullingSetup, lightCullingExec);
 }
