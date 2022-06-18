@@ -108,6 +108,7 @@ let _needColor: boolean;
 let _vertexEffect: spine.VertexEffect | null = null;
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
+const _inv255 = 1.0 / 255.0;
 
 function _getSlotMaterial (blendMode: spine.BlendMode) {
     let src: BlendFactor;
@@ -137,7 +138,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
 function _handleColor (color: FrameColor) {
     // temp rgb has multiply 255, so need divide 255;
     _fa = color.fa * _nodeA;
-    _multiplier = _premultipliedAlpha ? _fa / 255 :  1;
+    _multiplier = _premultipliedAlpha ? _fa * _inv255 :  1;
     _r = _nodeR * _multiplier;
     _g = _nodeG * _multiplier;
     _b = _nodeB * _multiplier;
@@ -145,27 +146,27 @@ function _handleColor (color: FrameColor) {
     _fr = color.fr * _r;
     _fg = color.fg * _g;
     _fb = color.fb * _b;
-    _finalColor32[0] = _fr / 255.0;
-    _finalColor32[1] = _fg / 255.0;
-    _finalColor32[2] = _fb / 255.0;
-    _finalColor32[3] = _fa / 255.0;
+    _finalColor32[0] = _fr * _inv255;
+    _finalColor32[1] = _fg * _inv255;
+    _finalColor32[2] = _fb * _inv255;
+    _finalColor32[3] = _fa * _inv255;
 
     _dr = color.dr * _r;
     _dg = color.dg * _g;
     _db = color.db * _b;
     _da =   _premultipliedAlpha ? 255 :  0;
-    _darkColor32[0] = _dr / 255.0;
-    _darkColor32[1] = _dg / 255.0;
-    _darkColor32[2] = _db / 255.0;
-    _darkColor32[3] = _da / 255.0;
+    _darkColor32[0] = _dr * _inv255;
+    _darkColor32[1] = _dg * _inv255;
+    _darkColor32[2] = _db * _inv255;
+    _darkColor32[3] = _da * _inv255;
 }
 
 const _tmpColor4 = new Float32Array(4);
 function _spineColorToFloat32Array4 (spineColor: spine.Color) {
-    _tmpColor4[0] = spineColor.r / 255.0;
-    _tmpColor4[1] = spineColor.g / 255.0;
-    _tmpColor4[2] = spineColor.b / 255.0;
-    _tmpColor4[3] = spineColor.a / 255.0;
+    _tmpColor4[0] = spineColor.r * _inv255;
+    _tmpColor4[1] = spineColor.g * _inv255;
+    _tmpColor4[2] = spineColor.b * _inv255;
+    _tmpColor4[3] = spineColor.a * _inv255;
     return _tmpColor4;
 }
 
@@ -262,9 +263,9 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     if (!comp._skeleton) return;
 
     const nodeColor = comp.color;
-    _nodeR = nodeColor.r / 255;
-    _nodeG = nodeColor.g / 255;
-    _nodeB = nodeColor.b / 255;
+    _nodeR = nodeColor.r * _inv255;
+    _nodeG = nodeColor.g * _inv255;
+    _nodeB = nodeColor.b * _inv255;
     _nodeA = comp.node._uiProps.opacity;
 
     _useTint = comp.useTint || comp.isAnimationCached();
@@ -438,15 +439,15 @@ function fillVertices (skeletonColor: spine.Color,
                     _vbuf[offset + 3] = clippedVertices[v + 6];     // u
                     _vbuf[offset + 4] = clippedVertices[v + 7];     // v
 
-                    _vbuf[offset + 5] = clippedVertices[v + 2] / 255.0;
-                    _vbuf[offset + 6] = clippedVertices[v + 3] / 255.0;
-                    _vbuf[offset + 7] = clippedVertices[v + 4] / 255.0;
-                    _vbuf[offset + 8] = clippedVertices[v + 5] / 255.0;
+                    _vbuf[offset + 5] = clippedVertices[v + 2] * _inv255;
+                    _vbuf[offset + 6] = clippedVertices[v + 3] * _inv255;
+                    _vbuf[offset + 7] = clippedVertices[v + 4] * _inv255;
+                    _vbuf[offset + 8] = clippedVertices[v + 5] * _inv255;
 
-                    _vbuf[offset + 9] = clippedVertices[v + 8] / 255.0;
-                    _vbuf[offset + 10] = clippedVertices[v + 9] / 255.0;
-                    _vbuf[offset + 11] = clippedVertices[v + 10] / 255.0;
-                    _vbuf[offset + 12] = clippedVertices[v + 11] / 255.0;
+                    _vbuf[offset + 9] = clippedVertices[v + 8] * _inv255;
+                    _vbuf[offset + 10] = clippedVertices[v + 9] * _inv255;
+                    _vbuf[offset + 11] = clippedVertices[v + 10] * _inv255;
+                    _vbuf[offset + 12] = clippedVertices[v + 11] * _inv255;
                 }
             }
         }
@@ -518,10 +519,10 @@ function fillVertices (skeletonColor: spine.Color,
                 _vbuf[offset + 3] = clippedVertices[v + 6];     // u
                 _vbuf[offset + 4] = clippedVertices[v + 7];     // v
 
-                _vbuf[offset + 5] = clippedVertices[v + 2] / 255.0;
-                _vbuf[offset + 6] = clippedVertices[v + 3] / 255.0;
-                _vbuf[offset + 7] = clippedVertices[v + 4] / 255.0;
-                _vbuf[offset + 8] = clippedVertices[v + 5] / 255.0;
+                _vbuf[offset + 5] = clippedVertices[v + 2] * _inv255;
+                _vbuf[offset + 6] = clippedVertices[v + 3] * _inv255;
+                _vbuf[offset + 7] = clippedVertices[v + 4] * _inv255;
+                _vbuf[offset + 8] = clippedVertices[v + 5] * _inv255;
             }
         }
     }
