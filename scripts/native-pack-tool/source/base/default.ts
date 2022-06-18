@@ -186,6 +186,7 @@ export abstract class NativePackTool {
         return native[plt];
     }
 
+    private skipVersionCheck = false;
     /**
      * The engine version used to generate the 'native/' folder should match the 
      * condition written in the 'compatibility-info.json' file.
@@ -206,6 +207,7 @@ export abstract class NativePackTool {
         }
         if (projEngineVersionObj.skipCheck === true) {
             console.log(`Skip version range check by project`);
+            this.skipVersionCheck = true;
             return true;
         }
         let cond = this.versionParser.parse(versionRange);
@@ -284,7 +286,7 @@ export abstract class NativePackTool {
     protected validateNativeDir() {
         try {
             if (this.validateTemplateVersion()) {
-                if (!this.validateTemplateConsistency()) {
+                if (!this.skipVersionCheck && !this.validateTemplateConsistency()) {
                     console.error(`Failed to validate "native" directory`);
                 }
             }
