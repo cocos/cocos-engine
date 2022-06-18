@@ -11,4 +11,6 @@ test('particle system material test', function () {
 
     const particle = temp0.addComponent(ParticleSystem) as ParticleSystem;
     expect(particle.sharedMaterials).toBeDefined();
+
+    legacyCC.game.step();
 });
