@@ -287,7 +287,7 @@ export class Director extends EventTarget {
 
         this._nodeActivator.reset();
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR) {
             if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
             }
