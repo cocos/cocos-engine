@@ -20,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: files
+        continue-on-error: true
         name: compatibility-info.json need update
         uses: jitterbit/get-changed-files@v1
       - run: |
