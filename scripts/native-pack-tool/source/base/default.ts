@@ -101,7 +101,7 @@ export abstract class NativePackTool {
     }
 
     private get projEngineVersionPath() {
-        return ps.join(this.paths.commonDirInPrj, 'version.json');
+        return ps.join(this.paths.commonDirInPrj, 'cocos-version.json');
     }
 
     private _debugInfo: any = null;
@@ -123,11 +123,11 @@ export abstract class NativePackTool {
         }
         return this._versionParser;
     }
-    
+
     /**
-     * Read version number from version.json
+     * Read version number from cocos-version.json
      */
-    protected tryReadProjectTemplateVersion(): string | null {
+    protected tryReadProjectTemplateVersion(): { version: string, skipCheck: boolean | undefined } | null {
         const versionJsonPath = this.projEngineVersionPath;
         if (!fs.existsSync(versionJsonPath)) {
             console.warn(`${versionJsonPath} not exists`);
@@ -139,7 +139,7 @@ export abstract class NativePackTool {
                 console.error(`Field 'version' missing in ${versionJsonPath}`);
                 return null;
             }
-            return content.version;
+            return content;
         } catch (e) {
             console.error(`Failed to read json file ${versionJsonPath}`);
             console.error(e);
@@ -193,14 +193,19 @@ export abstract class NativePackTool {
     private validateTemplateVersion(): boolean {
         console.log(`Checking template version...`);
         const engineVersion = this.tryGetEngineVersion();
-        const projEngineVersion = this.tryReadProjectTemplateVersion();
-        if (projEngineVersion === null) {
+        const projEngineVersionObj = this.tryReadProjectTemplateVersion();
+        if (projEngineVersionObj === null) {
             console.error(`Error code ${ErrorCodeIncompatible}, ${this.DebugInfos[ErrorCodeIncompatible]}`)
             return false;
         }
         let versionRange = this.tryGetCompatibilityInfo();
+        const projEngineVersion = projEngineVersionObj?.version;
         if (!versionRange) {
-            console.error(`Skip version range check`);
+            console.error(`Ignore version range check`);
+            return true;
+        }
+        if (projEngineVersionObj.skipCheck === true) {
+            console.log(`Skip version range check by project`);
             return true;
         }
         let cond = this.versionParser.parse(versionRange);
@@ -234,6 +239,7 @@ export abstract class NativePackTool {
         }
         let list = fs.readdirSync(src);
         for (let f of list) {
+            if(f.startsWith('.')) continue;
             this.validateDirectory(ps.join(src, f), ps.join(dst, f), missingDirs);
         }
     }
@@ -276,27 +282,33 @@ export abstract class NativePackTool {
      * - Check if any file under the 'native/' folder is removed.
      */
     protected validateNativeDir() {
-        if (this.validateTemplateVersion()) {
-            if (!this.validateTemplateConsistency()) {
-                process.exit(1);
+        try {
+            if (this.validateTemplateVersion()) {
+                if (!this.validateTemplateConsistency()) {
+                    console.error(`Failed to validate "native" directory`);
+                }
             }
+        } catch (e) {
+            console.error(`Failed to validate native directory`);
+            console.error(e);
         }
     }
 
     /**
-     * Write version.json into native/common/version.json
+     * Write cocos-version.json into native/common/cocos-version.json
      */
     protected writeEngineVersion() {
         if (!fs.existsSync(this.projEngineVersionPath)) {
             fs.writeJSON(this.projEngineVersionPath, {
-                version: this.tryGetEngineVersion()
+                version: this.tryGetEngineVersion(),
+                skipCheck: false,
             });
         }
     }
 
     protected async copyPlatformTemplate() {
         if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
-            // 拷贝 templates/平台/ 文件到 native 目录
+            // 拷贝 templates/平台/ 文件到 "native" 目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform), this.paths.platformTemplateDirInPrj, { overwrite: false });
             this.writeEngineVersion();
         } else {
