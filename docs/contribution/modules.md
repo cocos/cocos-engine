@@ -4,8 +4,8 @@
 ## Public modules
 
 Modules under `/exports` are considered as public modules.
-**Only** the bindings exported public modules are visible to users.
-Other modules transitively imported from public modules are private.
+**Only** the bindings exported from public modules are visible to users.
+Other modules even transitively imported from public modules are private.
 
 The module `'cc'` is an artificial module which exports all from specific public modules:
 
