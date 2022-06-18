@@ -47,7 +47,7 @@ function search_cc_config_json_levels(dir, depth) {
 
 for (let searchPath of PROJ_SEARCH_PATHS) {
     if (!fs.existsSync(searchPath)) {
-        console.warn(`[searching plugins] directory ${searchPath} does not exist`);
+        console.log(`[searching plugins] directory ${searchPath} does not exist`);
         continue;
     }
     search_cc_config_json_levels(searchPath, 1);
