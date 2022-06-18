@@ -2,10 +2,11 @@ import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
-import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphData, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { LayoutGraphBuilder, Pipeline } from './pipeline';
-import { ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
+import { WebLayoutGraphBuilder } from './web-layout-graph';
 
 function descriptorBlock2Flattened (block: DescriptorBlock, flattened: DescriptorBlockFlattened): void {
     block.descriptors.forEach((value, key) => {
@@ -130,10 +131,10 @@ export function buildDeferredPipelineLayoutGraph (): LayoutGraph {
     return lg;
 }
 
-export function buildLayoutGraphData (lg: LayoutGraph) {
-    const root = legacyCC.director.root;
-    const ppl: Pipeline = root.customPipeline;
-    const lgData = ppl.layoutGraphBuilder;
-    lgData.clear();
-    buildLayoutGraphDataImpl(lg, lgData);
+export function buildLayoutGraphData (device: Device, lg: LayoutGraph): LayoutGraphData {
+    const lgData = new LayoutGraphData();
+    const builder = new WebLayoutGraphBuilder(device, lgData);
+    buildLayoutGraphDataImpl(lg, builder);
+    builder.compile();
+    return lgData;
 }
