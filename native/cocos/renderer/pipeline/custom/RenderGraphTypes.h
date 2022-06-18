@@ -193,10 +193,10 @@ struct ResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = boost::variant2::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = boost::variant2::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = ccstd::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<ManagedTag, vertex_descriptor>,
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
@@ -633,7 +633,7 @@ struct SceneData {
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept;
+    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, const allocator_type& alloc) noexcept;
     SceneData(SceneData&& rhs, const allocator_type& alloc);
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
@@ -644,6 +644,8 @@ struct SceneData {
 
     ccstd::pmr::string                     name;
     scene::Camera*                         camera{nullptr};
+    scene::Light*                          light{nullptr};
+    SceneFlags                             flags{SceneFlags::NONE};
     ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };
 
@@ -855,10 +857,10 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag>;
-    using VertexValue       = boost::variant2::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
-    using VertexConstValue = boost::variant2::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag>;
+    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
         impl::ValueHandle<CopyTag, vertex_descriptor>,

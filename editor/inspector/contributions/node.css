@@ -9,7 +9,7 @@
     display: flex;
     flex-direction: column;
     overflow: scroll;
-    padding-left: 10px;
+    padding-left: 0;
     padding-right: 2px;
 }
 
@@ -44,6 +44,7 @@
 .header {
     display: none;
     margin-top: 7px;
+    padding-left: 4px;
 }
 
 .header > .name {
@@ -88,6 +89,11 @@
 
 .section-missing .name {
     flex: 1;
+    color: var(--color-normal-contrast-emphasis);
+}
+
+.section-missing .name span {
+    text-decoration: line-through;
 }
 
 .section-missing > section > ui-icon {
@@ -117,7 +123,7 @@
 }
 
 .node .layer-content > .layer-edit {
-    margin-left: 6px;
+    margin-left: 4px;
 }
 
 .node .node-section {

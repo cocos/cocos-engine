@@ -30,6 +30,7 @@ import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, Buffer
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
+import { CSMLayers } from './shadow/csm-layers';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -58,6 +59,7 @@ export class PipelineSceneData {
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
 
     /**
@@ -71,8 +73,6 @@ export class PipelineSceneData {
       * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
       */
     public renderObjects: IRenderObject[] = [];
-    public castShadowObjects: IRenderObject[] = [];
-    public dirShadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
     protected _geometryRendererMaterials: Material[] = [];
@@ -149,6 +149,7 @@ export class PipelineSceneData {
 
     public destroy () {
         this.shadows.destroy();
+        this.csmLayers.destroy();
         this.validPunctualLights.length = 0;
         this._occlusionQueryInputAssembler?.destroy();
         this._occlusionQueryInputAssembler = null;

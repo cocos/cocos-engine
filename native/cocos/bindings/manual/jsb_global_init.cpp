@@ -73,6 +73,22 @@ static int selectPort(int port) {
     uv_loop_init(&loop);
     int tryTimes = 200;
     int startPort = port;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    constexpr int localPortMin = 37000; // query from /proc/sys/net/ipv4/ip_local_port_range
+    if (startPort < localPortMin) {
+        uv_interface_address_t *info = nullptr;
+        int count = 0;
+
+        uv_interface_addresses(&info, &count);
+        if (count == 0) {
+            SE_LOGE("Failed to accquire interfaces, error: %s\n Re-select port after 37000", strerror(errno));
+            startPort = localPortMin + port;
+        }
+        if (info) {
+            uv_free_interface_addresses(info, count);
+        }
+    }
+#endif
     while (tryTimes-- > 0) {
         uv_tcp_init(&loop, &server);
         uv_ip4_addr("0.0.0.0", startPort, &addr);
@@ -211,6 +227,17 @@ bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port,
     port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
 
     auto *se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    if (se != nullptr) {
+        se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    } else {
+        // NOTE: jsb_enable_debugger may be invoked before se::ScriptEngine is initialized,
+        // So cache the debugger information in global and use it in se::ScriptEngine::start.
+        // This strategy keeps the compatibility of se::ScriptEngine::enableDebugger.
+        se::ScriptEngine::DebuggerInfo debuggerInfo;
+        debuggerInfo.serverAddr = debuggerServerAddr;
+        debuggerInfo.port = port;
+        debuggerInfo.isWait = isWaitForConnect;
+        se::ScriptEngine::_setDebuggerInfo(debuggerInfo);
+    }
     return true;
 }

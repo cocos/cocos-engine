@@ -25,12 +25,9 @@
 
 #pragma once
 
-#include <cmath>
 #include <functional>
-#include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
-#include "base/std/container/vector.h"
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
@@ -57,7 +54,7 @@ constexpr float SHADOW_CAMERA_MAX_FAR = 2000.0F;
 const float COEFFICIENT_OF_EXPANSION = 2.0F * sqrtf(3.0F);
 
 struct CC_DLL RenderObject {
-    float depth = 0;
+    float depth = 0.0F;
     const scene::Model *model = nullptr;
 };
 using RenderObjectList = ccstd::vector<struct RenderObject>;
@@ -69,7 +66,7 @@ struct CC_DLL RenderTargetInfo {
 
 struct CC_DLL RenderPass {
     uint hash = 0;
-    float depth = 0;
+    float depth = 0.0F;
     uint shaderID = 0;
     uint passIndex = 0;
     const scene::SubModel *subModel = nullptr;
@@ -207,6 +204,7 @@ inline RenderQueueSortFunc convertQueueSortFunc(const RenderQueueSortMode &mode)
             break;
         case RenderQueueSortMode::FRONT_TO_BACK:
             sortFunc = opaqueCompareFn;
+            break;
         default:
             break;
     }
@@ -409,7 +407,14 @@ struct CC_DLL UBOGlobal {
     static constexpr uint TIME_OFFSET = 0;
     static constexpr uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
     static constexpr uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
-    static constexpr uint COUNT = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+
+    static constexpr uint DEBUG_VIEW_MODE_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+    static constexpr uint DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
+    static constexpr uint DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
+    static constexpr uint DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+    
+    static constexpr uint COUNT = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
+
     static constexpr uint SIZE = UBOGlobal::COUNT * 4;
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_GLOBAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -446,6 +451,7 @@ struct CC_DLL UBOCamera {
 };
 
 struct CC_DLL UBOShadow {
+    static constexpr uint CSM_LEVEL_COUNT = 4;
     static constexpr uint MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     static constexpr uint MAT_LIGHT_VIEW_OFFSET = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     static constexpr uint MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
@@ -457,7 +463,14 @@ struct CC_DLL UBOShadow {
     static constexpr uint SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     static constexpr uint SHADOW_COLOR_OFFSET = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
     static constexpr uint PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadow::SHADOW_COLOR_OFFSET + 4;
-    static constexpr uint COUNT = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
+    static constexpr uint MAT_CSM_VIEW_LEVELS_OFFSET = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
+    static constexpr uint MAT_CSM_VIEW_PROJ_LEVELS_OFFSET = UBOShadow::MAT_CSM_VIEW_LEVELS_OFFSET + 16 * UBOShadow::CSM_LEVEL_COUNT;
+    static constexpr uint MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOShadow::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOShadow::CSM_LEVEL_COUNT;
+    static constexpr uint CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOShadow::MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOShadow::CSM_LEVEL_COUNT;
+    static constexpr uint CSM_PROJ_INFO_LEVELS_OFFSET = UBOShadow::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOShadow::CSM_LEVEL_COUNT;
+    static constexpr uint CSM_SPLITS_INFO_OFFSET = UBOShadow::CSM_PROJ_INFO_LEVELS_OFFSET + 4 * UBOShadow::CSM_LEVEL_COUNT;
+    static constexpr uint CSM_INFO_OFFSET = UBOShadow::CSM_SPLITS_INFO_OFFSET + 4;
+    static constexpr uint COUNT = UBOShadow::CSM_INFO_OFFSET + 4;
     static constexpr uint SIZE = UBOShadow::COUNT * 4;
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_SHADOW);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -495,9 +508,9 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 
 uint nextPow2(uint val);
 
-bool supportsR16HalfFloatTexture(gfx::Device *device);
+bool supportsR16HalfFloatTexture(const gfx::Device* device);
 
-bool supportsR32FloatTexture(gfx::Device *device);
+bool supportsR32FloatTexture(const gfx::Device* device);
 
 extern CC_DLL uint skyboxFlag;
 

@@ -48,7 +48,7 @@ vec3 SurfacesFragmentModifyEmissive()
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
 vec4 SurfacesFragmentModifyPBRParams()
 {
-    // ao, roughness, metallic, ao, specularIntensity
+    // ao, roughness, metallic, specularIntensity
     return vec4(1.0, 0.5, 0.0, 0.5);
 }
 #endif

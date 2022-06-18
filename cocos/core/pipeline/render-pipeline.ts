@@ -39,6 +39,7 @@ import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
@@ -221,6 +222,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return this._profiler;
     }
 
+    /**
+     * @deprecated since v3.6, please use camera.geometryRenderer instead.
+     */
+    get geometryRenderer () {
+        return this._geometryRenderer;
+    }
+
     set clusterEnabled (value) {
         this._clusterEnabled = value;
     }
@@ -245,6 +253,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
     protected _profiler: Model | null = null;
+    protected _geometryRenderer: GeometryRenderer | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
     protected _pipelineRenderData: PipelineRenderData | null = null;
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
@@ -376,6 +385,18 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
+    public setMacroString (name: string, value: string): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroInt (name: string, value: number): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroBool (name: string, value: boolean): void {
+        this._macros[name] = value;
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
@@ -391,6 +412,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._pipelineUBO.activate(this._device, this);
         // update global defines in advance here for deferred pipeline may tryCompile shaders.
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._macros.CC_USE_DEBUG_VIEW = 0;
         this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device);
 
@@ -412,6 +434,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         if (cameras.length === 0) {
             return;
         }
+        this.updateGeometryRenderer(cameras); // for capability
         this._commandBuffers[0].begin();
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
@@ -664,6 +687,21 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
         this._constantMacros = str;
+    }
+
+    protected updateGeometryRenderer (cameras: Camera[]) {
+        if (this._geometryRenderer) {
+            return;
+        }
+
+        // Query the first camera rendering to swapchain.
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera && camera.window && camera.window.swapchain) {
+                this._geometryRenderer = camera.geometryRenderer;
+                return;
+            }
+        }
     }
 
     public generateBloomRenderData () {

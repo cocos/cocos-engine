@@ -397,14 +397,14 @@ struct ITechniqueInfo {
 };
 
 struct IBlockInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     ccstd::vector<gfx::Uniform> members;
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
@@ -413,7 +413,7 @@ struct ISamplerTextureInfo {
 
 struct ITextureInfo {
     uint32_t set{0};
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
@@ -422,21 +422,21 @@ struct ITextureInfo {
 
 struct ISamplerInfo {
     uint32_t set{0};
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IBufferInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::MemoryAccess memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IImageInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
@@ -446,7 +446,7 @@ struct IImageInfo {
 
 struct IInputAttachmentInfo {
     uint32_t set{0};
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
@@ -556,6 +556,9 @@ public:
      */
     static RegisteredEffectAssetMap &getAll() { return EffectAsset::effects; }
 
+    static bool isLayoutValid() { return layoutValid; }
+    static void setLayoutValid() { layoutValid = true; }
+
     inline void setTechniques(const ccstd::vector<ITechniqueInfo> &val) { _techniques = val; }
     inline void setShaders(const ccstd::vector<IShaderInfo> &val) { _shaders = val; }
     inline void setCombinations(const ccstd::vector<IPreCompileInfo> &val) { _combinations = val; }
@@ -616,6 +619,7 @@ public:
     //
 protected:
     static RegisteredEffectAssetMap effects; //cjh TODO: how to clear when game exits.
+    static bool layoutValid;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(EffectAsset);
 

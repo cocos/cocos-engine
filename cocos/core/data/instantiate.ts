@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { DEV } from 'internal:constants';
+import { DEV, JSB } from 'internal:constants';
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject, isCCObject } from './object';
@@ -33,7 +33,6 @@ import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets/prefab';
 import { Node } from '../scene-graph/node';
-import { JSB } from '../default-constants';
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 import { isCCClassOrFastDefined } from './class';
 

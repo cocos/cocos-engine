@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 
 export const enum DescriptorTypeOrder {
@@ -45,8 +45,29 @@ export const enum DescriptorTypeOrder {
     INPUT_ATTACHMENT,
 }
 
-export class UniformBlockDB {
-    readonly values: Map<string, Uniform> = new Map<string, Uniform>();
+export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
+    switch (e) {
+    case DescriptorTypeOrder.UNIFORM_BUFFER:
+        return 'UNIFORM_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+        return 'DYNAMIC_UNIFORM_BUFFER';
+    case DescriptorTypeOrder.SAMPLER_TEXTURE:
+        return 'SAMPLER_TEXTURE';
+    case DescriptorTypeOrder.SAMPLER:
+        return 'SAMPLER';
+    case DescriptorTypeOrder.TEXTURE:
+        return 'TEXTURE';
+    case DescriptorTypeOrder.STORAGE_BUFFER:
+        return 'STORAGE_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+        return 'DYNAMIC_STORAGE_BUFFER';
+    case DescriptorTypeOrder.STORAGE_IMAGE:
+        return 'STORAGE_IMAGE';
+    case DescriptorTypeOrder.INPUT_ATTACHMENT:
+        return 'INPUT_ATTACHMENT';
+    default:
+        return '';
+    }
 }
 
 export class Descriptor {
@@ -59,7 +80,16 @@ export class Descriptor {
 
 export class DescriptorBlock {
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
-    readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
+    readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
+    capacity = 0;
+    count = 0;
+}
+
+export class DescriptorBlockFlattened {
+    readonly descriptorNames: string[] = [];
+    readonly uniformBlockNames: string[] = [];
+    readonly descriptors: Descriptor[] = [];
+    readonly uniformBlocks: UniformBlock[] = [];
     capacity = 0;
     count = 0;
 }
@@ -237,6 +267,13 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // ComponentGraph
+        this._names.length = 0;
+        this._descriptors.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphValue> (
         id: LayoutGraphValue,
         object: LayoutGraphValueType[T],
@@ -629,14 +666,14 @@ export class DescriptorSetLayoutData {
 }
 
 export class DescriptorSetData {
-    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout, descriptorSet: DescriptorSet) {
+    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null) {
         this.descriptorSetLayoutData = descriptorSetLayoutData;
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
-    readonly descriptorSetLayout: DescriptorSetLayout;
-    readonly descriptorSet: DescriptorSet;
+    /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
+    /*object*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {
@@ -822,6 +859,19 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // Members
+        this.valueNames.length = 0;
+        this.attributeIndex.clear();
+        this.constantIndex.clear();
+        this.shaderLayoutIndex.clear();
+        // ComponentGraph
+        this._names.length = 0;
+        this._updateFrequencies.length = 0;
+        this._layouts.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphDataValue> (
         id: LayoutGraphDataValue,
         object: LayoutGraphDataValueType[T],
@@ -1178,4 +1228,5 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly valueNames: string[] = [];
     readonly attributeIndex: Map<string, number> = new Map<string, number>();
     readonly constantIndex: Map<string, number> = new Map<string, number>();
+    readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
 }

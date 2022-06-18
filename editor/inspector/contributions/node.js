@@ -185,7 +185,30 @@ exports.template = /* html*/`
     <section class="component scene">
         <ui-prop class="release" type="dump"></ui-prop>
         <ui-prop class="ambient" type="dump"></ui-prop>
-        <ui-prop class="skybox" type="dump"></ui-prop>
+        <ui-section class="skybox" expand>
+            <div slot="header" style="width: 100%;">
+                <span>Skybox</span>
+                <ui-link tooltip="i18n:scene.menu.help_url" style="float: right; margin-right: 1px;">
+                    <ui-icon value="help"></ui-icon>
+                </ui-link>
+            </div>
+            <div class="block-before"></div>
+            <div class="block-reflection" hidden>
+                <ui-prop>
+                    <span slot="label">Reflection Convolution</span>
+                    <div slot="content">
+                        <ui-loading style="position: relative;top: 4px;"></ui-loading>
+                        <ui-button num="1" style="display: none;">
+                            <span>Bake</span>
+                        </ui-button>
+                        <ui-button num="0" style="display: none;">
+                            <span>Remove</span>
+                        </ui-button>
+                    </div>
+                </ui-prop>
+            </div>
+            <div class="block-after"></div>
+        </ui-section>
         <ui-prop class="postProcess" type="dump"></ui-prop>
         <ui-prop class="fog" type="dump"></ui-prop>
         <ui-prop class="shadows" type="dump"></ui-prop>
@@ -567,12 +590,21 @@ const Elements = {
         },
     },
     scene: {
-        ready() {},
+        ready() {
+            const panel = this;
+
+            const $help = panel.$.sceneSkybox.querySelector('ui-link');
+            $help.value = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
+            $help.addEventListener('click', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+        },
         update() {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.$.componentAdd.style.display = 'block';
+                panel.$.componentAdd.style.display = 'inline-block';
                 return;
             }
             panel.$.componentAdd.style.display = 'none';
@@ -595,9 +627,71 @@ const Elements = {
             panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
-            panel.dump._globals.skybox.displayName = 'Skybox';
-            panel.dump._globals.skybox.help = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
-            panel.$.sceneSkybox.render(panel.dump._globals.skybox);
+            panel.$.sceneSkybox.dump = panel.dump._globals.skybox;
+            const $skyboxDIVBefore = panel.$.sceneSkybox.querySelector('.block-before');
+            const $skyboxDIVAfter = panel.$.sceneSkybox.querySelector('.block-after');
+            const $reflectionDIV = panel.$.sceneSkybox.querySelector('.block-reflection');
+            $skyboxDIVBefore.innerHTML = '';
+            $skyboxDIVAfter.innerHTML = '';
+
+            let $skyboxDIV = $skyboxDIVBefore;
+            for (const key in panel.dump._globals.skybox.value) {
+                const dump = panel.dump._globals.skybox.value[key];
+                if (!dump.visible) {
+                    continue;
+                }
+                const $prop = document.createElement('ui-prop');
+                $prop.setAttribute('type', 'dump');
+                $prop.render(dump);
+                $skyboxDIV.appendChild($prop);
+                if (dump.name === 'envmap') {
+                    $skyboxDIV = $skyboxDIVAfter;
+                }
+            }
+            $reflectionDIV.setAttribute('hidden', '');
+            if (panel.dump._globals.skybox.value['envmap'].value && panel.dump._globals.skybox.value['envmap'].value.uuid) {
+                $reflectionDIV.removeAttribute('hidden');
+
+                const $skyboxBakeLoading = panel.$.sceneSkybox.querySelector('ui-loading');
+                const $skyboxBakeButtonList = panel.$.sceneSkybox.querySelectorAll('ui-button');
+                let envmapAssetMeta = null;
+                // eslint-disable-next-line no-inner-declarations
+                async function switchBake(event) {
+                    if (!envmapAssetMeta) {
+                        return;
+                    }
+                    const num = event.target.getAttribute('num') || 0;
+                    envmapAssetMeta.userData.mipBakeMode = parseInt(num);
+                    await Editor.Message.request('asset-db', 'save-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid, JSON.stringify(envmapAssetMeta));
+                    $skyboxBakeLoading.style.display = '';
+                    $skyboxBakeButtonList[0].style.display = 'none';
+                    $skyboxBakeButtonList[1].style.display = 'none';
+                    setTimeout(() => {
+                        initBake();
+                    }, 1000);
+                }
+                // eslint-disable-next-line no-inner-declarations
+                function initBake() {
+                    Editor.Message
+                        .request('asset-db', 'query-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid)
+                        .then((meta) => {
+                            envmapAssetMeta = meta;
+                            $skyboxBakeLoading.style.display = 'none';
+                            if (meta.userData.mipBakeMode && meta.userData.mipBakeMode !== 0) {
+                                $skyboxBakeButtonList[0].style.display = 'none';
+                                $skyboxBakeButtonList[1].style.display = '';
+                            } else {
+                                $skyboxBakeButtonList[0].style.display = '';
+                                $skyboxBakeButtonList[1].style.display = 'none';
+                            }
+                        });
+                }
+                $skyboxBakeButtonList[0].removeEventListener('confirm', switchBake);
+                $skyboxBakeButtonList[1].removeEventListener('confirm', switchBake);
+                $skyboxBakeButtonList[0].addEventListener('confirm', switchBake);
+                $skyboxBakeButtonList[1].addEventListener('confirm', switchBake);
+                initBake();
+            }
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
             panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
@@ -932,7 +1026,7 @@ const Elements = {
                     sectionMissing.appendChild($section);
                 }
                 $section.innerHTML = `
-                <span class="name">${panel.dump.removedComponents[i].name}</span>
+                <span class="name"><span>${panel.dump.removedComponents[i].name}</span> [removed]</span>
                 <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
                 <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;

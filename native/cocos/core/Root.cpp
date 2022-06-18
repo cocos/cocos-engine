@@ -95,10 +95,14 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 }
 
+render::Pipeline *Root::getCustomPipeline() const {
+    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
+}
+
 void Root::destroy() {
     destroyScenes();
 
-    if (_usesCustomPipeline) {
+    if (_usesCustomPipeline && _pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
     _pipelineRuntime.reset();
@@ -156,11 +160,23 @@ public:
     void setProfiler(scene::Model *profiler) override {
         pipeline->setProfiler(profiler);
     }
+    pipeline::GeometryRenderer  *getGeometryRenderer() const override {
+        return pipeline->getGeometryRenderer();
+    }
     float getShadingScale() const override {
         return pipeline->getShadingScale();
     }
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
+    }
+    void setMacroString(const ccstd::string& name, const ccstd::string& value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroInt(const ccstd::string& name, int32_t value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroBool(const ccstd::string& name, bool value) override {
+        pipeline->setValue(name, value);
     }
     void onGlobalPipelineStateChanged() override {
         pipeline->onGlobalPipelineStateChanged();
@@ -315,7 +331,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
             return a->getPriority() < b->getPriority();
         });
+#if !defined(CC_SERVER_MODE)
         _pipelineRuntime->render(_cameraList);
+#endif
         _device->present();
     }
 

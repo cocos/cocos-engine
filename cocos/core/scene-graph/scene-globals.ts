@@ -19,7 +19,8 @@
  THE SOFTWARE.
 */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
+    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCInteger } from '../data/utils/attribute';
@@ -51,50 +52,55 @@ const normalizeHDRColor = (color : Vec4) => {
     }
 };
 /**
- * @en Environment lighting information in the Scene
- * @zh 场景的环境光照相关信息
+ * @en Environment lighting configuration in the Scene
+ * @zh 场景的环境光照相关配置
  */
 @ccclass('cc.AmbientInfo')
 export class AmbientInfo {
-    @serializable
-    @formerlySerializedAs('_skyColor')
-    protected _skyColorHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
-    @serializable
-    @formerlySerializedAs('_skyIllum')
-    protected _skyIllumHDR = Ambient.SKY_ILLUM;
-    @serializable
-    @formerlySerializedAs('_groundAlbedo')
-    protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
-
-    @serializable
-    protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
-    @serializable
-    protected _skyIllumLDR = Ambient.SKY_ILLUM;
-    @serializable
-    protected _groundAlbedoLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
-
-    protected _resource: Ambient | null = null;
-
+    /**
+     * @en The sky color in HDR mode
+     * @zh HDR 模式下的天空光照色
+     */
     get skyColorHDR () : Readonly<Vec4> {
         return this._skyColorHDR;
     }
 
+    /**
+     * @en The ground color in HDR mode
+     * @zh HDR 模式下的地面光照色
+     */
     get groundAlbedoHDR () : Readonly<Vec4> {
         return this._groundAlbedoHDR;
     }
 
+    /**
+     * @en Sky illuminance in HDR mode
+     * @zh HDR 模式下的天空亮度
+     */
     get skyIllumHDR () {
         return this._skyIllumHDR;
     }
 
+    /**
+     * @en The sky color in LDR mode
+     * @zh LDR 模式下的天空光照色
+     */
     get skyColorLDR () : Readonly<Vec4> {
         return this._skyColorLDR;
     }
 
+    /**
+     * @en The ground color in LDR mode
+     * @zh LDR 模式下的地面光照色
+     */
     get groundAlbedoLDR () : Readonly<Vec4> {
         return this._groundAlbedoLDR;
     }
 
+    /**
+     * @en Sky illuminance in LDR mode
+     * @zh LDR 模式下的天空亮度
+     */
     get skyIllumLDR () {
         return this._skyIllumLDR;
     }
@@ -130,6 +136,9 @@ export class AmbientInfo {
         return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
+    /**
+     * @internal
+     */
     set skyColor (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._skyColorHDR.set(val);
@@ -194,6 +203,9 @@ export class AmbientInfo {
         return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
+    /**
+     * @internal
+     */
     set groundAlbedo (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._groundAlbedoHDR.set(val);
@@ -203,6 +215,30 @@ export class AmbientInfo {
         if (this._resource) { this._resource.groundAlbedo.set(val); }
     }
 
+    @serializable
+    @formerlySerializedAs('_skyColor')
+    protected _skyColorHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    @serializable
+    @formerlySerializedAs('_skyIllum')
+    protected _skyIllumHDR = Ambient.SKY_ILLUM;
+    @serializable
+    @formerlySerializedAs('_groundAlbedo')
+    protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+
+    @serializable
+    protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    @serializable
+    protected _skyIllumLDR = Ambient.SKY_ILLUM;
+    @serializable
+    protected _groundAlbedoLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+
+    protected _resource: Ambient | null = null;
+
+    /**
+     * @en Activate the ambient lighting configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用环境光照设置，不需要手动调用
+     * @param resource The ambient configuration object in the render scene
+     */
     public activate (resource: Ambient) {
         this._resource = resource;
         this._resource.initialize(this);
@@ -211,36 +247,11 @@ export class AmbientInfo {
 legacyCC.AmbientInfo = AmbientInfo;
 
 /**
- * @en Skybox related information
- * @zh 天空盒相关信息
+ * @en Skybox related configuration
+ * @zh 天空盒相关配置
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @serializable
-    protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
-    @serializable
-    @type(TextureCube)
-    @formerlySerializedAs('_envmap')
-    protected _envmapHDR: TextureCube | null = null;
-    @serializable
-    @type(TextureCube)
-    protected _envmapLDR: TextureCube | null = null;
-    @serializable
-    @type(TextureCube)
-    protected _diffuseMapHDR: TextureCube | null = null;
-    @serializable
-    @type(TextureCube)
-    protected _diffuseMapLDR: TextureCube | null = null;
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _useHDR = true;
-    @serializable
-    @type(Material)
-    protected _editableMaterial: Material | null = null;
-
-    protected _resource: Skybox | null = null;
-
     /**
      * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
      * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
@@ -436,16 +447,46 @@ export class SkyboxInfo {
     @editable
     @type(Material)
     @tooltip('i18n:skybox.material')
-    set skyboxMaterial(val: Material | null) {
+    set skyboxMaterial (val: Material | null) {
         this._editableMaterial = val;
         if (this._resource) {
             this._resource.setSkyboxMaterial(this._editableMaterial);
         }
     }
-    get skyboxMaterial() {
+    get skyboxMaterial () {
         return this._editableMaterial;
     }
 
+    @serializable
+    protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+    @serializable
+    @type(TextureCube)
+    @formerlySerializedAs('_envmap')
+    protected _envmapHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _envmapLDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffuseMapHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffuseMapLDR: TextureCube | null = null;
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _useHDR = true;
+    @serializable
+    @type(Material)
+    protected _editableMaterial: Material | null = null;
+
+    protected _resource: Skybox | null = null;
+
+    /**
+     * @en Activate the skybox configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用天空盒设置，不需要手动调用
+     * @param resource The skybox configuration object in the render scene
+     */
     public activate (resource: Skybox) {
         this.envLightingType = this._envLightingType;
         this._resource = resource;
@@ -459,33 +500,13 @@ export class SkyboxInfo {
 legacyCC.SkyboxInfo = SkyboxInfo;
 
 /**
- * @zh 全局雾相关信息
- * @en Global fog info
+ * @zh 全局雾相关配置
+ * @en Global fog configuration
  */
 @ccclass('cc.FogInfo')
 export class FogInfo {
     public static FogType = FogType;
-    @serializable
-    protected _type = FogType.LINEAR;
-    @serializable
-    protected _fogColor = new Color('#C8C8C8');
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _fogDensity = 0.3;
-    @serializable
-    protected _fogStart = 0.5;
-    @serializable
-    protected _fogEnd = 300;
-    @serializable
-    protected _fogAtten = 5;
-    @serializable
-    protected _fogTop = 1.5;
-    @serializable
-    protected _fogRange = 1.2;
-    @serializable
-    protected _accurate = false;
-    protected _resource: Fog | null = null;
+
     /**
      * @zh 是否启用全局雾效
      * @en Enable global fog
@@ -669,6 +690,33 @@ export class FogInfo {
         if (this._resource) { this._resource.fogRange = val; }
     }
 
+    @serializable
+    protected _type = FogType.LINEAR;
+    @serializable
+    protected _fogColor = new Color('#C8C8C8');
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _fogDensity = 0.3;
+    @serializable
+    protected _fogStart = 0.5;
+    @serializable
+    protected _fogEnd = 300;
+    @serializable
+    protected _fogAtten = 5;
+    @serializable
+    protected _fogTop = 1.5;
+    @serializable
+    protected _fogRange = 1.2;
+    @serializable
+    protected _accurate = false;
+    protected _resource: Fog | null = null;
+
+    /**
+     * @en Activate the fog configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用雾效设置，不需要手动调用
+     * @param resource The fog configuration object in the render scene
+     */
     public activate (resource: Fog) {
         this._resource = resource;
         this._resource.initialize(this);
@@ -677,28 +725,11 @@ export class FogInfo {
 }
 
 /**
- * @en Scene level planar shadow related information
- * @zh 平面阴影相关信息
+ * @en Scene level shadow related configuration
+ * @zh 场景级别阴影相关的配置
  */
 @ccclass('cc.ShadowsInfo')
 export class ShadowsInfo {
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _type = ShadowType.Planar;
-    @serializable
-    protected _normal = new Vec3(0, 1, 0);
-    @serializable
-    protected _distance = 0;
-    @serializable
-    protected _shadowColor = new Color(0, 0, 0, 76);
-    @serializable
-    protected _maxReceived = 4;
-    @serializable
-    protected _size = new Vec2(512, 512);
-
-    protected _resource: Shadows | null = null;
-
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
@@ -724,6 +755,10 @@ export class ShadowsInfo {
         return this._enabled;
     }
 
+    /**
+     * @en The type of the shadow
+     * @zh 阴影渲染的类型
+     */
     @editable
     @type(ShadowType)
     set type (val) {
@@ -809,9 +844,23 @@ export class ShadowsInfo {
     get shadowMapSize () {
         return this._size.x;
     }
-    get size () : Readonly<Vec2> {
-        return this._size;
-    }
+
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _type = ShadowType.Planar;
+    @serializable
+    protected _normal = new Vec3(0, 1, 0);
+    @serializable
+    protected _distance = 0;
+    @serializable
+    protected _shadowColor = new Color(0, 0, 0, 76);
+    @serializable
+    protected _maxReceived = 4;
+    @serializable
+    protected _size = new Vec2(512, 512);
+
+    protected _resource: Shadows | null = null;
 
     /**
      * @en Set plane which receives shadow with the given node's world transformation
@@ -825,6 +874,11 @@ export class ShadowsInfo {
         this.planeHeight = Vec3.dot(this._normal, _v3);
     }
 
+    /**
+     * @en Activate the shadow configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用阴影设置，不需要手动调用
+     * @param resource The shadow configuration object in the render scene
+     */
     public activate (resource: Shadows) {
         this._resource = resource;
         this._resource.initialize(this);
@@ -833,30 +887,18 @@ export class ShadowsInfo {
 }
 legacyCC.ShadowsInfo = ShadowsInfo;
 
-/**
- * @en Scene level octree related information
- * @zh 场景八叉树相关信息
- */
-
 export const DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
 export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
 export const DEFAULT_OCTREE_DEPTH = 8;
 
+/**
+ * @en Scene management and culling configuration based on octree
+ * @zh 基于八叉树的场景剔除配置
+ */
 @ccclass('cc.OctreeInfo')
 export class OctreeInfo {
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _minPos = new Vec3(DEFAULT_WORLD_MIN_POS);
-    @serializable
-    protected _maxPos = new Vec3(DEFAULT_WORLD_MAX_POS);
-    @serializable
-    protected _depth = DEFAULT_OCTREE_DEPTH;
-
-    protected _resource: Octree | null = null;
-
     /**
-     * @en Whether activate octree
+     * @en Whether activate scene culling based on octree
      * @zh 是否启用八叉树加速剔除？
      */
     @editable
@@ -872,6 +914,11 @@ export class OctreeInfo {
         return this._enabled;
     }
 
+    /**
+     * @en The minimal position of the scene bounding box.
+     * Objects entirely outside the bounding box will be culled, other objects will be managed dynamically.
+     * @zh 场景包围盒的最小位置，完全超出包围盒的物体会被剔除，其他物体根据情况被动态剔除。
+     */
     @editable
     @tooltip('i18n:octree_culling.minPos')
     @displayName('World MinPos')
@@ -883,6 +930,11 @@ export class OctreeInfo {
         return this._minPos;
     }
 
+    /**
+     * @en The maximum position of the scene bounding box.
+     * Objects entirely outside the bounding box will be culled, other objects will be managed dynamically.
+     * @zh 场景包围盒的最大位置，完全超出包围盒的物体会被剔除，其他物体根据情况被动态剔除。
+     */
     @editable
     @tooltip('i18n:octree_culling.maxPos')
     @displayName('World MaxPos')
@@ -894,6 +946,10 @@ export class OctreeInfo {
         return this._maxPos;
     }
 
+    /**
+     * @en The depth of the octree.
+     * @zh 八叉树的深度。
+     */
     @editable
     @range([4, 12, 1])
     @slide
@@ -907,6 +963,22 @@ export class OctreeInfo {
         return this._depth;
     }
 
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _minPos = new Vec3(DEFAULT_WORLD_MIN_POS);
+    @serializable
+    protected _maxPos = new Vec3(DEFAULT_WORLD_MAX_POS);
+    @serializable
+    protected _depth = DEFAULT_OCTREE_DEPTH;
+
+    protected _resource: Octree | null = null;
+
+    /**
+     * @en Activate the octree configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
+     * @param resource The octree configuration object in the render scene
+     */
     public activate (resource: Octree) {
         this._resource = resource;
         this._resource.initialize(this);
@@ -920,15 +992,15 @@ export class OctreeInfo {
 @ccclass('cc.SceneGlobals')
 export class SceneGlobals {
     /**
-     * @en The environment light information
-     * @zh 场景的环境光照相关信息
+     * @en The environment lighting configuration
+     * @zh 场景的环境光照相关配置
      */
     @serializable
     @editable
     public ambient = new AmbientInfo();
     /**
-     * @en Scene level planar shadow related information
-     * @zh 平面阴影相关信息
+     * @en Scene level shadow related configuration
+     * @zh 平面阴影相关配置
      */
     @serializable
     @editable
@@ -938,13 +1010,17 @@ export class SceneGlobals {
      */
     @serializable
     public _skybox = new SkyboxInfo();
+    /**
+     * @en Global fog configuration
+     * @zh 全局雾相关配置
+     */
     @editable
     @serializable
     public fog = new FogInfo();
 
     /**
-     * @en Skybox related information
-     * @zh 天空盒相关信息
+     * @en Skybox related configuration
+     * @zh 天空盒相关配置
      */
     @editable
     @type(SkyboxInfo)
@@ -956,13 +1032,17 @@ export class SceneGlobals {
     }
 
     /**
-     * @en Octree related information
-     * @zh 八叉树相关信息
+     * @en Octree related configuration
+     * @zh 八叉树相关配置
      */
     @editable
     @serializable
     public octree = new OctreeInfo();
 
+    /**
+     * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
+     * @zh 启用和初始化场景全局配置，不需要手动调用
+     */
     public activate () {
         const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);

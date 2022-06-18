@@ -33,7 +33,7 @@ namespace cc {
 
 class CC_DLL SystemWindow : public ISystemWindow {
 public:
-    explicit SystemWindow();
+    explicit SystemWindow(IEventDispatch* delegate);
     ~SystemWindow() override;
 
     uintptr_t getWindowHandler() const override;
@@ -44,6 +44,10 @@ public:
      */
     void setCursorEnabled(bool value) override;
     void copyTextToClipboard(const std::string& text) override;
+
+    int  init();
+    void pollEvent(bool* quit);
+    void swapWindow();
 
 private:
     int _width{0};

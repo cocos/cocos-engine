@@ -19,6 +19,11 @@ declare module 'pal/input' {
          * Register the mouse event callback.
          */
         public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: MouseCallback, target?: any);
+
+        public dispatchMouseDownEvent? (nativeMouseEvent: any);
+        public dispatchMouseMoveEvent? (nativeMouseEvent: any);
+        public dispatchMouseUpEvent? (nativeMouseEvent: any);
+        public dispatchScrollEvent? (nativeMouseEvent: any);
     }
 
     type KeyboardCallback = (res: import('cocos/input/types').EventKeyboard) => void;
@@ -30,6 +35,9 @@ declare module 'pal/input' {
          * Register the keyboard event callback.
          */
         public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: KeyboardCallback, target?: any);
+
+        public dispatchKeyboardDownEvent? (nativeKeyboardEvent: any);
+        public dispatchKeyboardUpEvent? (nativeKeyboardEvent: any);
     }
 
     /**

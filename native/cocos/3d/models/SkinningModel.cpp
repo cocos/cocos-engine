@@ -130,7 +130,7 @@ void SkinningModel::updateTransform(uint32_t stamp) {
     Vec3 v32;
     for (JointInfo &jointInfo : _joints) {
         const auto *bound = jointInfo.bound;
-        auto *transform = jointInfo.transform;
+        auto &transform = jointInfo.transform;
         Mat4 worldMatrix = cc::getWorldMatrix(transform, static_cast<int32_t>(stamp));
         jointInfo.bound->transform(worldMatrix, &ab1);
         ab1.getBoundary(&v31, &v32);

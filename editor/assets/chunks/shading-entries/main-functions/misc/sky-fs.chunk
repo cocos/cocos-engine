@@ -16,13 +16,13 @@ void main() {
   color.a = 1.0;
 
   #if CC_USE_HDR
-    #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-        if (cc_debug_view_composite_enable_tone_mapping > 0.0)
+    #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+      if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
     #endif
     color.rgb = ACESToneMap(color.rgb);
   #endif
-  #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-    if (cc_debug_view_composite_enable_gamma_correction > 0.0)
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+    if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
   #endif
     color.rgb = LinearToSRGB(color.rgb);
 

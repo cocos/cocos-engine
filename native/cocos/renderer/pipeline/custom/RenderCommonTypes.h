@@ -124,6 +124,39 @@ enum class TaskType {
     ASYNC,
 };
 
+enum class SceneFlags : uint32_t {
+    NONE = 0,
+    OPAQUE_OBJECT = 0x1,
+    CUTOUT_OBJECT = 0x2,
+    TRANSPARENT_OBJECT = 0x4,
+    SHADOW_CASTER = 0x8,
+    ALL = 0xFFFFFFFF,
+};
+
+constexpr SceneFlags operator|(const SceneFlags lhs, const SceneFlags rhs) noexcept {
+    return static_cast<SceneFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+constexpr SceneFlags operator&(const SceneFlags lhs, const SceneFlags rhs) noexcept {
+    return static_cast<SceneFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
+
+constexpr SceneFlags& operator|=(SceneFlags& lhs, const SceneFlags rhs) noexcept {
+    return lhs = lhs | rhs;
+}
+
+constexpr SceneFlags& operator&=(SceneFlags& lhs, const SceneFlags rhs) noexcept {
+    return lhs = lhs & rhs;
+}
+
+constexpr bool operator!(SceneFlags e) noexcept {
+    return e == static_cast<SceneFlags>(0);
+}
+
+constexpr bool any(SceneFlags e) noexcept {
+    return !!e;
+}
+
 } // namespace render
 
 } // namespace cc

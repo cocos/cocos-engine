@@ -172,6 +172,13 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::string *to, se::Obje
     return true;
 }
 
+inline bool sevalue_to_native(const se::Value &from, std::string_view *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    if (from.isString()) {
+        *to = from.toString();
+    }
+    return true;
+}
+
 ///// integers
 inline bool sevalue_to_native(const se::Value &from, bool *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     *to = from.isNullOrUndefined() ? false : (from.isNumber() ? from.toDouble() != 0 : from.toBoolean());
@@ -215,7 +222,7 @@ inline bool sevalue_to_native(const se::Value &from, int64_t *to, se::Object * /
     return true;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 inline bool sevalue_to_native(const se::Value &from, unsigned long *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     // on mac: unsiged long  === uintptr_t
     static_assert(sizeof(*to) == 8, "");
@@ -324,7 +331,9 @@ inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*c
 }
 
 inline bool sevalue_to_native(const se::Value &from, ccstd::string **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    **to = from.toString();
+    if (to != nullptr && *to != nullptr) {
+        **to = from.toString();
+    }
     return true;
 }
 
@@ -379,16 +388,14 @@ bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret); 
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming) // NOLINT
 
 inline bool nativevalue_to_se(const ccstd::vector<int8_t> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::INT8, from.data(), from.size());
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::INT8, from.data(), from.size())};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 inline bool nativevalue_to_se(const ccstd::vector<uint8_t> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), from.size());
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), from.size())};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
@@ -443,7 +450,7 @@ inline bool nativevalue_to_se(bool from, se::Value &to, se::Object * /*ctx*/) { 
     return true;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 inline bool nativevalue_to_se(unsigned long from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     static_assert(sizeof(from) == 8, "");
     to.setDouble(static_cast<double>(from));
@@ -458,6 +465,11 @@ inline bool nativevalue_to_se(long from, se::Value &to, se::Object * /*ctx*/) { 
 #endif
 
 inline bool nativevalue_to_se(const ccstd::string &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    to.setString(from);
+    return true;
+}
+
+inline bool nativevalue_to_se(const std::string_view &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setString(from);
     return true;
 }

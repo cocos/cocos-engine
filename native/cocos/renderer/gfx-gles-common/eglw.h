@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM != CC_PLATFORM_IOS)
     #if (CC_PLATFORM == CC_PLATFORM_QNX)
         #define EGL_NO_X11 1
     #endif

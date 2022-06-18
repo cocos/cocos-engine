@@ -27,6 +27,7 @@
 #include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
+#include <boost/align/align_up.hpp>
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
@@ -284,23 +285,26 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     for (uint32_t i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    uint32_t totalSize = sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount;
+    
+    Format format = texture->getFormat();
+    constexpr uint32_t alignment = 16;
+    
+    size_t totalSize = boost::alignment::align_up(sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount, alignment);
     for (uint32_t i = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
         uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, region.texExtent.depth);
-        totalSize += size * region.texSubres.layerCount;
+        totalSize += boost::alignment::align_up(size, alignment) * region.texSubres.layerCount;
     }
 
-    // TODO(PatriceJiang): in C++17 replace with:*allocator = ccnew ThreadSafeLinearAllocator(totalSize);
     auto *memory = CC_MALLOC_ALIGN(sizeof(ThreadSafeLinearAllocator), alignof(ThreadSafeLinearAllocator));
-    auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize);
+    auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize, alignment);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
     const auto **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
-    const auto blockHeight = formatAlignment(texture->getFormat()).second;
+    const auto blockHeight = formatAlignment(format).second;
     for (uint32_t i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
         uint32_t width = region.texExtent.width;
@@ -310,13 +314,13 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         uint32_t rowStride = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
         uint32_t heightStride = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
 
-        uint32_t rowStrideSize = formatSize(texture->getFormat(), rowStride, 1, 1);
-        uint32_t sliceStrideSize = formatSize(texture->getFormat(), rowStride, heightStride, 1);
-        uint32_t destRowStrideSize = formatSize(texture->getFormat(), width, 1, 1);
-        uint32_t size = formatSize(texture->getFormat(), width, height, depth);
+        uint32_t rowStrideSize = formatSize(format, rowStride, 1, 1);
+        uint32_t sliceStrideSize = formatSize(format, rowStride, heightStride, 1);
+        uint32_t destRowStrideSize = formatSize(format, width, 1, 1);
+        uint32_t size = formatSize(format, width, height, depth);
 
         for (uint32_t l = 0; l < region.texSubres.layerCount; l++) {
-            auto *buffer = allocator->allocate<uint8_t>(size);
+            auto *buffer = allocator->allocate<uint8_t>(size, alignment);
             uint32_t destOffset = 0;
             uint32_t buffOffset = 0;
             for (uint32_t d = 0; d < depth; d++) {

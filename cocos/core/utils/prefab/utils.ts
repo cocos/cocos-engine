@@ -35,7 +35,7 @@ import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';
 import { ValueType } from '../../value-types';
 
-export function createNodeWithPrefab(node: Node) {
+export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
     const prefabInfo = node._prefab;
     if (!prefabInfo) {
@@ -105,7 +105,7 @@ export function createNodeWithPrefab(node: Node) {
 }
 
 // TODO: more efficient id->Node/Component map
-export function generateTargetMap(node: Node, targetMap: any, isRoot: boolean) {
+export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) {
     if (!targetMap) {
         return;
     }
@@ -143,7 +143,7 @@ export function generateTargetMap(node: Node, targetMap: any, isRoot: boolean) {
     }
 }
 
-export function getTarget(localID: string[], targetMap: any) {
+export function getTarget (localID: string[], targetMap: any) {
     if (!localID) {
         return null;
     }
@@ -162,7 +162,7 @@ export function getTarget(localID: string[], targetMap: any) {
     return target;
 }
 
-export function applyMountedChildren(node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!mountedChildren) {
         return;
     }
@@ -214,7 +214,7 @@ export function applyMountedChildren(node: Node, mountedChildren: MountedChildre
     }
 }
 
-export function applyMountedComponents(node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedComponents (node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!mountedComponents) {
         return;
     }
@@ -250,7 +250,7 @@ export function applyMountedComponents(node: Node, mountedComponents: MountedCom
     }
 }
 
-export function applyRemovedComponents(node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyRemovedComponents (node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!removedComponents) {
         return;
     }
@@ -272,7 +272,7 @@ export function applyRemovedComponents(node: Node, removedComponents: TargetInfo
     }
 }
 
-export function applyPropertyOverrides(node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>) {
     if (propertyOverrides.length <= 0) {
         return;
     }
@@ -330,7 +330,7 @@ export function applyPropertyOverrides(node: Node, propertyOverrides: PropertyOv
     }
 }
 
-export function applyTargetOverrides(node: BaseNode) {
+export function applyTargetOverrides (node: BaseNode) {
     // @ts-expect-error private member access
     const targetOverrides = node._prefab?.targetOverrides;
     if (targetOverrides) {
@@ -395,7 +395,7 @@ export function applyTargetOverrides(node: BaseNode) {
     }
 }
 
-export function expandPrefabInstanceNode(node: Node, recursively = false) {
+export function expandPrefabInstanceNode (node: Node, recursively = false) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
     const prefabInstance = prefabInfo?.instance;
@@ -409,6 +409,9 @@ export function expandPrefabInstanceNode(node: Node, recursively = false) {
                 });
             }
         }
+        // nested prefab children's id will be the same: 3dtask#12511
+        // applyNodeAndComponentId(node, node.uuid);
+
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
         generateTargetMap(node, targetMap, true);
@@ -426,7 +429,7 @@ export function expandPrefabInstanceNode(node: Node, recursively = false) {
     }
 }
 
-export function expandNestedPrefabInstanceNode(node: BaseNode) {
+export function expandNestedPrefabInstanceNode (node: BaseNode) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
 
@@ -434,5 +437,19 @@ export function expandNestedPrefabInstanceNode(node: BaseNode) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
         });
+    }
+}
+
+export function applyNodeAndComponentId (node: Node, rootId: string) {
+    const { components, children } = node;
+    for (let i = 0; i < components.length; i++) {
+        const comp = components[i];
+        comp._id = `${rootId}${comp.__prefab?.fileId}`;
+    }
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        // @ts-expect-error private member access
+        child._id = `${rootId}${child._prefab?.fileId}`;
+        applyNodeAndComponentId(child, rootId);
     }
 }

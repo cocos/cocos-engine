@@ -172,7 +172,7 @@ public:
      * @en Global fog range, only for layered fog
      */
     inline float getFogRange() const { return _fogRange; }
-    inline void setfogRange(float val) { _fogRange = val; }
+    inline void setFogRange(float val) { _fogRange = val; }
 
     const Vec4 &getColorArray() const { return _colorArray; }
 

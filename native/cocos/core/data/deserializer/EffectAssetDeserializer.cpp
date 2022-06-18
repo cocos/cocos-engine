@@ -591,7 +591,7 @@ static void deserializeShaderBlock(const rapidjson::Value &blockVal, IBlockInfo 
     CC_ASSERT(blockVal.IsObject());
 
     if (blockVal.HasMember("binding")) {
-        cBlock.binding = blockVal["binding"].GetInt();
+        cBlock.binding = static_cast<uint32_t>(blockVal["binding"].GetUint());
     }
 
     if (blockVal.HasMember("name")) {
@@ -611,7 +611,7 @@ static void deserializeShaderSamplerTexture(const rapidjson::Value &samplerTextu
     CC_ASSERT(samplerTextureVal.IsObject());
 
     if (samplerTextureVal.HasMember("binding")) {
-        cSamplerTexture.binding = samplerTextureVal["binding"].GetInt();
+        cSamplerTexture.binding = static_cast<uint32_t>(samplerTextureVal["binding"].GetUint());
     }
 
     if (samplerTextureVal.HasMember("name")) {
@@ -639,7 +639,7 @@ static void deserializeShaderSampler(const rapidjson::Value &samplerVal, ISample
     }
 
     if (samplerVal.HasMember("binding")) {
-        cSampler.binding = samplerVal["binding"].GetInt();
+        cSampler.binding = static_cast<uint32_t>(samplerVal["binding"].GetUint());
     }
 
     if (samplerVal.HasMember("name")) {
@@ -663,7 +663,7 @@ static void deserializeShaderTexture(const rapidjson::Value &textureVal, ITextur
     }
 
     if (textureVal.HasMember("binding")) {
-        cTexture.binding = textureVal["binding"].GetInt();
+        cTexture.binding = static_cast<uint32_t>(textureVal["binding"].GetUint());
     }
 
     if (textureVal.HasMember("name")) {
@@ -687,7 +687,7 @@ static void deserializeShaderBuffer(const rapidjson::Value &bufferVal, IBufferIn
     CC_ASSERT(bufferVal.IsObject());
 
     if (bufferVal.HasMember("binding")) {
-        cBuffer.binding = bufferVal["binding"].GetInt();
+        cBuffer.binding = static_cast<uint32_t>(bufferVal["binding"].GetUint());
     }
 
     if (bufferVal.HasMember("name")) {
@@ -707,7 +707,7 @@ static void deserializeShaderImage(const rapidjson::Value &imageVal, IImageInfo 
     CC_ASSERT(imageVal.IsObject());
 
     if (imageVal.HasMember("binding")) {
-        cImage.binding = imageVal["binding"].GetInt();
+        cImage.binding = static_cast<uint32_t>(imageVal["binding"].GetUint());
     }
 
     if (imageVal.HasMember("name")) {
@@ -739,7 +739,7 @@ static void deserializeShaderInputAttachment(const rapidjson::Value &inputAttach
     }
 
     if (inputAttachmentVal.HasMember("binding")) {
-        cInputAttachment.binding = inputAttachmentVal["binding"].GetInt();
+        cInputAttachment.binding = static_cast<uint32_t>(inputAttachmentVal["binding"].GetUint());
     }
 
     if (inputAttachmentVal.HasMember("name")) {

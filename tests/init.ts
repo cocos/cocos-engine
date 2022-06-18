@@ -1,7 +1,16 @@
 
 jest.mock(
     'internal:constants',
-    () => jest.requireActual('../cocos/core/default-constants'),
+    () => jest.requireActual('./constants-for-test'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'internal:native',
+    () => ({
+        __esModule: true,
+        default: {}
+    }),
     { virtual: true, },
 );
 

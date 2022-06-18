@@ -2,7 +2,7 @@
   vec3 EnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
     #if CC_USE_IBL
       // simulate GGX convolution
-      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING //#todo: && !CC_IBL_CONVOLUTED
+      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
         roughness = pow(roughness, 0.5);
       #endif
 
@@ -31,7 +31,7 @@
   vec3 EnvReflection(vec3 R, float roughness, float mipCount) {
     #if CC_USE_IBL
       // simulate GGX convolution
-      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING //#todo: && !CC_IBL_CONVOLUTED
+      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
         roughness = pow(roughness, 0.5);
       #endif
       

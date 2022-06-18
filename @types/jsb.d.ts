@@ -5,6 +5,8 @@
  * API for jsb module
  * Author: haroel
  * Homepage: https://github.com/haroel/creatorexDTS
+ *
+ * @deprecated since v3.6.0, please import `native` from 'cc' module instead like `import { native } from 'cc';`.
  */
 declare namespace jsb {
 
@@ -425,48 +427,6 @@ declare namespace jsb {
          * Get default resource root path.
          */
         export function getDefaultResourceRootPath ():string;
-        /**
-         * Loads the filenameLookup dictionary from the contents of a filename.
-         *
-         * @note The plist file name should follow the format below:
-         *
-         * @code
-         * <?xml version="1.0" encoding="UTF-8"?>
-         * <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-         * <plist version="1.0">
-         * <dict>
-         *     <key>filenames</key>
-         *     <dict>
-         *         <key>sounds/click.wav</key>
-         *         <string>sounds/click.caf</string>
-         *         <key>sounds/endgame.wav</key>
-         *         <string>sounds/endgame.caf</string>
-         *         <key>sounds/gem-0.wav</key>
-         *         <string>sounds/gem-0.caf</string>
-         *     </dict>
-         *     <key>metadata</key>
-         *     <dict>
-         *         <key>version</key>
-         *         <integer>1</integer>
-         *     </dict>
-         * </dict>
-         * </plist>
-         * @endcode
-         * @param filename The plist file name.
-         *
-         @since v2.1
-        * @js loadFilenameLookup
-        * @lua loadFilenameLookup
-        */
-        export function loadFilenameLookup (filepath:string):void;
-        /** Checks whether to pop up a message box when failed to load an image.
-         *  @return True if pop up a message box when failed to load an image, false if not.
-         */
-        export function isPopupNotify ():boolean;
-        /**
-         *  Sets whether to pop-up a message box when failed to load an image.
-         */
-        export function setPopupNotify (notify:boolean):void;
 
         // Converts the contents of a file to a ValueVector.
         // This method is used internally.
@@ -562,23 +522,7 @@ declare namespace jsb {
          * @return bool True if write success
          */
         export function writeStringToFile (dataStr:string, fullPath:string):boolean;
-        /**
-         *  Sets the array that contains the search order of the resources.
-         *
-         *  @param searchResolutionsOrder The source array that contains the search order of the resources.
-         *  @see getSearchResolutionsOrder(), fullPathForFilename(const char*).
-         *  @since v2.1
-         *  In js:var setSearchResolutionsOrder(var jsval)
-         *  @lua NA
-         */
-        export function setSearchResolutionsOrder (searchResolutionsOrder:Array<string>):void;
-        /**
-         * Append search order of the resources.
-         *
-         * @see setSearchResolutionsOrder(), fullPathForFilename().
-         * @since v2.1
-         */
-        export function addSearchResolutionsOrder (order:string, front:boolean):void;
+
         /**
          * Add search path.
          *
@@ -648,14 +592,6 @@ declare namespace jsb {
         export function setDefaultResourceRootPath (filepath:string):void;
 
         /**
-         *  Gets the array that contains the search order of the resources.
-         *
-         *  @see setSearchResolutionsOrder(const std::vector<std::string>&), fullPathForFilename(const char*).
-         *  @since v2.1
-         *  @lua NA
-         */
-        export function getSearchResolutionsOrder ():Array<string>;
-        /**
          *  Creates a directory.
          *
          *  @param dirPath The path of the directory, it must be an absolute path.
@@ -673,7 +609,32 @@ declare namespace jsb {
          *  Gets the writable path.
          *  @return  The path that can be write/read a file in
          */
-        export function getWritablePath ():string;
+        export function getWritablePath():string;
+
+        /**
+         *  Renames a file under the given directory.
+         *
+         *  @param oldFullpath  The current fullpath of the file. Includes path and name.
+         *  @param newFullPath  The new fullpath of the file. Includes path and name.
+         *  @return True if the file have been renamed successfully, false if not.
+         */
+        export function renameFile(oldFullpath: string, newFullPath: string):boolean;
+
+        /**
+         *  Creates binary data from a file.
+         *  @param fullpath The current fullpath of the file. Includes path and name.
+         *  @return A data object.
+         */
+        export function getDataFromFile(fullpath: string):ArrayBuffer;
+
+        /**
+         * write Data into a file
+         *
+         *@param data the data want to save
+         *@param fullpath The full path to the file you want to save a string
+         *@return bool
+         */
+        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):boolean;
     }
 
     /**

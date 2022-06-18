@@ -38,7 +38,7 @@ CCMTLSampler* defaultSampler = nullptr;
 CCMTLSampler::CCMTLSampler(const SamplerInfo& info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
     MTLSamplerDescriptor* descriptor = [[MTLSamplerDescriptor alloc] init];
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     descriptor.borderColor = MTLSamplerBorderColorTransparentBlack;
 #endif
     descriptor.sAddressMode = mu::toMTLSamplerAddressMode(info.addressU);

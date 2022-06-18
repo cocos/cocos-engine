@@ -22,8 +22,8 @@ CCEffect %{
 CCProgram vs %{
   precision highp float;
 
-  #include <cc-global>
-  #include <cc-local>
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
 
   in vec3 a_position;
 

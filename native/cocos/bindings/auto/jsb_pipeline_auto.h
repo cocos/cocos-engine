@@ -12,6 +12,7 @@
 #include "cocos/renderer/pipeline/forward/ForwardStage.h"
 #include "cocos/renderer/pipeline/shadow/ShadowFlow.h"
 #include "cocos/renderer/pipeline/shadow/ShadowStage.h"
+#include "cocos/renderer/pipeline/shadow/CSMLayers.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/renderer/pipeline/RenderFlow.h"
 #include "cocos/renderer/pipeline/RenderStage.h"
@@ -43,6 +44,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowFlow);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::CSMLayers);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
@@ -190,6 +192,13 @@ SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUsage);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_ShadowStage);
 
+extern se::Object *__jsb_cc_pipeline_CSMLayers_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_CSMLayers_class; // NOLINT
+
+bool js_register_cc_pipeline_CSMLayers(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_pipeline_CSMLayers_CSMLayers);
+
 extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GlobalDSManager_class; // NOLINT
 
@@ -284,7 +293,6 @@ SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_destroy);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDebugRendererPass);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDebugRendererShader);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererPasses);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererShaders);
@@ -293,9 +301,6 @@ SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryPass);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOctree);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_updatePipelineSceneData);

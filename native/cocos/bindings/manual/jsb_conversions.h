@@ -851,13 +851,40 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 }
 
 ///////////////////// function
+///
+
+template <typename... Args>
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args); // NOLINT(readability-identifier-naming)
+
+template <typename R>
+inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self]() {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            se::Value rval;
+            bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+
+            R rawRet{};
+            sevalue_to_native(rval, &rawRet, self);
+            return rawRet;
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
 
 template <typename R, typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
     if (from.isObject() && from.toObject()->isFunction()) {
-        se::Object *callback = from.toObject();
-        self->attachObject(callback);
-        *func = [callback, self](Args... inargs) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self](Args... inargs) {
             se::AutoHandleScope hs;
             bool ok = true;
             se::ValueArray args;
@@ -865,7 +892,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
             args.resize(sizeof...(Args));
             nativevalue_to_se_args_v(args, inargs...);
             se::Value rval;
-            bool succeed = callback->call(args, self, &rval);
+            bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
                 se::ScriptEngine::getInstance()->clearException();
             }
@@ -881,12 +908,30 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
     return true;
 }
 
+inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self]() {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            se::Value rval;
+            bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
+
 template <typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
     if (from.isObject() && from.toObject()->isFunction()) {
-        se::Object *callback = from.toObject();
-        self->attachObject(callback);
-        *func = [callback, self](Args... inargs) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self](Args... inargs) {
             se::AutoHandleScope hs;
             bool ok = true;
             se::ValueArray args;
@@ -894,7 +939,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)
             args.resize(sizeof...(Args));
             nativevalue_to_se_args_v(args, inargs...);
             se::Value rval;
-            bool succeed = callback->call(args, self, &rval);
+            bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
                 se::ScriptEngine::getInstance()->clearException();
             }
@@ -1149,30 +1194,49 @@ bool nativevalue_to_se(const ccstd::variant<ARGS...> *from, se::Value &to, se::O
     return nativevalue_to_se(*from, to, ctx);
 }
 
-#if HAS_CONSTEXPR
-
-template <typename T>
-inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    if CC_CONSTEXPR (std::is_enum<T>::value) {
-        to.setInt32(static_cast<int32_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
-        to.setInt64(static_cast<int64_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
-        to.setDouble(static_cast<double>(from));
-        return true;
-    } else {
-        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
-        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
-    }
+template <typename... ARGS>
+bool nativevalue_to_se(ccstd::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
+    return nativevalue_to_se(*from, to, ctx);
 }
 
-#else
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx); // NOLINT
+
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> *from, se::Value &to, se::Object *ctx) {
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+template <typename T>
+inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) {
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+//TODO(): just comment it to make compiler work. Should use CONSTEXPR version.
+//#if HAS_CONSTEXPR
+//
+//template <typename T>
+//inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+//    if CC_CONSTEXPR (std::is_enum<T>::value) {
+//        to.setInt32(static_cast<int32_t>(from));
+//        return true;
+//    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
+//        return native_ptr_to_seval(from, &to);
+//    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
+//        return native_ptr_to_seval(from, &to);
+//    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+//        to.setInt64(static_cast<int64_t>(from));
+//        return true;
+//    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
+//        to.setDouble(static_cast<double>(from));
+//        return true;
+//    } else {
+//        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
+//        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
+//    }
+//}
+//
+//#else
 
 template <typename T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type
@@ -1200,7 +1264,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
     return true;
 }
 
-#endif // HAS_CONSTEXPR
+//#endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 
@@ -1283,7 +1347,7 @@ typename std::enable_if<!std::is_convertible<T, ccstd::string>::value, void>::ty
 
 template <typename K, typename V>
 inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::Object *ret = se::Object::createPlainObject();
+    se::HandleObject ret{se::Object::createPlainObject()};
     se::Value value;
     bool ok = true;
     for (auto &it : from) {
@@ -1291,44 +1355,39 @@ inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value 
         cc_tmp_set_property(ret, it.first, value);
     }
     to.setObject(ret);
-    ret->decRef();
     return true;
 }
 
 template <typename T, size_t N>
 inline bool nativevalue_to_se(const ccstd::array<T, N> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createArrayObject(N);
+    se::HandleObject array{se::Object::createArrayObject(N)};
     se::Value tmp;
     for (size_t i = 0; i < N; i++) {
         nativevalue_to_se(from[i], tmp, ctx);
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
     }
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<uint8_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N);
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N)};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<uint16_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t));
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t))};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<float, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float));
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float))};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
@@ -1503,7 +1562,7 @@ template <typename... ARGS>
 bool nativevalue_to_se(const std::tuple<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     bool ok = true;
     se::Value tmp;
-    se::Object *array = se::Object::createArrayObject(sizeof...(ARGS));
+    se::HandleObject array{se::Object::createArrayObject(sizeof...(ARGS))};
     se_for_each_tuple(
         from, [&](auto i, auto &param) {
             ok &= nativevalue_to_se(param, tmp, ctx);
