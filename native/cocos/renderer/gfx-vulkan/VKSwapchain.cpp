@@ -160,7 +160,6 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     uint32_t desiredNumberOfSwapchainImages = std::max(gpuDevice->backBufferCount, surfaceCapabilities.minImageCount);
 
     VkExtent2D imageExtent = {1U, 1U};
-    VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
     // Find a supported composite alpha format (not all devices support alpha opaque)
     VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -195,7 +194,6 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     _gpuSwapchain->createInfo.imageExtent = imageExtent;
     _gpuSwapchain->createInfo.imageUsage = imageUsage;
     _gpuSwapchain->createInfo.imageArrayLayers = 1;
-    _gpuSwapchain->createInfo.preTransform = preTransform;
     _gpuSwapchain->createInfo.compositeAlpha = compositeAlpha;
     _gpuSwapchain->createInfo.presentMode = swapchainPresentMode;
     _gpuSwapchain->createInfo.clipped = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
@@ -281,24 +279,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     uint32_t newWidth = width ? width : surfaceCapabilities.currentExtent.width;
     uint32_t newHeight = height ? height : surfaceCapabilities.currentExtent.height;
 
-    VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
-
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-    // system input (oriented size) exist, we should not rotate surface
-    if (width != 0 && height != 0) {
-        preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-    }
-#endif
-    if (ENABLE_PRE_ROTATION) {
-        if (preTransform & TRANSFORMS_THAT_REQUIRE_FLIPPING) {
-            std::swap(newWidth, newHeight);
-        }
-    } else {
-        preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-    }
-
-    if (_gpuSwapchain->createInfo.preTransform == preTransform &&
-        _gpuSwapchain->createInfo.imageExtent.width == newWidth &&
+    if (_gpuSwapchain->createInfo.imageExtent.width == newWidth &&
         _gpuSwapchain->createInfo.imageExtent.height == newHeight && _gpuSwapchain->lastPresentResult == VK_SUCCESS) {
         return true;
     }
@@ -316,12 +297,10 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         return false;
     }
 
-    _transform = mapSurfaceTransform(preTransform);
-    _gpuSwapchain->createInfo.preTransform = preTransform;
     _gpuSwapchain->createInfo.surface = _gpuSwapchain->vkSurface;
     _gpuSwapchain->createInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
 
-    CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, (uint32_t)_transform * 90);
+    CC_LOG_INFO("Resizing surface: %dx%d", newWidth, newHeight);
 
     CCVKDevice::getInstance()->waitAllFences();
 
