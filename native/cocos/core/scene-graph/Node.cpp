@@ -24,16 +24,11 @@
  ****************************************************************************/
 
 #include "core/scene-graph/Node.h"
-#include "base/CachedArray.h"
 #include "base/StringUtil.h"
-// #include "core/Director.h"
-// #include "core/Game.h"
 #include "core/data/Object.h"
-//#include "core/scene-graph/Find.h"
-//#include "core/scene-graph/NodeActivator.h"
+#include "core/memop/CachedArray.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/NodeEnum.h"
-//#include "core/scene-graph/NodeUIProperties.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
 
