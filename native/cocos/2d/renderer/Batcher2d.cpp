@@ -42,7 +42,7 @@ gfx::Device* Batcher2d::getDevice() {
 }
 
 void Batcher2d::updateDescriptorSet() {
-    //for this._descriptorSetCache.update()
+    // for this._descriptorSetCache.update()
 }
 
 void Batcher2d::addRootNode(Node* node) {
@@ -68,7 +68,7 @@ void Batcher2d::walk(Node* node) {
         if (entity && entity->getEnabled()) {
             uint32_t dataHash = entity->getDataHash();
             if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
-                /* || stencilmanager */) {//stencilStage for Mask component
+                /* || stencilmanager */) { // stencilStage for Mask component
                 // Generate a batch if not batching
                 generateBatch(_currEntity);
                 if (!entity->getIsMeshBuffer()) {
@@ -85,7 +85,7 @@ void Batcher2d::walk(Node* node) {
                 _currLayer = entity->getNode()->getLayer();
                 _currEntity = entity;
 
-                //if(frame)
+                // if(frame)
                 _currTexture = entity->getTexture();
                 _currTextureHash = entity->getTextureHash();
                 _currSampler = entity->getSampler();
@@ -95,29 +95,29 @@ void Batcher2d::walk(Node* node) {
                     _currSamplerHash = _currSampler->getHash();
                 }
             }
-
-            if (curNode->getChangedFlags()) {
-                fillVertexBuffers(entity);
-            }
-            fillIndexBuffers(entity);
         }
 
-        auto& children = curNode->getChildren();
-        for (index_t i = children.size() - 1; i >= 0; i--) {
-            assert(length < 1000000);
-            nodeStack[length++] = children[i];
+        if (curNode->getChangedFlags()) {
+            fillVertexBuffers(entity);
         }
+        fillIndexBuffers(entity);
     }
+
+    auto& children = curNode->getChildren();
+    for (index_t i = children.size() - 1; i >= 0; i--) {
+        assert(length < 1000000);
+        nodeStack[length++] = children[i];
+    }
+}
 }
 
 void Batcher2d::generateBatch(RenderDrawInfo* entity) {
-
     if (entity == nullptr) {
         return;
     }
-    //if (entity->getIsMeshBuffer()) {
-    //    // Todo MeshBuffer RenderData
-    //} else {
+    // if (entity->getIsMeshBuffer()) {
+    //     // Todo MeshBuffer RenderData
+    // } else {
     UIMeshBuffer* currMeshBuffer = entity->getMeshBuffer();
 
     currMeshBuffer->setDirty(true);
@@ -135,12 +135,12 @@ void Batcher2d::generateBatch(RenderDrawInfo* entity) {
 
     this->_currBID = -1;
 
-    //stencilstage
+    // stencilstage
 
     // Todo blendState & stencil State
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
-    //curdrawBatch
+    // curdrawBatch
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
@@ -151,7 +151,7 @@ void Batcher2d::generateBatch(RenderDrawInfo* entity) {
 }
 
 void Batcher2d::resetRenderStates() {
-    _currMaterial = new Material();
+    _currMaterial = nullptr;
     _currTexture = nullptr;
     _currTextureHash = 0;
     _currSampler = nullptr;
@@ -231,7 +231,7 @@ void Batcher2d::reset() {
         this->_drawBatchPool.free(batch);
     }
 
-    //meshDataArray
+    // meshDataArray
     for (index_t i = 0; i < _meshBuffers.size(); i++) {
         UIMeshBuffer* buffer = _meshBuffers[i];
         if (buffer) {
@@ -243,13 +243,13 @@ void Batcher2d::reset() {
     _indexStart = 0;
     _currHash = 0;
     _currLayer = 0;
-    _currMaterial = new Material();
+    _currMaterial = nullptr;
     _currTexture = nullptr;
     _currSampler = nullptr;
 
     _batches.clear();
 
-    //stencilManager
+    // stencilManager
 }
 
 void Batcher2d::addVertDirtyRenderer(RenderDrawInfo* entity) {
