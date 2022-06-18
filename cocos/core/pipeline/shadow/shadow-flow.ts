@@ -38,6 +38,7 @@ import { RenderPipeline } from '..';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
+import { SpotLight } from '../../renderer/scene/spot-light';
 
 const _validLights: Light[] = [];
 
@@ -94,8 +95,11 @@ export class ShadowFlow extends RenderFlow {
         for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
             const light = validPunctualLights[m];
             if (light.type === LightType.SPOT) {
-                _validLights.push(light);
-                n++;
+                const spotLight = light as SpotLight;
+                if (spotLight.shadowEnabled) {
+                    _validLights.push(light);
+                    n++;
+                }
             }
             m++;
         }
@@ -108,7 +112,7 @@ export class ShadowFlow extends RenderFlow {
         if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(); }
 
         const { mainLight } = camera.scene!;
-        if (mainLight) {
+        if (mainLight && mainLight.shadowEnabled) {
             const globalDS = pipeline.descriptorSet;
             if (!shadowFrameBufferMap.has(mainLight)) {
                 this._initShadowFrameBuffer(pipeline, mainLight, camera.window.swapchain);

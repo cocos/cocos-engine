@@ -44,8 +44,8 @@ public:
 
     void update();
 
-    gfx::Shader *getShader(uint) const;
-    Pass *getPass(uint) const;
+    gfx::Shader *getShader(uint32_t) const;
+    Pass *getPass(uint32_t) const;
 
     inline void setWorldBoundDescriptorSet(gfx::DescriptorSet *descriptorSet) { _worldBoundDescriptorSet = descriptorSet; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }

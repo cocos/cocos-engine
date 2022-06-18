@@ -370,8 +370,8 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
             colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
-            colorTexInfo.width = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
-            colorTexInfo.height = static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
+            colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
             if (shadingScale != 1.F) {
                 colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
             }
@@ -405,8 +405,8 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
                 return gfx::Viewport{
                     static_cast<int>(static_cast<float>(rect.x) * shadingScale),
                     static_cast<int>(static_cast<float>(rect.y) * shadingScale),
-                    static_cast<uint>(static_cast<float>(rect.width) * shadingScale),
-                    static_cast<uint>(static_cast<float>(rect.height) * shadingScale)};
+                    static_cast<uint32_t>(static_cast<float>(rect.width) * shadingScale),
+                    static_cast<uint32_t>(static_cast<float>(rect.height) * shadingScale)};
             };
 
             auto getScissor = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
@@ -414,8 +414,8 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
                 return gfx::Rect{
                     static_cast<int>(static_cast<float>(rect.x) * shadingScale),
                     static_cast<int>(static_cast<float>(rect.y) * shadingScale),
-                    static_cast<uint>(static_cast<float>(rect.width) * shadingScale),
-                    static_cast<uint>(static_cast<float>(rect.height) * shadingScale)};
+                    static_cast<uint32_t>(static_cast<float>(rect.width) * shadingScale),
+                    static_cast<uint32_t>(static_cast<float>(rect.height) * shadingScale)};
             };
 
             builder.setViewport(getViewport(camera), getScissor(camera));
@@ -429,7 +429,7 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
         auto passHandle = framegraph::FrameGraph::stringToHandle("forwardPass");
 
         frameGraph.addPass<RenderData2>(
-            static_cast<uint>(ForwardInsertPoint::IP_FORWARD),
+            static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD),
             passHandle, forwardSetup, forwardExec);
 
         frameGraph.presentFromBlackboard(colorHandle,

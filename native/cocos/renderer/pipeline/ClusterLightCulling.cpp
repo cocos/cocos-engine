@@ -74,7 +74,7 @@ void ClusterLightCulling::initialize(gfx::Device *dev) {
     _device = dev;
     if (!_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
 
-    uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
+    uint32_t maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
     if (CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * 4 <= maxInvocations) {
         clusterZThreads = 4;
     } else if (CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * 2 <= maxInvocations) {
@@ -129,10 +129,10 @@ void ClusterLightCulling::update() {
     _constantsBuffer->update(_constants.data(), 2 * sizeof(Vec4) + 2 * sizeof(Mat4));
     updateLights();
 
-    uint cameraIndex = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    uint32_t cameraIndex = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
     if (cameraIndex >= _oldCamProjMats.size()) {
         _rebuildClusters = true;
-        uint nextLength = std::max(nextPow2(static_cast<uint>(cameraIndex)), uint(1));
+        uint32_t nextLength = std::max(nextPow2(static_cast<uint32_t>(cameraIndex)), uint32_t(1));
         _oldCamProjMats.resize(nextLength, Mat4::ZERO);
         _oldCamProjMats[cameraIndex] = _camera->getMatProj();
     } else {
@@ -172,7 +172,7 @@ void ClusterLightCulling::updateLights() {
 
     if (validLightCount > _lightBufferCount) {
         _lightBufferResized = true;
-        _lightBufferCount = nextPow2(static_cast<uint>(validLightCount));
+        _lightBufferCount = nextPow2(static_cast<uint32_t>(validLightCount));
         _lightBufferData.resize(16 * _lightBufferCount);
     }
 
@@ -265,7 +265,7 @@ void ClusterLightCulling::initBuildingSatge() {
 
 		layout(local_size_x=16, local_size_y=8, local_size_z=%d) in;
 		void main() {
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+			uint32_t clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
 								gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
 			float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
@@ -311,7 +311,7 @@ void ClusterLightCulling::initBuildingSatge() {
 
 		layout(local_size_x=16, local_size_y=8, local_size_z=%d) in;
 		void main() {
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+			uint32_t clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
 								gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
 			float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
@@ -364,7 +364,7 @@ void ClusterLightCulling::initResetStage() {
     ShaderStrings sources;
     sources.glsl4 = StringUtil::format(
         R"(
-        layout(std430, binding = 0) buffer b_globalIndexBuffer { uint b_globalIndex[]; };
+        layout(std430, binding = 0) buffer b_globalIndexBuffer { uint32_t b_globalIndex[]; };
         layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
         void main()
         {
@@ -375,7 +375,7 @@ void ClusterLightCulling::initResetStage() {
         )");
     sources.glsl3 = StringUtil::format(
         R"(
-        layout(std430, binding = 0) buffer b_globalIndexBuffer { uint b_globalIndex[]; };
+        layout(std430, binding = 0) buffer b_globalIndexBuffer { uint32_t b_globalIndex[]; };
         layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
         void main()
         {
@@ -419,21 +419,21 @@ void ClusterLightCulling::initCullingStage() {
 		  mat4 cc_matProjInv;
 		};
 		layout(set=0, binding=1, std430) readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
-		layout(set=0, binding=2, std430) buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
+		layout(set=0, binding=2, std430) buffer b_clusterLightIndicesBuffer { uint32_t b_clusterLightIndices[]; };
 		layout(set=0, binding=3, std430) buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
 		layout(set=0, binding=4, std430) buffer b_clustersBuffer { vec4 b_clusters[]; };
-		layout(set=0, binding=5, std430) buffer b_globalIndexBuffer { uint b_globalIndex[]; };
+		layout(set=0, binding=5, std430) buffer b_globalIndexBuffer { uint32_t b_globalIndex[]; };
 		struct CCLight {
 			vec4 cc_lightPos;
 			vec4 cc_lightColor;
 			vec4 cc_lightSizeRangeAngle;
 			vec4 cc_lightDir;
 		};
-		uint ccLightCount()
+		uint32_t ccLightCount()
 		{
-			return uint(b_ccLights[3].w);
+			return uint32_t(b_ccLights[3].w);
 		}
-		CCLight getCCLight(uint i)
+		CCLight getCCLight(uint32_t i)
 		{
 			CCLight light;
 			light.cc_lightPos = b_ccLights[4u * i + 0u];
@@ -447,10 +447,10 @@ void ClusterLightCulling::initCullingStage() {
 			vec3 maxBounds;
 		};
 		struct LightGrid {
-			uint offset;
-			uint ccLights;
+			uint32_t offset;
+			uint32_t ccLights;
 		};
-		Cluster getCluster(uint index)
+		Cluster getCluster(uint32_t index)
 		{
 			Cluster cluster;
 			cluster.minBounds = b_clusters[2u * index + 0u].xyz;
@@ -485,23 +485,23 @@ void ClusterLightCulling::initCullingStage() {
 		layout(local_size_x = 16, local_size_y = 8, local_size_z = %d) in;
 		void main()
 		{
-			uint visibleLights[100];
-			uint visibleCount = 0u;
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+			uint32_t visibleLights[100];
+			uint32_t visibleCount = 0u;
+			uint32_t clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
 				gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			Cluster cluster = getCluster(clusterIndex);
-			uint lightCount = ccLightCount();
-			uint lightOffset = 0u;
+			uint32_t lightCount = ccLightCount();
+			uint32_t lightOffset = 0u;
 			while (lightOffset < lightCount) {
-				uint batchSize = min((16u * 8u * %du), lightCount - lightOffset);
-				if (uint(gl_LocalInvocationIndex) < batchSize) {
-					uint lightIndex = lightOffset + gl_LocalInvocationIndex;
+				uint32_t batchSize = min((16u * 8u * %du), lightCount - lightOffset);
+				if (uint32_t(gl_LocalInvocationIndex) < batchSize) {
+					uint32_t lightIndex = lightOffset + gl_LocalInvocationIndex;
 					CCLight light = getCCLight(lightIndex);
 					light.cc_lightPos.xyz = ((cc_matView) * (vec4(light.cc_lightPos.xyz, 1.0))).xyz;
 					lights[gl_LocalInvocationIndex] = light;
 				}
 				barrier();
-				for (uint i = 0u; i < batchSize; i++) {
+				for (uint32_t i = 0u; i < batchSize; i++) {
 					if (visibleCount < 100u && ccLightIntersectsCluster(lights[i], cluster)) {
 						visibleLights[visibleCount] = lightOffset + i;
 						visibleCount++;
@@ -510,9 +510,9 @@ void ClusterLightCulling::initCullingStage() {
 				lightOffset += batchSize;
 			}
 			barrier();
-			uint offset = 0u;
+			uint32_t offset = 0u;
 			offset = atomicAdd(b_globalIndex[0], visibleCount);
-			for (uint i = 0u; i < visibleCount; i++) {
+			for (uint32_t i = 0u; i < visibleCount; i++) {
 				b_clusterLightIndices[offset + i] = visibleLights[i];
 			}
 			b_clusterLightGrid[clusterIndex] = uvec4(offset, visibleCount, 0, 0);
@@ -527,21 +527,21 @@ void ClusterLightCulling::initCullingStage() {
 		  mat4 cc_matProjInv;
 		};
 		layout(std430, binding=1) readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
-		layout(std430, binding=2) buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
+		layout(std430, binding=2) buffer b_clusterLightIndicesBuffer { uint32_t b_clusterLightIndices[]; };
 		layout(std430, binding=3) buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
 		layout(std430, binding=4) buffer b_clustersBuffer { vec4 b_clusters[]; };
-		layout(std430, binding=5) buffer b_globalIndexBuffer { uint b_globalIndex[]; };
+		layout(std430, binding=5) buffer b_globalIndexBuffer { uint32_t b_globalIndex[]; };
 		struct CCLight {
 			vec4 cc_lightPos;
 			vec4 cc_lightColor;
 			vec4 cc_lightSizeRangeAngle;
 			vec4 cc_lightDir;
 		};
-		uint ccLightCount()
+		uint32_t ccLightCount()
 		{
-			return uint(b_ccLights[3].w);
+			return uint32_t(b_ccLights[3].w);
 		}
-		CCLight getCCLight(uint i)
+		CCLight getCCLight(uint32_t i)
 		{
 			CCLight light;
 			light.cc_lightPos = b_ccLights[4u * i + 0u];
@@ -555,10 +555,10 @@ void ClusterLightCulling::initCullingStage() {
 			vec3 maxBounds;
 		};
 		struct LightGrid {
-			uint offset;
-			uint ccLights;
+			uint32_t offset;
+			uint32_t ccLights;
 		};
-		Cluster getCluster(uint index)
+		Cluster getCluster(uint32_t index)
 		{
 			Cluster cluster;
 			cluster.minBounds = b_clusters[2u * index + 0u].xyz;
@@ -593,23 +593,23 @@ void ClusterLightCulling::initCullingStage() {
 		layout(local_size_x = 16, local_size_y = 8, local_size_z = %d) in;
 		void main()
 		{
-			uint visibleLights[100];
-			uint visibleCount = 0u;
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+			uint32_t visibleLights[100];
+			uint32_t visibleCount = 0u;
+			uint32_t clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
 				gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			Cluster cluster = getCluster(clusterIndex);
-			uint lightCount = ccLightCount();
-			uint lightOffset = 0u;
+			uint32_t lightCount = ccLightCount();
+			uint32_t lightOffset = 0u;
 			while (lightOffset < lightCount) {
-				uint batchSize = min((16u * 8u * %du), lightCount - lightOffset);
-				if (uint(gl_LocalInvocationIndex) < batchSize) {
-					uint lightIndex = lightOffset + gl_LocalInvocationIndex;
+				uint32_t batchSize = min((16u * 8u * %du), lightCount - lightOffset);
+				if (uint32_t(gl_LocalInvocationIndex) < batchSize) {
+					uint32_t lightIndex = lightOffset + gl_LocalInvocationIndex;
 					CCLight light = getCCLight(lightIndex);
 					light.cc_lightPos.xyz = ((cc_matView) * (vec4(light.cc_lightPos.xyz, 1.0))).xyz;
 					lights[gl_LocalInvocationIndex] = light;
 				}
 				barrier();
-				for (uint i = 0u; i < batchSize; i++) {
+				for (uint32_t i = 0u; i < batchSize; i++) {
 					if (visibleCount < 100u && ccLightIntersectsCluster(lights[i], cluster)) {
 						visibleLights[visibleCount] = lightOffset + i;
 						visibleCount++;
@@ -618,9 +618,9 @@ void ClusterLightCulling::initCullingStage() {
 				lightOffset += batchSize;
 			}
 			barrier();
-			uint offset = 0u;
+			uint32_t offset = 0u;
 			offset = atomicAdd(b_globalIndex[0], visibleCount);
-			for (uint i = 0u; i < visibleCount; i++) {
+			for (uint32_t i = 0u; i < visibleCount; i++) {
 				b_clusterLightIndices[offset + i] = visibleLights[i];
 			}
 			b_clusterLightGrid[clusterIndex] = uvec4(offset, visibleCount, 0, 0);
@@ -677,7 +677,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
         data.clusterBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterBuffer));
         if (!data.clusterBuffer.isValid()) {
             // each cluster has 2 vec4, min + max position for AABB
-            uint clusterBufferSize = 2 * sizeof(Vec4) * CLUSTER_COUNT;
+            uint32_t clusterBufferSize = 2 * sizeof(Vec4) * CLUSTER_COUNT;
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage = gfx::BufferUsageBit::STORAGE;
@@ -696,7 +696,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
 
         data.globalIndexBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterGlobalIndexBuffer));
         if (!data.globalIndexBuffer.isValid()) {
-            uint atomicIndexBufferSize = sizeof(uint);
+            uint32_t atomicIndexBufferSize = sizeof(uint32_t);
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage = gfx::BufferUsageBit::STORAGE;
@@ -760,7 +760,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
         data.lightIndexBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightIndexBuffer));
         if (!data.lightIndexBuffer.isValid()) {
             //  light indices belonging to clusters
-            uint lightIndicesBufferSize = MAX_LIGHTS_PER_CLUSTER * CLUSTER_COUNT * sizeof(int);
+            uint32_t lightIndicesBufferSize = MAX_LIGHTS_PER_CLUSTER * CLUSTER_COUNT * sizeof(int);
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage = gfx::BufferUsageBit::STORAGE;
@@ -777,7 +777,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
         data.lightGridBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightGridBuffer));
         if (!data.lightGridBuffer.isValid()) {
             //  for each cluster: (start index in b_clusterLightIndices, number of point lights, empty, empty)
-            uint lightGridBufferSize = CLUSTER_COUNT * 4 * sizeof(uint);
+            uint32_t lightGridBufferSize = CLUSTER_COUNT * 4 * sizeof(uint32_t);
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage = gfx::BufferUsageBit::STORAGE;
@@ -804,7 +804,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
     auto lightCullingExec = [&](DataLightCulling const &data, const framegraph::DevicePassResourceTable &table) {
         auto *cmdBuff = _pipeline->getCommandBuffers()[0];
         cmdBuff->updateBuffer(table.getRead(data.lightBuffer), _lightBufferData.data(),
-                              static_cast<uint>(_lightBufferData.size() * sizeof(float)));
+                              static_cast<uint32_t>(_lightBufferData.size() * sizeof(float)));
 
         _cullingDescriptorSet->bindBuffer(0, _constantsBuffer);
         _cullingDescriptorSet->bindBuffer(1, table.getRead(data.lightBuffer));
@@ -820,7 +820,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
     };
 
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
-    uint insertPoint = static_cast<uint>(DeferredInsertPoint::DIP_CLUSTER);
+    auto insertPoint = static_cast<uint32_t>(DeferredInsertPoint::DIP_CLUSTER);
     pipeline->getFrameGraph().addPass<DataClusterBuild>(insertPoint++, fgStrHandleClusterBuildPass, clusterBuildSetup, clusterBuildExec);
     pipeline->getFrameGraph().addPass<DataLightCulling>(insertPoint++, fgStrHandleClusterCullingPass, lightCullingSetup, lightCullingExec);
 }

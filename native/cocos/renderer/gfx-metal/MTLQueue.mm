@@ -63,8 +63,8 @@ void CCMTLQueue::doDestroy() {
     }
 }
 
-void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
-    for (uint i = 0u; i < count; ++i) {
+void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
+    for (uint32_t i = 0u; i < count; ++i) {
         CCMTLCommandBuffer *cmdBuffer = static_cast<CCMTLCommandBuffer *>(cmdBuffs[i]);
         _gpuQueueObj->numDrawCalls += cmdBuffer->getNumDrawCalls();
         _gpuQueueObj->numInstances += cmdBuffer->getNumInstances();

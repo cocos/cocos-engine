@@ -47,7 +47,7 @@ public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
 
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds = nullptr, uint offset = 0);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void clear();

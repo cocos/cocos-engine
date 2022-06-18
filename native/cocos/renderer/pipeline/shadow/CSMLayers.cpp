@@ -30,7 +30,7 @@
 namespace cc {
 namespace pipeline {
 
-ShadowTransformInfo::ShadowTransformInfo(uint level):_level(level) {
+ShadowTransformInfo::ShadowTransformInfo(uint32_t level):_level(level) {
     _validFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
     _splitFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
     _lightViewFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
@@ -66,7 +66,7 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
 
     if (dirLight->getCSMLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getCSMOptimizationMode() ==
         scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
-        if (_level >= static_cast<uint>(dirLight->getCSMLevel()) - 1U) {
+        if (_level >= static_cast<uint32_t>(dirLight->getCSMLevel()) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
             _maxLayerPosz = _castLightViewBoundingBox.center.z;
         } else {
@@ -130,13 +130,13 @@ void ShadowTransformInfo::calculateSplitFrustum(float start, float end, float as
     _splitFrustum.split(start, end, aspect, fov, transform);
 }
 
-CSMLayerInfo::CSMLayerInfo(uint level) : ShadowTransformInfo(level) {
+CSMLayerInfo::CSMLayerInfo(uint32_t level) : ShadowTransformInfo(level) {
     _matShadowAtlas.setZero();
     _matShadowViewProjAtlas.setZero();
     calculateAtlas(level);
 }
 
-void CSMLayerInfo::calculateAtlas(uint level) {
+void CSMLayerInfo::calculateAtlas(uint32_t level) {
     const gfx::Device *device = gfx::Device::getInstance();
     const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY;
     const float x = floorf(static_cast<float>(level % 2U)) - 0.5F;
@@ -149,7 +149,7 @@ void CSMLayerInfo::calculateAtlas(uint level) {
 CSMLayers::CSMLayers() {
     _specialLayer = ccnew ShadowTransformInfo(1U);
 
-    for (uint i = 0; i < static_cast<uint>(scene::CSMLevel::LEVEL_4); ++i) {
+    for (uint32_t i = 0; i < static_cast<uint32_t>(scene::CSMLevel::LEVEL_4); ++i) {
         _layers[i] = ccnew CSMLayerInfo(i);
     }
 }
@@ -172,8 +172,8 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     CC_ASSERT(dirLight);
 
-    const uint levelCount = static_cast<uint>(dirLight->getCSMLevel());
-    CC_ASSERT(levelCount <= static_cast<uint>(scene::CSMLevel::LEVEL_4));
+    const auto levelCount = static_cast<uint32_t>(dirLight->getCSMLevel());
+    CC_ASSERT(levelCount <= static_cast<uint32_t>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
 
     if (!shadowInfo->isEnabled() || !dirLight->isShadowEnabled()) {
@@ -223,10 +223,10 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const uint level = static_cast<uint>(dirLight->getCSMLevel());
+    const auto level = static_cast<uint32_t>(dirLight->getCSMLevel());
     const float lambda = dirLight->getCSMLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
-    for (uint i = 1; i < level; ++i) {
+    for (uint32_t i = 1; i < level; ++i) {
         // i ÷ numbers of level
         const float si = static_cast<float>(i) / static_cast<float>(level);
         const float preNear = lambda * (nd * powf(ratio, si)) + (1.0F - lambda) * (nd + (fd - nd) * si);

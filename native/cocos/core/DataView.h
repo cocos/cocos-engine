@@ -26,7 +26,6 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/TypeDef.h"
 #include "base/std/variant.h"
 #include "core/ArrayBuffer.h"
 

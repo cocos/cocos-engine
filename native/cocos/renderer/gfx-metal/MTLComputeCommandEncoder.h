@@ -59,11 +59,11 @@ public:
         _pipelineState = pipelineState;
     }
 
-    inline void setBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setBuffer(const id<MTLBuffer> buffer, uint32_t offset, uint32_t index) {
         [_mtlEncoder setBuffer:buffer offset:offset atIndex:index];
     }
 
-    inline void setTexture(const id<MTLTexture> texture, uint index) {
+    inline void setTexture(const id<MTLTexture> texture, uint32_t index) {
         [_mtlEncoder setTexture:texture atIndex:index];
         _resourceSize = {texture.width, texture.height, texture.depth};
     }

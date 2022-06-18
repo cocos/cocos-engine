@@ -26,8 +26,6 @@
 #pragma once
 
 #include "3d/assets/Types.h"
-#include "base/RefCounted.h"
-#include "base/TypeDef.h"
 
 namespace cc {
 

@@ -43,8 +43,8 @@ class DeferredPipeline;
 struct RenderElem {
     RenderObject renderObject;
     gfx::DescriptorSet *set;
-    uint modelIndex;
-    uint passIndex;
+    uint32_t modelIndex;
+    uint32_t passIndex;
 };
 
 class CC_DLL LightingStage : public RenderStage {
@@ -70,31 +70,31 @@ private:
 
     static RenderStageInfo initInfo;
     PlanarShadowQueue *_planarShadowQueue{nullptr};
-    uint _phaseID{0};
+    uint32_t _phaseID{0};
 
     gfx::Buffer *_deferredLitsBufs{nullptr};
     gfx::Buffer *_deferredLitsBufView{nullptr};
     ccstd::vector<float> _lightBufferData;
-    uint _lightBufferStride{0};
-    uint _lightBufferElementCount{0};
+    uint32_t _lightBufferStride{0};
+    uint32_t _lightBufferElementCount{0};
     bool _isTransparentQueueEmpty{true};
     float _lightMeterScale{10000.0};
     gfx::DescriptorSet *_descriptorSet{nullptr};
     gfx::DescriptorSetLayout *_descLayout{nullptr};
-    uint _maxDeferredLights{UBODeferredLight::LIGHTS_PER_PASS};
+    uint32_t _maxDeferredLights{UBODeferredLight::LIGHTS_PER_PASS};
 
     ReflectionComp *_reflectionComp{nullptr};
     RenderQueue *_reflectionRenderQueue{nullptr};
-    uint _reflectionPhaseID{0};
+    uint32_t _reflectionPhaseID{0};
 
     ccstd::vector<RenderElem> _reflectionElems;
-    uint _denoiseIndex = 0; // use to get corrrect texture string handle
+    uint32_t _denoiseIndex = 0; // use to get corrrect texture string handle
 
     gfx::Sampler *_defaultSampler{nullptr};
 
     // SSPR texture size
-    uint _ssprTexWidth = 0;
-    uint _ssprTexHeight = 0;
+    uint32_t _ssprTexWidth = 0;
+    uint32_t _ssprTexHeight = 0;
     Mat4 _matViewProj;
 };
 

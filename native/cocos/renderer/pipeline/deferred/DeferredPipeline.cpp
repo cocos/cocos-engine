@@ -172,8 +172,8 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _macros["CC_SUPPORT_FLOAT_TEXTURE"] = hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 
     // step 2 create index buffer
-    uint ibStride = 4;
-    uint ibSize = ibStride * 6;
+    uint32_t ibStride = 4;
+    uint32_t ibSize = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                          gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});

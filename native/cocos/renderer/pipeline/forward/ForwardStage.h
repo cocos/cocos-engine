@@ -60,7 +60,7 @@ private:
     RenderAdditiveLightQueue *_additiveLightQueue = nullptr;
     UIPhase *_uiPhase = nullptr;
     gfx::Rect _renderArea;
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 };
 
 } // namespace pipeline
