@@ -45,12 +45,12 @@ const deepCopy = <T extends ICopyable> (target: T[], source: T[], Ctor: Construc
 };
 
 /**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
- * by the script native/tools/gfx-define-generator/generate.js.
- * Changes to these public interfaces should be made there first and synced back.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
+  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+  * The following section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
+  * by the script native/tools/gfx-define-generator/generate.js.
+  * Changes to these public interfaces should be made there first and synced back.
+  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+  */
 
 /**
  * @en Graphics object type
@@ -372,7 +372,7 @@ export enum MemoryAccessBit {
 export enum MemoryUsageBit {
     NONE = 0,
     DEVICE = 0x1, // for rarely-updated resources, use MemoryUsageBit::DEVICE
-    HOST = 0x2, // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
+    HOST = 0x2,   // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
 export enum TextureType {
@@ -397,16 +397,16 @@ export enum TextureUsageBit {
 
 export enum TextureFlagBit {
     NONE = 0,
-    GEN_MIPMAP = 0x1, // Generate mipmaps using bilinear filter
+    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
 }
 
 export enum FormatFeatureBit {
     NONE = 0,
-    RENDER_TARGET = 0x1,  // Allow usages as render pass attachments
-    SAMPLED_TEXTURE = 0x2,  // Allow sampled reads in shaders
-    LINEAR_FILTER = 0x4,  // Allow linear filtering when sampling in shaders or blitting
-    STORAGE_TEXTURE = 0x8,  // Allow storage reads & writes in shaders
+    RENDER_TARGET = 0x1,     // Allow usages as render pass attachments
+    SAMPLED_TEXTURE = 0x2,   // Allow sampled reads in shaders
+    LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
+    STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
 }
 
@@ -538,35 +538,35 @@ export enum AccessFlagBit {
     NONE = 0,
 
     // Read accesses
-    INDIRECT_BUFFER = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER = 1 << 1,  // Read as an index buffer for drawing
-    VERTEX_BUFFER = 1 << 2,  // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER = 1 << 3,  // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER = 1 << 5,  // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER = 1 << 6,  // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
-    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9,  // Read as an input attachment with a depth/stencil format in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER = 1 << 10, // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ = 1 << 11, // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ = 1 << 12, // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER = 1 << 13, // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER = 1 << 15, // Read as any other resource in a compute shader
-    TRANSFER_READ = 1 << 16, // Read as the source of a transfer operation
-    HOST_READ = 1 << 17, // Read on the host
-    PRESENT = 1 << 18, // Read by the presentation engine
+    INDIRECT_BUFFER = 1 << 0,                                     // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER = 1 << 1,                                        // Read as an index buffer for drawing
+    VERTEX_BUFFER = 1 << 2,                                       // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER = 1 << 3,                   // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE = 1 << 4,                          // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER = 1 << 5,                            // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER = 1 << 6,                 // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE = 1 << 7,                        // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT = 1 << 8,         // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9, // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER = 1 << 10,                         // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ = 1 << 11,                              // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ = 1 << 12,                      // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER = 1 << 13,                 // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE = 1 << 14,                        // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER = 1 << 15,                          // Read as any other resource in a compute shader
+    TRANSFER_READ = 1 << 16,                                      // Read as the source of a transfer operation
+    HOST_READ = 1 << 17,                                          // Read on the host
+    PRESENT = 1 << 18,                                            // Read by the presentation engine
 
     // Write accesses
-    VERTEX_SHADER_WRITE = 1 << 19, // Written as any resource in a vertex shader
-    FRAGMENT_SHADER_WRITE = 1 << 20, // Written as any resource in a fragment shader
-    COLOR_ATTACHMENT_WRITE = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
+    VERTEX_SHADER_WRITE = 1 << 19,            // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE = 1 << 20,          // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE = 1 << 21,         // Written as a color attachment during rendering, or via a subpass store op
     DEPTH_STENCIL_ATTACHMENT_WRITE = 1 << 22, // Written as a depth/stencil attachment during rendering, or via a subpass store op
-    COMPUTE_SHADER_WRITE = 1 << 23, // Written as any resource in a compute shader
-    TRANSFER_WRITE = 1 << 24, // Written as the destination of a transfer operation
-    HOST_PREINITIALIZED = 1 << 25, // Data pre-filled by host before device access starts
-    HOST_WRITE = 1 << 26, // Written on the host
+    COMPUTE_SHADER_WRITE = 1 << 23,           // Written as any resource in a compute shader
+    TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
+    HOST_WRITE = 1 << 26,                     // Written on the host
 }
 
 export enum ResolveMode {
@@ -1856,17 +1856,17 @@ export class DynamicStates {
 }
 
 /**
- * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
- * The above section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
- * by the script native/tools/gfx-define-generator/generate.js.
- * Changes to these public interfaces should be made there first and synced back.
- * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
- */
+  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
+  * The above section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
+  * by the script native/tools/gfx-define-generator/generate.js.
+  * Changes to these public interfaces should be made there first and synced back.
+  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
+  */
 
 /**
- * @en GFX base object.
- * @zh GFX 基类对象。
- */
+  * @en GFX base object.
+  * @zh GFX 基类对象。
+  */
 export class GFXObject extends GCObject {
     public get objectType (): ObjectType {
         return this._objectType;
@@ -2074,13 +2074,13 @@ export function IsPowerOf2 (x: number): boolean {
 }
 
 /**
- * @en Get memory size of the specified fomat.
- * @zh 获取指定格式对应的内存大小。
- * @param format The target format.
- * @param width The target width.
- * @param height The target height.
- * @param depth The target depth.
- */
+  * @en Get memory size of the specified fomat.
+  * @zh 获取指定格式对应的内存大小。
+  * @param format The target format.
+  * @param width The target width.
+  * @param height The target height.
+  * @param depth The target depth.
+  */
 export function FormatSize (format: Format, width: number, height: number, depth: number): number {
     if (!FormatInfos[format].isCompressed) {
         return (width * height * depth * FormatInfos[format].size);
@@ -2179,14 +2179,14 @@ export function FormatSize (format: Format, width: number, height: number, depth
 }
 
 /**
- * @en Get memory size of the specified surface.
- * @zh GFX 格式表面内存大小。
- * @param format The target format.
- * @param width The target width.
- * @param height The target height.
- * @param depth The target depth.
- * @param mips The target mip levels.
- */
+  * @en Get memory size of the specified surface.
+  * @zh GFX 格式表面内存大小。
+  * @param format The target format.
+  * @param width The target width.
+  * @param height The target height.
+  * @param depth The target depth.
+  * @param mips The target mip levels.
+  */
 export function FormatSurfaceSize (
     format: Format, width: number, height: number,
     depth: number, mips: number,
@@ -2238,10 +2238,10 @@ const _type2size = [
 ];
 
 /**
- * @en Get the memory size of the specified type.
- * @zh 得到 GFX 数据类型的大小。
- * @param type The target type.
- */
+  * @en Get the memory size of the specified type.
+  * @zh 得到 GFX 数据类型的大小。
+  * @param type The target type.
+  */
 export function GetTypeSize (type: Type): number {
     return _type2size[type] || 0;
 }

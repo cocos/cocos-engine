@@ -1344,8 +1344,10 @@ struct ALIGNAS(8) BufferBarrierInfo {
 
     BarrierType type{BarrierType::FULL};
 
-    uint32_t offset;
-    uint32_t size;
+    uint32_t offset{0};
+    uint32_t size{0};
+
+    uint64_t discardContents{0}; // @ts-boolean
 
     Queue *srcQueue{nullptr}; // @ts-nullable
     Queue *dstQueue{nullptr}; // @ts-nullable
@@ -1353,16 +1355,6 @@ struct ALIGNAS(8) BufferBarrierInfo {
     EXPOSE_COPY_FN(BufferBarrierInfo)
 };
 using BufferBarrierInfoList = ccstd::vector<BufferBarrierInfo>;
-
-struct PipelineBarrierInfo {
-    GeneralBarrier *const generalBarrier{nullptr}; // excution barrier
-    BufferBarrier *const bufferBarriers{nullptr};
-    const Buffer *const buffers{nullptr};
-    uint32_t bufferBarrierCount{0};
-    TextureBarrier *const textureBarriers{nullptr};
-    const Texture *const textures{nullptr};
-    uint32_t textureBarrierCount{0};
-};
 
 struct FramebufferInfo {
     RenderPass *renderPass{nullptr};

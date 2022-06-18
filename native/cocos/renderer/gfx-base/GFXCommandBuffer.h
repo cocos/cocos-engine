@@ -65,11 +65,19 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void dispatch(const DispatchInfo &info) = 0;
-    virtual void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id) = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id) = 0;
     virtual void resetQueryPool(QueryPool *queryPool) = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
+
+    // barrier: excutionBarrier
+    // bufferBarriers: array of BufferBarrier*, descriptions of access of buffers
+    // buffers: array of MTL/VK/GLES buffers
+    // bufferBarrierCount: number of barrier, should be equal to number of buffers
+    // textureBarriers: array of TextureBarrier*, descriptions of access of textures
+    // textures: array of MTL/VK/GLES textures
+    // textureBarrierCount: number of barrier, should be equal to number of textures
+    virtual void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) = 0;
 
     inline void begin();
     inline void begin(RenderPass *renderPass);
