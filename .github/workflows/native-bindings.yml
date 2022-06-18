@@ -3,6 +3,9 @@ name: <Native> Glue
 on:
   pull_request_target:
     types: [closed]
+    paths:
+    - 'templates/**'
+    - 'native/**'
 
 jobs:
   generate-jsb:

@@ -1,6 +1,10 @@
 name: <Native> Run Tests
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'templates/**'
+    - 'native/**'
 
 jobs:
   unit-test-with-cmake:
