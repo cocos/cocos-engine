@@ -149,8 +149,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 
 - (void)addData:(NSData *)data {
     [_dataArray addObject:data];
-    self.bytesReceived += data.length;
-    self.totalBytesReceived += data.length;
+    self.bytesReceived += static_cast<uint32_t>(data.length);
+    self.totalBytesReceived += static_cast<uint32_t>(data.length);
 }
 
 - (uint32_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(uint32_t)len {
@@ -567,7 +567,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
         _outer->onTaskProgress(*[wrapper get],
                                wrapper.bytesReceived,
                                wrapper.totalBytesReceived,
-                               dataTask.countOfBytesExpectedToReceive,
+                               static_cast<uint32_t>(dataTask.countOfBytesExpectedToReceive),
                                transferDataToBuffer);
     }
 }
@@ -661,9 +661,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 // @optional
 /* Sent periodically to notify the delegate of download progress. */
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
-                 didWriteData:(uint32_t)bytesWritten
-            totalBytesWritten:(uint32_t)totalBytesWritten
-    totalBytesExpectedToWrite:(uint32_t)totalBytesExpectedToWrite {
+                 didWriteData:(int64_t)bytesWritten
+            totalBytesWritten:(int64_t)totalBytesWritten
+    totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     //    NSLog(@"DownloaderAppleImpl downloadTask: \"%@\" received: %lld total: %lld", downloadTask.originalRequest.URL, totalBytesWritten, totalBytesExpectedToWrite);
 
     if (nullptr == _outer) {
@@ -673,7 +673,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
     std::function<uint32_t(void *, uint32_t)> transferDataToBuffer; // just a placeholder
     if (wrapper) {
-        _outer->onTaskProgress(*[wrapper get], bytesWritten, totalBytesWritten, totalBytesExpectedToWrite, transferDataToBuffer);
+        _outer->onTaskProgress(*[wrapper get], static_cast<uint32_t>(bytesWritten), static_cast<uint32_t>(totalBytesWritten), static_cast<uint32_t>(totalBytesExpectedToWrite), transferDataToBuffer);
     }
 }
 
@@ -683,8 +683,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
  * data.
  */
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
-     didResumeAtOffset:(uint32_t)fileOffset
-    expectedTotalBytes:(uint32_t)expectedTotalBytes {
+     didResumeAtOffset:(int64_t)fileOffset
+    expectedTotalBytes:(int64_t)expectedTotalBytes {
     NSLog(@"[REFINE]DownloaderAppleImpl downloadTask: \"%@\" didResumeAtOffset: %lld", downloadTask.originalRequest.URL, fileOffset);
 }
 
