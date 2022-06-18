@@ -16,21 +16,19 @@ let allDirs = [];
 main();
 
 function main() {
-    fs.readdir(externalDir, function(err, files){
-        (function iterator(i) {
-          if(i == files.length) {
-            console.log(chalk.green(`==== current exists 3rd-libs directories ====`));
-            console.log(allDirs);
-            cleanPlatform(process.platform);
-            return;
-          }
-          fs.stat(path.join(externalDir, files[i]), function(err, data) {     
-            if(data.isDirectory() && files[i].charAt(0) !== '.') {               
-                allDirs.push(files[i]);
-            }
-            iterator(i+1);
-           });   
-        })(0);
+    readDirectory(externalDir, allDirs);
+    console.log(chalk.green(`==== current exists 3rd-libs directories ====`));
+    console.log(allDirs);
+    cleanPlatform(process.platform);
+}
+
+function readDirectory(path, filesList) {
+    let files = fs.readdirSync(path);
+    files.forEach((file) => {
+        let states = fs.statSync(path + "/" + file);
+        if (states.isDirectory() && file.charAt(0) !== '.') {
+            filesList.push(file);
+        }
     });
 }
 
@@ -54,7 +52,7 @@ function cleanPlatform(platform) {
         if (winUselessDirs.length > 0) {
             console.log(chalk.magenta(`==== Remove win32 useless 3rd-libs ====`));
             console.log(winUselessDirs);
-            for (let i = 0; i < winDeleteDirs.length; i++) { 
+            for (let i = 0; i < winUselessDirs.length; i++) { 
                 let clearDirectory = path.join(externalDir, winUselessDirs[i]);
                 console.log(`  ${chalk.green('Remove directory: ')} ${clearDirectory}`);
                 ensureRemove(clearDirectory);

@@ -42,8 +42,8 @@ class Mesh;
 
 // _chunkIdxMap[key] = skeleton ^ clips[i]
 struct IChunkContent {
-    uint64_t skeleton{0};
-    ccstd::vector<uint64_t> clips;
+    uint32_t skeleton{0U};
+    ccstd::vector<uint32_t> clips;
 };
 
 struct ICustomJointTextureLayout {
@@ -62,8 +62,8 @@ class IJointTextureHandle {
 public:
     uint32_t pixelOffset{0};
     uint32_t refCount{0};
-    uint64_t clipHash{0};
-    uint64_t skeletonHash{0};
+    ccstd::hash_t clipHash{0U};
+    ccstd::hash_t skeletonHash{0U};
     bool readyToBeDeleted{false};
     ITextureBufferHandle handle;
     ccstd::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
@@ -116,11 +116,11 @@ private:
 
     gfx::Device *_device{nullptr};
     IntrusivePtr<TextureBufferPool> _pool;
-    ccstd::unordered_map<uint64_t, IJointTextureHandle *> _textureBuffers;
+    ccstd::unordered_map<ccstd::hash_t, IJointTextureHandle *> _textureBuffers;
     uint32_t _formatSize{0};
     uint32_t _pixelsPerJoint{0};
     IntrusivePtr<TextureBufferPool> _customPool;
-    ccstd::unordered_map<uint64_t, index_t> _chunkIdxMap; // hash -> chunkIdx
+    ccstd::unordered_map<ccstd::hash_t, index_t> _chunkIdxMap; // hash -> chunkIdx
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointTexturePool);
 };
@@ -136,7 +136,7 @@ struct IAnimInfo {
 
 class JointAnimationInfo : public RefCounted {
 public:
-    JointAnimationInfo();
+    JointAnimationInfo() = default;
     explicit JointAnimationInfo(gfx::Device *device);
     ~JointAnimationInfo() override = default;
 

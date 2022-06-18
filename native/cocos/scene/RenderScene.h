@@ -28,7 +28,6 @@
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
-#include "base/TypeDef.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
@@ -85,7 +84,6 @@ public:
     void removeSpotLights();
 
     void addModel(Model *);
-    void removeModel(index_t idx);
     void removeModel(Model *model);
     void removeModels();
 

@@ -32,7 +32,6 @@
 
 #include <cstdint>
 
-#include "base/TypeDef.h"
 #include "base/Value.h"
 #include "math/Vec3.h"
 

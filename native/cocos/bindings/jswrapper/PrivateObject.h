@@ -67,6 +67,8 @@ public:
     friend se::Object;
     friend se::State;
     friend se::ScriptEngine;
+
+    void *finalizerData{nullptr};
 };
 
 template <typename T>

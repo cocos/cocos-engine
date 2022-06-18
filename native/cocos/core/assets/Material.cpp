@@ -37,12 +37,12 @@
 namespace cc {
 
 /* static */
-uint64_t Material::getHashForMaterial(Material *material) {
+ccstd::hash_t Material::getHashForMaterial(Material *material) {
     if (material == nullptr) {
         return 0;
     }
 
-    uint64_t hash = 0;
+    ccstd::hash_t hash = 0U;
     const auto &passes = *material->_passes;
     for (const auto &pass : passes) {
         hash ^= pass->getHash();
@@ -158,6 +158,11 @@ void Material::setProperty(const ccstd::string &name, const MaterialPropertyVari
     if (!success) {
         CC_LOG_WARNING("illegal property name: %s.", name.c_str());
     }
+}
+
+void Material::setPropertyNull(const ccstd::string &name, index_t passIdx) {
+    MaterialPropertyVariant val;
+    setProperty(name, val, passIdx);
 }
 
 #define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                     \
@@ -403,7 +408,7 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
     return true;
 }
 
-void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index /* = CC_INVALID_INDEX*/) {
+void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index) {
     if (pass == nullptr) {
         return;
     }

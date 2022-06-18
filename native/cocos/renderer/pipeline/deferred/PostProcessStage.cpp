@@ -53,7 +53,7 @@ const ccstd::string STAGE_NAME = "PostProcessStage";
 
 RenderStageInfo PostProcessStage::initInfo = {
     STAGE_NAME,
-    static_cast<uint>(DeferredStagePriority::POSTPROCESS),
+    static_cast<uint32_t>(DeferredStagePriority::POSTPROCESS),
     0,
     {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
 };
@@ -76,7 +76,7 @@ void PostProcessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _phaseID = getPhaseID("default");
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint phase = 0;
+        uint32_t phase = 0;
         for (const auto &stage : descriptor.stages) {
             phase |= getPhaseID(stage);
         }
@@ -131,8 +131,8 @@ void PostProcessStage::render(scene::Camera *camera) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;
             colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-            colorTexInfo.width = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
-            colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
+            colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale);
 
             data.outColorTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         }
@@ -163,8 +163,8 @@ void PostProcessStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT,
             gfx::Format::RGBA8,
-            static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
-            static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
         };
         if (shadingScale != 1.F) {
             textureInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
@@ -185,8 +185,8 @@ void PostProcessStage::render(scene::Camera *camera) {
                 gfx::TextureType::TEX2D,
                 gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
                 gfx::Format::DEPTH_STENCIL,
-                static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
-                static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
+                static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+                static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
             };
             data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         }
@@ -201,7 +201,7 @@ void PostProcessStage::render(scene::Camera *camera) {
         gfx::RenderPass *renderPass = table.getRenderPass();
 
         auto *cmdBuff = pipeline->getCommandBuffers()[0];
-        const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
         if (!pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
@@ -231,7 +231,7 @@ void PostProcessStage::render(scene::Camera *camera) {
     };
 
     // add pass
-    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(CommonInsertPoint::DIP_POSTPROCESS), RenderPipeline::fgStrHandlePostprocessPass, postSetup, postExec);
+    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(CommonInsertPoint::DIP_POSTPROCESS), RenderPipeline::fgStrHandlePostprocessPass, postSetup, postExec);
     pipeline->getFrameGraph().presentFromBlackboard(fgStrHandlePostProcessOutTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], shadingScale == 1.F);
 }
 

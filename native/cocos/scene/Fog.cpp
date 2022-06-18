@@ -96,7 +96,7 @@ void FogInfo::setFogTop(float val) {
 void FogInfo::setFogRange(float val) {
     _fogRange = val;
     if (_resource != nullptr) {
-        _resource->setfogRange(_fogRange);
+        _resource->setFogRange(_fogRange);
     }
 }
 

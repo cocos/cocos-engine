@@ -82,8 +82,21 @@ VideoPlayer::VideoPlayer()
 }
 
 VideoPlayer::~VideoPlayer() {
-    sAllVideoPlayers.erase(_videoPlayerIndex);
-    JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "removeVideoWidget", _videoPlayerIndex);
+    destroy();
+}
+
+void VideoPlayer::destroy() {
+    if (_videoPlayerIndex != -1) {
+        auto iter = sAllVideoPlayers.find(_videoPlayerIndex);
+        if (iter != sAllVideoPlayers.end()) {
+            sAllVideoPlayers.erase(iter);
+        }
+
+        JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "removeVideoWidget",
+                                        _videoPlayerIndex);
+
+        _videoPlayerIndex = -1;
+    }
 }
 
 void VideoPlayer::setURL(const ccstd::string &videoUrl) {

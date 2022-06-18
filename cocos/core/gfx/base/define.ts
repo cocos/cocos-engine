@@ -32,6 +32,7 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
+import { GCObject } from '../../data/gc-object';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
 
@@ -893,6 +894,7 @@ export class BufferTextureCopy {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
+        public buffOffset: number = 0,
         public buffStride: number = 0,
         public buffTexHeight: number = 0,
         public texOffset: Offset = new Offset(),
@@ -901,6 +903,7 @@ export class BufferTextureCopy {
     ) {}
 
     public copy (info: Readonly<BufferTextureCopy>) {
+        this.buffOffset = info.buffOffset;
         this.buffStride = info.buffStride;
         this.buffTexHeight = info.buffTexHeight;
         this.texOffset.copy(info.texOffset);
@@ -1819,7 +1822,7 @@ export class DynamicStates {
  * @en GFX base object.
  * @zh GFX 基类对象。
  */
-export class GFXObject {
+export class GFXObject extends GCObject {
     public get objectType (): ObjectType {
         return this._objectType;
     }
@@ -1839,6 +1842,7 @@ export class GFXObject {
     private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
 
     constructor (objectType: ObjectType) {
+        super();
         this._objectType = objectType;
         this._objectID = GFXObject._idTable[ObjectType.UNKNOWN]++;
         this._typedID = GFXObject._idTable[objectType]++;

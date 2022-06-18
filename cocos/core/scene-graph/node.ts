@@ -467,6 +467,9 @@ export class Node extends BaseNode implements CustomSerializable {
                 serializationOutput.writeProperty('_objFlags', this._objFlags);
                 serializationOutput.writeProperty('_parent', this._parent);
                 serializationOutput.writeProperty('_prefab', this._prefab);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
                 // TODO: editorExtrasTag may be a symbol in the future
                 serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
             } else {
@@ -813,15 +816,17 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @en Set rotation in local coordinate system with a quaternion representing the rotation
-     * @zh 用四元数设置本地旋转
+     * @en Set rotation in local coordinate system with a quaternion representing the rotation.
+     * Please make sure the rotation is normalized.
+     * @zh 用四元数设置本地旋转, 请确保设置的四元数已归一化。
      * @param rotation Rotation in quaternion
      */
     public setRotation (rotation: Readonly<Quat>): void;
 
     /**
-     * @en Set rotation in local coordinate system with a quaternion representing the rotation
-     * @zh 用四元数设置本地旋转
+     * @en Set rotation in local coordinate system with a quaternion representing the rotation.
+     * Please make sure the rotation is normalized.
+     * @zh 用四元数设置本地旋转, 请确保设置的四元数已归一化。
      * @param x X value in quaternion
      * @param y Y value in quaternion
      * @param z Z value in quaternion

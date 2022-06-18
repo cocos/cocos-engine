@@ -1,65 +1,178 @@
 name: run test cases
 
 on: 
+  pull_request_target:
   issue_comment:
     types: [created, edited]
-  pull_request_review_comment:
-    types: [created, edited]
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  run-test-cases:
+  Win-RunTestCases:
     if: |
-      github.event.issue.pull_request && contains(github.event.comment.body, '@cocos-robot run test cases')
-    runs-on: run-test-win01
+      contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
+      contains(github.event.comment.body, '@cocos-robot run test cases')
+    runs-on: self-hosted-win
 
     steps:
-      - uses: octokit/request-action@v2.x
-        id: find_pull_request
+      - name: Get PR Number
+        id: get_pr
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "issue_comment") {
+            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
+          }
+          else {
+            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
+          }
+      - name: Get PR Details
+        id: pr_details
+        uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/cocos-creator/engine/pulls/${{ github.event.issue.number }}
+          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Parse Pull Request
-        id: parse_pull_request
+        id: parse_pr
         shell: pwsh
         run: |
           $pull_request = @"
-          ${{ steps.find_pull_request.outputs.data }}
+          ${{ steps.pr_details.outputs.data }}
           "@ | ConvertFrom-Json
           Write-Host $pull_request
           Write-Host "::set-output name=pr_html_url::$($pull_request.html_url)"
-          Write-Host "::set-output name=pr_number::$($pull_request.number)"
           Write-Host "::set-output name=pr_author::$($pull_request.user.login)"
           Write-Host "::set-output name=pr_head_ref::$($pull_request.head.ref)"
           Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
           Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
           Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
-      - name: Echo pull request
+      - name: Check Job Parameter
         run: |
-          echo "${{ steps.parse_pull_request.outputs.pr_head_ref }}"
-          echo "${{ steps.parse_pull_request.outputs.pr_head_sha }}"
-          echo "${{ steps.parse_pull_request.outputs.pr_base_ref }}"
-          echo "${{ steps.parse_pull_request.outputs.pr_base_sha }}"
-          
-      - name: update comment 
-        uses: peter-evans/create-or-update-comment@v1
+          echo "${{ steps.parse_pr.outputs.pr_head_ref }}"
+          echo "${{ steps.parse_pr.outputs.pr_head_sha }}"
+          echo "${{ steps.parse_pr.outputs.pr_base_ref }}"
+          echo "${{ steps.parse_pr.outputs.pr_base_sha }}"
+      - name: Checkout engine
+        uses: actions/checkout@v3
         with:
-          issue-number: ${{ steps.parse_pull_request.outputs.pr_number }}
-          body: |
-            @${{ steps.parse_pull_request.outputs.pr_author }}，请查阅任务（run test cases）执行结果：https://github.com/cocos-creator/engine/actions/runs/${{ github.run_id }}
-      - name: 'Checkout engine'
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ steps.parse_pull_request.outputs.pr_head_sha }}
-          path: engine
+          fetch-depth: 0
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
-      - name: 'npm install'
+      - name: Checkout rebase
         run: |
-          cd engine
+          git fetch origin
+          git reset --hard   
+          git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
+          git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
+          git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
+          git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
+          git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+      - name: npm install
+        run: |
           npm -v
           npm install --registry https://registry.npm.taobao.org
-
-      - name: 'Call run test cases job'
+      - name: Run test cases
+        timeout-minutes: 120
+        id: run_test_cases
         run: |
-          python3 -u ./pr-test/main.py ${{ steps.parse_pull_request.outputs.pr_base_ref }}
+          cd ..
+          python3 -u ./python/main.py ${{ steps.parse_pr.outputs.pr_base_ref }}
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.get_pr.outputs.pr_number }}
+          body: |
+            @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
+            - Test Platform: Windows
+            - Task Result: ${{ steps.run_test_cases.outputs.task }}
+            - Task URL: ${{ steps.run_test_cases.outputs.url }}
+            - Task Details: ${{ steps.run_test_cases.outputs.msg }}
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
+  macOS-RunTestCases:
+    if: |
+      contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
+      contains(github.event.comment.body, '@cocos-robot run test cases')
+    runs-on: self-hosted-mac
+
+    steps:
+      - name: Get PR Number
+        id: get_pr
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "issue_comment") {
+            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
+          }
+          else {
+            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
+          }
+      - name: Get PR Details
+        id: pr_deatils
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse Pull Request
+        id: parse_pr
+        shell: pwsh
+        run: |
+          $pull_request = @"
+          ${{ steps.pr_deatils.outputs.data }}
+          "@ | ConvertFrom-Json
+          Write-Host $pull_request
+          Write-Host "::set-output name=pr_html_url::$($pull_request.html_url)"
+          Write-Host "::set-output name=pr_author::$($pull_request.user.login)"
+          Write-Host "::set-output name=pr_head_ref::$($pull_request.head.ref)"
+          Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
+          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
+          Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
+      - name: Check Job Parameter
+        run: |
+          echo "${{ steps.parse_pr.outputs.pr_head_ref }}"
+          echo "${{ steps.parse_pr.outputs.pr_head_sha }}"
+          echo "${{ steps.parse_pr.outputs.pr_base_ref }}"
+          echo "${{ steps.parse_pr.outputs.pr_base_sha }}"
+          
+      - name: Checkout engine
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0          
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+
+      - name: Checkout rebase
+        run: |
+          git fetch origin
+          git reset --hard   
+          git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
+          git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
+          git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
+          git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
+          git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+      - name: npm install
+        run: |
+          npm -v
+          npm install --registry https://registry.npm.taobao.org
+      - name: Run test cases
+        timeout-minutes: 90
+        id: run_test_cases
+        run: |
+          cd ..
+          python3 -u ./python/main.py ${{ steps.parse_pr.outputs.pr_base_ref }}
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.get_pr.outputs.pr_number }}
+          body: |
+            @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
+            - Test Platform: macOS
+            - Task Result: ${{ steps.run_test_cases.outputs.task }}
+            - Task URL: ${{ steps.run_test_cases.outputs.url }}
+            - Task Details: ${{ steps.run_test_cases.outputs.msg }}
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}

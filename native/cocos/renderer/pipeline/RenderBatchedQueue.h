@@ -47,7 +47,7 @@ public:
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, gfx::DescriptorSet *ds = nullptr, uint offset = 0);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0);
     void add(BatchedBuffer *batchedBuffer);
     bool empty() const { return _queues.empty(); }
 

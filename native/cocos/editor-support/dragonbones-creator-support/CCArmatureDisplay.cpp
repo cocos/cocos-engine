@@ -236,7 +236,6 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
 
     auto *paramsBuffer = _paramsBuffer->getBuffer();
     // data store in buffer which 0 to 3 is render order, left data is node world matrix
-    const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
 
     const auto &slots = armature->getSlots();
     auto *mgr = MiddlewareManager::getInstance();
@@ -362,10 +361,6 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         // Transform component matrix to global matrix
         middleware::Triangles &triangles = slot->triangles;
         cc::Mat4 *worldMatrix = &slot->worldMatrix;
-        if (_batch) {
-            cc::Mat4::multiply(nodeWorldMat, *worldMatrix, &matrixTemp);
-            worldMatrix = &matrixTemp;
-        }
 
         middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
 

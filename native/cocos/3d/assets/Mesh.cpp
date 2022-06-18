@@ -27,7 +27,7 @@
 #include "3d/assets/Morph.h"
 #include "3d/assets/Skeleton.h"
 #include "3d/misc/BufferBlob.h"
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
 #include "core/platform/Debug.h"
@@ -194,11 +194,11 @@ const Vec3 &Mesh::getMaxPosition() const {
     return _struct.maxPosition.has_value() ? _struct.maxPosition.value() : Vec3::ZERO;
 }
 
-uint64_t Mesh::getHash() {
-    if (_hash == 0) {
-        std::size_t seed = 666;
-        boost::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
-        _hash = static_cast<uint64_t>(seed);
+ccstd::hash_t Mesh::getHash() {
+    if (_hash == 0U) {
+        ccstd::hash_t seed = 666;
+        ccstd::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
+        _hash = seed;
     }
 
     return _hash;
@@ -276,8 +276,8 @@ void Mesh::initialize() {
 
         auto &buffer = _data;
         gfx::Device *gfxDevice = gfx::Device::getInstance();
-        auto vertexBuffers = createVertexBuffers(gfxDevice, buffer.buffer());
-        gfx::BufferList indexBuffers;
+        RefVector<gfx::Buffer*> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
+        RefVector<gfx::Buffer*> indexBuffers;
         ccstd::vector<IntrusivePtr<RenderingSubMesh>> subMeshes;
 
         for (size_t i = 0; i < _struct.primitives.size(); i++) {
@@ -309,21 +309,27 @@ void Mesh::initialize() {
                     dstSize,
                     dstStride,
                 });
-                indexBuffers.emplace_back(indexBuffer);
+                indexBuffers.pushBack(indexBuffer);
 
                 const uint8_t *ib = buffer.buffer()->getData() + idxView.offset;
-
-                //            ib = ccnew (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
                 if (idxView.stride != dstStride) {
-                    //cjh  need in c++?              ib = getIndexStrideCtor(dstStride).from(ib);
+                    uint32_t ib16BitLength = idxView.length >> 1;
+                    auto *ib16Bit = static_cast<uint16_t*>(CC_MALLOC(ib16BitLength));
+                    const auto *ib32Bit = reinterpret_cast<const uint32_t*>(ib);
+                    for (uint32_t j = 0, len = idxView.count; j < len; ++j) {
+                        ib16Bit[j] = ib32Bit[j];
+                    }
+                    indexBuffer->update(ib16Bit, ib16BitLength);
+                    CC_FREE(ib16Bit);
+                } else {
+                    indexBuffer->update(ib);
                 }
-                indexBuffer->update(ib);
             }
 
             gfx::BufferList vbReference;
             vbReference.reserve(prim.vertexBundelIndices.size());
             for (const auto &idx : prim.vertexBundelIndices) {
-                vbReference.emplace_back(vertexBuffers[idx]);
+                vbReference.emplace_back(vertexBuffers.at(idx));
             }
 
             gfx::AttributeList gfxAttributes;
@@ -926,6 +932,17 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
         setTypedArrayValue(outputArray, i, element);
     }
     return true;
+}
+
+const gfx::FormatInfo* Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
+    const gfx::FormatInfo* result = nullptr;
+
+    accessAttribute(primitiveIndex, attributeName, [&](const IVertexBundle &vertexBundle, uint32_t iAttribute) {
+        const gfx::Format format = vertexBundle.attributes[iAttribute].format;
+        result = &gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
+    });
+
+    return result;
 }
 
 void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry) {

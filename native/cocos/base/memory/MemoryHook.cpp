@@ -69,7 +69,7 @@ void free(void *ptr) {
 }
 }
 
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 typedef void malloc_logger_t(uint32_t aType,
                              uintptr_t aArg1, uintptr_t aArg2, uintptr_t aArg3,
                              uintptr_t aResult, uint32_t aNumHotFramesToSkip);
@@ -296,7 +296,7 @@ void MemoryHook::dumpMemoryLeak() {
 void MemoryHook::log(const ccstd::string &msg) {
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     __android_log_write(ANDROID_LOG_WARN, "Cocos", msg.c_str());
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     fputs(msg.c_str(), stdout);
     #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     OutputDebugStringA(msg.c_str());
@@ -308,7 +308,7 @@ void MemoryHook::registerAll() {
     g_new_hooker = newHook;
     g_delete_hooker = deleteHook;
     free(malloc(1)); // force to init system_malloc/system_free
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     g_system_malloc_logger = malloc_logger;
     malloc_logger = cc_malloc_logger;
     g_new_hooker = newHook;
@@ -323,7 +323,7 @@ void MemoryHook::unRegisterAll() {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     g_new_hooker = nullptr;
     g_delete_hooker = nullptr;
-    #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     malloc_logger = g_system_malloc_logger;
     g_new_hooker = nullptr;
     g_delete_hooker = nullptr;

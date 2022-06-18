@@ -8191,6 +8191,23 @@ static bool js_assets_EffectAsset_getAll_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_EffectAsset_getAll_static)
 
+static bool js_assets_EffectAsset_isLayoutValid_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cc::EffectAsset::isLayoutValid();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_EffectAsset_isLayoutValid_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_EffectAsset_isLayoutValid_static)
+
 static bool js_assets_EffectAsset_registerAsset_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -8236,6 +8253,19 @@ static bool js_assets_EffectAsset_remove_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_EffectAsset_remove_static)
 
+static bool js_assets_EffectAsset_setLayoutValid_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::EffectAsset::setLayoutValid();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_EffectAsset_setLayoutValid_static)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_EffectAsset_finalize)
 
 static bool js_assets_EffectAsset_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -8264,8 +8294,10 @@ bool js_register_assets_EffectAsset(se::Object* obj) // NOLINT(readability-ident
     cls->defineProperty("combinations", _SE(js_assets_EffectAsset_getCombinations_asGetter), _SE(js_assets_EffectAsset_setCombinations_asSetter));
     cls->defineStaticFunction("get", _SE(js_assets_EffectAsset_get_static));
     cls->defineStaticFunction("getAll", _SE(js_assets_EffectAsset_getAll_static));
+    cls->defineStaticFunction("isLayoutValid", _SE(js_assets_EffectAsset_isLayoutValid_static));
     cls->defineStaticFunction("register", _SE(js_assets_EffectAsset_registerAsset_static));
     cls->defineStaticFunction("remove", _SE(js_assets_EffectAsset_remove_static));
+    cls->defineStaticFunction("setLayoutValid", _SE(js_assets_EffectAsset_setLayoutValid_static));
     cls->defineFinalizeFunction(_SE(js_cc_EffectAsset_finalize));
     cls->install();
     JSBClassType::registerClass<cc::EffectAsset>(cls);
@@ -8606,7 +8638,7 @@ static bool js_assets_ImageAsset_getUrl(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::string result = cobj->getUrl();
+        const std::string& result = cobj->getUrl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_ImageAsset_getUrl : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9126,24 +9158,24 @@ static bool js_assets_Material_getEffectName(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_Material_getEffectName)
 
-static bool js_assets_Material_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Material_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Material_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Material_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Material_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Material_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Material_getHash)
 
 static bool js_assets_Material_getParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -9774,6 +9806,34 @@ static bool js_assets_Material_setPropertyMat4Array(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_assets_Material_setPropertyMat4Array)
 
+static bool js_assets_Material_setPropertyNull(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Material_setPropertyNull : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_setPropertyNull : Error processing arguments");
+        cobj->setPropertyNull(arg0.value());
+        return true;
+    }
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_setPropertyNull : Error processing arguments");
+        cobj->setPropertyNull(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Material_setPropertyNull)
+
 static bool js_assets_Material_setPropertyQuaternion(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
@@ -10094,7 +10154,7 @@ static bool js_assets_Material_setPropertyVec4Array(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_assets_Material_setPropertyVec4Array)
 
-static bool js_assets_Material_getHashForMaterialForJS_static(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Material_getHashForMaterial_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10102,17 +10162,17 @@ static bool js_assets_Material_getHashForMaterialForJS_static(se::State& s) // N
     if (argc == 1) {
         HolderType<cc::Material*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterialForJS_static : Error processing arguments");
-        double result = cc::Material::getHashForMaterialForJS(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterial_static : Error processing arguments");
+        unsigned int result = cc::Material::getHashForMaterial(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterialForJS_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterial_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_assets_Material_getHashForMaterialForJS_static)
+SE_BIND_FUNC(js_assets_Material_getHashForMaterial_static)
 
 static bool js_assets_Material_get__effectAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10280,7 +10340,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("effectAsset", _SE(js_assets_Material_getEffectAsset_asGetter), _SE(js_assets_Material_setEffectAsset_asSetter));
     cls->defineProperty("effectName", _SE(js_assets_Material_getEffectName_asGetter), nullptr);
     cls->defineProperty("technique", _SE(js_assets_Material_getTechniqueIndex_asGetter), nullptr);
-    cls->defineProperty("hash", _SE(js_assets_Material_getHashForJS_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_assets_Material_getHash_asGetter), nullptr);
     cls->defineProperty("parent", _SE(js_assets_Material_getParent_asGetter), nullptr);
     cls->defineFunction("copy", _SE(js_assets_Material_copy));
     cls->defineFunction("fillInfo", _SE(js_assets_Material_fillInfo));
@@ -10303,6 +10363,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setPropertyMat3Array", _SE(js_assets_Material_setPropertyMat3Array));
     cls->defineFunction("setPropertyMat4", _SE(js_assets_Material_setPropertyMat4));
     cls->defineFunction("setPropertyMat4Array", _SE(js_assets_Material_setPropertyMat4Array));
+    cls->defineFunction("setPropertyNull", _SE(js_assets_Material_setPropertyNull));
     cls->defineFunction("setPropertyQuaternion", _SE(js_assets_Material_setPropertyQuaternion));
     cls->defineFunction("setPropertyQuaternionArray", _SE(js_assets_Material_setPropertyQuaternionArray));
     cls->defineFunction("setPropertyTextureBase", _SE(js_assets_Material_setPropertyTextureBase));
@@ -10313,7 +10374,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setPropertyVec3Array", _SE(js_assets_Material_setPropertyVec3Array));
     cls->defineFunction("setPropertyVec4", _SE(js_assets_Material_setPropertyVec4));
     cls->defineFunction("setPropertyVec4Array", _SE(js_assets_Material_setPropertyVec4Array));
-    cls->defineStaticFunction("getHashForMaterial", _SE(js_assets_Material_getHashForMaterialForJS_static));
+    cls->defineStaticFunction("getHashForMaterial", _SE(js_assets_Material_getHashForMaterial_static));
     cls->defineFinalizeFunction(_SE(js_cc_Material_finalize));
     cls->install();
     JSBClassType::registerClass<cc::Material>(cls);
@@ -10385,24 +10446,24 @@ static bool js_assets_TextureBase_getGFXTexture(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_TextureBase_getGFXTexture)
 
-static bool js_assets_TextureBase_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureBase_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureBase_getHashForJS)
+SE_BIND_FUNC(js_assets_TextureBase_getHash)
 
 static bool js_assets_TextureBase_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10967,7 +11028,7 @@ bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-ident
     cls->defineFunction("getAnisotropy", _SE(js_assets_TextureBase_getAnisotropy));
     cls->defineFunction("getGFXSampler", _SE(js_assets_TextureBase_getGFXSampler));
     cls->defineFunction("getGFXTexture", _SE(js_assets_TextureBase_getGFXTexture));
-    cls->defineFunction("getHash", _SE(js_assets_TextureBase_getHashForJS));
+    cls->defineFunction("getHash", _SE(js_assets_TextureBase_getHash));
     cls->defineFunction("getId", _SE(js_assets_TextureBase_getId));
     cls->defineFunction("getPixelFormat", _SE(js_assets_TextureBase_getPixelFormat));
     cls->defineFunction("getSamplerInfo", _SE(js_assets_TextureBase_getSamplerInfo));
@@ -12173,7 +12234,7 @@ static bool js_assets_RenderingSubMesh_setSubMeshIdx(se::State& s) // NOLINT(rea
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
+        HolderType<boost::optional<unsigned int>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_setSubMeshIdx : Error processing arguments");
         cobj->setSubMeshIdx(arg0.value());
@@ -12244,6 +12305,31 @@ static bool js_assets_RenderingSubMesh_constructor(se::State& s) // NOLINT(reada
             ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
             if (!ok) { ok = true; break; }
             auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderingSubMesh, arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 6) {
+            HolderType<std::vector<cc::gfx::Buffer *>, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<std::vector<cc::gfx::Attribute>, true> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::PrimitiveMode, false> arg2 = {};
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::Buffer*, false> arg3 = {};
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::Buffer*, false> arg4 = {};
+            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<bool, false> arg5 = {};
+            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderingSubMesh, arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
             s.thisObject()->setPrivateObject(ptr);
             return true;
         }
@@ -12486,6 +12572,25 @@ static bool js_assets_SimpleTexture_checkTextureLoaded(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_assets_SimpleTexture_checkTextureLoaded)
 
+static bool js_assets_SimpleTexture_isUsingOfflineMipmaps(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_SimpleTexture_isUsingOfflineMipmaps : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isUsingOfflineMipmaps();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_SimpleTexture_isUsingOfflineMipmaps : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_SimpleTexture_isUsingOfflineMipmaps)
+
 static bool js_assets_SimpleTexture_mipmapLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
@@ -12635,6 +12740,7 @@ bool js_register_assets_SimpleTexture(se::Object* obj) // NOLINT(readability-ide
     cls->defineProperty("mipmapLevel", _SE(js_assets_SimpleTexture_mipmapLevel_asGetter), _SE(js_assets_SimpleTexture_setMipmapLevel_asSetter));
     cls->defineFunction("assignImage", _SE(js_assets_SimpleTexture_assignImage));
     cls->defineFunction("checkTextureLoaded", _SE(js_assets_SimpleTexture_checkTextureLoaded));
+    cls->defineFunction("isUsingOfflineMipmaps", _SE(js_assets_SimpleTexture_isUsingOfflineMipmaps));
     cls->defineFunction("setMipRange", _SE(js_assets_SimpleTexture_setMipRange));
     cls->defineFunction("updateImage", _SE(js_assets_SimpleTexture_updateImage));
     cls->defineFunction("updateMipmaps", _SE(js_assets_SimpleTexture_updateMipmaps));
@@ -14059,13 +14165,430 @@ bool js_register_assets_ITextureCubeSerializeMipmapData(se::Object* obj) // NOLI
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_ITextureCubeSerializeData_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_ITextureCubeSerializeData_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_MipmapAtlasLayoutInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_MipmapAtlasLayoutInfo_class = nullptr;  // NOLINT
 
-static bool js_assets_ITextureCubeSerializeData_get_base(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_MipmapAtlasLayoutInfo_get_left(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::ITextureCubeSerializeData>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ITextureCubeSerializeData_get_base : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_get_left : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->left, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->left, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_MipmapAtlasLayoutInfo_get_left)
+
+static bool js_assets_MipmapAtlasLayoutInfo_set_left(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_set_left : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->left, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_MipmapAtlasLayoutInfo_set_left : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_MipmapAtlasLayoutInfo_set_left)
+
+static bool js_assets_MipmapAtlasLayoutInfo_get_top(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_get_top : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->top, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->top, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_MipmapAtlasLayoutInfo_get_top)
+
+static bool js_assets_MipmapAtlasLayoutInfo_set_top(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_set_top : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->top, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_MipmapAtlasLayoutInfo_set_top : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_MipmapAtlasLayoutInfo_set_top)
+
+static bool js_assets_MipmapAtlasLayoutInfo_get_width(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_get_width : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->width, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->width, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_MipmapAtlasLayoutInfo_get_width)
+
+static bool js_assets_MipmapAtlasLayoutInfo_set_width(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_set_width : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->width, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_MipmapAtlasLayoutInfo_set_width : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_MipmapAtlasLayoutInfo_set_width)
+
+static bool js_assets_MipmapAtlasLayoutInfo_get_height(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_get_height : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->height, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->height, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_MipmapAtlasLayoutInfo_get_height)
+
+static bool js_assets_MipmapAtlasLayoutInfo_set_height(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_set_height : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->height, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_MipmapAtlasLayoutInfo_set_height : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_MipmapAtlasLayoutInfo_set_height)
+
+static bool js_assets_MipmapAtlasLayoutInfo_get_level(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_get_level : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->level, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->level, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_MipmapAtlasLayoutInfo_get_level)
+
+static bool js_assets_MipmapAtlasLayoutInfo_set_level(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::MipmapAtlasLayoutInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MipmapAtlasLayoutInfo_set_level : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->level, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_MipmapAtlasLayoutInfo_set_level : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_MipmapAtlasLayoutInfo_set_level)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::MipmapAtlasLayoutInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::MipmapAtlasLayoutInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("left", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->left), ctx);
+    }
+    json->getProperty("top", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->top), ctx);
+    }
+    json->getProperty("width", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->width), ctx);
+    }
+    json->getProperty("height", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->height), ctx);
+    }
+    json->getProperty("level", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->level), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_MipmapAtlasLayoutInfo_finalize)
+
+static bool js_assets_MipmapAtlasLayoutInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::MipmapAtlasLayoutInfo);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::MipmapAtlasLayoutInfo);
+        auto cobj = ptr->get<cc::MipmapAtlasLayoutInfo>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::MipmapAtlasLayoutInfo);
+    auto cobj = ptr->get<cc::MipmapAtlasLayoutInfo>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->left), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->top), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->width), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->height), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->level), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_MipmapAtlasLayoutInfo_constructor, __jsb_cc_MipmapAtlasLayoutInfo_class, js_cc_MipmapAtlasLayoutInfo_finalize)
+
+static bool js_cc_MipmapAtlasLayoutInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_MipmapAtlasLayoutInfo_finalize)
+
+bool js_register_assets_MipmapAtlasLayoutInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("MipmapAtlasLayoutInfo", obj, nullptr, _SE(js_assets_MipmapAtlasLayoutInfo_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("left", _SE(js_assets_MipmapAtlasLayoutInfo_get_left), _SE(js_assets_MipmapAtlasLayoutInfo_set_left));
+    cls->defineProperty("top", _SE(js_assets_MipmapAtlasLayoutInfo_get_top), _SE(js_assets_MipmapAtlasLayoutInfo_set_top));
+    cls->defineProperty("width", _SE(js_assets_MipmapAtlasLayoutInfo_get_width), _SE(js_assets_MipmapAtlasLayoutInfo_set_width));
+    cls->defineProperty("height", _SE(js_assets_MipmapAtlasLayoutInfo_get_height), _SE(js_assets_MipmapAtlasLayoutInfo_set_height));
+    cls->defineProperty("level", _SE(js_assets_MipmapAtlasLayoutInfo_get_level), _SE(js_assets_MipmapAtlasLayoutInfo_set_level));
+    cls->defineFinalizeFunction(_SE(js_cc_MipmapAtlasLayoutInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::MipmapAtlasLayoutInfo>(cls);
+
+    __jsb_cc_MipmapAtlasLayoutInfo_proto = cls->getProto();
+    __jsb_cc_MipmapAtlasLayoutInfo_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_TextureCubeMipmapAtlasInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_TextureCubeMipmapAtlasInfo_class = nullptr;  // NOLINT
+
+static bool js_assets_TextureCubeMipmapAtlasInfo_get_atlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeMipmapAtlasInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeMipmapAtlasInfo_get_atlas : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->atlas, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->atlas, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCubeMipmapAtlasInfo_get_atlas)
+
+static bool js_assets_TextureCubeMipmapAtlasInfo_set_atlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeMipmapAtlasInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeMipmapAtlasInfo_set_atlas : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->atlas, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeMipmapAtlasInfo_set_atlas : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCubeMipmapAtlasInfo_set_atlas)
+
+static bool js_assets_TextureCubeMipmapAtlasInfo_get_layout(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeMipmapAtlasInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeMipmapAtlasInfo_get_layout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->layout, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->layout, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCubeMipmapAtlasInfo_get_layout)
+
+static bool js_assets_TextureCubeMipmapAtlasInfo_set_layout(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeMipmapAtlasInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeMipmapAtlasInfo_set_layout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->layout, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeMipmapAtlasInfo_set_layout : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCubeMipmapAtlasInfo_set_layout)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::TextureCubeMipmapAtlasInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::TextureCubeMipmapAtlasInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("atlas", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->atlas), ctx);
+    }
+    json->getProperty("layout", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->layout), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_TextureCubeMipmapAtlasInfo_finalize)
+
+static bool js_assets_TextureCubeMipmapAtlasInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureCubeMipmapAtlasInfo);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureCubeMipmapAtlasInfo);
+        auto cobj = ptr->get<cc::TextureCubeMipmapAtlasInfo>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureCubeMipmapAtlasInfo);
+    auto cobj = ptr->get<cc::TextureCubeMipmapAtlasInfo>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->atlas), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->layout), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_TextureCubeMipmapAtlasInfo_constructor, __jsb_cc_TextureCubeMipmapAtlasInfo_class, js_cc_TextureCubeMipmapAtlasInfo_finalize)
+
+static bool js_cc_TextureCubeMipmapAtlasInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_TextureCubeMipmapAtlasInfo_finalize)
+
+bool js_register_assets_TextureCubeMipmapAtlasInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("TextureCubeMipmapAtlasInfo", obj, nullptr, _SE(js_assets_TextureCubeMipmapAtlasInfo_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("atlas", _SE(js_assets_TextureCubeMipmapAtlasInfo_get_atlas), _SE(js_assets_TextureCubeMipmapAtlasInfo_set_atlas));
+    cls->defineProperty("layout", _SE(js_assets_TextureCubeMipmapAtlasInfo_get_layout), _SE(js_assets_TextureCubeMipmapAtlasInfo_set_layout));
+    cls->defineFinalizeFunction(_SE(js_cc_TextureCubeMipmapAtlasInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::TextureCubeMipmapAtlasInfo>(cls);
+
+    __jsb_cc_TextureCubeMipmapAtlasInfo_proto = cls->getProto();
+    __jsb_cc_TextureCubeMipmapAtlasInfo_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_TextureCubeSerializeData_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_TextureCubeSerializeData_class = nullptr;  // NOLINT
+
+static bool js_assets_TextureCubeSerializeData_get_base(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_get_base : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -14074,25 +14597,25 @@ static bool js_assets_ITextureCubeSerializeData_get_base(se::State& s) // NOLINT
     SE_HOLD_RETURN_VALUE(cobj->base, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_assets_ITextureCubeSerializeData_get_base)
+SE_BIND_PROP_GET(js_assets_TextureCubeSerializeData_get_base)
 
-static bool js_assets_ITextureCubeSerializeData_set_base(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureCubeSerializeData_set_base(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::ITextureCubeSerializeData>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ITextureCubeSerializeData_set_base : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_set_base : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->base, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_ITextureCubeSerializeData_set_base : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeSerializeData_set_base : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_assets_ITextureCubeSerializeData_set_base)
+SE_BIND_PROP_SET(js_assets_TextureCubeSerializeData_set_base)
 
-static bool js_assets_ITextureCubeSerializeData_get_rgbe(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureCubeSerializeData_get_rgbe(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::ITextureCubeSerializeData>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ITextureCubeSerializeData_get_rgbe : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_get_rgbe : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -14101,25 +14624,52 @@ static bool js_assets_ITextureCubeSerializeData_get_rgbe(se::State& s) // NOLINT
     SE_HOLD_RETURN_VALUE(cobj->rgbe, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_assets_ITextureCubeSerializeData_get_rgbe)
+SE_BIND_PROP_GET(js_assets_TextureCubeSerializeData_get_rgbe)
 
-static bool js_assets_ITextureCubeSerializeData_set_rgbe(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureCubeSerializeData_set_rgbe(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::ITextureCubeSerializeData>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ITextureCubeSerializeData_set_rgbe : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_set_rgbe : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->rgbe, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_ITextureCubeSerializeData_set_rgbe : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeSerializeData_set_rgbe : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_assets_ITextureCubeSerializeData_set_rgbe)
+SE_BIND_PROP_SET(js_assets_TextureCubeSerializeData_set_rgbe)
 
-static bool js_assets_ITextureCubeSerializeData_get_mipmaps(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureCubeSerializeData_get_mipmapMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::ITextureCubeSerializeData>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ITextureCubeSerializeData_get_mipmaps : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_get_mipmapMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->mipmapMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->mipmapMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCubeSerializeData_get_mipmapMode)
+
+static bool js_assets_TextureCubeSerializeData_set_mipmapMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_set_mipmapMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->mipmapMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeSerializeData_set_mipmapMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCubeSerializeData_set_mipmapMode)
+
+static bool js_assets_TextureCubeSerializeData_get_mipmaps(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_get_mipmaps : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -14128,28 +14678,55 @@ static bool js_assets_ITextureCubeSerializeData_get_mipmaps(se::State& s) // NOL
     SE_HOLD_RETURN_VALUE(cobj->mipmaps, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_assets_ITextureCubeSerializeData_get_mipmaps)
+SE_BIND_PROP_GET(js_assets_TextureCubeSerializeData_get_mipmaps)
 
-static bool js_assets_ITextureCubeSerializeData_set_mipmaps(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureCubeSerializeData_set_mipmaps(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::ITextureCubeSerializeData>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ITextureCubeSerializeData_set_mipmaps : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_set_mipmaps : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->mipmaps, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_ITextureCubeSerializeData_set_mipmaps : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeSerializeData_set_mipmaps : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_assets_ITextureCubeSerializeData_set_mipmaps)
+SE_BIND_PROP_SET(js_assets_TextureCubeSerializeData_set_mipmaps)
+
+static bool js_assets_TextureCubeSerializeData_get_mipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_get_mipmapAtlas : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->mipmapAtlas, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->mipmapAtlas, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCubeSerializeData_get_mipmapAtlas)
+
+static bool js_assets_TextureCubeSerializeData_set_mipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCubeSerializeData>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCubeSerializeData_set_mipmapAtlas : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->mipmapAtlas, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCubeSerializeData_set_mipmapAtlas : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCubeSerializeData_set_mipmapAtlas)
 
 
 template<>
-bool sevalue_to_native(const se::Value &from, cc::ITextureCubeSerializeData * to, se::Object *ctx)
+bool sevalue_to_native(const se::Value &from, cc::TextureCubeSerializeData * to, se::Object *ctx)
 {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::ITextureCubeSerializeData*>(json->getPrivateData());
+    auto* data = reinterpret_cast<cc::TextureCubeSerializeData*>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
@@ -14164,16 +14741,24 @@ bool sevalue_to_native(const se::Value &from, cc::ITextureCubeSerializeData * to
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->rgbe), ctx);
     }
+    json->getProperty("mipmapMode", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mipmapMode), ctx);
+    }
     json->getProperty("mipmaps", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->mipmaps), ctx);
     }
+    json->getProperty("mipmapAtlas", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mipmapAtlas), ctx);
+    }
     return ok;
 }
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_ITextureCubeSerializeData_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_TextureCubeSerializeData_finalize)
 
-static bool js_assets_ITextureCubeSerializeData_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureCubeSerializeData_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -14181,7 +14766,7 @@ static bool js_assets_ITextureCubeSerializeData_constructor(se::State& s) // NOL
 
     if(argc == 0)
     {
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ITextureCubeSerializeData);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureCubeSerializeData);
         s.thisObject()->setPrivateObject(ptr);
         return true;
     }
@@ -14190,8 +14775,8 @@ static bool js_assets_ITextureCubeSerializeData_constructor(se::State& s) // NOL
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ITextureCubeSerializeData);
-        auto cobj = ptr->get<cc::ITextureCubeSerializeData>();
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureCubeSerializeData);
+        auto cobj = ptr->get<cc::TextureCubeSerializeData>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
             delete ptr;
@@ -14201,8 +14786,8 @@ static bool js_assets_ITextureCubeSerializeData_constructor(se::State& s) // NOL
         s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ITextureCubeSerializeData);
-    auto cobj = ptr->get<cc::ITextureCubeSerializeData>();
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureCubeSerializeData);
+    auto cobj = ptr->get<cc::TextureCubeSerializeData>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->base), nullptr);
     }
@@ -14210,7 +14795,13 @@ static bool js_assets_ITextureCubeSerializeData_constructor(se::State& s) // NOL
         ok &= sevalue_to_native(args[1], &(cobj->rgbe), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->mipmaps), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->mipmapMode), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->mipmaps), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->mipmapAtlas), nullptr);
     }
 
     if(!ok) {
@@ -14221,30 +14812,32 @@ static bool js_assets_ITextureCubeSerializeData_constructor(se::State& s) // NOL
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
-SE_BIND_CTOR(js_assets_ITextureCubeSerializeData_constructor, __jsb_cc_ITextureCubeSerializeData_class, js_cc_ITextureCubeSerializeData_finalize)
+SE_BIND_CTOR(js_assets_TextureCubeSerializeData_constructor, __jsb_cc_TextureCubeSerializeData_class, js_cc_TextureCubeSerializeData_finalize)
 
-static bool js_cc_ITextureCubeSerializeData_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_cc_TextureCubeSerializeData_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_ITextureCubeSerializeData_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_TextureCubeSerializeData_finalize)
 
-bool js_register_assets_ITextureCubeSerializeData(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_assets_TextureCubeSerializeData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ITextureCubeSerializeData", obj, nullptr, _SE(js_assets_ITextureCubeSerializeData_constructor));
+    auto* cls = se::Class::create("TextureCubeSerializeData", obj, nullptr, _SE(js_assets_TextureCubeSerializeData_constructor));
 
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("base", _SE(js_assets_ITextureCubeSerializeData_get_base), _SE(js_assets_ITextureCubeSerializeData_set_base));
-    cls->defineProperty("rgbe", _SE(js_assets_ITextureCubeSerializeData_get_rgbe), _SE(js_assets_ITextureCubeSerializeData_set_rgbe));
-    cls->defineProperty("mipmaps", _SE(js_assets_ITextureCubeSerializeData_get_mipmaps), _SE(js_assets_ITextureCubeSerializeData_set_mipmaps));
-    cls->defineFinalizeFunction(_SE(js_cc_ITextureCubeSerializeData_finalize));
+    cls->defineProperty("base", _SE(js_assets_TextureCubeSerializeData_get_base), _SE(js_assets_TextureCubeSerializeData_set_base));
+    cls->defineProperty("rgbe", _SE(js_assets_TextureCubeSerializeData_get_rgbe), _SE(js_assets_TextureCubeSerializeData_set_rgbe));
+    cls->defineProperty("mipmapMode", _SE(js_assets_TextureCubeSerializeData_get_mipmapMode), _SE(js_assets_TextureCubeSerializeData_set_mipmapMode));
+    cls->defineProperty("mipmaps", _SE(js_assets_TextureCubeSerializeData_get_mipmaps), _SE(js_assets_TextureCubeSerializeData_set_mipmaps));
+    cls->defineProperty("mipmapAtlas", _SE(js_assets_TextureCubeSerializeData_get_mipmapAtlas), _SE(js_assets_TextureCubeSerializeData_set_mipmapAtlas));
+    cls->defineFinalizeFunction(_SE(js_cc_TextureCubeSerializeData_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::ITextureCubeSerializeData>(cls);
+    JSBClassType::registerClass<cc::TextureCubeSerializeData>(cls);
 
-    __jsb_cc_ITextureCubeSerializeData_proto = cls->getProto();
-    __jsb_cc_ITextureCubeSerializeData_class = cls;
+    __jsb_cc_TextureCubeSerializeData_proto = cls->getProto();
+    __jsb_cc_TextureCubeSerializeData_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -14327,6 +14920,25 @@ static bool js_assets_TextureCube_getImage(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC(js_assets_TextureCube_getImage)
+
+static bool js_assets_TextureCube_getMipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_getMipmapAtlas : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::TextureCubeMipmapAtlasInfo& result = cobj->getMipmapAtlas();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_getMipmapAtlas : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureCube_getMipmapAtlas)
 
 static bool js_assets_TextureCube_getMipmaps(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14415,6 +15027,25 @@ static bool js_assets_TextureCube_setImage(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_assets_TextureCube_setImage)
 
+static bool js_assets_TextureCube_setMipmapAtlasForJS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_setMipmapAtlasForJS : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::TextureCubeMipmapAtlasInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_setMipmapAtlasForJS : Error processing arguments");
+        cobj->setMipmapAtlasForJS(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureCube_setMipmapAtlasForJS)
+
 static bool js_assets_TextureCube_setMipmaps(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
@@ -14452,6 +15083,25 @@ static bool js_assets_TextureCube_setMipmapsForJS(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_assets_TextureCube_setMipmapsForJS)
+
+static bool js_assets_TextureCube_setmipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_setmipmapAtlas : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::TextureCubeMipmapAtlasInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_setmipmapAtlas : Error processing arguments");
+        cobj->setmipmapAtlas(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureCube_setmipmapAtlas)
 
 static bool js_assets_TextureCube_fromTexture2DArray_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14500,6 +15150,33 @@ static bool js_assets_TextureCube_set_isRGBE(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_SET(js_assets_TextureCube_set_isRGBE)
 
+static bool js_assets_TextureCube_get__mipmapMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_get__mipmapMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_mipmapMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_mipmapMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCube_get__mipmapMode)
+
+static bool js_assets_TextureCube_set__mipmapMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_set__mipmapMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_mipmapMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCube_set__mipmapMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCube_set__mipmapMode)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_TextureCube_finalize)
 
 static bool js_assets_TextureCube_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -14524,16 +15201,20 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
     cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
+    cls->defineProperty("_mipmapMode", _SE(js_assets_TextureCube_get__mipmapMode), _SE(js_assets_TextureCube_set__mipmapMode));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_TextureCube_getGfxTextureCreateInfo));
     cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_TextureCube_getGfxTextureViewCreateInfo));
     cls->defineFunction("getImage", _SE(js_assets_TextureCube_getImage));
+    cls->defineFunction("getMipmapAtlas", _SE(js_assets_TextureCube_getMipmapAtlas));
     cls->defineFunction("getMipmaps", _SE(js_assets_TextureCube_getMipmaps));
     cls->defineFunction("initialize", _SE(js_assets_TextureCube_initialize));
     cls->defineFunction("releaseTexture", _SE(js_assets_TextureCube_releaseTexture));
     cls->defineFunction("reset", _SE(js_assets_TextureCube_reset));
     cls->defineFunction("setImage", _SE(js_assets_TextureCube_setImage));
+    cls->defineFunction("setMipmapAtlasForJS", _SE(js_assets_TextureCube_setMipmapAtlasForJS));
     cls->defineFunction("setMipmaps", _SE(js_assets_TextureCube_setMipmaps));
     cls->defineFunction("setMipmapsForJS", _SE(js_assets_TextureCube_setMipmapsForJS));
+    cls->defineFunction("setmipmapAtlas", _SE(js_assets_TextureCube_setmipmapAtlas));
     cls->defineStaticFunction("fromTexture2DArray", _SE(js_assets_TextureCube_fromTexture2DArray_static));
     cls->defineFinalizeFunction(_SE(js_cc_TextureCube_finalize));
     cls->install();
@@ -18328,7 +19009,7 @@ static bool js_assets_Mesh_getAssetData(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::TypedArrayTemp<unsigned char>& result = cobj->getAssetData();
+        cc::ArrayBuffer* result = cobj->getAssetData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_Mesh_getAssetData : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -18380,24 +19061,24 @@ static bool js_assets_Mesh_getData(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getData)
 
-static bool js_assets_Mesh_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Mesh_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Mesh_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getHash)
 
 static bool js_assets_Mesh_getJointBufferIndices(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18600,6 +19281,30 @@ static bool js_assets_Mesh_readAttribute(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_assets_Mesh_readAttribute)
 
+static bool js_assets_Mesh_readAttributeFormat(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_readAttributeFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<const char*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_readAttributeFormat : Error processing arguments");
+        const cc::gfx::FormatInfo* result = cobj->readAttributeFormat(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_readAttributeFormat : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Mesh_readAttributeFormat)
+
 static bool js_assets_Mesh_readIndices(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
@@ -18687,7 +19392,7 @@ static bool js_assets_Mesh_setHash(se::State& s) // NOLINT(readability-identifie
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<uint64_t, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Mesh_setHash : Error processing arguments");
         cobj->setHash(arg0.value());
@@ -18811,7 +19516,7 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
     cls->defineProperty("morphRendering", _SE(js_assets_Mesh_get_morphRendering), _SE(js_assets_Mesh_set_morphRendering));
-    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHashForJS_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
+    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHash_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
     cls->defineProperty({"data", "_data"}, _SE(js_assets_Mesh_getData_asGetter), _SE(js_assets_Mesh_setData_asSetter));
     cls->defineProperty("jointBufferIndices", _SE(js_assets_Mesh_getJointBufferIndices_asGetter), nullptr);
     cls->defineProperty("maxPosition", _SE(js_assets_Mesh_getMaxPosition_asGetter), nullptr);
@@ -18828,6 +19533,7 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("initialize", _SE(js_assets_Mesh_initialize));
     cls->defineFunction("merge", _SE(js_assets_Mesh_merge));
     cls->defineFunction("readAttribute", _SE(js_assets_Mesh_readAttribute));
+    cls->defineFunction("readAttributeFormat", _SE(js_assets_Mesh_readAttributeFormat));
     cls->defineFunction("readIndices", _SE(js_assets_Mesh_readIndices));
     cls->defineFunction("reset", _SE(js_assets_Mesh_reset));
     cls->defineFunction("setStruct", _SE(js_assets_Mesh_setStruct));
@@ -18866,25 +19572,25 @@ static bool js_assets_Skeleton_getBindposes(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_assets_Skeleton_getBindposes)
 
-static bool js_assets_Skeleton_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Skeleton_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Skeleton>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Skeleton_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Skeleton_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Skeleton_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Skeleton_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Skeleton_getHashForJS)
-SE_BIND_FUNC(js_assets_Skeleton_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Skeleton_getHash)
+SE_BIND_FUNC(js_assets_Skeleton_getHash)
 
 static bool js_assets_Skeleton_getInverseBindposes(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18952,7 +19658,7 @@ static bool js_assets_Skeleton_setHash(se::State& s) // NOLINT(readability-ident
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<uint64_t, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Skeleton_setHash : Error processing arguments");
         cobj->setHash(arg0.value());
@@ -19008,9 +19714,9 @@ bool js_register_assets_Skeleton(se::Object* obj) // NOLINT(readability-identifi
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
     cls->defineProperty({"_joints", "joints"}, _SE(js_assets_Skeleton_getJoints_asGetter), _SE(js_assets_Skeleton_setJoints_asSetter));
-    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHashForJS_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
+    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHash_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
     cls->defineFunction("_getBindposes", _SE(js_assets_Skeleton_getBindposes));
-    cls->defineFunction("getHash", _SE(js_assets_Skeleton_getHashForJS));
+    cls->defineFunction("getHash", _SE(js_assets_Skeleton_getHash));
     cls->defineFunction("getInverseBindposes", _SE(js_assets_Skeleton_getInverseBindposes));
     cls->defineFunction("getJoints", _SE(js_assets_Skeleton_getJoints));
     cls->defineFunction("_setBindposes", _SE(js_assets_Skeleton_setBindposes));
@@ -19554,13 +20260,13 @@ bool register_all_assets(se::Object* obj)    // NOLINT
     js_register_assets_ITexture2DCreateInfo(ns);
     js_register_assets_ITexture2DSerializeData(ns);
     js_register_assets_ITextureCubeMipmap(ns);
-    js_register_assets_ITextureCubeSerializeData(ns);
     js_register_assets_ITextureCubeSerializeMipmapData(ns);
     js_register_assets_ITextureInfo(ns);
     js_register_assets_Mesh_IVertexBundle(ns);
     js_register_assets_ImageAsset(ns);
     js_register_assets_Material(ns);
     js_register_assets_MeshUtils(ns);
+    js_register_assets_MipmapAtlasLayoutInfo(ns);
     js_register_assets_Morph(ns);
     js_register_assets_MorphRendering(ns);
     js_register_assets_MorphRenderingInstance(ns);
@@ -19577,6 +20283,8 @@ bool register_all_assets(se::Object* obj)    // NOLINT
     js_register_assets_TextAsset(ns);
     js_register_assets_Texture2D(ns);
     js_register_assets_TextureCube(ns);
+    js_register_assets_TextureCubeMipmapAtlasInfo(ns);
+    js_register_assets_TextureCubeSerializeData(ns);
     js_register_assets_VertexIdChannel(ns);
     return true;
 }

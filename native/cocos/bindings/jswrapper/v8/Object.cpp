@@ -107,10 +107,10 @@ void Object::cleanup() {
     Object *obj = nullptr;
     Class *cls = nullptr;
 
-    const auto &nativePtrToObjectMap = NativePtrToObjectMap::instance();
-    for (const auto &e : nativePtrToObjectMap) {
-        nativeObj = e.first;
-        obj = e.second;
+    auto iter = NativePtrToObjectMap::begin();
+    while (iter != NativePtrToObjectMap::end()) {
+        nativeObj = iter->first;
+        obj = iter->second;
 
         if (obj->_finalizeCb != nullptr) {
             obj->_finalizeCb(obj);
@@ -123,9 +123,10 @@ void Object::cleanup() {
         }
 
         obj->decRef();
+        iter = NativePtrToObjectMap::erase(iter);
     }
 
-    NativePtrToObjectMap::clear();
+    SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 
     if (__objectMap) {
         ccstd::vector<Object *> toReleaseObjects;
@@ -503,22 +504,22 @@ bool Object::isTypedArray() const {
 Object::TypedArrayType Object::getTypedArrayType() const {
     v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
     TypedArrayType ret = TypedArrayType::NONE;
-    if (value->IsInt8Array()) {
-        ret = TypedArrayType::INT8;
-    } else if (value->IsInt16Array()) {
-        ret = TypedArrayType::INT16;
-    } else if (value->IsInt32Array()) {
-        ret = TypedArrayType::INT32;
-    } else if (value->IsUint8Array()) {
-        ret = TypedArrayType::UINT8;
-    } else if (value->IsUint8ClampedArray()) {
-        ret = TypedArrayType::UINT8_CLAMPED;
-    } else if (value->IsUint16Array()) {
-        ret = TypedArrayType::UINT16;
+    if (value->IsFloat32Array()) {
+        ret = TypedArrayType::FLOAT32;
     } else if (value->IsUint32Array()) {
         ret = TypedArrayType::UINT32;
-    } else if (value->IsFloat32Array()) {
-        ret = TypedArrayType::FLOAT32;
+    } else if (value->IsUint16Array()) {
+        ret = TypedArrayType::UINT16;
+    } else if (value->IsUint8Array()) {
+        ret = TypedArrayType::UINT8;
+    } else if (value->IsInt32Array()) {
+        ret = TypedArrayType::INT32;
+    } else if (value->IsInt16Array()) {
+        ret = TypedArrayType::INT16;
+    } else if (value->IsInt8Array()) {
+        ret = TypedArrayType::INT8;
+    } else if (value->IsUint8ClampedArray()) {
+        ret = TypedArrayType::UINT8_CLAMPED;
     } else if (value->IsFloat64Array()) {
         ret = TypedArrayType::FLOAT64;
     }
@@ -693,29 +694,8 @@ bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(length != nullptr);
     auto *thiz = const_cast<Object *>(this);
 
-    v8::MaybeLocal<v8::String> lengthStr = ScriptEngine::getInstance()->_getStringPool().get(__isolate, "length");
-    if (lengthStr.IsEmpty()) {
-        *length = 0;
-        return false;
-    }
-    v8::Local<v8::Context> context = __isolate->GetCurrentContext();
-
-    v8::MaybeLocal<v8::Value> val = thiz->_obj.handle(__isolate)->Get(context, lengthStr.ToLocalChecked());
-    if (val.IsEmpty()) {
-        return false;
-    }
-
-    v8::MaybeLocal<v8::Object> obj = val.ToLocalChecked()->ToObject(context);
-    if (obj.IsEmpty()) {
-        return false;
-    }
-
-    v8::Maybe<uint32_t> mbLen = obj.ToLocalChecked()->Uint32Value(context);
-    if (mbLen.IsNothing()) {
-        return false;
-    }
-
-    *length = mbLen.FromJust();
+    v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
+    *length = v8Arr->Length();
     return true;
 }
 

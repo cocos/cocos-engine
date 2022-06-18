@@ -6,6 +6,7 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
 
@@ -106,6 +107,25 @@ static bool js_render_PipelineRuntime_getDescriptorSetLayout(se::State& s) // NO
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDescriptorSetLayout)
+
+static bool js_render_PipelineRuntime_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_getGeometryRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_getGeometryRenderer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getGeometryRenderer)
 
 static bool js_render_PipelineRuntime_getGlobalDSManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -217,6 +237,69 @@ static bool js_render_PipelineRuntime_render(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_render_PipelineRuntime_render)
 
+static bool js_render_PipelineRuntime_setMacroBool(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_setMacroBool : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<bool, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_setMacroBool : Error processing arguments");
+        cobj->setMacroBool(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_setMacroBool)
+
+static bool js_render_PipelineRuntime_setMacroInt(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_setMacroInt : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<int32_t, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_setMacroInt : Error processing arguments");
+        cobj->setMacroInt(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_setMacroInt)
+
+static bool js_render_PipelineRuntime_setMacroString(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_setMacroString : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::string, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_setMacroString : Error processing arguments");
+        cobj->setMacroString(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_setMacroString)
+
 static bool js_render_PipelineRuntime_setProfiler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -267,56 +350,20 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("pipelineSceneData", _SE(js_render_PipelineRuntime_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("constantMacros", _SE(js_render_PipelineRuntime_getConstantMacros_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_render_PipelineRuntime_getProfiler_asGetter), _SE(js_render_PipelineRuntime_setProfiler_asSetter));
+    cls->defineProperty("geometryRenderer", _SE(js_render_PipelineRuntime_getGeometryRenderer_asGetter), nullptr);
     cls->defineProperty("shadingScale", _SE(js_render_PipelineRuntime_getShadingScale_asGetter), _SE(js_render_PipelineRuntime_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_render_PipelineRuntime_activate));
     cls->defineFunction("destroy", _SE(js_render_PipelineRuntime_destroy));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_render_PipelineRuntime_onGlobalPipelineStateChanged));
     cls->defineFunction("render", _SE(js_render_PipelineRuntime_render));
+    cls->defineFunction("setMacroBool", _SE(js_render_PipelineRuntime_setMacroBool));
+    cls->defineFunction("setMacroInt", _SE(js_render_PipelineRuntime_setMacroInt));
+    cls->defineFunction("setMacroString", _SE(js_render_PipelineRuntime_setMacroString));
     cls->install();
     JSBClassType::registerClass<cc::render::PipelineRuntime>(cls);
 
     __jsb_cc_render_PipelineRuntime_proto = cls->getProto();
     __jsb_cc_render_PipelineRuntime_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_cc_render_DescriptorHierarchy_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_DescriptorHierarchy_class = nullptr;  // NOLINT
-
-static bool js_render_DescriptorHierarchy_addEffect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::render::DescriptorHierarchy>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_DescriptorHierarchy_addEffect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::EffectAsset*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_DescriptorHierarchy_addEffect : Error processing arguments");
-        cobj->addEffect(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_render_DescriptorHierarchy_addEffect)
-
-bool js_register_render_DescriptorHierarchy(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("DescriptorHierarchy", obj, nullptr, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("addEffect", _SE(js_render_DescriptorHierarchy_addEffect));
-    cls->install();
-    JSBClassType::registerClass<cc::render::DescriptorHierarchy>(cls);
-
-    __jsb_cc_render_DescriptorHierarchy_proto = cls->getProto();
-    __jsb_cc_render_DescriptorHierarchy_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -631,14 +678,16 @@ static bool js_render_RasterQueueBuilder_addScene(se::State& s) // NOLINT(readab
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
+    if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
+        HolderType<cc::render::SceneFlags, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_render_RasterQueueBuilder_addScene : Error processing arguments");
-        cobj->addScene(arg0.value());
+        cobj->addScene(arg0.value(), arg1.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_render_RasterQueueBuilder_addScene)
@@ -651,26 +700,38 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 1) {
+        if (argc == 3) {
             HolderType<cc::scene::Camera*, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addSceneOfCamera(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<cc::scene::Camera*, false> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
+            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            cobj->addSceneOfCamera(arg0.value(), arg1.value());
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+            HolderType<std::string, true> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             return true;
         }
     } while(false);
@@ -1515,6 +1576,200 @@ bool js_register_render_SceneTransversal(se::Object* obj) // NOLINT(readability-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_render_LayoutGraphBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_LayoutGraphBuilder_class = nullptr;  // NOLINT
+
+static bool js_render_LayoutGraphBuilder_addDescriptorBlock(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addDescriptorBlock : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::render::DescriptorBlockIndex, true> arg1 = {};
+        HolderType<cc::render::DescriptorBlockFlattened, true> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addDescriptorBlock : Error processing arguments");
+        cobj->addDescriptorBlock(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock)
+
+static bool js_render_LayoutGraphBuilder_addRenderPhase(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addRenderPhase : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderPhase : Error processing arguments");
+        unsigned int result = cobj->addRenderPhase(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderPhase : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addRenderPhase)
+
+static bool js_render_LayoutGraphBuilder_addRenderStage(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addRenderStage : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderStage : Error processing arguments");
+        unsigned int result = cobj->addRenderStage(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderStage : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addRenderStage)
+
+static bool js_render_LayoutGraphBuilder_addShader(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addShader : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addShader : Error processing arguments");
+        cobj->addShader(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addShader)
+
+static bool js_render_LayoutGraphBuilder_clear(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_clear)
+
+static bool js_render_LayoutGraphBuilder_compile(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_compile : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->compile();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_compile : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_compile)
+
+static bool js_render_LayoutGraphBuilder_print(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_print : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cobj->print();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_print : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_print)
+
+static bool js_render_LayoutGraphBuilder_reserveDescriptorBlock(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_reserveDescriptorBlock : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::render::DescriptorBlockIndex, true> arg1 = {};
+        HolderType<cc::render::DescriptorBlockFlattened, true> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_reserveDescriptorBlock : Error processing arguments");
+        cobj->reserveDescriptorBlock(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_reserveDescriptorBlock)
+
+bool js_register_render_LayoutGraphBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("LayoutGraphBuilder", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("addDescriptorBlock", _SE(js_render_LayoutGraphBuilder_addDescriptorBlock));
+    cls->defineFunction("addRenderPhase", _SE(js_render_LayoutGraphBuilder_addRenderPhase));
+    cls->defineFunction("addRenderStage", _SE(js_render_LayoutGraphBuilder_addRenderStage));
+    cls->defineFunction("addShader", _SE(js_render_LayoutGraphBuilder_addShader));
+    cls->defineFunction("clear", _SE(js_render_LayoutGraphBuilder_clear));
+    cls->defineFunction("compile", _SE(js_render_LayoutGraphBuilder_compile));
+    cls->defineFunction("print", _SE(js_render_LayoutGraphBuilder_print));
+    cls->defineFunction("reserveDescriptorBlock", _SE(js_render_LayoutGraphBuilder_reserveDescriptorBlock));
+    cls->install();
+    JSBClassType::registerClass<cc::render::LayoutGraphBuilder>(cls);
+
+    __jsb_cc_render_LayoutGraphBuilder_proto = cls->getProto();
+    __jsb_cc_render_LayoutGraphBuilder_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_render_Pipeline_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Pipeline_class = nullptr;  // NOLINT
 
@@ -1804,6 +2059,49 @@ static bool js_render_Pipeline_endFrame(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_render_Pipeline_endFrame)
 
+static bool js_render_Pipeline_getDescriptorSetLayout(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_Pipeline_getDescriptorSetLayout : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::render::UpdateFrequency, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_Pipeline_getDescriptorSetLayout : Error processing arguments");
+        cc::gfx::DescriptorSetLayout* result = cobj->getDescriptorSetLayout(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_Pipeline_getDescriptorSetLayout : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_Pipeline_getDescriptorSetLayout)
+
+static bool js_render_Pipeline_getLayoutGraphBuilder(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_Pipeline_getLayoutGraphBuilder : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::render::LayoutGraphBuilder* result = cobj->getLayoutGraphBuilder();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_Pipeline_getLayoutGraphBuilder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_Pipeline_getLayoutGraphBuilder)
+
 static bool js_render_Pipeline_presentAll(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
@@ -1826,6 +2124,7 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
+    cls->defineProperty("layoutGraphBuilder", _SE(js_render_Pipeline_getLayoutGraphBuilder_asGetter), nullptr);
     cls->defineFunction("addComputePass", _SE(js_render_Pipeline_addComputePass));
     cls->defineFunction("addCopyPass", _SE(js_render_Pipeline_addCopyPass));
     cls->defineFunction("addDepthStencil", _SE(js_render_Pipeline_addDepthStencil));
@@ -1836,6 +2135,7 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("beginFrame", _SE(js_render_Pipeline_beginFrame));
     cls->defineFunction("createSceneTransversal", _SE(js_render_Pipeline_createSceneTransversal));
     cls->defineFunction("endFrame", _SE(js_render_Pipeline_endFrame));
+    cls->defineFunction("getDescriptorSetLayout", _SE(js_render_Pipeline_getDescriptorSetLayout));
     cls->defineFunction("presentAll", _SE(js_render_Pipeline_presentAll));
     cls->install();
     JSBClassType::registerClass<cc::render::Pipeline>(cls);
@@ -1849,23 +2149,6 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
 }
 se::Object* __jsb_cc_render_Factory_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Factory_class = nullptr;  // NOLINT
-
-static bool js_render_Factory_createDescriptorHierarchy_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::render::DescriptorHierarchy* result = cc::render::Factory::createDescriptorHierarchy();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_render_Factory_createDescriptorHierarchy_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_render_Factory_createDescriptorHierarchy_static)
 
 static bool js_render_Factory_createPipeline_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1896,7 +2179,6 @@ bool js_register_render_Factory(se::Object* obj) // NOLINT(readability-identifie
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
-    cls->defineStaticFunction("createDescriptorHierarchy", _SE(js_render_Factory_createDescriptorHierarchy_static));
     cls->defineStaticFunction("createPipeline", _SE(js_render_Factory_createPipeline_static));
     cls->defineFinalizeFunction(_SE(js_cc_render_Factory_finalize));
     cls->install();
@@ -1925,8 +2207,8 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_ComputePassBuilder(ns);
     js_register_render_ComputeQueueBuilder(ns);
     js_register_render_CopyPassBuilder(ns);
-    js_register_render_DescriptorHierarchy(ns);
     js_register_render_Factory(ns);
+    js_register_render_LayoutGraphBuilder(ns);
     js_register_render_MovePassBuilder(ns);
     js_register_render_PipelineRuntime(ns);
     js_register_render_Pipeline(ns);

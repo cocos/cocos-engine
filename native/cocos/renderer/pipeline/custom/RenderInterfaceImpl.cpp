@@ -25,17 +25,14 @@
 
 #include "RenderInterfaceTypes.h"
 #include "NativePipelineTypes.h"
+#include "boost/container/pmr/global_resource.hpp"
 
 namespace cc {
 
 namespace render {
 
 Pipeline* Factory::createPipeline() {
-    return ccnew NativePipeline();
-}
-
-DescriptorHierarchy* Factory::createDescriptorHierarchy() {
-    return nullptr;
+    return ccnew NativePipeline(boost::container::pmr::get_default_resource());
 }
 
 } // namespace render

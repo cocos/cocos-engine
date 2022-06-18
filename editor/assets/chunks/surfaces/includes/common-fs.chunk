@@ -12,41 +12,43 @@
 #include <shading-entries/data-structures/fs-input>
 
 // Uniforms--UBO
-#include <cc-global>
+#include <builtin/uniforms/cc-global>
 #if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
   #if CC_FORWARD_ADD
-    #include <cc-forward-light>
+    #include <builtin/uniforms/cc-forward-light>
   #endif
 #endif
 
 // Uniforms--Tex
-#include <cc-shadow>
+#include <builtin/uniforms/cc-shadow>
 #if CC_USE_IBL
-  #include <cc-environment>
+  #include <builtin/uniforms/cc-environment>
   #if CC_USE_DIFFUSEMAP
-    #include <cc-diffusemap>
+    #include <builtin/uniforms/cc-diffusemap>
   #endif
 #endif
 
 // Base
-#include <common>
-#include <texture-lod>
-#include <packing>
-#include <unpack>
-#include <aces>
-#include <gamma>
+#include <common/common-define>
+#include <common/texture/texture-lod>
+#include <common/data/packing>
+#include <common/data/unpack>
+#include <common/color/aces>
+#include <common/color/gamma>
 #include <common/math/number>
 #include <common/math/coordinates>
+#include <common/math/octahedron-transform>
 #include <common/mesh/material>
-#include <octahedron-transform>
 #include <common/texture/cubemap>
 
 // Functional
-#include <cc-shadow-map-base>
-#include <cc-fog-base>
+#include <builtin/functionalities/shadow-map>
+#include <builtin/functionalities/fog>
 
-#if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
-  #include <common/lighting/lightmap>
+// Uniform should depend on system macro, not surface macro
+#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #include <builtin/uniforms/cc-light-map>
+  #include <common/lighting/light-map>
 #endif
 
 

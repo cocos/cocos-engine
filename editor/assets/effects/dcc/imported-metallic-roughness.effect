@@ -12,17 +12,17 @@ CCEffect %{
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: BaseColorMap } }
         baseWeightMap:        { value: grey }
         albedoScale:          { value: 1.0, editor: { displayName: BaseWeight } }
-        roughness:            { value: 1.0 }
+        roughness:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughnessMap:         { value: grey }
-        metallic:             { value: 1.0 }
+        metallic:             { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallicMap:          { value: grey }
-        occlusion:            { value: 1.0 }
+        occlusion:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
         emissiveScale:        { value: 1.0, editor: { displayName: Emissive } }
         emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
         emissiveMap:          { value: grey, editor: { displayName: EmissiveColorMap } }
-        alphaSource:          { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSource:          { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         alphaSourceMap:       { value: grey, editor: { parent: USE_OPACITY_MAP } }
         alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         normalStrength:       { value: 1.0, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
@@ -94,13 +94,13 @@ CCProgram shared-ubos %{
 
 CCProgram standard-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
@@ -126,7 +126,7 @@ CCProgram standard-vs %{
   #endif
 
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-vs>
+    #include <legacy/lightingmap-vs>
   #endif
 
   void main () {
@@ -183,12 +183,12 @@ CCProgram standard-vs %{
 
 CCProgram standard-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <shared-ubos>
-  #include <cc-fog-fs>
-  #include <standard-surface-entry>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+    #include <legacy/lightingmap-fs>
   #endif
 
   in vec3 v_position;
@@ -270,7 +270,7 @@ CCProgram standard-fs %{
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor *= texColor;
+      baseColor = texColor;
     #endif
 
     #if USE_WEIGHT_MAP
@@ -301,7 +301,8 @@ CCProgram standard-fs %{
            roughnessValue = roughnessColor.ROUGHNESS_CHANNEL;
        #endif
     #endif
-    s.roughness = roughnessValue;
+    //fit specular ior=1.5
+    s.roughness = max(0.02, roughnessValue);
 
 
     float occlusionValue = occlusion;
@@ -380,12 +381,12 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <decode-base>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/decode-base>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-shadow>
 
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
@@ -421,8 +422,8 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
-  #include <packing>
-  #include <cc-shadow-map-base>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
 
   in vec2 v_uv;
   in vec2 v_uv1;

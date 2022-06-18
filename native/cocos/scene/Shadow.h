@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "base/std/container/array.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 #include "math/Color.h"
@@ -116,18 +115,90 @@ enum class PCFType {
     HARD = 0,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x4 次采样
+     * @en x4 times
      * @readonly
      */
     SOFT = 1,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x9 次采样
+     * @en x9 times
      * @readonly
      */
-    SOFT_2X = 2
+    SOFT_2X = 2,
+
+    /**
+     * @zh x16 次采样
+     * @en x16 times
+     * @readonly
+     */
+    SOFT_4X = 3
+};
+
+/**
+ * @zh 级联阴影贴图层级。
+ * @en The CSM shadow level
+ * @static
+ * @enum Shadows.CSMLevel
+ */
+enum class CSMLevel {
+    /**
+     * @zh 1 个层级
+     * @en level 1
+     * @readonly
+     */
+    LEVEL_1 = 1,
+
+    /**
+     * @zh 2 个层级
+     * @en level 2
+     * @readonly
+     */
+    LEVEL_2 = 2,
+
+    /**
+     * @zh 3 个层级
+     * @en level 3
+     * @readonly
+     */
+    LEVEL_3 = 3,
+
+    /**
+     * @zh 4 个层级
+     * @en level 4
+     * @readonly
+     */
+    LEVEL_4 = 4
+};
+
+/**
+ * @zh 级联阴影性能优化模式。
+ * @en The CSM performance optimization mode
+ * @static
+ * @enum Shadows.CSMOptimizationMode
+ */
+enum class CSMOptimizationMode {
+    /**
+     * @zh 没有性能优化
+     * @en has no performance optimization
+     * @readonly
+     */
+    NONE = 1,
+
+    /**
+     * @zh 剔除层与层之间重复物体
+     * @en Eliminate duplicate objects between layers
+     * @readonly
+     */
+    REMOVE_DUPLICATES = 2,
+
+    /**
+     * @zh 取消稳抖
+     * @en Disable rotation fix
+     * @readonly
+     */
+    DISABLE_ROTATION_FIX = 3
 };
 
 class Shadows;
@@ -163,8 +234,8 @@ public:
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    void setNormal(const Vec3 &val);
-    inline const Vec3 &getNormal() const {
+    void setPlaneDirection(const Vec3 &val);
+    inline const Vec3 &getPlaneDirection() const {
         return _normal;
     }
 
@@ -172,8 +243,8 @@ public:
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    void setDistance(float val);
-    inline float getDistance() const {
+    void setPlaneHeight(float val);
+    inline float getPlaneHeight() const {
         return _distance;
     }
 
@@ -195,16 +266,12 @@ public:
         return _size.x;
     }
 
-    inline const Vec2 &getSize() const {
-        return _size;
-    }
-
     /**
      * @en Set plane which receives shadow with the given node's world transformation
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
      */
-    void setPlaneFromNode(Node *node);
+    void setPlaneFromNode(const Node* node);
 
     void activate(Shadows *resource);
 
@@ -214,7 +281,7 @@ public:
     float _distance{0.F};
     Color _shadowColor{0, 0, 0, 76};
     uint32_t _maxReceived{4};
-    Vec2 _size{512.F, 512.F};
+    Vec2 _size{1024.F, 1024.F};
 
     Shadows *_resource{nullptr};
 };
@@ -327,18 +394,6 @@ public:
     inline void setMaxReceived(uint32_t val) { _maxReceived = val; }
     inline uint32_t getMaxReceived() const { return _maxReceived; }
 
-    inline float getShadowCameraFar() const { return _shadowCameraFar; }
-    inline void setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
-
-    inline Mat4 getMatShadowView() const { return _matShadowView; }
-    inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
-
-    inline Mat4 getMatShadowProj() const { return _matShadowProj; }
-    inline void setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
-
-    inline Mat4 getMatShadowViewProj() const { return _matShadowViewProj; }
-    inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
-
 private:
     void updatePlanarInfo();
     void createInstanceMaterial();
@@ -356,12 +411,6 @@ private:
      */
     uint32_t _maxReceived{4};
 
-    // local set
-    float _shadowCameraFar{0.0F};
-    Mat4 _matShadowView;
-    Mat4 _matShadowProj;
-    Mat4 _matShadowViewProj;
-
     // public properties of shadow
     Vec3 _normal{0.F, 1.F, 0.F};
     Color _shadowColor{0, 0, 0, 76};
@@ -369,7 +418,7 @@ private:
     Mat4 _matLight;
     IntrusivePtr<Material> _material{nullptr};
     IntrusivePtr<Material> _instancingMaterial{nullptr};
-    Vec2 _size{512.F, 512.F};
+    Vec2 _size{1024.F, 1024.F};
     bool _enabled{false};
     float _distance{0.F};
     ShadowType _type{ShadowType::NONE};

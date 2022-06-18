@@ -159,7 +159,7 @@ void JointTexturePool::clear() {
 
 void JointTexturePool::registerCustomTextureLayouts(const ccstd::vector<ICustomJointTextureLayout> &layouts) {
     for (const auto &layout : layouts) {
-        auto chunkIdx = static_cast<index_t>(_customPool->createChunk(layout.textureLength));
+        uint32_t chunkIdx = _customPool->createChunk(layout.textureLength);
         for (const auto &content : layout.contents) {
             auto skeleton = content.skeleton;
             _chunkIdxMap[skeleton] = chunkIdx; // include default pose too
@@ -171,7 +171,7 @@ void JointTexturePool::registerCustomTextureLayouts(const ccstd::vector<ICustomJ
 }
 
 ccstd::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot) {
-    uint64_t hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
+    ccstd::hash_t hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
     ccstd::optional<IJointTextureHandle *> texture;
     if (_textureBuffers.find(hash) != _textureBuffers.end()) {
         texture = _textureBuffers[hash];
@@ -345,7 +345,7 @@ void JointTexturePool::releaseHandle(IJointTextureHandle *handle) {
         handle->refCount--;
     }
     if (!handle->refCount && handle->readyToBeDeleted) {
-        uint64_t hash = handle->skeletonHash ^ handle->clipHash;
+        ccstd::hash_t hash = handle->skeletonHash ^ handle->clipHash;
         if (_chunkIdxMap.find(hash) != _chunkIdxMap.end()) {
             _customPool->free(handle->handle);
         } else {
@@ -458,6 +458,10 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //     }
 //     return animInfos;
 // }
+
+JointAnimationInfo::JointAnimationInfo(gfx::Device *device)
+: _device(device) {
+}
 
 IAnimInfo JointAnimationInfo::getData(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {

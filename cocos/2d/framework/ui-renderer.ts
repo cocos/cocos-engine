@@ -129,9 +129,6 @@ export class UIRenderer extends Renderer {
     public static PostAssembler: IAssemblerManager | null = null;
 
     @override
-    protected _materials: (Material | null)[] = [];
-
-    @override
     @visible(false)
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
@@ -151,9 +148,6 @@ export class UIRenderer extends Renderer {
             this._materials.splice(val.length);
         }
     }
-
-    @type(Material)
-    protected _customMaterial: Material| null = null;
 
     /**
      * @en The customMaterial
@@ -194,11 +188,31 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    /**
+     * @internal
+     */
     get renderData () {
         return this._renderData;
     }
 
+    /**
+     * @internal
+     */
+    get blendHash () {
+        return this._blendHash;
+    }
+
+    /**
+     * @internal
+     */
+    get useVertexOpacity () {
+        return this._useVertexOpacity;
+    }
+
     // Render data can be submitted even if it is not on the node tree
+    /**
+     * @internal
+     */
     set delegateSrc (value: Node) {
         this._delegateSrc = value;
     }
@@ -208,6 +222,11 @@ export class UIRenderer extends Renderer {
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
     public stencilStage : Stage = Stage.DISABLED;
+
+    @override
+    protected _materials: (Material | null)[] = [];
+    @type(Material)
+    protected _customMaterial: Material| null = null;
 
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
@@ -222,32 +241,18 @@ export class UIRenderer extends Renderer {
     protected _renderDataFlag = true;
     protected _renderFlag = true;
 
-    // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
+    // Special delegate node for the renderer component, it allows standalone component to be rendered as if it's attached to the delegate node
+    // It's used by graphics stencil component in Mask
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
     /**
-     * TODO mark internal
-     */
-    get blendHash () {
-        return this._blendHash;
-    }
-
-    /**
      * @en Marks for calculating opacity per vertex
      * @zh 标记组件是否逐顶点计算透明度
      */
     protected _useVertexOpacity = false;
-    get useVertexOpacity () {
-        return this._useVertexOpacity;
-    }
-
-    public updateBlendHash () {
-        const dst = this._blendState.targets[0].blendDst << 4;
-        this._blendHash = dst | this._blendState.targets[0].blendSrc;
-    }
 
     protected _lastParent: Node | null = null;
 
@@ -295,6 +300,15 @@ export class UIRenderer extends Renderer {
         if (this._blendState) {
             this._blendState.destroy();
         }
+    }
+
+    /**
+     * @en Update the hash for the blend states.
+     * @zh 更新混合模式的哈希值标记
+     */
+    public updateBlendHash () {
+        const dst = this._blendState.targets[0].blendDst << 4;
+        this._blendHash = dst | this._blendState.targets[0].blendSrc;
     }
 
     /**

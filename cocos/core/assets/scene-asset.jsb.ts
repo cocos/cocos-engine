@@ -23,29 +23,14 @@
  THE SOFTWARE.
 */
 import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 
 export const SceneAsset = jsb.SceneAsset;
 export type SceneAsset = jsb.SceneAsset;
 
 legacyCC.SceneAsset = SceneAsset;
-const sceneAssetDecorator = ccclass('cc.SceneAsset');
 
 const sceneAssetProto: any = SceneAsset.prototype;
-
-const des_scene = _applyDecoratedDescriptor(sceneAssetProto, 'scene', [editable, serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
 
 Object.defineProperty(sceneAssetProto, 'scene', {
     enumerable: true,
@@ -64,8 +49,11 @@ Object.defineProperty(sceneAssetProto, 'scene', {
 
 sceneAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
-    // _initializerDefineProperty(this, "scene", des_scene, _assertThisInitialized(this));
     this._scene = null;
 };
 
-sceneAssetDecorator(SceneAsset);
+// handle meta data, it is generated automatically
+const SceneAssetProto = SceneAsset.prototype;
+serializable(SceneAssetProto, 'scene');
+editable(SceneAssetProto, 'scene');
+ccclass('cc.SceneAsset')(SceneAsset);

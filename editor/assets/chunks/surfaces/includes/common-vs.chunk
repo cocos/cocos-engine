@@ -4,32 +4,22 @@
 #include <shading-entries/data-structures/vs-intermediate>
 
 // UBO
-#include <cc-global>
-#include <builtin/uniforms/cc-local-batched>
+#include <builtin/uniforms/cc-global>
+#include <builtin/uniforms/cc-shadow>
 
-#if CC_USE_MORPH
-  #include <builtin/uniforms/cc-morph>
-#endif
-#if CC_USE_SKINNING
-  #include <builtin/uniforms/cc-skinning-uniforms>
-#endif
+#include <common/common-define>
 
 // Functional
-#include <common>
-#include <builtin/internal-functions/world-transform>
+#include <builtin/functionalities/world-transform>
 
 #if CC_USE_MORPH
-  #include <builtin/internal-functions/morph-animation>
-  //#include <morph>
+  #include <builtin/functionalities/morph-animation>
 #endif
 
 #if CC_USE_SKINNING
-  #include <builtin/internal-functions/skinning-animation-lbs>
-  //#include <cc-skinning>
+  #include <builtin/functionalities/skinning-animation-lbs>
 #endif
 
-#if !CC_USE_ACCURATE_FOG
-  #include <cc-fog-base>
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  #include <builtin/functionalities/fog>
 #endif
-
-#include <cc-shadow>

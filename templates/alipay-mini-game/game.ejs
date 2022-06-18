@@ -1,8 +1,5 @@
-require('./libs/wrapper/builtin');
-window.DOMParser = require('./libs/common/xmldom/dom-parser').DOMParser;
-window.__globalAdapter = {};
-require('./libs/wrapper/unify');
-require('./libs/wrapper/fs-utils');
+require('./web-adapter');
+
 <% if(polyfillsBundleFile) { %>
 // Polyfills bundle.
 require("<%= polyfillsBundleFile %>");
@@ -43,10 +40,7 @@ System.import('<%= applicationJs %>').then(({ createApplication }) => {
 
 function onApplicationCreated(application) {
     return application.import('cc').then((cc) => {
-        require('./libs/common/engine/index.js');
-        require('./libs/wrapper/engine/index.js');
-        // not support require twice
-        // require('./libs/common/cache-manager.js');
+        require('./engine-adapter');
         // Adjust devicePixelRatio
         cc.view._maxPixelRatio = 5;
         // Release Image objects after uploaded gl texture

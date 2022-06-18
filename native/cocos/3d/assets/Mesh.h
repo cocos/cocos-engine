@@ -104,6 +104,10 @@ public:
         ccstd::optional<uint32_t> jointMapIndex;
     };
 
+    /**
+    * @en The info use to create dynamic mesh.
+    * @zh 描述了创建动态网格需要的预分配信息。
+    */
     struct IDynamicInfo {
         /**
          * @en max submesh count
@@ -124,6 +128,10 @@ public:
         uint32_t maxSubMeshIndices{0U};
     };
 
+    /**
+    * @en The structure use to create dynamic mesh.
+    * @zh 描述了创建动态网格的结构。
+    */
     struct IDynamicStruct {
         /**
          * @en dynamic mesh info
@@ -207,11 +215,12 @@ public:
     ccstd::any getNativeAsset() const override;
     void setNativeAsset(const ccstd::any &obj) override;
 
-    void setAssetData(cc::ArrayBuffer *data) {
+    void setAssetData(ArrayBuffer *data) {
         _data = Uint8Array(data);
     }
-    const Uint8Array &getAssetData() {
-        return _data;
+
+    ArrayBuffer *getAssetData() const {
+        return _data.buffer();
     }
 
     /**
@@ -259,17 +268,13 @@ public:
      * @en The hash of the mesh
      * @zh 此网格的哈希值。
      */
-    uint64_t getHash();
-
-    inline double getHashForJS() {
-        return static_cast<double>(getHash());
-    }
+    ccstd::hash_t getHash();
 
     /**
      * @en Set the hash of the mesh
      * @zh 设置此网格的哈希值。
      */
-    void setHash(uint64_t hash) { _hash = hash; }
+    void setHash(ccstd::hash_t hash) { _hash = hash; }
 
     using JointBufferIndicesType = ccstd::vector<index_t>;
     /**
@@ -406,6 +411,15 @@ public:
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
     bool copyIndices(index_t primitiveIndex, TypedArray &outputArray);
+    
+    /**
+     * @en Read the format by attributeName of submesh
+     * @zh 根据属性名读取子网格的属性信息。
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param attributeName @en Attribute name @zh 属性名称
+     * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
+     */
+    const gfx::FormatInfo* readAttributeFormat(index_t primitiveIndex, const char *attributeName);
 
     /**
      * @en update dynamic sub mesh geometry
@@ -432,7 +446,7 @@ public:
 
 private:
     IStruct _struct;
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
     Uint8Array _data;
 
     bool _initialized{false};

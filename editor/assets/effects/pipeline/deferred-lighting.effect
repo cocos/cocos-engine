@@ -14,9 +14,9 @@ CCEffect %{
 
 CCProgram lighting-vs %{
   precision highp float;
-  #include <decode>
-  #include <cc-global>
-  #include <common>
+  #include <legacy/decode>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
 
   out vec2 v_uv;
 
@@ -31,15 +31,15 @@ CCProgram lighting-vs %{
 
 CCProgram lighting-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <shading-standard-base>
-  #include <shading-standard-additive>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/shading-standard-base>
+  #include <legacy/shading-standard-additive>
   #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
-  #include <shading-cluster-additive>
+  #include <legacy/shading-cluster-additive>
   #endif
-  #include <output-standard>
-  #include <cc-fog-base>
-  #include <octahedron-transform>
+  #include <legacy/output-standard>
+  #include <legacy/fog-base>
+  #include <common/math/octahedron-transform>
 
   in vec2 v_uv;
 

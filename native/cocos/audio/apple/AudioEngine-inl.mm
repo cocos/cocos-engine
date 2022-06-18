@@ -29,7 +29,7 @@
 
 #import <OpenAL/alc.h>
 #import <AVFoundation/AVFoundation.h>
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     #import <UIKit/UIApplication.h>
 #endif
 
@@ -61,7 +61,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
     return AL_INVALID_VALUE;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
 @interface AudioEngineSessionHandler : NSObject {
 }
 
@@ -220,7 +220,7 @@ AudioEngineImpl::~AudioEngineImpl() {
         alcCloseDevice(s_ALDevice);
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     [s_AudioEngineSessionHandler release];
 #endif
     s_instance = nullptr;
@@ -229,7 +229,7 @@ AudioEngineImpl::~AudioEngineImpl() {
 bool AudioEngineImpl::init() {
     bool ret = false;
     do {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
         s_AudioEngineSessionHandler = [[AudioEngineSessionHandler alloc] init];
 #endif
 

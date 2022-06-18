@@ -27,7 +27,7 @@ import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { PCFType, Shadows } from './shadows';
+import { CSMLevel, CSMOptimizationMode, PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -50,8 +50,12 @@ export class DirectionalLight extends Light {
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
     protected _shadowSaturation = 1.0;
-    protected _shadowDistance = 100;
+    protected _shadowDistance = 50;
     protected _shadowInvisibleOcclusionRange = 200;
+    protected _csmLevel = CSMLevel.LEVEL_4;
+    protected _csmNeedUpdate = false;
+    protected _csmLayerLambda = 0.75;
+    protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -159,9 +163,9 @@ export class DirectionalLight extends Light {
     }
 
     /**
-      * @en Shadow color saturation
-      * @zh 阴影颜色饱和度
-      */
+     * @en Shadow color saturation
+     * @zh 阴影颜色饱和度
+     */
     get shadowSaturation () {
         return this._shadowSaturation;
     }
@@ -189,6 +193,50 @@ export class DirectionalLight extends Light {
     }
     set shadowInvisibleOcclusionRange (val) {
         this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
+    }
+
+    /**
+     * @en get or set shadow CSM level
+     * @zh 获取或者设置级联阴影层数
+     */
+    get csmLevel () {
+        return this._csmLevel;
+    }
+    set csmLevel (val) {
+        this._csmLevel = val;
+    }
+
+    /**
+     * @en is CSM need update
+     * @zh 获取或者设置级联阴影是否需要更新
+     */
+    get csmNeedUpdate () {
+        return this._csmNeedUpdate;
+    }
+    set csmNeedUpdate (val) {
+        this._csmNeedUpdate = val;
+    }
+
+    /**
+     * @en get or set shadow CSM level ratio
+     * @zh 获取或者设置级联阴影层数系数
+     */
+    get csmLayerLambda () {
+        return this._csmLayerLambda;
+    }
+    set csmLayerLambda (val) {
+        this._csmLayerLambda = val;
+    }
+
+    /**
+     * @en get or set shadow CSM performance optimization mode
+     * @zh 获取或者设置级联阴影性能优化模式
+     */
+    get csmOptimizationMode () {
+        return this._csmOptimizationMode;
+    }
+    set csmOptimizationMode (val) {
+        this._csmOptimizationMode = val;
     }
 
     /**

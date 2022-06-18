@@ -61,7 +61,7 @@ void BakedSkinningModel::destroy() {
     _jointMedium.boundsInfo.clear();
 
     if (_jointMedium.buffer != nullptr) {
-        CC_SAFE_DESTROY(_jointMedium.buffer);
+        CC_SAFE_DESTROY_NULL(_jointMedium.buffer);
     }
     if (_jointMedium.texture.has_value()) {
         CC_SAFE_DELETE(_jointMedium.texture.value());
@@ -120,7 +120,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     //    float curFrame = info.data[0];
     //    uint32_t curFrameDataBytes = info.data.byteLength();
     if (idx >= 0) {
-        auto &views = getInstancedAttributeBlock()->views[idx];
+        auto &views = getInstancedAttributeBlock().views[idx];
         setTypedArrayValue(views, 0, *curFrame);
     } else if (*info.dirtyForJSB != 0) {
         info.buffer->update(curFrame, frameDataBytes);
@@ -188,7 +188,7 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     index_t idx = _instAnimInfoIdx;
     if (idx >= 0) {
-        auto &view = getInstancedAttributeBlock()->views[idx];
+        auto &view = getInstancedAttributeBlock().views[idx];
         setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.
         setTypedArrayValue(view, 1, jointTextureInfo[1]);
         setTypedArrayValue(view, 2, jointTextureInfo[2]);
@@ -226,6 +226,11 @@ void BakedSkinningModel::syncDataForJS(const ccstd::vector<ccstd::optional<geome
 
     _jointMedium.animInfo.curFrame = &animInfoData[0];
     _jointMedium.animInfo.frameDataBytes = animInfoData.byteLength();
+
+    if (_jointMedium.texture.has_value()) {
+        delete _jointMedium.texture.value();
+        _jointMedium.texture = ccstd::nullopt;
+    }
     IJointTextureHandle *textureInfo = IJointTextureHandle::createJoinTextureHandle();
     textureInfo->handle.texture = tex;
     _jointMedium.texture = textureInfo;

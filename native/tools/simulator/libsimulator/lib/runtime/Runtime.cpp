@@ -33,7 +33,7 @@ THE SOFTWARE.
 #include "cocos/platform/FileUtils.h"
 #include "cocos/base/memory/Memory.h"
 
-#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MACOS))
     #include "DeviceEx.h"
     #include "network/CCHTTPRequest.h"
     #include "xxhash/xxhash.h"
@@ -119,7 +119,7 @@ void RuntimeEngine::setupRuntime() {
     // get project type fron config.json
     updateConfigParser();
     auto entryFile = ConfigParser::getInstance()->getEntryFile();
-#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MACOS)
     ConfigParser::getInstance()->readConfig();
     entryFile = ConfigParser::getInstance()->getEntryFile();
 #endif
@@ -137,7 +137,7 @@ const ProjectConfig &RuntimeEngine::getProjectConfig() {
 }
 
 void RuntimeEngine::setProjectPath(const std::string &workPath) {
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MACOS)
     vector<std::string> searchPathArray = cc::FileUtils::getInstance()->getSearchPaths();
 
     if (workPath.empty()) {
@@ -161,7 +161,7 @@ void RuntimeEngine::setProjectPath(const std::string &workPath) {
             _fullpath(fuldir, strPath.c_str(), MAX_PATH);
             appPath = fuldir;
         }
-    #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #elif (CC_PLATFORM == CC_PLATFORM_MACOS)
         appPath.append("/../../../");
     #endif
         appPath       = replaceAll(appPath, "\\", "/");
@@ -190,7 +190,7 @@ void RuntimeEngine::startScript(const std::string &args) {
 }
 
 void RuntimeEngine::start() {
-#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MACOS)
     _project.setDebuggerType(kCCRuntimeDebuggerCodeIDE);
 #endif
 
@@ -215,7 +215,7 @@ void RuntimeEngine::start() {
     }
 
     setupRuntime();
-    //startScript("jsb-adapter/jsb-builtin.js");
+    //startScript("jsb-adapter/web-adapter.js");
     //startScript("");
 }
 
@@ -269,11 +269,11 @@ void RuntimeEngine::trackEvent(const std::string &eventName) {
         return;
     }
 
-#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MACOS))
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     const char *platform = "win";
-    #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     const char *platform = "mac";
     #else
     const char *platform = "UNKNOWN";
@@ -298,7 +298,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName) {
 
     request->start();
     */
-#endif // ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#endif // ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MACOS))
 }
 
 void RuntimeEngine::trackLaunchEvent() {

@@ -136,7 +136,7 @@ bool DummyGraph::excuted(DummyGraphNode *n) const {
     return n->_generation != _generation;
 }
 
-void DummyJobGraph::makeEdge(uint j1, uint j2) {
+void DummyJobGraph::makeEdge(uint32_t j1, uint32_t j2) {
     _dummyGraph.link(j1, j2);
 }
 

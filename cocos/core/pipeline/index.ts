@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import './deprecated';
 import * as pipeline from './define';
 import { ForwardPipeline } from './forward/forward-pipeline';
 
@@ -52,6 +53,7 @@ export { InstancedBuffer } from './instanced-buffer';
 export { PipelineStateManager } from './pipeline-state-manager';
 
 export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+export { DebugView } from './debug-view';
 
 export function createDefaultPipeline () {
     const rppl = new ForwardPipeline();

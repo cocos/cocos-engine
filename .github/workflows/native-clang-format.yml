@@ -4,6 +4,9 @@ name: <Native> Apply clang format
 on:
   pull_request_target:
     types: [closed]
+    paths:
+    - 'templates/**'
+    - 'native/**'
 
 jobs:
   Clang-Format:

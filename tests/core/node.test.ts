@@ -1,8 +1,9 @@
 import { Node, Scene } from "../../cocos/core/scene-graph"
 import { Mat4, Quat, Vec3 } from "../../cocos/core/math"
-import { director } from "../../cocos/core";
+import { Component, director, game } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
+import { ccclass } from "../../cocos/core/data/decorators";
 
 describe(`Node`, () => {
 
@@ -144,5 +145,85 @@ describe(`Node`, () => {
         expect(node2.worldPosition.equals(globalPosition)).toBeFalsy();
         expect(node2.worldMatrix.equals(worldMat)).toBeFalsy();
         expect(Mat4.determinant(node2.worldMatrix)).toBeCloseTo(0, 6);
+    });
+    
+    test('component event', () => {
+        let onLoadCalled = false;
+        let onDestroyCalled = false;
+        @ccclass('TestComponent')
+        class TestComponent extends Component {
+            onLoad () {
+                onLoadCalled = true;
+            }
+
+            onDestroy () {
+                onDestroyCalled = true;
+            }
+        }
+
+        const scene = new Scene('');
+        director.runSceneImmediate(scene);
+        const node = new Node();
+        let compParam;
+        const addCb = jest.fn((tempComp) => { compParam = tempComp; expect(onLoadCalled).toBeFalsy(); });
+        const removeCb = jest.fn((tempComp) => { 
+            compParam = tempComp; 
+            if (onLoadCalled) { 
+                expect(onDestroyCalled).toBeTruthy(); 
+            } else {
+                expect(onDestroyCalled).toBeFalsy(); 
+            }
+        });
+        node.on(NodeEventType.COMPONENT_ADDED, addCb);
+        node.on(NodeEventType.COMPONENT_REMOVED, removeCb)
+        let comp = node.addComponent(TestComponent);
+        expect(addCb).toBeCalledTimes(1);
+        expect(comp).toBe(compParam);
+        expect(onLoadCalled).toBeFalsy();
+        node.removeComponent(comp);
+        game.step();
+        expect(removeCb).toBeCalledTimes(1);
+        expect(comp).toBe(compParam);
+        expect(onDestroyCalled).toBeFalsy();
+        scene.addChild(node);
+        comp = node.addComponent(TestComponent);
+        expect(addCb).toBeCalledTimes(2);
+        expect(comp).toBe(compParam);
+        expect(onLoadCalled).toBeTruthy();
+        comp.destroy();
+        game.step();
+        expect(removeCb).toBeCalledTimes(2);
+        expect(comp).toBe(compParam);
+        expect(onDestroyCalled).toBeTruthy();
+
+        onLoadCalled = onDestroyCalled = false;
+        comp = node.addComponent(TestComponent);
+        expect(addCb).toBeCalledTimes(3);
+        expect(comp).toBe(compParam);
+        expect(onLoadCalled).toBeTruthy();
+        comp._destroyImmediate();
+        expect(removeCb).toBeCalledTimes(3);
+        expect(comp).toBe(compParam);
+        expect(onDestroyCalled).toBeTruthy();
+    });
+
+    test('query component with abstracted class', () => {
+        abstract class BaseComponent extends Component {
+            abstract testMethod ();
+        }
+
+        @ccclass('abc')
+        class TestComponent extends BaseComponent {
+            testMethod () {
+                console.log('test');
+            }
+        }
+
+        const node = new Node('test');
+        const scene = new Scene('test-scene');
+        director.runScene(scene);
+        scene.addChild(node);
+        const testComp = node.addComponent(TestComponent);
+        expect(node.getComponent(BaseComponent)).toBe(testComp);
     });
 });

@@ -94,10 +94,7 @@ public:
      * @zh 获取一个材质的哈希值
      * @param material
      */
-    static uint64_t getHashForMaterial(Material *material);
-    inline static double getHashForMaterialForJS(Material *material) {
-        return static_cast<double>(getHashForMaterial(material));
-    }
+    static ccstd::hash_t getHashForMaterial(Material *material);
 
     Material();
     ~Material() override;
@@ -175,6 +172,7 @@ public:
      */
     void setProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX);
 
+    void setPropertyNull(const ccstd::string &name, index_t passIdx = CC_INVALID_INDEX);
     void setPropertyFloat32(const ccstd::string &name, float val, index_t passIdx = CC_INVALID_INDEX);
     void setPropertyInt32(const ccstd::string &name, int32_t val, index_t passIdx = CC_INVALID_INDEX);
     void setPropertyVec2(const ccstd::string &name, const Vec2 &val, index_t passIdx = CC_INVALID_INDEX);
@@ -243,7 +241,7 @@ public:
 protected:
     std::shared_ptr<ccstd::vector<IntrusivePtr<scene::Pass>>> _passes;
 
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
 
 public:
     /**
@@ -290,12 +288,8 @@ public:
      * @en The hash value of this material.
      * @zh 材质的 hash。
      */
-    inline uint64_t getHash() const {
+    inline ccstd::hash_t getHash() const {
         return _hash;
-    }
-
-    inline double getHashForJS() const {
-        return static_cast<double>(getHash());
     }
 
     /**
@@ -317,7 +311,7 @@ public:
 protected:
     void update(bool keepProps = true);
     bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
-    void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index = CC_INVALID_INDEX);
+    void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index = 0);
 
     template <typename T1, typename T2>
     void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {
