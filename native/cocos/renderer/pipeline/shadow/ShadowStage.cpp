@@ -35,6 +35,7 @@
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
+#include "scene/SpotLight.h"
 #include "scene/Light.h"
 #include "scene/Shadow.h"
 
@@ -72,6 +73,16 @@ void ShadowStage::render(scene::Camera *camera) {
 
     if (!_light || !_framebuffer) {
         return;
+    }
+
+    if (_light->getType() == scene::LightType::DIRECTIONAL) {
+        const auto *dirLight = static_cast<const scene::DirectionalLight *>(_light);
+        if (!dirLight->isShadowEnabled()) return;
+    }
+
+    if (_light->getType() == scene::LightType::SPOT) {
+        const auto *spotLight = static_cast<const scene::SpotLight *>(_light);
+        if (!spotLight->isShadowEnabled()) return;
     }
 
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
