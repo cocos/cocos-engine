@@ -34,7 +34,7 @@ CCEffect %{
   techniques:
   - name: add
     passes:
-    - vert: particle-vs-legacy:lpvs_main
+    - vert: builtin/internal/particle-vs-legacy:lpvs_main
       frag: tinted-fs:add
       rasterizerState: *r1
       depthStencilState: *d1
@@ -42,7 +42,7 @@ CCEffect %{
       properties: *p2
   - name: alpha-blend
     passes:
-    - vert: particle-vs-legacy:lpvs_main
+    - vert: builtin/internal/particle-vs-legacy:lpvs_main
       frag: tinted-fs:add
       rasterizerState: *r1
       depthStencilState: *d1
@@ -50,7 +50,7 @@ CCEffect %{
       properties: *p2
   - name: add-multiply
     passes:
-    - vert: particle-vs-legacy:lpvs_main
+    - vert: builtin/internal/particle-vs-legacy:lpvs_main
       frag: tinted-fs:multiply
       rasterizerState: *r1
       depthStencilState: *d1
@@ -58,7 +58,7 @@ CCEffect %{
       properties: *p2
   - name: add-smooth
     passes:
-    - vert: particle-vs-legacy:lpvs_main
+    - vert: builtin/internal/particle-vs-legacy:lpvs_main
       frag: no-tint-fs:addSmooth
       rasterizerState: *r1
       depthStencilState: *d1
@@ -66,7 +66,7 @@ CCEffect %{
       properties: *p1
   - name: premultiply-blend
     passes:
-    - vert: particle-vs-legacy:lpvs_main
+    - vert: builtin/internal/particle-vs-legacy:lpvs_main
       frag: no-tint-fs:premultiplied
       rasterizerState: *r1
       depthStencilState: *d1
@@ -78,7 +78,7 @@ CCEffect %{
 
 CCProgram tinted-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 uv;
   in vec4 color;
@@ -103,7 +103,7 @@ CCProgram tinted-fs %{
 
 CCProgram no-tint-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 uv;
   in vec4 color;

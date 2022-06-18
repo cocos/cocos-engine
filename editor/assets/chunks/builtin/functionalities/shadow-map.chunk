@@ -1,6 +1,6 @@
 // used for replacing cc-shadow-map-base.chunk
-#include <cc-shadow>
-#include <common>
+#include <builtin/uniforms/cc-shadow>
+#include <common/common-define>
 #include <common/math/coordinates>
 
 float CCGetLinearDepth(vec3 worldPos) {
@@ -9,10 +9,10 @@ float CCGetLinearDepth(vec3 worldPos) {
 }
 
 #if CC_RECEIVE_SHADOW
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <builtin/uniforms/cc-shadow-map>
 
-  #include <packing>
+  #include <common/data/packing>
   #include <common/shadow/native-pcf>
   
 
@@ -87,7 +87,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   }
 
   //////////////////////////////////////////////////////////Directional Light Shadow
-  float CCGetShadowFactorHard (vec4 shadowPosWithDepthBias) {
+  float CCGetDirLightShadowFactorHard (vec4 shadowPosWithDepthBias) {
 	vec3 shadowNDCPos;
 	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		return 1.0;
@@ -200,7 +200,7 @@ float CCGetLinearDepth(vec3 worldPos) {
     }else if (pcf > 0.9) {
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
     }else { 
-      realtimeShadow = CCGetShadowFactorHard(pos); 
+      realtimeShadow = CCGetDirLightShadowFactorHard(pos); 
     }
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
@@ -244,7 +244,7 @@ float CCGetLinearDepth(vec3 worldPos) {
     } else if (pcf > 0.9) {
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
     }else { 
-      realtimeShadow = CCGetShadowFactorHard(pos);
+      realtimeShadow = CCGetDirLightShadowFactorHard(pos);
     }
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }

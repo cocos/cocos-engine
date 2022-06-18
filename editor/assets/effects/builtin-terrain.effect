@@ -47,10 +47,10 @@ CCEffect %{
 
 CCProgram terrain-vs %{
   precision mediump float;
-  #include <cc-global>
-  #include <cc-local>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   in vec3 a_position;
   in vec3 a_normal;
@@ -110,11 +110,11 @@ CCProgram terrain-vs %{
 
 CCProgram terrain-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <standard-surface-entry>
-  #include <cc-fog-fs>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/standard-surface-entry>
+  #include <legacy/fog-fs>
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+    #include <legacy/lightingmap-fs>
   #endif
   #pragma define-meta LAYERS range([0, 4])
 
@@ -276,9 +276,9 @@ CCProgram terrain-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <cc-global>
-  #include <cc-local>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-shadow>
 
   in vec3 a_position;
   in vec3 a_normal;
@@ -303,7 +303,7 @@ CCProgram shadow-caster-vs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
-  #include <packing>
+  #include <common/data/packing>
 
   in vec2 v_clip_depth;
 

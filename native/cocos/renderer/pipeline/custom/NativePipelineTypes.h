@@ -52,8 +52,8 @@ public:
     uint32_t addRenderStage(const ccstd::string& name) override;
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addShader(const ccstd::string& name, uint32_t parentPhaseID) override;
-    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
-    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
+    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
     int compile() override;
 
     ccstd::string print() const override;

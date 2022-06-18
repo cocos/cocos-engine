@@ -13,8 +13,8 @@ CCEffect %{
 
 CCProgram sky-vs %{
   precision highp float;
-  #include <cc-global>
-  #include <decode>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode>
 
   out mediump vec4 viewDir;
 
@@ -48,12 +48,12 @@ CCProgram sky-vs %{
 
 CCProgram sky-fs %{
   precision mediump float;
-  #include <cc-global>
-  #include <cc-environment>
-  #include <texture-lod>
-  #include <unpack>
-  #include <gamma>
-  #include <output-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-environment>
+  #include <common/texture/texture-lod>
+  #include <common/data/unpack>
+  #include <common/color/gamma>
+  #include <legacy/output-standard>
 
   in mediump vec4 viewDir;
 

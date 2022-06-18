@@ -1,8 +1,27 @@
 import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
-import { DescriptorBlock, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
+// eslint-disable-next-line max-len
+import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
 import { Pipeline } from './pipeline';
+import { UniformBlock } from '../../gfx';
+
+function descriptorBlock2Flattened (block: DescriptorBlock, flattened: DescriptorBlockFlattened): void {
+    block.descriptors.forEach((value, key) => {
+        const name: string = key;
+        const d: Descriptor = value;
+        flattened.descriptorNames.push(name);
+        flattened.descriptors.push(d);
+    });
+    block.uniformBlocks.forEach((value, key) => {
+        const name: string = key;
+        const u: UniformBlock = value;
+        flattened.uniformBlockNames.push(name);
+        flattened.uniformBlocks.push(u);
+    });
+    flattened.count = block.count;
+    flattened.capacity = block.capacity;
+}
 
 export function rebuildLayoutGraph (): void {
     const root = legacyCC.director.root;
@@ -45,7 +64,11 @@ export function rebuildLayoutGraph (): void {
         db.blocks.forEach((value, key) => {
             const index: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
             const block: DescriptorBlock = value;
-            lgData.addDescriptorBlock(vid, index, block);
+            if (block.capacity > 0) {
+                const flattened = new DescriptorBlockFlattened();
+                descriptorBlock2Flattened(block, flattened);
+                lgData.addDescriptorBlock(vid, index, flattened);
+            }
         });
     }
 

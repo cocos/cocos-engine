@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 
 export const enum DescriptorTypeOrder {
@@ -70,10 +70,6 @@ export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
     }
 }
 
-export class UniformBlockDB {
-    readonly values: Map<string, Uniform> = new Map<string, Uniform>();
-}
-
 export class Descriptor {
     constructor (type: Type = Type.UNKNOWN) {
         this.type = type;
@@ -84,7 +80,16 @@ export class Descriptor {
 
 export class DescriptorBlock {
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
-    readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
+    readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
+    capacity = 0;
+    count = 0;
+}
+
+export class DescriptorBlockFlattened {
+    readonly descriptorNames: string[] = [];
+    readonly uniformBlockNames: string[] = [];
+    readonly descriptors: Descriptor[] = [];
+    readonly uniformBlocks: UniformBlock[] = [];
     capacity = 0;
     count = 0;
 }

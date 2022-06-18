@@ -297,8 +297,8 @@ public:
     virtual uint32_t addRenderStage(const ccstd::string& name) = 0;
     virtual uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) = 0;
     virtual void addShader(const ccstd::string& name, uint32_t parentPhaseID) = 0;
-    virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
-    virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
+    virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) = 0;
+    virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) = 0;
     virtual int compile() = 0;
 
     virtual ccstd::string print() const = 0;

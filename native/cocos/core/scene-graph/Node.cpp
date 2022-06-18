@@ -24,16 +24,11 @@
  ****************************************************************************/
 
 #include "core/scene-graph/Node.h"
-#include "base/CachedArray.h"
 #include "base/StringUtil.h"
-// #include "core/Director.h"
-// #include "core/Game.h"
 #include "core/data/Object.h"
-//#include "core/scene-graph/Find.h"
-//#include "core/scene-graph/NodeActivator.h"
+#include "core/memop/CachedArray.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/NodeEnum.h"
-//#include "core/scene-graph/NodeUIProperties.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
 
@@ -547,7 +542,6 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 }
 
 //
-
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
@@ -699,7 +693,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) {
         const uint32_t hasChangedFlags = cur->getChangedFlags();
         if (cur->isValid() && (cur->getDirtyFlag() & hasChangedFlags & curDirtyBit) != curDirtyBit) {
             cur->setDirtyFlag(cur->getDirtyFlag() | curDirtyBit);
-            cur->_uiTransformDirty[0] = 1; // UIOnly TRS dirty
             cur->setChangedFlags(hasChangedFlags | curDirtyBit);
 
             for (Node *curChild : cur->getChildren()) {
@@ -868,7 +861,8 @@ void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
     setWorldRotation(qTemp);
 }
 
-void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
+Vec3 Node::inverseTransformPoint(const Vec3 &p) {
+    Vec3 out;
     out.set(p.x, p.y, p.z);
     Node *cur{this};
     index_t i{0};
@@ -879,8 +873,9 @@ void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
     while (i >= 0) {
         Vec3::transformInverseRTS(out, cur->getRotation(), cur->getPosition(), cur->getScale(), &out);
         --i;
-        cur = dirtyNodes[i];
+        cur = getDirtyNode(i);
     }
+    return out;
 }
 
 void Node::setMatrix(const Mat4 &val) {

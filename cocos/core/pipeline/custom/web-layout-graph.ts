@@ -1,7 +1,7 @@
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit } from '../../gfx';
 // eslint-disable-next-line max-len
-import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName } from './layout-graph';
+import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { getUpdateFrequencyName, UpdateFrequency } from './types';
 
@@ -139,26 +139,32 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         this._data.shaderLayoutIndex.set(name, parentPhaseID);
     }
 
-    public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
+    public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         const g: LayoutGraphData = this._data;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         if (block.capacity <= 0) {
             console.error('empty block');
             return;
         }
-
+        if (block.descriptorNames.length !== block.descriptors.length) {
+            console.error('error descriptor');
+            return;
+        }
+        if (block.uniformBlockNames.length !== block.uniformBlocks.length) {
+            console.error('error uniform');
+            return;
+        }
         const layout: DescriptorSetLayoutData | undefined = ppl.descriptorSets.get(index.updateFrequency)?.descriptorSetLayoutData;
         if (layout !== undefined) {
             const dstBlock = new DescriptorBlockData(index.descriptorType, index.visibility, block.capacity);
             layout.descriptorBlocks.push(dstBlock);
             dstBlock.offset = layout.capacity;
             dstBlock.capacity = block.capacity;
-            block.descriptors.forEach((value, key) => {
-                const name: string = key;
-                const d: Descriptor = value;
+            for (let j = 0; j < block.descriptors.length; ++j) {
+                const name: string = block.descriptorNames[j];
+                const d: Descriptor = block.descriptors[j];
                 let nameID: number | undefined = g.attributeIndex.get(name);
                 if (nameID === undefined) {
-                    //console.error('attribute not found');
                     const id = g.valueNames.length;
                     g.attributeIndex.set(name, id);
                     g.valueNames.push(name);
@@ -168,14 +174,14 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                 const data: DescriptorData = new DescriptorData(nameID);
                 data.count = d.count;
                 dstBlock.descriptors.push(data);
-            });
+            }
             layout.capacity += block.capacity;
         } else {
             console.error('no layout');
         }
     }
 
-    public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
+    public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         const g: LayoutGraphData = this._data;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         if (block.capacity <= 0) {
@@ -255,5 +261,9 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             });
         }
         return oss;
+    }
+
+    public get data () {
+        return this._data;
     }
 }

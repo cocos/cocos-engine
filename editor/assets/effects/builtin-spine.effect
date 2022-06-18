@@ -21,9 +21,9 @@ CCEffect %{
 
 CCProgram sprite-vs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #if USE_LOCAL
-    #include <cc-local>
+    #include <builtin/uniforms/cc-local>
   #endif
 
   in vec3 a_position;
@@ -60,7 +60,7 @@ CCProgram sprite-vs %{
 
 CCProgram sprite-fs %{
   precision highp float;
-  #include <alpha-test>
+  #include <builtin/internal/alpha-test>
 
   in vec4 v_light;
   #if TWO_COLORED

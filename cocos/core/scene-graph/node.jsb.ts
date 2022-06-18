@@ -448,10 +448,6 @@ nodeProto._onSiblingOrderChanged = function () {
     this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
 };
 
-nodeProto._onUiTransformDirty = function () {
-    this._uiProps.uiTransformDirty = true;
-};
-
 nodeProto._onActivateNode = function (shouldActiveNow) {
     legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
 };

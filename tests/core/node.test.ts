@@ -206,4 +206,24 @@ describe(`Node`, () => {
         expect(comp).toBe(compParam);
         expect(onDestroyCalled).toBeTruthy();
     });
+
+    test('query component with abstracted class', () => {
+        abstract class BaseComponent extends Component {
+            abstract testMethod ();
+        }
+
+        @ccclass('abc')
+        class TestComponent extends BaseComponent {
+            testMethod () {
+                console.log('test');
+            }
+        }
+
+        const node = new Node('test');
+        const scene = new Scene('test-scene');
+        director.runScene(scene);
+        scene.addChild(node);
+        const testComp = node.addComponent(TestComponent);
+        expect(node.getComponent(BaseComponent)).toBe(testComp);
+    });
 });

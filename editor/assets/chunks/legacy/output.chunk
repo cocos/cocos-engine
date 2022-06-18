@@ -1,0 +1,7 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#include <builtin/uniforms/cc-global>
+#include <common/color/gamma>
+
+vec4 CCFragOutput (vec4 color) {
+  return color;
+}
