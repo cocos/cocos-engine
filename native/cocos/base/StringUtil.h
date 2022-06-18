@@ -28,7 +28,6 @@
 #include <cstdarg>
 #include <cstddef>
 #include "Macros.h"
-#include "TypeDef.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
@@ -39,7 +38,7 @@ public:
     static int vprintf(char *buf, const char *last, const char *fmt, va_list args);
     static int printf(char *buf, const char *last, const char *fmt, ...);
     static ccstd::string format(const char *fmt, ...);
-    static ccstd::vector<ccstd::string> split(const ccstd::string &str, const ccstd::string &delims, uint maxSplits = 0);
+    static ccstd::vector<ccstd::string> split(const ccstd::string &str, const ccstd::string &delims, uint32_t maxSplits = 0);
     static ccstd::string &replace(ccstd::string &str, const ccstd::string &findStr, const ccstd::string &replaceStr);
     static ccstd::string &replaceAll(ccstd::string &str, const ccstd::string &findStr, const ccstd::string &replaceStr);
     static ccstd::string &tolower(ccstd::string &str);

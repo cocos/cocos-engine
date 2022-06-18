@@ -27,7 +27,7 @@
 
 namespace cc {
 
-void TBBJobGraph::makeEdge(uint j1, uint j2) noexcept {
+void TBBJobGraph::makeEdge(uint32_t j1, uint32_t j2) noexcept {
     if (j1 & PARALLEL_JOB_FLAG) {
         j1 = _parallelJobs[j1 & PARALLEL_JOB_MASK].successor;
     }

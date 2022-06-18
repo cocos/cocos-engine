@@ -29,7 +29,6 @@
 #include <thread>
 #include "base/memory/Memory.h"
 #include "taskflow/taskflow.hpp"
-#include "base/TypeDef.h"
 
 namespace cc {
 
@@ -47,9 +46,9 @@ public:
     }
 
     TFJobSystem() noexcept : TFJobSystem(std::max(2u, std::thread::hardware_concurrency() - 2u)) {}
-    explicit TFJobSystem(uint threadCount) noexcept;
+    explicit TFJobSystem(uint32_t threadCount) noexcept;
 
-    inline uint threadCount() { return static_cast<uint>(_executor.num_workers()); }
+    inline uint32_t threadCount() { return static_cast<uint32_t>(_executor.num_workers()); }
 
 private:
     friend class TFJobGraph;

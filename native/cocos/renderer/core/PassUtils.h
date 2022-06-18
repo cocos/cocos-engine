@@ -26,7 +26,6 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "base/TypeDef.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 #include "base/std/variant.h"

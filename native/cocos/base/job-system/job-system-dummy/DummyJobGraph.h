@@ -26,7 +26,6 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "base/std/container/unordered_set.h"
 #include "base/std/container/vector.h"
@@ -132,12 +131,12 @@ public:
     ~DummyJobGraph() noexcept = default;
 
     template <typename Function>
-    uint createJob(Function &&func) noexcept;
+    uint32_t createJob(Function &&func) noexcept;
 
     template <typename Function>
-    uint createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept;
+    uint32_t createForEachIndexJob(uint32_t begin, uint32_t end, uint32_t step, Function &&func) noexcept;
 
-    void makeEdge(uint j1, uint j2);
+    void makeEdge(uint32_t j1, uint32_t j2);
 
     void run() noexcept;
 
@@ -148,13 +147,13 @@ private:
 };
 
 template <typename Function>
-uint DummyJobGraph::createJob(Function &&func) noexcept {
-    return static_cast<uint>(_dummyGraph.addNode(std::forward<Function>(func)));
+uint32_t DummyJobGraph::createJob(Function &&func) noexcept {
+    return static_cast<uint32_t>(_dummyGraph.addNode(std::forward<Function>(func)));
 }
 
 template <typename Function>
-uint DummyJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept {
-    return static_cast<uint>(_dummyGraph.addNode([callable = std::forward<Function>(func), first = begin, last = end, step = step]() {
+uint32_t DummyJobGraph::createForEachIndexJob(uint32_t begin, uint32_t end, uint32_t step, Function &&func) noexcept {
+    return static_cast<uint32_t>(_dummyGraph.addNode([callable = std::forward<Function>(func), first = begin, last = end, step = step]() {
         for (auto i = first; i < last; i += step) {
             callable(i);
         }
