@@ -364,7 +364,7 @@ export class Director extends EventTarget {
         if (legacyCC.isValid(oldScene)) {
             oldScene!.destroy();
         }
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR) {
             // auto release assets
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
