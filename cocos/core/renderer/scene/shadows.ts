@@ -372,7 +372,10 @@ export class Shadows {
         this.distance = shadowsInfo.planeHeight;
         this.shadowColor = shadowsInfo.shadowColor;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
+        if (shadowsInfo.shadowMapSize !== this._size.x) {
+            this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
+            this._shadowMapDirty = true;
+        }
     }
 
     public activate () {

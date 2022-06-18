@@ -81,9 +81,13 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     const uint offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    for (const auto light : _lightIndices) {
+    for (const auto light : _lightInstancedPasses) {
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+    }
+
+    for (const auto light : _lightBatchedPasses) {
+        auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
     }
     const bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled();
@@ -169,6 +173,8 @@ void RenderAdditiveLightQueue::clear() {
         lightPass.lights.clear();
     }
     _lightPasses.clear();
+    _lightInstancedPasses.clear();
+    _lightBatchedPasses.clear();
 }
 
 bool RenderAdditiveLightQueue::cullSphereLight(const scene::SphereLight *light, const scene::Model *model) {
@@ -207,6 +213,7 @@ void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const sce
             buffer->merge(model, subModel, lightPassIdx);
             buffer->setDynamicOffset(0, _lightBufferStride * idx);
             _instancedQueue->add(buffer);
+            _lightInstancedPasses.emplace_back(lightPassIdx);
         }
     } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) { // vb-merging
         for (const auto idx : _lightIndices) {
@@ -214,6 +221,7 @@ void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const sce
             buffer->merge(subModel, lightPassIdx, model);
             buffer->setDynamicOffset(0, _lightBufferStride * idx);
             _batchedQueue->add(buffer);
+            _lightBatchedPasses.emplace_back(lightPassIdx);
         }
     } else { // standard draw
         const auto count = _lightIndices.size();

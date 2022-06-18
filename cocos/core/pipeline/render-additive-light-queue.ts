@@ -114,6 +114,8 @@ export class RenderAdditiveLightQueue {
     private _pipeline: RenderPipeline;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
+    private _lightInstancedPasses: number[] = [];
+    private _lightBatchedPasses: number[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -158,6 +160,8 @@ export class RenderAdditiveLightQueue {
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
+        this._lightInstancedPasses.length = 0;
+        this._lightBatchedPasses.length = 0;
     }
 
     public destroy () {
@@ -220,10 +224,15 @@ export class RenderAdditiveLightQueue {
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
-        for (let i = 0; i < _lightIndices.length; i++) {
-            const light = _lightIndices[i];
+        for (let i = 0; i < this._lightInstancedPasses.length; i++) {
+            const light = this._lightInstancedPasses[i];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
             this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+        }
+
+        for (let i = 0; i < this._lightBatchedPasses.length; i++) {
+            const light = this._lightBatchedPasses[i];
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
             this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
         }
 
@@ -282,6 +291,7 @@ export class RenderAdditiveLightQueue {
                 buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
                 buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                 this._instancedQueue.queue.add(buffer);
+                this._lightInstancedPasses.push(lightPassIdx);
             }
         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
             for (let l = 0; l < _lightIndices.length; l++) {
@@ -290,6 +300,7 @@ export class RenderAdditiveLightQueue {
                 buffer.merge(subModel, lightPassIdx, model);
                 buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                 this._batchedQueue.queue.add(buffer);
+                this._lightBatchedPasses.push(lightPassIdx);
             }
         } else {                                                         // standard draw
             const lp = _lightPassPool.alloc();

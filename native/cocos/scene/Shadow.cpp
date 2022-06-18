@@ -113,9 +113,12 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setNormal(shadowsInfo.getPlaneDirection());
     setDistance(shadowsInfo.getPlaneHeight());
     setMaxReceived(shadowsInfo.getMaxReceived());
-    setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
+    if (fabsf(shadowsInfo.getShadowMapSize() - _size.x) > 0.1F) {
+        setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
+        _shadowMapDirty = true;
+    }
+    
     setShadowColor(shadowsInfo.getShadowColor());
-    _shadowMapDirty = false;
 }
 
 void Shadows::destroy() {
