@@ -68,4 +68,7 @@ tasks.forEach((taskName) => {
 promise.then(() => {
     console.log(`run task ${tasks} success!`);
     process.exit();
-})
+}).catch((error) => {
+    console.log(error);
+    process.exit(-1);
+});

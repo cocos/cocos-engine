@@ -25,11 +25,11 @@ CCEffect %{
 
 CCProgram planar-shadow-vs %{
   precision highp float;
-  #include <input>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
-  #include <cc-shadow>
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <builtin/uniforms/cc-shadow>
 
   out float v_dist;
 
@@ -60,8 +60,8 @@ CCProgram planar-shadow-vs %{
 
 CCProgram planar-shadow-fs %{
   precision mediump float;
-  #include <cc-shadow>
-  #include <output>
+  #include <builtin/uniforms/cc-shadow>
+  #include <legacy/output>
 
   in float v_dist;
 

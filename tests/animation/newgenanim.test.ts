@@ -2087,15 +2087,15 @@ describe('NewGen Anim', () => {
                 );
             });
 
-            test(`Variable`, () => {
+            test(`Negative constant`, () => {
                 const graph = new AnimationGraph();
                 expect(graph.layers).toHaveLength(0);
                 const layer = graph.addLayer();
                 const layerGraph = layer.stateMachine;
                 const animState = layerGraph.addMotion();
                 animState.motion = createClipMotionPositionXLinear(1.0, 0.3, 1.7);
-                animState.speed = 0.9;
-                animState.speedMultiplierEnabled = true;
+                animState.speed = -1.2;
+                animState.speedMultiplierEnabled = false;
                 animState.speedMultiplier = 'speed';
                 graph.addFloat('speed', 0.5);
                 layerGraph.connect(layerGraph.entryState, animState);
@@ -2103,15 +2103,83 @@ describe('NewGen Anim', () => {
                 const node = new Node();
                 const animationGraphEval = createAnimationGraphEval(graph, node);
                 animationGraphEval.update(0.2);
+                const elapsedTime = 0.2 * -1.2;
+                const div = elapsedTime / 1.0;
+                const frac = div - Math.trunc(div);
+                const ratio = frac > 0 ? frac : 1.0 + frac;
+                expectAnimationGraphEvalStatusLayer0(animationGraphEval, {
+                    currentNode: {
+                        progress: ratio,
+                    },
+                });
                 expect(node.position.x).toBeCloseTo(
-                    0.3 + (1.7 - 0.3) * (0.2 * (0.5 * 0.9) / 1.0),
+                    lerp(0.3, 1.7, ratio),
                 );
+            });
 
+            test(`Variable`, () => {
+                const FIXED_SPEED = 0.9;
+                const MOTION_DURATION = 1.0;
+                const MOTION_VALUE_FROM = 0.3;
+                const MOTION_VALUE_TO = 1.7;
+
+                const graph = new AnimationGraph();
+                expect(graph.layers).toHaveLength(0);
+                const layer = graph.addLayer();
+                const layerGraph = layer.stateMachine;
+                const animState = layerGraph.addMotion();
+                animState.motion = createClipMotionPositionXLinear(MOTION_DURATION, MOTION_VALUE_FROM, MOTION_VALUE_TO);
+                animState.speed = FIXED_SPEED;
+                animState.speedMultiplierEnabled = true;
+                animState.speedMultiplier = 'speed';
+                graph.addFloat('speed', 0.5);
+                layerGraph.connect(layerGraph.entryState, animState);
+
+                const node = new Node();
+                const animationGraphEval = createAnimationGraphEval(graph, node);
+
+                let MOTION_TIME_ELAPSED = 0.0;
+
+                const check = () => {
+                    const div = MOTION_TIME_ELAPSED / MOTION_DURATION;
+                    const frac = div - Math.trunc(div);
+                    const progress = frac > 0 ? frac : 1.0 + frac;
+                    expectAnimationGraphEvalStatusLayer0(animationGraphEval, {
+                        currentNode: {
+                            progress,
+                        },
+                    });
+                    expect(node.position.x).toBeCloseTo(
+                        lerp(
+                            MOTION_VALUE_FROM,
+                            MOTION_VALUE_TO,
+                            progress,
+                        ),
+                    );
+                };
+
+                // Default speed
+                animationGraphEval.update(0.1);
+                MOTION_TIME_ELAPSED += 0.1 * (0.5 * FIXED_SPEED);
+                check();
+
+                // Positive speed
                 animationGraphEval.setValue('speed', 1.2);
                 animationGraphEval.update(0.2);
-                expect(node.position.x).toBeCloseTo(
-                    0.3 + (1.7 - 0.3) * ((0.2 * (0.5 * 0.9) + 0.2 * (0.9 * 1.2)) / 1.0),
-                );
+                MOTION_TIME_ELAPSED += 0.2 * (0.9 * 1.2);
+                check();
+
+                // Zero speed
+                animationGraphEval.setValue('speed', 0.0);
+                animationGraphEval.update(0.3);
+                MOTION_TIME_ELAPSED += 0.0;
+                check();
+
+                // Negative speed
+                animationGraphEval.setValue('speed', -1.3);
+                animationGraphEval.update(0.4);
+                MOTION_TIME_ELAPSED += 0.4 * (-1.3 * FIXED_SPEED);
+                check();
             });
         });
     });

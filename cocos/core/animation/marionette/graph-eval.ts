@@ -232,8 +232,13 @@ export interface MotionStateStatus {
     /**
      * @en
      * The normalized time of the state.
+     * It would be the fraction part of `elapsed-time / duration` if elapsed time is non-negative,
+     * and would be 1 plus the fraction part of `(elapsed-time / duration)` otherwise.
+     * This is **NOT** the clip's progress if the state is not a clip motion or its wrap mode isn't loop.
      * @zh
-     * 状态的规范化进度。
+     * 状态的规范化时间。
+     * 如果流逝的时间是非负的，它就是 `流逝时间 / 周期` 的小数部分；否则，它是 `(流逝时间 / 周期)` 的小数部分加 1。
+     * 它并不一定代表剪辑的进度，因为该状态可能并不是一个剪辑动作，或者它的循环模式并非循环。
      */
     progress: number;
 }
@@ -1335,7 +1340,8 @@ function calcProgressUpdate (currentProgress: number, duration: number, deltaTim
 }
 
 function normalizeProgress (progress: number) {
-    return progress - Math.trunc(progress);
+    const signedFrac = progress - Math.trunc(progress);
+    return signedFrac >= 0.0 ? signedFrac : (1.0 + signedFrac);
 }
 
 interface MotionEvalPort {

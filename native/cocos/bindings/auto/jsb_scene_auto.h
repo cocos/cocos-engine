@@ -132,7 +132,6 @@ SE_DECLARE_FUNC(js_scene_Node_setRotationInternal);
 SE_DECLARE_FUNC(js_scene_Node_setScaleForJS);
 SE_DECLARE_FUNC(js_scene_Node_setScaleInternal);
 SE_DECLARE_FUNC(js_scene_Node_setSiblingIndex);
-SE_DECLARE_FUNC(js_scene_Node_setUIPropsTransformDirtyPtr);
 SE_DECLARE_FUNC(js_scene_Node_setWorldPosition);
 SE_DECLARE_FUNC(js_scene_Node_setWorldRotation);
 SE_DECLARE_FUNC(js_scene_Node_setWorldRotationFromEuler);

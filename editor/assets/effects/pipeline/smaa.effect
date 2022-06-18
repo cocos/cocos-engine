@@ -36,7 +36,7 @@ CCEffect %{
 
 CCProgram smaa-edge-vs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 a_position;
   in vec2 a_texCoord;
@@ -56,10 +56,10 @@ CCProgram smaa-edge-vs %{
 
 CCProgram smaa-edge-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <common>
-  #include <gamma>
-  #include <aces>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+  #include <common/color/gamma>
+  #include <common/color/aces>
 
   #pragma define SMAA_THRESHOLD 0.1
 
@@ -115,7 +115,7 @@ CCProgram smaa-edge-fs %{
 
 CCProgram smaa-blend-vs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   #pragma define SMAA_MAX_SEARCH_STEPS 8
 
@@ -139,7 +139,7 @@ CCProgram smaa-blend-vs %{
 
 CCProgram smaa-blend-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   #pragma define SMAA_MAX_SEARCH_STEPS 8
   #pragma define SMAA_AREATEX_MAX_DISTANCE 16
