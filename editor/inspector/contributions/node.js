@@ -198,10 +198,10 @@ exports.template = /* html*/`
                     <span slot="label">Reflection Convolution</span>
                     <div slot="content">
                         <ui-loading style="position: relative;top: 4px;"></ui-loading>
-                        <ui-button num="1" style="display: none;">
+                        <ui-button num="2" style="display: none;">
                             <span>Bake</span>
                         </ui-button>
-                        <ui-button num="0" style="display: none;">
+                        <ui-button num="1" style="display: none;">
                             <span>Remove</span>
                         </ui-button>
                     </div>
@@ -677,7 +677,7 @@ const Elements = {
                         .then((meta) => {
                             envmapAssetMeta = meta;
                             $skyboxBakeLoading.style.display = 'none';
-                            if (meta.userData.mipBakeMode && meta.userData.mipBakeMode !== 0) {
+                            if (meta.userData.mipBakeMode && meta.userData.mipBakeMode !== 1) {
                                 $skyboxBakeButtonList[0].style.display = 'none';
                                 $skyboxBakeButtonList[1].style.display = '';
                             } else {
