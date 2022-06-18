@@ -35,10 +35,10 @@ class PipelineSceneData;
 
 class ShadowTransformInfo {
 public:
-    explicit ShadowTransformInfo(uint level);
+    explicit ShadowTransformInfo(uint32_t level);
     ~ShadowTransformInfo() = default;
 
-    inline uint getLevel() const { return _level; }
+    inline uint32_t getLevel() const { return _level; }
 
     inline RenderObjectList &getShadowObjects() { return _shadowObjects; }
     inline void setShadowObjects(RenderObjectList &&ro) { _shadowObjects = std::forward<RenderObjectList>(ro); }
@@ -77,7 +77,7 @@ private:
     RenderObjectList _shadowObjects;
 
     // Level is a vector, Indicates the location.range: [0 ~ 3]
-    uint _level{1U};
+    uint32_t _level{1U};
 
     float _shadowCameraFar{0.0F};
 
@@ -98,7 +98,7 @@ private:
 
 class CSMLayerInfo : public ShadowTransformInfo {
 public:
-    explicit CSMLayerInfo(uint level);
+    explicit CSMLayerInfo(uint32_t level);
     ~CSMLayerInfo() = default;
 
     inline float getSplitCameraNear() const { return _splitCameraNear; }
@@ -114,7 +114,7 @@ public:
     inline void setMatShadowViewProjAtlas(const Mat4 &matShadowViewProjAtlas) { _matShadowViewProjAtlas = matShadowViewProjAtlas; }
 
 private:
-    void calculateAtlas(uint level);
+    void calculateAtlas(uint32_t level);
 
     float _splitCameraNear{0.0F};
     float _splitCameraFar{0.0F};
@@ -155,7 +155,7 @@ private:
     RenderObjectList _layerObjects;
 
     // LevelCount is a scalar, Indicates the number.
-    uint _levelCount{0U};
+    uint32_t _levelCount{0U};
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     ShadowTransformInfo *_specialLayer{nullptr};
     ccstd::array<CSMLayerInfo *, 4> _layers{};
