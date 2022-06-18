@@ -81,7 +81,7 @@ CCProgram lighting-fs %{
       2.0 * coord.z - 1.0);
       #endif
   
-    return GetWorldPosRH(ndc, cc_matProj, cc_matViewProjInv);
+    return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
   }
 
   void main () {
