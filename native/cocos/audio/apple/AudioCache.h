@@ -26,7 +26,7 @@
 
 #pragma once
 
-#import <AVFoundation/AVAudioPlayer.h>
+#import <AudioToolbox/AudioFile.h>
 #include <mutex>
 #include "base/std/container/string.h"
 
@@ -38,14 +38,21 @@ namespace cc {
 class AudioEngineImpl;
 class AudioPlayer;
 
+typedef enum AbstractAudioFileType {
+    MP3
+} AbstractAudioFileType;
+
+
+
+enum class AudioCacheState {
+    INITIAL,
+    LOADING,
+    READY,
+    FAILED
+};
 class AudioCache {
 public:
-    enum class State {
-        INITIAL,
-        LOADING,
-        READY,
-        FAILED
-    };
+
 
     AudioCache();
     ~AudioCache();
@@ -54,6 +61,11 @@ public:
 
     void addLoadCallback(const std::function<void(bool)> &callback);
 
+    // AVFoundation
+    char* _audioBuffer;
+    AudioCacheState _state;
+    AbstractAudioFileType _avFileType;
+    
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
     void readDataTask(unsigned int selfId);
@@ -62,24 +74,12 @@ protected:
 
     void invokingLoadCallbacks();
 
-    //pcm data related stuff
-    ALenum _format;
-    ALsizei _sampleRate;
+//    ALsizei _sampleRate;
     float _duration;
     uint32_t _totalFrames;
     uint32_t _framesRead;
-
-    /*Cache related stuff;
-     * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
-     */
-    ALuint _alBufferId;
-    char *_pcmData;
-
-    /*Queue buffer related stuff
-     *  Streaming in openal when sizeInBytes greater then PCMDATA_CACHEMAXSIZE
-     */
-    char *_queBuffers[QUEUEBUFFER_NUM];
-    ALsizei _queBufferSize[QUEUEBUFFER_NUM];
+    uint32_t _bytesPerFrame;
+    uint32_t _sampleRate;
     uint32_t _queBufferFrames;
 
     std::mutex _playCallbackMutex;
@@ -90,11 +90,10 @@ protected:
 
     std::mutex _readDataTaskMutex;
 
-    State _state;
-
     std::shared_ptr<bool> _isDestroyed;
     ccstd::string _fileFullPath;
     unsigned int _id;
+    bool _isStereo;
     bool _isLoadingFinished;
     bool _isSkipReadDataTask;
 

@@ -3064,6 +3064,7 @@ if(APPLE)
         "-lsqlite3"
         "-framework Security"
         "-framework SystemConfiguration"
+        "-framework AVFoundation"
         "$(inherited)"
         ${CC_EXTERNAL_LIBS}
     )

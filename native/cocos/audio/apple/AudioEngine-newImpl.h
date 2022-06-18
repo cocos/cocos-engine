@@ -64,15 +64,12 @@ public:
 private:
     bool checkAudioIdValid(int audioID);
     void play2dImpl(AudioCache *cache, int audioID);
-    ALuint findValidSource();
-
-    static ALvoid myAlSourceNotificationCallback(ALuint sid, ALuint notificationID, ALvoid *userData);
-
-    ALuint _alSources[MAX_AUDIOINSTANCES];
+    
+    // Find a valid audio player in memory pool
+    AudioPlayer* getUsableAudioPlayer();
 
     //source,used
-    ccstd::list<ALuint> _unusedSourcesPool;
-
+    ccstd::vector<AudioPlayer*> _unusedSourcesPool;
     //filePath,bufferInfo
     ccstd::unordered_map<ccstd::string, AudioCache> _audioCaches;
 
@@ -80,6 +77,7 @@ private:
     ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
     std::mutex _threadMutex;
 
+    //?
     bool _lazyInitLoop;
 
     int _currentAudioID;

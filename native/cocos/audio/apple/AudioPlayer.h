@@ -26,7 +26,6 @@
 
 #pragma once
 
-#import <AVFoundation/AVAudioPlayer.h>
 #include "audio/apple/AudioMacros.h"
 #include "base/Macros.h"
 
@@ -36,13 +35,41 @@
 #include "base/std/container/string.h"
 
 namespace cc {
+typedef std::function<void(int, const ccstd::string &)> FinishCallback;
 class AudioCache;
 class AudioEngineImpl;
+enum class AudioPlayerState {
+    UNUSED,
+    READY,
+    PLAYING,
+    PAUSED,
+    STOPPED
+};
+class AudioPlayer {
+public:
+    AudioPlayer() = default;
+    ~AudioPlayer();
+    AudioCache *getCache() const { return _cache; }
+    void setCache(AudioCache* cache){ _cache = cache; }
+    
+    // AVAudioPlayer is readonly
+    void* getPlayer() { return _player; }
+    // Release audio player, it's useful when trying to use memory pool.
+    bool play();
+    bool pause();
+    bool resume();
+    void stop();
+    
+    // Init when audio cache is enabled.
+    bool init();
+    bool release();
+private:
+    AudioCache * _cache {nullptr};
+    void * _player {nullptr};
+    AudioPlayerState _state {AudioPlayerState::UNUSED};
+    uint32_t _audioID {0};
+    friend class AudioEngineImpl;
+    
+    FinishCallback _finishCallback;
+};
 } //namespace cc
-
-@interface AudioPlayer : AVAudioPlayer
-- (bool) setTime:(float)time;
-- (float) getTime;
-- (bool) setLoop:(bool)loop;
-- (bool) play2d;
-@end
