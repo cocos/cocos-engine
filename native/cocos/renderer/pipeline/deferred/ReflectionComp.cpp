@@ -39,13 +39,13 @@ struct ConstantBuffer {
 
 } // namespace
 
-void ReflectionComp::applyTexSize(uint width, uint height, const Mat4 &matView,
+void ReflectionComp::applyTexSize(uint32_t width, uint32_t height, const Mat4 &matView,
                                   const Mat4 &matViewProj, const Mat4 &matViewProjInv,
                                   const Mat4 &matProjInv, const Vec4 &viewPort) {
-    uint globalWidth = width;
-    uint globalHeight = height;
-    uint groupWidth = this->getGroupSizeX();
-    uint groupHeight = this->getGroupSizeY();
+    uint32_t globalWidth = width;
+    uint32_t globalHeight = height;
+    uint32_t groupWidth = this->getGroupSizeX();
+    uint32_t groupHeight = this->getGroupSizeY();
 
     _dispatchInfo = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
     _denoiseDispatchInfo = {((globalWidth - 1) / 2) / groupWidth + 1, ((globalHeight - 1) / 2) / groupHeight + 1, 1};
@@ -64,7 +64,7 @@ void ReflectionComp::applyTexSize(uint width, uint height, const Mat4 &matView,
     }
 }
 
-void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
+void ReflectionComp::init(gfx::Device *dev, uint32_t groupSizeX, uint32_t groupSizeY) {
     if (!dev->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
 
     _device = dev;
@@ -76,7 +76,7 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
     samplerInfo.magFilter = gfx::Filter::POINT;
     _sampler = _device->getSampler(samplerInfo);
 
-    uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
+    uint32_t maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
     CC_ASSERT(_groupSizeX * _groupSizeY <= maxInvocations); // maxInvocations is too small
     CC_LOG_INFO(" work group size: %dx%d", _groupSizeX, _groupSizeY);
 

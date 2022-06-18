@@ -52,8 +52,8 @@ public:
 
         info.flags = flags;
     }
-    inline void setLevelCount(uint levelCount) { info.levelCount = levelCount; }
-    inline void setLayerCount(uint layerCount) { info.layerCount = layerCount; }
+    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
+    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
     inline void setSamples(SampleCount sample) { info.samples = sample; }
     inline void setDepth(uint32_t depth) { info.depth = depth; }
     inline void setImageBuffer(intptr_t imgBuff) { info.externalRes = reinterpret_cast<void *>(imgBuff); }
@@ -71,10 +71,10 @@ public:
     inline void setTexture(Texture *tex) { info.texture = tex; }
     inline void setType(TextureType type) { info.type = type; }
     inline void setFormat(Format format) { info.format = format; }
-    inline void setBaseLevel(uint baseLevel) { info.baseLevel = baseLevel; }
-    inline void setLevelCount(uint levelCount) { info.levelCount = levelCount; }
-    inline void setBaseLayer(uint baseLayer) { info.baseLayer = baseLayer; }
-    inline void setLayerCount(uint layerCount) { info.layerCount = layerCount; }
+    inline void setBaseLevel(uint32_t baseLevel) { info.baseLevel = baseLevel; }
+    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
+    inline void setBaseLayer(uint32_t baseLayer) { info.baseLayer = baseLayer; }
+    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
 
     explicit operator const TextureViewInfo() const { return info; }
 

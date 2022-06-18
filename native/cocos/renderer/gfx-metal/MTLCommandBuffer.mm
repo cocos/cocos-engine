@@ -107,7 +107,7 @@ id<MTLCommandBuffer> CCMTLCommandBuffer::getMTLCommandBuffer() {
     return _gpuCommandBufferObj->mtlCommandBuffer;
 }
 
-void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) {
         return;
     }
@@ -140,7 +140,7 @@ void CCMTLCommandBuffer::end() {
     }
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     // Sub CommandBuffer shouldn't call begin render pass
     if (_gpuCommandBufferObj->isSecondary) {
         return;
@@ -267,7 +267,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     if (secondaryCBCount > 0) {
         _parallelEncoder = [[mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
         // Create command encoders from parallel encoder and assign to command buffers
-        for (uint i = 0u; i < secondaryCBCount; ++i) {
+        for (uint32_t i = 0u; i < secondaryCBCount; ++i) {
             CCMTLCommandBuffer *cmdBuff = (CCMTLCommandBuffer *)secondaryCBs[i];
             cmdBuff->_renderEncoder.initialize(_parallelEncoder);
             cmdBuff->_gpuCommandBufferObj->mtlCommandBuffer = mtlCommandBuffer;
@@ -446,7 +446,7 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     _gpuCommandBufferObj->pipelineState = ccPipeline;
 }
 
-void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
+void CCMTLCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
     CC_ASSERT(set < _GPUDescriptorSets.size());
     if (dynamicOffsetCount) {
         _dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
@@ -494,11 +494,11 @@ void CCMTLCommandBuffer::setDepthBound(float /*minBounds*/, float /*maxBounds*/)
     CC_LOG_ERROR("Metal doesn't support setting depth bound.");
 }
 
-void CCMTLCommandBuffer::setStencilWriteMask(StencilFace /*face*/, uint /*mask*/) {
+void CCMTLCommandBuffer::setStencilWriteMask(StencilFace /*face*/, uint32_t /*mask*/) {
     CC_LOG_ERROR("Don't support change stencil write mask here.");
 }
 
-void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, uint /*ref*/, uint /*mask*/) {
+void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, uint32_t /*ref*/, uint32_t /*mask*/) {
     CC_LOG_ERROR("Don't support change stencil compare mask here.");
 }
 
@@ -513,7 +513,7 @@ void CCMTLCommandBuffer::nextSubpass() {
         bool setTexNeeded = !mu::isFramebufferFetchSupported();
         if (setTexNeeded) {
             _renderEncoder.endEncoding();
-            uint curSubpassIndex = ccRenderpass->getCurrentSubpassIndex();
+            uint32_t curSubpassIndex = ccRenderpass->getCurrentSubpassIndex();
             auto *mtlRenderPassDescriptor = ccRenderpass->getMTLRenderPassDescriptor();
             const auto &colorAttachments = curRenderPass->getColorAttachments();
             const auto colorAttachmentCount = colorAttachments.size();
@@ -529,7 +529,7 @@ void CCMTLCommandBuffer::nextSubpass() {
             if (!subpasses.empty()) {
                 const auto &inputs = subpasses[curSubpassIndex].inputs;
                 for (size_t i = 0; i < inputs.size(); i++) {
-                    const uint input = inputs[i];
+                    const uint32_t input = inputs[i];
                     if(input >= colorTextures.size()) {
                         continue;// ds should be set already by updateDepthStencilState
                     }
@@ -569,13 +569,13 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
                       indirectBufferOffset:0];
             }
         } else {
-            uint stride = indirectBuffer->getStride();
-            uint offset = 0;
-            uint drawInfoCount = indirectBuffer->getCount();
+            uint32_t stride = indirectBuffer->getStride();
+            uint32_t offset = 0;
+            uint32_t drawInfoCount = indirectBuffer->getCount();
             const auto &drawInfos = indirectBuffer->getDrawInfos();
             _numDrawCalls += drawInfoCount;
 
-            for (uint i = 0; i < drawInfoCount; ++i) {
+            for (uint32_t i = 0; i < drawInfoCount; ++i) {
                 const auto &drawInfo = drawInfos[i];
                 offset += drawInfo.firstIndex * stride;
                 if (indirectBuffer->isDrawIndirectByIndex()) {
@@ -609,7 +609,7 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
         }
     } else {
         if (info.indexCount > 0) {
-            uint offset = 0;
+            uint32_t offset = 0;
             offset += info.firstIndex * indexBuffer->getStride();
             if (info.instanceCount == 0) {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
@@ -641,7 +641,7 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
         _numInstances += info.instanceCount;
         _numDrawCalls++;
         if (_gpuCommandBufferObj->pipelineState) {
-            uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
+            uint32_t indexCount = info.indexCount ? info.indexCount : info.vertexCount;
             switch (_mtlPrimitiveType) {
                 case MTLPrimitiveTypeTriangle:
                     _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
@@ -655,7 +655,7 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
     }
 }
 
-void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     CC_PROFILE(CCMTLCmdBufUpdateBuffer);
     if (!buff) {
         CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
@@ -675,14 +675,14 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
     [encoder endEncoding];
 }
 
-void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     if (!texture) {
         CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: texture is nullptr");
         return;
     }
 
-    uint totalSize = 0;
-    ccstd::vector<uint> bufferSize(count);
+    uint32_t totalSize = 0;
+    ccstd::vector<uint32_t> bufferSize(count);
     ccstd::vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
     auto format = texture->getFormat();
     auto *mtlTexture = static_cast<CCMTLTexture *>(texture);
@@ -699,9 +699,9 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         stagingRegion.destinationSlice = region.texSubres.baseArrayLayer;
         stagingRegion.destinationLevel = region.texSubres.mipLevel;
         stagingRegion.destinationOrigin = {
-            static_cast<uint>(region.texOffset.x),
-            static_cast<uint>(region.texOffset.y),
-            static_cast<uint>(region.texOffset.z)};
+            static_cast<uint32_t>(region.texOffset.x),
+            static_cast<uint32_t>(region.texOffset.y),
+            static_cast<uint32_t>(region.texOffset.z)};
         totalSize += stagingRegion.sourceBytesPerImage;
     }
 
@@ -735,7 +735,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void CCMTLCommandBuffer::execute(CommandBuffer *const *commandBuffs, uint32_t count) {
-    for (uint i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         const auto *commandBuffer = static_cast<const CCMTLCommandBuffer *>(commandBuffs[i]);
         _numDrawCalls += commandBuffer->_numDrawCalls;
         _numInstances += commandBuffer->_numInstances;
@@ -769,7 +769,7 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
         const auto &dynamicOffset = dynamicOffsetIndices[block.set];
         auto dynamicOffsetIndex = (block.binding < dynamicOffset.size()) ? dynamicOffset[block.binding] : -1;
         if (gpuDescriptor.buffer) {
-            uint offset = (dynamicOffsetIndex >= 0) ? _dynamicOffsets[block.set][dynamicOffsetIndex] : 0;
+            uint32_t offset = (dynamicOffsetIndex >= 0) ? _dynamicOffsets[block.set][dynamicOffsetIndex] : 0;
             // compute pipeline and render pipeline mutually exlusive
             if (pipelineStateObj->mtlComputePipelineState) {
                 gpuDescriptor.buffer->encodeBuffer(_computeEncoder,
@@ -814,7 +814,7 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
     }
 }
 
-void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     if (srcTexture && dstTexture && regions) {
         id<MTLCommandBuffer> cmdBuffer = getMTLCommandBuffer();
 
@@ -882,7 +882,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 
         //blit
         id<MTLBlitCommandEncoder> encoder = [cmdBuffer blitCommandEncoder];
-        for (uint i = 0; i < count; ++i) {
+        for (uint32_t i = 0; i < count; ++i) {
             // source region scale
             uint32_t width = (uint32_t)(regions[i].srcExtent.width * scaleFactorW);
             uint32_t height = (uint32_t)(regions[i].srcExtent.height * scaleFactorH);
@@ -919,11 +919,11 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
     _computeEncoder.endEncoding();
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     // Metal tracks non-heap resources automatically, which means no need to add a barrier same encoder.
 }
 
-void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     auto *ccMTLTexture = static_cast<CCMTLTexture *>(src);
     Format convertedFormat = ccMTLTexture->getConvertedFormat();
     id<MTLTexture> mtlTexture = ccMTLTexture->getMTLTexture();

@@ -38,7 +38,7 @@ class RenderInstancedQueue;
 class RenderBatchedQueue;
 class RenderPipeline;
 
-//const uint phaseID(PassPhase::getPhaseID("shadow-caster"));
+//const uint32_t phaseID(PassPhase::getPhaseID("shadow-caster"));
 
 class CC_DLL ShadowMapBatchedQueue final {
 public:
@@ -47,7 +47,7 @@ public:
     void destroy();
 
     void clear();
-    void gatherLightPasses(const scene::Camera *, const scene::Light *, gfx::CommandBuffer *, uint level = 0);
+    void gatherLightPasses(const scene::Camera *, const scene::Light *, gfx::CommandBuffer *, uint32_t level = 0);
     void add(const scene::Model *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
@@ -60,7 +60,7 @@ private:
     ccstd::vector<gfx::Shader *> _shaders;
     RenderInstancedQueue *_instancedQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 };
 
 } // namespace pipeline

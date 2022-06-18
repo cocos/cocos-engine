@@ -42,7 +42,7 @@ struct Color;
 class CCMTLRenderCommandEncoder final : public CCMTLCommandEncoder {
     struct BufferBinding final {
         id<MTLBuffer> buffer;
-        uint offset = 0;
+        uint32_t offset = 0;
     };
 
 public:
@@ -157,7 +157,7 @@ public:
         _pipelineState = pipelineState;
     }
 
-    inline void setStencilFrontBackReferenceValue(uint frontReferenceValue, uint backReferenceValue) {
+    inline void setStencilFrontBackReferenceValue(uint32_t frontReferenceValue, uint32_t backReferenceValue) {
         if (_frontReferenceValue == frontReferenceValue && _backReferenceValue == backReferenceValue)
             return;
 
@@ -204,7 +204,7 @@ public:
                                 alpha:_blendColor.w];
     }
 
-    inline void setVertexBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setVertexBuffer(const id<MTLBuffer> buffer, uint32_t offset, uint32_t index) {
         if (_vertexBufferMap.count(index) > 0) {
             const auto &bufferBinding = _vertexBufferMap[index];
             if (buffer == bufferBinding.buffer && offset == bufferBinding.offset) {
@@ -218,7 +218,7 @@ public:
                              atIndex:index];
     }
 
-    inline void setFragmentBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setFragmentBuffer(const id<MTLBuffer> buffer, uint32_t offset, uint32_t index) {
         if (_fragmentBufferMap.count(index) > 0) {
             const auto &bufferBinding = _fragmentBufferMap[index];
             if (buffer == bufferBinding.buffer && offset == bufferBinding.offset) {
@@ -232,7 +232,7 @@ public:
                                atIndex:index];
     }
 
-    void setVertexTexture(const id<MTLTexture> texture, uint index) {
+    void setVertexTexture(const id<MTLTexture> texture, uint32_t index) {
         if (_vertexTextureMap.count(index) > 0 && (texture == _vertexTextureMap[index]))
             return;
 
@@ -240,7 +240,7 @@ public:
         [_mtlEncoder setVertexTexture:texture atIndex:index];
     }
 
-    void setFragmentTexture(const id<MTLTexture> texture, uint index) {
+    void setFragmentTexture(const id<MTLTexture> texture, uint32_t index) {
         if (_fragmentTextureMap.count(index) > 0 && (texture == _fragmentTextureMap[index]))
             return;
 
@@ -248,7 +248,7 @@ public:
         [_mtlEncoder setFragmentTexture:texture atIndex:index];
     }
 
-    void setVertexSampler(const id<MTLSamplerState> sampler, uint index) {
+    void setVertexSampler(const id<MTLSamplerState> sampler, uint32_t index) {
         if (_vertexSamplerMap.count(index) > 0 && (sampler == _vertexSamplerMap[index]))
             return;
 
@@ -256,7 +256,7 @@ public:
         [_mtlEncoder setVertexSamplerState:sampler atIndex:index];
     }
 
-    void setFragmentSampler(const id<MTLSamplerState> sampler, uint index) {
+    void setFragmentSampler(const id<MTLSamplerState> sampler, uint32_t index) {
         if (_fragmentSamplerMap.count(index) > 0 && (sampler == _fragmentSamplerMap[index]))
             return;
 
@@ -286,8 +286,8 @@ protected:
     id<MTLRenderCommandEncoder> _mtlEncoder = nil;
     id<MTLRenderPipelineState> _pipelineState = nil;
     id<MTLDepthStencilState> _depthStencilState = nil;
-    uint _frontReferenceValue = UINT_MAX;
-    uint _backReferenceValue = UINT_MAX;
+    uint32_t _frontReferenceValue = UINT_MAX;
+    uint32_t _backReferenceValue = UINT_MAX;
     float _depthBias = 0.f;
     float _clamp = 0.f;
     float _slope = 0.f;
@@ -298,12 +298,12 @@ protected:
     Viewport _viewport;
     Rect _scissorRect;
     Color _blendColor;
-    ccstd::unordered_map<uint, BufferBinding> _vertexBufferMap;
-    ccstd::unordered_map<uint, BufferBinding> _fragmentBufferMap;
-    ccstd::unordered_map<uint, id<MTLTexture>> _vertexTextureMap;
-    ccstd::unordered_map<uint, id<MTLTexture>> _fragmentTextureMap;
-    ccstd::unordered_map<uint, id<MTLSamplerState>> _vertexSamplerMap;
-    ccstd::unordered_map<uint, id<MTLSamplerState>> _fragmentSamplerMap;
+    ccstd::unordered_map<uint32_t, BufferBinding> _vertexBufferMap;
+    ccstd::unordered_map<uint32_t, BufferBinding> _fragmentBufferMap;
+    ccstd::unordered_map<uint32_t, id<MTLTexture>> _vertexTextureMap;
+    ccstd::unordered_map<uint32_t, id<MTLTexture>> _fragmentTextureMap;
+    ccstd::unordered_map<uint32_t, id<MTLSamplerState>> _vertexSamplerMap;
+    ccstd::unordered_map<uint32_t, id<MTLSamplerState>> _fragmentSamplerMap;
 };
 
 } // namespace gfx

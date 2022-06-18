@@ -45,8 +45,8 @@ namespace cc {
 namespace pipeline {
 RenderStageInfo GbufferStage::initInfo = {
     "GbufferStage",
-    static_cast<uint>(DeferredStagePriority::GBUFFER),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(DeferredStagePriority::GBUFFER),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
     {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
      {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
@@ -69,7 +69,7 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint phase = convertPhase(descriptor.stages);
+        uint32_t phase = convertPhase(descriptor.stages);
         RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
@@ -93,8 +93,8 @@ void GbufferStage::dispenseRenderObject2Queues() {
         queue->clear();
     }
 
-    uint subModelIdx = 0;
-    uint passIdx = 0;
+    uint32_t subModelIdx = 0;
+    uint32_t passIdx = 0;
     size_t k = 0;
     for (auto ro : renderObjects) {
         const auto *const model = ro.model;
@@ -132,7 +132,7 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     // DescriptorSet bindings
-    const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
     // record commands
@@ -160,15 +160,15 @@ void GbufferStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA8,
-            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
-            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         gfx::TextureInfo gbufferInfoFloat = {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA16F,
-            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
-            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT - 1; ++i) {
             if (i != 0) { // normals need more precision
@@ -204,8 +204,8 @@ void GbufferStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
             gfx::Format::DEPTH_STENCIL,
-            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
-            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
 
         depthTexInfo.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
@@ -238,7 +238,7 @@ void GbufferStage::render(scene::Camera *camera) {
     // if empty == true, gbuffer and lightig passes will be ignored
     bool empty = _renderQueues[0]->empty() && _instancedQueue->empty() && _batchedQueue->empty();
     if (!empty) {
-        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
+        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
     }
 }
 } // namespace pipeline

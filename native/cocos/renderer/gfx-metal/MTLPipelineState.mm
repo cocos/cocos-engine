@@ -210,9 +210,9 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
 //TODO: reconstruction
 void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
     auto activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
-    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
-    ccstd::unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    ccstd::vector<uint> streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
+    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint32_t /**stream*/>> layouts;
+    ccstd::unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint32_t /**stride*/, bool /**isInstanced*/>> map;
+    ccstd::vector<uint32_t> streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
     ccstd::vector<bool> activeAttribIdx(activeAttributes.size(), false);
     for (const auto &inputAttrib : _inputState.attributes) {
         auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);

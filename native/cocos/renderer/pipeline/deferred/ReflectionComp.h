@@ -22,13 +22,13 @@ class ReflectionComp {
 public:
     ReflectionComp() = default;
     ~ReflectionComp();
-    void init(gfx::Device *dev, uint groupSizeX, uint groupSizeY);
+    void init(gfx::Device *dev, uint32_t groupSizeX, uint32_t groupSizeY);
     void getReflectorShader(ShaderSources<ComputeShaderSource> &sources, bool useEnvmap) const;
     void getDenoiseShader(ShaderSources<ComputeShaderSource> &sources, bool useEnvmap) const;
     void initReflectionRes();
     void initDenoiseRes();
     void initDenoiseResEnvmap();
-    void applyTexSize(uint width, uint height, const Mat4 &matView,
+    void applyTexSize(uint32_t width, uint32_t height, const Mat4 &matView,
                       const Mat4 &matViewProj, const Mat4 &matViewProjInv,
                       const Mat4 &matProjInv, const Vec4 &viewPort);
 
@@ -42,8 +42,8 @@ public:
     inline const gfx::TextureBarrierList &getBarrierAfterDenoise() { return _barrierAfterDenoise; }
     inline const gfx::DispatchInfo &getDispatchInfo() { return _dispatchInfo; }
     inline const gfx::DispatchInfo &getDenoiseDispatchInfo() { return _denoiseDispatchInfo; }
-    inline uint getGroupSizeX() const { return _groupSizeX; }
-    inline uint getGroupSizeY() const { return _groupSizeY; }
+    inline uint32_t getGroupSizeX() const { return _groupSizeX; }
+    inline uint32_t getGroupSizeY() const { return _groupSizeY; }
 
     inline gfx::Buffer *getConstantsBuffer() { return _compConstantsBuffer; }
     inline gfx::Sampler *getSampler() { return _sampler; }
@@ -80,8 +80,8 @@ private:
     gfx::DispatchInfo _dispatchInfo;
     gfx::DispatchInfo _denoiseDispatchInfo;
 
-    uint _groupSizeX{8};
-    uint _groupSizeY{8};
+    uint32_t _groupSizeX{8};
+    uint32_t _groupSizeY{8};
 };
 
 } // namespace cc
