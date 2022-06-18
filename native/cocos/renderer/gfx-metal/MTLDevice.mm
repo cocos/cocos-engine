@@ -306,7 +306,7 @@ Swapchain *CCMTLDevice::createSwapchain() {
     return ccnew CCMTLSwapchain;
 }
 
-void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     CC_PROFILE(CCMTLDeviceCopyBuffersToTexture);
     // This assumes the default command buffer will get submitted every frame,
     // which is true for now but may change in the future. This approach gives us
@@ -316,7 +316,7 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
 }
 
-void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     CC_PROFILE(CCMTLDeviceCopyTextureToBuffers);
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
 }
@@ -353,7 +353,7 @@ void CCMTLDevice::onMemoryWarning() {
         _gpuStagingBufferPools[i]->shrinkSize();
     }
 }
-void CCMTLDevice::initFormatFeatures(uint gpuFamily) {
+void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
     const FormatFeature completeFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
 
     FormatFeature tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE;

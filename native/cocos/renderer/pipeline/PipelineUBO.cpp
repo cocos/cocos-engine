@@ -150,7 +150,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = ambient->getMipmapCount();
     }
 
-    // cjh TS doesn't have this logic ?    auto *const envmap = descriptorSet->getTexture(static_cast<uint>(PipelineGlobalBindings::SAMPLER_ENVIRONMENT));
+    // cjh TS doesn't have this logic ?    auto *const envmap = descriptorSet->getTexture(static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_ENVIRONMENT));
     //     if (envmap != nullptr) {
     //         output[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = static_cast<float>(envmap->getLevelCount());
     //     }
@@ -231,7 +231,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                 const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), 0.0F};
                 memcpy(sv.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
             } else {
-                for (uint i = 0; i < static_cast<uint>(mainLight->getCSMLevel()); ++i) {
+                for (uint32_t i = 0; i < static_cast<uint32_t>(mainLight->getCSMLevel()); ++i) {
                     sv[UBOShadow::CSM_SPLITS_INFO_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
 
                     const Mat4 &matShadowView = csmLayers->getLayers()[i]->getMatShadowView();
@@ -274,7 +274,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
 }
 
 void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
-        const scene::Light *light, uint level) {
+        const scene::Light *light, uint32_t level) {
     const auto *sceneData = pipeline->getPipelineSceneData();
     const CSMLayers *csmLayers = sceneData->getCSMLayers();
     const auto *shadowInfo = sceneData->getShadows();
@@ -469,14 +469,14 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
 
 void PipelineUBO::updateMultiCameraUBO(const ccstd::vector<scene::Camera *> &cameras) {
     const auto cameraCount = cameras.size();
-    const auto totalUboSize = static_cast<uint>(_alignedCameraUBOSize * cameraCount);
+    const auto totalUboSize = static_cast<uint32_t>(_alignedCameraUBOSize * cameraCount);
 
     if (_cameraBuffer->getSize() < totalUboSize) {
         _cameraBuffer->resize(totalUboSize);
         _cameraUBOs.resize(totalUboSize / sizeof(float));
     }
 
-    for (uint cameraIdx = 0; cameraIdx < cameraCount; ++cameraIdx) {
+    for (uint32_t cameraIdx = 0; cameraIdx < cameraCount; ++cameraIdx) {
         const auto *camera = cameras[cameraIdx];
         const auto offset = cameraIdx * _alignedCameraUBOSize / sizeof(float);
         PipelineUBO::updateCameraUBOView(_pipeline, &_cameraUBOs[offset], camera);
@@ -511,18 +511,18 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
     cmdBuffer->updateBuffer(ds->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
-void PipelineUBO::updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light, uint level) {
+void PipelineUBO::updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light, uint32_t level) {
     auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
     updateShadowUBOLightView(_pipeline, &_shadowUBO, light, level);
     globalDS->update();
     cmdBuffer->updateBuffer(globalDS->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
-void PipelineUBO::updateShadowUBORange(uint offset, const Mat4 *data) {
+void PipelineUBO::updateShadowUBORange(uint32_t offset, const Mat4 *data) {
     memcpy(_shadowUBO.data() + offset, data->m, sizeof(*data));
 }
 
-uint PipelineUBO::getCurrentCameraUBOOffset() const {
+uint32_t PipelineUBO::getCurrentCameraUBOOffset() const {
     return _currentCameraUBOOffset;
 }
 

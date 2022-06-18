@@ -80,7 +80,7 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    const uint offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    const uint32_t offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
     for (const auto light : _lightIndices) {
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
@@ -117,7 +117,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
 }
 
 void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    static ccstd::vector<uint> lightPassIndices;
+    static ccstd::vector<uint32_t> lightPassIndices;
 
     clear();
 
@@ -182,11 +182,11 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
 bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
     const auto &      subModels     = model->getSubModels();
     const auto        subModelCount = subModels.size();
-    for (uint subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+    for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
         const auto &subModel  = subModels[subModelIdx];
         const auto &passes    = subModel->getPasses();
         const auto  passCount = passes.size();
-        for (uint passIdx = 0; passIdx < passCount; ++passIdx) {
+        for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             const auto &pass = passes[passIdx];
             if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                 return true;
@@ -199,7 +199,7 @@ bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
     return false;
 }
 
-void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx) {
+void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint32_t lightPassIdx) {
     const auto batchingScheme = pass->getBatchingScheme();
     if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
         for (const auto idx : _lightIndices) {
@@ -242,7 +242,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
-        _lightBufferCount = nextPow2(static_cast<uint>(validLightCount));
+        _lightBufferCount = nextPow2(static_cast<uint32_t>(validLightCount));
         _lightBuffer->resize(utils::toUint(_lightBufferStride * _lightBufferCount));
         _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
         _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
@@ -310,7 +310,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
         }
     }
 
-    cmdBuffer->updateBuffer(_lightBuffer, _lightBufferData.data(), static_cast<uint>(_lightBufferData.size() * sizeof(float)));
+    cmdBuffer->updateBuffer(_lightBuffer, _lightBufferData.data(), static_cast<uint32_t>(_lightBufferData.size() * sizeof(float)));
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
@@ -323,7 +323,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const float packing = hFTexture ? 0.0F : 1.0F;
     const scene::Light *mainLight = scene->getMainLight();
 
-    for (uint i = 0; i < _validPunctualLights.size(); ++i) {
+    for (uint32_t i = 0; i < _validPunctualLights.size(); ++i) {
         const auto *light = _validPunctualLights[i];
         auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(i);
         if (!descriptorSet) {
@@ -411,7 +411,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     }
 }
 
-bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, ccstd::vector<uint> *lightPassIndices) const {
+bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, ccstd::vector<uint32_t> *lightPassIndices) const {
     lightPassIndices->clear();
     bool hasValidLightPass = false;
 

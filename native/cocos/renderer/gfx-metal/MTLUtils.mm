@@ -696,7 +696,7 @@ MTLBlendFactor mu::toMTLBlendFactor(BlendFactor factor) {
         case BlendFactor::ONE_MINUS_DST_COLOR: return MTLBlendFactorOneMinusDestinationColor;
         case BlendFactor::SRC_ALPHA_SATURATE: return MTLBlendFactorSourceAlphaSaturated;
         default: {
-            CC_LOG_ERROR("Unsupported blend factor %u", (uint)factor);
+            CC_LOG_ERROR("Unsupported blend factor %u", (uint32_t)factor);
             return MTLBlendFactorZero;
         }
     }
@@ -963,7 +963,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
-    uint maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
+    uint32_t maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
@@ -973,7 +973,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
 
-        uint fakeHash = set * 128 + binding;
+        uint32_t fakeHash = set * 128 + binding;
         if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
             newBinding.desc_set = set;
@@ -1002,7 +1002,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
 
-        uint fakeHash = set * 128 + binding;
+        uint32_t fakeHash = set * 128 + binding;
         if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
             newBinding.desc_set = set;
@@ -1101,8 +1101,8 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     return output;
 }
 
-const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
-    uint finalLength = length * 4;
+const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint32_t length) {
+    uint32_t finalLength = length * 4;
     uint8_t *out = (uint8_t *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB8ToRGBA8().");
@@ -1111,7 +1111,7 @@ const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
 
     const uint8_t *src = source;
     uint8_t *dst = out;
-    for (uint i = 0; i < length; ++i) {
+    for (uint32_t i = 0; i < length; ++i) {
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = *src++;
@@ -1121,8 +1121,8 @@ const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
     return out;
 }
 
-const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
-    uint finalLength = length * sizeof(float) * 4;
+const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint32_t length) {
+    uint32_t finalLength = length * sizeof(float) * 4;
     uint8_t *out = (uint8_t *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB32FToRGBA32F().");
@@ -1131,7 +1131,7 @@ const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
 
     const float *src = reinterpret_cast<const float *>(source);
     float *dst = reinterpret_cast<float *>(out);
-    for (uint i = 0; i < length; ++i) {
+    for (uint32_t i = 0; i < length; ++i) {
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = *src++;
@@ -1177,15 +1177,15 @@ NSUInteger mu::highestSupportedFeatureSet(id<MTLDevice> device) {
     return defaultFeatureSet;
 }
 
-uint mu::getGPUFamily(MTLFeatureSet featureSet) {
+uint32_t mu::getGPUFamily(MTLFeatureSet featureSet) {
 #if CC_PLATFORM == CC_PLATFORM_IOS
-    return static_cast<uint>(getIOSGPUFamily(featureSet));
+    return static_cast<uint32_t>(getIOSGPUFamily(featureSet));
 #else
-    return static_cast<uint>(getMacGPUFamily(featureSet));
+    return static_cast<uint32_t>(getMacGPUFamily(featureSet));
 #endif
 }
 
-uint mu::getMaxVertexAttributes(uint family) {
+uint32_t mu::getMaxVertexAttributes(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1199,7 +1199,7 @@ uint mu::getMaxVertexAttributes(uint family) {
     }
 }
 
-uint mu::getMaxEntriesInBufferArgumentTable(uint family) {
+uint32_t mu::getMaxEntriesInBufferArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1213,7 +1213,7 @@ uint mu::getMaxEntriesInBufferArgumentTable(uint family) {
     }
 }
 
-uint mu::getMaxEntriesInTextureArgumentTable(uint family) {
+uint32_t mu::getMaxEntriesInTextureArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1229,7 +1229,7 @@ uint mu::getMaxEntriesInTextureArgumentTable(uint family) {
     }
 }
 
-uint mu::getMaxEntriesInSamplerStateArgumentTable(uint family) {
+uint32_t mu::getMaxEntriesInSamplerStateArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1243,7 +1243,7 @@ uint mu::getMaxEntriesInSamplerStateArgumentTable(uint family) {
     }
 }
 
-uint mu::getMaxTexture2DWidthHeight(uint family) {
+uint32_t mu::getMaxTexture2DWidthHeight(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1258,7 +1258,7 @@ uint mu::getMaxTexture2DWidthHeight(uint family) {
     }
 }
 
-uint mu::getMaxCubeMapTextureWidthHeight(uint family) {
+uint32_t mu::getMaxCubeMapTextureWidthHeight(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1273,7 +1273,7 @@ uint mu::getMaxCubeMapTextureWidthHeight(uint family) {
     }
 }
 
-uint mu::getMaxThreadsPerGroup(uint family) {
+uint32_t mu::getMaxThreadsPerGroup(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1288,7 +1288,7 @@ uint mu::getMaxThreadsPerGroup(uint family) {
     }
 }
 
-uint mu::getMaxColorRenderTarget(uint family) {
+uint32_t mu::getMaxColorRenderTarget(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
             return 4;
@@ -1303,7 +1303,7 @@ uint mu::getMaxColorRenderTarget(uint family) {
     }
 }
 
-uint mu::getMinBufferOffsetAlignment(uint family) {
+uint32_t mu::getMinBufferOffsetAlignment(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1322,7 +1322,7 @@ uint mu::getMinBufferOffsetAlignment(uint family) {
     }
 }
 
-bool mu::isPVRTCSuppported(uint family) {
+bool mu::isPVRTCSuppported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1337,7 +1337,7 @@ bool mu::isPVRTCSuppported(uint family) {
     }
 }
 
-bool mu::isEAC_ETCCSuppported(uint family) {
+bool mu::isEAC_ETCCSuppported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1352,7 +1352,7 @@ bool mu::isEAC_ETCCSuppported(uint family) {
     }
 }
 
-bool mu::isASTCSuppported(uint family) {
+bool mu::isASTCSuppported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
             return false;
@@ -1368,7 +1368,7 @@ bool mu::isASTCSuppported(uint family) {
     }
 }
 
-bool mu::isBCSupported(uint family) {
+bool mu::isBCSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1383,7 +1383,7 @@ bool mu::isBCSupported(uint family) {
     }
 }
 
-bool mu::isColorBufferFloatSupported(uint family) {
+bool mu::isColorBufferFloatSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1397,7 +1397,7 @@ bool mu::isColorBufferFloatSupported(uint family) {
     }
 }
 
-bool mu::isColorBufferHalfFloatSupported(uint family) {
+bool mu::isColorBufferHalfFloatSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1411,7 +1411,7 @@ bool mu::isColorBufferHalfFloatSupported(uint family) {
     }
 }
 
-bool mu::isLinearTextureSupported(uint family) {
+bool mu::isLinearTextureSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1425,7 +1425,7 @@ bool mu::isLinearTextureSupported(uint family) {
     }
 }
 
-bool mu::isUISamplerSupported(uint family) {
+bool mu::isUISamplerSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1440,7 +1440,7 @@ bool mu::isUISamplerSupported(uint family) {
     }
 }
 
-bool mu::isRGB10A2UIStorageSupported(uint family) {
+bool mu::isRGB10A2UIStorageSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1455,7 +1455,7 @@ bool mu::isRGB10A2UIStorageSupported(uint family) {
     }
 }
 
-bool mu::isDDepthStencilFilterSupported(uint family) {
+bool mu::isDDepthStencilFilterSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1482,7 +1482,7 @@ bool mu::isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
 #endif
     return false;
 }
-bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint family) {
+bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint32_t family) {
     return true;
     //    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
     //    switch (format) {
@@ -1527,7 +1527,7 @@ bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint
     //    }
 }
 
-bool mu::isIndirectDrawSupported(uint family) {
+bool mu::isIndirectDrawSupported(uint32_t family) {
 #if CC_PLATFORM == CC_PLATFORM_IOS
     return static_cast<GPUFamily>(family) < GPUFamily::Apple3 ? false : true; //is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later'
 #else
@@ -1535,7 +1535,7 @@ bool mu::isIndirectDrawSupported(uint family) {
 #endif
 }
 
-MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint family, uint &depthBits) {
+MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint32_t family, uint32_t &depthBits) {
 #if CC_PLATFORM == CC_PLATFORM_MACOS
     return MTLPixelFormatDepth24Unorm_Stencil8;
 #else
@@ -1551,7 +1551,7 @@ ccstd::string mu::featureSetToString(MTLFeatureSet featureSet) {
 #endif
 }
 
-const uint8_t *const mu::convertData(const uint8_t *source, uint length, Format type) {
+const uint8_t *const mu::convertData(const uint8_t *source, uint32_t length, Format type) {
     switch (type) {
         case Format::RGB8: return mu::convertRGB8ToRGBA8(source, length);
         case Format::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
@@ -1559,7 +1559,7 @@ const uint8_t *const mu::convertData(const uint8_t *source, uint length, Format 
     }
 }
 
-uint mu::getBlockSize(Format format) {
+uint32_t mu::getBlockSize(Format format) {
     switch (format) {
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -1609,13 +1609,13 @@ uint mu::getBlockSize(Format format) {
         case Format::EAC_RG11SN: // blockWidth = 4, blockHeight = 4;
             return 16u;
         default:
-            return GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+            return GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
     }
 }
 
-uint mu::getBytesPerRow(Format format, uint width) {
-    uint blockSize = getBlockSize(format);
-    uint widthInBlock = 1u;
+uint32_t mu::getBytesPerRow(Format format, uint32_t width) {
+    uint32_t blockSize = getBlockSize(format);
+    uint32_t widthInBlock = 1u;
     switch (format) {
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -1700,7 +1700,7 @@ bool mu::pixelFormatIsColorRenderable(Format format) {
 }
 
 //CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later
-bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
+bool mu::isSamplerDescriptorCompareFunctionSupported(uint32_t family) {
 #if CC_PLATFORM == CC_PLATFORM_IOS
     return (static_cast<GPUFamily>(family) < GPUFamily::Apple3) ? false : true;
 #else
@@ -1708,10 +1708,10 @@ bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
 #endif
 }
 
-void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> renderEncoder, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint /*stencil*/) {
+void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> renderEncoder, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint32_t /*stencil*/) {
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
-    uint slot = 0u;
+    uint32_t slot = 0u;
 
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
@@ -1753,7 +1753,7 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
                              length:sizeof(colors[slot])
                             atIndex:0];
 
-    uint count = sizeof(vertexes) / sizeof(Vec2);
+    uint32_t count = sizeof(vertexes) / sizeof(Vec2);
     [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
                       vertexStart:0
                       vertexCount:count];

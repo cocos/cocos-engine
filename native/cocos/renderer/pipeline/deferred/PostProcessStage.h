@@ -47,7 +47,7 @@ public:
 
 private:
     UIPhase *_uiPhase = nullptr;
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 
     static RenderStageInfo initInfo;
 };

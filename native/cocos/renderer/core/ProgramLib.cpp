@@ -390,7 +390,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             tmplInfo.blockSizes.emplace_back(getSize(block));
             tmplInfo.bindings.emplace_back();
             auto &bindingsInfo = tmplInfo.bindings.back();
-            bindingsInfo.binding = static_cast<uint>(block.binding);
+            bindingsInfo.binding = static_cast<uint32_t>(block.binding);
             bindingsInfo.descriptorType = gfx::DescriptorType::UNIFORM_BUFFER;
             bindingsInfo.count = 1;
             bindingsInfo.stageFlags = block.stageFlags;
@@ -408,8 +408,8 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             }
             tmplInfo.shaderInfo.blocks.emplace_back();
             auto &blocksInfo = tmplInfo.shaderInfo.blocks.back();
-            blocksInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
-            blocksInfo.binding = static_cast<uint>(block.binding);
+            blocksInfo.set = static_cast<uint32_t>(pipeline::SetIndex::MATERIAL);
+            blocksInfo.binding = static_cast<uint32_t>(block.binding);
             blocksInfo.name = block.name;
             blocksInfo.members = uniforms;
             blocksInfo.count = 1; // effect compiler guarantees block count = 1
@@ -417,15 +417,15 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         for (const auto &samplerTexture : tmpl.samplerTextures) {
             tmplInfo.bindings.emplace_back();
             auto &descriptorLayoutBindingInfo = tmplInfo.bindings.back();
-            descriptorLayoutBindingInfo.binding = static_cast<uint>(samplerTexture.binding);
+            descriptorLayoutBindingInfo.binding = static_cast<uint32_t>(samplerTexture.binding);
             descriptorLayoutBindingInfo.descriptorType = gfx::DescriptorType::SAMPLER_TEXTURE;
             descriptorLayoutBindingInfo.count = samplerTexture.count;
             descriptorLayoutBindingInfo.stageFlags = samplerTexture.stageFlags;
 
             tmplInfo.shaderInfo.samplerTextures.emplace_back();
             auto &samplerTextureInfo = tmplInfo.shaderInfo.samplerTextures.back();
-            samplerTextureInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
-            samplerTextureInfo.binding = static_cast<uint>(samplerTexture.binding);
+            samplerTextureInfo.set = static_cast<uint32_t>(pipeline::SetIndex::MATERIAL);
+            samplerTextureInfo.binding = static_cast<uint32_t>(samplerTexture.binding);
             samplerTextureInfo.name = samplerTexture.name;
             samplerTextureInfo.type = samplerTexture.type;
             samplerTextureInfo.count = samplerTexture.count;
