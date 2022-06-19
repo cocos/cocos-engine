@@ -283,3 +283,20 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
 //     removePropertyLog = () => { };
 //     markAsWarningLog = () => { };
 // }
+
+interface ITopLevelDeprecate {
+    [type: string]: string;
+}
+
+const topLevelDeprecateList: ITopLevelDeprecate = {
+    ButtonComponent: 'Button',
+};
+
+export function __checkObsolete__ (checkList: string[]) {
+    for (let checkItem of checkList) {
+        const replaceItem = topLevelDeprecateList[checkItem];
+        if (replaceItem) {
+            warn(`'%s' is deprecated, please use '%s' instead.`, checkItem, replaceItem);
+        }
+    }
+}
