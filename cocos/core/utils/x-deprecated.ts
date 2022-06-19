@@ -29,7 +29,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prefer-const */
 
-import { error, warn } from '../platform/debug';
+import { error, errorID, warn, warnID } from '../platform/debug';
 
 let defaultLogTimes = 10;
 
@@ -283,3 +283,102 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
 //     removePropertyLog = () => { };
 //     markAsWarningLog = () => { };
 // }
+
+/**
+ * @engineInternal
+ */
+interface IDeprecateInfo {
+    newTypeName?: string;
+    since: string;
+    removed: boolean,
+}
+
+/**
+ * @engineInternal
+ */
+interface TopLevelDeprecateList {
+    [name: string]: IDeprecateInfo | undefined;
+}
+
+const topLevelDeprecateList: TopLevelDeprecateList = {
+};
+
+/**
+ * This is an internal method to register the deprecate info of top level interface.
+ * DO NOT USE THIS INTERFACE.
+ *
+ * @example
+ * ```ts
+ * deprecateTopLevelInterface({
+ *     ButtonComponent: {
+ *         newTypeName: 'Button',
+ *         since: '1.2.0',
+ *         removed: false,
+ *     },
+ * });
+ * ```
+ * @engineInternal
+ */
+export function deprecateTopLevelInterface (deprecateList: TopLevelDeprecateList) {
+    for (let deprecateName in deprecateList) {
+        const deprecateInfo = deprecateList[deprecateName];
+        topLevelDeprecateList[deprecateName] = deprecateInfo;
+    }
+}
+
+function _checkObsoleteByName (checkName: string) {
+    const deprecateInfo = topLevelDeprecateList[checkName];
+    if (!deprecateInfo) {
+        return;
+    }
+    const { newTypeName, since, removed } = deprecateInfo;
+    if (removed) {
+        if (newTypeName) {
+            errorID(16003, checkName, since, newTypeName);
+        } else {
+            errorID(16002, checkName, since);
+        }
+    } else if (newTypeName) {
+        warnID(16001, checkName, since, newTypeName);
+    } else {
+        warnID(16000, checkName, since);
+    }
+}
+
+/**
+ * An internal method to check whether the top level interface is deprecated.
+ * DO NOT USE THIS INTERFACE.
+ *
+ * @example
+ * ```ts
+ * // print deprecate info of ButtonComponent and ToggleComponent
+ * import { ButtonComponent, ToggleComponent } from 'cc';
+ * ```
+ * @engineInternal
+ */
+export function __checkObsolete__ (checkList: string[]) {
+    for (let checkName of checkList) {
+        _checkObsoleteByName(checkName);
+    }
+}
+
+/**
+ * An internal method to check whether the top level interface is deprecated in namespace.
+ * DO NOT USE THIS INTERFACE.
+ *
+ * @example
+ * ```ts
+ * import * as cc from 'cc';
+ * console.log(cc.ButtonComponent);  // print deprecate info of ButtonComponent
+ * ```
+ * @engineInternal
+ */
+export function __checkObsoleteInNamespace__ (namespace: object) {
+    return new Proxy(namespace, {
+        get (target, name, receiver) {
+            // @ts-expect-error name could be a symbol
+            _checkObsoleteByName(name);
+            return Reflect.get(target, name, receiver);
+        },
+    });
+}
