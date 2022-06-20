@@ -49,7 +49,7 @@ const temp_matrix = new Mat4();
 
 enum MeshType {
     RECT = 0,
-    POLYGON = 1, // todo
+    POLYGON = 1, // Todo: Polygon mode need add
 }
 
 export interface IUV {
@@ -510,16 +510,30 @@ export class SpriteFrame extends Asset {
         return this._original;
     }
 
+    /**
+     * @en Number of pixels corresponding to unit size in world space (pixels per meter)
+     * @zh 世界空间中的单位大小对应的像素数量（像素每米）
+     */
     get pixelsToUnit () {
         return this._pixelsToUnit;
     }
 
+    /**
+     * @en Local origin position when generating the mesh
+     * @zh 生成 mesh 时本地坐标原点位置
+     */
     get pivot () {
         return this._pivot;
     }
 
+    /**
+     * @en mesh information
+     * @zh mesh 信息
+     */
     get mesh () {
         if (!this._mesh) {
+            // If SpriteFrame from load, we need init vertices when use mesh
+            this._initVertices();
             this.createMesh();
         }
         return this._mesh;
@@ -579,7 +593,7 @@ export class SpriteFrame extends Asset {
 
     protected _pivot = new Vec2(0.5, 0.5); // center
 
-    // todo
+    // Todo: Some features need add
     protected _meshType = MeshType.RECT;
     protected _extrude = 0; // when polygon type use
     protected _customOutLine = [];// MayBe later
@@ -1322,8 +1336,8 @@ export class SpriteFrame extends Asset {
             for (let i = 0; i < rawPosition.length; i += 3) {
                 this.vertices.rawPosition.push(new Vec3(rawPosition[i], rawPosition[i + 1], rawPosition[i + 2]));
             }
+            this._updateMeshVertices();
         }
-        this._updateMeshVertices();
     }
 
     public clone (): SpriteFrame {

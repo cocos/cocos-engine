@@ -38,12 +38,20 @@ enum SpriteMode {
     TILED = 2,
 }
 
+/**
+ * @en 2D rendering component that provides the ability to render sprite in 3D space.
+ * @zh 2D 渲染基础组件，提供精灵渲染在 3D 空间中的能力。
+ */
 @ccclass('cc.SpriteRenderer')
 @help('i18n:cc.SpriteRenderer')
 @executionOrder(100)
 @menu('2D/SpriteRenderer')
 @executeInEditMode
 export class SpriteRenderer extends ModelRenderer {
+    /**
+    * @en The spriteFrame that the component should render
+    * @zh 该组件应渲染的 spriteFrame
+    */
     @type(SpriteFrame)
     get spriteFrame () {
         return this._spriteFrame;
@@ -67,6 +75,10 @@ export class SpriteRenderer extends ModelRenderer {
         // TODO Update on Editor
     }
 
+    /**
+     * @en Rendering model of the component
+     * @zh 该组件的渲染模型
+     */
     get model () {
         return this._model;
     }
