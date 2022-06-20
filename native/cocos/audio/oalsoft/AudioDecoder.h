@@ -27,7 +27,6 @@
 #pragma once
 
 #include <cstdint>
-#include "base/std/any.h"
 #include <functional>
 
 #include <cocos/audio/include/Common.h>

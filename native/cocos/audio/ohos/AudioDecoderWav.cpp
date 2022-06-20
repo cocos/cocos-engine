@@ -55,10 +55,10 @@ bool AudioDecoderWav::open(const char *path) {
     _isOpened = (_sndHandle != nullptr) && _sndInfo.frames > 0;
     if (!_isOpened) return false;
 
-    _channelCount = _sndInfo.channels;
-    _sampleRate = _sndInfo.samplerate;
-    _bytesPerFrame = 2 * _channelCount; // short
-    _totalFrames = _sndInfo.frames;
+    _pcmHeader.channelCount = _sndInfo.channels;
+    _pcmHeader.sampleRate = _sndInfo.samplerate;
+    _pcmHeader.bytesPerFrame = 2 * _pcmHeader.channelCount; // short
+    _pcmHeader.totalFrames = _sndInfo.frames;
     return true;
 }
 
