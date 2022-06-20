@@ -132,7 +132,7 @@ export class DynamicAtlasManager {
      * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
     public insertSpriteFrame (spriteFrame) {
-        if (EDITOR) return null;
+        if (EDITOR && !legacyCC.GAME_VIEW) return null;
         if (!this._enabled || this._atlasIndex === this._maxAtlasCount
             || !spriteFrame || spriteFrame._original) return null;
 
@@ -231,7 +231,7 @@ export class DynamicAtlasManager {
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
     public packToDynamicAtlas (comp, frame) {
-        if (EDITOR) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
 
         if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);

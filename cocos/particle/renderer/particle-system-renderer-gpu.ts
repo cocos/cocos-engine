@@ -262,7 +262,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -296,7 +296,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
