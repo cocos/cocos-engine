@@ -596,7 +596,7 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(decoder->getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
         AudioDataFormat type = audioInfo.dataFormat;
         auto tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerChannelInFrame));
-        pcmData.reserve(bytesPerChannelInFrame * audioInfo.totalFrames);
+        pcmData.resize(bytesPerChannelInFrame * audioInfo.totalFrames);
         uint8_t *p = pcmData.data();
         while (remainingFrames > 0) {
             framesToReadOnce = std::min(framesToReadOnce, remainingFrames);

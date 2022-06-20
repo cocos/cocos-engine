@@ -461,7 +461,7 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         const uint32_t numFrames = data.numFrames;
         const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
 
-        pcmData.reserve(bytesPerChannelInFrame * numFrames);
+        pcmData.resize(bytesPerChannelInFrame * numFrames);
         uint8_t *p = pcmData.data();
         char *tmpBuf = data.pcmBuffer->data(); // shared ptr
         for (int itr = 0; itr < numFrames; itr++) {
