@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <functional>
 
-#include <cocos/audio/include/Common.h>
+#include <audio/include/Common.h>
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include "vorbis/vorbisfile.h"
