@@ -150,8 +150,8 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _macros["CC_USE_DEBUG_VIEW"] = static_cast<int32_t>(0);
 
     // step 2 create index buffer
-    uint ibStride = 4;
-    uint ibSize = ibStride * 6;
+    uint32_t ibStride = 4;
+    uint32_t ibSize = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                          gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
@@ -161,7 +161,7 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
         return false;
     }
 
-    uint ibData[] = {0, 1, 2, 1, 3, 2};
+    uint32_t ibData[] = {0, 1, 2, 1, 3, 2};
     _quadIB->update(ibData, sizeof(ibData));
 
     _width = swapchain->getWidth();

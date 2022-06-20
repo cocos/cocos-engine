@@ -41,13 +41,13 @@
     NSMutableArray *_dataArray;
 }
 // temp vars for dataTask: didReceivedData callback
-@property (nonatomic) int64_t bytesReceived;
-@property (nonatomic) int64_t totalBytesReceived;
+@property (nonatomic) uint32_t bytesReceived;
+@property (nonatomic) uint32_t totalBytesReceived;
 
 - (id)init:(std::shared_ptr<const cc::network::DownloadTask> &)t;
 - (const cc::network::DownloadTask *)get;
 - (void)addData:(NSData *)data;
-- (int64_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(int64_t)len;
+- (uint32_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(uint32_t)len;
 
 @end
 
@@ -149,12 +149,12 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 
 - (void)addData:(NSData *)data {
     [_dataArray addObject:data];
-    self.bytesReceived += data.length;
-    self.totalBytesReceived += data.length;
+    self.bytesReceived += static_cast<uint32_t>(data.length);
+    self.totalBytesReceived += static_cast<uint32_t>(data.length);
 }
 
-- (int64_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(int64_t)len {
-    int64_t bytesReceived = 0;
+- (uint32_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(uint32_t)len {
+    uint32_t bytesReceived = 0;
     int receivedDataObject = 0;
 
     __block char *p = (char *)buffer;
@@ -431,9 +431,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
  * information is also available as properties of the task.
  */
 //- (void)URLSession:(NSURLSession *)session task :(NSURLSessionTask *)task
-//                                 didSendBodyData:(int64_t)bytesSent
-//                                  totalBytesSent:(int64_t)totalBytesSent
-//                        totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend;
+//                                 didSendBodyData:(uint32_t)bytesSent
+//                                  totalBytesSent:(uint32_t)totalBytesSent
+//                        totalBytesExpectedToSend:(uint32_t)totalBytesExpectedToSend;
 
 /* Sent as the last message related to a specific task.  Error may be
  * nil, which implies that no error occurred and this task is complete.
@@ -466,7 +466,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
                 // (for a file download task, callback is called in didFinishDownloadingToURL)
                 ccstd::string errorString;
 
-                const int64_t buflen = [wrapper totalBytesReceived];
+                const uint32_t buflen = [wrapper totalBytesReceived];
                 ccstd::vector<unsigned char> data((size_t)buflen);
                 char *buf = (char *)data.data();
                 [wrapper transferDataToBuffer:buf lengthOfBuffer:buflen];
@@ -558,8 +558,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:dataTask];
     [wrapper addData:data];
 
-    std::function<int64_t(void *, int64_t)> transferDataToBuffer =
-        [wrapper](void *buffer, int64_t bufLen) -> int64_t {
+    std::function<uint32_t(void *, uint32_t)> transferDataToBuffer =
+        [wrapper](void *buffer, uint32_t bufLen) -> uint32_t {
         return [wrapper transferDataToBuffer:buffer lengthOfBuffer:bufLen];
     };
 
@@ -567,7 +567,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
         _outer->onTaskProgress(*[wrapper get],
                                wrapper.bytesReceived,
                                wrapper.totalBytesReceived,
-                               dataTask.countOfBytesExpectedToReceive,
+                               static_cast<uint32_t>(dataTask.countOfBytesExpectedToReceive),
                                transferDataToBuffer);
     }
 }
@@ -671,9 +671,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     }
 
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
-    std::function<int64_t(void *, int64_t)> transferDataToBuffer; // just a placeholder
+    std::function<uint32_t(void *, uint32_t)> transferDataToBuffer; // just a placeholder
     if (wrapper) {
-        _outer->onTaskProgress(*[wrapper get], bytesWritten, totalBytesWritten, totalBytesExpectedToWrite, transferDataToBuffer);
+        _outer->onTaskProgress(*[wrapper get], static_cast<uint32_t>(bytesWritten), static_cast<uint32_t>(totalBytesWritten), static_cast<uint32_t>(totalBytesExpectedToWrite), transferDataToBuffer);
     }
 }
 

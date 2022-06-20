@@ -56,9 +56,21 @@ void NativeLayoutGraphBuilder::addShader(const ccstd::string& name, uint32_t par
 
 void NativeLayoutGraphBuilder::addDescriptorBlock(
     uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    const DescriptorBlockIndex &index, const DescriptorBlockFlattened &b) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_EXPECTS(b.descriptorNames.size() == b.descriptors.size());
+    CC_EXPECTS(b.uniformBlockNames.size() == b.uniformBlocks.size());
+    DescriptorBlock block;
+    for (uint32_t i = 0; i != b.descriptorNames.size(); ++i) {
+        block.descriptors.emplace(b.descriptorNames[i], b.descriptors[i]);
+    }
+    for (uint32_t i = 0; i != b.uniformBlockNames.size(); ++i) {
+        block.uniformBlocks.emplace(b.uniformBlockNames[i], b.uniformBlocks[i]);
+    }
+    block.capacity = b.capacity;
+    block.count = b.count;
 
     CC_ASSERT(block.capacity);
     auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
@@ -75,7 +87,14 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
         const auto &d = pairD.second;
         auto iter = g.attributeIndex.find(boost::string_view(name));
         if (iter == g.attributeIndex.end()) {
-            throw std::out_of_range("attribute not found");
+            auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
+            g.valueNames.emplace_back(name);
+            bool added = false;
+            std::tie(iter, added) = g.attributeIndex.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(name),
+                std::forward_as_tuple(NameLocalID{attrID}));
+            CC_ENSURES(added);
         }
         const auto &nameID = iter->second;
         dstBlock.descriptors.emplace_back(nameID, d.count);
@@ -135,7 +154,7 @@ IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
 
 void NativeLayoutGraphBuilder::reserveDescriptorBlock(
     uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
 
@@ -212,7 +231,7 @@ ccstd::string getName(gfx::ShaderStageFlagBit stage) {
         }
         oss << "Compute";
     }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::ALL)) {
+    if (hasAllFlags(stage, gfx::ShaderStageFlagBit::ALL)) {
         if (count++) {
             oss << " | ";
         }

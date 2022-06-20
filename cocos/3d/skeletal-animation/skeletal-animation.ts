@@ -185,6 +185,16 @@ export class SkeletalAnimation extends Animation {
         this._removeAllUsers();
     }
 
+    public onEnable () {
+        super.onEnable();
+        this._currentBakedState?.resume();
+    }
+
+    public onDisable () {
+        super.onDisable();
+        this._currentBakedState?.pause();
+    }
+
     public start () {
         this.sockets = this._sockets;
         this.useBakedAnimation = this._useBakedAnimation;

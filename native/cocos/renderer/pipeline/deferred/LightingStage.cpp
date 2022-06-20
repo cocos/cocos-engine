@@ -52,7 +52,7 @@ namespace pipeline {
 namespace {
 
 const ccstd::string STAGE_NAME = "LightingStage";
-const uint MAX_REFLECTOR_SIZE = 5;
+const uint32_t MAX_REFLECTOR_SIZE = 5;
 framegraph::StringHandle reflectTexHandle = framegraph::FrameGraph::stringToHandle("reflectionTex");
 framegraph::StringHandle denoiseTexHandle[MAX_REFLECTOR_SIZE];
 framegraph::StringHandle ssprClearPass[MAX_REFLECTOR_SIZE];
@@ -87,8 +87,8 @@ void initStrHandle() {
 
 RenderStageInfo LightingStage::initInfo = {
     STAGE_NAME,
-    static_cast<uint>(DeferredStagePriority::LIGHTING),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(DeferredStagePriority::LIGHTING),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
 };
 
 const RenderStageInfo &LightingStage::getInitializeInfo() { return LightingStage::initInfo; }
@@ -119,10 +119,10 @@ void LightingStage::gatherLights(scene::Camera *camera) {
 
     geometry::Sphere sphere;
     auto exposure = camera->getExposure();
-    uint idx = 0;
+    uint32_t idx = 0;
     int elementLen = sizeof(cc::Vec4) / sizeof(float);
-    uint fieldLen = elementLen * _maxDeferredLights;
-    uint offset = 0;
+    uint32_t fieldLen = elementLen * _maxDeferredLights;
+    uint32_t offset = 0;
     cc::Vec4 tmpArray;
 
     for (const auto &light : scene->getSphereLights()) {
@@ -239,8 +239,8 @@ void LightingStage::initLightingBuffer() {
     auto *const device = _pipeline->getDevice();
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
-    uint stride = utils::alignTo<uint32_t>(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
-    uint totalSize = stride * _maxDeferredLights;
+    auto stride = utils::alignTo<uint32_t>(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
+    uint32_t totalSize = stride * _maxDeferredLights;
 
     // create lighting buffer and view
     if (_deferredLitsBufs == nullptr) {
@@ -256,7 +256,7 @@ void LightingStage::initLightingBuffer() {
     if (_deferredLitsBufView == nullptr) {
         gfx::BufferViewInfo bvInfo = {_deferredLitsBufs, 0, totalSize};
         _deferredLitsBufView = device->createBuffer(bvInfo);
-        _descriptorSet->bindBuffer(static_cast<uint>(ModelLocalBindings::UBO_FORWARD_LIGHTS), _deferredLitsBufView);
+        _descriptorSet->bindBuffer(static_cast<uint32_t>(ModelLocalBindings::UBO_FORWARD_LIGHTS), _deferredLitsBufView);
     }
 
     _lightBufferData.resize(totalSize / sizeof(float));
@@ -268,7 +268,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     auto *const device = pipeline->getDevice();
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint phase = convertPhase(descriptor.stages);
+        uint32_t phase = convertPhase(descriptor.stages);
         RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
@@ -376,8 +376,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA16F;
         colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-        colorTexInfo.width = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
-        colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
+        colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+        colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale);
         data.outputTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
@@ -400,18 +400,18 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         // no need to bind localSet in cluster
         if (!_pipeline->isClusterEnabled()) {
-            ccstd::vector<uint> dynamicOffsets = {0};
+            ccstd::vector<uint32_t> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
 
-        const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
         // get PSO and draw quad
         scene::Pass *pass = sceneData->getLightPass();
         gfx::Shader *shader = sceneData->getLightPassShader();
         gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, _inputAssembler, table.getRenderPass(), table.getSubpassIndex());
 
-        for (uint i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
+        for (uint32_t i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
             pass->getDescriptorSet()->bindSampler(i, _defaultSampler);
         }
@@ -443,7 +443,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         }
     };
 
-    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_LIGHTING), DeferredPipeline::fgStrHandleLightingPass, lightingSetup, lightingExec);
+    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_LIGHTING), DeferredPipeline::fgStrHandleLightingPass, lightingSetup, lightingExec);
 }
 
 void LightingStage::fgTransparent(scene::Camera *camera) {
@@ -469,8 +469,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;
             colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-            colorTexInfo.width = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
-            colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
+            colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale);
 
             colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
             colorAttachmentInfo.clearColor = clearColor;
@@ -493,8 +493,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
                 gfx::TextureType::TEX2D,
                 gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
                 gfx::Format::DEPTH_STENCIL,
-                static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
-                static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
+                static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+                static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
             };
             data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
             depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
@@ -512,11 +512,11 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 
         // no need to bind localSet in cluster
         if (!_pipeline->isClusterEnabled()) {
-            ccstd::vector<uint> dynamicOffsets = {0};
+            ccstd::vector<uint32_t> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
 
-        const ccstd::array<uint, 1> globalOffsets = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        const ccstd::array<uint32_t, 1> globalOffsets = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
         // transparent
@@ -530,7 +530,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
     };
 
     if (!_isTransparentQueueEmpty || !camera->getGeometryRenderer()->empty()) {
-        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_TRANSPARENT),
+        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_TRANSPARENT),
                                                       DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);
     }
 }
@@ -543,8 +543,8 @@ void LightingStage::putTransparentObj2Queue() {
     auto *const sceneData = _pipeline->getPipelineSceneData();
     const auto &renderObjects = sceneData->getRenderObjects();
     _isTransparentQueueEmpty = true;
-    uint m = 0;
-    uint p = 0;
+    uint32_t m = 0;
+    uint32_t p = 0;
     size_t k = 0;
     for (auto ro : renderObjects) {
         m = 0;
@@ -582,9 +582,9 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     _reflectionElems.clear();
 
     // step 1 prepare clear model's reflection texture pass. should switch to image clear command after available
-    uint minSize = 512;
-    uint width = pipeline->getWidth();
-    uint height = pipeline->getHeight();
+    uint32_t minSize = 512;
+    uint32_t width = pipeline->getWidth();
+    uint32_t height = pipeline->getHeight();
     if (height < width) {
         _ssprTexWidth = minSize * width / height;
         _ssprTexHeight = minSize;
@@ -741,7 +741,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         _reflectionComp->getDenoiseDescriptorSet()->bindSampler(0, _reflectionComp->getSampler());
 
         if (useEnvmap) {
-            _reflectionComp->getDenoiseDescriptorSet()->bindTexture(1, pipeline->getDescriptorSet()->getTexture(static_cast<uint>(PipelineGlobalBindings::SAMPLER_ENVIRONMENT)));
+            _reflectionComp->getDenoiseDescriptorSet()->bindTexture(1, pipeline->getDescriptorSet()->getTexture(static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_ENVIRONMENT)));
             _reflectionComp->getDenoiseDescriptorSet()->bindSampler(1, _reflectionComp->getSampler());
             _reflectionComp->getDenoiseDescriptorSet()->bindTexture(2, depth);
             _reflectionComp->getDenoiseDescriptorSet()->bindSampler(2, _reflectionComp->getSampler());
@@ -817,8 +817,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         gfx::DescriptorSet *descLocal = elem.set; // sub model descriptor set
         auto *denoiseTex = static_cast<gfx::Texture *>(table.getRead(data.denoise));
 
-        descLocal->bindTexture(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), denoiseTex);
-        descLocal->bindSampler(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), _defaultSampler);
+        descLocal->bindTexture(static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION), denoiseTex);
+        descLocal->bindSampler(static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION), _defaultSampler);
         descLocal->update();
         cmdBuff->bindDescriptorSet(localSet, descLocal);
 
@@ -833,8 +833,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     // step 5 add framegraph passes
     auto *const sceneData = _pipeline->getPipelineSceneData();
     const auto &renderObjects = sceneData->getRenderObjects();
-    uint m = 0;
-    uint p = 0;
+    uint32_t m = 0;
+    uint32_t p = 0;
     for (const auto &ro : renderObjects) {
         const auto *model = ro.model;
         const auto &subModels = model->getSubModels();
@@ -852,15 +852,15 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         }
     }
 
-    uint insertPoint = static_cast<uint>(DeferredInsertPoint::DIP_SSPR);
-    for (uint i = 0; i < _reflectionElems.size(); ++i) {
+    auto insertPoint = static_cast<uint32_t>(DeferredInsertPoint::DIP_SSPR);
+    for (uint32_t i = 0; i < _reflectionElems.size(); ++i) {
         // add clear and comp passes here
         pipeline->getFrameGraph().addPass<DataClear>(insertPoint++, ssprClearPass[i], clearSetup, clearExec);
         pipeline->getFrameGraph().addPass<DataCompReflect>(insertPoint++, ssprCompReflectPass[i], compReflectSetup, compReflectExec);
         pipeline->getFrameGraph().addPass<DataCompDenoise>(insertPoint++, ssprCompDenoisePass[i], compDenoiseSetup, compDenoiseExec);
     }
 
-    for (uint i = 0; i < _reflectionElems.size(); ++i) {
+    for (uint32_t i = 0; i < _reflectionElems.size(); ++i) {
         // add graphic pass here
         pipeline->getFrameGraph().addPass<DataRender>(insertPoint++, ssprRenderPass[i], renderSetup, renderExec);
     }

@@ -1589,7 +1589,7 @@ static bool js_render_LayoutGraphBuilder_addDescriptorBlock(se::State& s) // NOL
     if (argc == 3) {
         HolderType<unsigned int, false> arg0 = {};
         HolderType<cc::render::DescriptorBlockIndex, true> arg1 = {};
-        HolderType<cc::render::DescriptorBlock, true> arg2 = {};
+        HolderType<cc::render::DescriptorBlockFlattened, true> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -1732,7 +1732,7 @@ static bool js_render_LayoutGraphBuilder_reserveDescriptorBlock(se::State& s) //
     if (argc == 3) {
         HolderType<unsigned int, false> arg0 = {};
         HolderType<cc::render::DescriptorBlockIndex, true> arg1 = {};
-        HolderType<cc::render::DescriptorBlock, true> arg2 = {};
+        HolderType<cc::render::DescriptorBlockFlattened, true> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());

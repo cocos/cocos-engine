@@ -68,7 +68,7 @@ void CCWGPUCommandBuffer::doDestroy() {
     }
 }
 
-void CCWGPUCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subpass*/, Framebuffer * /*frameBuffer*/) {
+void CCWGPUCommandBuffer::begin(RenderPass * /*renderPass*/, uint32_t /*subpass*/, Framebuffer * /*frameBuffer*/) {
     //TODO_Zeqiang: subpass support
     //   printf("begin\n");
     _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
@@ -96,7 +96,7 @@ void CCWGPUCommandBuffer::end() {
     }
 }
 
-void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _renderPass = renderPass;
     _frameBuffer = fbo;
 
@@ -196,9 +196,9 @@ void CCWGPUCommandBuffer::bindPipelineState(PipelineState *pso) {
     _gpuCommandBufferObj->stateCache.pipelineState = static_cast<CCWGPUPipelineState *>(pso);
 }
 
-void CCWGPUCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    uint dynOffsetCount = dynamicOffsetCount;
-    const uint *dynOffsets = dynamicOffsets;
+void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
+    uint32_t dynOffsetCount = dynamicOffsetCount;
+    const uint32_t *dynOffsets = dynamicOffsets;
     auto &descriptorSets = _gpuCommandBufferObj->stateCache.descriptorSets;
     auto iter = std::find_if(descriptorSets.begin(), descriptorSets.end(), [set](const CCWGPUDescriptorSetObject &descriptorSet) {
         return descriptorSet.index == set;
@@ -255,11 +255,11 @@ void CCWGPUCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
     _gpuCommandBufferObj->stateCache.depthMaxBound = maxBounds;
 }
 
-void CCWGPUCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
+void CCWGPUCommandBuffer::setStencilWriteMask(StencilFace face, uint32_t mask) {
     _gpuCommandBufferObj->stateCache.stencilMasks[face].writeMask = mask;
 }
 
-void CCWGPUCommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
+void CCWGPUCommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) {
     _gpuCommandBufferObj->stateCache.stencilMasks[face].compareRef = ref;
     _gpuCommandBufferObj->stateCache.stencilMasks[face].compareMask = mask;
 }
@@ -286,9 +286,9 @@ void CCWGPUCommandBuffer::bindStates() {
             descriptorSets[i].descriptorSet->prepare();
 
             if (descriptorSets[i].descriptorSet->dynamicOffsetCount() != descriptorSets[i].dynamicOffsetCount) {
-                uint *dynOffsets = dynamicOffsetBuffer;
+                uint32_t *dynOffsets = dynamicOffsetBuffer;
                 const Pairs &dynamicOffsets = descriptorSets[i].descriptorSet->dynamicOffsets();
-                uint givenOffsetIndex = 0;
+                uint32_t givenOffsetIndex = 0;
                 for (size_t j = 0; j < descriptorSets[i].descriptorSet->dynamicOffsetCount(); ++j) {
                     if (j >= descriptorSets[i].dynamicOffsetCount || dynamicOffsets[j].second == 0) {
                         dynOffsets[j] = 0;
@@ -525,7 +525,7 @@ void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
     }
 }
 
-void CCWGPUCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+void CCWGPUCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     uint32_t alignedSize = ceil(size / 4.0) * 4;
     size_t buffSize = alignedSize;
 
@@ -560,7 +560,7 @@ void CCWGPUCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size
     }
 }
 
-void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     for (size_t i = 0; i < count; i++) {
         WGPUOrigin3D origin = {
             .x = static_cast<uint32_t>(regions[i].texOffset.x),
@@ -579,7 +579,7 @@ void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Te
         uint32_t width = regions[i].texExtent.width;
         uint32_t height = regions[i].texExtent.height;
         uint32_t depth = regions[i].texExtent.depth;
-        uint32_t bytesPerRow = GFX_FORMAT_INFOS[static_cast<uint>(ccTex->getFormat())].size * width;
+        uint32_t bytesPerRow = GFX_FORMAT_INFOS[static_cast<uint32_t>(ccTex->getFormat())].size * width;
         uint32_t dataSize = bytesPerRow * height * depth;
 
         WGPUTextureDataLayout texLayout = {
@@ -598,7 +598,7 @@ void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Te
     }
 }
 
-void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     for (size_t i = 0; i < count; i++) {
         auto *srcTex = static_cast<CCWGPUTexture *>(srcTexture);
         auto *dstTex = static_cast<CCWGPUTexture *>(dstTexture);
@@ -663,7 +663,7 @@ void CCWGPUCommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void CCWGPUCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+void CCWGPUCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
 }
 
 void CCWGPUCommandBuffer::updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list) {

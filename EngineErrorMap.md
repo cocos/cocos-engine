@@ -3263,3 +3263,8 @@ Diffuse map resource is missing, please change environment lighting type to rege
 ### 15003
 
 The shadow visible distance is so small that CSM stratification is not effective, Please change the value of shadowDistance so that it is 10 times greater than 0.1
+
+
+### 15004
+
+The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.

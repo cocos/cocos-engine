@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include <type_traits>
-#include "base/CachedArray.h"
+#include "core/memop/CachedArray.h"
 
 namespace cc {
 namespace gfx {

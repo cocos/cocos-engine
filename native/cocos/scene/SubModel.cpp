@@ -74,7 +74,7 @@ void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>
     }
 }
 
-gfx::Shader *SubModel::getShader(uint index) const {
+gfx::Shader *SubModel::getShader(uint32_t index) const {
     if (index >= _shaders.size()) {
         return nullptr;
     }
@@ -82,7 +82,7 @@ gfx::Shader *SubModel::getShader(uint index) const {
     return _shaders[index];
 }
 
-Pass *SubModel::getPass(uint index) const {
+Pass *SubModel::getPass(uint32_t index) const {
     auto &passes = *_passes;
     if (index >= passes.size()) {
         return nullptr;
@@ -236,7 +236,7 @@ void SubModel::flushPassInfo() {
         _shaders.clear();
     }
     _shaders.resize(passes.size());
-    for (uint i = 0; i < passes.size(); ++i) {
+    for (size_t i = 0; i < passes.size(); ++i) {
         _shaders[i] = passes[i]->getShaderVariant(_patches);
     }
 }

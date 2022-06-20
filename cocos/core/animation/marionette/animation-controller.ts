@@ -160,6 +160,17 @@ export class AnimationController extends Component {
     }
 
     /**
+     * @zh 获取层级权重。
+     * @en Gets the weight of specified layer.
+     * @param layer @en Index of the layer. @zh 层级索引。
+     */
+    public getLayerWeight (layer: number) {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        return graphEval.getLayerWeight(layer);
+    }
+
+    /**
      * @zh 设置层级权重。
      * @en Sets the weight of specified layer.
      * @param layer @en Index of the layer. @zh 层级索引。

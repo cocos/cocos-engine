@@ -317,7 +317,6 @@ cocos_source_files(
     cocos/base/astc.h
     cocos/base/base64.cpp
     cocos/base/base64.h
-    cocos/base/CachedArray.h
     cocos/base/Config.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.h
@@ -1703,7 +1702,6 @@ cocos_source_files(
 
     # memop
     cocos/core/memop/CachedArray.h
-    cocos/core/memop/CachedArray.cpp
     cocos/core/memop/Pool.h
     cocos/core/memop/Pool.cpp
     cocos/core/memop/RecyclePool.h

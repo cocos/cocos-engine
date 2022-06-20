@@ -216,7 +216,6 @@ void Engine::close() { // NOLINT
     
 
     // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
-    destroy();
     exit(0);
 }
 

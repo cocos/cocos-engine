@@ -19281,6 +19281,30 @@ static bool js_assets_Mesh_readAttribute(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_assets_Mesh_readAttribute)
 
+static bool js_assets_Mesh_readAttributeFormat(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_readAttributeFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<const char*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_readAttributeFormat : Error processing arguments");
+        const cc::gfx::FormatInfo* result = cobj->readAttributeFormat(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_readAttributeFormat : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Mesh_readAttributeFormat)
+
 static bool js_assets_Mesh_readIndices(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
@@ -19509,6 +19533,7 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("initialize", _SE(js_assets_Mesh_initialize));
     cls->defineFunction("merge", _SE(js_assets_Mesh_merge));
     cls->defineFunction("readAttribute", _SE(js_assets_Mesh_readAttribute));
+    cls->defineFunction("readAttributeFormat", _SE(js_assets_Mesh_readAttributeFormat));
     cls->defineFunction("readIndices", _SE(js_assets_Mesh_readIndices));
     cls->defineFunction("reset", _SE(js_assets_Mesh_reset));
     cls->defineFunction("setStruct", _SE(js_assets_Mesh_setStruct));

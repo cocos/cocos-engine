@@ -634,7 +634,7 @@ export class Game extends EventTarget {
         }
 
         return this._initEngine().then(() => {
-            if (!EDITOR) {
+            if (!EDITOR || legacyCC.GAME_VIEW) {
                 this._initEvents();
             }
 
