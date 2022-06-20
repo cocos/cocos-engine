@@ -696,8 +696,6 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url){
     return header;
 }
 
-
-
 ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     ccstd::vector<uint8_t> pcmData;
@@ -724,10 +722,10 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(decoder.getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
         const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
                 
-        pcmData.resize(bytesPerChannelInFrame * totalFrames);
+        pcmData.reserve(bytesPerChannelInFrame * totalFrames);
         uint8_t *p = pcmData.data();
-        char *tmpBuf;
-        tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerFrame));
+        
+        auto tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerFrame));
         
         while (remainingFrames > 0) {
             framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
@@ -739,7 +737,7 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
             remainingFrames -= framesToReadOnce;
             
         };
-        
+        free(tmpBuf);
         // Adjust total frames by setting position to the end of frames and try to read more data.
         // This is a workaround for https://github.com/cocos2d/cocos2d-x/issues/16938
         if (decoder.seek(totalFrames)) {
@@ -754,9 +752,8 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
                     }
                 }
             } while (framesRead > 0);
-            
+            free(tmpBuf);
         }
-        free(tmpBuf);
         BREAK_IF_ERR_LOG(!decoder.seek(0), "AudioDecoder::seek(0) failed!");
     } while (false);
     decoder.close();

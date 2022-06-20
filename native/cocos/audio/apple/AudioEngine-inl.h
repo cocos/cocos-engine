@@ -28,7 +28,7 @@
 
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
-#include "audio/include/Common.h"
+#include "audio/include/AudioDef.h"
 #include "base/RefCounted.h"
 #include "base/std/container/list.h"
 #include "base/std/container/unordered_map.h"

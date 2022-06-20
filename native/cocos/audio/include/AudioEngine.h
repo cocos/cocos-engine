@@ -30,7 +30,7 @@
 #include <chrono>
 #include <functional>
 #include "audio/include/Export.h"
-#include "audio/include/Common.h"
+#include "audio/include/AudioDef.h"
 #include "base/Macros.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"

@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 #include "audio/oalsoft/AudioCache.h"
-#include "audio/include/Common.h"
+#include "audio/include/AudioDef.h"
 #include "audio/oalsoft/AudioPlayer.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/RefCounted.h"

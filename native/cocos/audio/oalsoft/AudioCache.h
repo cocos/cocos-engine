@@ -64,8 +64,8 @@ public:
 
     void addLoadCallback(const std::function<void(bool)> &callback);
 
-    uint32_t getChannelCount() { return _channelCount; }
-    bool isStreaming() { return _isStreaming; }
+    uint32_t getChannelCount() const { return _channelCount; }
+    bool isStreaming() const { return _isStreaming; }
 
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };

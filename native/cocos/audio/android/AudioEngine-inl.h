@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "base/Utils.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "audio/include/Common.h"
+#include "audio/include/AudioDef.h"
 #define MAX_AUDIOINSTANCES 13
 
 #define ERRORLOG(msg) log("fun:%s,line:%d,msg:%s", __func__, __LINE__, #msg)

@@ -5,7 +5,7 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "audio/include/AudioEngine.h"
-#include "audio/include/Common.h"
+#include "audio/include/AudioDef.h"
 #include "v8/HelperMacros.h"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
