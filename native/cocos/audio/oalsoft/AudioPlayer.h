@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -59,6 +58,7 @@ public:
     bool setTime(float time);
     float getTime() { return _currTime; }
     bool setLoop(bool loop);
+
 protected:
     void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);

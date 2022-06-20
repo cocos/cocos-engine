@@ -329,7 +329,8 @@ public:
      * @brief Get the Buffer object
      * 
      * @param channelID as there might be several channels at same time, select one to get buffer. 
-     * @return float* PCM datas behave as float array
+     * Start from 0
+     * @return PCM datas behave as a ccstd::vector<char>. You can check byte length in WavePCMHeader.
      */
     static ccstd::vector<char> getOriginalPCMBuffer(const char *url, uint32_t channelID);
 

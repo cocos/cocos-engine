@@ -139,7 +139,7 @@ declare namespace jsb {
         export function setFinishCallback (id: number, cb: () => void);
 
         /**
-         * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer and getPCMBufferByFormat instead
+         * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer instead
          */
         export function getPCMHeader (url: string) : PCMHeader;
         /**

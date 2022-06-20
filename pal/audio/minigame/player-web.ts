@@ -7,19 +7,6 @@ import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { AudioEvent, AudioState, AudioType } from '../type';
 
-enum AudioFormat {
-    UNKNOWN = 0,
-    SIGNED_8,
-    UNSIGNED_8,
-    SIGNED_16,
-    UNSIGNED_16,
-    SIGNED_24,
-    UNSIGNED_24,
-    SIGNED_32,
-    UNSIGNED_32,
-    FLOAT_32,
-    FLOAT_64
-}
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();
 
@@ -93,12 +80,6 @@ export class AudioPlayerWeb implements OperationQueueable {
      */
     public _operationQueue: OperationInfo[] = [];
 
-    public getSampleRate (): number {
-        return this._audioBuffer.sampleRate;
-    }
-    public getBuffer (channelID: number): Float32Array {
-        return this._audioBuffer.getChannelData(channelID);
-    }
     constructor (audioBuffer: AudioBuffer, url: string) {
         this._audioBuffer = audioBuffer;
         this._audioTimer = new AudioTimer(audioBuffer);
@@ -214,18 +195,6 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     get currentTime (): number {
         return this._audioTimer.currentTime;
-    }
-    get pcmHeader (): any {
-        return {
-            totalFrames: this._audioBuffer.length,
-            sampleRate: this._audioBuffer.sampleRate,
-            bytesPerFrame: 4, //Float32 always refers to 4 bytes
-            audioFormat: AudioFormat.FLOAT_32,
-            channelCount: this._audioBuffer.numberOfChannels,
-        };
-    }
-    getPCMBuffer (channelID: number): Float32Array | undefined {
-        return this._audioBuffer.getChannelData(channelID);
     }
     @enqueueOperation
     seek (time: number): Promise<void> {
