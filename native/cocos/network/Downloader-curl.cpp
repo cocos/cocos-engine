@@ -241,7 +241,7 @@ public:
             
             // At this time, the version used by NX SDK 15.0.0 is 7.64.1.So this version of the interface inot thread safe
             // This function sets up the program environment that libcurl needs 
-            CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);s 
+            CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);
             if (res != CURLE_OK) {
                 CC_LOG_ERROR("curl_global_init failed. Err: %d\n\n", res);
             }
