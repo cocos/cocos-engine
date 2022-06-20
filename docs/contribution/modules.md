@@ -4,10 +4,10 @@
 ## Public modules
 
 Modules under `/exports` are considered as public modules.
-**Only** public modules are visible to users.
-Other modules transitively imported from public modules are private.
+**Only** the bindings exported from public modules are visible to users.
+Other modules even transitively imported from public modules are private.
 
-The module `'cc'` is a module which export all from specific public modules:
+The module `'cc'` is an artificial module which exports all from specific public modules:
 
 ```ts
 /* The source of module 'cc', for explanation purpose only */
@@ -50,8 +50,9 @@ If your API need to be in a brand new public module, you need to create the new 
 
 ## Create public module
 
-Creating a public module is simply add a module file under `/exports`.
+Creating a public module is simply adding a module file under `/exports`.
+Then, you need some extra steps to bring your public module to users:
 
-Besides this, you need to config the category of the public module and whether the public module is defaulted, etc.
+- Add an new element into `features` array in [cc.config.json](../../cc.config.json), **feature** means a feature set which might be selected by user. `modules` field indicates which public modules(see above) should be considered included while this feature is enabled. Each element of `modules` should be the extension-less file name of a public module. That JSON configuration file should have been associated with a schema file. For more fields or controls over that file, see the schema file.
 
-Take a look at the `/cc.config.json`. The `features` field is the name(s) of public modules.
+- Navigate to [render-config.json](../../editor/engine-features/render-config.json) to configure the feature's exterior in Editor. Also there's an associated schema file.

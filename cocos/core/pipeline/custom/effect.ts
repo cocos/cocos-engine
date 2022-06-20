@@ -2,9 +2,11 @@ import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
-import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
-import { Pipeline } from './pipeline';
-import { UniformBlock } from '../../gfx';
+import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphData, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { LayoutGraphBuilder, Pipeline } from './pipeline';
+import { Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { ParameterType, UpdateFrequency } from './types';
+import { WebLayoutGraphBuilder } from './web-layout-graph';
 
 function descriptorBlock2Flattened (block: DescriptorBlock, flattened: DescriptorBlockFlattened): void {
     block.descriptors.forEach((value, key) => {
@@ -23,30 +25,7 @@ function descriptorBlock2Flattened (block: DescriptorBlock, flattened: Descripto
     flattened.capacity = block.capacity;
 }
 
-export function rebuildLayoutGraph (): void {
-    const root = legacyCC.director.root;
-    if (!root.usesCustomPipeline) {
-        return;
-    }
-    if (EffectAsset.isLayoutValid()) {
-        return;
-    }
-    console.log('rebuildLayoutGraph begin');
-    const ppl: Pipeline = root.customPipeline;
-    const effects = EffectAsset.getAll();
-    const lg = new WebDescriptorHierarchy();
-    const lgData = ppl.layoutGraphBuilder;
-    lgData.clear();
-
-    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true);
-
-    for (const n in effects) {
-        const e: EffectAsset = effects[n];
-        lg.addEffect(e, defaultStage);
-    }
-
-    const graph: LayoutGraph = lg.layoutGraph;
-
+function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGraphBuilder) {
     for (const v of graph.vertices()) {
         const db: DescriptorDB = graph.getDescriptors(v);
         let vid = 0;
@@ -74,7 +53,89 @@ export function rebuildLayoutGraph (): void {
 
     lgData.compile();
     console.log(lgData.print());
+}
+
+export function rebuildLayoutGraph (): void {
+    const root = legacyCC.director.root;
+    if (!root.usesCustomPipeline) {
+        return;
+    }
+    if (EffectAsset.isLayoutValid()) {
+        return;
+    }
+    console.log('rebuildLayoutGraph begin');
+    const ppl: Pipeline = root.customPipeline;
+    const effects = EffectAsset.getAll();
+    const lg = new WebDescriptorHierarchy();
+    const lgData = ppl.layoutGraphBuilder;
+    lgData.clear();
+
+    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true);
+
+    for (const n in effects) {
+        const e: EffectAsset = effects[n];
+        lg.addEffect(e, defaultStage);
+    }
+
+    buildLayoutGraphDataImpl(lg.layoutGraph, lgData);
 
     EffectAsset.setLayoutValid();
     console.log('rebuildLayoutGraph end');
+}
+
+enum DeferredStage {
+    GEOMETRY,
+    LIGHTING,
+}
+
+// eslint-disable-next-line max-len
+function getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
+    const blockIndex: DescriptorBlockIndex = new DescriptorBlockIndex(freq, paraType, descType, vis);
+    const key = JSON.stringify(blockIndex);
+    if (descriptorDB.blocks.get(key) === undefined) {
+        const uniformBlock: DescriptorBlock = new DescriptorBlock();
+        descriptorDB.blocks.set(key, uniformBlock);
+
+        // uniformBlock['blockIndex'] = blockIndex;
+    }
+    return descriptorDB.blocks.get(key) as DescriptorBlock;
+}
+
+export function buildDeferredPipelineLayoutGraph (): LayoutGraph {
+    const lg = new LayoutGraph();
+
+    const geometryPassID = lg.addVertex(LayoutGraphValue.RenderStage,
+        DeferredStage.GEOMETRY, 'Geometry', new DescriptorDB());
+
+    const lightingPassID = lg.addVertex(LayoutGraphValue.RenderStage,
+        DeferredStage.LIGHTING, 'Lighting', new DescriptorDB());
+
+    const geometryQueueID = lg.addVertex(LayoutGraphValue.RenderPhase,
+        new RenderPhase(), 'Dispatch', new DescriptorDB(), geometryPassID);
+
+    const lightingQueueID = lg.addVertex(LayoutGraphValue.RenderPhase,
+        new RenderPhase(), 'Dispatch', new DescriptorDB(), lightingPassID);
+
+    const lightingDescriptors = lg.getDescriptors(lightingQueueID);
+
+    const perInstance = getLayoutBlock(UpdateFrequency.PER_PASS, ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, lightingDescriptors);
+
+    perInstance.capacity = 4;
+    perInstance.count = 4;
+    perInstance.descriptors.set('gbuffer_albedoMap', new Descriptor(Type.FLOAT4));
+    perInstance.descriptors.set('gbuffer_normalMap', new Descriptor(Type.FLOAT4));
+    perInstance.descriptors.set('gbuffer_emissiveMap', new Descriptor(Type.FLOAT4));
+    perInstance.descriptors.set('depth_stencil', new Descriptor(Type.FLOAT4));
+
+    return lg;
+}
+
+export function buildDeferredPipelineLayoutGraphData (device: Device): LayoutGraphData {
+    const lg = buildDeferredPipelineLayoutGraph();
+    const lgData = new LayoutGraphData();
+    const builder = new WebLayoutGraphBuilder(device, lgData);
+    buildLayoutGraphDataImpl(lg, builder);
+    builder.compile();
+    return lgData;
 }

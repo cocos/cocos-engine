@@ -24,8 +24,8 @@ CCEffect %{
 
 CCProgram terrain-brush-vs %{
   precision mediump float;
-  #include <cc-global>
-  #include <cc-local>
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
 
   in vec3 a_position;
 
@@ -49,7 +49,7 @@ CCProgram terrain-brush-vs %{
 
 CCProgram terrain-brush-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec4 wposition;
 

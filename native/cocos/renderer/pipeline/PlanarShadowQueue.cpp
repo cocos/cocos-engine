@@ -59,7 +59,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
     }
 
     const auto *scene = camera->getScene();
-    const bool shadowVisible = camera->getVisibility() & static_cast<uint>(LayerList::DEFAULT);
+    const bool shadowVisible = camera->getVisibility() & static_cast<uint32_t>(LayerList::DEFAULT);
     if (!scene->getMainLight() || !shadowVisible) {
         return;
     }

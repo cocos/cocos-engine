@@ -94,7 +94,7 @@
 
       //#todo: cluster related lighting flow
       #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
-        //#include <shading-cluster-additive>
+        //#include <legacy/shading-cluster-additive>
       #endif
     }
   #endif

@@ -44,9 +44,9 @@ CCEffect %{
 
 CCProgram bloom-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <common>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
 
   out vec2 v_uv;
 
@@ -62,8 +62,8 @@ CCProgram bloom-vs %{
 
 CCProgram prefilter-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <gamma>
+  #include <builtin/uniforms/cc-global>
+  #include <common/color/gamma>
 
   in vec2 v_uv;
 
@@ -91,7 +91,7 @@ CCProgram prefilter-fs %{
 
 CCProgram downsample-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 v_uv;
 
@@ -133,7 +133,7 @@ CCProgram downsample-fs %{
 
 CCProgram upsample-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 v_uv;
 
@@ -175,7 +175,7 @@ CCProgram upsample-fs %{
 
 CCProgram combine-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 v_uv;
 

@@ -20,8 +20,8 @@ CCEffect %{
 
 CCProgram grid-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
   in vec2 a_position;
 
   in vec4 a_color;
@@ -40,7 +40,7 @@ CCProgram grid-vs %{
 CCProgram grid-fs %{
   precision mediump float;
   in vec4 color;
-  #include <output>
+  #include <legacy/output>
 
   vec4 frag () {
     vec4 o = vec4(1, 1, 1, 1);

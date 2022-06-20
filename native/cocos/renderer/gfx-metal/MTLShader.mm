@@ -219,8 +219,8 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
     return true;
 }
 
-id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint* index, int* val, uint count) {
-    uint notEvenHash = 0;
+id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint32_t* index, int* val, uint32_t count) {
+    uint32_t notEvenHash = 0;
     for (size_t i = 0; i < count; i++) {
         notEvenHash += val[i] * std::pow(10, index[i]);
     }
@@ -272,7 +272,7 @@ id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint* index, int* val, u
     return [_specializedFragFuncs valueForKey:hashStr];
 }
 
-uint CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream) {
+uint32_t CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint32_t stream) {
     if (hasFlag(stage, ShaderStageFlagBit::VERTEX)) {
         return _availableVertexBufferBindingIndex.at(stream);
     }
@@ -286,10 +286,10 @@ uint CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint 
 }
 
 void CCMTLShader::setAvailableBufferBindingIndex() {
-    uint usedVertexBufferBindingIndexes = 0;
-    uint usedFragmentBufferBindingIndexes = 0;
-    uint vertexBindingCount = 0;
-    uint fragmentBindingCount = 0;
+    uint32_t usedVertexBufferBindingIndexes = 0;
+    uint32_t usedFragmentBufferBindingIndexes = 0;
+    uint32_t vertexBindingCount = 0;
+    uint32_t fragmentBindingCount = 0;
     for (const auto& block : _gpuShader->blocks) {
         if (hasFlag(block.second.stages, ShaderStageFlagBit::VERTEX)) {
             vertexBindingCount++;
@@ -304,10 +304,10 @@ void CCMTLShader::setAvailableBufferBindingIndex() {
     auto maxBufferBindingIndex = CCMTLDevice::getInstance()->getMaximumBufferBindingIndex();
     _availableVertexBufferBindingIndex.resize(maxBufferBindingIndex - vertexBindingCount);
     _availableFragmentBufferBindingIndex.resize(maxBufferBindingIndex - fragmentBindingCount);
-    uint availableVertexBufferBit = ~usedVertexBufferBindingIndexes;
-    uint availableFragmentBufferBit = ~usedFragmentBufferBindingIndexes;
+    uint32_t availableVertexBufferBit = ~usedVertexBufferBindingIndexes;
+    uint32_t availableFragmentBufferBit = ~usedFragmentBufferBindingIndexes;
     int theBit = maxBufferBindingIndex - 1;
-    uint i = 0, j = 0;
+    uint32_t i = 0, j = 0;
     for (; theBit >= 0; theBit--) {
         if ((availableVertexBufferBit & (1 << theBit))) {
             _availableVertexBufferBindingIndex[i++] = theBit;

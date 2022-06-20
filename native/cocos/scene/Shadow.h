@@ -418,7 +418,7 @@ private:
     Mat4 _matLight;
     IntrusivePtr<Material> _material{nullptr};
     IntrusivePtr<Material> _instancingMaterial{nullptr};
-    Vec2 _size{512.F, 512.F};
+    Vec2 _size{1024.F, 1024.F};
     bool _enabled{false};
     float _distance{0.F};
     ShadowType _type{ShadowType::NONE};

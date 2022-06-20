@@ -972,7 +972,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("resize", &Buffer::resize)
         .function("destroy", &Buffer::destroy);
     class_<CCWGPUBuffer, base<Buffer>>("CCWGPUBuffer")
-        .function("update", select_overload<void(const emscripten::val &v, uint)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
+        .function("update", select_overload<void(const emscripten::val &v, uint32_t)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         .function("updateDrawInfo", select_overload<void(const DrawInfoList &infos)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         .constructor<>();
 
@@ -986,9 +986,9 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("initialize", &DescriptorSet::initialize)
         .function("destroy", &DescriptorSet::destroy)
         .function("update", &DescriptorSet::update)
-        .function("bindBuffer", select_overload<void(uint, Buffer *)>(&DescriptorSet::bindBuffer), allow_raw_pointer<arg<1>>())
-        .function("bindTexture", select_overload<void(uint, Texture *)>(&DescriptorSet::bindTexture), allow_raw_pointer<arg<1>>())
-        .function("bindSampler", select_overload<void(uint, Sampler *)>(&DescriptorSet::bindSampler), allow_raw_pointer<arg<1>>());
+        .function("bindBuffer", select_overload<void(uint32_t, Buffer *)>(&DescriptorSet::bindBuffer), allow_raw_pointer<arg<1>>())
+        .function("bindTexture", select_overload<void(uint32_t, Texture *)>(&DescriptorSet::bindTexture), allow_raw_pointer<arg<1>>())
+        .function("bindSampler", select_overload<void(uint32_t, Sampler *)>(&DescriptorSet::bindSampler), allow_raw_pointer<arg<1>>());
     class_<CCWGPUDescriptorSet, base<DescriptorSet>>("CCWGPUDescriptorSet")
         .constructor<>();
 
@@ -1014,11 +1014,11 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     class_<CommandBuffer>("CommandBuffer")
         .function("initialize", &CommandBuffer::initialize)
         .function("destroy", &CommandBuffer::destroy)
-        .function("begin", select_overload<void(RenderPass *, uint, Framebuffer *)>(&CommandBuffer::begin), allow_raw_pointers())
+        .function("begin", select_overload<void(RenderPass *, uint32_t, Framebuffer *)>(&CommandBuffer::begin), allow_raw_pointers())
         .function("end", &CommandBuffer::end)
         .function("endRenderPass", &CommandBuffer::endRenderPass)
         .function("bindPipelineState", &CommandBuffer::bindPipelineState, allow_raw_pointer<arg<0>>())
-        .function("bindDescriptorSet", select_overload<void(uint, DescriptorSet *, const vector<uint> &)>(&CommandBuffer::bindDescriptorSet), allow_raw_pointers())
+        .function("bindDescriptorSet", select_overload<void(uint32_t, DescriptorSet *, const vector<uint32_t> &)>(&CommandBuffer::bindDescriptorSet), allow_raw_pointers())
         .function("bindInputAssembler", &CommandBuffer::bindInputAssembler, allow_raw_pointer<arg<0>>())
         .function("setViewport", &CommandBuffer::setViewport)
         .function("setScissor", &CommandBuffer::setScissor)
@@ -1029,23 +1029,23 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("setStencilCompareMask", &CommandBuffer::setStencilCompareMask)
         .function("nextSubpass", &CommandBuffer::nextSubpass)
         .function("draw", select_overload<void(const DrawInfo &)>(&CommandBuffer::draw))
-        .function("copyBuffersToTexture", select_overload<void(const uint8_t *const *, Texture *, const BufferTextureCopy *, uint)>(&CommandBuffer::copyBuffersToTexture), allow_raw_pointers())
-        .function("blitTexture", select_overload<void(Texture *, Texture *, const TextureBlit *, uint, Filter)>(&CommandBuffer::blitTexture), allow_raw_pointers())
+        .function("copyBuffersToTexture", select_overload<void(const uint8_t *const *, Texture *, const BufferTextureCopy *, uint32_t)>(&CommandBuffer::copyBuffersToTexture), allow_raw_pointers())
+        .function("blitTexture", select_overload<void(Texture *, Texture *, const TextureBlit *, uint32_t, Filter)>(&CommandBuffer::blitTexture), allow_raw_pointers())
         .function("execute", select_overload<void(CommandBuffer *const *, uint32_t)>(&CommandBuffer::execute), allow_raw_pointer<arg<0>>())
         .function("dispatch", &CommandBuffer::dispatch)
         .function("begin4", select_overload<void(void)>(&CommandBuffer::begin))
         .function("begin3", select_overload<void(RenderPass *)>(&CommandBuffer::begin), allow_raw_pointers())
-        .function("begin2", select_overload<void(RenderPass *, uint)>(&CommandBuffer::begin), allow_raw_pointers())
+        .function("begin2", select_overload<void(RenderPass *, uint32_t)>(&CommandBuffer::begin), allow_raw_pointers())
         .function("execute", select_overload<void(const CommandBufferList &, uint32_t)>(&CommandBuffer::execute))
-        .function("bindDescriptorSet2", select_overload<void(uint, DescriptorSet *)>(&CommandBuffer::bindDescriptorSet), allow_raw_pointer<arg<0>>())
+        .function("bindDescriptorSet2", select_overload<void(uint32_t, DescriptorSet *)>(&CommandBuffer::bindDescriptorSet), allow_raw_pointer<arg<0>>())
         .function("drawIA", select_overload<void(InputAssembler *)>(&CommandBuffer::draw), allow_raw_pointer<arg<0>>())
         .function("blitTexture2", select_overload<void(Texture *, Texture *, const TextureBlitList &, Filter)>(&CommandBuffer::blitTexture), allow_raw_pointers())
         .function("getQueue", &CommandBuffer::getQueue, allow_raw_pointer<arg<0>>());
     class_<CCWGPUCommandBuffer, base<CommandBuffer>>("CCWGPUCommandBuffer")
         .constructor<>()
-        .function("beginRenderPass", select_overload<void(RenderPass *, Framebuffer *, const Rect &, const ColorList &, float, uint)>(&CCWGPUCommandBuffer::beginRenderPass), allow_raw_pointers())
+        .function("beginRenderPass", select_overload<void(RenderPass *, Framebuffer *, const Rect &, const ColorList &, float, uint32_t)>(&CCWGPUCommandBuffer::beginRenderPass), allow_raw_pointers())
         .function("updateIndirectBuffer", select_overload<void(Buffer *, const DrawInfoList &)>(&CCWGPUCommandBuffer::updateIndirectBuffer), allow_raw_pointers())
-        .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers());
+        .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint32_t)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers());
 
     class_<Queue>("Queue")
         .function("initialize", &Queue::initialize)

@@ -156,6 +156,15 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
+        if (this.browserType === BrowserType.SAFARI) {
+            const result = / version\/(\d+)/.exec(ua)?.[1];
+            if (typeof result === 'string') {
+                if (Number.parseInt(result) >= 14) {
+                    // safari 14+ support webp, but canvas.toDataURL is not supported by default
+                    supportWebp = true;
+                }
+            }
+        }
         let supportImageBitmap = false;
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
             _tmpCanvas1.width = _tmpCanvas1.height = 2;

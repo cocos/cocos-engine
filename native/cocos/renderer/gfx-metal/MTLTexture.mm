@@ -252,7 +252,7 @@ void CCMTLTexture::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLTexture::doResize(uint width, uint height, uint size) {
+void CCMTLTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (_isTextureView) {
         CC_LOG_ERROR("TextureView does not support resize! at %p", this);
         return;

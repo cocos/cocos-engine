@@ -39,7 +39,7 @@ public:
     CCWGPUQueue();
     ~CCWGPUQueue() = default;
 
-    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
     inline CCWGPUQueueObject *gpuQueueObject() { return _gpuQueueObject; }
 

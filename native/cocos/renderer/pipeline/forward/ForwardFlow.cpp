@@ -33,8 +33,8 @@ namespace cc {
 namespace pipeline {
 RenderFlowInfo ForwardFlow::initInfo = {
     "ForwardFlow",
-    static_cast<uint>(ForwardFlowPriority::FORWARD),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(ForwardFlowPriority::FORWARD),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
     {},
 };
 const RenderFlowInfo &ForwardFlow::getInitializeInfo() { return ForwardFlow::initInfo; }

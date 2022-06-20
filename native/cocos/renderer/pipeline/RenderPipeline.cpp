@@ -215,8 +215,8 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
 
 bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
     // step 1 create vertex buffer
-    uint vbStride = sizeof(float) * 4;
-    uint vbSize = vbStride * 4;
+    uint32_t vbStride = sizeof(float) * 4;
+    uint32_t vbSize = vbStride * 4;
 
     if (*quadVB == nullptr) {
         *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -246,8 +246,8 @@ gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
     return {
         static_cast<int>(static_cast<float>(rect.x) * scale),
         static_cast<int>(static_cast<float>(rect.y) * scale),
-        static_cast<uint>(static_cast<float>(rect.width) * scale),
-        static_cast<uint>(static_cast<float>(rect.height) * scale)};
+        static_cast<uint32_t>(static_cast<float>(rect.width) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.height) * scale)};
 }
 
 gfx::Rect RenderPipeline::getScissor(scene::Camera *camera) {
@@ -256,8 +256,8 @@ gfx::Rect RenderPipeline::getScissor(scene::Camera *camera) {
     return {
         static_cast<int>(static_cast<float>(rect.x) * scale),
         static_cast<int>(static_cast<float>(rect.y) * scale),
-        static_cast<uint>(static_cast<float>(rect.width) * scale),
-        static_cast<uint>(static_cast<float>(rect.height) * scale)};
+        static_cast<uint32_t>(static_cast<float>(rect.width) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.height) * scale)};
 }
 
 gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
