@@ -31,6 +31,13 @@ function downloadDomAudio (url, options, onComplete) {
     var dom = document.createElement('audio');
     dom.src = url;
 
+    // Note: WeChat's built-in browser, after setting src for audio,
+    // does not load the end event, causing it to get stuck in loading audio
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT) {
+        onComplete && onComplete(null, dom);
+        return;
+    }
+
     var clearEvent = function () {
         clearTimeout(timer);
         dom.removeEventListener("canplaythrough", success, false);
@@ -50,7 +57,7 @@ function downloadDomAudio (url, options, onComplete) {
         clearEvent();
         onComplete && onComplete(null, dom);
     };
-    
+
     var failure = function () {
         clearEvent();
         var message = 'load audio failure - ' + url;
