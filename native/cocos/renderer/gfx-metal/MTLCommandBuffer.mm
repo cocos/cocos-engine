@@ -675,7 +675,7 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
     [encoder endEncoding];
 }
 
-void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     if (!texture) {
         CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: texture is nullptr");
         return;
