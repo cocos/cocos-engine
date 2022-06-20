@@ -108,6 +108,9 @@ private:
     PhysXEventManager *_mEventMgr;
     uint32_t _mCollisionMatrix[31];
     ccstd::vector<PhysXSharedBody *> _mSharedBodies;
+
+    static uint32_t _msWrapperObjectID;
+    static uint32_t _msPXObjectID;
     ccstd::unordered_map<uint32_t, uintptr_t> _mPXObjects;
     ccstd::unordered_map<uint32_t, uintptr_t> _mWrapperObjects;
 };

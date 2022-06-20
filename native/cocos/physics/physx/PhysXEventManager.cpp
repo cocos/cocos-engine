@@ -103,13 +103,13 @@ void PhysXEventManager::SimulationEventCallback::onContact(const physx::PxContac
 
 void PhysXEventManager::refreshPairs() {
     for (auto iter = getTriggerPairs().begin(); iter != getTriggerPairs().end();) {
-        uintptr_t WrapperPtrShapeA = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeA);
-        uintptr_t WrapperPtrShapeB = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeB);
-        if (WrapperPtrShapeA == 0 || WrapperPtrShapeB == 0)
+        uintptr_t wrapperPtrShapeA = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeA);
+        uintptr_t wrapperPtrShapeB = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeB);
+        if (wrapperPtrShapeA == 0 || wrapperPtrShapeB == 0)
             return;
 
-        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(WrapperPtrShapeA)->getShape())));
-        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(WrapperPtrShapeB)->getShape())));
+        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeA)->getShape())));
+        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeB)->getShape())));
         if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
             iter = getTriggerPairs().erase(iter);
         } else if (iter->get()->state == ETouchState::EXIT) {

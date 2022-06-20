@@ -35,6 +35,9 @@ namespace cc {
 namespace physics {
 
 PhysXWorld *PhysXWorld::instance = nullptr;
+uint32_t PhysXWorld::_msWrapperObjectID = 0;
+uint32_t PhysXWorld::_msPXObjectID = 0;
+
 PhysXWorld &PhysXWorld::getInstance() {
     return *instance;
 }
@@ -200,13 +203,13 @@ bool PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
 }
 
 uintptr_t PhysXWorld::getPXMaterialPtrWithMaterialID(uint32_t materialID) {
-    physx::PxMaterial *mat;
     auto &m = getPxMaterialMap();
-    if (m.find(materialID) == m.end()) {
+    auto const &it = m.find(materialID);
+    if (it == m.end()) {
         return 0;
     }
     else{
-        return m[materialID];
+        return it->second;
     }
 }
 
@@ -330,10 +333,9 @@ RaycastResult &PhysXWorld::raycastClosestResult() {
 }
 
 uint32_t PhysXWorld::addPXObject(uintptr_t PXObjectPtr) {
-    static uint32_t sPXObjectID = 0;
-    uint32_t PXobjectID = sPXObjectID;
-    sPXObjectID++;
-    assert(sPXObjectID < 0xffffffff);
+    uint32_t PXobjectID = _msPXObjectID;
+    _msPXObjectID++;
+    assert(_msPXObjectID < 0xffffffff);
 
     _mPXObjects[PXobjectID] = PXObjectPtr;
     return PXobjectID;
@@ -344,16 +346,17 @@ void PhysXWorld::removePXObject(uint32_t PXobjectID) {
 }
 
 uintptr_t PhysXWorld::getPXPtrWithPXObjectID(uint32_t PXObjectID) {
-    if (_mPXObjects.find(PXObjectID) == _mPXObjects.end())
+    auto const & iter = _mPXObjects.find(PXObjectID);
+    if (iter == _mPXObjects.end()) {
         return 0;
-    return _mPXObjects[PXObjectID];
+    }
+    return iter->second;
 };
 
 uint32_t PhysXWorld::addWrapperObject(uintptr_t wrapperObjectPtr) {
-    static uint32_t sWrapperObjectID = 0;
-    uint32_t wrapprtObjectID = sWrapperObjectID;
-    sWrapperObjectID++;
-    assert(sWrapperObjectID < 0xffffffff);
+    uint32_t wrapprtObjectID = _msWrapperObjectID;
+    _msWrapperObjectID++;
+    assert(_msWrapperObjectID < 0xffffffff);
 
     _mWrapperObjects[wrapprtObjectID] = wrapperObjectPtr;
     return wrapprtObjectID;
@@ -364,9 +367,10 @@ void PhysXWorld::removeWrapperObject(uint32_t wrapperObjectID) {
 }
 
 uintptr_t PhysXWorld::getWrapperPtrWithObjectID(uint32_t wrapperObjectID) {
-    if (_mWrapperObjects.find(wrapperObjectID) == _mWrapperObjects.end())
+    auto const & iter = _mWrapperObjects.find(wrapperObjectID);
+    if (iter == _mWrapperObjects.end())
         return 0;
-    return _mWrapperObjects[wrapperObjectID];
+    return iter->second;
 };
 
 

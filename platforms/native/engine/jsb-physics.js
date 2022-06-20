@@ -386,8 +386,8 @@ class Shape {
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
         unBookNode(this._com.node);
-        ptrToObj[this._impl.getObjectID()] = null;
         delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
     }
     setMaterial (v) {
@@ -602,8 +602,8 @@ class Joint {
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
-        ptrToObj[this._impl.getObjectID()] = null;
         delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
     }
 }
