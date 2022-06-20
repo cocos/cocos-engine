@@ -31,7 +31,22 @@
 #include <windows.h>
 int WINAPI
 WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
+    if (!AllocConsole()) {
+        //GetLastError() to get more info about the error.
+        MessageBox(NULL, L"The console window was not created", NULL, MB_ICONEXCLAMATION);
+        return 0;
+    }
+
+    FILE* fConsole;
+    freopen_s(&fConsole, "CONOUT$", "w", stdout);
+    freopen_s(&fConsole, "CONOUT$", "w", stderr);
+    freopen_s(&fConsole, "CONIN$", "r", stdin);
+
     START_PLATFORM(0, nullptr);
+
+    fclose(fConsole);
+    if (!FreeConsole())
+        MessageBox(NULL, L"Failed to free the console!", NULL, MB_ICONEXCLAMATION);
 }
 #else
 #include "sdl2/SDL_main.h"
