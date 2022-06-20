@@ -235,6 +235,9 @@ public:
     {
         DLLOG("Construct DownloaderCURL::Impl %p", this);
         #if (CC_PLATFORM == CC_PLATFORM_NX)
+            // If you don't call curl_global_init to initialize, it will crash on the NX platform, but not on other platforms.
+            // Not sure if it's a problem with using different versions or something else.
+            // 
             // This function is thread-safe since libcurl 7.84.0 if curl_version_info
             // has the CURL_VERSION_THREADSAFE feature bit set (most platforms).
             // ref:https://curl.se/libcurl/c/curl_global_init.html
