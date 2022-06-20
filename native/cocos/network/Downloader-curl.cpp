@@ -234,6 +234,18 @@ public:
     //        : _thread(nullptr)
     {
         DLLOG("Construct DownloaderCURL::Impl %p", this);
+        #if (CC_PLATFORM == CC_PLATFORM_NX)
+            // This function is thread-safe since libcurl 7.84.0 if curl_version_info
+            // has the CURL_VERSION_THREADSAFE feature bit set (most platforms).
+            // ref:https://curl.se/libcurl/c/curl_global_init.html
+            
+            // At this time, the version used by NX SDK 15.0.0 is 7.64.1.So this version of the interface inot thread safe
+            // This function sets up the program environment that libcurl needs 
+            CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);s 
+            if (res != CURLE_OK) {
+                CC_LOG_ERROR("curl_global_init failed. Err: %d\n\n", res);
+            }
+        #endif
     }
 
     ~Impl() {
