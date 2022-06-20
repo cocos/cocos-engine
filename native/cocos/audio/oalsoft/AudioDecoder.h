@@ -116,14 +116,14 @@ public:
 
     virtual AudioDataFormat getDataFormat() const;
 
-    virtual WavePCMHeader getPCMHeader() const;
+    virtual PCMHeader getPCMHeader() const;
 
 protected:
     AudioDecoder();
     virtual ~AudioDecoder();
 
     bool _isOpened;
-    WavePCMHeader _pcmHeader;
+    PCMHeader _pcmHeader;
     void *_fsHooks = nullptr;
 
     friend class AudioDecoderManager;

@@ -593,7 +593,7 @@ bool AudioEngine::isEnabled() {
     return sIsEnabled;
 }
 
-WavePCMHeader AudioEngine::getPCMHeader(const char *url) {
+PCMHeader AudioEngine::getPCMHeader(const char *url) {
     return sAudioEngineImpl->getPCMHeader(url);
 }
 ccstd::vector<uint8_t> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {

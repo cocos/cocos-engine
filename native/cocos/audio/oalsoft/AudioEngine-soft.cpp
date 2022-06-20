@@ -541,8 +541,8 @@ bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
 }
 
-WavePCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
-    WavePCMHeader header{};
+PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
+    PCMHeader header{};
     ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     if (_fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);

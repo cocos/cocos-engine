@@ -398,8 +398,8 @@ void AudioEngineImpl::onResume() {
     }
 }
 
-WavePCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
-    WavePCMHeader header{};
+PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
+    PCMHeader header{};
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);

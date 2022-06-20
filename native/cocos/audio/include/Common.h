@@ -38,7 +38,7 @@ enum class AudioDataFormat {
     FLOAT_32,
     FLOAT_64,
 };
-struct WavePCMHeader {
+struct PCMHeader {
     uint32_t totalFrames {0};
     uint32_t bytesPerFrame {0};
     uint32_t sampleRate {0};

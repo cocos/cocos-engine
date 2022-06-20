@@ -9,7 +9,7 @@
 #include "v8/HelperMacros.h"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-static bool PCMHeader_to_seval(WavePCMHeader& header, se::Value* ret) {
+static bool PCMHeader_to_seval(PCMHeader& header, se::Value* ret) {
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("totalFrames", se::Value(header.totalFrames));
@@ -30,7 +30,7 @@ static bool js_audio_AudioEngine_getPCMHeader(se::State& s) // NOLINT
         ccstd::string arg0;
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
-        WavePCMHeader header = cc::AudioEngine::getPCMHeader(arg0.c_str());
+        PCMHeader header = cc::AudioEngine::getPCMHeader(arg0.c_str());
         ok &= PCMHeader_to_seval(header, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());

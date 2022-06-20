@@ -73,7 +73,7 @@ public:
 
     void setAudioFocusForAllPlayers(bool isFocus);
 
-    WavePCMHeader getPCMHeader(const char* url);
+    PCMHeader getPCMHeader(const char* url);
     std::vector<uint8_t> getOriginalPCMBuffer(const char* url, uint32_t channelID);
 
 private:

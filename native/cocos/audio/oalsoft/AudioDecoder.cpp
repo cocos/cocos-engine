@@ -83,7 +83,7 @@ AudioDataFormat AudioDecoder::getDataFormat() const {
     return _pcmHeader.dataFormat;
 }
 
-WavePCMHeader AudioDecoder::getPCMHeader() const {
+PCMHeader AudioDecoder::getPCMHeader() const {
     return _pcmHeader;
 }
 

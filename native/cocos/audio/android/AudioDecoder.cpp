@@ -34,10 +34,10 @@ THE SOFTWARE.
 namespace cc {
 
 size_t AudioDecoder::fileRead(void *ptr, size_t size, size_t nmemb, void *datasource) {
-    AudioDecoder *thiz = (AudioDecoder *)datasource;
-    ssize_t toReadBytes = std::min((ssize_t)(thiz->_fileData.getSize() - thiz->_fileCurrPos), (ssize_t)(nmemb * size));
+    AudioDecoder *thiz = (AudioDecoder *)datasource; // NOLINT
+    ssize_t toReadBytes = std::min((ssize_t)(thiz->_fileData.getSize() - thiz->_fileCurrPos), (ssize_t)(nmemb * size)); // NOLINT
     if (toReadBytes > 0) {
-        memcpy(ptr, (unsigned char *)thiz->_fileData.getBytes() + thiz->_fileCurrPos, toReadBytes);
+        memcpy(ptr, (unsigned char *)thiz->_fileData.getBytes() + thiz->_fileCurrPos, toReadBytes); // NOLINT
         thiz->_fileCurrPos += toReadBytes;
     }
     // ALOGD("File size: %d, After fileRead _fileCurrPos %d", (int)thiz->_fileData.getSize(), thiz->_fileCurrPos);
@@ -45,13 +45,14 @@ size_t AudioDecoder::fileRead(void *ptr, size_t size, size_t nmemb, void *dataso
 }
 
 int AudioDecoder::fileSeek(void *datasource, int64_t offset, int whence) {
-    AudioDecoder *thiz = (AudioDecoder *)datasource;
-    if (whence == SEEK_SET)
+    AudioDecoder *thiz = (AudioDecoder *)datasource; // NOLINT
+    if (whence == SEEK_SET) {
         thiz->_fileCurrPos = static_cast<size_t>(offset);
-    else if (whence == SEEK_CUR)
+    } else if (whence == SEEK_CUR) {
         thiz->_fileCurrPos = static_cast<size_t>(thiz->_fileCurrPos + offset);
-    else if (whence == SEEK_END)
+    } else if (whence == SEEK_END) {
         thiz->_fileCurrPos = static_cast<size_t>(thiz->_fileData.getSize());
+    }
     return 0;
 }
 
@@ -59,9 +60,9 @@ int AudioDecoder::fileClose(void *datasource) {
     return 0;
 }
 
-int32_t AudioDecoder::fileTell(void *datasource) {
+long AudioDecoder::fileTell(void *datasource) { // NOLINT
     AudioDecoder *thiz = (AudioDecoder *)datasource;
-    return (int32_t)thiz->_fileCurrPos;
+    return static_cast<long>(thiz->_fileCurrPos);
 }
 
 AudioDecoder::AudioDecoder()
