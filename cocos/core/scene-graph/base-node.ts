@@ -137,8 +137,9 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @readOnly
      */
     @editable
-    get children () {
-        return this._children;
+    get children (): Node[] {
+        // @ts-expect-error force cast
+        return this._children as Node[];
     }
 
     /**
@@ -239,8 +240,9 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     protected static _findComponent<T extends Component> (node: BaseNode, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
-        const cls = constructor as any;
+        const cls = constructor;
         const comps = node._components;
+        // @ts-expect-error internal rtti property
         if (cls._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
@@ -260,8 +262,9 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     protected static _findComponents<T extends Component> (node: BaseNode, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
-        const cls = constructor as any;
+        const cls = constructor;
         const comps = node._components;
+        // @ts-expect-error internal rtti property
         if (cls._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
@@ -421,7 +424,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Set parent of the node.
      * @zh 设置该节点的父节点。
      */
-    public setParent (value: this | Scene | null, keepWorldTransform = false) {
+    public setParent (value: BaseNode | null, keepWorldTransform = false) {
         if (this._parent === value) {
             return;
         }
@@ -478,7 +481,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param uuid - The uuid to find the child node.
      * @return a Node whose uuid equals to the input parameter
      */
-    public getChildByUuid (uuid: string) {
+    public getChildByUuid (uuid: string): Node | null {
         if (!uuid) {
             log('Invalid uuid');
             return null;
@@ -487,7 +490,8 @@ export class BaseNode extends CCObject implements ISchedulable {
         const locChildren = this._children;
         for (let i = 0, len = locChildren.length; i < len; i++) {
             if (locChildren[i]._id === uuid) {
-                return locChildren[i];
+                // @ts-expect-error force cast
+                return locChildren[i] as Node;
             }
         }
         return null;
@@ -503,7 +507,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * var child = node.getChildByName("Test Node");
      * ```
      */
-    public getChildByName (name: string) {
+    public getChildByName (name: string): Node | null {
         if (!name) {
             log('Invalid name');
             return null;
@@ -512,7 +516,8 @@ export class BaseNode extends CCObject implements ISchedulable {
         const locChildren = this._children;
         for (let i = 0, len = locChildren.length; i < len; i++) {
             if (locChildren[i]._name === name) {
-                return locChildren[i];
+                // @ts-expect-error force cast
+                return locChildren[i] as Node;
             }
         }
         return null;
@@ -528,10 +533,10 @@ export class BaseNode extends CCObject implements ISchedulable {
      * var child = node.getChildByPath("subNode/Test Node");
      * ```
      */
-    public getChildByPath (path: string) {
+    public getChildByPath (path: string): Node | null {
         const segments = path.split('/');
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let lastNode: this = this;
+        let lastNode: BaseNode = this;
         for (let i = 0; i < segments.length; ++i) {
             const segment = segments[i];
             if (segment.length === 0) {
@@ -543,7 +548,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             lastNode = next;
         }
-        return lastNode;
+        return lastNode as Node | null;
     }
 
     /**
@@ -551,8 +556,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 添加一个子节点。
      * @param child - the child node to be added
      */
-    public addChild (child: this | Node): void {
-        (child as this).setParent(this);
+    public addChild (child: Node): void {
+        child.setParent(this);
     }
 
     /**
@@ -565,7 +570,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.insertChild(child, 2);
      * ```
      */
-    public insertChild (child: this | Node, siblingIndex: number) {
+    public insertChild (child: BaseNode, siblingIndex: number) {
         child.parent = this;
         child.setSiblingIndex(siblingIndex);
     }
@@ -628,11 +633,11 @@ export class BaseNode extends CCObject implements ISchedulable {
      * });
      * ```
      */
-    public walk (preFunc: (target: this) => void, postFunc?: (target: this) => void) {
+    public walk (preFunc: (target: this | Node) => void, postFunc?: (target: this | Node) => void) {
         // const BaseNode = cc._BaseNode;
         let index = 1;
-        let children: this[] | null = null;
-        let curr: this | null = null;
+        let children: BaseNode[] | null = null;
+        let curr: BaseNode | null = null;
         let i = 0;
         let stack = BaseNode._stacks[BaseNode._stackId];
         if (!stack) {
@@ -643,7 +648,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         stack.length = 0;
         stack[0] = this;
-        let parent: this | null = null;
+        let parent: BaseNode | null = null;
         let afterChildren = false;
         while (index) {
             index--;
@@ -653,10 +658,10 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             if (!afterChildren && preFunc) {
                 // pre call
-                preFunc(curr);
+                preFunc(curr as Node);
             } else if (afterChildren && postFunc) {
                 // post call
-                postFunc(curr);
+                postFunc(curr as Node);
             }
 
             // Avoid memory leak
@@ -732,7 +737,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 移除节点中指定的子节点。
      * @param child - The child node which will be removed.
      */
-    public removeChild (child: this | Node) {
+    public removeChild (child: BaseNode) {
         if (this._children.indexOf(child as this) > -1) {
             // invoke the parent setter
             child.parent = null;
@@ -760,7 +765,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
      */
-    public isChildOf (parent: this | Scene | null): boolean {
+    public isChildOf (parent: BaseNode | null): boolean {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let child: BaseNode | null = this;
         do {
@@ -1268,7 +1273,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
-    protected _onSetParent (oldParent: this | null, keepWorldTransform = false) {
+    protected _onSetParent (oldParent: BaseNode | null, keepWorldTransform = false) {
         if (this._parent) {
             if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
                 this.walk(BaseNode._setScene);
@@ -1284,7 +1289,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (this._parent) {
-            this._siblingIndex = this._parent.children.indexOf(this);
+            this._siblingIndex = this._parent._children.indexOf(this);
         }
     }
 
@@ -1292,7 +1297,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         this._onPreDestroyBase();
     }
 
-    protected _onHierarchyChanged (oldParent: this | null) {
+    protected _onHierarchyChanged (oldParent: BaseNode | null) {
         return this._onHierarchyChangedBase(oldParent);
     }
 
@@ -1325,7 +1330,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return cloned;
     }
 
-    protected _onHierarchyChangedBase (oldParent: this | null) {
+    protected _onHierarchyChangedBase (oldParent: BaseNode | null) {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
             legacyCC.game.removePersistRootNode(this);

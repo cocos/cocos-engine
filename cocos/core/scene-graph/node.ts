@@ -36,6 +36,7 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { warnID } from '../platform/debug';
+import { Scene } from './scene';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -490,7 +491,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param value Parent node
      * @param keepWorldTransform Whether keep node's current world transform unchanged after this operation
      */
-    public setParent (value: this | null, keepWorldTransform = false) {
+    public setParent (value: BaseNode | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
     }
@@ -498,7 +499,7 @@ export class Node extends BaseNode implements CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
+    public _onSetParent (oldParent: BaseNode | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
             const parent = this._parent;
@@ -523,7 +524,7 @@ export class Node extends BaseNode implements CustomSerializable {
         this.invalidateChildren(TransformBit.TRS);
     }
 
-    protected _onHierarchyChanged (oldParent: this | null) {
+    protected _onHierarchyChanged (oldParent: BaseNode | null) {
         this.eventProcessor.reattach();
         super._onHierarchyChangedBase(oldParent);
     }
