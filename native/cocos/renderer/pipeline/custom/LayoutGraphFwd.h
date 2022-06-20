@@ -30,8 +30,8 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
 #include <functional>
+#include "cocos/base/std/variant.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 
@@ -41,9 +41,9 @@ namespace render {
 
 enum class DescriptorTypeOrder;
 
-struct UniformBlockDB;
 struct Descriptor;
 struct DescriptorBlock;
+struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
 struct DescriptorDB;
 struct RenderStageTag;

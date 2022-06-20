@@ -25,13 +25,16 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
   SurfacesFragmentModifySharedData(surfaceData);
 
-#if CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE && !(CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_NORMAL_MAP)
-  surfaceData.worldNormal = FSInput_worldNormal;
-  surfaceData.worldTangent = FSInput_worldTangent;
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP) {
+      surfaceData.worldNormal = FSInput_worldNormal;
+      surfaceData.worldTangent = FSInput_worldTangent;
+  }
 #endif
 
-#if (CC_SURFACES_DEBUG_VIEW_MODE || CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE) && !CC_SURFACES_DEBUG_VIEW_LIGHTING_WITH_ALBEDO
-  surfaceData.baseColor.rgb = vec3(1.0);
+#if CC_USE_DEBUG_VIEW
+  if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO)
+      surfaceData.baseColor.rgb = vec3(1.0);
 #endif
 }
 
@@ -110,7 +113,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
   color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
 #else
-  #if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
     float lum = FSInput_lightMapUV.z;
     float lightmapCoef = step(lum, EPSILON_LOWP);
   #else
@@ -135,45 +138,59 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 
 // Debug view
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
 void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surfaceData)
 {
-  float scalar;
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL
-  color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT
-  color = vec4(surfaceData.worldTangent * 0.5 + vec3(0.5), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL
-  color = vec4(surfaceData.worldBinormal * 0.5 + vec3(0.5), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_TRANSPARENCY
-  scalar = surfaceData.baseColor.a;
-  color = vec4(scalar, scalar, scalar, 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_BASE_COLOR
-  color = vec4(SRGBToLinear(surfaceData.baseColor.rgb), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR
-  color = vec4(SRGBToLinear(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR
-  color = vec4(SRGBToLinear(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_ROUGHNESS
-  scalar = surfaceData.roughness;
-  color = vec4(scalar, scalar, scalar, 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_METALLIC
-  scalar = surfaceData.metallic;
-  color = vec4(scalar, scalar, scalar, 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY
-  scalar = surfaceData.specularIntensity;
-  color = vec4(scalar, scalar, scalar, 1.0);
-#endif
-}
+    vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+    float scalar;
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
+        color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
 
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT))
+    {
+      #if CC_SURFACES_USE_TANGENT_SPACE
+        color = vec4(surfaceData.worldTangent * 0.5 + vec3(0.5), 1.0);
+      #else
+        color = black;
+      #endif
+    }
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL))
+    {
+      #if CC_SURFACES_USE_TANGENT_SPACE
+        color = vec4(surfaceData.worldBinormal * 0.5 + vec3(0.5), 1.0);
+      #else
+        color = black;
+      #endif
+    }
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY)) {
+        scalar = surfaceData.baseColor.a;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
+        color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ROUGHNESS)) {
+        scalar = surfaceData.roughness;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_METALLIC)) {
+        scalar = surfaceData.metallic;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY)) {
+        scalar = surfaceData.specularIntensity;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+}
+#endif
 
 // lighting flow module-function used by this material
 #include <lighting-models/lighting-flow/common-flow>

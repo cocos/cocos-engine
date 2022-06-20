@@ -37,7 +37,7 @@ import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../core/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph } from './morph';
@@ -1222,6 +1222,24 @@ export class Mesh extends Asset {
             outputArray[i] = reader(primitive.indexView.offset + FormatInfos[indexFormat].size * i);
         }
         return true;
+    }
+
+    /**
+     * @en Read the format by attributeName of submesh
+     * @zh 根据属性名读取子网格的属性信息。
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param attributeName @en Attribute name @zh 属性名称
+     * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
+     */
+    public readAttributeFormat(primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
+        let result: FormatInfo | null = null;
+
+        this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
+            const format = vertexBundle.attributes[iAttribute].format;
+            result = FormatInfos[format];
+        });
+
+        return result;
     }
 
     private _accessAttribute (

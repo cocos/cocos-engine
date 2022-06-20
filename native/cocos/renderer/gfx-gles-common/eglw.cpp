@@ -25,7 +25,7 @@
 
 #include "eglw.h"
 
-#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM != CC_PLATFORM_IOS)
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from EGL spec by running:
@@ -372,7 +372,7 @@ PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC eglCreateWaylandBufferFromImageWL;
 #endif
 
 void eglwLoadProcs(PFNEGLWLOADPROC eglwLoad) {
-#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM != CC_PLATFORM_IOS)
     /**
      * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
      * The following section is auto-generated from EGL spec by running:

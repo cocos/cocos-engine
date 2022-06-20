@@ -4,6 +4,8 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
+import { registerRebuildLayoutGraph } from './pipeline/custom/index.jsb';
+import { DebugView } from './pipeline/debug-view';
 
 declare const nr: any;
 declare const jsb: any;
@@ -51,6 +53,14 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     }
 });
 
+Object.defineProperty(rootProto, 'debugView', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._debugView;
+    }
+});
+
 class DummyPipelineEvent {
     on (type: any, callback: any, target?: any, once?: boolean) {}
     once (type: any, callback: any, target?: any) {}
@@ -68,6 +78,8 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
+    this._debugView = new DebugView();
+    this.setDebugViewConfig(this._debugView._nativeConfig);
     this._registerListeners();
 };
 
@@ -112,20 +124,41 @@ rootProto.createLight = function (LightCtor) {
 };
 
 rootProto.destroyLight = function (l) {
-    const p = this._lightPools.get(l.constructor);
+    if (l.scene) {
+        switch (l.type) {
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
+        }
+    }
     l.destroy();
+};
+
+rootProto.recycleLight = function (l) {
+    const p = this._lightPools.get(l.constructor);
     if (p) {
         p.free(l);
         if (l.scene) {
             switch (l.type) {
-                case LightType.SPHERE:
-                    l.scene.removeSphereLight(l);
-                    break;
-                case LightType.SPOT:
-                    l.scene.removeSpotLight(l);
-                    break;
-                default:
-                    break;
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
             }
         }
     }
@@ -165,7 +198,9 @@ rootProto.frameMove = function (deltaTime: number) {
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     if (this.usesCustomPipeline) {
-        return oldSetPipeline.call(this, null);
+        const ppl = oldSetPipeline.call(this, null);
+        registerRebuildLayoutGraph();
+        return ppl;
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered

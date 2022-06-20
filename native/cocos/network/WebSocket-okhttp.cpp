@@ -226,8 +226,10 @@ void WebSocketImpl::onClose(int /*code*/) {
 void WebSocketImpl::onError(int code, const std::string & /*reason*/) {
     CC_LOG_DEBUG("WebSocket (%p) onError, state: %d ...", this, (int)_readyState);
     if (_readyState != WebSocket::State::CLOSED) {
+        _readyState = WebSocket::State::CLOSED; // update state -> CLOSED
         _delegate->onError(_socket, static_cast<WebSocket::ErrorCode>(code));
     }
+    onClose(code);
 }
 
 void WebSocketImpl::onBinaryMessage(const uint8_t *buf, size_t len) {

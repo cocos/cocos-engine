@@ -47,8 +47,8 @@ struct AdditiveLightPass {
     const scene::SubModel *subModel = nullptr;
     const scene::Pass *pass = nullptr;
     gfx::Shader *shader = nullptr;
-    ccstd::vector<uint> dynamicOffsets;
-    ccstd::vector<uint> lights;
+    ccstd::vector<uint32_t> dynamicOffsets;
+    ccstd::vector<uint32_t> lights;
 };
 
 class RenderAdditiveLightQueue final {
@@ -65,19 +65,21 @@ private:
     static bool isInstancedOrBatched(const scene::Model *model);
 
     void clear();
-    void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
+    void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint32_t lightPassIdx);
     void updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint> *lightPassIndices) const;
+    bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint32_t> *lightPassIndices) const;
     void lightCulling(const scene::Model *model);
 
     RenderPipeline *_pipeline = nullptr;
     ccstd::vector<ccstd::vector<scene::SubModel *>> _sortedSubModelsArray;
-    ccstd::vector<ccstd::vector<uint>> _sortedPSOCIArray;
+    ccstd::vector<ccstd::vector<uint32_t>> _sortedPSOCIArray;
     ccstd::vector<const scene::Light *> _validPunctualLights;
-    ccstd::vector<uint> _lightIndices;
+    ccstd::vector<uint32_t> _lightIndices;
     ccstd::vector<AdditiveLightPass> _lightPasses;
-    ccstd::vector<uint> _dynamicOffsets;
+    ccstd::vector<uint32_t> _lightInstancedPasses;
+    ccstd::vector<uint32_t> _lightBatchedPasses;
+    ccstd::vector<uint32_t> _dynamicOffsets;
     ccstd::vector<float> _lightBufferData;
     RenderInstancedQueue *_instancedQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;
@@ -86,11 +88,11 @@ private:
 
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO{};
 
-    uint _lightBufferStride = 0;
-    uint _lightBufferElementCount = 0;
-    uint _lightBufferCount = 16;
+    uint32_t _lightBufferStride = 0;
+    uint32_t _lightBufferElementCount = 0;
+    uint32_t _lightBufferCount = 16;
     float _lightMeterScale = 10000.0F;
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 };
 
 } // namespace pipeline

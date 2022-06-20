@@ -41,13 +41,13 @@
     NSMutableArray *_dataArray;
 }
 // temp vars for dataTask: didReceivedData callback
-@property (nonatomic) int64_t bytesReceived;
-@property (nonatomic) int64_t totalBytesReceived;
+@property (nonatomic) uint32_t bytesReceived;
+@property (nonatomic) uint32_t totalBytesReceived;
 
 - (id)init:(std::shared_ptr<const cc::network::DownloadTask> &)t;
 - (const cc::network::DownloadTask *)get;
 - (void)addData:(NSData *)data;
-- (int64_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(int64_t)len;
+- (uint32_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(uint32_t)len;
 
 @end
 
@@ -105,13 +105,17 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
     DownloadTaskApple *coTask = ccnew DownloadTaskApple();
     DeclareDownloaderImplVar;
     if (task->storagePath.length()) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
         if (impl.hasUnfinishedTask == YES) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
                     coTask->downloadTask = [impl createFileTask:task];
                 },this , 0, 0, 0.1F, false, "DownloaderApple");
             } else {
-            coTask->downloadTask = [impl createFileTask:task];
-        }
+                coTask->downloadTask = [impl createFileTask:task];
+            }
+#else
+        coTask->downloadTask = [impl createFileTask:task];
+#endif
     } else {
         coTask->dataTask = [impl createDataTask:task];
     }
@@ -145,12 +149,12 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 
 - (void)addData:(NSData *)data {
     [_dataArray addObject:data];
-    self.bytesReceived += data.length;
-    self.totalBytesReceived += data.length;
+    self.bytesReceived += static_cast<uint32_t>(data.length);
+    self.totalBytesReceived += static_cast<uint32_t>(data.length);
 }
 
-- (int64_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(int64_t)len {
-    int64_t bytesReceived = 0;
+- (uint32_t)transferDataToBuffer:(void *)buffer lengthOfBuffer:(uint32_t)len {
+    uint32_t bytesReceived = 0;
     int receivedDataObject = 0;
 
     __block char *p = (char *)buffer;
@@ -197,7 +201,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // create task dictionary
     self.taskDict = [NSMutableDictionary dictionary];
 
-    // create backgroundSession to support background download
+#if CC_PLATFORM == CC_PLATFORM_IOS 
+    // create backgroundSession for iOS to support background download
     self.downloadSession = [self backgroundURLSession];
 
     self.hasUnfinishedTask = YES;
@@ -218,7 +223,10 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
             }
         }
     }];
-    
+#else
+    NSURLSessionConfiguration *defaultConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+    self.downloadSession = [NSURLSession sessionWithConfiguration:defaultConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]]; 
+#endif
     return self;
 }
 
@@ -423,9 +431,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
  * information is also available as properties of the task.
  */
 //- (void)URLSession:(NSURLSession *)session task :(NSURLSessionTask *)task
-//                                 didSendBodyData:(int64_t)bytesSent
-//                                  totalBytesSent:(int64_t)totalBytesSent
-//                        totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend;
+//                                 didSendBodyData:(uint32_t)bytesSent
+//                                  totalBytesSent:(uint32_t)totalBytesSent
+//                        totalBytesExpectedToSend:(uint32_t)totalBytesExpectedToSend;
 
 /* Sent as the last message related to a specific task.  Error may be
  * nil, which implies that no error occurred and this task is complete.
@@ -458,7 +466,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
                 // (for a file download task, callback is called in didFinishDownloadingToURL)
                 ccstd::string errorString;
 
-                const int64_t buflen = [wrapper totalBytesReceived];
+                const uint32_t buflen = [wrapper totalBytesReceived];
                 ccstd::vector<unsigned char> data((size_t)buflen);
                 char *buf = (char *)data.data();
                 [wrapper transferDataToBuffer:buf lengthOfBuffer:buflen];
@@ -550,8 +558,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:dataTask];
     [wrapper addData:data];
 
-    std::function<int64_t(void *, int64_t)> transferDataToBuffer =
-        [wrapper](void *buffer, int64_t bufLen) -> int64_t {
+    std::function<uint32_t(void *, uint32_t)> transferDataToBuffer =
+        [wrapper](void *buffer, uint32_t bufLen) -> uint32_t {
         return [wrapper transferDataToBuffer:buffer lengthOfBuffer:bufLen];
     };
 
@@ -559,7 +567,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
         _outer->onTaskProgress(*[wrapper get],
                                wrapper.bytesReceived,
                                wrapper.totalBytesReceived,
-                               dataTask.countOfBytesExpectedToReceive,
+                               static_cast<uint32_t>(dataTask.countOfBytesExpectedToReceive),
                                transferDataToBuffer);
     }
 }
@@ -599,52 +607,52 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     }
 
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
-    const char *storagePath = [wrapper get]->storagePath.c_str();
-    NSString *destPath = [NSString stringWithUTF8String:storagePath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *destURL = nil;
+    if (wrapper) {
+        const char *storagePath = [wrapper get]->storagePath.c_str();
+        NSString *destPath = [NSString stringWithUTF8String:storagePath];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSURL *destURL = nil;
 
-    do {
-        if ([destPath hasPrefix:@"file://"]) {
-            break;
+        do {
+            if ([destPath hasPrefix:@"file://"]) {
+                break;
+            }
+
+            if ('/' == [destPath characterAtIndex:0]) {
+                destURL = [NSURL fileURLWithPath:destPath];
+                break;
+            }
+
+            // relative path, store to user domain default
+            NSArray *URLs = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+            NSURL *documentsDirectory = URLs[0];
+            destURL = [documentsDirectory URLByAppendingPathComponent:destPath];
+        } while (0);
+
+        // Make sure we overwrite anything that's already there
+        [fileManager removeItemAtURL:destURL error:NULL];
+
+        // copy file to dest location
+        int errorCode = cc::network::DownloadTask::ERROR_NO_ERROR;
+        int errorCodeInternal = 0;
+        ccstd::string errorString;
+
+        NSError *error = nil;
+        if ([fileManager copyItemAtURL:location toURL:destURL error:&error]) {
+            // success, remove temp file if it exist
+            if (_hints.tempFileNameSuffix.length()) {
+                NSString *tempStr = [[destURL absoluteString] stringByAppendingFormat:@"%s", _hints.tempFileNameSuffix.c_str()];
+                NSURL *tempDestUrl = [NSURL URLWithString:tempStr];
+                [fileManager removeItemAtURL:tempDestUrl error:NULL];
+            }
+        } else {
+            errorCode = cc::network::DownloadTask::ERROR_FILE_OP_FAILED;
+            if (error) {
+                errorCodeInternal = static_cast<int32_t>(error.code);
+                errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
+            }
         }
-
-        if ('/' == [destPath characterAtIndex:0]) {
-            destURL = [NSURL fileURLWithPath:destPath];
-            break;
-        }
-
-        // relative path, store to user domain default
-        NSArray *URLs = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-        NSURL *documentsDirectory = URLs[0];
-        destURL = [documentsDirectory URLByAppendingPathComponent:destPath];
-    } while (0);
-
-    // Make sure we overwrite anything that's already there
-    [fileManager removeItemAtURL:destURL error:NULL];
-
-    // copy file to dest location
-    int errorCode = cc::network::DownloadTask::ERROR_NO_ERROR;
-    int errorCodeInternal = 0;
-    ccstd::string errorString;
-
-    NSError *error = nil;
-    if ([fileManager copyItemAtURL:location toURL:destURL error:&error]) {
-        // success, remove temp file if it exist
-        if (_hints.tempFileNameSuffix.length()) {
-            NSString *tempStr = [[destURL absoluteString] stringByAppendingFormat:@"%s", _hints.tempFileNameSuffix.c_str()];
-            NSURL *tempDestUrl = [NSURL URLWithString:tempStr];
-            [fileManager removeItemAtURL:tempDestUrl error:NULL];
-        }
-    } else {
-        errorCode = cc::network::DownloadTask::ERROR_FILE_OP_FAILED;
-        if (error) {
-            errorCodeInternal = static_cast<int32_t>(error.code);
-            errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
-        }
-    }
-    ccstd::vector<unsigned char> buf; // just a placeholder
-    if (wrapper) { 
+        ccstd::vector<unsigned char> buf; // just a placeholder
         _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf);
         self.hasUnfinishedTask = NO;
     }
@@ -663,9 +671,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     }
 
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
-    std::function<int64_t(void *, int64_t)> transferDataToBuffer; // just a placeholder
+    std::function<uint32_t(void *, uint32_t)> transferDataToBuffer; // just a placeholder
     if (wrapper) {
-        _outer->onTaskProgress(*[wrapper get], bytesWritten, totalBytesWritten, totalBytesExpectedToWrite, transferDataToBuffer);
+        _outer->onTaskProgress(*[wrapper get], static_cast<uint32_t>(bytesWritten), static_cast<uint32_t>(totalBytesWritten), static_cast<uint32_t>(totalBytesExpectedToWrite), transferDataToBuffer);
     }
 }
 

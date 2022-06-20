@@ -22,15 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, rangeMax, rangeMin, serializable } from 'cc.decorator';
+import { ccclass } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import {
-    _applyDecoratedDescriptor,
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { EDITOR, TEST } from '../default-constants';
 
 declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
@@ -45,39 +44,6 @@ export const RenderTexture: any = jsb.RenderTexture;
 RenderTexture.Filter = Filter;
 RenderTexture.PixelFormat = PixelFormat;
 RenderTexture.WrapMode = WrapMode;
-
-const clsDecorator = ccclass('cc.RenderTexture');
-
-const _class2$j = RenderTexture;
-const _dec2$b = rangeMin(1);
-const _dec3$6 = rangeMax(1024);
-const _dec4$5 = rangeMin(1);
-const _dec5$2 = rangeMax(1024);
-
-const _descriptor$h = _applyDecoratedDescriptor(_class2$j.prototype, '_width', [serializable, _dec2$b, _dec3$6], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 1;
-    },
-});
-
-const _descriptor2$d = _applyDecoratedDescriptor(_class2$j.prototype, '_height', [serializable, _dec4$5, _dec5$2], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 1;
-    },
-});
-
-renderTextureProto._ctor = function () {
-    textureBaseProto._ctor.apply(this, arguments);
-    // for deserialization
-    // _initializerDefineProperty(_this, '_width', _descriptor$h, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, '_height', _descriptor2$d, _assertThisInitialized(_this));
-};
 
 renderTextureProto._serialize = function (ctxForExporting: any): any {
     if (EDITOR || TEST) {
@@ -111,6 +77,7 @@ renderTextureProto.readPixels = function readPixels (x: number, y: number, width
     return buffer;
 };
 
-clsDecorator(RenderTexture);
-
 legacyCC.RenderTexture = jsb.RenderTexture;
+
+// handle meta data, it is generated automatically
+ccclass('cc.RenderTexture')(RenderTexture);

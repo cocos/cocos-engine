@@ -50,8 +50,9 @@ class PipelineUBO;
 class PipelineSceneData;
 class GlobalDSManager;
 class RenderStage;
+class GeometryRenderer;
 struct CC_DLL RenderPipelineInfo {
-    uint tag = 0;
+    uint32_t tag = 0;
     RenderFlowList flows;
 };
 
@@ -75,7 +76,7 @@ public:
     virtual void onGlobalPipelineStateChanged();
 
     inline const RenderFlowList &getFlows() const { return _flows; }
-    inline uint getTag() const { return _tag; }
+    inline uint32_t getTag() const { return _tag; }
     inline const ccstd::unordered_map<ccstd::string, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     inline const MacroRecord &getMacros() const { return _macros; }
     inline void setValue(const ccstd::string &name, int32_t value) { _macros[name] = value; }
@@ -99,8 +100,8 @@ public:
     gfx::Viewport getViewport(scene::Camera *camera);
     gfx::Rect getScissor(scene::Camera *camera);
     void genQuadVertexData(const Vec4 &viewport, float *data);
-    uint getWidth() const { return _width; }
-    uint getHeight() const { return _height; }
+    uint32_t getWidth() const { return _width; }
+    uint32_t getHeight() const { return _height; }
     framegraph::FrameGraph &getFrameGraph() { return _fg; }
     gfx::Color getClearcolor(scene::Camera *camera) const;
     gfx::InputAssembler *getIAByRenderArea(const gfx::Rect &renderArea);
@@ -119,12 +120,16 @@ public:
 
     inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
+    
+    inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
 
 protected:
     static RenderPipeline *instance;
 
     void generateConstantMacros();
     void destroyQuadInputAssembler();
+    
+    void updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras);
 
     static void framegraphGC();
 
@@ -133,7 +138,7 @@ protected:
     RenderFlowList _flows;
     ccstd::unordered_map<ccstd::string, InternalBindingInst> _globalBindings;
     MacroRecord _macros;
-    uint _tag = 0;
+    uint32_t _tag = 0;
     ccstd::string _constantMacros;
 
     gfx::Device *_device{nullptr};
@@ -142,11 +147,12 @@ protected:
     PipelineUBO *_pipelineUBO{nullptr};
     scene::Model *_profiler{nullptr};
     IntrusivePtr<PipelineSceneData> _pipelineSceneData;
+    GeometryRenderer *_geometryRenderer{nullptr};
 
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
-    uint _width{0};
-    uint _height{0};
+    uint32_t _width{0};
+    uint32_t _height{0};
     gfx::Buffer *_quadIB{nullptr};
     ccstd::vector<gfx::Buffer *> _quadVB;
     ccstd::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;

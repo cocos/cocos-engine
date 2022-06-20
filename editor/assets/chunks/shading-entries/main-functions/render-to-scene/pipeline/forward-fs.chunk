@@ -9,37 +9,31 @@ void main()  {
   SurfacesMaterialData surfaceData;
   CCSurfacesFragmentGetMaterialData(surfaceData);
   
-  // Shadow factor
-  highp vec4 shadowPos = vec4(0.0);
+  // Shadow parameters
   vec2 shadowBias = vec2(0.0);
   vec3 colDebugCSMLayer = vec3(1.0);
   #if CC_RECEIVE_SHADOW
-    shadowPos = FSInput_shadowPos;
-    shadowBias = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
-    #if CC_SURFACES_USE_INSTANCING
-      shadowBias = FSInput_shadowBias;
-    #elif !CC_SURFACES_USE_BATCHING
-      shadowBias += cc_localShadowBias.xy;
-    #endif
+    shadowBias = FSInput_shadowBias;
     #if !CC_FORWARD_ADD
-      //#uniformStyle
-      #if CC_SURFACES_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION
-      //#if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-      //if (cc_debug_view_misc_enable_csm_layer_coloration > 0.0)
-      {
-          int CSMLayer = 0;
-          bool OutOfRange = false;
-          if (OutOfRange)
-              colDebugCSMLayer = vec3(1.0);
-          else if (CSMLayer == 0)
-              colDebugCSMLayer = vec3(1.0, 0.0, 0.0);
-          else if (CSMLayer == 1)
-              colDebugCSMLayer = vec3(0.0, 1.0, 0.0);
-          else if (CSMLayer == 2)
-              colDebugCSMLayer = vec3(0.0, 0.0, 1.0);
-          else if (CSMLayer == 3)
-              colDebugCSMLayer = vec3(0.0, 1.0, 1.0);
-      }
+      #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
+        if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION)
+        {
+            vec4 csmPos;
+            vec4 shadowProjDepthInfo, shadowProjInfo;
+            mat4 matShadowView;
+            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matShadowView, surfaceData.worldPos);
+            bool OutOfRange = csmLayer < 0;
+            if (OutOfRange)
+                colDebugCSMLayer = vec3(1.0);
+            else if (csmLayer == 0)
+                colDebugCSMLayer = vec3(1.0, 0.0, 0.0);
+            else if (csmLayer == 1)
+                colDebugCSMLayer = vec3(0.0, 1.0, 0.0);
+            else if (csmLayer == 2)
+                colDebugCSMLayer = vec3(0.0, 0.0, 1.0);
+            else if (csmLayer == 3)
+                colDebugCSMLayer = vec3(0.0, 1.0, 1.0);
+        }
       #endif
     #endif
   #endif
@@ -47,65 +41,35 @@ void main()  {
       
   // Fog factor
   #if !CC_FORWARD_ADD
-    float fogFactor = 0.0;
-    #if !CC_USE_ACCURATE_FOG
-      fogFactor = FSInput_fogFactor;
-    #else
-      CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+    float fogFactor = 1.0;
+    #if CC_USE_FOG != CC_FOG_NONE
+      #if !CC_USE_ACCURATE_FOG
+        fogFactor = FSInput_fogFactor;
+      #else
+        CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+      #endif
     #endif
 
-    #if CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE && !(CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_FOG)
-      fogFactor = 0.0;
-    #endif
-    //#uniformStyle
-    #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-      if (cc_debug_view_composite_enable_fog <= 0.0) {
-          fogFactor = 0.0;
+    #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+      if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_FOG) {
+          fogFactor = 1.0;
       }
     #endif
-    //-----------------------------------------------
   #endif
 
 
   // Lighting
   LightingResult lightingResult;
-  CCSurfacesLighting(lightingResult, surfaceData, shadowPos, shadowBias);
+  CCSurfacesLighting(lightingResult, surfaceData, shadowBias);
 
 
   // Debug view
-  #if CC_SURFACES_DEBUG_VIEW_MODE
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && CC_SURFACES_ENABLE_DEBUG_VIEW
     vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
     #if !CC_FORWARD_ADD
       CCSurfacesDebugViewMeshData(debugColor);
       CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
-      CCSurfacesDebugViewLightingResult(debugColor, lightingResult);
-      #if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FOG
-        fogFactor = 1.0 - fogFactor;
-        debugColor = vec4(fogFactor, fogFactor, fogFactor, 1.0);
-      #endif
-    #endif
-
-    // only base pass or direct lighting is enabled in add pass
-    #if !CC_FORWARD_ADD || CC_FORWARD_ADD && (CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE || CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR || CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_DIRECT_ALL)
-      CCSurfacesDebugViewLightingResult(debugColor, lightingResult);
-    #endif
-
-    fragColorX = debugColor;
-    return;
-  #elif CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE
-    #if !CC_FORWARD_ADD || CC_FORWARD_ADD && ((CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_DIRECT_DIFFUSE) || (CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_DIRECT_SPECULAR))
-      CCSurfacesDebugViewCompositeLightingResult(lightingResult);
-    #endif
-  #endif
-
-  //#uniformStyle
-  #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-    vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
-    #if !CC_FORWARD_ADD
-      CCSurfacesDebugViewMeshData(debugColor);
-      CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
-      CCSurfacesDebugViewLightingResult(debugColor, lightingResult);
-      if (equalf(cc_debug_view_single_mode, CC_SURFACES_DEBUG_VIEW_FOG))
+      if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
       {
         fogFactor = 1.0 - fogFactor;
         debugColor = vec4(fogFactor, fogFactor, fogFactor, 1.0);
@@ -114,63 +78,56 @@ void main()  {
 
     // only base pass or direct lighting is enabled in add pass
     #if CC_FORWARD_ADD
-      if (equalf(cc_debug_view_single_mode, CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || equalf(cc_debug_view_single_mode, CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || equalf(cc_debug_view_single_mode, CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
+      if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
     #endif
-      CCSurfacesDebugViewLightingResult(debugColor, lightingResult);
+      {
+          if (CCSurfacesDebugViewLightingResult(debugColor, lightingResult))
+          {
+            // lighting needs color space conversion          
+            #if CC_USE_HDR
+              if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
+                  debugColor.rgb = ACESToneMap(debugColor.rgb);
+            #endif
+            if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
+                debugColor.rgb = LinearToSRGB(debugColor.rgb);
+          }
+      }
 
     fragColorX = debugColor;
     return;
-  #elif CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-    #if CC_FORWARD_ADD
-      if(cc_debug_view_composite_enable_direct_diffuse > 0.0 || cc_debug_view_composite_enable_direct_specular > 0.0)
-    #endif
+
+  #elif CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
     CCSurfacesDebugViewCompositeLightingResult(lightingResult);
   #endif
-  //-----------------------------------------------
 
-  // Shading and output
+
+  // Shading
   vec4 color = CCSurfacesShading(surfaceData, lightingResult);
 
   #if !CC_FORWARD_ADD
     CC_APPLY_FOG_BASE(color, fogFactor);
   #endif
 
-    /*
   // CSM Debug
-  #if CC_SURFACES_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION
-    color.rgb *= colDebugCSMLayer.rgb;
-  #endif
-  
-  // Color output
-  #if CC_USE_HDR
-    #if !CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE || (CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_TONE_MAPPING)
-      color.rgb = ACESToneMap(color.rgb);
-    #endif
-  #endif
-  #if !CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE || (CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_GAMMA_CORRECTION)
-    color.rgb = LinearToSRGB(color.rgb);
-  #endif
-    */
-  //#uniformStyle
-  // CSM Debug
-  #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-    if (cc_debug_view_misc_enable_csm_layer_coloration > 0.0) {
+  #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
+    if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION) {
         color.rgb *= colDebugCSMLayer.rgb;
     }
   #endif
 #endif
 
+    // Color output
   #if CC_USE_HDR
-    #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-      if (cc_debug_view_composite_enable_tone_mapping > 0.0)
+    #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+      if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
     #endif
       color.rgb = ACESToneMap(color.rgb);
   #endif
-  #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-    if (cc_debug_view_composite_enable_gamma_correction > 0.0)
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+    if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
   #endif
   color.rgb = LinearToSRGB(color.rgb);
-  //-----------------------------------------------
+
 
   CCSurfacesDebugDisplayInvalidNumber(color);
 

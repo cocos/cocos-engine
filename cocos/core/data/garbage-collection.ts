@@ -27,33 +27,53 @@ declare class FinalizationRegistry {
     unregister (token: any);
 }
 
+const targetSymbol = Symbol('[[target]]');
+
 class GarbageCollectionManager {
-    private _finalizationRegistry: FinalizationRegistry | null = EDITOR ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
+    private _finalizationRegistry: FinalizationRegistry | null = EDITOR && typeof FinalizationRegistry !== 'undefined' ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
+    private _gcObjects: WeakMap<any, GCObject> = new WeakMap();
 
     public registerGCObject (gcObject: GCObject): GCObject {
-        if (EDITOR) {
-            gcObject._finalizationToken = {};
-            const proxy = new Proxy(gcObject, {});
-            this._finalizationRegistry!.register(proxy, gcObject, gcObject._finalizationToken);
+        if (EDITOR && this._finalizationRegistry) {
+            const token = {};
+            const proxy = new Proxy(gcObject, {
+                get (target, property, receiver) {
+                    if (property === targetSymbol) {
+                        return target;
+                    }
+                    let val = target[property];
+                    if (typeof val === 'function' && property !== 'constructor') {
+                        const original = val;
+                        val = function newFunc () {
+                            // @ts-expect-error this is referenced to proxy
+                            return original.apply(this[targetSymbol], arguments) as unknown;
+                        };
+                    }
+                    return val as unknown;
+                },
+                set (target, prop, value, receiver) {
+                    target[prop] = value;
+                    return true;
+                },
+            });
+            this._gcObjects.set(token, gcObject);
+            this._finalizationRegistry.register(proxy, token, token);
             return proxy;
         } else {
             return gcObject;
         }
     }
 
-    public unregisterGCObject (gcObject: GCObject) {
-        if (EDITOR) {
-            this._finalizationRegistry!.unregister(gcObject._finalizationToken);
-        }
-    }
-
     public init () {
     }
 
-    private finalizationRegistryCallback (gcObject: GCObject) {
-        if (gcObject.isValid) {
+    private finalizationRegistryCallback (token: any) {
+        const gcObject = this._gcObjects.get(token);
+        if (gcObject) {
+            this._gcObjects.delete(token);
             gcObject.destroy();
         }
+        this._finalizationRegistry!.unregister(token);
     }
 
     public destroy () {

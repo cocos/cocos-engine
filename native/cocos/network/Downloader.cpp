@@ -30,7 +30,7 @@
 #include "network/Downloader.h"
 
 // include platform specific implement class
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
 
     #include "network/DownloaderImpl-apple.h"
     #define DownloaderImpl DownloaderApple //NOLINT(readability-identifier-naming)
@@ -73,10 +73,10 @@ Downloader::Downloader(const DownloaderHints &hints) {
     DLLOG("Construct Downloader %p", this);
     _impl = std::make_unique<DownloaderImpl>(hints);
     _impl->onTaskProgress = [this](const DownloadTask &task,
-                                   int64_t bytesReceived,
-                                   int64_t totalBytesReceived,
-                                   int64_t totalBytesExpected,
-                                   std::function<int64_t(void *buffer, int64_t len)> & /*transferDataToBuffer*/) {
+                                   uint32_t bytesReceived,
+                                   uint32_t totalBytesReceived,
+                                   uint32_t totalBytesExpected,
+                                   std::function<uint32_t(void *buffer, uint32_t len)> & /*transferDataToBuffer*/) {
         if (onTaskProgress) {
             onTaskProgress(task, bytesReceived, totalBytesReceived, totalBytesExpected);
         }

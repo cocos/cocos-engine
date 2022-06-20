@@ -28,7 +28,6 @@
 #include <algorithm>
 #include <thread>
 #include "base/memory/Memory.h"
-#include "base/TypeDef.h"
 #include "tbb/global_control.h"
 
 namespace cc {
@@ -49,15 +48,15 @@ public:
     }
 
     TBBJobSystem() noexcept : TBBJobSystem(std::max(2u, std::thread::hardware_concurrency() - 2u)) {}
-    explicit TBBJobSystem(uint threadCount) noexcept;
+    explicit TBBJobSystem(uint32_t threadCount) noexcept;
 
-    inline uint threadCount() { return _threadCount; }
+    inline uint32_t threadCount() { return _threadCount; }
 
 private:
     static TBBJobSystem *_instance;
 
     tbb::global_control _control;
-    uint _threadCount = 0u;
+    uint32_t _threadCount{0u};
 };
 
 } // namespace cc

@@ -27,9 +27,9 @@
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
-#include <boost/variant2/variant.hpp>
 #include <functional>
 #include "base/std/container/vector.h"
+#include "base/std/variant.h"
 #include "renderer/pipeline/custom/GraphTypes.h"
 #include "renderer/pipeline/custom/GslUtils.h"
 
@@ -500,8 +500,8 @@ inline void reindexVectorHandle(Container &container, HandleDescriptor u) {
 
     using handle_type = ValueHandle<Tag, HandleDescriptor>;
     for (auto &vert : container) {
-        if (boost::variant2::holds_alternative<handle_type>(vert.handle)) {
-            auto &v = boost::variant2::get<handle_type>(vert.handle).value;
+        if (ccstd::holds_alternative<handle_type>(vert.handle)) {
+            auto &v = ccstd::get<handle_type>(vert.handle).value;
             if (v > u) {
                 --v;
             }

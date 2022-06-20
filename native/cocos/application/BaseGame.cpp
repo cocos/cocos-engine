@@ -27,10 +27,15 @@
 #include <string>
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
 
+extern "C" void cc_load_all_plugins(); // NOLINT
+
 namespace cc {
 int BaseGame::init() {
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+
+    cc_load_all_plugins();
+
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
     // override default value
     //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
     //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
@@ -50,18 +55,18 @@ int BaseGame::init() {
     });
 
 #endif
-    
-    int ret = cc::CocosApplication::init();
-    if (ret != 0) {
-        return ret;
-    }
 
     if (_debuggerInfo.enabled) {
         setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
     }
 
+    int ret = cc::CocosApplication::init();
+    if (ret != 0) {
+        return ret;
+    }
+
     setXXTeaKey(_xxteaKey);
-    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("jsb-adapter/web-adapter.js");
     runScript("main.js");
     return 0;
 }

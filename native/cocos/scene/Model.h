@@ -89,6 +89,7 @@ public:
     void onGlobalPipelineStateChanged() const;
     void onMacroPatchesStateChanged();
     void onGeometryChanged();
+    void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
     virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
     virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
@@ -183,6 +184,8 @@ public:
     }
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
+
+    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
 
 protected:
     static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);

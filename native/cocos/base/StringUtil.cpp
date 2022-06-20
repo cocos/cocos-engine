@@ -93,7 +93,7 @@ ccstd::string StringUtil::format(const char *fmt, ...) {
     return sz;
 }
 
-ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const ccstd::string &delims, uint maxSplits) {
+ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const ccstd::string &delims, uint32_t maxSplits) {
     ccstd::vector<ccstd::string> strs;
     if (str.empty()) {
         return strs;
@@ -102,12 +102,11 @@ ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const c
     // Pre-allocate some space for performance
     strs.reserve(maxSplits ? maxSplits + 1 : 16); // 16 is guessed capacity for most case
 
-    uint numSplits = 0;
+    uint32_t numSplits{0};
 
     // Use STL methods
-    size_t start;
-    size_t pos;
-    start = 0;
+    size_t start{0};
+    size_t pos{0};
     do {
         pos = str.find_first_of(delims, start);
         if (pos == start) {

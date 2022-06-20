@@ -62,7 +62,9 @@ JSB_REGISTER_OBJECT_TYPE(cc::ITexture2DCreateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::Texture2D);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeMipmap);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeMipmapData);
-JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeData);
+JSB_REGISTER_OBJECT_TYPE(cc::MipmapAtlasLayoutInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::TextureCubeMipmapAtlasInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::TextureCubeSerializeData);
 JSB_REGISTER_OBJECT_TYPE(cc::TextureCube);
 JSB_REGISTER_OBJECT_TYPE(cc::BuiltinResMgr);
 JSB_REGISTER_OBJECT_TYPE(cc::IMeshBufferView);
@@ -323,8 +325,10 @@ bool js_register_cc_EffectAsset(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_EffectAsset_get);
 SE_DECLARE_FUNC(js_assets_EffectAsset_getAll);
+SE_DECLARE_FUNC(js_assets_EffectAsset_isLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_registerAsset);
 SE_DECLARE_FUNC(js_assets_EffectAsset_remove);
+SE_DECLARE_FUNC(js_assets_EffectAsset_setLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_EffectAsset);
 
 extern se::Object *__jsb_cc_IMemoryImageSource_proto; // NOLINT
@@ -382,6 +386,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4Array);
+SE_DECLARE_FUNC(js_assets_Material_setPropertyNull);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternion);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternionArray);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyTextureBase);
@@ -490,6 +495,7 @@ bool js_register_cc_SimpleTexture(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_SimpleTexture_assignImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_checkTextureLoaded);
+SE_DECLARE_FUNC(js_assets_SimpleTexture_isUsingOfflineMipmaps);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_setMipRange);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateMipmaps);
@@ -547,13 +553,29 @@ bool js_register_cc_ITextureCubeSerializeMipmapData(se::Object *obj); // NOLINT
 template <>
 bool sevalue_to_native(const se::Value &, cc::ITextureCubeSerializeMipmapData *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_ITextureCubeSerializeData_proto; // NOLINT
-extern se::Class * __jsb_cc_ITextureCubeSerializeData_class; // NOLINT
+extern se::Object *__jsb_cc_MipmapAtlasLayoutInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_MipmapAtlasLayoutInfo_class; // NOLINT
 
-bool js_register_cc_ITextureCubeSerializeData(se::Object *obj); // NOLINT
+bool js_register_cc_MipmapAtlasLayoutInfo(se::Object *obj); // NOLINT
 
 template <>
-bool sevalue_to_native(const se::Value &, cc::ITextureCubeSerializeData *, se::Object *ctx); //NOLINT
+bool sevalue_to_native(const se::Value &, cc::MipmapAtlasLayoutInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_TextureCubeMipmapAtlasInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_TextureCubeMipmapAtlasInfo_class; // NOLINT
+
+bool js_register_cc_TextureCubeMipmapAtlasInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::TextureCubeMipmapAtlasInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_TextureCubeSerializeData_proto; // NOLINT
+extern se::Class * __jsb_cc_TextureCubeSerializeData_class; // NOLINT
+
+bool js_register_cc_TextureCubeSerializeData(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::TextureCubeSerializeData *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_TextureCube_proto; // NOLINT
 extern se::Class * __jsb_cc_TextureCube_class; // NOLINT
@@ -563,13 +585,16 @@ bool js_register_cc_TextureCube(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureCreateInfo);
 SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureViewCreateInfo);
 SE_DECLARE_FUNC(js_assets_TextureCube_getImage);
+SE_DECLARE_FUNC(js_assets_TextureCube_getMipmapAtlas);
 SE_DECLARE_FUNC(js_assets_TextureCube_getMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_initialize);
 SE_DECLARE_FUNC(js_assets_TextureCube_releaseTexture);
 SE_DECLARE_FUNC(js_assets_TextureCube_reset);
 SE_DECLARE_FUNC(js_assets_TextureCube_setImage);
+SE_DECLARE_FUNC(js_assets_TextureCube_setMipmapAtlasForJS);
 SE_DECLARE_FUNC(js_assets_TextureCube_setMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_setMipmapsForJS);
+SE_DECLARE_FUNC(js_assets_TextureCube_setmipmapAtlas);
 SE_DECLARE_FUNC(js_assets_TextureCube_fromTexture2DArray);
 SE_DECLARE_FUNC(js_assets_TextureCube_TextureCube);
 
@@ -736,6 +761,7 @@ SE_DECLARE_FUNC(js_assets_Mesh_getStruct);
 SE_DECLARE_FUNC(js_assets_Mesh_initialize);
 SE_DECLARE_FUNC(js_assets_Mesh_merge);
 SE_DECLARE_FUNC(js_assets_Mesh_readAttribute);
+SE_DECLARE_FUNC(js_assets_Mesh_readAttributeFormat);
 SE_DECLARE_FUNC(js_assets_Mesh_readIndices);
 SE_DECLARE_FUNC(js_assets_Mesh_reset);
 SE_DECLARE_FUNC(js_assets_Mesh_setStruct);

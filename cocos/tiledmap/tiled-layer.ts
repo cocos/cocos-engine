@@ -42,6 +42,7 @@ import {
 } from './tiled-types';
 import { fillTextureGrids } from './tiled-utils';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { legacyCC } from '../core/global-exports';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -840,7 +841,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     public updateCulling () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this.enableCulling = false;
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();

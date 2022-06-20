@@ -36,6 +36,7 @@ import { Constraint } from './constraint';
 import { IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IHingeConstraint } from '../../../spec/i-physics-constraint';
+import { legacyCC } from '../../../../core/global-exports';
 
 @ccclass('cc.HingeConstraint')
 @help('i18n:cc.HingeConstraint')
@@ -54,7 +55,7 @@ export class HingeConstraint extends Constraint {
 
     set pivotA (v: Vec3) {
         Vec3.copy(this._pivotA, v);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.constraint.setPivotA(this._pivotA);
         }
     }
@@ -72,7 +73,7 @@ export class HingeConstraint extends Constraint {
 
     set pivotB (v: Vec3) {
         Vec3.copy(this._pivotB, v);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.constraint.setPivotB(this._pivotB);
         }
     }
@@ -90,7 +91,7 @@ export class HingeConstraint extends Constraint {
 
     set axis (v: Vec3) {
         Vec3.copy(this._axis, v);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.constraint.setAxis(this._axis);
         }
     }

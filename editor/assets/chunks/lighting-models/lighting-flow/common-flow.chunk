@@ -1,6 +1,6 @@
 #if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
   #if CC_FORWARD_ADD && !CC_ENABLE_CLUSTERED_LIGHT_CULLING
-    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec4 shadowPos, in vec2 shadowBias)
+    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
     {
       vec3 worldPos;
       HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
@@ -26,6 +26,7 @@
       #if CC_RECEIVE_SHADOW
         if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
+            vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
             shadow = CCSpotShadowFactorBase(shadowPos, worldPos, shadowBias);
           }
         }
@@ -45,7 +46,7 @@
       }
     }
   #else
-    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec4 shadowPos, in vec2 shadowBias)
+    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
     {
       LightingIntermediateData lightingData;
       CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
@@ -63,7 +64,12 @@
     #if CC_RECEIVE_SHADOW
       if (cc_mainLitDir.w > 0.0) {
         if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-          lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+          if (cc_shadowLPNNInfo.w > 0.0) {
+            lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+          } else {
+            vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+            lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+          }
         }
       }
     #endif
@@ -75,7 +81,7 @@
 
       // CCSurfacesLightingCalculateBaked:
         lightingResult.lightmapColor = vec3(0.0);
-      #if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
+      #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
         vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
         lightingResult.lightmapColor = lightmap.rgb;
         // lightingResult.shadow/ao *= lightmap.a;
@@ -88,7 +94,7 @@
 
       //#todo: cluster related lighting flow
       #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
-        //#include <shading-cluster-additive>
+        //#include <legacy/shading-cluster-additive>
       #endif
     }
   #endif

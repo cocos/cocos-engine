@@ -37,6 +37,7 @@ import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -308,7 +309,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;

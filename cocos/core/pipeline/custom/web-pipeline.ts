@@ -27,7 +27,7 @@
 import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -49,6 +49,7 @@ import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
+import { GeometryRenderer } from '..';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -132,17 +133,18 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
-    addSceneOfCamera (camera: Camera, name = 'Camera'): void {
-        const sceneData = new SceneData(name);
+    addSceneOfCamera (camera: Camera, light: Light | null, sceneFlags: SceneFlags, name = 'Camera'): void {
+        const sceneData = new SceneData(name, sceneFlags);
         sceneData.camera = camera;
+        sceneData.light = light;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         setCameraValues(this, camera, this._pipeline,
             camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
     }
-    addScene (sceneName: string): void {
-        const sceneData = new SceneData(sceneName);
+    addScene (sceneName: string, sceneFlags: SceneFlags): void {
+        const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
@@ -374,11 +376,23 @@ export class WebPipeline extends Pipeline {
     public set profiler (profiler: Model | null) {
         this._profiler = profiler;
     }
+    public get geometryRenderer (): GeometryRenderer | null {
+        throw new Error('Method not implemented.');
+    }
     public get shadingScale (): number {
         return this._pipelineSceneData.shadingScale;
     }
     public set shadingScale (scale: number) {
         this._pipelineSceneData.shadingScale = scale;
+    }
+    public setMacroString (name: string, value: string): void {
+        this._macros[name] = value;
+    }
+    public setMacroInt (name: string, value: number): void {
+        this._macros[name] = value;
+    }
+    public setMacroBool (name: string, value: boolean): void {
+        this._macros[name] = value;
     }
     public get device () {
         return this._device;
@@ -497,7 +511,8 @@ export class WebPipeline extends Pipeline {
                 ClearFlagBit.COLOR,
                 new Color(0, 0, 0, 0)));
             const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
-            queue.addScene(`${passName}_shadowScene`);
+            queue.addScene(`${passName}_shadowScene`,
+                SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.SHADOW_CASTER);
             // setCameraValues(queue, camera, light, shadows);
         }
     }
@@ -509,7 +524,7 @@ export class WebPipeline extends Pipeline {
         if (!shadows.enabled || shadows.type !== ShadowType.ShadowMap) {
             return;
         }
-        const castShadowObjects = pplScene.castShadowObjects;
+        const castShadowObjects = pplScene.csmLayers.castShadowObjects;
         const validPunctualLights = pplScene.validPunctualLights;
 
         // force clean up
@@ -596,10 +611,10 @@ export class WebPipeline extends Pipeline {
                 forwardPass.addRasterView(forwardPassDSName, passDSView);
                 forwardPass
                     .addQueue(QueueHint.RENDER_OPAQUE)
-                    .addSceneOfCamera(camera);
+                    .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
                 forwardPass
                     .addQueue(QueueHint.RENDER_TRANSPARENT)
-                    .addSceneOfCamera(camera);
+                    .addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT);
             }
         }
         this.compile();
@@ -645,6 +660,13 @@ export class WebPipeline extends Pipeline {
     }
     get layoutGraphBuilder (): LayoutGraphBuilder {
         return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
+    }
+    public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
+        const lg = this._layoutGraph;
+        const phaseID = lg.shaderLayoutIndex.get(shaderName)!;
+        const pplLayout = lg.getLayout(phaseID);
+        const setLayout = pplLayout.descriptorSets.get(freq)!;
+        return setLayout.descriptorSetLayout!;
     }
     get renderGraph () {
         return this._renderGraph;

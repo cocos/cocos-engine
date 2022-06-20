@@ -7,25 +7,26 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
-        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
-        albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
-        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
-        emissiveMap:          { value: grey }
-        shininessExponentMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
-        shininessExponent:    { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
-        specularColor:        { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
-        specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
-        specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
-        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:   { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
-        normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        normalMap:            { value: normal }
-        glossiness:           { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:             { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
-        metallicMap:          { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
+        albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:        { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveMap:           { value: grey }
+        shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        shininessExponent:     { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        specularGlossinessMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        specularColor:         { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
+        specularMap:           { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
+        specularFactor:        { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:    { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        normalMap:             { value: normal }
+        glossiness:            { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:              { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:           { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -97,12 +98,12 @@ CCProgram shared-ubos %{
 
 CCProgram standard-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
@@ -124,7 +125,7 @@ CCProgram standard-vs %{
   #endif
 
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-vs>
+    #include <legacy/lightingmap-vs>
   #endif
 
   void main () {
@@ -172,12 +173,13 @@ CCProgram standard-vs %{
 
 CCProgram standard-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <shared-ubos>
-  #include <cc-fog-fs>
-  #include <standard-surface-entry>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
+  #include <common/mesh/material>
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+    #include <legacy/lightingmap-fs>
   #endif
 
   in vec3 v_position;
@@ -187,14 +189,18 @@ CCProgram standard-fs %{
   
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
-  #pragma define-meta DCC_APP_NAME range([0, 2])
+  #pragma define-meta DCC_APP_NAME range([0, 3])
   #define DCC_APP_AUTODESK 0
   #define DCC_APP_BLENDER 1
   #define DCC_APP_CINEMA4D 2
+  #define DCC_APP_DEFAULT 3
 
   #if USE_SHININESS_MAP
     uniform sampler2D shininessExponentMap;
-    #pragma define-meta  GLOSSINESS_MAP_CHANNEL options([r,g,b,a])
+    #pragma define-meta SHININESS_MAP_CHANNEL options([r,g,b,a])
+  #endif
+  #if USE_SPECULAR_GLOSSINESS_MAP
+    uniform sampler2D specularGlossinessMap;
   #endif
   #if USE_SPECULAR_MAP
     uniform sampler2D specularMap;
@@ -224,26 +230,6 @@ CCProgram standard-fs %{
     uniform sampler2D emissiveMap;
   #endif
 
-bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out vec3 albedo, vec3 diffuse, vec3 specular, float f0 /*= 0.04*/)
-{
-	float d = max(max(diffuse.x, diffuse.y), diffuse.z);
-	vec3 normalizedColor = diffuse / (d + (d < EPSILON_LOWP ? EPSILON_LOWP : 0.0));
-	normalizedColor = d < EPSILON_LOWP ? specular : normalizedColor;
-
-	float s = max(max(specular.x, specular.y), specular.z);
-
-	float delta = (d + s) * (d + s)  - 4.0 * f0 * d;
-	float deltaSqrt = sqrt(max(0.0, delta));
-	// solver
-	float solverMetallic = (-d - s + 2.0 * f0 + deltaSqrt) / (2.0 * f0);
-	vec3 solverAlbedo = (d + s) * normalizedColor - vec3(f0 * (1.0 - solverMetallic));
-
-	bool isValidSolver = delta >= 0.0;
-	metallic = isValidSolver ? clamp(solverMetallic, 0.0, 1.0) : 0.0;
-	albedo = isValidSolver ? vec3(max(0.0, solverAlbedo.x), max(0.0, solverAlbedo.y), max(0.0, solverAlbedo.z)) : diffuse;
-	return isValidSolver;
-}
-
   float discolor(vec3 srcColor) {
     return dot(GRAY_VECTOR, srcColor);
   }
@@ -268,8 +254,10 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
       float specularIntensityMultiplier = mix(1.0, 5.0, roughness);
     #elif DCC_APP_NAME == DCC_APP_CINEMA4D
       float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
-    #else // DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_AUTODESK
       float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
+    #else
+      float specularIntensityMultiplier = 1.0;
     #endif
       return specularIntensityMultiplier;
   }
@@ -277,6 +265,9 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
   vec4 getSpecularColorAndFactor()
   {
     vec3 inSpecular = specularColor.rgb;
+    #if USE_SPECULAR_GLOSSINESS_MAP
+      inSpecular = SRGBToLinear(texture(specularGlossinessMap, TEXTURE_UV).rgb);
+    #endif
     #if USE_SPECULAR_MAP
         vec4 specularTex = texture(specularMap, TEXTURE_UV);
         specularTex.rgb = SRGBToLinear(specularTex.rgb);
@@ -291,14 +282,12 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
       baseColor.rgb *= SRGBToLinear(v_color.rgb);
       baseColor.a *= v_color.a;
     #endif
-    float diffuseScale = diffuseFactor;
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
       baseColor = texColor;
-      diffuseScale = 1.0;
     #endif
-    baseColor.rgb *= diffuseScale;
+    baseColor.rgb *= diffuseFactor;
     
     #if USE_TRANSPARENCY_MAP
       baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
@@ -313,17 +302,22 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
     //glossiness
     float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
     #if HAS_EXPORTED_GLOSSINESS
-      inGlossiness = glossiness;
+      #if USE_SPECULAR_GLOSSINESS_MAP
+        inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
+      #else
+        inGlossiness = glossiness;
+      #endif
     #else
       #if USE_SHININESS_MAP
-        #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL
-          inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).GLOSSINESS_MAP_CHANNEL;
+        #if SHININESS_MAP_CHANNEL
+          inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).SHININESS_MAP_CHANNEL;
         #else
           inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
         #endif
       #else
         inGlossiness = convertShininessExponent(shininessExponent);
       #endif
+
       inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
     #endif
 
@@ -370,10 +364,10 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-shadow>
 
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
@@ -409,8 +403,8 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
-  #include <packing>
-  #include <cc-shadow-map-base>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
 
   in vec2 v_uv;
   in vec2 v_uv1;

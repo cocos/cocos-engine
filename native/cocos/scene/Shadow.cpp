@@ -91,7 +91,7 @@ void ShadowsInfo::setShadowMapSize(float value) {
     }
 }
 
-void ShadowsInfo::setPlaneFromNode(Node *node) {
+void ShadowsInfo::setPlaneFromNode(const Node* node) {
     const auto &qt = node->getWorldRotation();
     _normal = Vec3::UNIT_Y;
     _normal.transformQuat(qt);
@@ -113,9 +113,12 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setNormal(shadowsInfo.getPlaneDirection());
     setDistance(shadowsInfo.getPlaneHeight());
     setMaxReceived(shadowsInfo.getMaxReceived());
-    setSize(shadowsInfo.getSize());
+    if (fabsf(shadowsInfo.getShadowMapSize() - _size.x) > 0.1F) {
+        setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
+        _shadowMapDirty = true;
+    }
+    
     setShadowColor(shadowsInfo.getShadowColor());
-    _shadowMapDirty = false;
 }
 
 void Shadows::destroy() {

@@ -51,11 +51,16 @@ EShLanguage getShaderStage(ShaderStageFlagBit type) {
     }
 }
 
+#include <glslang/build_info.h>
+
 glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
     switch (vulkanMinorVersion) {
         case 0: return glslang::EShTargetVulkan_1_0;
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
+#if GLSLANG_VERSION_LESS_OR_EQUAL_TO(11, 10, 0)
+        case 3: return glslang::EShTargetVulkan_1_3;
+#endif
         default: {
             CC_ASSERT(false);
             return glslang::EShTargetVulkan_1_0;
@@ -68,6 +73,9 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 0: return glslang::EShTargetSpv_1_0;
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
+#if GLSLANG_VERSION_LESS_OR_EQUAL_TO(11, 10, 0)
+        case 3: return glslang::EShTargetSpv_1_6;
+#endif
         default: {
             CC_ASSERT(false);
             return glslang::EShTargetSpv_1_0;
@@ -129,7 +137,7 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &sourc
     spvOptions.disableOptimizer = false;
     spvOptions.optimizeSize = true;
 #if CC_DEBUG > 0
-    //spvOptions.validate = true;
+    // spvOptions.validate = true;
 #else
     spvOptions.stripDebugInfo = true;
 #endif

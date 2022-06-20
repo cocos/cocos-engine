@@ -30,9 +30,9 @@ import { ForwardStagePriority } from '../enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
-import { Light } from '../../renderer/scene/light';
+import { Light, LightType } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
-import { Camera } from '../../renderer/scene';
+import { Camera, CSMLevel, DirectionalLight } from '../../renderer/scene';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -53,15 +53,17 @@ export class ShadowStage extends RenderStage {
     };
 
     /**
-     * @en Sets the frame buffer for shadow map
-     * @zh 设置阴影渲染的 FrameBuffer
+     * @en Sets the render shadow map info
+     * @zh 设置阴影渲染信息
      * @param light
      * @param shadowFrameBuffer
+     * @param level 层级
      */
-    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer) {
+    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0) {
         this._globalDS = globalDS;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
+        this._level = level;
     }
 
     private _additiveShadowQueue!: RenderShadowMapBatchedQueue;
@@ -69,6 +71,7 @@ export class ShadowStage extends RenderStage {
     private _renderArea = new Rect();
     private _light: Light | null = null;
     private _globalDS: DescriptorSet | null = null;
+    private _level = 0;
 
     public destroy () {
         this._shadowFrameBuffer = null;
@@ -80,8 +83,18 @@ export class ShadowStage extends RenderStage {
 
     public clearFramebuffer (camera: Camera) {
         if (!this._light || !this._shadowFrameBuffer) { return; }
+
         colors[0].w = camera.clearColor.w;
         const pipeline = this._pipeline as ForwardPipeline;
+        const pipelineSceneData = pipeline.pipelineSceneData;
+        const shadingScale = pipelineSceneData.shadingScale;
+        const shadowInfo = pipelineSceneData.shadows;
+        const vp = camera.viewport;
+        const shadowMapSize = shadowInfo.size;
+        this._renderArea.x = vp.x * shadowMapSize.x;
+        this._renderArea.y = vp.y * shadowMapSize.y;
+        this._renderArea.width =  vp.width * shadowMapSize.x * shadingScale;
+        this._renderArea.height = vp.height * shadowMapSize.y * shadingScale;
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._shadowFrameBuffer.renderPass;
 
@@ -94,20 +107,40 @@ export class ShadowStage extends RenderStage {
         const pipeline = this._pipeline;
         const pipelineSceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
-        const shadingScale = pipelineSceneData.shadingScale;
         const descriptorSet = this._globalDS!;
         const cmdBuff = pipeline.commandBuffers[0];
+        const level = this._level;
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light);
-        this._additiveShadowQueue.gatherLightPasses(descriptorSet, camera, this._light, cmdBuff);
+        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light, level);
+        this._additiveShadowQueue.gatherLightPasses(camera, this._light, cmdBuff, level);
 
-        const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
-        this._renderArea.x = vp.x * shadowMapSize.x;
-        this._renderArea.y = vp.y * shadowMapSize.y;
-        this._renderArea.width =  vp.width * shadowMapSize.x * shadingScale;
-        this._renderArea.height = vp.height * shadowMapSize.y * shadingScale;
+        switch (this._light.type) {
+        case LightType.DIRECTIONAL: {
+            const mainLight = this._light as DirectionalLight;
+            if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
+                this._renderArea.x = 0;
+                this._renderArea.y = 0;
+                this._renderArea.width = shadowMapSize.x;
+                this._renderArea.height = shadowMapSize.y;
+            } else {
+                this._renderArea.x = level % 2 * 0.5 * shadowMapSize.x;
+                this._renderArea.y = (1 - Math.floor(level / 2)) * 0.5 * shadowMapSize.y;
+                this._renderArea.width = 0.5 * shadowMapSize.x;
+                this._renderArea.height = 0.5 * shadowMapSize.y;
+            }
+            break;
+        }
+        case LightType.SPOT: {
+            this._renderArea.x = 0;
+            this._renderArea.y = 0;
+            this._renderArea.width = shadowMapSize.x;
+            this._renderArea.height = shadowMapSize.y;
+            break;
+        }
+        default:
+        }
 
         const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer.renderPass;

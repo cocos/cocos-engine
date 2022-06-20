@@ -101,6 +101,7 @@ bool Camera::initialize(const ICameraInfo &info) {
 }
 
 void Camera::destroy() {
+    detachFromScene();
     if (_window) {
         _window->detachCamera(this);
         _window = nullptr;
@@ -159,7 +160,10 @@ void Camera::update(bool forceUpdate /*false*/) {
     if (_node->getChangedFlags() || forceUpdate) {
         _matView = _node->getWorldMatrix().getInversed();
         _forward.set(-_matView.m[2], -_matView.m[6], -_matView.m[10]);
-
+        Mat4 scaleMat{};
+        scaleMat.scale(_node->getWorldScale());
+        // remove scale
+        Mat4::multiply(scaleMat, _matView, &_matView);
         _position.set(_node->getWorldPosition());
         viewProjDirty = true;
     }
