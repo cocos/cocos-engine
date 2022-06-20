@@ -65,7 +65,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
-        if (EDITOR && legacyCC.GAME_VIEW) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
 
         if (!v) {
             if (this._debugGraphics) {
@@ -77,7 +77,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     _checkDebugDrawValid () {
-        if (EDITOR && legacyCC.GAME_VIEW) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {

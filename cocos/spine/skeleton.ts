@@ -207,7 +207,7 @@ export class Skeleton extends UIRenderer {
             this._needUpdateSkeltonData = true;
             this.defaultSkin = '';
             this.defaultAnimation = '';
-            if (EDITOR && !legacyCC.GAME_VIEWEDITOR) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
                 this._refreshInspector();
             }
             this._updateSkeletonData();
