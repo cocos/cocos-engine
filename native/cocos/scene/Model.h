@@ -164,8 +164,8 @@ public:
     inline bool isDynamicBatching() const { return _isDynamicBatching; }
     inline float getShadowBias() const { return _shadowBias; }
     inline float getShadowNormalBias() const { return _shadowNormalBias; }
-    inline uint32_t getTransparentPriority() const { return _transparentPriority; }
-    inline void setTransparentPriority(uint32_t value) { _transparentPriority = value; }
+    inline uint32_t getPriority() const { return _priority; }
+    inline void setPriority(uint32_t value) { _priority = value; }
 
     void initLocalDescriptors(index_t subModelIndex);
     void initWorldBoundDescriptors(index_t subModelIndex);
@@ -229,7 +229,7 @@ protected:
     IntrusivePtr<Texture2D> _lightmap;
     Vec4 _lightmapUVParam;
 
-    uint32_t _transparentPriority{0};
+    uint32_t _priority{0};
 
     // For JS
     CallbacksInvoker _eventProcessor;

@@ -414,7 +414,7 @@ class DevicePreSceneTask extends WebSceneTask {
         }
         const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
         const rp = new RenderInfo();
-        rp.transparentPriority = ro.model.transparentPriority;
+        rp.priority = ro.model.priority;
         rp.hash = hash;
         rp.depth = ro.depth || 0;
         rp.shaderId = shader.typedID;
@@ -436,7 +436,7 @@ class DevicePreSceneTask extends WebSceneTask {
      * @zh 比较排序函数。半透明对象按优先级 -> 深度由后向前 -> Shader ID 顺序排序。
      */
     protected _transparentCompareFn (a: RenderInfo, b: RenderInfo) {
-        return (a.transparentPriority - b.transparentPriority) || (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
+        return (a.priority - b.priority) || (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
     }
 
     private _uploadInstanceBuffers () {

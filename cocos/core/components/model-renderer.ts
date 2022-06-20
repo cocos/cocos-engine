@@ -50,22 +50,22 @@ export class ModelRenderer extends Renderer {
     }
 
     /**
-     * @en The transparent sorting priority which will be applied to the committed models.
-     * @zh 应用于所有提交渲染的 Model 在透明队列中的排序优先级
+     * @en The priority which will be applied to the committed models.(Valid only in transparent queues)
+     * @zh 应用于所有提交渲染的 Model 的排序优先级（只在半透明渲染队列中起效）
      */
-    get transparentPriority () {
-        return this._transparentPriority;
+    get priority () {
+        return this._priority;
     }
 
-    set transparentPriority (val) {
-        if (val === this._transparentPriority) return;
-        this._updateTransparentPriority();
+    set priority (val) {
+        if (val === this._priority) return;
+        this._updatePriority();
     }
 
     @serializable
     protected _visFlags = Layers.Enum.NONE;
     protected _models: scene.Model[] = [];
-    protected _transparentPriority = 0;
+    protected _priority = 0;
 
     /**
      * @zh 收集组件中的 models
@@ -77,7 +77,7 @@ export class ModelRenderer extends Renderer {
     }
 
     protected onEnable () {
-        this._updateTransparentPriority();
+        this._updatePriority();
     }
 
     protected _attachToScene () {
@@ -89,10 +89,10 @@ export class ModelRenderer extends Renderer {
     protected _onVisibilityChange (val) {
     }
 
-    protected _updateTransparentPriority () {
+    protected _updatePriority () {
         if (this._models.length > 0) {
             for (let i = 0; i < this._models.length; i++) {
-                this._models[i].transparentPriority = this._transparentPriority;
+                this._models[i].priority = this._priority;
             }
         }
     }

@@ -270,12 +270,12 @@ export class Model {
      * @en Rendering priority in the transparent queue of model.
      * @zh Model 在透明队列中的渲染排序优先级
      */
-    get transparentPriority () : number {
-        return this._transparentPriority;
+    get priority () : number {
+        return this._priority;
     }
 
-    set transparentPriority (val: number) {
-        this._transparentPriority = val;
+    set priority (val: number) {
+        this._priority = val;
     }
 
     /**
@@ -424,7 +424,7 @@ export class Model {
      */
     protected _visFlags = Layers.Enum.NONE;
 
-    protected _transparentPriority = 0;
+    protected _priority = 0;
 
     /**
      * @internal
