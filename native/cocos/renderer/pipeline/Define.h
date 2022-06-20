@@ -65,6 +65,7 @@ struct CC_DLL RenderTargetInfo {
 };
 
 struct CC_DLL RenderPass {
+    uint32_t priority = 0;
     uint32_t hash = 0;
     float depth = 0.0F;
     uint32_t shaderID = 0;
@@ -175,6 +176,10 @@ inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
 }
 
 inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
+    if (a.priority != b.priority) {
+        return a.priority < b.priority;
+    }
+    
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
