@@ -25,16 +25,22 @@
 ****************************************************************************/
 
 #pragma once
-
+#include <cstdint>
 #include "base/RefCounted.h"
 #include "base/std/container/list.h"
 #include "base/std/container/unordered_map.h"
+#include "base/std/container/string.h"
 
 
 
 namespace cc {
 class Scheduler;
 
+/**
+ @common
+ */
+typedef std::function<void(uint32_t, const ccstd::string &)> FinishCallback;
+typedef std::function<void(bool)> PreloadCallback;
 #define MAX_AUDIOINSTANCES 24
 
 class AudioEngineImpl : public cc::RefCounted {
@@ -42,29 +48,52 @@ public:
     AudioEngineImpl();
     ~AudioEngineImpl();
 
+    // Life cycle related
     bool init();
-    int play(const ccstd::string &fileFullPath, bool loop, float volume);
-    void setVolume(int audioID, float volume);
-    void setLoop(int audioID, bool loop);
-    bool pause(int audioID);
-    bool resume(int audioID);
-    void stop(int audioID);
+    bool release();
+    
+    /**
+     @deprecated
+     Play2d is a terrible method specification, it contains 3 steps at once.
+     1. Register audio as audio ID
+     2. Load audio as audio cache or some decode data
+     3. Play audio.
+     The audio engine should actually make these steps accessible, and then developers can control themselves.
+     */
+    int play2d(const ccstd::string &fileFullPath, bool loop, float volume);
+    
+    // Register audio with fileFullPath
+    int registerAudio(const ccstd::string &fileFullPath);
+    
+    // Cache audio with audioID specified.
+    bool cacheAudio(uint32_t audioID);
+    
+    /**
+     * Player control.
+     */
+    // Play from the beginning
+    bool play(uint32_t audioID, bool loop, float volume);
+    void setVolume(uint32_t audioID, float volume);
+    void setLoop(uint32_t audioID, bool loop);
+    bool pause(uint32_t audioID);
+    bool resume(uint32_t audioID);
+    void stop(uint32_t audioID);
     void stopAll();
-    float getDuration(int audioID);
+    float getDuration(uint32_t audioID);
     float getDurationFromFile(const ccstd::string &fileFullPath);
-    float getCurrentTime(int audioID);
-    bool setCurrentTime(int audioID, float time);
-    void setFinishCallback(int audioID, const FinishCallback &callback);
+    float getCurrentTime(uint32_t audioID);
+    bool setCurrentTime(uint32_t audioID, float time);
+    void setFinishCallback(uint32_t audioID, const FinishCallback &callback);
 
     void uncache(const ccstd::string &filePath);
     void uncacheAll();
+    
     // return CacheID
-    uint32_t preload(const ccstd::string &filePath, std::function<void(bool)> callback);
+    uint32_t preload(const ccstd::string &filePath, const PreloadCallback &callback);
     void update(float dt);
 
 private:
-    bool checkAudioIdValid(int audioID);
-    void play2dImpl(AudioCache *cache, int audioID);
+    bool checkAudioIdValid(uint32_t audioID);
     
     std::weak_ptr<Scheduler> _scheduler;
 };

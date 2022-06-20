@@ -26,8 +26,8 @@
 
 #pragma once
 
-#import <AudioToolbox/ExtendedAudioFile.h>
-#include <stdint.h>
+#import <AVFoundation/AVAudioFile.h>
+#include <cstdint>
 
 namespace cc {
 

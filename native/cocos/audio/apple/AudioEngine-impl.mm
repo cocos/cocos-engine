@@ -30,46 +30,73 @@
 #import "AVFoundation/AVAudioPlayerNode.h"
 #import "AVFoundation/AVAudioFile.h"
 #import "AVFoundation/AVAudioFormat.h"
-#include "audio/apple/AudioEngine-impl.h"
+#include "audio/apple/AudioEngine-Impl.h"
 
 /**
  ========== Objective-C implementation for audio management.=========
  */
 @interface AudioCache: NSObject
-@property(readwrite)AVAudioFile* file;
-@property(readwrite)AVAudioPCMBuffer* buffer;
 @end
-@implementation AudioCache: NSObject
-
+@implementation AudioCache
+{
+    AVAudioFile* _file;
+    AVAudioPCMBuffer* _buffer;
+}
 -(id)initWithURL: (NSURL*)fileUrl {
     [super init];
     NSError* err = nil;
     // If err occurs
-    if(!file = [[AVAudioFile alloc] initForReading:fileUrl error:&err])
-    {
+    _file = [[AVAudioFile alloc] initForReading:fileUrl error:&err];
+    if (!_file) {
         NSLog(@"%@", [err localizedDescription]);
+        [err release];
         [self release];
         return self;
     }
     [self release];
     return self;
 }
--(void)readBuffer{
+-(bool)readBuffer {
     
-    AVAudioFormat *format = file.fileFormat;
-    AVAudioFrameCount frameCount = (AVAudioFrameCount)file.length;
+    AVAudioFormat *format = _file.fileFormat;
+    AVAudioFrameCount frameCount = (AVAudioFrameCount)_file.length;
+    
+    NSError* err = nil;
+    [_file readIntoBuffer:_buffer frameCount:frameCount error:&err];
+    if (err) {
+        NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
+        [err release];
+        return false;
+    }
+    return true;
+}
+-(void)dealloc {
+    [_buffer release];
+    [_file release];
+    assert(_file.retainCount == 0);
+    assert(_buffer.retainCount == 0);
+    [super dealloc];
 }
 @end
+@interface AudioPlayer: NSObject
+@end
 
+@implementation AudioPlayer
+{
+    std::shared_ptr<AudioCache*> cache;
+    AVAudioPlayerNode* playerNode;
+}
+
+@end
 /**
  ============ C++ implementation ==========
  */
 
 static AVAudioEngine* engine_instance;
+static ccstd::unordered_map<uint32_t, AudioPlayer*> players;
 namespace cc {
 class Scheduler;
 
-#define MAX_AUDIOINSTANCES 24
 
 AudioEngineImpl::AudioEngineImpl(){
     engine_instance = [[AVAudioEngine alloc] init];
@@ -82,14 +109,16 @@ AudioEngineImpl::~AudioEngineImpl(){
 
 bool AudioEngineImpl::init() {
     NSError* err;
-    if(![engine startAndReturnError: &err]){
-        //handle err
+    if(![engine_instance startAndReturnError: &err]){
+        NSLog(@"%@AudioEngine", [err localizedDescription]);
+        [err release];
+        return false;
     }
-    [err release];
+    
 }
 
-// return audio id
-int AudioEngineImpl::play(const ccstd::string &fileFullPath, bool loop, float volume) {
+// return audio id, but not really play it.
+int AudioEngineImpl::play2d(const ccstd::string &fileFullPath, bool loop, float volume) {
     AVAudioPlayerNode* player = [[AVAudioPlayerNode alloc] init];
     [engine_instance attachNode:player];
     AVAudioMixerNode *mixer = engine_instance.mainMixerNode;
@@ -97,7 +126,12 @@ int AudioEngineImpl::play(const ccstd::string &fileFullPath, bool loop, float vo
     [engine connect:player to:mixer format:[mixer outputFormatBus:0]];
 
 }
-
+int registerAudio(const ccstd::string &fileFullPath) {
+    AudioPlayer* player = [[AudioPlayer alloc] init];
+}
+bool cacheAudio(uint32_t audioID) {
+    
+}
 void AudioEngineImpl::setVolume(int audioID, float volume) {
     
 }

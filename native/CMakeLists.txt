@@ -347,8 +347,10 @@ if(USE_AUDIO)
                                     cocos/audio/apple/AudioDecoder.h
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-Impl.mm
-                                    cocos/audio/apple/AudioMacros.h
                                     cocos/audio/apple/AudioEngine-Impl.h
+                                    cocos/audio/apple/AudioCache.h
+                                    cocos/audio/apple/AudioCache.mm
+                                    cocos/audio/apple/AudioMacros.h
         )
     endif()
 
