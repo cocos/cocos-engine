@@ -152,6 +152,7 @@ if(USE_AUDIO)
     cocos_source_files(
                      cocos/audio/AudioEngine.cpp
                      cocos/audio/include/AudioEngine.h
+                     cocos/audio/include/Common.h
                      cocos/audio/include/Export.h
     )
     if(WINDOWS)

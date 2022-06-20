@@ -8,6 +8,26 @@ import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
 import legacyCC from '../../../predefine';
 
+enum AudioFormat {
+    UNKNOWN = 0,
+    SIGNED_8,
+    UNSIGNED_8,
+    SIGNED_16,
+    UNSIGNED_16,
+    SIGNED_24,
+    UNSIGNED_24,
+    SIGNED_32,
+    UNSIGNED_32,
+    FLOAT_32,
+    FLOAT_64
+}
+interface PCMHeader {
+    totalFrames: number;
+    sampleRate: number;
+    bytesPerFrame: number;
+    audioFormat: AudioFormat;
+    channelCount: number;
+}
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 export class AudioContextAgent {
@@ -287,11 +307,18 @@ export class AudioPlayerWeb implements OperationQueueable {
         return this._audioTimer.currentTime;
     }
 
-    get sampleRate (): number {
-        return this._audioBuffer.sampleRate;
+    get pcmHeader (): any {
+        const pcmHeader: PCMHeader = {
+            totalFrames: this._audioBuffer.length,
+            sampleRate: this._audioBuffer.sampleRate,
+            bytesPerFrame: 4, //Float32 always refers to 4 bytes
+            audioFormat: AudioFormat.FLOAT_32,
+            channelCount: this._audioBuffer.numberOfChannels,
+        };
+        return pcmHeader;
     }
 
-    public getBufferAtChannel (channelID: number): Float32Array | undefined {
+    public getPCMBuffer (channelID: number): Float32Array | undefined {
         return this._audioBuffer.getChannelData(channelID);
     }
 

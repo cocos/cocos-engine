@@ -62,14 +62,11 @@ export class AudioPlayer implements OperationQueueable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _operationQueue: OperationInfo[] = [];
-    get sampleRate () :number {
-        if (!this._isValid) {
-            return 0;
-        }
-        return jsb.AudioEngine.getSampleRate(this._url);
+    get pcmHeader () :any {
+        return jsb.AudioEngine.getPCMHeader(this._url);
     }
-    public getBufferAtChannel (channelID: number) : Float32Array | undefined {
-        return jsb.AudioEngine.getPCMBuffer(this._url, channelID);
+    public getPCMBuffer (channelID: number) : ArrayBuffer | undefined {
+        return jsb.AudioEngine.getOriginalPCMBuffer(this._url, channelID);
     }
     // NOTE: we need to cache the state in case the audio id is invalid.
     private _cachedState = {

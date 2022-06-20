@@ -26,8 +26,11 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <cstdint>
+#include "base/std/any.h"
+#include <functional>
+
+#include <cocos/audio/include/Common.h>
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include "vorbis/vorbisfile.h"
@@ -38,11 +41,7 @@
 #endif
 
 namespace cc {
-enum class AudioDataType {
-    SIGNED_16,
-    SIGNED_32,
-    FLOAT_32,
-};
+
 /**
  * @brief The class for decoding compressed audio file to PCM buffer.
  */
@@ -115,21 +114,17 @@ public:
      */
     virtual uint32_t getChannelCount() const;
 
-    virtual uint32_t getBytesPerChannel() const;
 
-    virtual AudioDataType getDataType() const;
+    virtual AudioDataFormat getDataFormat() const;
+
+    virtual WavePCMHeader getPCMHeader() const;
 
 protected:
     AudioDecoder();
     virtual ~AudioDecoder();
 
     bool _isOpened;
-    uint32_t _totalFrames;
-    uint32_t _bytesPerFrame;
-    uint32_t _sampleRate;
-    uint32_t _channelCount;
-    uint32_t _bytesPerChannel;
-    AudioDataType _dataType;
+    WavePCMHeader _pcmHeader;
     void *_fsHooks = nullptr;
 
     friend class AudioDecoderManager;

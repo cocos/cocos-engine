@@ -38,7 +38,7 @@ export class AudioPlayer {
     constructor (player: AbstractAudioPlayer) {
         this._player = player;
     }
-    get sampleRate () {
+    get pcmHeader () {
         return this._player.sampleRate;
     }
     public getBufferAtChannel (channelID:number) : Float32Array | undefined {

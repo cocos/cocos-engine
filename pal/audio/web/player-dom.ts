@@ -198,12 +198,10 @@ export class AudioPlayerDOM implements OperationQueueable {
         return this._domAudio.currentTime;
     }
 
-    //TODO: what should we use for dom？
-    get sampleRate (): number {
-        return 0;
+    get pcmHeader (): any {
+        return undefined;
     }
-
-    public getBufferAtChannel (channelID: number): Float32Array | undefined {
+    getPCMBuffer (channelIndex: number): Float32Array | undefined {
         return undefined;
     }
 

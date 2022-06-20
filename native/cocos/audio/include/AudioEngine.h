@@ -30,6 +30,7 @@
 #include <chrono>
 #include <functional>
 #include "audio/include/Export.h"
+#include "audio/include/Common.h"
 #include "base/Macros.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
@@ -317,12 +318,12 @@ public:
     static bool isEnabled();
 
     /**
-     * @brief Get the Sample Rate object
+     * @brief Get the PCMHeader of audio
      * 
-     * @param audioID
-     * @return SampleRate of audio source
+     * @param url
+     * @return PCMHeader of audio
      */
-    static uint32_t getSampleRate(const char* url);
+    static WavePCMHeader getPCMHeader(const char *url);
 
     /**
      * @brief Get the Buffer object
@@ -330,8 +331,9 @@ public:
      * @param audioID 
      * @return float* PCM datas behave as float array
      */
-    static std::vector<float> getPCMBuffer(const char* url, uint32_t channelID);
-    
+    static ccstd::vector<char> getOriginalPCMBuffer(const char *url, uint32_t channelID);
+
+
 protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);

@@ -5,11 +5,23 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "audio/include/AudioEngine.h"
+#include "audio/include/Common.h"
 #include "v8/HelperMacros.h"
 
 
+static bool PCMHeader_to_seval(WavePCMHeader& header, se::Value* ret) {
+    CC_ASSERT(ret != nullptr);
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("totalFrames", se::Value(header.totalFrames));
+    obj->setProperty("sampleRate", se::Value(header.sampleRate));
+    obj->setProperty("bytesPerFrame", se::Value(header.bytesPerFrame));
+    obj->setProperty("channelCount", se::Value(header.channelCount));
+    obj->setProperty("audioFormat", se::Value((int)header.dataFormat));
+    ret->setObject(obj);
 
-static bool js_audio_AudioEngine_getSampleRate(se::State &s) // NOLINT
+    return true;
+}
+static bool js_audio_AudioEngine_getPCMHeader(se::State& s) // NOLINT
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18,8 +30,8 @@ static bool js_audio_AudioEngine_getSampleRate(se::State &s) // NOLINT
         ccstd::string arg0;
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
-        unsigned int result = cc::AudioEngine::getSampleRate(arg0.c_str());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        WavePCMHeader header = cc::AudioEngine::getPCMHeader(arg0.c_str());
+        ok &= PCMHeader_to_seval(header, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
@@ -28,9 +40,9 @@ static bool js_audio_AudioEngine_getSampleRate(se::State &s) // NOLINT
     return false;
 
 }
-SE_BIND_FUNC(js_audio_AudioEngine_getSampleRate)
+SE_BIND_FUNC(js_audio_AudioEngine_getPCMHeader)
 
-static bool js_audio_AudioEngine_getPCMBuffer(se::State &s) // NOLINT
+static bool js_audio_AudioEngine_getOriginalPCMBuffer(se::State& s) // NOLINT
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -40,12 +52,13 @@ static bool js_audio_AudioEngine_getPCMBuffer(se::State &s) // NOLINT
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
         
-        uint32_t arg1;
+        uint32_t arg1{0};
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
         
-        std::vector<float> result = cc::AudioEngine::getPCMBuffer(arg0.c_str(), arg1);
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        ccstd::vector<char> buffer = cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1);
+        //ok &= nativevalue_to_se(buffer, s.rval(), nullptr /*ctx*/);
+        s.rval().setObject(se::Object::createArrayBufferObject(buffer.data(), buffer.size()));
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
@@ -54,7 +67,7 @@ static bool js_audio_AudioEngine_getPCMBuffer(se::State &s) // NOLINT
     return false;
 
 }
-SE_BIND_FUNC(js_audio_AudioEngine_getPCMBuffer)
+SE_BIND_FUNC(js_audio_AudioEngine_getOriginalPCMBuffer)
 
 bool register_all_audio_manual(se::Object* obj) // NOLINT
 {
@@ -63,8 +76,8 @@ bool register_all_audio_manual(se::Object* obj) // NOLINT
     se::Value audioEngineVal;
     jsbVal.toObject()->getProperty("AudioEngine", &audioEngineVal);
 
-    audioEngineVal.toObject()->defineFunction("getSampleRate", _SE(js_audio_AudioEngine_getSampleRate));
-    audioEngineVal.toObject()->defineFunction("getPCMBuffer", _SE(js_audio_AudioEngine_getPCMBuffer));
+    audioEngineVal.toObject()->defineFunction("getPCMHeader", _SE(js_audio_AudioEngine_getPCMHeader));
+    audioEngineVal.toObject()->defineFunction("getOriginalPCMBuffer", _SE(js_audio_AudioEngine_getOriginalPCMBuffer));
     // Get the ns
 
     return true;

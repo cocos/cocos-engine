@@ -32,11 +32,32 @@ import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { Node } from '../core';
 
+const _LOADED_EVENT = 'audiosource-loaded';
+
 enum AudioSourceEventType {
     STARTED = 'started',
     ENDED = 'ended',
 }
-
+enum AudioFormat {
+    UNKNOWN = 0,
+    SIGNED_8,
+    UNSIGNED_8,
+    SIGNED_16,
+    UNSIGNED_16,
+    SIGNED_24,
+    UNSIGNED_24,
+    SIGNED_32,
+    UNSIGNED_32,
+    FLOAT_32,
+    FLOAT_64
+}
+interface PCMHeader {
+    totalFrames: number;
+    sampleRate: number;
+    bytesPerFrame: number;
+    audioFormat: AudioFormat;
+    channelCount: number;
+}
 /**
  * @en
  * A representation of a single audio source, <br>
@@ -138,6 +159,7 @@ export class AudioSource extends Component {
                 audioManager.addPlaying(player);
             });
             this._syncStates();
+            this.node.emit(_LOADED_EVENT);
         }).catch((e) => {});
     }
 
@@ -222,6 +244,36 @@ export class AudioSource extends Component {
         this.stop();
         this._player?.destroy();
         this._player = null;
+    }
+    /**
+     * @en
+     * Get PCM buffer from specified channel.
+     * Currently it is only available in Native platform and Web Audio (including Web and ByteDance platforms).
+     *
+     * @zh
+     * 通过指定的通道获取音频的 PCM buffer。
+     * 目前仅在原生平台和 Web Audio（包括 Web 和 字节平台）中可用。
+     *
+     * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
+     * @returns A Promise to get the buffer after audio is loaded.
+     */
+    public getPCMBuffer (channelIndex: number): ArrayBuffer | undefined {
+        return this._player!.getPCMBuffer(channelIndex);
+    }
+
+    /**
+     * @en
+     * Get the bit depth of the audio, currently it is only available in Native platform.
+     * In some platform which not support accessing bit depth, this getter will return 1.
+     *
+     * @zh
+     * 获取音频的位深，目前仅在原生平台支持。
+     * 在一些不支持获取位深的平台，返回 1。
+     *
+     * @returns A Promise to get the bit depth after audio is loaded.
+     */
+    public getPCMHeader (): any {
+        return this._player!.pcmHeader;
     }
 
     private _getRootNode (): Node | null | undefined {

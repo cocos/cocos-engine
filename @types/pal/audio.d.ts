@@ -35,7 +35,26 @@ declare module 'pal/audio' {
         get onEnd (): () => void | undefined;
         set onEnd (cb: () => void | undefined);
     }
-
+    enum AudioFormat {
+        UNKNOWN = 0,
+        SIGNED_8,
+        UNSIGNED_8,
+        SIGNED_16,
+        UNSIGNED_16,
+        SIGNED_24,
+        UNSIGNED_24,
+        SIGNED_32,
+        UNSIGNED_32,
+        FLOAT_32,
+        FLOAT_64
+    }
+    interface PCMHeader {
+        totalFrames: number;
+        sampleRate: number;
+        bytesPerFrame: number;
+        audioFormat: AudioFormat;
+        channelCount: number;
+    }
     export class AudioPlayer {
         private constructor (nativeAudio: unknown);
 
@@ -78,14 +97,15 @@ declare module 'pal/audio' {
         static readonly maxAudioChannel: number;
 
         /**
-         * Get Sameple rate of audio source
+         * Get pcmHeader of audio source
          */
-        get sampleRate(): number;
+        get pcmHeader(): PCMHeader;
 
         /**
-         * Get Buffer
+         * Get PCM buffer as ArrayBuffer, on web platform, it always return as Float32Array.
+         * On native platform, it will return an ArrayBuffer as its original audio format such as Int32Array
          */
-        public getPCMBuffer(channelID: number): Float32Array;
+        public getPCMBuffer(channelID: number): ArrayBuffer;
         /**
          * Readonly property to get the url of audio src.
          */

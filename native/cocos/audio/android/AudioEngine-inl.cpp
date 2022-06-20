@@ -398,58 +398,52 @@ void AudioEngineImpl::onResume() {
     }
 }
 
-uint32_t AudioEngineImpl::getSampleRate(const char* url) {
-    return outputSampleRate;
+WavePCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
+    WavePCMHeader header{};
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath == "") {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return header;
+    }
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return header;
+    }
+    if (!decoder->start()){
+        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+        return header;
+    }
+    // Ready to decode
+    do {
+        PcmData data = decoder->getResult();
+        header.bytesPerFrame = data.bitsPerSample / 8;
+        header.channelCount = data.numChannels;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = data.sampleRate;
+        header.totalFrames = data.numFrames;
+    } while (false);
+
+    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return header;
 }
 
-float reduceFactor(AudioDataType type) {
-    float ret = 1.0F;
-    switch (type) {
-        case cc::AudioDataType::SIGNED_16:
-            ret = 1.0F / static_cast<float>(SHRT_MAX);
-            break;
-        case cc::AudioDataType::SIGNED_32:
-            ret = 1.0F / static_cast<float>INT32_MAX;
-            break;
-        case cc::AudioDataType::FLOAT_32:
-            //TODO: check the reduceFactor of float 32 to reset [-1,1], most of time is 1.0f
-            ret = 1.0F;
-        default:
-            break;
-    }
-    return ret;
-}
-using AudioDataInterpreter = std::function<float (char *)>;
-AudioDataInterpreter getFormatedData(AudioDataType type) {
-    AudioDataInterpreter f = nullptr;
-    switch (type) {
-        case cc::AudioDataType::SIGNED_16:
-            f = [](char *buf) -> float { return (float)(*reinterpret_cast<short *>(buf)); };
-            break;
-        case cc::AudioDataType::SIGNED_32:
-            f = [](char *buf) -> float { return (float)(*reinterpret_cast<int32_t *>(buf)); };
-            break;
-        case cc::AudioDataType::FLOAT_32:
-            f = [](char *buf) -> float { return (float)(*reinterpret_cast<float *>(buf)); };
-            break;
-        default:
-            break;
-    }
-    return f;
-}
 
-void AudioEngineImpl::getPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<float> &pcmData) {
-    ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (_fileFullPath == "") {
+
+
+void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<char> &pcmData) {
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath == "") {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return;
     }
-    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, _fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
         return;
     }
-    if (false == decoder->start()){
+    if (!decoder->start()){
         CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
         return;
     }
@@ -465,22 +459,15 @@ void AudioEngineImpl::getPCMBuffer(const char *url, uint32_t channelID, ccstd::v
         const uint32_t bytesPerFrame = data.numChannels * data.bitsPerSample / 8;
         const uint32_t bytesPerChannel = data.bitsPerSample / 8;
         const uint32_t numFrames = data.numFrames;
-        pcmData.reserve(numFrames);
-        float redFac = reduceFactor(AudioDataType::SIGNED_16);
-        AudioDataInterpreter interpreter = getFormatedData(AudioDataType::SIGNED_16);
-        char* tmpBufPerChannel = static_cast<char*>(malloc(bytesPerChannel + 1));
-        tmpBufPerChannel[bytesPerChannel] = '\0';
+        const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
+
+        pcmData.resize(bytesPerChannelInFrame * numFrames);
+        char *p = pcmData.data();
+        char *tmpBuf = data.pcmBuffer->data();
         for (int itr = 0; itr < numFrames; itr++) {
-            for (int j = 0; j < bytesPerChannel; j++) {
-                // Read specified byte data
-                tmpBufPerChannel[j] = (*data.pcmBuffer)[itr * bytesPerFrame +
-                                                        j * (channelID + 1)]; // NOLINT
-            }
-            float res = interpreter(tmpBufPerChannel) * redFac;
-            CC_LOG_DEBUG("res -- %f", res);
-            pcmData.emplace_back(res);
+            memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+            p += bytesPerChannelInFrame;
         }
-        free(tmpBufPerChannel);
     } while (false);
     AudioDecoderProvider::destroyAudioDecoder(&decoder);
 }

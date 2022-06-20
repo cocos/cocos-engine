@@ -28,9 +28,11 @@
 
 #include <stdint.h>
 #include "audio/oalsoft/AudioCache.h"
+#include "audio/include/Common.h"
 #include "audio/oalsoft/AudioPlayer.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/RefCounted.h"
+#include "cocos/base/std/any.h"
 
 namespace cc {
 
@@ -61,8 +63,8 @@ public:
     void uncacheAll();
     AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
     void update(float dt);
-    uint32_t getSampleRate(const char* url);
-    void getPCMBuffer(const char* url, uint32_t channelID, std::vector<float> &pcmData);
+    WavePCMHeader getPCMHeader(const char* url);
+    void getOriginalPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<char> &pcmData);
 
 private:
     bool checkAudioIdValid(int audioID);

@@ -55,7 +55,7 @@
     #undef ERROR
 #endif // ERROR
 
-using namespace cc; //NOLINT
+namespace cc {
 
 const int AudioEngine::INVALID_AUDIO_ID = -1;
 const float AudioEngine::TIME_UNKNOWN = -1.0F;
@@ -593,11 +593,12 @@ bool AudioEngine::isEnabled() {
     return sIsEnabled;
 }
 
-uint32_t AudioEngine::getSampleRate(const char* url) {
-    return sAudioEngineImpl->getSampleRate(url);
+WavePCMHeader AudioEngine::getPCMHeader(const char *url) {
+    return sAudioEngineImpl->getPCMHeader(url);
 }
-std::vector<float> AudioEngine::getPCMBuffer(const char* url, uint32_t channelID) {
-    std::vector<float> pcmData;
-    sAudioEngineImpl->getPCMBuffer(url, channelID, pcmData);
+ccstd::vector<char> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::vector<char> pcmData;
+    sAudioEngineImpl->getOriginalPCMBuffer(url, channelID, pcmData);
     return pcmData;
 }
+} // namespace cc
