@@ -688,7 +688,7 @@ export class Game extends EventTarget {
      * @param node - The node to be made persistent
      */
     public addPersistRootNode (node: Node) {
-        if (!legacyCC.Node.isNode(node) || !node.uuid) {
+        if (!legacyCC.Node.isNode(node) || !node.uuid || node.scene !== legacyCC.director._scene) {
             debug.warnID(3800);
             return;
         }
