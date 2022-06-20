@@ -548,7 +548,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             lastNode = next;
         }
-        return lastNode as Node | null;
+        return lastNode as Node;
     }
 
     /**
