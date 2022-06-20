@@ -47,7 +47,6 @@
 #include "cocos/bindings/manual/jsb_scene_manual.h"
 #include "cocos/bindings/manual/jsb_xmlhttprequest.h"
 
-
 #if USE_GFX_RENDERER
 #endif
 

@@ -35,6 +35,7 @@ declare module 'pal/audio' {
         get onEnd (): () => void | undefined;
         set onEnd (cb: () => void | undefined);
     }
+
     export class AudioPlayer {
         private constructor (nativeAudio: unknown);
 

@@ -42,6 +42,7 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+
 ///////////////////////// utils /////////////////////////
 
 template <class... Fs>

@@ -213,6 +213,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         // on WeChat iOS: we can't reset currentTime to 0 when stop audio
         return this._innerAudioContext.currentTime;
     }
+
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {

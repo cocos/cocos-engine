@@ -196,6 +196,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     get currentTime (): number {
         return this._audioTimer.currentTime;
     }
+
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {

@@ -38,12 +38,7 @@ export class AudioPlayer {
     constructor (player: AbstractAudioPlayer) {
         this._player = player;
     }
-    get pcmHeader () {
-        return this._player.sampleRate;
-    }
-    public getBufferAtChannel (channelID:number) : Float32Array | undefined {
-        return this._player.getBufferAtChannel(channelID);
-    }
+
     static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
         return new Promise((resolve) => {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO || !AudioContextAgent.support) {

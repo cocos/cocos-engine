@@ -36,6 +36,7 @@ enum AudioSourceEventType {
     STARTED = 'started',
     ENDED = 'ended',
 }
+
 /**
  * @en
  * A representation of a single audio source, <br>
@@ -340,6 +341,7 @@ export class AudioSource extends Component {
             }
         }).catch((e) => {});
     }
+
     /**
      * @en
      * Set current playback time, in seconds.
