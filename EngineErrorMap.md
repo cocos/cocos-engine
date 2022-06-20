@@ -1623,7 +1623,7 @@ Failed to load prefab asset for node '%s'
 
 ### 3800
 
-The target can not be made persist because it's not a cc.Node or it doesn't have _id property.
+The target can not be made persist because it's not a cc.Node or it doesn't have _id property or it's not in current scene.
 
 ### 3801
 
