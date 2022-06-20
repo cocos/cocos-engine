@@ -185,6 +185,35 @@ export abstract class NativePackTool {
         return native[plt];
     }
 
+    private commonDirAreIdentical(): boolean {
+        let commonSrc = this.paths.commonDirInCocos;
+        let commonDst = this.paths.commonDirInPrj;
+        const compFile = (src: string, dst: string): boolean => {
+            const linesSrc: string[] = fs.readFileSync(src).toString("utf8").split("\n").map((line) => line.trim());
+            const linesDst: string[] = fs.readFileSync(dst).toString("utf8").split("\n").map((line) => line.trim());
+            return linesSrc.length === linesDst.length && linesSrc.every((line, index) => line === linesDst[index]);
+        };
+        let compFiles = ["Classes/Game.h", "Classes/Game.cpp"];
+        for (let f of compFiles) {
+            const srcFile = ps.join(commonSrc, f);
+            const dstFile = ps.join(commonDst, f);
+            if (!fs.existsSync(dstFile)) {
+                return false;
+            }
+
+            if(!fs.existsSync(srcFile)) {
+                console.error(`${f} not exists in ${commonSrc}`);
+                return false;
+            }
+
+            if(!compFile(srcFile, dstFile)) {
+                console.log(`File ${dstFile} differs from ${srcFile}`);
+                return false;   
+            }
+        }
+        return true;
+    }
+
     private skipVersionCheck = false;
     /**
      * The engine version used to generate the 'native/' folder should match the 
@@ -195,6 +224,11 @@ export abstract class NativePackTool {
         const engineVersion = this.tryGetEngineVersion();
         const projEngineVersionObj = this.tryReadProjectTemplateVersion();
         if (projEngineVersionObj === null) {
+            if (this.commonDirAreIdentical()) {
+                console.log(`The files under common/Classes directory are identical with the ones in the template. Append version file to the project.`);
+                this.writeEngineVersion();
+                return true;
+            }
             console.error(`Error code ${ErrorCodeIncompatible}, ${this.DebugInfos[ErrorCodeIncompatible]}`)
             return false;
         }
@@ -240,7 +274,7 @@ export abstract class NativePackTool {
         }
         let list = fs.readdirSync(src);
         for (let f of list) {
-            if(f.startsWith('.')) continue;
+            if (f.startsWith('.')) continue;
             this.validateDirectory(ps.join(src, f), ps.join(dst, f), missingDirs);
         }
     }
