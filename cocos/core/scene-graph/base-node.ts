@@ -187,7 +187,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 父节点
      */
     @editable
-    get parent () {
+    get parent (): Scene | this | null {
         return this._parent;
     }
     set parent (value) {
@@ -416,7 +416,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      */
-    public getParent () {
+    public getParent (): this | null | Scene {
         return this._parent;
     }
 
