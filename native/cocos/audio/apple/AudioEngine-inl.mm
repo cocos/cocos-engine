@@ -713,7 +713,6 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
             break;
         }
         const uint32_t bytesPerFrame = decoder.getBytesPerFrame();
-        const uint32_t bytesPerChannel = decoder.getBytesPerChannel();
         const uint32_t channelCount = decoder.getChannelCount();
         if (channelID >= channelCount) {
             CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);

@@ -603,14 +603,8 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
             framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
             framesRead = decoder->read(framesToReadOnce, tmpBuf);
             for (int itr = 0; itr < framesToReadOnce; itr++) {
-                //for (int j = 0; j < bytesPerChannel; j++) {
-                //    // Read specified byte data
-                //    tmpBufPerChannel[j] = tmpBuf[itr * bytesPerFrame + j * (channelID + 1)]; // NOLINT
-                //}
                 memcpy(p, tmpBuf + itr * audioInfo.bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
-                //CC_LOG_DEBUG("res -- %f", res);
 
-                //pcmData.emplace_back();
                 p += bytesPerChannelInFrame;
             }
             remainingFrames -= framesToReadOnce;
@@ -625,10 +619,8 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
                 framesRead = decoder->read(framesToReadOnce, tmpBuf); //read one by one to easy divide
                 pcmData.reserve(totalFrames + framesRead);
                 if (framesRead > 0) { // Adjust frames exist
-                    // transfer char data to float data
                     for (int itr = 0; itr < framesRead; itr++) {
                         memcpy(p, tmpBuf + itr * audioInfo.bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
-                        //CC_LOG_DEBUG("res -- %f", res);
                         p += bytesPerChannelInFrame;
                     }
                 }

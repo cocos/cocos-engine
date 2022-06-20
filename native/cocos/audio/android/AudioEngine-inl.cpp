@@ -458,7 +458,6 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         }
         // bytesPerSample  = bitsPerSample / 8, according to 1 byte = 8 bits
         const uint32_t bytesPerFrame = data.numChannels * data.bitsPerSample / 8;
-        const uint32_t bytesPerChannel = data.bitsPerSample / 8;
         const uint32_t numFrames = data.numFrames;
         const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
 

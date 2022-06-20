@@ -84,7 +84,6 @@ protected:
 
     bool _isStreaming{false};
     uint32_t _channelCount{1};
-    uint32_t _bytesPerChannel{0};
 
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE

@@ -105,8 +105,6 @@ public:
      * @note Currently we only support 1 or 2 channels.
      */
     uint32_t getChannelCount() const;
-    /** Gets bytes per channel in one frame.*/
-    uint32_t getBytesPerChannel() const;
 
 private:
     bool _isOpened;
@@ -115,7 +113,6 @@ private:
     uint32_t _bytesPerFrame;
     uint32_t _sampleRate;
     uint32_t _channelCount;
-    uint32_t _bytesPerChannel;
     AudioStreamBasicDescription _outputFormat;
 };
 
