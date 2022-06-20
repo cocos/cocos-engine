@@ -445,6 +445,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 15001, "Can not find environment map, disable IBL lighting" },
 { 15002, "Diffuse map resource is missing, please change environment lighting type to regenerate resource" },
 { 15003, "The shadow visible distance is so small that CSM stratification is not effective, Please change the value of shadowDistance so that it is 10 times greater than 0.1" },
+{ 15004, "The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade." },
 
 };
 }//namespace cc
