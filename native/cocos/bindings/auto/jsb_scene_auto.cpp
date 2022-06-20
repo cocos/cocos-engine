@@ -6535,25 +6535,6 @@ static bool js_scene_Model_getShadowNormalBias(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_Model_getShadowNormalBias)
 
-static bool js_scene_Model_getSortingPriority(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Model_getSortingPriority : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getSortingPriority();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getSortingPriority : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getSortingPriority)
-
 static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -6591,6 +6572,25 @@ static bool js_scene_Model_getTransform(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getTransform)
+
+static bool js_scene_Model_getTransparentPriority(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_getTransparentPriority : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getTransparentPriority();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Model_getTransparentPriority : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getTransparentPriority)
 
 static bool js_scene_Model_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7312,25 +7312,6 @@ static bool js_scene_Model_setShadowNormalBias(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_Model_setShadowNormalBias)
 
-static bool js_scene_Model_setSortingPriority(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Model_setSortingPriority : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setSortingPriority : Error processing arguments");
-        cobj->setSortingPriority(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setSortingPriority)
-
 static bool js_scene_Model_setSubModelMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -7391,6 +7372,25 @@ static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setTransform)
+
+static bool js_scene_Model_setTransparentPriority(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_setTransparentPriority : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_setTransparentPriority : Error processing arguments");
+        cobj->setTransparentPriority(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setTransparentPriority)
 
 static bool js_scene_Model_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7717,7 +7717,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineProperty("type", _SE(js_scene_Model_getType_asGetter), _SE(js_scene_Model_setType_asSetter));
     cls->defineProperty("instancedAttributes", _SE(js_scene_Model_getInstancedAttributeBlock_asGetter), _SE(js_scene_Model_setInstancedAttributeBlock_asSetter));
     cls->defineProperty("isDynamicBatching", _SE(js_scene_Model_isDynamicBatching_asGetter), _SE(js_scene_Model_setDynamicBatching_asSetter));
-    cls->defineProperty("sortingPriority", _SE(js_scene_Model_getSortingPriority_asGetter), _SE(js_scene_Model_setSortingPriority_asSetter));
+    cls->defineProperty("transparentPriority", _SE(js_scene_Model_getTransparentPriority_asGetter), _SE(js_scene_Model_setTransparentPriority_asSetter));
     cls->defineFunction("attachToScene", _SE(js_scene_Model_attachToScene));
     cls->defineFunction("createBoundingShape", _SE(js_scene_Model_createBoundingShape));
     cls->defineFunction("destroy", _SE(js_scene_Model_destroy));
