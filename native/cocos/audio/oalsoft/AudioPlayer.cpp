@@ -24,11 +24,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <cstddef>
-#include <vector>
-#include "core/TypedArray.h"
 #define LOG_TAG "AudioPlayer"
 
 #include <cstdlib>

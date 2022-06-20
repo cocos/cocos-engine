@@ -28,6 +28,7 @@
 
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
+#include "audio/include/Common.h"
 #include "base/RefCounted.h"
 #include "base/std/container/list.h"
 #include "base/std/container/unordered_map.h"
@@ -61,8 +62,8 @@ public:
     AudioCache *preload(const ccstd::string &filePath, std::function<void(bool)> callback);
     void update(float dt);
     
-    uint32_t getSampleRate(const char* url);
-    void getPCMBuffer(const char* url, uint32_t channelID, std::vector<float> &pcmData);
+    WavePCMHeader getPCMHeader(const char* url);
+    void getOriginalPCMBuffer(const char* url, uint32_t channelID, std::vector<char> &pcmData);
 private:
     bool checkAudioIdValid(int audioID);
     void play2dImpl(AudioCache *cache, int audioID);

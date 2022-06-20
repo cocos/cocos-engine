@@ -320,7 +320,7 @@ public:
     /**
      * @brief Get the PCMHeader of audio
      * 
-     * @param url
+     * @param url The file url of an audio. same as filePath
      * @return PCMHeader of audio
      */
     static WavePCMHeader getPCMHeader(const char *url);
@@ -328,7 +328,7 @@ public:
     /**
      * @brief Get the Buffer object
      * 
-     * @param audioID 
+     * @param channelID as there might be several channels at same time, select one to get buffer. 
      * @return float* PCM datas behave as float array
      */
     static ccstd::vector<char> getOriginalPCMBuffer(const char *url, uint32_t channelID);

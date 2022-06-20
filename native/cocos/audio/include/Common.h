@@ -33,8 +33,6 @@ enum class AudioDataFormat {
     UNSIGNED_8,
     SIGNED_16,
     UNSIGNED_16,
-    SIGNED_24,
-    UNSIGNED_24,
     SIGNED_32,
     UNSIGNED_32,
     FLOAT_32,
