@@ -46,58 +46,6 @@ const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const dirtyNodes: any[] = [];
 const view_tmp:[Uint32Array, number] = [] as any;
-class BookOfChange {
-    private _chunks: Uint32Array[] = [];
-    private _freelists: number[][] = [];
-
-    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
-    private static CAPACITY_PER_CHUNK = 256;
-
-    constructor () {
-        this._createChunk();
-    }
-
-    public alloc () {
-        const chunkCount = this._freelists.length;
-        for (let i = 0; i < chunkCount; ++i) {
-            if (!this._freelists[i].length) continue;
-            return this._createView(i);
-        }
-        this._createChunk();
-        return this._createView(chunkCount);
-    }
-
-    public free (view: Uint32Array, idx: number) {
-        const chunkCount = this._freelists.length;
-        for (let i = 0; i < chunkCount; ++i) {
-            if (this._chunks[i] !== view) continue;
-            this._freelists[i].push(idx);
-            return;
-        }
-    }
-
-    public clear () {
-        const chunkCount = this._chunks.length;
-        for (let i = 0; i < chunkCount; ++i) {
-            this._chunks[i].fill(0);
-        }
-    }
-
-    private _createChunk () {
-        this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
-        const freelist: number[] = [];
-        for (let i = BookOfChange.CAPACITY_PER_CHUNK - 1; i >= 0; i--) freelist.push(i);
-        this._freelists.push(freelist);
-    }
-
-    private _createView (chunkIdx: number): [Uint32Array, number] {
-        view_tmp[0] = this._chunks[chunkIdx];
-        view_tmp[1] = this._freelists[chunkIdx].pop()!;
-        return view_tmp;
-    }
-}
-
-const bookOfChange = new BookOfChange();
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
@@ -200,18 +148,15 @@ export class Node extends BaseNode implements CustomSerializable {
 
     private _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
-    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
-    protected declare _hasChangedFlagsOffset: number;
-    protected declare _hasChangedFlags: Uint32Array;
+
+    private static globalFlagChangeVersion = 0;
+    protected _flagChangeVersion = 0;
+    protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
         super(name);
 
-        const [chunk, offset] = bookOfChange.alloc();
-        this._hasChangedFlagsChunk = chunk;
-        this._hasChangedFlagsOffset = offset;
-        const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
-        this._hasChangedFlags = flagBuffer;
+        this._hasChangedFlags = 0;
 
         this._pos = new Vec3();
         this._rot = new Quat();
@@ -229,7 +174,7 @@ export class Node extends BaseNode implements CustomSerializable {
 
     protected _onPreDestroy () {
         const result = this._onPreDestroyBase();
-        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
+        // bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return result;
     }
 
@@ -429,11 +374,18 @@ export class Node extends BaseNode implements CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
+        return this.hasFlagVersionChanged() ? this._hasChangedFlags : 0;
     }
 
     set hasChangedFlags (val: number) {
-        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
+        if (!this.hasFlagVersionChanged()) {
+            this._flagChangeVersion = Node.globalFlagChangeVersion;
+        }
+        this._hasChangedFlags = val;
+    }
+
+    private hasFlagVersionChanged () {
+        return this._flagChangeVersion === Node.globalFlagChangeVersion;
     }
 
     /**
@@ -674,7 +626,7 @@ export class Node extends BaseNode implements CustomSerializable {
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            hasChangedFlags = cur._hasChangedFlags[0];
+            hasChangedFlags = cur._hasChangedFlags;
             flag =  cur._dirtyFlags;
             if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 // NOTE: inflate procedure
@@ -684,11 +636,7 @@ export class Node extends BaseNode implements CustomSerializable {
                 flag |= dirtyBit;
                 cur._dirtyFlags = flag;
 
-                // NOTE: inflate attribute accessor
-                // ```
-                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
-                // ```
-                cur._hasChangedFlags[0] = hasChangedFlags | dirtyBit;
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
                 l = children.length;
@@ -1261,7 +1209,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * 清除所有节点的脏标记。
      */
     public static resetHasChangedFlags () {
-        bookOfChange.clear();
+        Node.globalFlagChangeVersion += 1;
     }
 
     /**

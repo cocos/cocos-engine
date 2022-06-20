@@ -190,7 +190,7 @@ public:
     void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
@@ -501,8 +501,15 @@ public:
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    inline uint32_t getChangedFlags() const { return _flagChange; }
-    inline void setChangedFlags(uint32_t value) { _flagChange = value; }
+    inline uint32_t getChangedFlags() const {
+        return hasChanged() ? _flagChange : 0;
+    }
+    inline void setChangedFlags(uint32_t value) {
+        if (!hasChanged()) {
+            _flagChangeVersion = globalFlagChangeVersion;
+        }
+        _flagChange = value;
+    }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
@@ -634,6 +641,7 @@ protected:
 
     static uint32_t clearFrame;
     static uint32_t clearRound;
+    static uint32_t globalFlagChangeVersion;
 
 private:
     inline void notifyLocalPositionUpdated() {
@@ -655,6 +663,10 @@ private:
              _localScale.x, _localScale.y, _localScale.z);
     }
 
+    inline bool hasChanged() const {
+        return _flagChangeVersion == globalFlagChangeVersion;
+    }
+
 protected:
     Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
@@ -663,6 +675,7 @@ protected:
 
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
+    uint32_t _flagChangeVersion{0};
     uint32_t _flagChange{0};
     uint32_t _dirtyFlag{0};
 
@@ -709,7 +722,7 @@ bool Node::isNode(T *obj) {
 }
 
 template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
+void Node::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
     _eventProcessor->emit(type, std::forward<Args>(args)...);
 }
 
