@@ -164,7 +164,7 @@ export class WebView extends Component {
     }
 
     public __preload () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._impl = WebViewImplManager.getImpl(this);
