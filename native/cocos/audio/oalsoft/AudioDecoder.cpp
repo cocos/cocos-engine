@@ -38,8 +38,7 @@
 namespace cc {
 
 AudioDecoder::AudioDecoder()
-: _isOpened(false),
-  _pcmHeader() {}
+: _isOpened(false) {}
 
 AudioDecoder::~AudioDecoder() {
 }
