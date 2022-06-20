@@ -187,7 +187,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 父节点
      */
     @editable
-    get parent (): Scene | this | null {
+    get parent () {
         return this._parent;
     }
     set parent (value) {
@@ -416,7 +416,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      */
-    public getParent (): this | null | Scene {
+    public getParent () {
         return this._parent;
     }
 
@@ -424,7 +424,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Set parent of the node.
      * @zh 设置该节点的父节点。
      */
-    public setParent (value: BaseNode | null, keepWorldTransform = false) {
+    public setParent (value: this | Scene | null, keepWorldTransform = false) {
         if (this._parent === value) {
             return;
         }
@@ -557,7 +557,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param child - the child node to be added
      */
     public addChild (child: Node): void {
-        child.setParent(this);
+        (child as BaseNode).setParent(this);
     }
 
     /**
@@ -571,7 +571,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * ```
      */
     public insertChild (child: Node, siblingIndex: number) {
-        child.setParent(this);
+        (child as BaseNode).setParent(this);
         child.setSiblingIndex(siblingIndex);
     }
 
@@ -633,11 +633,11 @@ export class BaseNode extends CCObject implements ISchedulable {
      * });
      * ```
      */
-    public walk (preFunc: (target: this | Node) => void, postFunc?: (target: this | Node) => void) {
+    public walk (preFunc: (target: this) => void, postFunc?: (target: this) => void) {
         // const BaseNode = cc._BaseNode;
         let index = 1;
-        let children: BaseNode[] | null = null;
-        let curr: BaseNode | null = null;
+        let children: this[] | null = null;
+        let curr: this | null = null;
         let i = 0;
         let stack = BaseNode._stacks[BaseNode._stackId];
         if (!stack) {
@@ -648,7 +648,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         stack.length = 0;
         stack[0] = this;
-        let parent: BaseNode | null = null;
+        let parent: this | null = null;
         let afterChildren = false;
         while (index) {
             index--;
@@ -658,10 +658,10 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             if (!afterChildren && preFunc) {
                 // pre call
-                preFunc(curr as Node);
+                preFunc(curr);
             } else if (afterChildren && postFunc) {
                 // post call
-                postFunc(curr as Node);
+                postFunc(curr);
             }
 
             // Avoid memory leak
@@ -737,7 +737,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 移除节点中指定的子节点。
      * @param child - The child node which will be removed.
      */
-    public removeChild (child: BaseNode) {
+    public removeChild (child: this | Node) {
         if (this._children.indexOf(child as this) > -1) {
             // invoke the parent setter
             child.parent = null;
@@ -765,7 +765,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
      */
-    public isChildOf (parent: BaseNode | null): boolean {
+    public isChildOf (parent: this | Scene | null): boolean {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let child: BaseNode | null = this;
         do {
