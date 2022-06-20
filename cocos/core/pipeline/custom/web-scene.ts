@@ -43,7 +43,7 @@ export class RenderObject implements IRenderObject {
     }
 }
 export class RenderInfo implements IRenderPass {
-    public sortingPriority = 0;
+    public transparentPriority = 0;
     public hash = -1;
     public depth = -1;
     public shaderId = -1;

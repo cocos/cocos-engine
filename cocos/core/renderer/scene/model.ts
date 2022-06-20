@@ -267,15 +267,15 @@ export class Model {
     }
 
     /**
-     * @en Rendering priority of model.
-     * @zh Model 的渲染排序优先级
+     * @en Rendering priority in the transparent queue of model.
+     * @zh Model 在透明队列中的渲染排序优先级
      */
-    get sortingPriority () : number {
-        return this._sortingPriority;
+    get transparentPriority () : number {
+        return this._transparentPriority;
     }
 
-    set sortingPriority (val: number) {
-        this._sortingPriority = val;
+    set transparentPriority (val: number) {
+        this._transparentPriority = val;
     }
 
     /**
@@ -424,7 +424,7 @@ export class Model {
      */
     protected _visFlags = Layers.Enum.NONE;
 
-    protected _sortingPriority = 0;
+    protected _transparentPriority = 0;
 
     /**
      * @internal
