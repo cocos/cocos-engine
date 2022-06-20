@@ -48,6 +48,7 @@ const dirtyNodes: any[] = [];
 const view_tmp:[Uint32Array, number] = [] as any;
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
+let globalFlagChangeVersion = 0;
 
 /**
  * @zh
@@ -149,7 +150,6 @@ export class Node extends BaseNode implements CustomSerializable {
     private _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    private static globalFlagChangeVersion = 0;
     protected _flagChangeVersion = 0;
     protected _hasChangedFlags = 0;
 
@@ -374,18 +374,18 @@ export class Node extends BaseNode implements CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this.hasFlagVersionChanged() ? this._hasChangedFlags : 0;
+        return this._flagChangeVersion === globalFlagChangeVersion ? this._hasChangedFlags : 0;
     }
 
     set hasChangedFlags (val: number) {
-        if (!this.hasFlagVersionChanged()) {
-            this._flagChangeVersion = Node.globalFlagChangeVersion;
+        if (this._flagChangeVersion !== globalFlagChangeVersion) {
+            this._flagChangeVersion = globalFlagChangeVersion;
         }
         this._hasChangedFlags = val;
     }
 
     private hasFlagVersionChanged () {
-        return this._flagChangeVersion === Node.globalFlagChangeVersion;
+        return this._flagChangeVersion === globalFlagChangeVersion;
     }
 
     /**
@@ -626,7 +626,8 @@ export class Node extends BaseNode implements CustomSerializable {
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            hasChangedFlags = cur._hasChangedFlags;
+            // hasChangedFlags = cur.hasChangedFlags;
+            hasChangedFlags = cur._flagChangeVersion === globalFlagChangeVersion ? cur._hasChangedFlags : 0;
             flag =  cur._dirtyFlags;
             if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 // NOTE: inflate procedure
@@ -636,7 +637,9 @@ export class Node extends BaseNode implements CustomSerializable {
                 flag |= dirtyBit;
                 cur._dirtyFlags = flag;
 
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur._flagChangeVersion = globalFlagChangeVersion;
+                cur._hasChangedFlags = hasChangedFlags | dirtyBit;
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
                 l = children.length;
@@ -1209,7 +1212,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * 清除所有节点的脏标记。
      */
     public static resetHasChangedFlags () {
-        Node.globalFlagChangeVersion += 1;
+        globalFlagChangeVersion += 1;
     }
 
     /**
