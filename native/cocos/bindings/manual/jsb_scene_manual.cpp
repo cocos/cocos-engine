@@ -30,6 +30,7 @@
 #include "core/scene-graph/Node.h"
 #include "core/scene-graph/NodeEvent.h"
 #include "scene/Model.h"
+#include "v8/Object.h"
 
 #ifndef JSB_ALLOC
     #define JSB_ALLOC(kls, ...) ccnew kls(__VA_ARGS__)
@@ -362,6 +363,15 @@ static bool js_scene_Node_registerOnSiblingOrderChanged(se::State &s) // NOLINT(
 }
 SE_BIND_FUNC(js_scene_Node_registerOnSiblingOrderChanged) // NOLINT(readability-identifier-naming)
 
+static bool js_scene_Node_getChangedFlagsArrayBuffer(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnSiblingOrderChanged : Invalid Native Object");
+    s.rval().setObject(se::Object::createExternalArrayBufferObject(&cobj->_flagChangeVersion, 8, nullptr, nullptr));
+    return true;
+}
+SE_BIND_FUNC(js_scene_Node_getChangedFlagsArrayBuffer);
+
 static bool scene_Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
     if (!nodeVec3CacheObj) {
@@ -485,6 +495,13 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC(js_scene_Node_setTempFloatArray)
+
+static bool js_scene_Node_getGlobalFlagChangeVersionArrayBuffer(se::State &s) // NOLINT(readability-identifier-n)
+{
+    s.rval().setObject(se::Object::createExternalArrayBufferObject(&cc::Node::globalFlagChangeVersion, 4, nullptr, nullptr));
+    return true;
+}
+SE_BIND_FUNC(js_scene_Node_getGlobalFlagChangeVersionArrayBuffer);
 
 static bool js_scene_Node_getRight(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -1046,6 +1063,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_Node_proto->defineFunction("_registerOnChildRemoved", _SE(js_scene_Node_registerOnChildRemoved));
     __jsb_cc_Node_proto->defineFunction("_registerOnChildAdded", _SE(js_scene_Node_registerOnChildAdded));
     __jsb_cc_Node_proto->defineFunction("_registerOnSiblingOrderChanged", _SE(js_scene_Node_registerOnSiblingOrderChanged));
+    __jsb_cc_Node_proto->defineFunction("_getChangedFlagsArrayBuffer", _SE(js_scene_Node_getChangedFlagsArrayBuffer));
 
     se::Value jsbVal;
     obj->getProperty("jsb", &jsbVal);
@@ -1053,6 +1071,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     jsbVal.toObject()->getProperty("Node", &nodeVal);
 
     nodeVal.toObject()->defineFunction("_setTempFloatArray", _SE(js_scene_Node_setTempFloatArray));
+    nodeVal.toObject()->defineFunction("_getGlobalFlagChangeVersionArrayBuffer", _SE(js_scene_Node_getGlobalFlagChangeVersionArrayBuffer));
 
     __jsb_cc_Node_proto->defineFunction("getPosition", _SE(js_scene_Node_getPosition));
     __jsb_cc_Node_proto->defineFunction("getRotation", _SE(js_scene_Node_getRotation));

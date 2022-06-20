@@ -641,7 +641,8 @@ protected:
 
     static uint32_t clearFrame;
     static uint32_t clearRound;
-    static uint32_t globalFlagChangeVersion;
+public:
+    static uint32_t globalFlagChangeVersion; // export addr to jsb, access from js via ArrayBuffer
 
 private:
     inline void notifyLocalPositionUpdated() {
@@ -675,8 +676,11 @@ protected:
 
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
+public:
+    // export addr to jsb, access from js via ArrayBuffer
     uint32_t _flagChangeVersion{0};
     uint32_t _flagChange{0};
+protected:
     uint32_t _dirtyFlag{0};
 
     bool _eulerDirty{false};

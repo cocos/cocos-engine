@@ -1828,7 +1828,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineProperty("uuid", _SE(js_scene_Node_getUuid_asGetter), nullptr);
     cls->defineProperty("angle", _SE(js_scene_Node_getAngle_asGetter), _SE(js_scene_Node_setAngle_asSetter));
     cls->defineProperty("matrix", nullptr, _SE(js_scene_Node_setMatrix_asSetter));
-    cls->defineProperty("hasChangedFlags", _SE(js_scene_Node_getChangedFlags_asGetter), _SE(js_scene_Node_setChangedFlags_asSetter));
+    // cls->defineProperty("hasChangedFlags", _SE(js_scene_Node_getChangedFlags_asGetter), _SE(js_scene_Node_setChangedFlags_asSetter));
     cls->defineProperty("active", _SE(js_scene_Node_isActive_asGetter), _SE(js_scene_Node_setActive_asSetter));
     cls->defineProperty("_persistNode", _SE(js_scene_Node_isPersistNode_asGetter), _SE(js_scene_Node_setPersistNode_asSetter));
     cls->defineProperty("_dirtyFlags", _SE(js_scene_Node_getDirtyFlag_asGetter), _SE(js_scene_Node_setDirtyFlag_asSetter));
