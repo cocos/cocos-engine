@@ -4,7 +4,6 @@ import { EventTarget } from '../../../cocos/core/event';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import AudioTimer from '../audio-timer';
 
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
@@ -54,7 +53,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onStop: () => void;
     private _onSeeked: () => void;
     private _onEnded: () => void;
-    private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
 
     /**
@@ -68,7 +66,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
 
     constructor (innerAudioContext: InnerAudioContext) {
         this._innerAudioContext = innerAudioContext;
-        this._audioTimer = new AudioTimer(innerAudioContext);
         this._eventTarget = new EventTarget();
 
         // event
@@ -93,14 +90,12 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._onSeeked = () => { eventTarget.emit(AudioEvent.SEEKED); };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
-            this._audioTimer.stop();
             this._state = AudioState.INIT;
             eventTarget.emit(AudioEvent.ENDED);
         };
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy () {
-        this._audioTimer.destroy();
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
         if (this._innerAudioContext) {
@@ -207,14 +202,16 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._innerAudioContext.volume = val;
     }
     get duration (): number {
+        // KNOWN ISSUES: duration doesn't work well
+        // On WeChat platform, duration is 0 at the time audio is loaded.
+        // On Native or Runtime platform, duration is 0 before playing.
         return this._innerAudioContext.duration;
     }
     get currentTime (): number {
-        // return this._innerAudioContext.currentTime;
-        // currentTime doesn't work well
+        // KNOWN ISSUES: currentTime doesn't work well
         // on Baidu: currentTime returns without numbers on decimal places
         // on WeChat iOS: we can't reset currentTime to 0 when stop audio
-        return this._audioTimer ? this._audioTimer.currentTime : 0;
+        return this._innerAudioContext.currentTime;
     }
 
     @enqueueOperation
@@ -227,7 +224,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             } else {
                 this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
-                this._audioTimer.seek(time);
             }
         });
     }
@@ -237,10 +233,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.PLAYED, resolve);
             this._innerAudioContext.play();
-            // NOTE: we can't initiate audio duration on constructor.
-            // On WeChat platform, duration is 0 at the time audio is loaded.
-            // On Native or Runtime platform, duration is 0 before playing.
-            this._audioTimer.start();
         });
     }
 
@@ -249,7 +241,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.PAUSED, resolve);
             this._innerAudioContext.pause();
-            this._audioTimer.pause();
         });
     }
 
@@ -258,7 +249,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
             this._innerAudioContext.stop();
-            this._audioTimer.stop();
         });
     }
 
