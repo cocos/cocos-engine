@@ -570,8 +570,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.insertChild(child, 2);
      * ```
      */
-    public insertChild (child: BaseNode, siblingIndex: number) {
-        child.parent = this;
+    public insertChild (child: Node, siblingIndex: number) {
+        child.setParent(this);
         child.setSiblingIndex(siblingIndex);
     }
 
