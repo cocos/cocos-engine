@@ -50,9 +50,6 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
     _inited = true;
 
     DescriptorSetLayoutBindingList bindings{info.bindings};
-    std::sort(bindings.begin(), bindings.end(), [&](const auto &a, const auto &b) {
-        return a.binding < b.binding;
-    });
 
     static constexpr uint32_t DESCRIPTOR_TYPE_ORDERS[]{
         INVALID_BINDING, // UNKNOWN
