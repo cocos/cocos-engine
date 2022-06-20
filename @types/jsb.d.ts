@@ -211,7 +211,7 @@ declare namespace jsb {
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
         /**
-         * @en set callback function while download. Single download file .
+         * @en set callback function while download.
          * @zh 设置任务下载过程中的回调函数.
          * @param onProgress @en Download progress callback @zh 下载过程中的回调函数
          * @example
