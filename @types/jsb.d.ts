@@ -183,8 +183,8 @@ declare namespace jsb {
      */
     export class Downloader {
         /**
-         * @en create a download task
-         * @zh 创建一个下载任务
+         * @en create a download task. The maximum size for a single download file is 4GB.
+         * @zh 创建一个下载任务. 单个下载文件最大为4GB.
          * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
          * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
          * @param identifier  @en identifier @zh 标识符
@@ -193,8 +193,7 @@ declare namespace jsb {
          * ```ts
          * // create a download task
          * let downloader = new jsb.Downloader();
-         * let task = downloader.createDownloadTask('https://example.com/exampleFile.zip', jsb.fileUtils.getWritablePath());
-         * down.setOnTaskProgress((task, recv, total)=>{ console.log(recv, total);})
+         * let task = downloader.createDownloadFileTask('https://example.com/exampleFile.zip', jsb.fileUtils.getWritablePath());
          */
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
@@ -202,13 +201,26 @@ declare namespace jsb {
          * @en set callback function after download success
          * @zh 设置任务成功下载后的回调函数
          * @param onSucceed @en Download success callback @zh 下载成功后的回调函数
+         * @example
+         * ```ts
+         *  // set a download success callback
+         *  down.setOnFileTaskSuccess((task)=>{
+         *  console.log('Success!'); // call when task download success
+         * });
          */
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
         /**
-         * @en set callback function while download
-         * @zh 设置任务下载过程中的回调函数
+         * @en set callback function while download. Single download file .
+         * @zh 设置任务下载过程中的回调函数.
          * @param onProgress @en Download progress callback @zh 下载过程中的回调函数
+         * @example
+         * ```ts
+         *  // set a callback for download progress prompt
+         *  down.setOnTaskProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected)=>{
+         *  console.log(bytesReceived, totalBytesReceived); // download data info
+         *  console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
+         * });
          */
         setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
@@ -216,6 +228,12 @@ declare namespace jsb {
          * @en set callback function when download error
          * @zh 设置任务下载发生错误时的回调函数
          * @param onError @en Download error callback @zh 下载发生错误时的回调函数
+         * @example
+         * ```ts
+         * // set a download error callback
+         *  down.setOnTaskError((task, errorCode, errorCodeInternal, errorStr)=>{
+         *  console.log('Error:', errorStr);
+         * });
         */
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
