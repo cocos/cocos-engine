@@ -401,7 +401,7 @@ void AudioEngineImpl::onResume() {
 WavePCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
     WavePCMHeader header{};
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (fileFullPath == "") {
+    if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
     }
@@ -432,20 +432,21 @@ WavePCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
 
 
 
-void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<char> &pcmData) {
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (fileFullPath == "") {
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
-        return;
+        return pcmData;
     }
     AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
-        return;
+        return pcmData;
     }
     if (!decoder->start()){
         CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
-        return;
+        return pcmData;
     }
     do {
         PcmData data = decoder->getResult();
@@ -462,7 +463,7 @@ void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, 
         const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
 
         pcmData.resize(bytesPerChannelInFrame * numFrames);
-        char *p = pcmData.data();
+        uint8_t *p = pcmData.data();
         char *tmpBuf = data.pcmBuffer->data();
         for (int itr = 0; itr < numFrames; itr++) {
             memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
@@ -470,4 +471,5 @@ void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, 
         }
     } while (false);
     AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return pcmData;
 }

@@ -544,7 +544,7 @@ bool AudioEngineImpl::checkAudioIdValid(int audioID) {
 WavePCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
     WavePCMHeader header{};
     ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (_fileFullPath == "") {
+    if (_fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
     }
@@ -567,16 +567,17 @@ WavePCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
 }
 
 
-void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<char> &pcmData) {
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (fileFullPath == "") {
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
-        return;
+        return pcmData;
     }
     AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
-        return;
+        return pcmData;
     }
     do {
         if (!decoder->open(fileFullPath.c_str())) {
@@ -597,7 +598,7 @@ void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, 
         char *tmpBuf;
         tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerChannelInFrame));
         pcmData.resize(bytesPerChannelInFrame * audioInfo.totalFrames);
-        char *p = pcmData.data();
+        uint8_t *p = pcmData.data();
         while (remainingFrames > 0) {
             framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
             framesRead = decoder->read(framesToReadOnce, tmpBuf);
@@ -638,4 +639,5 @@ void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, 
         BREAK_IF_ERR_LOG(!decoder->seek(0), "AudioDecoder::seek(0) failed!");
     } while (false);
     AudioDecoderManager::destroyDecoder(decoder);
+    return pcmData;
 }

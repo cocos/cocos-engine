@@ -1,5 +1,5 @@
 #include "jsb_audio_manual.h"
-#include <stdint.h>
+#include <cstdint>
 #include "State.h"
 #include "bindings/auto/jsb_audio_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -8,7 +8,7 @@
 #include "audio/include/Common.h"
 #include "v8/HelperMacros.h"
 
-
+// NOLINTNEXTLINE(readability-identifier-naming)
 static bool PCMHeader_to_seval(WavePCMHeader& header, se::Value* ret) {
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
@@ -16,7 +16,7 @@ static bool PCMHeader_to_seval(WavePCMHeader& header, se::Value* ret) {
     obj->setProperty("sampleRate", se::Value(header.sampleRate));
     obj->setProperty("bytesPerFrame", se::Value(header.bytesPerFrame));
     obj->setProperty("channelCount", se::Value(header.channelCount));
-    obj->setProperty("audioFormat", se::Value((int)header.dataFormat));
+    obj->setProperty("audioFormat", se::Value(static_cast<int>(header.dataFormat)));
     ret->setObject(obj);
 
     return true;
@@ -56,7 +56,7 @@ static bool js_audio_AudioEngine_getOriginalPCMBuffer(se::State& s) // NOLINT
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
         
-        ccstd::vector<char> buffer = cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1);
+        ccstd::vector<uint8_t> buffer = cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1);
         //ok &= nativevalue_to_se(buffer, s.rval(), nullptr /*ctx*/);
         s.rval().setObject(se::Object::createArrayBufferObject(buffer.data(), buffer.size()));
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");

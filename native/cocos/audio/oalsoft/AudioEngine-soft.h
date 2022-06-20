@@ -64,7 +64,7 @@ public:
     AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
     void update(float dt);
     WavePCMHeader getPCMHeader(const char* url);
-    void getOriginalPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<char> &pcmData);
+    ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
 
 private:
     bool checkAudioIdValid(int audioID);

@@ -698,11 +698,12 @@ WavePCMHeader AudioEngineImpl::getPCMHeader(const char *url){
 
 
 
-void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<char> &pcmData) {
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (fileFullPath == "") {
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
-        return;
+        return pcmData;
     }
     AudioDecoder decoder;
 
@@ -760,4 +761,5 @@ void AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID, 
         BREAK_IF_ERR_LOG(!decoder.seek(0), "AudioDecoder::seek(0) failed!");
     } while (false);
     decoder.close();
+    return pcmData;
 }

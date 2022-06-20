@@ -63,7 +63,7 @@ public:
     void update(float dt);
     
     WavePCMHeader getPCMHeader(const char* url);
-    void getOriginalPCMBuffer(const char* url, uint32_t channelID, std::vector<char> &pcmData);
+    std::vector<uint8_t> getOriginalPCMBuffer(const char* url, uint32_t channelID);
 private:
     bool checkAudioIdValid(int audioID);
     void play2dImpl(AudioCache *cache, int audioID);

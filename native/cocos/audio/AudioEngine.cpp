@@ -596,9 +596,7 @@ bool AudioEngine::isEnabled() {
 WavePCMHeader AudioEngine::getPCMHeader(const char *url) {
     return sAudioEngineImpl->getPCMHeader(url);
 }
-ccstd::vector<char> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
-    ccstd::vector<char> pcmData;
-    sAudioEngineImpl->getOriginalPCMBuffer(url, channelID, pcmData);
-    return pcmData;
+ccstd::vector<uint8_t> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    return sAudioEngineImpl->getOriginalPCMBuffer(url, channelID);
 }
 } // namespace cc

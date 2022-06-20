@@ -59,9 +59,9 @@ int AudioDecoder::fileClose(void *datasource) {
     return 0;
 }
 
-long AudioDecoder::fileTell(void *datasource) {
+int32_t AudioDecoder::fileTell(void *datasource) {
     AudioDecoder *thiz = (AudioDecoder *)datasource;
-    return (long)thiz->_fileCurrPos;
+    return (int32_t)thiz->_fileCurrPos;
 }
 
 AudioDecoder::AudioDecoder()

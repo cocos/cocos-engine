@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <chrono>
 #include <functional>
 #include "audio/include/Export.h"
@@ -332,7 +332,7 @@ public:
      * Start from 0
      * @return PCM datas behave as a ccstd::vector<char>. You can check byte length in WavePCMHeader.
      */
-    static ccstd::vector<char> getOriginalPCMBuffer(const char *url, uint32_t channelID);
+    static ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
 
 
 protected:
