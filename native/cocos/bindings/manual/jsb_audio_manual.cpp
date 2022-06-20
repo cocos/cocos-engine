@@ -57,8 +57,8 @@ static bool js_audio_AudioEngine_getOriginalPCMBuffer(se::State& s) // NOLINT
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
         
         ccstd::vector<uint8_t> buffer = cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1);
-        //ok &= nativevalue_to_se(buffer, s.rval(), nullptr /*ctx*/);
-        s.rval().setObject(se::Object::createArrayBufferObject(buffer.data(), buffer.size()));
+        se::HandleObject obj(se::Object::createArrayBufferObject(buffer.data(), buffer.size()));
+        s.rval().setObject(obj);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
@@ -78,7 +78,5 @@ bool register_all_audio_manual(se::Object* obj) // NOLINT
 
     audioEngineVal.toObject()->defineFunction("getPCMHeader", _SE(js_audio_AudioEngine_getPCMHeader));
     audioEngineVal.toObject()->defineFunction("getOriginalPCMBuffer", _SE(js_audio_AudioEngine_getOriginalPCMBuffer));
-    // Get the ns
-
     return true;
 }
