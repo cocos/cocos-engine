@@ -45,6 +45,7 @@ import { Batcher2D } from '../renderer/batcher-2d';
 import { RenderDrawInfo } from '../renderer/render-draw-info';
 import { RenderEntity } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
+import { director } from '../../core';
 
 // hack
 ccenum(BlendFactor);
@@ -198,8 +199,32 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    protected _renderData:RenderData|null = null;
     get renderData () {
+        // if (!this.renderData) {
+        //     const entity = this._renderEntity;
+        //     if (!entity || entity.renderDataArr.length === 0) {
+        //         this.requestRenderData();
+        //     }
+        // }
         return this._renderData;
+    }
+
+    set renderData (val:RenderData|null) {
+        if (val === this._renderData) {
+            return;
+        }
+        this._renderData = val;
+        const entity = this.renderEntity;
+        if (entity) {
+            if (entity.renderDataArr.length === 0) {
+                entity.addRenderData(val);
+            } else if (entity.renderDataArr.length > 0) {
+                if (entity.renderDataArr[0] !== val) {
+                    entity.setRenderData(val, 0);
+                }
+            }
+        }
     }
 
     // Render data can be submitted even if it is not on the node tree
@@ -247,17 +272,32 @@ export class UIRenderer extends Renderer {
     protected _postAssembler: IAssembler | null = null;
 
     // RenderEntity
-    protected _renderData: RenderData | null = null;
+    //protected renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
 
     protected _renderEntity :RenderEntity|null = null;
+    protected _batcher: Batcher2D | null = null;
 
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
+
+    get batcher () {
+        if (!this._batcher) {
+            this._batcher = director.root!.batcher2D;
+        }
+        return this._batcher;
+    }
+
+    get renderEntity () {
+        if (!this._renderEntity) {
+            this.initRenderEntity();
+        }
+        return this._renderEntity;
+    }
 
     /**
      * TODO mark internal
@@ -343,7 +383,7 @@ export class UIRenderer extends Renderer {
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
         if (enable) {
-            const renderData = this._renderData;
+            const renderData = this.renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
@@ -358,8 +398,10 @@ export class UIRenderer extends Renderer {
      */
     public requestRenderData () {
         const data = RenderData.add();
+        this.renderEntity!.addRenderData(data);
+        this.renderEntity!.assignExtraEntityAttrs(this);
         this._renderData = data;
-        this._renderData.assignExtraEntityAttrs(this);
+        this._renderData.assignExtraDrawInfoAttrs(this);
         return data;
     }
 
@@ -368,11 +410,11 @@ export class UIRenderer extends Renderer {
      * @zh 销毁当前渲染数据。
      */
     public destroyRenderData () {
-        if (!this._renderData) {
+        if (!this.renderData) {
             return;
         }
-        RenderData.remove(this._renderData);
-        this._renderData = null;
+        RenderData.remove(this.renderData);
+        this.renderData = null;
     }
 
     /**
@@ -439,18 +481,18 @@ export class UIRenderer extends Renderer {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
-            if (this._renderData) {
-                this._renderData.material = this._customMaterial;
+            if (this.renderData) {
+                this.renderData.material = this._customMaterial;
                 this.markForUpdateRenderData();
-                this._renderData.passDirty = true;
+                this.renderData.passDirty = true;
             }
             this._blendHash = -1; // a flag to check merge
             return;
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
-        if (this._renderData) {
-            this._renderData.material = mat;
+        if (this.renderData) {
+            this.renderData.material = mat;
             this.markForUpdateRenderData();
         }
         this._updateBlendFunc();
@@ -493,7 +535,7 @@ export class UIRenderer extends Renderer {
 
     // pos, rot, scale changed
     protected _nodeStateChange (transformType: TransformBit) {
-        if (this._renderData) {
+        if (this.renderData) {
             this.markForUpdateRenderData();
         }
 
@@ -511,9 +553,9 @@ export class UIRenderer extends Renderer {
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
-        if (this._renderData) {
+        if (this.renderData) {
             this.markForUpdateRenderData();
-            this._renderData.passDirty = true;
+            this.renderData.passDirty = true;
         }
         super._onMaterialModified(idx, material);
     }
@@ -556,11 +598,11 @@ export class UIRenderer extends Renderer {
 
     // RenderEntity
     private initRenderEntity () {
-
+        this._renderEntity = new RenderEntity(this.batcher);
     }
 
     private disposeRenderEntity () {
-
+        this._renderEntity?.destroy();
     }
 }
 

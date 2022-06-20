@@ -187,10 +187,10 @@ export class MotionStreak extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this._renderData) {
+        if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.material;
+                this.renderData = this._assembler.createData(this);
+                this.renderData!.material = this.material;
             }
         }
     }
@@ -216,7 +216,7 @@ export class MotionStreak extends UIRenderer {
      */
     public reset () {
         this._points.length = 0;
-        if (this._renderData) this._renderData.clear();
+        if (this.renderData) this.renderData.clear();
     }
 
     public lateUpdate (dt) {

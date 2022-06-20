@@ -258,7 +258,9 @@ public:
     inline bool isActive() const { return _active; }
 
     inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
-    inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
+    inline void setActiveInHierarchy(bool v) {
+        _activeInHierarchyArr[0] = (v ? 1 : 0);
+    }
     inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
 
     virtual void onPostActivated(bool active) {}

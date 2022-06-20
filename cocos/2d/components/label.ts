@@ -448,9 +448,9 @@ export class Label extends UIRenderer {
         // if (value && this._isSystemFontUsed)
         //     this._isSystemFontUsed = false;
 
-        if (this._renderData) {
+        if (this.renderData) {
             this.destroyRenderData();
-            this._renderData = null;
+            this.renderData = null;
         }
 
         this._fontAtlas = null;
@@ -475,7 +475,7 @@ export class Label extends UIRenderer {
         }
 
         this.destroyRenderData();
-        this._renderData = null;
+        this.renderData = null;
 
         if (EDITOR) {
             if (!value && this._isSystemFontUsed && this._userDefinedFont) {
@@ -776,10 +776,10 @@ export class Label extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this._renderData) {
+        if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.material;
+                this.renderData = this._assembler.createData(this);
+                this.renderData!.material = this.material;
             }
         }
     }

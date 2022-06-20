@@ -9,6 +9,7 @@
 #include <cocos/scene/DrawBatch2D.h>
 #include <unordered_map>
 #include <vector>
+#include "2d/renderer/RenderEntity.h"
 #include "base/Ptr.h"
 
 namespace cc {
@@ -19,18 +20,18 @@ public:
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
-    void syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length);
+    void syncMeshBuffersToNative(ccstd::vector<UIMeshBuffer*>&& buffers, uint32_t length);
 
     bool initialize();
     void update();
     void uploadBuffers();
     void reset();
-    void updateVertDirtyRenderer();
+    //void updateVertDirtyRenderer();
 
     void addRootNode(Node* node);
 
 public:
-    void addVertDirtyRenderer(RenderDrawInfo* entity);
+    //void addVertDirtyRenderer(RenderDrawInfo* drawInfo);
 
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
     gfx::Device* getDevice();
@@ -51,7 +52,7 @@ private:
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
-    ccstd::vector<RenderDrawInfo*> _vertDirtyRenderers{};
+    //ccstd::vector<RenderDrawInfo*> _vertDirtyRenderers{};
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
     gfx::Device* _device{nullptr}; //use getDevice()
@@ -74,15 +75,15 @@ private:
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
 private:
-    inline void fillIndexBuffers(RenderDrawInfo* entity){
-        index_t vertexOffset = entity->getVertexOffset();
-        uint16_t* ib = entity->getIDataBuffer();
+    inline void fillIndexBuffers(RenderDrawInfo* drawInfo) {
+        index_t vertexOffset = drawInfo->getVertexOffset();
+        uint16_t* ib = drawInfo->getIDataBuffer();
 
-        UIMeshBuffer* buffer = entity->getMeshBuffer();
+        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
         index_t indexOffset = buffer->getIndexOffset();
 
-        uint16_t* indexb = entity->getIbBuffer();
-        index_t indexCount = entity->getIbCount();
+        uint16_t* indexb = drawInfo->getIbBuffer();
+        index_t indexCount = drawInfo->getIbCount();
 
         memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
         indexOffset += indexCount;
@@ -90,17 +91,17 @@ private:
         buffer->setIndexOffset(indexOffset);
     }
 
-    inline void fillVertexBuffers(RenderDrawInfo* entity){
+    inline void fillVertexBuffers(RenderEntity* entity,RenderDrawInfo* drawInfo) {
         Node* node = entity->getNode();
         const Mat4& matrix = node->getWorldMatrix();
-        uint8_t stride = entity->getStride();
-        uint32_t size = entity->getVbCount() * stride;
-        float_t* vbBuffer = entity->getVbBuffer();
+        uint8_t stride = drawInfo->getStride();
+        uint32_t size = drawInfo->getVbCount() * stride;
+        float_t* vbBuffer = drawInfo->getVbBuffer();
 
         Vec3 temp;
         uint32_t offset = 0;
         for (int i = 0; i < size; i += stride) {
-            Render2dLayout* curLayout = entity->getRender2dLayout(i);
+            Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
             temp.transformMat4(curLayout->position, matrix);
 
             offset = i;

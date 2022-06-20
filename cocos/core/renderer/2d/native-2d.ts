@@ -64,13 +64,18 @@ export class NativeRenderDrawInfo {
     get blendHash (): number { return 0; }
     set blendHash (blendHash:number) {}
 
-    //setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
     syncSharedBufferToNative (data:TypedArray) {}
 }
 
 export class NativeRenderEntity {
+    constructor (batcher: NativeBatcher2d) {}
 
+    addRenderDrawInfo (drawInfo:NativeRenderDrawInfo) {}
+    setRenderDrawInfo (drawInfo:NativeRenderDrawInfo, index:number) {}
+
+    get node ():Node { return new Node(); }
+    set node (node:Node) {}
 }
 
 export class NativeUIMeshBuffer {

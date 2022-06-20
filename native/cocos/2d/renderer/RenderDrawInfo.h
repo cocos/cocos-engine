@@ -22,7 +22,7 @@ struct DrawInfoAttrLayout {
 };
 
 class Batcher2d;
-class RenderDrawInfo : public Node::UserData {
+class RenderDrawInfo {
 public:
     RenderDrawInfo();
     explicit RenderDrawInfo(Batcher2d* batcher);

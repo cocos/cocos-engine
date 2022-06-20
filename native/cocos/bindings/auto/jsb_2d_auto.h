@@ -8,11 +8,13 @@
 #include "cocos/2d/renderer/RenderDrawInfo.h"
 #include "cocos/2d/renderer/UIMeshBuffer.h"
 #include "cocos/2d/renderer/Batcher2d.h"
+#include "cocos/2d/renderer/RenderEntity.h"
 
 bool register_all_2d(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::UIMeshBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderDrawInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::RenderEntity);
 JSB_REGISTER_OBJECT_TYPE(cc::Batcher2d);
 
 
@@ -39,6 +41,15 @@ SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_syncSharedBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_RenderDrawInfo);
 
+extern se::Object *__jsb_cc_RenderEntity_proto; // NOLINT
+extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
+
+bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_2d_RenderEntity_addRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
+
 extern se::Object *__jsb_cc_Batcher2d_proto; // NOLINT
 extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 
@@ -49,7 +60,6 @@ SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
 SE_DECLARE_FUNC(js_2d_Batcher2d_reset);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_update);
-SE_DECLARE_FUNC(js_2d_Batcher2d_updateVertDirtyRenderer);
 SE_DECLARE_FUNC(js_2d_Batcher2d_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);
 // clang-format on

@@ -62,12 +62,12 @@ void RenderDrawInfo::setIbCount(index_t ibCount) {
 
 void RenderDrawInfo::setNode(Node* node) {
     _node = node;
-    node->setUserData(this);
+    //node->setUserData(this);
 }
 
 void RenderDrawInfo::setVertDirty(bool val) {
     this->_vertDirty = val;
-    _batcher->addVertDirtyRenderer(this);
+    //_batcher->addVertDirtyRenderer(this);
 }
 
 void RenderDrawInfo::setDataHash(uint32_t dataHash) {

@@ -245,7 +245,9 @@ export class RenderData extends BaseRenderData {
     set textureHash (val:number) {
         this._textureHash = val;
         if (this._renderDrawInfo) {
-            this._renderDrawInfo.setTexture(this.frame.getGFXTexture());
+            if (this.frame) {
+                this._renderDrawInfo.setTexture(this.frame.getGFXTexture());
+            }
             this._renderDrawInfo.setTextureHash(val);
         }
     }
@@ -322,7 +324,7 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public assignExtraEntityAttrs (comp: UIRenderer) {
+    public assignExtraDrawInfoAttrs (comp: UIRenderer) {
         if (JSB) {
             if (!this._renderDrawInfo || !comp) {
                 return;

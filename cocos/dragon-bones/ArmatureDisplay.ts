@@ -592,8 +592,8 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
-        if (this._renderData && this._drawList) {
-            const rd = this._renderData;
+        if (this.renderData && this._drawList) {
+            const rd = this.renderData;
             const chunk = rd.chunk;
             const accessor = chunk.vertexAccessor;
             const meshBuffer = rd.getMeshBuffer()!;
@@ -749,14 +749,14 @@ export class ArmatureDisplay extends UIRenderer {
                 frameCache.updateToFrame();
                 this._curFrame = frames[frames.length - 1];
                 // Update render data size if needed
-                if (this._renderData
-                    && (this._renderData.vertexCount < frameCache.maxVertexCount
-                    || this._renderData.indexCount < frameCache.maxIndexCount)) {
+                if (this.renderData
+                    && (this.renderData.vertexCount < frameCache.maxVertexCount
+                    || this.renderData.indexCount < frameCache.maxIndexCount)) {
                     this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
                     this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-                    this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
-                    if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
-                        this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                    this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                    if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
+                        this.renderData.indices = new Uint16Array(this.maxIndexCount);
                     }
                 }
             }
@@ -777,14 +777,14 @@ export class ArmatureDisplay extends UIRenderer {
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
             // Update render data size if needed
-            if (this._renderData
-                && (this._renderData.vertexCount < frameCache.maxVertexCount
-                || this._renderData.indexCount < frameCache.maxIndexCount)) {
+            if (this.renderData
+                && (this.renderData.vertexCount < frameCache.maxVertexCount
+                || this.renderData.indexCount < frameCache.maxIndexCount)) {
                 this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
                 this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-                this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
-                if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
-                    this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
+                    this.renderData.indices = new Uint16Array(this.maxIndexCount);
                 }
             }
         }
@@ -1276,10 +1276,10 @@ export class ArmatureDisplay extends UIRenderer {
             this._assembler = assembler;
         }
         if (this._armature && this._assembler) {
-            this._renderData = this._assembler.createData(this);
-            if (this._renderData) {
-                this.maxVertexCount = this._renderData.vertexCount;
-                this.maxIndexCount = this._renderData.indexCount;
+            this.renderData = this._assembler.createData(this);
+            if (this.renderData) {
+                this.maxVertexCount = this.renderData.vertexCount;
+                this.maxIndexCount = this.renderData.indexCount;
             }
             this.markForUpdateRenderData();
             this._updateColor();

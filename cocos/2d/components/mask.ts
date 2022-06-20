@@ -143,9 +143,9 @@ export class Mask extends UIRenderer {
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._spriteFrame = null;
             this._updateGraphics();
-            if (this._renderData) {
+            if (this.renderData) {
                 this.destroyRenderData();
-                this._renderData = null;
+                this.renderData = null;
             }
         } else {
             this._useRenderData();
@@ -607,9 +607,9 @@ export class Mask extends UIRenderer {
     }
 
     protected _useRenderData () {
-        if (this._type === MaskType.IMAGE_STENCIL && !this._renderData) {
+        if (this._type === MaskType.IMAGE_STENCIL && !this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
+                this.renderData = this._assembler.createData(this);
                 this.markForUpdateRenderData();
             }
         }

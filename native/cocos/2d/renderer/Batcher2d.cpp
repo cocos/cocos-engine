@@ -64,42 +64,46 @@ void Batcher2d::walk(Node* node) {
     size_t length = 1;
     while (length > 0) {
         Node* curNode = nodeStack[--length];
-        RenderDrawInfo* entity = static_cast<RenderDrawInfo*>(curNode->getUserData());
-        if (entity && entity->getEnabled()) {
-            uint32_t dataHash = entity->getDataHash();
-            if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
-                /* || stencilmanager */) {//stencilStage for Mask component
-                // Generate a batch if not batching
-                generateBatch(_currEntity);
-                if (!entity->getIsMeshBuffer()) {
-                    if (_currBID != entity->getBufferId()) {
-                        UIMeshBuffer* buffer = entity->getMeshBuffer();
-                        _currBID = entity->getBufferId();
-                        _indexStart = buffer->getIndexOffset();
+        RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
+        if (entity) {
+            // when filling buffers, we should distinguish commom components and other complex components like middlewares
+            RenderDrawInfo* drawInfo = entity->getRenderDrawInfo();
+            if (drawInfo && drawInfo->getEnabled()) {
+                uint32_t dataHash = drawInfo->getDataHash();
+                if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial()
+                    /* || stencilmanager */) { //stencilStage for Mask component
+                    // Generate a batch if not batching
+                    generateBatch(_currEntity);
+                    if (!drawInfo->getIsMeshBuffer()) {
+                        if (_currBID != drawInfo->getBufferId()) {
+                            UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+                            _currBID = drawInfo->getBufferId();
+                            _indexStart = buffer->getIndexOffset();
+                        }
+                    }
+
+                    _currHash = dataHash;
+                    _currMaterial = drawInfo->getMaterial();
+                    // stencil stage
+                    _currLayer = entity->getNode()->getLayer();
+                    _currEntity = drawInfo;
+
+                    //if(frame)
+                    _currTexture = drawInfo->getTexture();
+                    _currTextureHash = drawInfo->getTextureHash();
+                    _currSampler = drawInfo->getSampler();
+                    if (_currSampler == nullptr) {
+                        _currSamplerHash = 0;
+                    } else {
+                        _currSamplerHash = _currSampler->getHash();
                     }
                 }
 
-                _currHash = dataHash;
-                _currMaterial = entity->getMaterial();
-                // stencil stage
-                _currLayer = entity->getNode()->getLayer();
-                _currEntity = entity;
-
-                //if(frame)
-                _currTexture = entity->getTexture();
-                _currTextureHash = entity->getTextureHash();
-                _currSampler = entity->getSampler();
-                if (_currSampler == nullptr) {
-                    _currSamplerHash = 0;
-                } else {
-                    _currSamplerHash = _currSampler->getHash();
+                if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
+                    fillVertexBuffers(entity, drawInfo);
                 }
+                fillIndexBuffers(drawInfo);
             }
-
-            if (curNode->getChangedFlags()) {
-                fillVertexBuffers(entity);
-            }
-            fillIndexBuffers(entity);
         }
 
         auto& children = curNode->getChildren();
@@ -191,7 +195,7 @@ bool Batcher2d::initialize() {
 }
 
 void Batcher2d::update() {
-    updateVertDirtyRenderer();
+    //updateVertDirtyRenderer();
     fillBuffersAndMergeBatches();
     resetRenderStates();
 
@@ -202,13 +206,16 @@ void Batcher2d::update() {
     }
 }
 
-void Batcher2d::updateVertDirtyRenderer() {
-    size_t size = _vertDirtyRenderers.size();
-    for (uint32_t i = 0; i < size; i++) {
-        fillVertexBuffers(_vertDirtyRenderers[i]);
-    }
-    _vertDirtyRenderers.clear();
-}
+//void Batcher2d::updateVertDirtyRenderer() {
+//    size_t size = _vertDirtyRenderers.size();
+//    for (uint32_t i = 0; i < size; i++) {
+//        RenderDrawInfo* drawInfo = _vertDirtyRenderers[i];
+//
+//        // @zhakesi if the comp is middleware，it should fill multi times
+//        fillVertexBuffers(drawInfo);
+//    }
+//    _vertDirtyRenderers.clear();
+//}
 
 void Batcher2d::uploadBuffers() {
     if (_batches.size() > 0) {
@@ -252,7 +259,7 @@ void Batcher2d::reset() {
     //stencilManager
 }
 
-void Batcher2d::addVertDirtyRenderer(RenderDrawInfo* entity) {
-    _vertDirtyRenderers.push_back(entity);
-}
+//void Batcher2d::addVertDirtyRenderer(RenderDrawInfo* drawInfo) {
+//    _vertDirtyRenderers.push_back(drawInfo);
+//}
 } // namespace cc
