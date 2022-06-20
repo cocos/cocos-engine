@@ -26,50 +26,48 @@
 
 #pragma once
 
-#include "audio/apple/AudioMacros.h"
-#include "base/Macros.h"
+#include "base/RefCounted.h"
+#include "base/std/container/list.h"
+#include "base/std/container/unordered_map.h"
 
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-#include "base/std/container/string.h"
+
 
 namespace cc {
-typedef std::function<void(int, const ccstd::string &)> FinishCallback;
-class AudioCache;
-class AudioEngineImpl;
-enum class AudioPlayerState {
-    UNUSED,
-    READY,
-    PLAYING,
-    PAUSED,
-    STOPPED
-};
-class AudioPlayer {
+class Scheduler;
+
+#define MAX_AUDIOINSTANCES 24
+
+class AudioEngineImpl : public cc::RefCounted {
 public:
-    AudioPlayer() = default;
-    ~AudioPlayer();
-    AudioCache *getCache() const { return _cache; }
-    void setCache(AudioCache* cache){ _cache = cache; }
-    
-    // AVAudioPlayer is readonly
-    void* getPlayer() { return _player; }
-    // Release audio player, it's useful when trying to use memory pool.
-    bool play();
-    bool pause();
-    bool resume();
-    void stop();
-    
-    // Init when audio cache is enabled.
+    AudioEngineImpl();
+    ~AudioEngineImpl();
+
     bool init();
-    bool release();
+    int play(const ccstd::string &fileFullPath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
+    void setLoop(int audioID, bool loop);
+    bool pause(int audioID);
+    bool resume(int audioID);
+    void stop(int audioID);
+    void stopAll();
+    float getDuration(int audioID);
+    float getDurationFromFile(const ccstd::string &fileFullPath);
+    float getCurrentTime(int audioID);
+    bool setCurrentTime(int audioID, float time);
+    void setFinishCallback(int audioID, const FinishCallback &callback);
+
+    void uncache(const ccstd::string &filePath);
+    void uncacheAll();
+    // return CacheID
+    uint32_t preload(const ccstd::string &filePath, std::function<void(bool)> callback);
+    void update(float dt);
+
 private:
-    AudioCache * _cache {nullptr};
-    void * _player {nullptr};
-    AudioPlayerState _state {AudioPlayerState::UNUSED};
-    uint32_t _audioID {0};
-    friend class AudioEngineImpl;
+    bool checkAudioIdValid(int audioID);
+    void play2dImpl(AudioCache *cache, int audioID);
     
-    FinishCallback _finishCallback;
+    std::weak_ptr<Scheduler> _scheduler;
 };
-} //namespace cc
+} // namespace cc
+
+

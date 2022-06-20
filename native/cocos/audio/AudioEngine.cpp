@@ -38,7 +38,7 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
-    #include "audio/apple/AudioEngine-newImpl.h"
+    #include "audio/apple/AudioEngine-Impl.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS
     #include "audio/oalsoft/AudioEngine-soft.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINRT
