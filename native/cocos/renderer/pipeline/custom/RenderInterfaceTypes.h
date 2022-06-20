@@ -92,6 +92,10 @@ public:
     virtual float getShadingScale() const = 0;
     virtual void  setShadingScale(float scale) = 0;
 
+    virtual const ccstd::string& getMacroString(const ccstd::string& name) const = 0;
+    virtual int32_t getMacroInt(const ccstd::string& name) const = 0;
+    virtual bool getMacroBool(const ccstd::string& name) const = 0;
+
     virtual void setMacroString(const ccstd::string& name, const ccstd::string& value) = 0;
     virtual void setMacroInt(const ccstd::string& name, int32_t value) = 0;
     virtual void setMacroBool(const ccstd::string& name, bool value) = 0;
