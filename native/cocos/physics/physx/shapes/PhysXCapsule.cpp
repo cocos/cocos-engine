@@ -33,7 +33,8 @@ namespace physics {
 
 PhysXCapsule::PhysXCapsule() : _mRadius(0.5F),
                                _mCylinderHeight(1.0F),
-                               _mDirection(EAxisDirection::Y_AXIS){};
+                               _mDirection(EAxisDirection::Y_AXIS),
+                               PhysXShape(){};
 
 void PhysXCapsule::setRadius(float r) {
     _mRadius = r;

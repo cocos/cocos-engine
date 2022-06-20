@@ -37,10 +37,6 @@
         _impl.reset(nullptr);                       \
     }                                               \
                                                     \
-    uintptr_t CLASS::getImpl() {                    \
-        return _impl->getImpl();                    \
-    }                                               \
-                                                    \
     void CLASS::initialize(Node *node) {            \
         _impl->initialize(node);                    \
     }                                               \
@@ -57,12 +53,15 @@
         _impl->onDestroy();                         \
     }                                               \
                                                     \
-    void CLASS::setConnectedBody(uintptr_t v) {     \
-        _impl->setConnectedBody(v);                 \
+    void CLASS::setConnectedBody(uint32_t rigidBodyID) {     \
+        _impl->setConnectedBody(rigidBodyID);                 \
     }                                               \
                                                     \
     void CLASS::setEnableCollision(bool v) {        \
         _impl->setEnableCollision(v);               \
+    }                                               \
+    uint32_t CLASS::getObjectID() {                 \
+        return _impl->getObjectID();                \
     }
 
 namespace cc {

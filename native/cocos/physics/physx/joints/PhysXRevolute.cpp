@@ -33,7 +33,8 @@ namespace physics {
 
 PhysXRevolute::PhysXRevolute() : _mPivotA(physx::PxZero),
                                  _mPivotB(physx::PxZero),
-                                 _mAxis(physx::PxZero) {}
+                                 _mAxis(physx::PxZero) ,
+                                 PhysXJoint(){}
 
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});

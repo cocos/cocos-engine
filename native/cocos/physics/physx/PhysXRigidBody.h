@@ -36,12 +36,10 @@ namespace physics {
 class PhysXRigidBody final : public IRigidBody {
 public:
     PhysXRigidBody();
-    ~PhysXRigidBody() override = default;
+    ~PhysXRigidBody() override;
     inline bool isEnabled() const { return _mEnabled; }
     inline const PhysXSharedBody &getSharedBody() const { return *_mSharedBody; }
     inline PhysXSharedBody &getSharedBody() { return *_mSharedBody; }
-    inline uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
-    inline uintptr_t getNodeHandle() override { return reinterpret_cast<uintptr_t>(this->_mSharedBody->getNode()); }
     void initialize(Node *node, ERigidBodyType t, uint32_t g) override;
     void onEnable() override;
     void onDisable() override;
@@ -80,12 +78,14 @@ public:
     void setGroup(uint32_t g) override;
     void setMask(uint32_t m) override;
     inline uint32_t getInitialGroup() const { return _mGroup; }
+    uint32_t getObjectID() override {return _mObjectID;};
 
 protected:
     // physx::PhysXWorld* mWrappedWorld;
     PhysXSharedBody *_mSharedBody;
     uint32_t _mGroup;
     bool _mEnabled;
+    uint32_t _mObjectID;
 };
 
 } // namespace physics

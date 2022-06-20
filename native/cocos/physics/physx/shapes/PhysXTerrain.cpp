@@ -35,9 +35,12 @@ PhysXTerrain::PhysXTerrain() : _mTerrain(nullptr),
                                _mRowScale(1.F),
                                _mColScale(1.F),
                                _mHeightScale(1.F),
-                               _mIsTrigger(false){};
+                               _mIsTrigger(false),
+                               PhysXShape(){};
 
-void PhysXTerrain::setTerrain(uintptr_t handle, float rs, float cs, float hs) {
+void PhysXTerrain::setTerrain(uint32_t objectID, float rs, float cs, float hs) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (_mShape) return;
     if (reinterpret_cast<uintptr_t>(_mTerrain) == handle) return;
     _mTerrain = reinterpret_cast<physx::PxHeightField *>(handle);

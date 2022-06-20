@@ -33,9 +33,12 @@ namespace physics {
 
 PhysXTrimesh::PhysXTrimesh() : _mMeshHandle(0),
                                _mConvex(false),
-                               _mIsTrigger(false){};
-
-void PhysXTrimesh::setMesh(uintptr_t handle) {
+                               _mIsTrigger(false),
+                               PhysXShape(){};
+                               
+void PhysXTrimesh::setMesh(uint32_t objectID) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (_mShape) return;
     if (_mMeshHandle == handle) return;
     _mMeshHandle = handle;

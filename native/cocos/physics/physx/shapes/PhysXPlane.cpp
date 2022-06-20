@@ -32,7 +32,8 @@ namespace cc {
 namespace physics {
 
 PhysXPlane::PhysXPlane() : _mConstant(0.F),
-                           _mNormal(0.F, 1.F, 0.F){};
+                           _mNormal(0.F, 1.F, 0.F),
+                           PhysXShape(){};
 
 void PhysXPlane::setConstant(float x) {
     _mConstant = x;

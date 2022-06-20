@@ -32,7 +32,8 @@ namespace cc {
 namespace physics {
 
 PhysXDistance::PhysXDistance() : _mPivotA(physx::PxZero),
-                                 _mPivotB(physx::PxZero) {}
+                                 _mPivotB(physx::PxZero),
+                                 PhysXJoint(){}
 
 void PhysXDistance::onComponentSet() {
     _mJoint = PxDistanceJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});

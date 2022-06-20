@@ -39,14 +39,13 @@
     public:                                              \
         CLASS();                                         \
         ~CLASS() override;                               \
-        uintptr_t getImpl() override;                    \
         void initialize(Node *node) override;            \
         void onEnable() override;                        \
         void onDisable() override;                       \
         void onDestroy() override;                       \
         void setEnableCollision(bool v) override;        \
-        void setConnectedBody(uintptr_t v) override;
-
+        void setConnectedBody(uint32_t rigidBodyID) override;\
+        uint32_t getObjectID() override;
 namespace cc {
 namespace physics {
 

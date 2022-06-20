@@ -124,17 +124,18 @@ void PhysXWorld::setCollisionMatrix(uint32_t index, uint32_t mask) {
     _mCollisionMatrix[index] = mask;
 }
 
-uintptr_t PhysXWorld::createConvex(ConvexDesc &desc) {
+uint32_t PhysXWorld::createConvex(ConvexDesc &desc) {
     physx::PxConvexMeshDesc convexDesc;
     convexDesc.points.count = desc.positionLength;
     convexDesc.points.stride = sizeof(physx::PxVec3);
     convexDesc.points.data = static_cast<physx::PxVec3 *>(desc.positions);
     convexDesc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
     physx::PxConvexMesh *convexMesh = getCooking().createConvexMesh(convexDesc, PxGetPhysics().getPhysicsInsertionCallback());
-    return reinterpret_cast<uintptr_t>(convexMesh);
+    uint32_t PXobjectID = addPXObject(reinterpret_cast<uintptr_t>(convexMesh));
+    return PXobjectID;
 }
 
-uintptr_t PhysXWorld::createTrimesh(TrimeshDesc &desc) {
+uint32_t PhysXWorld::createTrimesh(TrimeshDesc &desc) {
     physx::PxTriangleMeshDesc meshDesc;
     meshDesc.points.count = desc.positionLength;
     meshDesc.points.stride = sizeof(physx::PxVec3);
@@ -149,10 +150,11 @@ uintptr_t PhysXWorld::createTrimesh(TrimeshDesc &desc) {
         meshDesc.triangles.data = static_cast<physx::PxU32 *>(desc.triangles);
     }
     physx::PxTriangleMesh *triangleMesh = getCooking().createTriangleMesh(meshDesc, PxGetPhysics().getPhysicsInsertionCallback());
-    return reinterpret_cast<uintptr_t>(triangleMesh);
+    uint32_t PXobjectID = addPXObject(reinterpret_cast<uintptr_t>(triangleMesh));
+    return PXobjectID;
 }
 
-uintptr_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
+uint32_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
     const auto rows = desc.rows;
     const auto columns = desc.columns;
     const physx::PxU32 counts = rows * columns;
@@ -171,10 +173,11 @@ uintptr_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
     hfDesc.samples.stride = sizeof(physx::PxHeightFieldSample);
     physx::PxHeightField *hf = getCooking().createHeightField(hfDesc, PxGetPhysics().getPhysicsInsertionCallback());
     delete[] samples;
-    return reinterpret_cast<uintptr_t>(hf);
+    uint32_t PXobjectID = addPXObject(reinterpret_cast<uintptr_t>(hf));
+    return PXobjectID;
 }
 
-uintptr_t PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
+bool PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
                                      uint8_t m0, uint8_t m1) {
     physx::PxMaterial *mat;
     auto &m = getPxMaterialMap();
@@ -193,7 +196,18 @@ uintptr_t PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
         mat->setFrictionCombineMode(physx::PxCombineMode::Enum(m0));
         mat->setRestitutionCombineMode(physx::PxCombineMode::Enum(m1));
     }
-    return uintptr_t(mat);
+    return true;
+}
+
+uintptr_t PhysXWorld::getPXMaterialPtrWithMaterialID(uint32_t materialID) {
+    physx::PxMaterial *mat;
+    auto &m = getPxMaterialMap();
+    if (m.find(materialID) == m.end()) {
+        return 0;
+    }
+    else{
+        return m[materialID];
+    }
 }
 
 void PhysXWorld::emitEvents() {
@@ -314,6 +328,47 @@ RaycastResult &PhysXWorld::raycastClosestResult() {
     static RaycastResult hit;
     return hit;
 }
+
+uint32_t PhysXWorld::addPXObject(uintptr_t PXObjectPtr) {
+    static uint32_t sPXObjectID = 0;
+    uint32_t PXobjectID = sPXObjectID;
+    sPXObjectID++;
+    assert(sPXObjectID < 0xffffffff);
+
+    _mPXObjects[PXobjectID] = PXObjectPtr;
+    return PXobjectID;
+};
+
+void PhysXWorld::removePXObject(uint32_t PXobjectID) {
+    _mPXObjects.erase(PXobjectID);
+}
+
+uintptr_t PhysXWorld::getPXPtrWithPXObjectID(uint32_t PXObjectID) {
+    if (_mPXObjects.find(PXObjectID) == _mPXObjects.end())
+        return 0;
+    return _mPXObjects[PXObjectID];
+};
+
+uint32_t PhysXWorld::addWrapperObject(uintptr_t wrapperObjectPtr) {
+    static uint32_t sWrapperObjectID = 0;
+    uint32_t wrapprtObjectID = sWrapperObjectID;
+    sWrapperObjectID++;
+    assert(sWrapperObjectID < 0xffffffff);
+
+    _mWrapperObjects[wrapprtObjectID] = wrapperObjectPtr;
+    return wrapprtObjectID;
+};
+
+void PhysXWorld::removeWrapperObject(uint32_t wrapperObjectID) {
+    _mWrapperObjects.erase(wrapperObjectID);
+}
+
+uintptr_t PhysXWorld::getWrapperPtrWithObjectID(uint32_t wrapperObjectID) {
+    if (_mWrapperObjects.find(wrapperObjectID) == _mWrapperObjects.end())
+        return 0;
+    return _mWrapperObjects[wrapperObjectID];
+};
+
 
 } // namespace physics
 } // namespace cc

@@ -33,9 +33,12 @@
 namespace cc {
 namespace physics {
 
-PhysXCylinder::PhysXCylinder() : _mMesh(nullptr){};
+PhysXCylinder::PhysXCylinder() : _mMesh(nullptr),
+                                 PhysXShape(){};
 
-void PhysXCylinder::setConvex(uintptr_t handle) {
+void PhysXCylinder::setConvex(uint32_t objectID) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (reinterpret_cast<uintptr_t>(_mMesh) == handle) return;
     _mMesh = reinterpret_cast<physx::PxConvexMesh *>(handle);
     if (_mShape) {

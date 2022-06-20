@@ -38,7 +38,13 @@ namespace cc {
 namespace physics {
 
 PhysXRigidBody::PhysXRigidBody() : _mEnabled(false),
-                                   _mGroup(1) {}
+                                   _mGroup(1) {
+    _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
+}
+
+PhysXRigidBody::~PhysXRigidBody() {
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
+}
 
 void PhysXRigidBody::initialize(Node *node, ERigidBodyType t, uint32_t g) {
     _mGroup = g;
