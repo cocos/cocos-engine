@@ -605,14 +605,20 @@ const cacheManager = require('./jsb-cache-manager');
         const strName = name.toString();
         this._animationName = strName;
         this._playTimes = loop ? 0 : 1;
+        let res = null;
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
-                return this._nativeSkeleton.setAnimation(strName, loop);
+                res = this._nativeSkeleton.setAnimation(strName, loop);
             } else {
-                return this._nativeSkeleton.setAnimation(trackIndex, strName, loop);
+                res = this._nativeSkeleton.setAnimation(trackIndex, strName, loop);
             }
+            /**
+             * note: since native spine animation update called after Director.EVENT_BEFORE_UPDATE
+             * and before setAnimation. it's need to update native animation to first frame directly.
+             */
+            this._nativeSkeleton.update(0);
         }
-        return null;
+        return res;
     };
 
     skeleton.addAnimation = function (trackIndex, name, loop, delay) {

@@ -301,6 +301,18 @@ void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Textur
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();
 
+    auto blockSize = formatAlignment(dst->getFormat());
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto region = regions[i];
+
+        CC_ASSERT(region.texOffset.x % blockSize.first == 0);
+        CC_ASSERT(region.texOffset.y % blockSize.second == 0);
+
+        CC_ASSERT((region.texExtent.width % blockSize.first == 0) || (region.texExtent.width % blockSize.first != 0 && region.texOffset.x + region.texExtent.width == dst->getWidth()));
+        CC_ASSERT((region.texExtent.height % blockSize.second == 0) || (region.texExtent.height % blockSize.second != 0 && region.texOffset.y + region.texExtent.height == dst->getHeight()));
+    }
+
     /////////// execute ///////////
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);

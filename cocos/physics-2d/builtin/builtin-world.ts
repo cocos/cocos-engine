@@ -168,7 +168,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     private _checkDebugDrawValid () {
-        if (EDITOR && legacyCC.GAME_VIEW) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
