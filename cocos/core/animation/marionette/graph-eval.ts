@@ -159,6 +159,10 @@ export class AnimationGraphEval {
         varInstance.value = value;
     }
 
+    public getLayerWeight (layerIndex: number) {
+        return this._layerEvaluations[layerIndex].weight;
+    }
+
     public setLayerWeight (layerIndex: number, weight: number) {
         this._layerEvaluations[layerIndex].weight = weight;
     }
