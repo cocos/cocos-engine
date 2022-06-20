@@ -1273,7 +1273,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
-    protected _onSetParent (oldParent: BaseNode | null, keepWorldTransform = false) {
+    protected _onSetParent (oldParent: this | null, keepWorldTransform = false) {
         if (this._parent) {
             if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
                 this.walk(BaseNode._setScene);
@@ -1297,7 +1297,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         this._onPreDestroyBase();
     }
 
-    protected _onHierarchyChanged (oldParent: BaseNode | null) {
+    protected _onHierarchyChanged (oldParent: this | null) {
         return this._onHierarchyChangedBase(oldParent);
     }
 
@@ -1330,7 +1330,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return cloned;
     }
 
-    protected _onHierarchyChangedBase (oldParent: BaseNode | null) {
+    protected _onHierarchyChangedBase (oldParent: this | null) {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
             legacyCC.game.removePersistRootNode(this);

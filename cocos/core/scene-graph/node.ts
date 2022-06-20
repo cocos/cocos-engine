@@ -499,7 +499,7 @@ export class Node extends BaseNode implements CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onSetParent (oldParent: BaseNode | null, keepWorldTransform: boolean) {
+    public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
             const parent = this._parent;
@@ -524,7 +524,7 @@ export class Node extends BaseNode implements CustomSerializable {
         this.invalidateChildren(TransformBit.TRS);
     }
 
-    protected _onHierarchyChanged (oldParent: BaseNode | null) {
+    protected _onHierarchyChanged (oldParent: this | null) {
         this.eventProcessor.reattach();
         super._onHierarchyChangedBase(oldParent);
     }
