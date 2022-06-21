@@ -233,7 +233,7 @@ public class CocosDownloader {
                                 Context context = GlobalObject.getActivity();
                                 SharedPreferences sharedPreferences = context.getSharedPreferences("breakpointDownloadSupport", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                                long total = response.body().contentLength();
+                                long total = response.body().contentLength() + downloadStart;
                                 if (path.length() > 0 && !sharedPreferences.contains(host)) {
                                     if (total > 0) {
                                         editor.putBoolean(host, true);
