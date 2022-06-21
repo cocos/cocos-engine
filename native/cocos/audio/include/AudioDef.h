@@ -45,5 +45,3 @@ struct PCMHeader {
     uint32_t channelCount {0};
     AudioDataFormat dataFormat {AudioDataFormat::UNKNOWN};
 };
-
-

@@ -210,6 +210,7 @@ if(USE_AUDIO)
                      cocos/audio/include/AudioEngine.h
                      cocos/audio/include/AudioDef.h
                      cocos/audio/include/Export.h
+                     cocos/audio/include/AudioDef.h
     )
     if(WINDOWS)
         cocos_source_files(

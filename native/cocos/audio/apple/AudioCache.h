@@ -24,11 +24,30 @@
  THE SOFTWARE.
 ****************************************************************************/
 #pragma once
+#include <mutex>
 #include "base/std/container/string.h"
-#include "audio/include/Common.h"
+#include "base/std/container/vector.h"
+#include "audio/include/AudioDef.h"
+
+#ifdef __OBJC__
+#import <AVFoundation/AVAudioFile.h>
+#else
+#endif
+#ifdef __OBJC__
+typedef struct AudioFileDescriptor {
+    AVAudioFile* audioFile;
+    AVAudioPCMBuffer* buffer;
+} AudioFileDescriptor;
+#else
+typedef struct AudioFileDescriptor {
+    ccstd::string fileFullPath;
+} AudioFileDescriptor;
+#endif
 
 // Macro: decided by build phase, Variable: decided by running phase
-#define MAX_BUFFER_LENGTH 256000 //bytes
+// By default, memory use of audio data in total is 32 mb, de/increase MAX_BUFFER_LENGTH and MAX_CACHE_COUNT to change memory usage.
+#define MAX_BUFFER_LENGTH 262144 // 256 kilo-bytes
+#define MAX_CACHE_COUNT 128 // 128 audio cache can be create.
 
 typedef std::function<void(bool)> LoadCallback;
 namespace cc {
@@ -48,15 +67,18 @@ namespace cc {
          // With a single thread to use. once load or unload end, the loadCallback will be triggered.
         bool unload(LoadCallback &cb);
         bool load(LoadCallback &cb);
-        bool resample(uint32_t sampleRate);
+        bool resample(PCMHeader header);
         
         // Can only be called when state is LOADED
         ccstd::vector<char> getPCMBuffer();
+        ccstd::vector<char> getPCMBuffer(uint32_t channelID);
         PCMHeader getPCMHeader();
         State loadState;
     private:
-        std::mutex _readDataMutex;
-        PCMHeader _pcmHeader;
-        ccstd::shared_ptr<std::vector<char>> _pcmBuffer;
+        AudioFileDescriptor                     _descriptor;
+        std::mutex                              _readDataMutex;
+        PCMHeader                               _pcmHeader; // Smaller than MAX_BUFFER_LENGTH
+        std::shared_ptr<std::vector<char>>      _pcmBuffer {nullptr}; // nullptr when it's on Apple platform.
+        bool                                    _isStreaming {false};
     };
 }
