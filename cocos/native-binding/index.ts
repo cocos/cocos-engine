@@ -198,7 +198,7 @@ export declare namespace native {
          * Splitting the key into 4 parts and calling the function from 4 different source
          * files increases the difficulty to reverse engineer the encryption key.
          * Be aware that encryption is *never* 100% secure and the key code
-         * can be cracked by knowledgable persons.
+         * can be cracked by knowledgeable persons.
          *
          * IMPORTANT: Be sure to call setPvrEncryptionKey or
          * setPvrEncryptionKeyPart with all of the key parts *before* loading
