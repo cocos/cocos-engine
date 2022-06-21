@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry-renderer
- */
 import { AABB } from '../geometry/aabb';
 import { Spline } from '../geometry/spline';
 import { Color } from '../math/color';
