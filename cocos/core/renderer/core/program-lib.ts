@@ -444,6 +444,7 @@ class ProgramLib {
         const tmplInfo = this._templateInfos[tmpl.hash];
         if (!tmplInfo.pipelineLayout) {
             const director = legacyCC.director;
+            /*
             if (director.root.usesCustomPipeline) {
                 const root = legacyCC.director.root;
                 const ppl: Pipeline = root.customPipeline;
@@ -461,10 +462,11 @@ class ProgramLib {
                     tmplInfo.setLayouts[SetIndex.LOCAL] = localDS;
                 }
             } else {
-                this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
-                insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
-                tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            }
+                */
+            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
+            insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
+            tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            //}
             tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
         }
 

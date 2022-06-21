@@ -284,6 +284,10 @@ public:
     float getShadingScale() const override;
     void  setShadingScale(float scale) override;
 
+    const ccstd::string& getMacroString(const ccstd::string& name) const override;
+    int32_t getMacroInt(const ccstd::string& name) const override;
+    bool getMacroBool(const ccstd::string& name) const override;
+
     void setMacroString(const ccstd::string& name, const ccstd::string& value) override;
     void setMacroInt(const ccstd::string& name, int32_t value) override;
     void setMacroBool(const ccstd::string& name, bool value) override;
