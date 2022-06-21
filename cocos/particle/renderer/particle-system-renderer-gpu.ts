@@ -603,4 +603,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
         this.updateRenderMode();
     }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+
+    }
 }
