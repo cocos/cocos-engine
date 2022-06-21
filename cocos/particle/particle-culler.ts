@@ -257,13 +257,14 @@ export class ParticleCuller {
             }
         }
 
+        const worldMat = this._particleSystem.node.worldMatrix;
         for (let i = 0; i < this._particlesAll.length; ++i) {
             const p: Particle = this._particlesAll[i];
             Vec3.multiply(size, _node_scale, p.size);
             Vec3.multiply(size, size, meshSize);
             position.set(p.position);
             if (this._particleSystem.simulationSpace !== Space.World) {
-                Vec3.transformMat4(position, position, this._particleSystem.node.worldMatrix);
+                Vec3.transformMat4(position, position, worldMat);
             }
             if (isInit && i === 0) {
                 Vec3.subtract(this.minPos, position, size);
