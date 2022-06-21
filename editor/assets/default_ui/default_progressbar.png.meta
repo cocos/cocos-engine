@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "24a704da-2867-446d-8d1a-5e920c75e09d",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "24a704da-2867-446d-8d1a-5e920c75e09d"
+        "imageUuidOrDatabaseUri": "24a704da-2867-446d-8d1a-5e920c75e09d",
+        "visible": false
       },
       "displayName": "default_progressbar",
       "id": "6c48a",
