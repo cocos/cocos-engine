@@ -31,8 +31,13 @@ import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 
 export class WebDescriptorHierarchy {
+    private uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
+    private blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;
+
     constructor () {
         this._layoutGraph = new LayoutGraph();
+        this.uniformBlockIndex = new Map<DescriptorBlock, DescriptorBlockIndex>();
+        this.blockMerged = new Map<DescriptorBlock, Map<Type, Descriptor>>();
     }
 
     private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
@@ -42,7 +47,7 @@ export class WebDescriptorHierarchy {
             const uniformBlock: DescriptorBlock = new DescriptorBlock();
             descriptorDB.blocks.set(key, uniformBlock);
 
-            // uniformBlock['blockIndex'] = blockIndex;
+            this.uniformBlockIndex.set(uniformBlock, blockIndex);
         }
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
@@ -52,8 +57,8 @@ export class WebDescriptorHierarchy {
             const uniformBlock: DescriptorBlock = new DescriptorBlock();
             descriptorDB.blocks.set(key, uniformBlock);
 
-            // const blockIndedx: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
-            // uniformBlock['blockIndex'] = blockIndedx;
+            const blockIndedx: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
+            this.uniformBlockIndex.set(uniformBlock, blockIndedx);
         }
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
@@ -97,31 +102,49 @@ export class WebDescriptorHierarchy {
                 if (count > 0) {
                     const mergedDescriptor: Descriptor = new Descriptor(type);
                     mergedDescriptor.count = count;
-                    // block.merged.set(type, mergedDescriptor);
+                    let merged: Map<Type, Descriptor>;
+                    if (this.blockMerged.get(block) === undefined) {
+                        merged = new Map<Type, Descriptor>();
+                        this.blockMerged.set(block, merged);
+                    }
+                    this.blockMerged.get(block)?.set(type, mergedDescriptor);
                 }
             }
         }
     }
 
     private mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
-        /*
         for (let i = 0; i < descriptorDBs.length; ++i) {
             const db: DescriptorDB = descriptorDBs[i];
             for (const e of db.blocks) {
                 const key: string = e[0];
                 const block: DescriptorBlock = e[1];
 
-                if (block.merged.size > 0) {
+                let merged: Map<Type, Descriptor>;
+                if (this.blockMerged.get(block) === undefined) {
+                    merged = new Map<Type, Descriptor>();
+                    this.blockMerged.set(block, merged);
+                } else {
+                    merged = this.blockMerged.get(block) as Map<Type, Descriptor>;
+                }
+                if (merged.size > 0) {
                     const targetBlock: DescriptorBlock = this.getLayoutBlockByKey(key, target);
-                    for (const ee of block.merged) {
+                    let targetMerged: Map<Type, Descriptor>;
+                    if (this.blockMerged.get(targetBlock) === undefined) {
+                        targetMerged = new Map<Type, Descriptor>();
+                        this.blockMerged.set(targetBlock, targetMerged);
+                    } else {
+                        targetMerged = this.blockMerged.get(targetBlock) as Map<Type, Descriptor>;
+                    }
+                    for (const ee of merged) {
                         const type: Type = ee[0];
                         const descriptor: Descriptor = ee[1];
-                        if (!targetBlock.merged.has(type)) {
+                        if (!targetMerged.has(type)) {
                             const ds: Descriptor = new Descriptor(descriptor.type);
                             ds.count = descriptor.count;
-                            targetBlock.merged.set(type, ds);
+                            targetMerged.set(type, ds);
                         } else {
-                            const ds: Descriptor | undefined = targetBlock.merged.get(type);
+                            const ds: Descriptor | undefined = targetMerged.get(type);
                             if (ds !== undefined) {
                                 ds.count = ds.count > descriptor.count ? ds.count : descriptor.count;
                             }
@@ -131,7 +154,6 @@ export class WebDescriptorHierarchy {
                 }
             }
         }
-        */
     }
 
     private sort (descriptorDB: DescriptorDB) {
@@ -365,8 +387,7 @@ export class WebDescriptorHierarchy {
 
         const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, vName, passDB);
 
-        //this.mergeDBs(dbsToMerge, passDB);
-        this.merge(passDB);
+        this.mergeDBs(dbsToMerge, passDB);
         this.sort(passDB);
 
         return vid;
