@@ -48,13 +48,14 @@ namespace cc {
          // With a single thread to use. once load or unload end, the loadCallback will be triggered.
         bool unload(LoadCallback &cb);
         bool load(LoadCallback &cb);
+        bool resample(uint32_t sampleRate);
         
         // Can only be called when state is LOADED
         ccstd::vector<char> getPCMBuffer();
         PCMHeader getPCMHeader();
-        
+        State loadState;
     private:
-        State _loadState;
+        std::mutex _readDataMutex;
         PCMHeader _pcmHeader;
         ccstd::shared_ptr<std::vector<char>> _pcmBuffer;
     };

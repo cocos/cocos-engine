@@ -23,4 +23,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+#include "audio/apple/AudioCache.h"
+#include "audio/apple/AudioDecoder.h"
+#import <AVFoundation/AVAudioFile.h>
 
+namespace cc {
+
+bool AudioCache::load(LoadCallback &cb) {
+    std::thread
+    
+    
+}
+
+}
