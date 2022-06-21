@@ -57,6 +57,7 @@ public:
     void updateLocalDescriptors(index_t submodelIdx, gfx::DescriptorSet *descriptorset) override;
     void updateTransform(uint32_t stamp) override;
     void updateUBOs(uint32_t stamp) override;
+    void setRealTimeJointTextures(std::vector<gfx::Texture *> textures);
     void destroy() override;
 
     void initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) override;
@@ -68,11 +69,14 @@ public:
 private:
     static void uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
     void ensureEnoughBuffers(index_t count);
+    void updateRealTimeJointTextureBuffer();
 
     ccstd::vector<index_t> _bufferIndices;
     ccstd::vector<IntrusivePtr<gfx::Buffer>> _buffers;
     ccstd::vector<JointInfo> _joints;
-    ccstd::vector<ccstd::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
+    ccstd::vector<float *> _dataArray;
+    bool _realTimeTextureMode = false;
+    RealTimeJointTexture *_realTimeJointTexture;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SkinningModel);
 };

@@ -41,6 +41,23 @@ struct IJointTransform : RefCounted {
     IntrusivePtr<IJointTransform> parent;
 };
 
+class RealTimeJointTexture {
+public:
+    RealTimeJointTexture() {
+        textures.clear();
+    }
+
+    ~RealTimeJointTexture() {
+        textures.clear();
+        delete buffer;
+    }
+
+    static const uint32_t WIDTH = 256;
+    static const uint32_t HEIGHT = 3;
+    std::vector<gfx::Texture *> textures;
+    float *buffer = nullptr;
+};
+
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp);
 
 IJointTransform *getTransform(Node *node, Node *root);
