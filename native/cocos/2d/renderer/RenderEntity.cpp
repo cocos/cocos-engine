@@ -2,10 +2,6 @@
 #include <2d/renderer/Batcher2d.h>
 
 namespace cc {
-RenderEntity::RenderEntity(){
-    _batcher = nullptr;
-}
-
 RenderEntity::RenderEntity(Batcher2d* batcher) {
     _batcher = batcher;
 }

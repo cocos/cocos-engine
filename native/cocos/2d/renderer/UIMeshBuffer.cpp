@@ -3,9 +3,6 @@
 #include <vector>
 
 namespace cc {
-UIMeshBuffer::UIMeshBuffer(/* args */) {
-}
-
 UIMeshBuffer::~UIMeshBuffer() {
     destroy();
 }
@@ -66,9 +63,7 @@ gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
     if (_nextFreeIAHandle >= _iaPool.size()) {
         createNewIA(device);
     }
-    auto ia = _iaPool[_nextFreeIAHandle];
-    _nextFreeIAHandle++;
-    return ia;
+    return _iaPool[_nextFreeIAHandle++];
 }
 
 void UIMeshBuffer::uploadBuffers() {

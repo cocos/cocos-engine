@@ -6,10 +6,10 @@
 
 namespace cc {
 class Batcher2d;
-class RenderEntity : public Node::UserData {
+class RenderEntity final : public Node::UserData {
 
 public:
-    RenderEntity(/* args */);
+    RenderEntity() = default;
     explicit RenderEntity(Batcher2d* batcher);
     ~RenderEntity();
 

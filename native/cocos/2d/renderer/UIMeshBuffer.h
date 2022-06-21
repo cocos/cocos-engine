@@ -1,7 +1,7 @@
 #pragma once
 #include <cocos/base/TypeDef.h>
-#include <vector>
 #include <renderer/gfx-base/GFXDef-common.h>
+#include <vector>
 
 namespace cc {
 struct MeshBufferLayout {
@@ -12,9 +12,9 @@ struct MeshBufferLayout {
     index_t floatsPerVertex;
 };
 
-class UIMeshBuffer {
+class UIMeshBuffer final {
 public:
-    UIMeshBuffer();
+    UIMeshBuffer() = default;
     ~UIMeshBuffer();
 
     inline float_t* getVData() { return _vData; }

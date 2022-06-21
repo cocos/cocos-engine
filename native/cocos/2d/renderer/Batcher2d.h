@@ -14,7 +14,7 @@
 
 namespace cc {
 class Root;
-class Batcher2d {
+class Batcher2d final {
 public:
     Batcher2d();
     explicit Batcher2d(Root* root);
