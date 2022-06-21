@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "20835ba4-6145-4fbc-a58a-051ce700aa3e",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "20835ba4-6145-4fbc-a58a-051ce700aa3e"
+        "imageUuidOrDatabaseUri": "20835ba4-6145-4fbc-a58a-051ce700aa3e",
+        "visible": false
       },
       "displayName": "default_btn_normal",
       "id": "6c48a",
