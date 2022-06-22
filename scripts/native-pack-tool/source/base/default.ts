@@ -83,6 +83,10 @@ export abstract class NativePackTool {
     init(params: CocosParams<Object>) {
         this.params = new CocosParams(params);
         this.paths = new Paths(params);
+
+        this.setEnv('NATIVE_DIR', this.paths.platformTemplateDirInPrj);
+        this.setEnv('COMMON_DIR', this.paths.commonDirInPrj);
+        this.setEnv('PROJECT_NAME', this.params.projectName);
     }
 
     protected parseVersion(content: string, key: string, def: number): number {
@@ -352,6 +356,8 @@ export abstract class NativePackTool {
     }
 
     protected async excuteTemplateTask(tasks: CocosProjectTasks) {
+        console.log("------------ excuteTemplateTask");
+        console.log(tasks);
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
                 const dest = cchelper.replaceEnvVariables(task.to);
