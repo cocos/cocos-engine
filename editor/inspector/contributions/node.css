@@ -47,7 +47,8 @@
     padding-left: 4px;
 }
 
-.header > .name {
+.header > .name,
+.component-header .name {
     flex: 1;
 }
 
