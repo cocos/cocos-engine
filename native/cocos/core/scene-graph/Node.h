@@ -505,9 +505,7 @@ public:
         return hasChanged() ? _flagChange : 0;
     }
     inline void setChangedFlags(uint32_t value) {
-        if (!hasChanged()) {
-            _flagChangeVersion = globalFlagChangeVersion;
-        }
+        _flagChangeVersion = globalFlagChangeVersion;
         _flagChange = value;
     }
 
@@ -641,10 +639,11 @@ protected:
 
     static uint32_t clearFrame;
     static uint32_t clearRound;
-public:
-    static uint32_t globalFlagChangeVersion; // export addr to jsb, access from js via ArrayBuffer
 
 private:
+    // increase on every frame, used to identify the frame
+    static uint32_t globalFlagChangeVersion;
+
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
     }
@@ -676,11 +675,11 @@ protected:
 
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
-public:
-    // export addr to jsb, access from js via ArrayBuffer
+    /* set _flagChangeVersion to globalFlagChangeVersion when `_flagChange` updated.
+    * `globalFlagChangeVersion == _flagChangeVersion` means tha "_flagChange is dirty in current frametime".
+    */
     uint32_t _flagChangeVersion{0};
     uint32_t _flagChange{0};
-protected:
     uint32_t _dirtyFlag{0};
 
     bool _eulerDirty{false};

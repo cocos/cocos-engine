@@ -155,9 +155,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
     constructor (name?: string) {
         super(name);
-
-        this._hasChangedFlags = 0;
-
         this._pos = new Vec3();
         this._rot = new Quat();
         this._scale = new Vec3(1, 1, 1);
@@ -174,7 +171,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
     protected _onPreDestroy () {
         const result = this._onPreDestroyBase();
-        // bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return result;
     }
 
@@ -378,14 +374,8 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     set hasChangedFlags (val: number) {
-        if (this._flagChangeVersion !== globalFlagChangeVersion) {
-            this._flagChangeVersion = globalFlagChangeVersion;
-        }
+        this._flagChangeVersion = globalFlagChangeVersion;
         this._hasChangedFlags = val;
-    }
-
-    private hasFlagVersionChanged () {
-        return this._flagChangeVersion === globalFlagChangeVersion;
     }
 
     /**
@@ -637,9 +627,12 @@ export class Node extends BaseNode implements CustomSerializable {
                 flag |= dirtyBit;
                 cur._dirtyFlags = flag;
 
+                // NOTE: inflate procedure
+                // ```
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                // ```
                 cur._flagChangeVersion = globalFlagChangeVersion;
                 cur._hasChangedFlags = hasChangedFlags | dirtyBit;
-                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
                 l = children.length;
