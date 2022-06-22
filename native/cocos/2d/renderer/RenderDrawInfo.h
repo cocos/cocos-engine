@@ -69,7 +69,7 @@ public:
     inline uint32_t getBlendHash() const { return this->_blendHash; }
     void setBlendHash(uint32_t blendHash);
 
-    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
+    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type);
     void syncSharedBufferToNative(uint32_t* buffer);
 
 public:
@@ -84,6 +84,7 @@ public:
 
     inline uint8_t getStride() { return this->_stride; }
     inline uint32_t getSize() { return this->_size; }
+    inline uint8_t getDrawType() { return this->_drawType; }
 
 private:
     Batcher2d* _batcher;
@@ -114,6 +115,7 @@ private:
     Node* _node{nullptr};
 
     bool _vertDirty{false};
+    uint8_t _drawType{0};
 
 private: // for merging batches
     uint32_t _dataHash{0};

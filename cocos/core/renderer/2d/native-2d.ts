@@ -66,7 +66,7 @@ export class NativeRenderDrawInfo {
     get blendHash (): number { return 0; }
     set blendHash (blendHash:number) {}
 
-    setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
+    setRender2dBufferToNative (data:TypedArray, stride:number, size:number, type:number) {}
     syncSharedBufferToNative (data:TypedArray) {}
 }
 

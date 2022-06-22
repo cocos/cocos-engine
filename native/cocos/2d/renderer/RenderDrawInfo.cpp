@@ -102,10 +102,11 @@ void RenderDrawInfo::setBlendHash(uint32_t blendHash) {
     this->_blendHash = blendHash;
 }
 
-void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) {
+void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type) {
     this->_stride = stride;
     this->_size = size;
     this->_sharedBuffer = buffer;
+    this->_drawType = type;
 }
 
 void RenderDrawInfo::syncSharedBufferToNative(uint32_t* buffer) {
