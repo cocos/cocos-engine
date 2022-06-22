@@ -5,57 +5,79 @@ import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
 import { Material, Node } from '../../core';
+import { EmitLocation } from '../../particle/enum';
+
+export enum RenderEntityType {
+    STATIC,
+    DYNAMIC,
+}
 
 export class RenderEntity {
-    private _renderDataArr: RenderData[] = [];
-    private _renderDrawInfoArr: RenderDrawInfo[] = [];
+    private _renderEntityType: RenderEntityType = RenderEntityType.STATIC;
+
+    private _dynamicDrawInfoArr: RenderDrawInfo[] = [];
+
+    private _batcher: Batcher2D | undefined;
 
     protected _node: Node | undefined;
-
-    get renderDataArr () {
-        return this._renderDataArr;
-    }
 
     private declare _nativeObj: NativeRenderEntity;
     get nativeObj () {
         return this._nativeObj;
     }
 
-    constructor (batcher:Batcher2D) {
+    get renderDrawInfoArr () {
+        return this._dynamicDrawInfoArr;
+    }
+
+    get renderEntityType () {
+        return this._renderEntityType;
+    }
+    // set renderEntityType (val:RenderEntityType) {
+    //     this._renderEntityType = val;
+    // }
+
+    constructor (batcher: Batcher2D, entityType: RenderEntityType) {
         if (JSB) {
+            this._batcher = batcher;
             if (!this._nativeObj) {
                 this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
             }
+            this._renderEntityType = entityType;
         }
     }
 
-    public addRenderData (renderData:RenderData|null) {
+    public addDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null) {
         if (JSB) {
-            if (renderData && renderData.renderDrawInfo) {
-                this._renderDataArr.push(renderData);
-                this._renderDrawInfoArr.push(renderData.renderDrawInfo);
-                this._nativeObj.addRenderDrawInfo(renderData.renderDrawInfo.nativeObj);
+            if (renderDrawInfo) {
+                this._dynamicDrawInfoArr.push(renderDrawInfo);
+                this._nativeObj.addDynamicRenderDrawInfo(renderDrawInfo.nativeObj);
             }
         }
     }
 
-    public setRenderData (renderData:RenderData|null, index:number) {
+    public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number) {
         if (JSB) {
-            if (renderData && renderData.renderDrawInfo) {
-                if (this.renderDataArr.length > index) {
-                    this.renderDataArr[index] = renderData;
+            if (renderDrawInfo) {
+                if (this._dynamicDrawInfoArr.length > index) {
+                    this._dynamicDrawInfoArr[index] = renderDrawInfo;
                 }
-                if (this._renderDrawInfoArr.length > index) {
-                    this._renderDrawInfoArr[index] = renderData.renderDrawInfo;
-                }
-                this._nativeObj.setRenderDrawInfo(renderData.renderDrawInfo.nativeObj, index);
+                this._nativeObj.setDynamicRenderDrawInfo(renderDrawInfo.nativeObj, index);
             }
         }
+    }
+
+    public getStaticRenderDrawInfo (): RenderDrawInfo | null {
+        if (JSB) {
+            const nativeDrawInfo = this._nativeObj.getStaticRenderDrawInfo(0);
+            const drawInfo = new RenderDrawInfo(this._batcher!, nativeDrawInfo);
+            return drawInfo;
+        }
+        return null;
     }
 
     public destroy () {
-        this._renderDataArr = [];
-        this._renderDrawInfoArr = [];
+        this._dynamicDrawInfoArr = [];
     }
 
     public assignExtraEntityAttrs (comp: UIRenderer) {

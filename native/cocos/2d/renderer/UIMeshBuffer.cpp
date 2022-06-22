@@ -15,7 +15,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* device, ccstd::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount) {
+void UIMeshBuffer::initialize(gfx::Device* device, ccstd::vector<gfx::Attribute*>&& attrs, uint32_t vFloatCount, uint32_t iCount) {
 
 }
 
@@ -47,7 +47,7 @@ void UIMeshBuffer::destroy() {
     _vData = nullptr;
     _iData = nullptr;
     // Destroy InputAssemblers
-    for (index_t i = 0; i < _iaPool.size();i++) {
+    for (uint32_t i = 0; i < _iaPool.size();i++) {
         gfx::InputAssembler* ia = _iaPool[i];
         ia->destroy();
         delete ia;
@@ -67,7 +67,7 @@ gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
 }
 
 void UIMeshBuffer::uploadBuffers() {
-    index_t byteOffset = getByteOffset();
+    uint32_t byteOffset = getByteOffset();
     bool dirty = getDirty();
     if (_meshBufferLayout == nullptr || byteOffset == 0 || !dirty || this->_iaPool.size() == 0) {
         return;
@@ -77,9 +77,9 @@ void UIMeshBuffer::uploadBuffers() {
     //const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
     //const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
 
-    index_t indexCount = this->getIndexOffset();
-    index_t byteCount = this->getByteOffset();
-    index_t dataCount = byteCount >> 2;
+    uint32_t indexCount = this->getIndexOffset();
+    uint32_t byteCount = this->getByteOffset();
+    uint32_t dataCount = byteCount >> 2;
 
     gfx::InputAssembler* ia = this->_iaPool[0];
     gfx::BufferList vBuffers = ia->getVertexBuffers();
@@ -131,7 +131,7 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
     return ia;
 }
 
-void UIMeshBuffer::syncSharedBufferToNative(index_t* buffer) {
+void UIMeshBuffer::syncSharedBufferToNative(uint32_t* buffer) {
     _sharedBuffer = buffer;
     parseLayout();
 }
@@ -140,15 +140,15 @@ void UIMeshBuffer::parseLayout() {
     _meshBufferLayout = reinterpret_cast<MeshBufferLayout*>(_sharedBuffer);
 }
 
-void UIMeshBuffer::setByteOffset(index_t byteOffset) {
+void UIMeshBuffer::setByteOffset(uint32_t byteOffset) {
     _meshBufferLayout->byteOffset = byteOffset;
 }
 
-void UIMeshBuffer::setVertexOffset(index_t vertexOffset) {
+void UIMeshBuffer::setVertexOffset(uint32_t vertexOffset) {
     _meshBufferLayout->vertexOffset = vertexOffset;
 }
 
-void UIMeshBuffer::setIndexOffset(index_t indexOffset) {
+void UIMeshBuffer::setIndexOffset(uint32_t indexOffset) {
     _meshBufferLayout->indexOffset = indexOffset;
 }
 
@@ -156,7 +156,7 @@ void UIMeshBuffer::setDirty(bool dirty) const {
     _meshBufferLayout->dirtyMark = dirty ? 1 : 0;
 }
 
-void UIMeshBuffer::setFloatsPerVertex(index_t floatsPerVertex) {
+void UIMeshBuffer::setFloatsPerVertex(uint32_t floatsPerVertex) {
     _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
 } // namespace cc

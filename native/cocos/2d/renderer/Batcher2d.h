@@ -33,7 +33,7 @@ public:
 public:
     //void addVertDirtyRenderer(RenderDrawInfo* drawInfo);
 
-    UIMeshBuffer* getMeshBuffer(index_t bufferId);
+    UIMeshBuffer* getMeshBuffer(uint32_t bufferId);
     gfx::Device* getDevice();
 
     void updateDescriptorSet();
@@ -59,15 +59,15 @@ private:
 
     RenderDrawInfo* _currEntity{nullptr};
     index_t _currBID{-1};
-    index_t _indexStart{0};
+    uint32_t _indexStart{0};
     uint32_t _currHash{0};
-    index_t _currLayer{0};
+    uint32_t _currLayer{0};
 
     Material* _currMaterial{nullptr};
     gfx::Texture* _currTexture{nullptr};
-    index_t _currTextureHash{0};
+    uint32_t _currTextureHash{0};
     gfx::Sampler* _currSampler{nullptr};
-    index_t _currSamplerHash{0};
+    uint32_t _currSamplerHash{0};
 
 private:
     ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
@@ -76,14 +76,14 @@ private:
 
 private:
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) {
-        index_t vertexOffset = drawInfo->getVertexOffset();
+        uint32_t vertexOffset = drawInfo->getVertexOffset();
         uint16_t* ib = drawInfo->getIDataBuffer();
 
         UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-        index_t indexOffset = buffer->getIndexOffset();
+        uint32_t indexOffset = buffer->getIndexOffset();
 
         uint16_t* indexb = drawInfo->getIbBuffer();
-        index_t indexCount = drawInfo->getIbCount();
+        uint32_t indexCount = drawInfo->getIbCount();
 
         memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
         indexOffset += indexCount;

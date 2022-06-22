@@ -29,7 +29,7 @@ void Batcher2d::syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, ui
     _meshBuffers = std::move(buffers);
 }
 
-UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
+UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t bufferId) {
     assert(this->_meshBuffers[bufferId]);
     return this->_meshBuffers[bufferId];
 }
@@ -51,7 +51,7 @@ void Batcher2d::addRootNode(Node* node) {
 
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
-    for (index_t i = 0; i < _rootNodeArr.size(); i++) {
+    for (uint32_t i = 0; i < _rootNodeArr.size(); i++) {
         walk(_rootNodeArr[i]);
         generateBatch(_currEntity);
     }
@@ -66,8 +66,15 @@ void Batcher2d::walk(Node* node) {
         Node* curNode = nodeStack[--length];
         RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
         if (entity) {
+            RenderDrawInfo* drawInfo = nullptr;
+            RenderEntityType entityType = entity->getRenderEntityType();
             // when filling buffers, we should distinguish commom components and other complex components like middlewares
-            RenderDrawInfo* drawInfo = entity->getRenderDrawInfo();
+            if (entityType == RenderEntityType::STATIC) {
+                drawInfo = entity->getStaticRenderDrawInfo(0);
+            } else if (entityType == RenderEntityType::DYNAMIC) {
+                drawInfo = entity->getDynamicRenderDrawInfo(0);
+            }
+
             if (drawInfo && drawInfo->getEnabled()) {
                 uint32_t dataHash = drawInfo->getDataHash();
                 if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial()
@@ -220,7 +227,7 @@ void Batcher2d::uploadBuffers() {
     if (_batches.size() > 0) {
         //_meshDataArray.forEach(),uploadBuffers
 
-        for (index_t i = 0; i < _meshBuffers.size(); i++) {
+        for (uint32_t i = 0; i < _meshBuffers.size(); i++) {
             UIMeshBuffer* buffer = _meshBuffers[i];
             buffer->uploadBuffers();
             buffer->reset();
@@ -231,14 +238,14 @@ void Batcher2d::uploadBuffers() {
 }
 
 void Batcher2d::reset() {
-    for (index_t i = 0; i < _batches.size(); i++) {
+    for (uint32_t i = 0; i < _batches.size(); i++) {
         scene::DrawBatch2D* batch = _batches[i];
         batch->clear();
         this->_drawBatchPool.free(batch);
     }
 
     // meshDataArray
-    for (index_t i = 0; i < _meshBuffers.size(); i++) {
+    for (uint32_t i = 0; i < _meshBuffers.size(); i++) {
         UIMeshBuffer* buffer = _meshBuffers[i];
         if (buffer) {
             buffer->resetIA();

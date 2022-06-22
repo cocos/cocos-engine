@@ -43,7 +43,7 @@ import { NodeEventType } from '../../core/scene-graph/node-event';
 import { Renderer } from '../../core/components/renderer';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { RenderDrawInfo } from '../renderer/render-draw-info';
-import { RenderEntity } from '../renderer/render-entity';
+import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { director } from '../../core';
 
@@ -217,11 +217,11 @@ export class UIRenderer extends Renderer {
         this._renderData = val;
         const entity = this.renderEntity;
         if (entity) {
-            if (entity.renderDataArr.length === 0) {
-                entity.addRenderData(val);
-            } else if (entity.renderDataArr.length > 0) {
-                if (entity.renderDataArr[0] !== val) {
-                    entity.setRenderData(val, 0);
+            if (entity.renderDrawInfoArr.length === 0) {
+                entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
+            } else if (entity.renderDrawInfoArr.length > 0) {
+                if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
+                    entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
                 }
             }
         }
@@ -398,7 +398,7 @@ export class UIRenderer extends Renderer {
      */
     public requestRenderData () {
         const data = RenderData.add();
-        this.renderEntity!.addRenderData(data);
+        data.initRenderDrawInfo(this);
         this.renderEntity!.assignExtraEntityAttrs(this);
         this._renderData = data;
         this._renderData.assignExtraDrawInfoAttrs(this);
@@ -597,8 +597,9 @@ export class UIRenderer extends Renderer {
     }
 
     // RenderEntity
-    private initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher);
+    // it should be overwritten by inherited classes
+    protected initRenderEntity () {
+        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.STATIC);
     }
 
     private disposeRenderEntity () {

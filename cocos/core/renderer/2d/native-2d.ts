@@ -1,3 +1,5 @@
+import { director } from '../..';
+import { Batcher2D } from '../../../2d/renderer/batcher-2d';
 import { RenderDrawInfo } from '../../../2d/renderer/render-draw-info';
 import { Material } from '../../assets';
 import { Attribute, Device, Sampler, SamplerInfo, Texture } from '../../gfx';
@@ -71,11 +73,18 @@ export class NativeRenderDrawInfo {
 export class NativeRenderEntity {
     constructor (batcher: NativeBatcher2d) {}
 
-    addRenderDrawInfo (drawInfo:NativeRenderDrawInfo) {}
-    setRenderDrawInfo (drawInfo:NativeRenderDrawInfo, index:number) {}
+    addDynamicRenderDrawInfo (drawInfo:NativeRenderDrawInfo) {}
+    setDynamicRenderDrawInfo (drawInfo:NativeRenderDrawInfo, index:number) {}
 
     get node ():Node { return new Node(); }
     set node (node:Node) {}
+
+    setRenderEntityType (type:number) {}
+
+    getStaticRenderDrawInfo (index:number): NativeRenderDrawInfo {
+        const batcher = director.root!.batcher2D;
+        return new NativeRenderDrawInfo(batcher.nativeObj);
+    }
 }
 
 export class NativeUIMeshBuffer {

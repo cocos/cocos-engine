@@ -11,7 +11,7 @@ RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
     this->_batcher = batcher;
 }
 
-RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset) {
+RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset) {
     this->_bufferId = bufferId;
     this->_vertexOffset = vertexOffset;
     this->_indexOffset = indexOffset;
@@ -28,11 +28,11 @@ void RenderDrawInfo::setBufferId(index_t bufferId) {
     this->_meshBuffer = _batcher->getMeshBuffer(_bufferId);
 }
 
-void RenderDrawInfo::setVertexOffset(index_t vertexOffset) {
+void RenderDrawInfo::setVertexOffset(uint32_t vertexOffset) {
     this->_vertexOffset = vertexOffset;
 }
 
-void RenderDrawInfo::setIndexOffset(index_t indexOffset) {
+void RenderDrawInfo::setIndexOffset(uint32_t indexOffset) {
     this->_indexOffset = indexOffset;
 }
 
@@ -52,11 +52,11 @@ void RenderDrawInfo::setIDataBuffer(uint16_t* iDataBuffer) {
     this->_iDataBuffer = iDataBuffer;
 }
 
-void RenderDrawInfo::setVbCount(index_t vbCount) {
+void RenderDrawInfo::setVbCount(uint32_t vbCount) {
     this->_vbCount = vbCount;
 }
 
-void RenderDrawInfo::setIbCount(index_t ibCount) {
+void RenderDrawInfo::setIbCount(uint32_t ibCount) {
     this->_ibCount = ibCount;
 }
 
@@ -74,7 +74,7 @@ void RenderDrawInfo::setDataHash(uint32_t dataHash) {
     this->_dataHash = dataHash;
 }
 
-void RenderDrawInfo::setStencilStage(index_t stencilStage) {
+void RenderDrawInfo::setStencilStage(uint32_t stencilStage) {
     this->_stencilStage = stencilStage;
 }
 
@@ -90,7 +90,7 @@ void RenderDrawInfo::setTexture(gfx::Texture* texture) {
     this->_texture = texture;
 }
 
-void RenderDrawInfo::setTextureHash(index_t textureHash) {
+void RenderDrawInfo::setTextureHash(uint32_t textureHash) {
     this->_textureHash = textureHash;
 }
 
@@ -98,7 +98,7 @@ void RenderDrawInfo::setSampler(gfx::Sampler* sampler) {
     this->_sampler = sampler;
 }
 
-void RenderDrawInfo::setBlendHash(index_t blendHash) {
+void RenderDrawInfo::setBlendHash(uint32_t blendHash) {
     this->_blendHash = blendHash;
 }
 
@@ -108,7 +108,7 @@ void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, 
     this->_sharedBuffer = buffer;
 }
 
-void RenderDrawInfo::syncSharedBufferToNative(index_t* buffer) {
+void RenderDrawInfo::syncSharedBufferToNative(uint32_t* buffer) {
     _attrSharedBuffer = buffer;
     parseAttrLayout();
 }

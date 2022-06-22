@@ -39,6 +39,7 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderDrawInfo } from './render-draw-info';
 import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
+import { RenderEntity, RenderEntityType } from './render-entity';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -139,12 +140,24 @@ export class BaseRenderData {
         return this._ic > 0 && this.chunk.vertexAccessor;
     }
 
-    protected initRenderEntity () {
+    // it should be invoked at where a render data is allocated.
+    public initRenderDrawInfo (comp:UIRenderer) {
         if (JSB) {
-        // Instantiate RenderEntity and put it into Batcher2d
-            if (!this._renderDrawInfo) {
-                this._renderDrawInfo = new RenderDrawInfo(this.batcher);
-                //batcher.addRenderEntity(this._renderEntity);
+            const renderEntity:RenderEntity = comp.renderEntity!;
+
+            if (renderEntity.renderEntityType === RenderEntityType.STATIC) {
+                if (!this._renderDrawInfo) {
+                    // initialization should be in native
+                    const drawInfo = renderEntity.getStaticRenderDrawInfo();
+                    if (drawInfo) {
+                        this._renderDrawInfo = drawInfo;
+                    }
+                }
+            } else if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
+                if (!this._renderDrawInfo) {
+                    this._renderDrawInfo = new RenderDrawInfo(this.batcher);
+                    renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
+                }
             }
         }
     }
@@ -289,8 +302,6 @@ export class RenderData extends BaseRenderData {
             accessor = this.batcher.switchBufferAccessor(this._vertexFormat);
         }
         this._accessor = accessor;
-
-        this.initRenderEntity();
     }
 
     public resize (vertexCount: number, indexCount: number) {

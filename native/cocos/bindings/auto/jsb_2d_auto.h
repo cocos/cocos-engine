@@ -46,8 +46,10 @@ extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
 
 bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_2d_RenderEntity_addRenderDrawInfo);
-SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderEntityType);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
 
 extern se::Object *__jsb_cc_Batcher2d_proto; // NOLINT

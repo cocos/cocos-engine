@@ -14,7 +14,6 @@ export enum RenderDrawInfoSharedBufferView{
 }
 
 export class RenderDrawInfo {
-    public renderData: BaseRenderData=null!;
     public stencilStage:Stage = Stage.DISABLED;
 
     protected _enabled = true;
@@ -59,8 +58,26 @@ export class RenderDrawInfo {
     protected _vertexCount = 0;
     protected _stride = 0;
 
-    constructor (batcher:Batcher2D) {
+    constructor (batcher:Batcher2D, nativeDrawInfo?:NativeRenderDrawInfo) {
+        this.init(batcher, nativeDrawInfo);
+    }
+
+    get nativeObj () {
+        return this._nativeObj;
+    }
+    // set nativeObj (val:NativeRenderDrawInfo) {
+    //     this._nativeObj = val;
+    // }
+
+    get render2dBuffer () {
+        return this._render2dBuffer;
+    }
+
+    private init (batcher:Batcher2D, nativeDrawInfo?:NativeRenderDrawInfo) {
         if (JSB) {
+            if (nativeDrawInfo) {
+                this._nativeObj = nativeDrawInfo;
+            }
             if (!this._nativeObj) {
                 this._nativeObj = new NativeRenderDrawInfo(batcher.nativeObj);
             }
@@ -68,14 +85,6 @@ export class RenderDrawInfo {
 
         this.initSharedBuffer();
         this.syncSharedBufferToNative();
-    }
-
-    get nativeObj () {
-        return this._nativeObj;
-    }
-
-    get render2dBuffer () {
-        return this._render2dBuffer;
     }
 
     public clear () {
