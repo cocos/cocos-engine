@@ -502,11 +502,11 @@ public:
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     inline uint32_t getChangedFlags() const {
-        return hasChanged() ? _flagChange : 0;
+        return _hasChangedFlagsVersion == globalFlagChangeVersion ? _hasChangedFlags : 0;
     }
     inline void setChangedFlags(uint32_t value) {
-        _flagChangeVersion = globalFlagChangeVersion;
-        _flagChange = value;
+        _hasChangedFlagsVersion = globalFlagChangeVersion;
+        _hasChangedFlags = value;
     }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
@@ -663,10 +663,6 @@ private:
              _localScale.x, _localScale.y, _localScale.z);
     }
 
-    inline bool hasChanged() const {
-        return _flagChangeVersion == globalFlagChangeVersion;
-    }
-
 protected:
     Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
@@ -675,11 +671,11 @@ protected:
 
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
-    /* set _flagChangeVersion to globalFlagChangeVersion when `_flagChange` updated.
-    * `globalFlagChangeVersion == _flagChangeVersion` means tha "_flagChange is dirty in current frametime".
+    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
+    * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
     */
-    uint32_t _flagChangeVersion{0};
-    uint32_t _flagChange{0};
+    uint32_t _hasChangedFlagsVersion{0};
+    uint32_t _hasChangedFlags{0};
     uint32_t _dirtyFlag{0};
 
     bool _eulerDirty{false};

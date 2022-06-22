@@ -602,47 +602,24 @@ export class Node extends BaseNode implements CustomSerializable {
         let j = 0;
         let l = 0;
         let cur: this;
-        let c : this;
-        let flag = 0;
         let children:this[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
-        // NOTE: inflate function
-        // ```
-        // this._setDirtyNode(0, this);
-        // ```
-        dirtyNodes[0] = this;
+        this._setDirtyNode(0, this);
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            // hasChangedFlags = cur.hasChangedFlags;
-            hasChangedFlags = cur._flagChangeVersion === globalFlagChangeVersion ? cur._hasChangedFlags : 0;
-            flag =  cur._dirtyFlags;
-            if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                // NOTE: inflate procedure
-                // ```
-                // cur._dirtyFlags |= dirtyBit;
-                // ```
-                flag |= dirtyBit;
-                cur._dirtyFlags = flag;
+            hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._dirtyFlags |= dirtyBit;
 
-                // NOTE: inflate procedure
-                // ```
-                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
-                // ```
-                cur._flagChangeVersion = globalFlagChangeVersion;
-                cur._hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
                 l = children.length;
                 for (j = 0; j < l; j++) {
-                    c = children[j];
-                    // NOTE: inflate function
-                    // ```
-                    // this._setDirtyNode(0, c);
-                    // ```
-                    dirtyNodes[++i] = c;
+                    this._setDirtyNode(++i, children[j]);
                 }
             }
             dirtyBit = childDirtyBit;
