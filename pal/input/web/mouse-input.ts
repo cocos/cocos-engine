@@ -104,7 +104,8 @@ export class MouseInputSource {
     private _createCallback (eventType: InputEventType) {
         return (mouseEvent: MouseEvent) => {
             const location = this._getLocation(mouseEvent);
-            let button = mouseEvent.button;
+            const { button, buttons } = mouseEvent;
+            let targetButton = button;
             switch (eventType) {
             case InputEventType.MOUSE_DOWN:
                 this._canvas?.focus();
@@ -114,8 +115,16 @@ export class MouseInputSource {
                 this._isPressed = false;
                 break;
             case InputEventType.MOUSE_MOVE:
-                if (!this._isPressed) {
-                    button = EventMouse.BUTTON_MISSING;
+                // mouseEvent.button doesn't work well in mouse move event
+                // now we don't support multiple buttons in one mouse event
+                if (1 & buttons) {
+                    targetButton = EventMouse.BUTTON_LEFT;
+                } else if (2 & buttons) {
+                    targetButton = EventMouse.BUTTON_RIGHT;
+                } else if (4 & buttons) {
+                    targetButton = EventMouse.BUTTON_MIDDLE;
+                } else {
+                    targetButton = EventMouse.BUTTON_MISSING;
                 }
                 break;
             default:
@@ -124,7 +133,7 @@ export class MouseInputSource {
 
             const eventMouse = new EventMouse(eventType, false, this._preMousePos);
             eventMouse.setLocation(location.x, location.y);
-            eventMouse.setButton(button);
+            eventMouse.setButton(targetButton);
             eventMouse.movementX = mouseEvent.movementX;
             eventMouse.movementY = mouseEvent.movementY;
 
