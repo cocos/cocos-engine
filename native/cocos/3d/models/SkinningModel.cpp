@@ -96,7 +96,8 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
     const auto &jointMaps = mesh->getStruct().jointMaps;
     ensureEnoughBuffers((jointMaps.has_value() && !jointMaps->empty()) ? static_cast<int32_t>(jointMaps->size()) : 1);
     _bufferIndices = mesh->getJointBufferIndices();
-    initRealTimeJointTexture(skeleton->getJoints().size());
+    auto jointCount = static_cast<index_t>(skeleton->getJoints().size());
+    initRealTimeJointTexture(jointCount);
     for (index_t index = 0; index < skeleton->getJoints().size(); ++index) {
         geometry::AABB *bound = boneSpaceBounds[index];
         auto *target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
@@ -136,7 +137,6 @@ void SkinningModel::updateTransform(uint32_t stamp) {
     Vec3 v31;
     Vec3 v32;
     for (JointInfo &jointInfo : _joints) {
-        const auto *bound = jointInfo.bound;
         auto &transform = jointInfo.transform;
         Mat4 worldMatrix = cc::getWorldMatrix(transform, static_cast<int32_t>(stamp));
         jointInfo.bound->transform(worldMatrix, &ab1);
@@ -255,9 +255,8 @@ void SkinningModel::ensureEnoughBuffers(index_t count) {
         }
 
         if (i >= _dataArray.size()) {
-            for (auto i = 0; i < _dataArray.size(); i++) {
-                delete[] _dataArray[i];
-                _dataArray[i] = nullptr;
+            for (auto &data : _dataArray) {
+                delete[] data;
             }
             _dataArray.resize(i + 1);
         }
@@ -269,8 +268,7 @@ void SkinningModel::ensureEnoughBuffers(index_t count) {
     }
 }
 
-void SkinningModel::initRealTimeJointTexture(index_t jointCount)
-{
+void SkinningModel::initRealTimeJointTexture(index_t jointCount) {
     if (_realTimeJointTexture) {
         delete _realTimeJointTexture;
         _realTimeJointTexture = nullptr;
@@ -308,12 +306,11 @@ void SkinningModel::initRealTimeJointTexture(index_t jointCount)
     _realTimeJointTexture->buffer = new float[length];
 }
 
-void SkinningModel::updateRealTimeJointTextureBuffer()
-{
+void SkinningModel::updateRealTimeJointTextureBuffer() {
     uint32_t bIdx = 0;
     uint32_t width = RealTimeJointTexture::WIDTH;
     uint32_t height = RealTimeJointTexture::HEIGHT;
-    for (IntrusivePtr<gfx::Texture> texture : _realTimeJointTexture->textures) {
+    for (const auto &texture : _realTimeJointTexture->textures) {
         auto *buffer = _realTimeJointTexture->buffer;
         auto *src    = _dataArray[bIdx];
         uint32_t count = width;

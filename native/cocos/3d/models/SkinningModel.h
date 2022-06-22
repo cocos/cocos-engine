@@ -69,7 +69,7 @@ private:
     static void uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
     void ensureEnoughBuffers(index_t count);
     void updateRealTimeJointTextureBuffer();
-    void initRealTimeJointTexture(index_t count);
+    void initRealTimeJointTexture(index_t jointCount);
 
     ccstd::vector<index_t> _bufferIndices;
     ccstd::vector<IntrusivePtr<gfx::Buffer>> _buffers;
