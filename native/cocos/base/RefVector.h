@@ -220,6 +220,14 @@ public:
         return *this;
     }
 
+    T &operator[](uint32_t idx) {
+        return _data[idx];
+    }
+
+    T operator[](uint32_t idx) const {
+        return _data[idx];
+    }
+
     /**
      * Requests that the vector capacity be at least enough to contain n elements.
      * @param capacity Minimum capacity requested of the Vector.
