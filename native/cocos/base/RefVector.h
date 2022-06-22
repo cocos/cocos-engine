@@ -224,7 +224,7 @@ public:
         return _data[idx];
     }
 
-    T operator[](uint32_t idx) const {
+    const T&operator[](uint32_t idx) const {
         return _data[idx];
     }
 
