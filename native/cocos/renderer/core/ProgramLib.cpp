@@ -582,7 +582,7 @@ gfx::DescriptorSetLayout *ProgramLib::getDescriptorSetLayout(gfx::Device *device
         info.bindings = pipeline::localDescriptorSetLayout.bindings;
         tmplInfo.setLayouts.replace(static_cast<index_t>(pipeline::SetIndex::LOCAL), device->createDescriptorSetLayout(info));
     }
-    return tmplInfo.setLayouts.at(isLocal ? static_cast<index_t>(pipeline::SetIndex::LOCAL) : static_cast<index_t>(pipeline::SetIndex::MATERIAL));
+    return tmplInfo.setLayouts[isLocal ? static_cast<uint32_t>(pipeline::SetIndex::LOCAL) : static_cast<uint32_t>(pipeline::SetIndex::MATERIAL)];
 }
 
 ccstd::string ProgramLib::getKey(const ccstd::string &name, const MacroRecord &defines) {

@@ -328,8 +328,8 @@ void Mesh::initialize() {
 
             gfx::BufferList vbReference;
             vbReference.reserve(prim.vertexBundelIndices.size());
-            for (const auto &idx : prim.vertexBundelIndices) {
-                vbReference.emplace_back(vertexBuffers.at(idx));
+            for (const auto idx : prim.vertexBundelIndices) {
+                vbReference.emplace_back(vertexBuffers[idx]);
             }
 
             gfx::AttributeList gfxAttributes;

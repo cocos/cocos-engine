@@ -90,7 +90,7 @@ void HttpClient::networkThread() {
             while (_requestQueue.empty()) {
                 _sleepCondition.wait(_requestQueueMutex);
             }
-            request = _requestQueue.at(0);
+            request = _requestQueue[0];
             _requestQueue.erase(0);
         }
 
@@ -428,7 +428,7 @@ void HttpClient::dispatchResponseCallbacks() {
 
     _responseQueueMutex.lock();
     if (!_responseQueue.empty()) {
-        response = _responseQueue.at(0);
+        response = _responseQueue[0];
         _responseQueue.erase(0);
     }
     _responseQueueMutex.unlock();

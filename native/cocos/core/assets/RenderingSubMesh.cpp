@@ -220,7 +220,7 @@ bool RenderingSubMesh::destroy() {
 
     if (!_jointMappedBuffers.empty() && !_jointMappedBufferIndices.empty()) {
         for (uint32_t index : _jointMappedBufferIndices) {
-            _jointMappedBuffers.at(static_cast<int>(index))->destroy();
+            _jointMappedBuffers[index]->destroy();
         }
         _jointMappedBuffers.clear();
         _jointMappedBufferIndices.clear();
@@ -289,7 +289,7 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
             buffers.pushBack(buffer);
             indices.emplace_back(i);
         } else {
-            buffers.pushBack(_vertexBuffers.at(static_cast<int32_t>(prim.vertexBundelIndices[i])));
+            buffers.pushBack(_vertexBuffers[prim.vertexBundelIndices[i]]);
         }
     }
 
@@ -300,10 +300,10 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
 }
 
 gfx::Buffer *RenderingSubMesh::allocVertexIdBuffer(gfx::Device *device) {
-    const uint32_t vertexCount = (_vertexBuffers.empty() || _vertexBuffers.at(0)->getStride() == 0)
+    const uint32_t vertexCount = (_vertexBuffers.empty() || _vertexBuffers[0]->getStride() == 0)
                                      ? 0
                                      // TODO(minggo): This depends on how stride of a vertex buffer is defined; Consider padding problem.
-                                     : _vertexBuffers.at(0)->getSize() / _vertexBuffers.at(0)->getStride();
+                                     : _vertexBuffers[0]->getSize() / _vertexBuffers[0]->getStride();
 
     ccstd::vector<float> vertexIds(vertexCount);
     for (int iVertex = 0; iVertex < vertexCount; ++iVertex) {
