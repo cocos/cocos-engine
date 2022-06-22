@@ -130,6 +130,7 @@ enum class SceneFlags : uint32_t {
     CUTOUT_OBJECT = 0x2,
     TRANSPARENT_OBJECT = 0x4,
     SHADOW_CASTER = 0x8,
+    UI = 0x10,
     ALL = 0xFFFFFFFF,
 };
 
