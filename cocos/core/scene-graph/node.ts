@@ -45,7 +45,6 @@ const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const dirtyNodes: any[] = [];
-const view_tmp:[Uint32Array, number] = [] as any;
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 let globalFlagChangeVersion = 0;
@@ -170,8 +169,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     protected _onPreDestroy () {
-        const result = this._onPreDestroyBase();
-        return result;
+        return this._onPreDestroyBase();
     }
 
     /**
@@ -587,9 +585,9 @@ export class Node extends BaseNode implements CustomSerializable {
         this.setWorldRotation(q_a);
     }
 
-    protected _setDirtyNode (idx: number, currNode: this) {
-        dirtyNodes[idx] = currNode;
-    }
+    // protected _setDirtyNode (idx: number, currNode: this) {
+    //     dirtyNodes[idx] = currNode;
+    // }
 
     /**
      * @en Invalidate the world transform information
@@ -606,7 +604,7 @@ export class Node extends BaseNode implements CustomSerializable {
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
-        this._setDirtyNode(0, this);
+        dirtyNodes[0] = this;
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
@@ -619,7 +617,7 @@ export class Node extends BaseNode implements CustomSerializable {
                 children = cur._children;
                 l = children.length;
                 for (j = 0; j < l; j++) {
-                    this._setDirtyNode(++i, children[j]);
+                    dirtyNodes[++i] = children[j];
                 }
             }
             dirtyBit = childDirtyBit;
@@ -638,7 +636,7 @@ export class Node extends BaseNode implements CustomSerializable {
         let i = 0;
         while (cur && cur._dirtyFlags) {
             // top level node
-            this._setDirtyNode(i++, cur);
+            dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
         let child: this; let dirtyBits = 0;
