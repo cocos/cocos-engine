@@ -388,6 +388,8 @@ export class WebDescriptorHierarchy {
             this.setDescriptor(globalSamplerTexTarget, 'cc_spotLightingMap', Type.SAMPLER2D);
         }
 
+        this.merge(passDB);
+
         const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, vName, passDB);
 
         return vid;
