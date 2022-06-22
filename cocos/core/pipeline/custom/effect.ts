@@ -43,9 +43,9 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGraphBuilde
         db.blocks.forEach((value, key) => {
             const index: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
             const block: DescriptorBlock = value;
+            const flattened = new DescriptorBlockFlattened();
+            descriptorBlock2Flattened(block, flattened);
             if (block.capacity > 0) {
-                const flattened = new DescriptorBlockFlattened();
-                descriptorBlock2Flattened(block, flattened);
                 lgData.addDescriptorBlock(vid, index, flattened);
             }
         });
@@ -66,7 +66,7 @@ export function rebuildLayoutGraph (): void {
     console.log('rebuildLayoutGraph begin');
     const ppl: Pipeline = root.customPipeline;
     const effects = EffectAsset.getAll();
-    const lg = new WebDescriptorHierarchy();
+    const lg: WebDescriptorHierarchy = new WebDescriptorHierarchy();
     const lgData = ppl.layoutGraphBuilder;
     lgData.clear();
 
@@ -76,6 +76,8 @@ export function rebuildLayoutGraph (): void {
         const e: EffectAsset = effects[n];
         lg.addEffect(e, defaultStage);
     }
+
+    lg.mergeDescriptors(defaultStage);
 
     buildLayoutGraphDataImpl(lg.layoutGraph, lgData);
 
