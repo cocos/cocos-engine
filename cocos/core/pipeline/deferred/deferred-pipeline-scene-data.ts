@@ -193,9 +193,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         if (!this._deferredLightingMaterial) return;
 
         // It's temporary solution for main light shadowmap
-        if (this.shadows.enabled) {
-            legacyCC.director.root.pipeline.macros.CC_RECEIVE_SHADOW = 1;
-        }
+        legacyCC.director.root.pipeline.macros.CC_RECEIVE_SHADOW = 1;
 
         const passLit = this._deferredLightingMaterial.passes[0];
         passLit.beginChangeStatesSilently();
