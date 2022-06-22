@@ -37,7 +37,7 @@
 #include "base/Random.h"
 #include "base/RefCounted.h"
 #include "base/memory/Memory.h"
-#include "core/TypedArray.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
