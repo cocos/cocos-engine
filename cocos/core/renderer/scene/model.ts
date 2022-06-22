@@ -267,6 +267,18 @@ export class Model {
     }
 
     /**
+     * @en Rendering priority in the transparent queue of model.
+     * @zh Model 在透明队列中的渲染排序优先级
+     */
+    get priority () : number {
+        return this._priority;
+    }
+
+    set priority (val: number) {
+        this._priority = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -411,6 +423,8 @@ export class Model {
      * @zh 可见性标志位
      */
     protected _visFlags = Layers.Enum.NONE;
+
+    protected _priority = 0;
 
     /**
      * @internal

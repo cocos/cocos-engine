@@ -165,14 +165,14 @@ export class SkeletonData extends Asset {
     public reset () {
         this._skeletonCache = null;
         this._atlasCache = null;
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
         }
     }
 
     public resetEnums () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
         }

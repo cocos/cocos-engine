@@ -18,6 +18,7 @@ import { move } from '../../algorithm/move';
 import { onAfterDeserializedTag } from '../../data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
+import { clamp } from '../../math';
 
 export { State };
 
@@ -82,6 +83,14 @@ class AnimationTransition extends Transition {
 
     @serializable
     public exitConditionEnabled = true;
+
+    /**
+     * @en The start time of (final) destination motion state when this transition starts.
+     * Its unit is the duration of destination motion state.
+     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。其单位是目标动作状态的周期。
+     */
+    @serializable
+    public destinationStart = 0.0;
 
     get exitCondition () {
         return this._exitCondition;
@@ -225,9 +234,12 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
-     * Gets all outgoing transitions of specified state.
-     * @param to The state.
-     * @returns Result transitions.
+     * @en
+     * Gets all transitions outgoing from specified state.
+     * @zh
+     * 获取从指定状态引出的所有过渡。
+     * @param from @en The state. @zh 指定状态。
+     * @returns @en Iterable to result transitions, in priority order. @zh 到结果过渡的迭代器，按优先级顺序。
      */
     public getOutgoings (from: State): Iterable<Transition> {
         assertsOwnedBy(from, this);
@@ -421,6 +433,46 @@ export class StateMachine extends EditorExtendable {
     public eraseTransitionsIncludes (state: State) {
         this.eraseIncomings(state);
         this.eraseOutgoings(state);
+    }
+
+    /**
+     * @en
+     * Adjusts the priority of a transition.
+     *
+     * To demonstrate, one can imagine a transition array sorted by their priority.
+     * - If `diff` is zero, nothing's gonna happen.
+     * - Negative `diff` raises the priority:
+     *   `diff` number of transitions originally having higher priority than `adjusting`
+     *   will then have lower priority than `adjusting`.
+     * - Positive `diff` reduce the priority:
+     *   `|diff|` number of transitions originally having lower priority than `adjusting`
+     *   will then have higher priority than `adjusting`.
+     *
+     * If the number of transitions indicated by `diff`
+     * is more than the actual one, the actual number would be taken.
+     * @zh
+     * 调整过渡的优先级。
+     *
+     * 为了说明，可以想象一个由优先级排序的过渡数组。
+     * - 如果 `diff` 是 0，无事发生。
+     * - 负的 `diff` 会提升该过渡的优先级：原本优先于 `adjusting` 的 `diff` 条过渡的优先级会设置为低于 `adjusting`。
+     * - 正的 `diff` 会降低该过渡的优先级：原本优先级低于 `adjusting` 的 `|diff|` 条过渡会设置为优先于 `adjusting`。
+     *
+     * 如果 `diff` 指示的过渡数量比实际多，则会使用实际数量。
+     *
+     * @param adjusting @en The transition to adjust the priority. @zh 需要调整优先级的过渡。
+     * @param diff @en Indicates how to adjust the priority. @zh 指示如何调整优先级。
+     */
+    public adjustTransitionPriority (adjusting: Transition, diff: number) {
+        const { from } = adjusting;
+        if (diff === 0) {
+            return;
+        }
+        const outgoings = from[outgoingsSymbol];
+        const iAdjusting = outgoings.indexOf(adjusting);
+        assertIsTrue(iAdjusting >= 0);
+        const iOver = clamp(iAdjusting + diff, 0, outgoings.length - 1);
+        move(outgoings, iAdjusting, iOver);
     }
 
     public clone () {

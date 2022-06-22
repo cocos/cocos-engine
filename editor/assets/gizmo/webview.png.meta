@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "b9f47df4-b2f0-4270-bd8a-07bb344a8253",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -22,7 +22,8 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "b9f47df4-b2f0-4270-bd8a-07bb344a8253"
+        "imageUuidOrDatabaseUri": "b9f47df4-b2f0-4270-bd8a-07bb344a8253",
+        "visible": true
       },
       "ver": "1.0.22",
       "imported": true,

@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "28765e2f-040a-4c65-8e8c-f9d0bb79d863",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "28765e2f-040a-4c65-8e8c-f9d0bb79d863"
+        "imageUuidOrDatabaseUri": "28765e2f-040a-4c65-8e8c-f9d0bb79d863",
+        "visible": false
       },
       "displayName": "default_scrollbar_bg",
       "id": "6c48a",

@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "c78f78a5-3553-4d1f-ad3b-177fe55af68b",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "c78f78a5-3553-4d1f-ad3b-177fe55af68b"
+        "imageUuidOrDatabaseUri": "c78f78a5-3553-4d1f-ad3b-177fe55af68b",
+        "visible": true
       },
       "displayName": "sphere-light",
       "id": "6c48a",

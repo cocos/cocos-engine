@@ -30,6 +30,7 @@ import { UIRenderer } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
+import { legacyCC } from '../core/global-exports';
 
 class Point {
     public point = new Vec2();
@@ -220,7 +221,7 @@ export class MotionStreak extends UIRenderer {
     }
 
     public lateUpdate (dt) {
-        if (EDITOR && !this._preview) return;
+        if (EDITOR && !legacyCC.GAME_VIEW && !this._preview) return;
         if (this._assembler) this._assembler.update(this, dt);
     }
 

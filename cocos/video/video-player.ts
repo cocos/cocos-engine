@@ -243,7 +243,7 @@ export class VideoPlayer extends Component {
      */
     @tooltip('i18n:videoplayer.fullScreenOnAwake')
     get fullScreenOnAwake () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._impl) {
                 this._fullScreenOnAwake = this._impl.fullScreenOnAwake;
                 return this._fullScreenOnAwake;
@@ -369,7 +369,7 @@ export class VideoPlayer extends Component {
     }
 
     public __preload () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._impl = VideoPlayerImplManager.getImpl(this);

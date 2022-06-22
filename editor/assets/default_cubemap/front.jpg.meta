@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "86eb75aa-3b2f-4c7b-b59e-bdc2e3984665",
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "86eb75aa-3b2f-4c7b-b59e-bdc2e3984665"
+        "imageUuidOrDatabaseUri": "86eb75aa-3b2f-4c7b-b59e-bdc2e3984665",
+        "visible": true
       },
       "displayName": "front",
       "id": "6c48a",
