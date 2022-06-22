@@ -170,6 +170,45 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_CPU_ARCH CC_CPU_ARCH_64
 #endif
 
+#if defined(__arm64__) || defined(__aarch64__)
+#define CC_ARCH_ARM64 1
+#else
+#define CC_ARCH_ARM64 0
+#endif
+
+// CC_HAS_ARM64_FP16 set to 1 if the architecture provides an IEEE compliant ARM fp16 type
+#if CC_ARCH_ARM64
+    #ifndef CC_HAS_ARM64_FP16
+        #if defined(__ARM_FP16_FORMAT_IEEE)
+            #define CC_HAS_ARM64_FP16 1
+        #else
+            #define CC_HAS_ARM64_FP16 0
+        #endif
+    #endif
+#endif
+
+// CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC set to 1 if the architecture supports Neon vector intrinsics for fp16.
+#if CC_ARCH_ARM64
+    #ifndef CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC
+        #if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
+            #define CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC 1
+        #else
+            #define CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC 0
+        #endif
+    #endif
+#endif
+
+// CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC set to 1 if the architecture supports Neon scalar intrinsics for fp16.
+#if CC_ARCH_ARM64
+    #ifndef CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC
+        #if defined(__ARM_FEATURE_FP16_SCALAR_ARITHMETIC)
+            #define CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC 1
+        #else
+            #define CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC 0
+        #endif
+    #endif
+#endif
+
 // Disable MSVC warning
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #pragma warning(disable : 4251 4275 4819)

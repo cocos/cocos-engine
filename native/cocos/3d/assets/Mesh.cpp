@@ -34,9 +34,15 @@
 #include "math/Quaternion.h"
 #include "renderer/gfx-base/GFXDevice.h"
 
+#define CC_OPTIMIZE_MESH_DATA 1
+
 namespace cc {
 
 namespace {
+
+uint32_t totalReleaseDataBytes = 0;
+uint32_t totalDataBytes = 0;
+uint32_t dataBytesSendToGPU = 0;
 
 uint32_t getOffset(const gfx::AttributeList &attributes, index_t attributeIndex) {
     uint32_t result = 0;
@@ -274,10 +280,13 @@ void Mesh::initialize() {
             return;
         }
 
+        totalDataBytes += _data.byteLength();
+        CC_LOG_INFO("cjh totalDataBytes: %u", totalDataBytes);
+
         auto &buffer = _data;
         gfx::Device *gfxDevice = gfx::Device::getInstance();
-        RefVector<gfx::Buffer*> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
-        RefVector<gfx::Buffer*> indexBuffers;
+        RefVector<gfx::Buffer *> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
+        RefVector<gfx::Buffer *> indexBuffers;
         ccstd::vector<IntrusivePtr<RenderingSubMesh>> subMeshes;
 
         for (size_t i = 0; i < _struct.primitives.size(); i++) {
@@ -292,15 +301,21 @@ void Mesh::initialize() {
 
                 uint32_t dstStride = idxView.stride;
                 uint32_t dstSize = idxView.length;
-                if (dstStride == 4 && !gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
-                    uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
-                    if (vertexCount >= 65536) {
-                        debug::warnID(10001, vertexCount, 65536);
+                uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
+
+                if (dstStride == 4) {
+#if CC_OPTIMIZE_MESH_DATA
+                    if (vertexCount < 65536) {
+                        dstStride >>= 1; // Reduce to short.
+                        dstSize >>= 1;
+                    } else if (!gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
                         continue; // Ignore this primitive
                     }
-
-                    dstStride >>= 1; // Reduce to short.
-                    dstSize >>= 1;
+#else
+                    if (!gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
+                        continue; // Ignore this primitive
+                    }
+#endif
                 }
 
                 indexBuffer = gfxDevice->createBuffer(gfx::BufferInfo{
@@ -314,14 +329,18 @@ void Mesh::initialize() {
                 const uint8_t *ib = buffer.buffer()->getData() + idxView.offset;
                 if (idxView.stride != dstStride) {
                     uint32_t ib16BitLength = idxView.length >> 1;
-                    auto *ib16Bit = static_cast<uint16_t*>(CC_MALLOC(ib16BitLength));
-                    const auto *ib32Bit = reinterpret_cast<const uint32_t*>(ib);
+                    auto *ib16Bit = static_cast<uint16_t *>(CC_MALLOC(ib16BitLength));
+                    const auto *ib32Bit = reinterpret_cast<const uint32_t *>(ib);
                     for (uint32_t j = 0, len = idxView.count; j < len; ++j) {
                         ib16Bit[j] = ib32Bit[j];
                     }
+                    dataBytesSendToGPU += ib16BitLength;
+                    CC_LOG_INFO("cjh dataBytesSendToGPU: %u", dataBytesSendToGPU);
                     indexBuffer->update(ib16Bit, ib16BitLength);
                     CC_FREE(ib16Bit);
                 } else {
+                    dataBytesSendToGPU += dstSize;
+                    CC_LOG_INFO("cjh dataBytesSendToGPU: %u", dataBytesSendToGPU);
                     indexBuffer->update(ib);
                 }
             }
@@ -355,6 +374,11 @@ void Mesh::initialize() {
 
         if (_struct.morph.has_value()) {
             morphRendering = createMorphRendering(this, gfxDevice);
+        }
+
+        _isMeshDataUploaded = true;
+        if (_releaseMeshDataWhenPossible) {
+            releaseMeshData();
         }
     }
 }
@@ -934,8 +958,8 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
     return true;
 }
 
-const gfx::FormatInfo* Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
-    const gfx::FormatInfo* result = nullptr;
+const gfx::FormatInfo *Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
+    const gfx::FormatInfo *result = nullptr;
 
     accessAttribute(primitiveIndex, attributeName, [&](const IVertexBundle &vertexBundle, uint32_t iAttribute) {
         const gfx::Format format = vertexBundle.attributes[iAttribute].format;
@@ -1071,15 +1095,168 @@ void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, co
     }
 }
 
-/* static */
+void Mesh::updateVertexFormat() {
+#if CC_OPTIMIZE_MESH_DATA
+    uint8_t *data = _data.buffer()->getData();
+    ccstd::vector<uint32_t> attributeIndicsNeedConvert;
+
+    for (auto &vertexBundle : _struct.vertexBundles) {
+        // Copy attributes;
+        const auto orignalAttributes = vertexBundle.attributes;
+        auto &attributes = vertexBundle.attributes;
+
+        auto &view = vertexBundle.view;
+        uint32_t offset = view.offset;
+        uint32_t length = view.length;
+        uint32_t count = view.count;
+        const uint32_t stride = view.stride;
+        uint32_t dstStride = stride;
+
+        CC_ASSERT(count * stride == length);
+
+        attributeIndicsNeedConvert.clear();
+        attributeIndicsNeedConvert.reserve(orignalAttributes.size());
+
+        uint32_t attributeIndex = 0;
+        for (auto &attribute : attributes) {
+            if (attribute.name == gfx::ATTR_NAME_NORMAL) {
+                if (attribute.format == gfx::Format::RGB32F) {
+                    attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                    attribute.format = gfx::Format::RGB16F;
+    #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+                    dstStride -= 4; // metal needs 4 bytes alignment
+    #else
+                    dstStride -= 6;
+    #endif
+                }
+            } else if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
+                if (attribute.format == gfx::Format::RG32F) {
+                    attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                    attribute.format = gfx::Format::RG16F;
+                    dstStride -= 4;
+                }
+            } else if (attribute.name == gfx::ATTR_NAME_TANGENT) {
+                if (attribute.format == gfx::Format::RGBA32F) {
+                    attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                    attribute.format = gfx::Format::RGBA16F;
+                    dstStride -= 8;
+                }
+            }
+            ++attributeIndex;
+        }
+
+        if (attributeIndicsNeedConvert.empty()) {
+            return;
+        }
+
+        for (uint32_t i = 0; i < count; ++i) {
+            uint8_t *srcIndex = data + offset + i * stride;
+            uint8_t *dstIndex = data + offset + i * dstStride;
+            uint32_t wroteBytes = 0;
+
+            for (size_t attributeIndex = 0, len = orignalAttributes.size(); attributeIndex < len; ++attributeIndex) {
+                const auto &attribute = orignalAttributes[attributeIndex];
+                const auto &formatInfo = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+                const auto iter = std::find(attributeIndicsNeedConvert.cbegin(), attributeIndicsNeedConvert.cend(), attributeIndex);
+
+                if (iter == attributeIndicsNeedConvert.end()) {
+                    memcpy(dstIndex, srcIndex, formatInfo.size);
+                    float *pValue = reinterpret_cast<float *>(srcIndex);
+                    //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1], pValue[2]);
+                    dstIndex += formatInfo.size;
+                    wroteBytes += (formatInfo.size);
+                    srcIndex += formatInfo.size;
+
+                    continue;
+                }
+
+                switch (attribute.format) {
+                    case gfx::Format::RGB32F: {
+                        float *pValue = reinterpret_cast<float *>(srcIndex);
+                        //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1], pValue[2]);
+                        uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
+                        uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
+                        uint16_t z = utils::rawHalfAsUint16(utils::floatToHalf(pValue[2]));
+                        uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
+                        pDst[0] = x;
+                        pDst[1] = y;
+                        pDst[2] = z;
+                        uint32_t advance = (formatInfo.size >> 1);
+
+    #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+                        pDst[3] = 0;
+                        advance += (formatInfo.size >> 1) % 4;
+    #endif
+                        dstIndex += advance;
+                        wroteBytes += advance;
+                    } break;
+                    case gfx::Format::RG32F: {
+                        float *pValue = reinterpret_cast<float *>(srcIndex);
+                        //                    assert(pValue[0] <= 1.1f);
+                        //                    assert(pValue[1] <= 1.1f);
+
+                        //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1]);
+                        //
+                        //                    if (pValue[0] > 1.0f || pValue[1] > 1.0f) {
+                        //                        CC_LOG_INFO("found invalid uv[0] = %f, uv[1]= %f", pValue[0], pValue[1]);
+                        //                    }
+                        uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
+                        uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
+                        uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
+                        pDst[0] = x;
+                        pDst[1] = y;
+
+                        dstIndex += (formatInfo.size >> 1);
+                        wroteBytes += (formatInfo.size >> 1);
+                    } break;
+                    case gfx::Format::RGBA32F: {
+                        float *pValue = reinterpret_cast<float *>(srcIndex);
+
+                        //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f, %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1], pValue[2], pValue[3]);
+
+                        uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
+                        uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
+                        uint16_t z = utils::rawHalfAsUint16(utils::floatToHalf(pValue[2]));
+                        uint16_t w = utils::rawHalfAsUint16(utils::floatToHalf(pValue[3]));
+                        uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
+                        pDst[0] = x;
+                        pDst[1] = y;
+                        pDst[2] = z;
+                        pDst[3] = w;
+
+                        dstIndex += (formatInfo.size >> 1);
+                        wroteBytes += (formatInfo.size >> 1);
+                    } break;
+                    default:
+                        break;
+                }
+
+                srcIndex += formatInfo.size;
+            }
+
+            CC_ASSERT(wroteBytes == dstStride);
+        }
+
+        // update stride & length
+        view.stride = dstStride;
+        view.length = view.stride * view.count;
+    }
+#endif
+}
+
 gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *data) {
+    updateVertexFormat();
+
     gfx::BufferList buffers;
+    buffers.reserve(_struct.vertexBundles.size());
     for (const auto &vertexBundle : _struct.vertexBundles) {
         auto *vertexBuffer = gfxDevice->createBuffer({gfx::BufferUsageBit::VERTEX,
                                                       gfx::MemoryUsageBit::DEVICE,
                                                       vertexBundle.view.length,
                                                       vertexBundle.view.stride});
 
+        dataBytesSendToGPU += vertexBundle.view.length;
+        CC_LOG_INFO("cjh dataBytesSendToGPU: %u", dataBytesSendToGPU);
         vertexBuffer->update(data->getData() + vertexBundle.view.offset, vertexBundle.view.length);
         buffers.emplace_back(vertexBuffer);
     }
@@ -1093,6 +1270,21 @@ void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 
 bool Mesh::validate() const {
     return !_renderingSubMeshes.empty() && !_data.empty();
+}
+
+void Mesh::releaseMeshDataWhenPossible() {
+    _releaseMeshDataWhenPossible = true;
+    if (_isMeshDataUploaded) {
+        releaseMeshData();
+    }
+}
+
+void Mesh::releaseMeshData() {
+    totalReleaseDataBytes += _data.byteLength();
+    CC_LOG_INFO("cjh Mesh totalReleaseDataBytes: %u", totalReleaseDataBytes);
+#if CC_OPTIMIZE_MESH_DATA
+    _data.clear();
+#endif
 }
 
 TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count) {

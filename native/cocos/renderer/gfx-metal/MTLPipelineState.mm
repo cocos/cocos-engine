@@ -230,7 +230,15 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
                 break;
             }
         }
-        streamOffsets[inputAttrib.stream] += GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
+
+        uint32_t attributeSize = GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
+        // Metal requires 4 bytes alignment for attribute
+        uint32_t remain = attributeSize % 4;
+        if (remain != 0) {
+            attributeSize = attributeSize + remain;
+        }
+
+        streamOffsets[inputAttrib.stream] += attributeSize;
         map[bufferIndex] = std::make_tuple(streamOffsets[inputAttrib.stream], inputAttrib.isInstanced);
     }
 

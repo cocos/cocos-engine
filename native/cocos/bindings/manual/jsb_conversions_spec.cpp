@@ -1470,7 +1470,13 @@ bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Data &from, se::Value &to, se::Object * /*unused*/) {
+//    void* rawBuffer = CC_MALLOC(from.getSize());
+//    memcpy(rawBuffer, from.getBytes(), from.getSize());
     se::Object *buffer = se::Object::createArrayBufferObject(from.getBytes(), from.getSize());
+//    auto* buffer = se::Object::createExternalArrayBufferObject(rawBuffer, from.getSize(), [](void *contents, size_t byteLength, void *userData){
+//        CC_LOG_INFO("cjh release external arraybuffer");
+//        CC_FREE(userData);
+//    });
     to.setObject(buffer);
     return true;
 }

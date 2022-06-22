@@ -221,6 +221,18 @@ public:
         _jsTypedArray->root();
     }
 
+    void clear() {
+        if (_jsTypedArray != nullptr) {
+            _jsTypedArray->unroot();
+            _jsTypedArray->decRef();
+            _jsTypedArray = nullptr;
+        }
+        _buffer = nullptr;
+        _byteLength = 0;
+        _byteOffset = 0;
+        _byteEndPos = 0;
+    }
+
     inline ArrayBuffer *buffer() const { return _buffer; }
     inline uint32_t byteLength() const { return _byteLength; }
     inline uint32_t length() const { return _byteLength / BYTES_PER_ELEMENT; }
