@@ -169,7 +169,7 @@ public:
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
     }
-    const ccstd::string& getMacroString(const ccstd::string& name) const {
+    const ccstd::string& getMacroString(const ccstd::string& name) const override {
         static const ccstd::string emptyString;
         const auto& macros = pipeline->getMacros();
         auto iter = macros.find(name);
@@ -178,7 +178,7 @@ public:
         }
         return ccstd::get<ccstd::string>(iter->second);
     }
-    int32_t getMacroInt(const ccstd::string& name) const {
+    int32_t getMacroInt(const ccstd::string& name) const override {
         const auto& macros = pipeline->getMacros();
         auto iter = macros.find(name);
         if (iter == macros.end()) {
@@ -186,7 +186,7 @@ public:
         }
         return ccstd::get<int32_t>(iter->second);
     }
-    bool getMacroBool(const ccstd::string& name) const {
+    bool getMacroBool(const ccstd::string& name) const override {
         const auto& macros = pipeline->getMacros();
         auto iter = macros.find(name);
         if (iter == macros.end()) {
