@@ -585,10 +585,6 @@ export class Node extends BaseNode implements CustomSerializable {
         this.setWorldRotation(q_a);
     }
 
-    // protected _setDirtyNode (idx: number, currNode: this) {
-    //     dirtyNodes[idx] = currNode;
-    // }
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -872,7 +868,7 @@ export class Node extends BaseNode implements CustomSerializable {
         let cur = this;
         let i = 0;
         while (cur._parent) {
-            this._setDirtyNode(i++, cur);
+            dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
         while (i >= 0) {
