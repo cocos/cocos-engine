@@ -26,7 +26,9 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/RefVector.h"
 
 namespace cc {
 namespace gfx {
@@ -42,16 +44,17 @@ public:
     void destroy();
 
     inline RenderPass *getRenderPass() const { return _renderPass; }
-    inline const TextureList &getColorTextures() const { return _colorTextures; }
+    inline const TextureList &getColorTextures() const { return _colorTextures.get(); }
     inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
 
 protected:
     virtual void doInit(const FramebufferInfo &info) = 0;
     virtual void doDestroy() = 0;
 
-    RenderPass *_renderPass = nullptr;
-    TextureList _colorTextures;
-    Texture *_depthStencilTexture = nullptr;
+    IntrusivePtr<RenderPass> _renderPass;
+    // To keep compatibility, so don't use IntrusivePtr.
+    RefVector<Texture *> _colorTextures;
+    IntrusivePtr<Texture> _depthStencilTexture;
 };
 
 } // namespace gfx
