@@ -33,11 +33,13 @@ import { JOINT_UNIFORM_CAPACITY, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal
 export class WebDescriptorHierarchy {
     private uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
     private blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;
+    private dbsToMerge: DescriptorDB[];
 
     constructor () {
         this._layoutGraph = new LayoutGraph();
         this.uniformBlockIndex = new Map<DescriptorBlock, DescriptorBlockIndex>();
         this.blockMerged = new Map<DescriptorBlock, Map<Type, Descriptor>>();
+        this.dbsToMerge = [];
     }
 
     private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
@@ -166,8 +168,6 @@ export class WebDescriptorHierarchy {
 
     public addEffect (asset: EffectAsset, parent: number): void {
         const sz = asset.shaders.length;
-
-        const dbsToMerge: DescriptorDB[] = [];
 
         for (let i = 0; i !== sz; ++i) {
             const shader: EffectAsset.IShaderInfo = asset.shaders[i];
@@ -314,12 +314,12 @@ export class WebDescriptorHierarchy {
 
             this.merge(queueDB);
             this.sort(queueDB);
-            dbsToMerge.push(queueDB);
+            this.dbsToMerge.push(queueDB);
         }
     }
 
     public addGlobal (vName: string, hasCCGlobal, hasCCCamera, hasCCShadow, hasShadowmap, hasEnv, hasDiffuse, hasSpot): number {
-        const dbsToMerge: DescriptorDB[] = [];
+        this.dbsToMerge = [];
 
         const passDB: DescriptorDB = new DescriptorDB();
         // Add pass layout from define.ts
@@ -387,10 +387,13 @@ export class WebDescriptorHierarchy {
 
         const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, vName, passDB);
 
-        this.mergeDBs(dbsToMerge, passDB);
-        this.sort(passDB);
-
         return vid;
+    }
+
+    public mergeDescriptors (vid: number) {
+        const target: DescriptorDB = this._layoutGraph.getDescriptors(vid);
+        this.mergeDBs(this.dbsToMerge, target);
+        this.sort(target);
     }
 
     private _layoutGraph: LayoutGraph;
