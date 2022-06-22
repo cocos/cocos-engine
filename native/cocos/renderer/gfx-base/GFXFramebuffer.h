@@ -52,7 +52,7 @@ protected:
     virtual void doDestroy() = 0;
 
     IntrusivePtr<RenderPass> _renderPass;
-    // To keep compatibility, so don't use IntrusievePtr.
+    // To keep compatibility, so don't use IntrusivePtr.
     RefVector<Texture *> _colorTextures;
     IntrusivePtr<Texture> _depthStencilTexture;
 };
