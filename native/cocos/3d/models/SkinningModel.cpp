@@ -51,7 +51,8 @@ void getRelevantBuffers(ccstd::vector<index_t> &outIndices, ccstd::vector<int32_
     }
 }
 
-ccstd::vector<cc::scene::IMacroPatch> myPatches{{"CC_USE_SKINNING", true}};
+ccstd::vector<cc::scene::IMacroPatch> uniformPatches{{"CC_USE_SKINNING", true}, {"CC_USE_REAL_TIME_JOINT_TEXTURE", false}};
+ccstd::vector<cc::scene::IMacroPatch> texturePatches{{"CC_USE_SKINNING", true}, {"CC_USE_REAL_TIME_JOINT_TEXTURE", true}};
 
 } // namespace
 namespace cc {
@@ -95,7 +96,7 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
     const auto &jointMaps = mesh->getStruct().jointMaps;
     ensureEnoughBuffers((jointMaps.has_value() && !jointMaps->empty()) ? static_cast<int32_t>(jointMaps->size()) : 1);
     _bufferIndices = mesh->getJointBufferIndices();
-
+    initRealTimeJointTexture(skeleton->getJoints().size());
     for (index_t index = 0; index < skeleton->getJoints().size(); ++index) {
         geometry::AABB *bound = boneSpaceBounds[index];
         auto *target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
@@ -183,6 +184,10 @@ void SkinningModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Mat
 
 ccstd::vector<scene::IMacroPatch> SkinningModel::getMacroPatches(index_t subModelIndex) {
     auto patches = Super::getMacroPatches(subModelIndex);
+    auto myPatches = uniformPatches;
+    if (_realTimeTextureMode) {
+        myPatches = texturePatches;
+    }
     if (!patches.empty()) {
         patches.reserve(myPatches.size() + patches.size());
         patches.insert(std::begin(patches), std::begin(myPatches), std::end(myPatches));
@@ -201,13 +206,14 @@ void SkinningModel::uploadJointData(uint32_t base, const Mat4 &mat, float *dst) 
 
 void SkinningModel::updateLocalDescriptors(index_t submodelIdx, gfx::DescriptorSet *descriptorset) {
     Super::updateLocalDescriptors(submodelIdx, descriptorset);
-    gfx::Buffer *buffer = _buffers[_bufferIndices[submodelIdx]];
+    uint32_t idx = _bufferIndices[submodelIdx];
+    gfx::Buffer *buffer = _buffers[idx];
     if (buffer) {
         descriptorset->bindBuffer(pipeline::UBOSkinning::BINDING, buffer);
     }
     if (!_realTimeTextureMode) return;
     if (_realTimeJointTexture->textures.size() < idx + 1) return;
-    gfx::Texture *texture = _realTimeJointTexture->textures[idx];
+    gfx::Texture* texture = _realTimeJointTexture->textures[idx];
     if (texture) {
         gfx::SamplerInfo info{
             gfx::Filter::POINT,
@@ -249,6 +255,10 @@ void SkinningModel::ensureEnoughBuffers(index_t count) {
         }
 
         if (i >= _dataArray.size()) {
+            for (auto i = 0; i < _dataArray.size(); i++) {
+                delete[] _dataArray[i];
+                _dataArray[i] = nullptr;
+            }
             _dataArray.resize(i + 1);
         }
 
@@ -259,19 +269,42 @@ void SkinningModel::ensureEnoughBuffers(index_t count) {
     }
 }
 
-void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> textures) {
-    if (textures.empty()) return;
-    _realTimeTextureMode = true;
-    _realTimeJointTexture = new RealTimeJointTexture();
-    uint32_t length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
-    size_t count = _dataArray.size();
-    for (size_t i = 0; i < count; i++) {
-       delete[] _dataArray[i];
-       _dataArray[i] = new float[length];
-       memset(_dataArray[i], 0, sizeof(float) * length);
+void SkinningModel::initRealTimeJointTexture(index_t jointCount)
+{
+    if (_realTimeJointTexture) {
+        delete _realTimeJointTexture;
+        _realTimeJointTexture = nullptr;
     }
+    if (pipeline::SkinningJointCapacity::jointUniformCapacity < jointCount) {
+        _realTimeTextureMode = true;
+    }
+    if (!_realTimeTextureMode) return;
+    _realTimeJointTexture = new RealTimeJointTexture;
+    auto *device = gfx::Device::getInstance();
+    uint32_t texWidth = RealTimeJointTexture::WIDTH;
+    uint32_t texHeight = RealTimeJointTexture::HEIGHT;
+    gfx::Format textureFormat = gfx::Format::RGBA32F;
 
-    _realTimeJointTexture->textures = std::move(textures);
+    gfx::FormatFeature formatFeature = device->getFormatFeatures(gfx::Format::RGBA32F);
+    if (!(formatFeature & gfx::FormatFeature::SAMPLED_TEXTURE)) {
+        textureFormat = gfx::Format::RGBA8;
+        texWidth = 4 * RealTimeJointTexture::WIDTH;
+    }
+    uint32_t length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
+    const size_t count = _dataArray.size();
+    for (size_t i = 0; i < count; i++) {
+        delete[] _dataArray[i];
+        _dataArray[i] = new float[length];
+        memset(_dataArray[i], 0, sizeof(float) * length);
+
+        gfx::TextureInfo textureInfo;
+        textureInfo.width = texWidth;
+        textureInfo.height = texHeight;
+        textureInfo.usage = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
+        textureInfo.format = textureFormat;
+        IntrusivePtr<gfx::Texture> texture = device->createTexture(textureInfo);
+        _realTimeJointTexture->textures.push_back(texture);
+    }
     _realTimeJointTexture->buffer = new float[length];
 }
 
@@ -280,7 +313,7 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
     uint32_t bIdx = 0;
     uint32_t width = RealTimeJointTexture::WIDTH;
     uint32_t height = RealTimeJointTexture::HEIGHT;
-    for (gfx::Texture* texture: _realTimeJointTexture->textures) {
+    for (IntrusivePtr<gfx::Texture> texture : _realTimeJointTexture->textures) {
         auto *buffer = _realTimeJointTexture->buffer;
         auto *src    = _dataArray[bIdx];
         uint32_t count = width;
@@ -303,10 +336,12 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
         }
+        uint32_t buffOffset = 0;
         cc::gfx::TextureSubresLayers layer;
         cc::gfx::Offset texOffset;
         cc::gfx::Extent extent = {width, height, 1};
         cc::gfx::BufferTextureCopy region = {
+           buffOffset,
            width,
            height,
            texOffset,

@@ -100,7 +100,7 @@ export class SkinningModel extends MorphModel {
     private _joints: IJointInfo[] = [];
     private _bufferIndices: number[] | null = null;
     private _realTimeJointTexture = new RealTimeJointTexture();
-    private _realTimeTextureModel = false;
+    private _realTimeTextureMode = false;
     constructor () {
         super();
         this.type = ModelType.SKINNING;
@@ -142,7 +142,6 @@ export class SkinningModel extends MorphModel {
         const jointMaps = mesh.struct.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1, skeleton.joints.length);
         this._bufferIndices = mesh.jointBufferIndices;
-        const nativeJoints: NativeJointInfo[] = [];
         this._initRealTimeJointTexture(skeleton.joints.length);
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
@@ -204,7 +203,7 @@ export class SkinningModel extends MorphModel {
                 uploadJointData(this._dataArray[buffers[b]], indices[b] * 12, m4_1, i === 0);
             }
         }
-        if (this._realTimeTextureModel === false) {
+        if (this._realTimeTextureMode === false) {
             for (let b = 0; b < this._buffers.length; b++) {
                 this._buffers[b].update(this._dataArray[b]);
             }
@@ -233,7 +232,7 @@ export class SkinningModel extends MorphModel {
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         let myPatches = uniformPatches;
-        if (this._realTimeTextureModel) {
+        if (this._realTimeTextureMode) {
             myPatches = texturePatches;
         }
         if (superMacroPatches) {
@@ -247,11 +246,6 @@ export class SkinningModel extends MorphModel {
      */
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
-        // TODO implementation directly in native SkinningModel
-        // if (JSB) {
-        //     (this._nativeObj! as NativeSkinningModel).updateLocalDescriptors(submodelIdx, descriptorSet);
-        //     return;
-        // }
         const idx = this._bufferIndices![submodelIdx];
         const buffer = this._buffers[idx];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
@@ -287,9 +281,9 @@ export class SkinningModel extends MorphModel {
     }
     private _initRealTimeJointTexture (jointCount: number) {
         if (UBOSkinning.JOINT_UNIFORM_CAPACITY < jointCount) {
-            this._realTimeTextureModel = true;
+            this._realTimeTextureMode = true;
         }
-        if (!this._realTimeTextureModel) return;
+        if (!this._realTimeTextureMode) return;
 
         const gfxDevice = director.root!.device;
         let width = RealTimeJointTexture.WIDTH;
@@ -321,18 +315,10 @@ export class SkinningModel extends MorphModel {
             texture.image = image;
             textures[i] = texture;
         }
-        // TODO implementation directly in native SkinningModel
-        // if (JSB) {
-        //     const gfxTextures: Texture[] = [];
-        //     for (let i = 0; i < textures.length; i++) {
-        //         gfxTextures.push(textures[i].getGFXTexture()!);
-        //     }
-        //     (this._nativeObj! as NativeSkinningModel).setRealTimeJointTextures(gfxTextures);
-        // }
     }
 
     private _bindRealTimeJointTexture (idx: number, descriptorSet: DescriptorSet) {
-        if (!this._realTimeTextureModel) return;
+        if (!this._realTimeTextureMode) return;
         const jointTexture = this._realTimeJointTexture._textures[idx];
         if (jointTexture) {
             const gfxTexture = jointTexture.getGFXTexture();
@@ -343,7 +329,7 @@ export class SkinningModel extends MorphModel {
     }
 
     private _updateRealTimeJointTextureBuffer () {
-        if (!this._realTimeTextureModel) return;
+        if (!this._realTimeTextureMode) return;
         const textures = this._realTimeJointTexture._textures;
         const buffers = this._realTimeJointTexture._buffers;
         for (let idx = 0; idx < textures.length; idx++) {

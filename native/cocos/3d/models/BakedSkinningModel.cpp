@@ -83,8 +83,8 @@ void BakedSkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Me
         _jointMedium.buffer = _device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOSkinning::SIZE,
-            pipeline::UBOSkinning::SIZE,
+            pipeline::UBOSkinning::size,
+            pipeline::UBOSkinning::size,
         });
     }
 }

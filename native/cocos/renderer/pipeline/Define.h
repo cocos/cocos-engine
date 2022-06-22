@@ -344,11 +344,11 @@ struct CC_DLL UBOSkinningAnimation {
 };
 
 struct CC_DLL UBOSkinning {
-    static uint32_t count = 0;
-    static uint32_t size = 0;
+    static uint32_t count;
+    static uint32_t size;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_SKINNING_TEXTURE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformBlock layout;
+    static gfx::UniformBlock layout;
     static const ccstd::string NAME;
     static void initLayout (uint capacity);
 };
@@ -557,11 +557,11 @@ struct CC_DLL JOINTTEXTURE {
     static const ccstd::string NAME;
 };
 
-struct CC_DLL REALTIMEJOINTTEXTURE : public Object {
+struct CC_DLL REALTIMEJOINTTEXTURE {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_JOINTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
-    static const String NAME;
+    static const ccstd::string NAME;
 };
 
 struct CC_DLL POSITIONMORPH {

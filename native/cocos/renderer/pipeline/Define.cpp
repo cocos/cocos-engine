@@ -267,7 +267,8 @@ const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
 };
 
 uint SkinningJointCapacity::jointUniformCapacity = 0;
-
+uint32_t UBOSkinning::count = 0;
+uint32_t UBOSkinning::size = 0;
 const ccstd::string UBOSkinning::NAME = "CCSkinning";
 const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     UBOSkinning::BINDING,
@@ -409,7 +410,7 @@ const gfx::UniformSamplerTexture JOINTTEXTURE::LAYOUT = {
     1,
 };
 
-const ccstd::string REALTIMEJOINTTEXTURE::NAME = "cc_realTimeJoint";
+const ccstd::string REALTIMEJOINTTEXTURE::NAME = "cc_realtimeJoint";
 const gfx::DescriptorSetLayoutBinding REALTIMEJOINTTEXTURE::DESCRIPTOR = {
     REALTIMEJOINTTEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,

@@ -28,6 +28,7 @@
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "math/Mat4.h"
+#include "renderer/gfx-base/GFXTexture.h"
 
 namespace cc {
 
@@ -49,12 +50,13 @@ public:
 
     ~RealTimeJointTexture() {
         textures.clear();
-        delete buffer;
+        delete[] buffer;
+        buffer = nullptr;
     }
 
     static const uint32_t WIDTH = 256;
     static const uint32_t HEIGHT = 3;
-    std::vector<gfx::Texture *> textures;
+    std::vector<IntrusivePtr<gfx::Texture>> textures;
     float *buffer = nullptr;
 };
 

@@ -52,6 +52,7 @@ void GlobalDSManager::activate(gfx::Device *device) {
         gfx::Address::CLAMP,
     });
 
+    //tips: for compatibility with old version, when maxVertexUniformVectors is 128, maxJoints = 30
     uint maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     SkinningJointCapacity::jointUniformCapacity = maxJoints;
