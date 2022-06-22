@@ -33,13 +33,13 @@ import { JOINT_UNIFORM_CAPACITY, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal
 export class WebDescriptorHierarchy {
     private uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
     private blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;
-    private dbsToMerge: DescriptorDB[];
+    private dbsToMerge: Map<DescriptorDB, DescriptorDB[]>;
 
     constructor () {
         this._layoutGraph = new LayoutGraph();
         this.uniformBlockIndex = new Map<DescriptorBlock, DescriptorBlockIndex>();
         this.blockMerged = new Map<DescriptorBlock, Map<Type, Descriptor>>();
-        this.dbsToMerge = [];
+        this.dbsToMerge = new Map<DescriptorDB, DescriptorDB[]>();
     }
 
     private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
@@ -314,13 +314,16 @@ export class WebDescriptorHierarchy {
 
             this.merge(queueDB);
             this.sort(queueDB);
-            this.dbsToMerge.push(queueDB);
+
+            const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
+            if (this.dbsToMerge.get(parentDB) === undefined) {
+                this.dbsToMerge.set(parentDB, []);
+            }
+            this.dbsToMerge.get(parentDB)?.push(queueDB);
         }
     }
 
     public addGlobal (vName: string, hasCCGlobal, hasCCCamera, hasCCShadow, hasShadowmap, hasEnv, hasDiffuse, hasSpot): number {
-        this.dbsToMerge = [];
-
         const passDB: DescriptorDB = new DescriptorDB();
         // Add pass layout from define.ts
         const globalUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
@@ -392,8 +395,11 @@ export class WebDescriptorHierarchy {
 
     public mergeDescriptors (vid: number) {
         const target: DescriptorDB = this._layoutGraph.getDescriptors(vid);
-        this.mergeDBs(this.dbsToMerge, target);
-        this.sort(target);
+        const toMerge = this.dbsToMerge.get(target);
+        if (toMerge !== undefined) {
+            this.mergeDBs(toMerge, target);
+            this.sort(target);
+        }
     }
 
     private _layoutGraph: LayoutGraph;
