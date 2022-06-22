@@ -56,11 +56,12 @@ import {
     CommandBufferType, DescriptorSetLayoutInfo, DescriptorSetInfo,
     PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, FramebufferInfo, InputAssemblerInfo,
     QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, GeneralBarrierInfo, TextureBarrierInfo,
-    QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, Format, FormatFeatureBit,
+    BufferBarrierInfo, QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, Format, FormatFeatureBit,
 } from '../base/define';
 import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
+import { BufferBarrier } from '../base/states/buffer-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
@@ -566,6 +567,14 @@ export class WebGL2Device extends Device {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
         }
         return this._textureBarriers.get(hash)!;
+    }
+
+    public getBufferBarrier (info: Readonly<BufferBarrierInfo>) {
+        const hash = BufferBarrier.computeHash(info);
+        if (!this._bufferBarriers.has(hash)) {
+            this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
+        }
+        return this._bufferBarriers.get(hash)!;
     }
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {

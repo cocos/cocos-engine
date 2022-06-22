@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+/***********************************************************************
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,29 +21,29 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
-import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
-import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
+#pragma once
 
-/**
- * @en GFX global barrier.
- * @zh GFX 全局内存屏障。
- */
-export class GeneralBarrier extends GFXObject {
-    get info (): Readonly<GeneralBarrierInfo> { return this._info; }
-    get hash (): number { return this._hash; }
+#include "../GFXObject.h"
+#include "gfx-base/GFXDef-common.h"
 
-    protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
-    protected _hash = 0;
+namespace cc {
+namespace gfx {
 
-    constructor (info: Readonly<GeneralBarrierInfo>, hash: number) {
-        super(ObjectType.GLOBAL_BARRIER);
-        this._info.copy(info);
-        this._hash = hash;
-    }
+class CC_DLL BufferBarrier : public GFXObject {
+public:
+    explicit BufferBarrier(const BufferBarrierInfo &info);
 
-    static computeHash (info: Readonly<GeneralBarrierInfo>) {
-        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses} ${info.type}`, 666);
-    }
-}
+    static ccstd::hash_t computeHash(const BufferBarrierInfo &info);
+
+    inline const BufferBarrierInfo &getInfo() const { return _info; }
+    inline const ccstd::hash_t &getHash() const { return _hash; }
+
+protected:
+    BufferBarrierInfo _info;
+    ccstd::hash_t _hash{0U};
+};
+
+} // namespace gfx
+} // namespace cc

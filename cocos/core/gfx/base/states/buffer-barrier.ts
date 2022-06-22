@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -24,32 +24,30 @@
  */
 
 import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
-import { GFXObject, ObjectType, TextureBarrierInfo } from '../define';
+import { GFXObject, ObjectType, BufferBarrierInfo } from '../define';
 
 /**
- * @en GFX texture barrier.
- * @zh GFX 贴图内存屏障。
+ * @en GFX buffer barrier.
+ * @zh GFX buffer内存屏障。
  */
-export class TextureBarrier extends GFXObject {
-    get info (): Readonly<TextureBarrierInfo> { return this._info; }
+export class BufferBarrier extends GFXObject {
+    get info (): Readonly<BufferBarrierInfo> { return this._info; }
     get hash (): number { return this._hash; }
 
-    protected _info: TextureBarrierInfo = new TextureBarrierInfo();
+    protected _info: BufferBarrierInfo = new BufferBarrierInfo();
     protected _hash = 0;
 
-    constructor (info: Readonly<TextureBarrierInfo>, hash: number) {
-        super(ObjectType.TEXTURE_BARRIER);
+    constructor (info: Readonly<BufferBarrierInfo>, hash: number) {
+        super(ObjectType.BUFFER_BARRIER);
         this._info.copy(info);
         this._hash = hash;
     }
 
-    static computeHash (info: Readonly<TextureBarrierInfo>) {
+    static computeHash (info: Readonly<BufferBarrierInfo>) {
         let res = `${info.prevAccesses} ${info.nextAccesses}`;
         res += info.type;
-        res += info.baseMipLevel;
-        res += info.levelCount;
-        res += info.baseSlice;
-        res += info.sliceCount;
+        res += info.offset;
+        res += info.size;
         res += info.discardContents;
         res += info.srcQueue ? info.srcQueue.type : 0;
         res += info.dstQueue ? info.dstQueue.type : 0;

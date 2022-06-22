@@ -27,8 +27,8 @@ import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, SwapchainInfo,
-    BindingMappingInfo, Format, FormatFeature,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
+    SwapchainInfo, BindingMappingInfo, Format, FormatFeature,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -45,6 +45,7 @@ import { Shader } from './shader';
 import { Texture } from './texture';
 import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
+import { BufferBarrier } from './states/buffer-barrier';
 import { Swapchain } from './swapchain';
 
 /**
@@ -156,6 +157,7 @@ export abstract class Device {
     protected _samplers = new Map<number, Sampler>();
     protected _generalBarrierss = new Map<number, GeneralBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
+    protected _bufferBarriers = new Map<number, BufferBarrier>();
 
     public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
 
@@ -292,6 +294,13 @@ export abstract class Device {
      * @param info GFX texture barrier description info.
      */
     public abstract getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier;
+
+    /**
+     * @en Create buffer barrier.
+     * @zh 创建buffer内存屏障。
+     * @param info GFX buffer barrier description info.
+     */
+    public abstract getBufferBarrier (info: Readonly<BufferBarrierInfo>): BufferBarrier;
 
     /**
      * @en Copy buffers to texture.

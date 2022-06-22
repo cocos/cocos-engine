@@ -46,6 +46,7 @@ import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBuff
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
+import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGLDeviceManager } from './webgl-define';
 
 export class WebGLCommandBuffer extends CommandBuffer {
@@ -399,7 +400,9 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier> | null, textureBarriers?: Readonly<TextureBarrier[]>,
+    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
+        buffers?: Readonly<Buffer[]>,
+        textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>) {}
 
     protected bindStates () {

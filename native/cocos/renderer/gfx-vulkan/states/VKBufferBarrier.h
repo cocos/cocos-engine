@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,29 +21,28 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
-import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
-import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
+#pragma once
 
-/**
- * @en GFX global barrier.
- * @zh GFX 全局内存屏障。
- */
-export class GeneralBarrier extends GFXObject {
-    get info (): Readonly<GeneralBarrierInfo> { return this._info; }
-    get hash (): number { return this._hash; }
+#include "../VKStd.h"
+#include "gfx-base/states/GFXBufferBarrier.h"
 
-    protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
-    protected _hash = 0;
+namespace cc {
+namespace gfx {
 
-    constructor (info: Readonly<GeneralBarrierInfo>, hash: number) {
-        super(ObjectType.GLOBAL_BARRIER);
-        this._info.copy(info);
-        this._hash = hash;
-    }
+struct CCVKGPUBufferBarrier;
 
-    static computeHash (info: Readonly<GeneralBarrierInfo>) {
-        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses} ${info.type}`, 666);
-    }
-}
+class CC_VULKAN_API CCVKBufferBarrier : public BufferBarrier {
+public:
+    explicit CCVKBufferBarrier(const BufferBarrierInfo &info);
+    ~CCVKBufferBarrier() override;
+
+    inline const CCVKGPUBufferBarrier *gpuBarrier() const { return _gpuBarrier; }
+
+protected:
+    CCVKGPUBufferBarrier *_gpuBarrier = nullptr;
+};
+
+} // namespace gfx
+} // namespace cc
