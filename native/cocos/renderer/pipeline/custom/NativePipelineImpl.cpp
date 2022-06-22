@@ -495,10 +495,10 @@ void NativePipeline::setShadingScale(float scale) {
 }
 
 const ccstd::string& NativePipeline::getMacroString(const ccstd::string& name) const {
-    static const ccstd::string sEmptyString;
+    static const ccstd::string EMPTY_STRING;
     auto iter = macros.find(name);
     if (iter == macros.end()) {
-        return sEmptyString;
+        return EMPTY_STRING;
     }
     return ccstd::get<ccstd::string>(iter->second);
 }

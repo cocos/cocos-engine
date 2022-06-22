@@ -170,11 +170,11 @@ public:
         pipeline->setShadingScale(scale);
     }
     const ccstd::string& getMacroString(const ccstd::string& name) const override {
-        static const ccstd::string emptyString;
+        static const ccstd::string EMPTY_STRING;
         const auto& macros = pipeline->getMacros();
         auto iter = macros.find(name);
         if (iter == macros.end()) {
-            return emptyString;
+            return EMPTY_STRING;
         }
         return ccstd::get<ccstd::string>(iter->second);
     }
