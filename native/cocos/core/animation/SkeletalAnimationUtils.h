@@ -42,7 +42,7 @@ struct IJointTransform : RefCounted {
     IntrusivePtr<IJointTransform> parent;
 };
 
-class RealTimeJointTexture {
+class RealTimeJointTexture final {
 public:
     RealTimeJointTexture() {
         textures.clear();
