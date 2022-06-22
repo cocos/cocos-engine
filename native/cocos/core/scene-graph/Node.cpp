@@ -45,10 +45,10 @@ const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATIN
 const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
 index_t Node::stackId{0};
 ccstd::vector<ccstd::vector<Node *>> Node::stacks;
+uint32_t Node::globalFlagChangeVersion{0};
 //
 
 namespace {
-CachedArray<Node *> allNodes{128}; //cjh how to clear ?
 const ccstd::string EMPTY_NODE_NAME;
 IDGenerator idGenerator("Node");
 
@@ -82,13 +82,10 @@ Node::Node(const ccstd::string &name) {
     } else {
         _name = name;
     }
-    allNodes.push(this);
     _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
-    uint32_t index = allNodes.indexOf(this);
-    allNodes.fastRemove(index);
     CC_SAFE_DELETE(_eventProcessor);
 }
 
@@ -936,9 +933,7 @@ void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFr
 }
 
 void Node::resetChangedFlags() {
-    for (uint32_t i = 0, len = allNodes.size(); i < len; ++i) {
-        allNodes[i]->setChangedFlags(0);
-    }
+    globalFlagChangeVersion++;
 }
 
 void Node::clearNodeArray() {
