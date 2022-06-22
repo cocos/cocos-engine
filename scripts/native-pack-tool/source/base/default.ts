@@ -356,8 +356,6 @@ export abstract class NativePackTool {
     }
 
     protected async excuteTemplateTask(tasks: CocosProjectTasks) {
-        console.log("------------ excuteTemplateTask");
-        console.log(tasks);
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
                 const dest = cchelper.replaceEnvVariables(task.to);
