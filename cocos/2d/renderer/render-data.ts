@@ -84,6 +84,9 @@ export class BaseRenderData {
     get vertexFormat () {
         return this._vertexFormat;
     }
+    get drawType () {
+        return this._drawType;
+    }
 
     public chunk: StaticVBChunk = null!;
 
@@ -121,6 +124,7 @@ export class BaseRenderData {
     protected _ic = 0;
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
+    protected _drawType = 0;
 
     protected _batcher: Batcher2D | null = null;
     get batcher () {
@@ -293,6 +297,10 @@ export class RenderData extends BaseRenderData {
         this.initRenderEntity();
     }
 
+    public setDrawType (type = 0) {
+        this._drawType = type;
+    }
+
     public resize (vertexCount: number, indexCount: number) {
         if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
         this._vc = vertexCount;
@@ -341,6 +349,7 @@ export class RenderData extends BaseRenderData {
                 return;
             }
             this.renderDrawInfo.initRender2dBuffer(this.dataLength, this.floatStride);
+            this.renderDrawInfo.initDrawType(this.drawType);
             this.renderDrawInfo.setRender2dBufferToNative();
         }
     }

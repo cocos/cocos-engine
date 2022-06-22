@@ -252,6 +252,7 @@ export const radialFilled: IAssembler = {
             if (!renderData.vertDirty) {
                 return;
             }
+            renderData.setDrawType();
             const dataList = renderData.data;
 
             let fillStart = sprite.fillStart;
