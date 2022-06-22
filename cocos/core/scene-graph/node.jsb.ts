@@ -76,8 +76,9 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
+
+
 Node._setTempFloatArray(_tempFloatArray.buffer);
-const globalFlagChagngeVersion = new Uint32Array(Node._getGlobalFlagChangeVersionArrayBuffer());
 
 function getConstructor<T> (typeOrClassName) {
     if (!typeOrClassName) {
@@ -1039,20 +1040,6 @@ Object.defineProperty(nodeProto, 'scene', {
     }
 });
 
-Object.defineProperty(nodeProto, 'hasChangedFlags', {
-    configurable: true,
-    enumerable: true,
-    get() {
-        return globalFlagChagngeVersion[0] === this._flagBuffer[0] ? this._flagBuffer[1] : 0;
-    },
-    set(val) {
-        if(globalFlagChagngeVersion[0] !== this._flagBuffer[0]) {
-            this._flagBuffer[0] = globalFlagChagngeVersion[0];
-        }
-        this._flagBuffer[1] = val;
-    }
-});
-
 nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
     _tempFloatArray[1] = rot.x;
     _tempFloatArray[2] = rot.y;
@@ -1256,7 +1243,6 @@ nodeProto._ctor = function (name?: string) {
     this._rightCache = new Vec3();
     this._worldRTCache = new Mat4();
     //
-    this._flagBuffer = new Uint32Array(this._getChangedFlagsArrayBuffer());
 
     this._registeredNodeEventTypeMask = 0;
 
