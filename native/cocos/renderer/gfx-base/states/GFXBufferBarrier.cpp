@@ -23,39 +23,24 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "GFXObject.h"
-#include "base/Ptr.h"
-#include "base/RefCounted.h"
-#include "base/RefVector.h"
+#include "GFXBufferBarrier.h"
+#include "../GFXQueue.h"
+#include "base/Utils.h"
+#include "base/std/hash/hash.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Framebuffer : public GFXObject, public RefCounted {
-public:
-    Framebuffer();
-    ~Framebuffer() override;
+BufferBarrier::BufferBarrier(const BufferBarrierInfo &info)
+: GFXObject(ObjectType::BUFFER_BARRIER) {
+    _info = info;
+    _hash = computeHash(info);
+}
 
-    static ccstd::hash_t computeHash(const FramebufferInfo &info);
-
-    void initialize(const FramebufferInfo &info);
-    void destroy();
-
-    inline RenderPass *getRenderPass() const { return _renderPass; }
-    inline const TextureList &getColorTextures() const { return _colorTextures.get(); }
-    inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
-
-protected:
-    virtual void doInit(const FramebufferInfo &info) = 0;
-    virtual void doDestroy() = 0;
-
-    IntrusivePtr<RenderPass> _renderPass;
-    // To keep compatibility, so don't use IntrusivePtr.
-    RefVector<Texture *> _colorTextures;
-    IntrusivePtr<Texture> _depthStencilTexture;
-};
+ccstd::hash_t BufferBarrier::computeHash(const BufferBarrierInfo &info) {
+    return Hasher<BufferBarrierInfo>()(info);
+}
 
 } // namespace gfx
 } // namespace cc

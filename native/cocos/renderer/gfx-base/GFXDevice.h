@@ -42,6 +42,7 @@
 #include "GFXTexture.h"
 #include "base/RefCounted.h"
 #include "base/std/container/array.h"
+#include "states/GFXBufferBarrier.h"
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
@@ -88,6 +89,7 @@ public:
     virtual Sampler *getSampler(const SamplerInfo &info);
     virtual GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info);
     virtual TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
+    virtual BufferBarrier *getBufferBarrier(const BufferBarrierInfo &info);
 
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) = 0;
     virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) = 0;
@@ -153,6 +155,7 @@ protected:
     virtual Sampler *createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
     virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
     virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return ccnew TextureBarrier(info); }
+    virtual BufferBarrier *createBufferBarrier(const BufferBarrierInfo &info) { return ccnew BufferBarrier(info); }
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
@@ -183,6 +186,7 @@ protected:
     ccstd::unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>> _samplers;
     ccstd::unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
     ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
+    ccstd::unordered_map<BufferBarrierInfo, BufferBarrier *, Hasher<BufferBarrierInfo>> _bufferBarriers;
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference

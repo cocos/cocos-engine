@@ -1,4 +1,4 @@
-/****************************************************************************
+/***********************************************************************
  Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -25,36 +25,24 @@
 
 #pragma once
 
-#include "GFXObject.h"
-#include "base/Ptr.h"
-#include "base/RefCounted.h"
-#include "base/RefVector.h"
+#include "../GFXObject.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Framebuffer : public GFXObject, public RefCounted {
+class CC_DLL BufferBarrier : public GFXObject {
 public:
-    Framebuffer();
-    ~Framebuffer() override;
+    explicit BufferBarrier(const BufferBarrierInfo &info);
 
-    static ccstd::hash_t computeHash(const FramebufferInfo &info);
+    static ccstd::hash_t computeHash(const BufferBarrierInfo &info);
 
-    void initialize(const FramebufferInfo &info);
-    void destroy();
-
-    inline RenderPass *getRenderPass() const { return _renderPass; }
-    inline const TextureList &getColorTextures() const { return _colorTextures.get(); }
-    inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
+    inline const BufferBarrierInfo &getInfo() const { return _info; }
+    inline const ccstd::hash_t &getHash() const { return _hash; }
 
 protected:
-    virtual void doInit(const FramebufferInfo &info) = 0;
-    virtual void doDestroy() = 0;
-
-    IntrusivePtr<RenderPass> _renderPass;
-    // To keep compatibility, so don't use IntrusivePtr.
-    RefVector<Texture *> _colorTextures;
-    IntrusivePtr<Texture> _depthStencilTexture;
+    BufferBarrierInfo _info;
+    ccstd::hash_t _hash{0U};
 };
 
 } // namespace gfx
