@@ -170,7 +170,7 @@ describe('NewGen Anim', () => {
         expect(bVar.value).toBe(2.0);
     });
 
-    test('Rename an variable', () => {
+    test('Rename a variable', () => {
         const animationGraph = new AnimationGraph();
         animationGraph.addFloat('a', 3.14);
         animationGraph.addBoolean('b', true);
@@ -186,7 +186,7 @@ describe('NewGen Anim', () => {
         const check = () => {
             // Type, value, order are all retained.
             expect([...animationGraph.variables].map(([s, w]) =>
-                [s, { type: w.type, value: w.value }]));
+                [s, { type: w.type, value: w.value }])).toStrictEqual(expectedSnapshot);
         };
 
         // Original name does not exist.
