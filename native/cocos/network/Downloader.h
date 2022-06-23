@@ -63,9 +63,9 @@ private:
 };
 
 struct CC_DLL DownloaderHints {
-    uint32_t countOfMaxProcessingTasks;
-    uint32_t timeoutInSeconds;
-    ccstd::string tempFileNameSuffix;
+    uint32_t countOfMaxProcessingTasks{6};
+    uint32_t timeoutInSeconds{45};
+    ccstd::string tempFileNameSuffix{".tmp"};
 };
 
 class CC_DLL Downloader final {
