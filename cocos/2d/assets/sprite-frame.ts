@@ -527,15 +527,10 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en mesh information
-     * @zh mesh 信息
+     * @en mesh information, you should call the [[CheckAndCreateMesh]] function before using it
+     * @zh mesh 信息，你应该在使用它之前调用 [[CheckAndCreateMesh]] 函数来确保其可用
      */
     get mesh () {
-        if (!this._mesh) {
-            // If SpriteFrame from load, we need init vertices when use mesh
-            this._initVertices();
-            this.createMesh();
-        }
         return this._mesh;
     }
 
@@ -607,7 +602,7 @@ export class SpriteFrame extends Asset {
     // (updated after attribute value changes in the editor, adjusting vertices/re-generation)
 
     // Mesh api
-    protected declare _mesh: Mesh;
+    protected declare _mesh: Mesh | null;
     protected _minPos = new Vec3();
     protected _maxPos = new Vec3();
 
@@ -858,6 +853,17 @@ export class SpriteFrame extends Asset {
         }
 
         return true;
+    }
+
+    /**
+     * @en Make sure the mesh is available, you should call it before using the mesh
+     * @zh 确保 mesh 可用，你应该在使用 mesh 之前调用它
+     */
+    public CheckAndCreateMesh () {
+        if (this._mesh) return;
+        // If SpriteFrame from load, we need init vertices when use mesh
+        this._initVertices();
+        this._createMesh();
     }
 
     public destroy () {
@@ -1516,7 +1522,7 @@ export class SpriteFrame extends Asset {
         Vec3.transformMat4(this._maxPos, vertices.maxPos, temp_matrix);
     }
 
-    protected createMesh () {
+    protected _createMesh () {
         this._mesh = createMesh({
             primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: this.vertices!.positions,
@@ -1543,7 +1549,7 @@ export class SpriteFrame extends Asset {
             this._mesh.destroy();
         }
         this._initVertices();
-        this.createMesh();
+        this._createMesh();
     }
 }
 

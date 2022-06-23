@@ -65,7 +65,8 @@ export class SpriteRenderer extends ModelRenderer {
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
         if (this._spriteFrame) {
-            const mesh = this._spriteFrame.mesh;
+            this._spriteFrame.CheckAndCreateMesh(); // Make sure the mesh is available, you should call it before using the mesh
+            const mesh = this._spriteFrame.mesh!;
             mesh.initialize();
         }
         this._updateModels();
@@ -101,7 +102,10 @@ export class SpriteRenderer extends ModelRenderer {
 
     public onLoad () {
         if (this._spriteFrame) {
-            this._spriteFrame.mesh.initialize();
+            if (!this._spriteFrame.mesh) {
+                this._spriteFrame.CheckAndCreateMesh();
+            }
+            this._spriteFrame.mesh!.initialize();
         }
         this._updateModels();
     }
@@ -149,7 +153,7 @@ export class SpriteRenderer extends ModelRenderer {
         }
 
         if (this._model) {
-            const mesh = this._spriteFrame.mesh;
+            const mesh = this._spriteFrame.mesh!;
             this._model.createBoundingShape(mesh.struct.minPosition, mesh.struct.maxPosition);
             this._updateModelParams();
             this._onUpdateLocalDescriptorSet();
@@ -166,7 +170,8 @@ export class SpriteRenderer extends ModelRenderer {
 
     protected _updateModelParams () {
         if (!this._spriteFrame || !this._model) { return; }
-        const mesh = this._spriteFrame.mesh;
+        this._spriteFrame.CheckAndCreateMesh();
+        const mesh = this._spriteFrame.mesh!;
         this.node.hasChangedFlags |= TransformBit.POSITION; // Same as model, Maybe a hack
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         const meshCount = mesh ? mesh.renderingSubMeshes.length : 0;
