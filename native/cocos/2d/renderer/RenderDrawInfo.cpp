@@ -10,9 +10,9 @@ RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
     this->_batcher = batcher;
 
-    //_drawInfoAttrLayout = new DrawInfoAttrLayout();
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _ab.setJSArrayBuffer(_seArrayBufferObject);
+    _attrSharedBuffer = new ArrayBuffer();
+    _attrSharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
 }
 
 RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset) {
@@ -23,12 +23,12 @@ RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffs
     this->_size = 0;
     this->_batcher = nullptr;
 
-    //_drawInfoAttrLayout = new DrawInfoAttrLayout();
+    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _attrSharedBuffer = new ArrayBuffer();
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
-    //CC_SAFE_DELETE(_drawInfoAttrLayout);
 }
 
 void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
@@ -132,7 +132,7 @@ void RenderDrawInfo::parseAttrLayout() {
 }
 
 const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
-    return _ab;
+    return *_attrSharedBuffer;
 }
 
 //ArrayBuffer::Ptr RenderDrawInfo::getAttrSharedBufferForJS() const {

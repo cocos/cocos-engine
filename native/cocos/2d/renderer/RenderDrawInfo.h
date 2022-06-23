@@ -103,10 +103,8 @@ private:
     uint32_t _size{0};
 
     DrawInfoAttrLayout _drawInfoAttrLayout{};
-    //uint32_t* _attrSharedBuffer{nullptr};
-
-    se::Object* _seArrayBufferObject;
-    ArrayBuffer _ab{};
+    se::Object* _seArrayBufferObject{nullptr};
+    ArrayBuffer::Ptr _attrSharedBuffer{nullptr};
 
 private:
     index_t _bufferId{0};
