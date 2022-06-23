@@ -72,6 +72,7 @@ describe('NewGen Anim', () => {
         expect(animTransition.duration).toBe(0.3);
         expect(animTransition.exitConditionEnabled).toBe(true);
         expect(animTransition.exitCondition).toBe(1.0);
+        expect(animTransition.destinationStart).toBe(0.0);
 
         function testGraphDefaults(graph: StateMachine) {
             expect(Array.from(graph.states())).toStrictEqual(expect.arrayContaining([
@@ -278,6 +279,121 @@ describe('NewGen Anim', () => {
             expect(Array.from(layerGraph.getTransitionsBetween(n1, n3))).toBeArrayOfSize(0);
 
             layerGraph.disconnect(n1, n4);
+        });
+
+        test('Adjust the transition priority', () => {
+            const graph = new AnimationGraph();
+            const mainLayer = graph.addLayer();
+            const { stateMachine } = mainLayer;
+            
+            const m0 = stateMachine.addMotion();
+            const m1 = stateMachine.addMotion();
+            const m2 = stateMachine.addMotion();
+            const m3 = stateMachine.addMotion();
+
+            const t01_0 = stateMachine.connect(m0, m1);
+
+            // 1 transition
+            stateMachine.adjustTransitionPriority(t01_0, 0);
+
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+            ]);
+
+            // 4 transitions
+            const t01_1 = stateMachine.connect(m0, m1);
+            const t02_0 = stateMachine.connect(m0, m2);
+            const t03_0 = stateMachine.connect(m0, m3);
+            const t03_1 = stateMachine.connect(m0, m3);
+
+            // By default, later-added transitions have lower priorities.
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t01_1,
+                t02_0,
+                t03_0,
+                t03_1,
+            ]);
+
+            // Do nothing if diff is zero
+            stateMachine.adjustTransitionPriority(t01_1, 0);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t01_1,
+                t02_0,
+                t03_0,
+                t03_1,
+            ]);
+
+            // Adjust 1 -> 3
+            stateMachine.adjustTransitionPriority(t01_1, 2);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t02_0,
+                t03_0,
+                t01_1,
+                t03_1,
+            ]);
+
+            // Adjust 1 -> 3 again
+            stateMachine.adjustTransitionPriority(t02_0, 2);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t03_0,
+                t01_1,
+                t02_0,
+                t03_1,
+            ]);
+
+            // Adjust 3 -> 1
+            stateMachine.adjustTransitionPriority(t02_0, -2);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t02_0,
+                t03_0,
+                t01_1,
+                t03_1,
+            ]);
+
+            // Adjust 3 -> 0
+            stateMachine.adjustTransitionPriority(t01_1, -3);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_1,
+                t01_0,
+                t02_0,
+                t03_0,
+                t03_1,
+            ]);
+
+            // Adjust 1 -> 4
+            stateMachine.adjustTransitionPriority(t01_0, 3);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_1,
+                t02_0,
+                t03_0,
+                t03_1,
+                t01_0,
+            ]);
+
+            // Adjust 1 -> 7(overflow)
+            stateMachine.adjustTransitionPriority(t02_0, 6);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_1,
+                t03_0,
+                t03_1,
+                t01_0,
+                t02_0,
+            ]);
+
+            // Adjust 3 -> -2(underflow)
+            stateMachine.adjustTransitionPriority(t01_0, -6);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t01_1,
+                t03_0,
+                t03_1,
+                t02_0,
+            ]);
         });
     });
 
@@ -1113,7 +1229,7 @@ describe('NewGen Anim', () => {
         });
 
         describe(`Transition priority`, () => {
-            test('Transitions to different nodes, use the first-connected and first-matched transition', () => {
+            test('Transitions to different nodes', () => {
                 const animationGraph = new AnimationGraph();
                 const layer = animationGraph.addLayer();
                 const graph = layer.stateMachine;
@@ -1173,6 +1289,65 @@ describe('NewGen Anim', () => {
                     });
                 }
                 // #endregion
+            });
+
+            test('Non-default priority', () => {
+                const animationGraph = new AnimationGraph();
+                const layer = animationGraph.addLayer();
+                const graph = layer.stateMachine;
+                const m0 = graph.addMotion();
+                m0.motion = createEmptyClipMotion(0.5);
+                m0.name = 'm0';
+                const m1 = graph.addMotion();
+                m1.name = 'm1';
+                m1.motion = createEmptyClipMotion(0.6);
+                const m2 = graph.addMotion();
+                m2.name = 'm2';
+                m2.motion = createEmptyClipMotion(0.7);
+                const m3 = graph.addMotion();
+                m3.name = 'm3';
+                m3.motion = createEmptyClipMotion(0.8);
+
+                animationGraph.addTrigger('t');
+
+                graph.connect(graph.entryState, m0);
+                const t1 = graph.connect(m0, m1);
+                t1.exitConditionEnabled = false;
+                const [t1Condition] = t1.conditions = [new TriggerCondition()];
+                t1Condition.trigger = 't';
+                const t2 = graph.connect(m0, m2);
+                t2.exitConditionEnabled = false;
+                const [t2Condition] = t2.conditions = [new TriggerCondition()];
+                t2Condition.trigger = 't';
+                const t3 = graph.connect(m0, m3);
+                t3.exitConditionEnabled = false;
+                const [t3Condition] = t3.conditions = [new TriggerCondition()];
+                t3Condition.trigger = 't';
+
+                graph.adjustTransitionPriority(t2, -1);
+
+                const graphEval = createAnimationGraphEval(animationGraph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(0.2);
+                expectAnimationGraphEvalStatusLayer0(graphEval, {
+                    currentNode: {
+                        __DEBUG_ID__: 'm0',
+                    },
+                });
+
+                graphEval.setValue('t', true);
+                graphUpdater.step(0.1);
+                expectAnimationGraphEvalStatusLayer0(graphEval, {
+                    currentNode: {
+                        __DEBUG_ID__: 'm0',
+                    },
+                    transition: {
+                        nextNode: {
+                            __DEBUG_ID__: 'm2',
+                        },
+                    },
+                });
             });
         });
 
@@ -1247,6 +1422,52 @@ describe('NewGen Anim', () => {
                     },
                 },
             });
+        });
+
+        test(`Transition destination start`, () => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const animState1 = graph.addMotion();
+            animState1.name = 'Motion1';
+            animState1.motion = createClipMotionPositionXLinear(4.0, 0.6, 0.8);
+            const animState2 = graph.addMotion();
+            animState2.name = 'Motion2';
+            animState2.motion = createClipMotionPositionXLinear(2.2, 3.0, 0.1415);
+            graph.connect(graph.entryState, animState1);
+            const transition = graph.connect(animState1, animState2);
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 0.1;
+            transition.duration = 0.3;
+            transition.relativeDuration = false;
+            transition.destinationStart = 0.17;
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+
+            const graphUpdater = new GraphUpdater(graphEval);
+            graphUpdater.goto(4.0 * 0.1 + 0.2);
+
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: {
+                    __DEBUG_ID__: 'Motion1',
+                    progress: 0.1 + 0.2 / 4.0,
+                },
+                transition: {
+                    nextNode: {
+                        __DEBUG_ID__: 'Motion2',
+                        progress: 0.17 + 0.2 / 2.2,
+                    },
+                },
+            });
+
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    lerp(0.6, 0.8, 0.1 + 0.2 / 4.0),
+                    lerp(3.0, 0.1415, 0.17 + 0.2 / 2.2),
+                    0.2 / 0.3,
+                ),
+            );
         });
 
         test(`Ran into entry/exit node`, () => {
@@ -2334,6 +2555,20 @@ describe('NewGen Anim', () => {
             ['t0', VariableType.TRIGGER, false],
             ['t1', VariableType.TRIGGER, true],
         ]);
+    });
+
+    test('Layer weight get/set', () => {
+        const animationGraph = new AnimationGraph();
+        const layer0 = animationGraph.addLayer();
+        const layer1 = animationGraph.addLayer();
+        layer1.weight = 0.4;
+        const { newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, new Node());
+        expect(animationController.getLayerWeight(0)).toBe(1.0);
+        expect(animationController.getLayerWeight(1)).toBe(0.4);
+        animationController.setLayerWeight(0, 0.2);
+        animationController.setLayerWeight(1, 0.3);
+        expect(animationController.getLayerWeight(0)).toBe(0.2);
+        expect(animationController.getLayerWeight(1)).toBe(0.3);
     });
 });
 

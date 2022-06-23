@@ -260,6 +260,8 @@ void cmdFuncGLES3CreateQueryPool(GLES3Device *device, GLES3GPUQueryPool *gpuQuer
 void cmdFuncGLES3DestroyQueryPool(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
 void cmdFuncGLES3PrepareSamplerInfo(GLES3Device *device, GLES3GPUSampler *gpuSampler);
 
+void completeBarrier(GLES3GPUGeneralBarrier *barrier);
+
 void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
 
 void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx,

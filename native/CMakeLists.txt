@@ -992,6 +992,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/states/GFXSampler.h
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.cpp
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
@@ -1532,6 +1534,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/states/VKSampler.h
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.h
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.h
     )
 
     if(ANDROID)

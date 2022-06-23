@@ -207,7 +207,7 @@ void DownloaderJava::abort(const std::unique_ptr<IDownloadTask> &task) {
     DLLOG("DownloaderJava:abort");
 }
 
-void DownloaderJava::onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal) {
+void DownloaderJava::onProcessImpl(int taskId, uint32_t dl, uint32_t dlNow, uint32_t dlTotal) {
     DLLOG("DownloaderJava::onProgress(taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", taskId, dl, dlNow, dlTotal);
     auto iter = _taskMap.find(taskId);
     if (_taskMap.end() == iter) {
@@ -215,7 +215,7 @@ void DownloaderJava::onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_
         return;
     }
     DownloadTaskAndroid *coTask = iter->second;
-    std::function<int64_t(void *, int64_t)> transferDataToBuffer;
+    std::function<uint32_t(void *, uint32_t)> transferDataToBuffer;
     onTaskProgress(*coTask->task, dl, dlNow, dlTotal, transferDataToBuffer);
 }
 
@@ -250,7 +250,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
             DLLOG("_nativeOnProgress can't find downloader by key: %p for task: %d", clazz, id);
             return;
         }
-        downloader->onProcessImpl((int)taskId, (int64_t)dl, (int64_t)dlnow, (int64_t)dltotal);
+        downloader->onProcessImpl((int)taskId, (uint32_t)dl, (uint32_t)dlnow, (uint32_t)dltotal);
     };
     CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }

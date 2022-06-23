@@ -119,7 +119,7 @@ export class RenderShadowMapBatchedQueue {
                 const spotLight = light as SpotLight;
                 if (spotLight.shadowEnabled) {
                     Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-                    Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                    Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
                     Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                     const castShadowObjects = sceneData.csmLayers.castShadowObjects;
                     for (let i = 0; i < castShadowObjects.length; i++) {

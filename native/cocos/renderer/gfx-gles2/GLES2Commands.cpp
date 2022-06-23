@@ -2549,6 +2549,31 @@ void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
     }
 }
 
+uint8_t *funcGLES2PixelBufferPick(const uint8_t *buffer, Format format, uint32_t offset, Extent stride, Extent extent) {
+    const auto blockHeight = formatAlignment(format).second;
+
+    const uint32_t bufferSize = formatSize(format, extent.width, extent.height, extent.depth);
+    const uint32_t rowStrideSize = formatSize(format, stride.width, 1, 1);
+    const uint32_t sliceStrideSize = formatSize(format, stride.width, stride.height, 1);
+    const uint32_t destRowSize = formatSize(format, extent.width, 1, 1);
+
+    uint8_t *stagingBuffer = GLES2Device::getInstance()->getStagingBuffer(bufferSize);
+
+    uint32_t bufferOffset = 0;
+    uint32_t destOffset = 0;
+
+    for (uint32_t i = 0; i < extent.depth; i++) {
+        bufferOffset = offset + sliceStrideSize * i;
+        for (uint32_t j = 0; j < extent.height; j += blockHeight) {
+            memcpy(stagingBuffer + destOffset, buffer + bufferOffset, destRowSize);
+            destOffset += destRowSize;
+            bufferOffset += rowStrideSize;
+        }
+    }
+
+    return stagingBuffer;
+}
+
 void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const *buffers,
                                       GLES2GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint32_t count) {
     GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
@@ -2560,31 +2585,50 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
     bool isCompressed = GFX_FORMAT_INFOS[static_cast<int>(gpuTexture->format)].isCompressed;
     uint32_t n = 0;
 
+    const auto blockSize = formatAlignment(gpuTexture->format);
+
+    uint32_t destWidth = 0;
+    uint32_t destHeight = 0;
+
     switch (gpuTexture->glTarget) {
         case GL_TEXTURE_2D: {
-            uint32_t w;
-            uint32_t h;
+            Extent extent{};
+            Offset offset{};
+            Extent stride{};
             for (size_t i = 0; i < count; ++i) {
                 const BufferTextureCopy &region = regions[i];
-                w = region.texExtent.width;
-                h = region.texExtent.height;
-                const uint8_t *buff = buffers[n++];
+
+                offset.x = region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first));
+                offset.y = region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second));
+                extent.width = region.texExtent.width < blockSize.first ? region.texExtent.width : utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first));
+                extent.height = region.texExtent.height < blockSize.second ? region.texExtent.height : utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second));
+                stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
+                stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+                destWidth = region.texExtent.width + offset.x == gpuTexture->width ? region.texExtent.width : extent.width;
+                destHeight = region.texExtent.height + offset.y == gpuTexture->height ? region.texExtent.height : extent.height;
+
+                const uint8_t *buff;
+                if (stride.width == extent.width && stride.height == extent.height) {
+                    buff = buffers[n++] + region.buffOffset;
+                } else {
+                    buff = funcGLES2PixelBufferPick(buffers[n++], gpuTexture->format, region.buffOffset, stride, extent);
+                }
+
                 if (isCompressed) {
-                    auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
+                    auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, extent.width, extent.height, 1));
                     GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D,
                                                        region.texSubres.mipLevel,
-                                                       region.texOffset.x,
-                                                       region.texOffset.y,
-                                                       w, h,
+                                                       offset.x, offset.y,
+                                                       destWidth, destHeight,
                                                        gpuTexture->glFormat,
                                                        memSize,
                                                        (GLvoid *)buff));
                 } else {
                     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D,
                                              region.texSubres.mipLevel,
-                                             region.texOffset.x,
-                                             region.texOffset.y,
-                                             w, h,
+                                             offset.x, offset.y,
+                                             destWidth, destHeight,
                                              gpuTexture->glFormat,
                                              gpuTexture->glType,
                                              (GLvoid *)buff));
@@ -2593,34 +2637,49 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
             break;
         }
         case GL_TEXTURE_2D_ARRAY: {
-            uint32_t w;
-            uint32_t h;
+            Extent extent{};
+            Offset offset{};
+            Extent stride{};
             for (size_t i = 0; i < count; ++i) {
                 const BufferTextureCopy &region = regions[i];
                 uint32_t d = region.texSubres.layerCount;
                 uint32_t layerCount = d + region.texSubres.baseArrayLayer;
 
+                offset.x = region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first));
+                offset.y = region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second));
+                extent.width = region.texExtent.width < blockSize.first ? region.texExtent.width : utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first));
+                extent.height = region.texExtent.height < blockSize.second ? region.texExtent.height : utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second));
+                extent.depth = 1; // 1 slice/loop
+                stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
+                stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+                destWidth = region.texExtent.width + offset.x == gpuTexture->width ? region.texExtent.width : extent.width;
+                destHeight = region.texExtent.height + offset.y == gpuTexture->height ? region.texExtent.height : extent.height;
+
                 for (uint32_t z = region.texSubres.baseArrayLayer; z < layerCount; ++z) {
-                    w = region.texExtent.width;
-                    h = region.texExtent.height;
-                    const uint8_t *buff = buffers[n++];
+                    offset.z = z;
+
+                    const uint8_t *buff;
+                    if (stride.width == extent.width && stride.height == extent.height) {
+                        buff = buffers[n++] + region.buffOffset;
+                    } else {
+                        buff = funcGLES2PixelBufferPick(buffers[n++], gpuTexture->format, region.buffOffset, stride, extent);
+                    }
+
                     if (isCompressed) {
-                        auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
+                        auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, extent.width, extent.height, 1));
                         GL_CHECK(glCompressedTexSubImage3DOES(GL_TEXTURE_2D_ARRAY,
                                                               region.texSubres.mipLevel,
-                                                              region.texOffset.x,
-                                                              region.texOffset.y, z,
-                                                              w, h, d,
+                                                              offset.x, offset.y, offset.z,
+                                                              destWidth, destHeight, extent.depth,
                                                               gpuTexture->glFormat,
                                                               memSize,
                                                               (GLvoid *)buff));
                     } else {
                         GL_CHECK(glTexSubImage3DOES(GL_TEXTURE_2D_ARRAY,
                                                     region.texSubres.mipLevel,
-                                                    region.texOffset.x,
-                                                    region.texOffset.y,
-                                                    z,
-                                                    w, h, d,
+                                                    offset.x, offset.y, offset.z,
+                                                    destWidth, destHeight, extent.depth,
                                                     gpuTexture->glFormat,
                                                     gpuTexture->glType,
                                                     (GLvoid *)buff));
@@ -2630,33 +2689,44 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
             break;
         }
         case GL_TEXTURE_3D: {
-            uint32_t w;
-            uint32_t h;
-            uint32_t d;
+            Extent extent{};
+            Offset offset{};
+            Extent stride{};
             for (size_t i = 0; i < count; ++i) {
                 const BufferTextureCopy &region = regions[i];
-                w = region.texExtent.width;
-                h = region.texExtent.height;
-                d = region.texExtent.depth;
-                const uint8_t *buff = buffers[n++];
+
+                offset.x = region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first));
+                offset.y = region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second));
+                offset.z = region.texOffset.z;
+                extent.width = region.texExtent.width < blockSize.first ? region.texExtent.width : utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first));
+                extent.height = region.texExtent.height < blockSize.second ? region.texExtent.height : utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second));
+                extent.depth = region.texExtent.depth;
+                stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
+                stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+                destWidth = region.texExtent.width + offset.x == gpuTexture->width ? region.texExtent.width : extent.width;
+                destHeight = region.texExtent.height + offset.y == gpuTexture->height ? region.texExtent.height : extent.height;
+
+                const uint8_t *buff;
+                if (stride.width == extent.width && stride.height == extent.height) {
+                    buff = buffers[n++] + region.buffOffset;
+                } else {
+                    buff = funcGLES2PixelBufferPick(buffers[n++], gpuTexture->format, region.buffOffset, stride, extent);
+                }
                 if (isCompressed) {
-                    auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
+                    auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, extent.width, extent.height, extent.depth));
                     GL_CHECK(glCompressedTexSubImage3DOES(GL_TEXTURE_3D,
                                                           region.texSubres.mipLevel,
-                                                          region.texOffset.x,
-                                                          region.texOffset.y,
-                                                          region.texOffset.z,
-                                                          w, h, d,
+                                                          offset.x, offset.y, offset.z,
+                                                          destWidth, destHeight, extent.depth,
                                                           gpuTexture->glFormat,
                                                           memSize,
                                                           (GLvoid *)buff));
                 } else {
                     GL_CHECK(glTexSubImage3DOES(GL_TEXTURE_3D,
                                                 region.texSubres.mipLevel,
-                                                region.texOffset.x,
-                                                region.texOffset.y,
-                                                region.texOffset.z,
-                                                w, h, d,
+                                                offset.x, offset.y, offset.z,
+                                                destWidth, destHeight, extent.depth,
                                                 gpuTexture->glFormat,
                                                 gpuTexture->glType,
                                                 (GLvoid *)buff));
@@ -2665,31 +2735,45 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
             break;
         }
         case GL_TEXTURE_CUBE_MAP: {
-            uint32_t w;
-            uint32_t h;
-            uint32_t f;
+            Extent extent{};
+            Offset offset{};
+            Extent stride{};
             for (size_t i = 0; i < count; ++i) {
                 const BufferTextureCopy &region = regions[i];
+
+                offset.x = region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first));
+                offset.y = region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second));
+                extent.width = region.texExtent.width < blockSize.first ? region.texExtent.width : utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first));
+                extent.height = region.texExtent.height < blockSize.second ? region.texExtent.height : utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second));
+                stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
+                stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+                destWidth = region.texExtent.width + offset.x == gpuTexture->width ? region.texExtent.width : extent.width;
+                destHeight = region.texExtent.height + offset.y == gpuTexture->height ? region.texExtent.height : extent.height;
+
                 uint32_t faceCount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
-                for (f = region.texSubres.baseArrayLayer; f < faceCount; ++f) {
-                    w = region.texExtent.width;
-                    h = region.texExtent.height;
-                    const uint8_t *buff = buffers[n++];
+                for (uint32_t f = region.texSubres.baseArrayLayer; f < faceCount; ++f) {
+                    const uint8_t *buff;
+                    if (stride.width == extent.width && stride.height == extent.height) {
+                        buff = buffers[n++] + region.buffOffset;
+                    } else {
+                        buff = funcGLES2PixelBufferPick(buffers[n++], gpuTexture->format, region.buffOffset, stride, extent);
+                    }
+
                     if (isCompressed) {
-                        auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
+                        auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, extent.width, extent.height, 1));
                         GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,
                                                            region.texSubres.mipLevel,
-                                                           region.texOffset.x,
-                                                           region.texOffset.y,
-                                                           w, h,
+                                                           offset.x, offset.y,
+                                                           destWidth, destHeight,
                                                            gpuTexture->glFormat,
                                                            memSize,
                                                            (GLvoid *)buff));
                     } else {
                         GL_CHECK(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,
                                                  region.texSubres.mipLevel,
-                                                 region.texOffset.x, region.texOffset.y,
-                                                 w, h,
+                                                 offset.x, offset.y,
+                                                 destWidth, destHeight,
                                                  gpuTexture->glFormat,
                                                  gpuTexture->glType,
                                                  (GLvoid *)buff));

@@ -218,6 +218,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 void GLES2Device::doDestroy() {
     _gpuBlitManager->destroy();
 
+    CC_SAFE_DELETE(_stagingBuffer);
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)
     CC_SAFE_DELETE(_gpuFramebufferHub)

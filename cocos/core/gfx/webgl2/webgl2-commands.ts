@@ -30,6 +30,11 @@ import {
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
     Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
     UniformSamplerTexture,
+    alignTo,
+    Extent,
+    formatAlignment,
+    getTypedArrayConstructor,
+    Offset,
 } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -2625,6 +2630,41 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     }
 }
 
+let stagingBuffer = new Uint8Array(1);
+function pixelBufferPick (buffer: ArrayBufferView,
+    format: Format,
+    offset: number,
+    stride: Extent,
+    extent: Extent): ArrayBufferView {
+    const blockHeight = formatAlignment(format).height;
+
+    const bufferSize = FormatSize(format, extent.width, extent.height, extent.depth);
+    const rowStrideSize = FormatSize(format, stride.width, 1, 1);
+    const sliceStrideSize = FormatSize(format, stride.width, stride.height, 1);
+    const destRowSize = FormatSize(format, extent.width, 1, 1);
+
+    const ArrayBufferCtor: TypedArrayConstructor = getTypedArrayConstructor(FormatInfos[format]);
+
+    if (stagingBuffer.byteLength < bufferSize) {
+        stagingBuffer = new Uint8Array(bufferSize);
+    }
+
+    let destOffset = 0;
+    let bufferOffset = offset;
+
+    for (let i = 0; i < extent.depth; i++) {
+        bufferOffset = offset + sliceStrideSize * i;
+        for (let j = 0; j < extent.height; j += blockHeight) {
+            stagingBuffer.subarray(destOffset, destOffset + destRowSize).set(
+                new Uint8Array(buffer.buffer, buffer.byteOffset + bufferOffset, destRowSize),
+            );
+            destOffset += destRowSize;
+            bufferOffset += rowStrideSize;
+        }
+    }
+    return new ArrayBufferCtor(stagingBuffer.buffer);
+}
+
 export function WebGL2CmdFuncCopyBuffersToTexture (
     device: WebGL2Device,
     buffers: Readonly<ArrayBufferView[]>,
@@ -2639,30 +2679,154 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     }
 
     let n = 0;
-    let w = 1;
-    let h = 1;
     let f = 0;
     const fmtInfo: FormatInfo = FormatInfos[gpuTexture.format];
+    const ArrayBufferCtor: TypedArrayConstructor = getTypedArrayConstructor(fmtInfo);
     const { isCompressed } = fmtInfo;
+
+    const blockSize = formatAlignment(gpuTexture.format);
+
+    const extent: Extent = new Extent();
+    const offset: Offset = new Offset();
+    const stride: Extent = new Extent();
 
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
-            w = region.texExtent.width;
-            h = region.texExtent.height;
-            const pixels = buffers[n++];
+
+            offset.x =  region.texOffset.x === 0 ? 0 : alignTo(region.texOffset.x, blockSize.width);
+            offset.y =  region.texOffset.y === 0 ? 0 : alignTo(region.texOffset.y, blockSize.height);
+            extent.width = region.texExtent.width < blockSize.width ? region.texExtent.width : alignTo(region.texExtent.width, blockSize.width);
+            extent.height = region.texExtent.height < blockSize.height ? region.texExtent.width
+                : alignTo(region.texExtent.height, blockSize.height);
+            stride.width = region.buffStride > 0 ?  region.buffStride : extent.width;
+            stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+            const destWidth  = region.texExtent.width + offset.x === gpuTexture.width ? region.texExtent.width : extent.width;
+            const destHeight = region.texExtent.height + offset.y === gpuTexture.height ? region.texExtent.height : extent.height;
+
+            let pixels: ArrayBufferView;
+            const buffer = buffers[n++];
+            if (stride.width === extent.width && stride.height === extent.height) {
+                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+            } else {
+                pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
+            }
+
             if (!isCompressed) {
                 gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                    region.texOffset.x, region.texOffset.y, w, h,
-                    gpuTexture.glFormat, gpuTexture.glType, pixels);
+                    offset.x, offset.y,
+                    destWidth, destHeight,
+                    gpuTexture.glFormat, gpuTexture.glType,
+                    pixels);
             } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL) {
                 gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                    region.texOffset.x, region.texOffset.y, w, h,
-                    gpuTexture.glFormat, pixels);
+                    offset.x, offset.y,
+                    destWidth, destHeight,
+                    gpuTexture.glFormat,
+                    pixels);
             } else { // WEBGL_compressed_texture_etc1
                 gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                    gpuTexture.glInternalFmt, w, h, 0, pixels);
+                    gpuTexture.glInternalFmt,
+                    destWidth, destHeight, 0,
+                    pixels);
+            }
+        }
+        break;
+    }
+    case gl.TEXTURE_2D_ARRAY: {
+        for (let k = 0; k < regions.length; k++) {
+            const region = regions[k];
+
+            offset.x =  region.texOffset.x === 0 ? 0 : alignTo(region.texOffset.x, blockSize.width);
+            offset.y =  region.texOffset.y === 0 ? 0 : alignTo(region.texOffset.y, blockSize.height);
+            extent.width = region.texExtent.width < blockSize.width ? region.texExtent.width : alignTo(region.texExtent.width, blockSize.width);
+            extent.height = region.texExtent.height < blockSize.height ? region.texExtent.width
+                : alignTo(region.texExtent.height, blockSize.height);
+            extent.depth = 1;
+            stride.width = region.buffStride > 0 ?  region.buffStride : extent.width;
+            stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+            const destWidth  = region.texExtent.width + offset.x === gpuTexture.width ? region.texExtent.width : extent.width;
+            const destHeight = region.texExtent.height + offset.y === gpuTexture.height ? region.texExtent.height : extent.height;
+
+            const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+            for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+                offset.z = f;
+
+                let pixels: ArrayBufferView;
+                const buffer = buffers[n++];
+                if (stride.width === extent.width && stride.height === extent.height) {
+                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+                } else {
+                    pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
+                }
+
+                if (!isCompressed) {
+                    gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, region.texSubres.mipLevel,
+                        offset.x, offset.y, offset.z,
+                        destWidth, destHeight, extent.depth,
+                        gpuTexture.glFormat, gpuTexture.glType,
+                        pixels);
+                } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                    gl.compressedTexSubImage3D(gl.TEXTURE_2D_ARRAY, region.texSubres.mipLevel,
+                        offset.x, offset.y, offset.z,
+                        destWidth, destHeight, extent.depth,
+                        gpuTexture.glFormat,
+                        pixels);
+                } else { // WEBGL_compressed_texture_etc1
+                    gl.compressedTexImage3D(gl.TEXTURE_2D_ARRAY, region.texSubres.mipLevel,
+                        gpuTexture.glInternalFmt,
+                        destWidth, destHeight, extent.depth, 0,
+                        pixels);
+                }
+            }
+        }
+        break;
+    }
+    case gl.TEXTURE_3D: {
+        for (let k = 0; k < regions.length; k++) {
+            const region = regions[k];
+
+            offset.x = region.texOffset.x === 0 ? 0 : alignTo(region.texOffset.x, blockSize.width);
+            offset.y = region.texOffset.y === 0 ? 0 : alignTo(region.texOffset.y, blockSize.height);
+            offset.z = region.texOffset.z;
+            extent.width = region.texExtent.width < blockSize.width ? region.texExtent.width : alignTo(region.texExtent.width, blockSize.width);
+            extent.height = region.texExtent.height < blockSize.height ? region.texExtent.width
+                : alignTo(region.texExtent.height, blockSize.height);
+            extent.depth = region.texExtent.depth;
+            stride.width = region.buffStride > 0 ?  region.buffStride : extent.width;
+            stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+            const destWidth  = region.texExtent.width + offset.x === gpuTexture.width ? region.texExtent.width : extent.width;
+            const destHeight = region.texExtent.height + offset.y === gpuTexture.height ? region.texExtent.height : extent.height;
+
+            let pixels: ArrayBufferView;
+            const buffer = buffers[n++];
+            if (stride.width === extent.width && stride.height === extent.height) {
+                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+            } else {
+                pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
+            }
+
+            if (!isCompressed) {
+                gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, region.texSubres.mipLevel,
+                    offset.x, offset.y, offset.z,
+                    destWidth, destHeight, extent.depth,
+                    gpuTexture.glFormat, gpuTexture.glType,
+                    pixels);
+            } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                gl.compressedTexSubImage3D(gl.TEXTURE_2D_ARRAY, region.texSubres.mipLevel,
+                    offset.x, offset.y, offset.z,
+                    destWidth, destHeight, extent.depth,
+                    gpuTexture.glFormat,
+                    pixels);
+            } else { // WEBGL_compressed_texture_etc1
+                gl.compressedTexImage3D(gl.TEXTURE_2D_ARRAY, region.texSubres.mipLevel,
+                    gpuTexture.glInternalFmt,
+                    destWidth, destHeight, extent.depth, 0,
+                    pixels);
             }
         }
         break;
@@ -2670,24 +2834,45 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     case gl.TEXTURE_CUBE_MAP: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
+
+            offset.x =  region.texOffset.x === 0 ? 0 : alignTo(region.texOffset.x, blockSize.width);
+            offset.y =  region.texOffset.y === 0 ? 0 : alignTo(region.texOffset.y, blockSize.height);
+            extent.width = region.texExtent.width < blockSize.width ? region.texExtent.width : alignTo(region.texExtent.width, blockSize.width);
+            extent.height = region.texExtent.height < blockSize.height ? region.texExtent.width
+                : alignTo(region.texExtent.height, blockSize.height);
+            stride.width = region.buffStride > 0 ?  region.buffStride : extent.width;
+            stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+            const destWidth  = region.texExtent.width + offset.x === gpuTexture.width ? region.texExtent.width : extent.width;
+            const destHeight = region.texExtent.height + offset.y === gpuTexture.height ? region.texExtent.height : extent.height;
+
             const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
             for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                w = region.texExtent.width;
-                h = region.texExtent.height;
-
-                const pixels = buffers[n++];
+                let pixels: ArrayBufferView;
+                const buffer = buffers[n++];
+                if (stride.width === extent.width && stride.height === extent.height) {
+                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+                } else {
+                    pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
+                }
 
                 if (!isCompressed) {
                     gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                        region.texOffset.x, region.texOffset.y, w, h,
-                        gpuTexture.glFormat, gpuTexture.glType, pixels);
+                        offset.x, offset.y,
+                        destWidth, destHeight,
+                        gpuTexture.glFormat, gpuTexture.glType,
+                        pixels);
                 } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL) {
                     gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                        region.texOffset.x, region.texOffset.y, w, h,
-                        gpuTexture.glFormat, pixels);
+                        offset.x, offset.y,
+                        destWidth, destHeight,
+                        gpuTexture.glFormat,
+                        pixels);
                 } else { // WEBGL_compressed_texture_etc1
                     gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                        gpuTexture.glInternalFmt, w, h, 0, pixels);
+                        gpuTexture.glInternalFmt,
+                        destWidth, destHeight, 0,
+                        pixels);
                 }
             }
         }

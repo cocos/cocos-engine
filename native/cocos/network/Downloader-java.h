@@ -28,7 +28,7 @@
 
 #include "network/DownloaderImpl.h"
 
-class _jobject;
+class _jobject; // NOLINT(bugprone-reserved-identifier)
 
 namespace cc {
 namespace network {
@@ -45,7 +45,7 @@ public:
     void abort(const std::unique_ptr<IDownloadTask> &task) override;
 
     // designed called by internal
-    void onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal);
+    void onProcessImpl(int taskId, uint32_t dl, uint32_t dlNow, uint32_t dlTotal);
     void onFinishImpl(int taskId, int errCode, const char *errStr, const ccstd::vector<unsigned char> &data);
 
 protected:

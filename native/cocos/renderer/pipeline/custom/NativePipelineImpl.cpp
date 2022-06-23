@@ -494,6 +494,31 @@ void NativePipeline::setShadingScale(float scale) {
     pipelineSceneData->setShadingScale(scale);
 }
 
+const ccstd::string& NativePipeline::getMacroString(const ccstd::string& name) const {
+    static const ccstd::string EMPTY_STRING;
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return EMPTY_STRING;
+    }
+    return ccstd::get<ccstd::string>(iter->second);
+}
+
+int32_t NativePipeline::getMacroInt(const ccstd::string& name) const {
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return 0;
+    }
+    return ccstd::get<int32_t>(iter->second);
+}
+
+bool NativePipeline::getMacroBool(const ccstd::string& name) const {
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return false;
+    }
+    return ccstd::get<bool>(iter->second);
+}
+
 void NativePipeline::setMacroString(const ccstd::string& name, const ccstd::string& value) {
     macros[name] = value;
 }

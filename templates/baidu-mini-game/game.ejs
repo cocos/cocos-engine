@@ -1,3 +1,4 @@
+globalThis.__baiduRequire = require;  // FIX: require implementation in browserify conflicts with baidu webpack
 require('./web-adapter');
 
 <% if(polyfillsBundleFile) { %>

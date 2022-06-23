@@ -385,7 +385,7 @@ void GLES3CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
         // current cmd allocator strategy will not work here: (but it doesn't matter anyways)
         // allocators are designed to only free the cmds they allocated
         // but here we are essentially 'transfering' the owner ship
-        //cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+        // cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
     }
 }
 
@@ -430,7 +430,7 @@ void GLES3CommandBuffer::dispatch(const DispatchInfo &info) {
     _curCmdPackage->cmds.push(GLESCmdType::DISPATCH);
 }
 
-void GLES3CommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
+void GLES3CommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const * /*bufferBarriers*/, const Buffer *const * /*buffers*/, uint32_t /*bufferCount*/, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
     if (!barrier) return;
 
     const auto *gpuBarrier = static_cast<const GLES3GeneralBarrier *>(barrier)->gpuBarrier();

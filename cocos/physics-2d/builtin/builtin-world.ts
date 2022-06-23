@@ -10,6 +10,7 @@ import { BuiltinPolygonShape } from './shapes/polygon-shape-2d';
 import { EPhysics2DDrawFlags, Contact2DType, ERaycast2DType, RaycastResult2D } from '../framework/physics-types';
 import { PhysicsSystem2D, Collider2D } from '../framework';
 import { BuiltinContact } from './builtin-contact';
+import { legacyCC } from '../../core/global-exports';
 
 const contactResults: BuiltinContact[] = [];
 const testIntersectResults: Collider2D[] = [];
@@ -167,7 +168,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     private _checkDebugDrawValid () {
-        if (EDITOR) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {

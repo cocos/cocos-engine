@@ -223,7 +223,7 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(read
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (const cc::network::DownloadTask &, long long, long long, long long)>, true> arg0 = {};
+        HolderType<std::function<void (const cc::network::DownloadTask &, unsigned int, unsigned int, unsigned int)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
@@ -231,7 +231,7 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(read
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto * thisObj = s.thisObject();
-                auto lambda = [=](const cc::network::DownloadTask & larg0, int64_t larg1, int64_t larg2, int64_t larg3) -> void {
+                auto lambda = [=](const cc::network::DownloadTask & larg0, unsigned int larg1, unsigned int larg2, unsigned int larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         

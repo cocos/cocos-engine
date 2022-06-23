@@ -40,6 +40,7 @@ import { Shader } from './base/shader';
 import { Texture } from './base/texture';
 import { GeneralBarrier } from './base/states/general-barrier';
 import { TextureBarrier } from './base/states/texture-barrier';
+import { BufferBarrier } from './base/states/buffer-barrier';
 import { legacyCC } from '../global-exports';
 import * as defines from './base/define';
 
@@ -61,6 +62,7 @@ const polyfills: Record<string, unknown> = {
     Queue,
     GeneralBarrier,
     TextureBarrier,
+    BufferBarrier,
 
     RasterizerState,
     BlendState,

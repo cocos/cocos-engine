@@ -137,8 +137,9 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @readOnly
      */
     @editable
-    get children () {
-        return this._children;
+    get children (): Node[] {
+        // @ts-expect-error force cast
+        return this._children as Node[];
     }
 
     /**
@@ -239,8 +240,9 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     protected static _findComponent<T extends Component> (node: BaseNode, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
-        const cls = constructor as any;
+        const cls = constructor;
         const comps = node._components;
+        // @ts-expect-error internal rtti property
         if (cls._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
@@ -260,8 +262,9 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     protected static _findComponents<T extends Component> (node: BaseNode, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
-        const cls = constructor as any;
+        const cls = constructor;
         const comps = node._components;
+        // @ts-expect-error internal rtti property
         if (cls._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
@@ -478,7 +481,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param uuid - The uuid to find the child node.
      * @return a Node whose uuid equals to the input parameter
      */
-    public getChildByUuid (uuid: string) {
+    public getChildByUuid (uuid: string): Node | null {
         if (!uuid) {
             log('Invalid uuid');
             return null;
@@ -487,7 +490,8 @@ export class BaseNode extends CCObject implements ISchedulable {
         const locChildren = this._children;
         for (let i = 0, len = locChildren.length; i < len; i++) {
             if (locChildren[i]._id === uuid) {
-                return locChildren[i];
+                // @ts-expect-error force cast
+                return locChildren[i] as Node;
             }
         }
         return null;
@@ -503,7 +507,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * var child = node.getChildByName("Test Node");
      * ```
      */
-    public getChildByName (name: string) {
+    public getChildByName (name: string): Node | null {
         if (!name) {
             log('Invalid name');
             return null;
@@ -512,7 +516,8 @@ export class BaseNode extends CCObject implements ISchedulable {
         const locChildren = this._children;
         for (let i = 0, len = locChildren.length; i < len; i++) {
             if (locChildren[i]._name === name) {
-                return locChildren[i];
+                // @ts-expect-error force cast
+                return locChildren[i] as Node;
             }
         }
         return null;
@@ -528,10 +533,10 @@ export class BaseNode extends CCObject implements ISchedulable {
      * var child = node.getChildByPath("subNode/Test Node");
      * ```
      */
-    public getChildByPath (path: string) {
+    public getChildByPath (path: string): Node | null {
         const segments = path.split('/');
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let lastNode: this = this;
+        let lastNode: BaseNode = this;
         for (let i = 0; i < segments.length; ++i) {
             const segment = segments[i];
             if (segment.length === 0) {
@@ -543,7 +548,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             lastNode = next;
         }
-        return lastNode;
+        return lastNode as Node;
     }
 
     /**
@@ -551,8 +556,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 添加一个子节点。
      * @param child - the child node to be added
      */
-    public addChild (child: this | Node): void {
-        (child as this).setParent(this);
+    public addChild (child: Node): void {
+        (child as BaseNode).setParent(this);
     }
 
     /**
@@ -565,8 +570,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.insertChild(child, 2);
      * ```
      */
-    public insertChild (child: this | Node, siblingIndex: number) {
-        child.parent = this;
+    public insertChild (child: Node, siblingIndex: number) {
+        (child as BaseNode).setParent(this);
         child.setSiblingIndex(siblingIndex);
     }
 
@@ -1284,7 +1289,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (this._parent) {
-            this._siblingIndex = this._parent.children.indexOf(this);
+            this._siblingIndex = this._parent._children.indexOf(this);
         }
     }
 

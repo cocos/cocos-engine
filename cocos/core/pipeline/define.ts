@@ -72,6 +72,7 @@ export interface IRenderObject {
  * @zh 渲染过程接口。
  */
 export interface IRenderPass {
+    priority: number;
     hash: number;
     depth: number;
     shaderId: number;

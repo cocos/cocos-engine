@@ -1,6 +1,6 @@
-import { Node, Scene } from "../../cocos/core/scene-graph"
+import { find, Node, Scene } from "../../cocos/core/scene-graph"
 import { Mat4, Quat, Vec3 } from "../../cocos/core/math"
-import { Component, director, game } from "../../cocos/core";
+import { CCObject, Component, director, game } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
 import { ccclass } from "../../cocos/core/data/decorators";
@@ -226,4 +226,34 @@ describe(`Node`, () => {
         const testComp = node.addComponent(TestComponent);
         expect(node.getComponent(BaseComponent)).toBe(testComp);
     });
+
+    test('persist node', () => {
+        const sceneA = new Scene('A');
+        director.runSceneImmediate(sceneA);
+        const nodeA = new Node('test a');
+        sceneA.addChild(nodeA);
+        game.addPersistRootNode(nodeA);
+        const sceneB = new Scene('B');
+        director.runSceneImmediate(sceneB);
+        expect(find('test a')).toBe(nodeA);
+        expect(nodeA._persistNode).toBeTruthy();
+        expect(nodeA.hideFlags & CCObject.Flags.DontSave).toBeTruthy();
+
+        const nodeB = new Node('test b');
+        game.addPersistRootNode(nodeB);
+        expect(nodeB._persistNode).toBeFalsy();
+        expect(find('test b')).toBeFalsy();
+
+        const sceneC = new Scene('C');
+        // @ts-expect-error access priority
+        sceneC._id = sceneA.uuid;
+        const nodeC = new Node('test c');
+        // @ts-expect-error access priority
+        nodeC._id = nodeA.uuid;
+        sceneC.addChild(nodeC);
+        director.runSceneImmediate(sceneC);
+        expect(find('test c')).toBeFalsy();
+        expect(find('test a')).toBe(nodeA);
+        expect(nodeA.hideFlags & CCObject.Flags.DontSave).toBeFalsy();
+    })
 });
