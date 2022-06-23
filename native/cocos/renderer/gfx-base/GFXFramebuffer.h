@@ -51,7 +51,7 @@ protected:
     virtual void doInit(const FramebufferInfo &info) = 0;
     virtual void doDestroy() = 0;
 
-    IntrusivePtr<RenderPass> _renderPass;
+    RenderPass *_renderPass{nullptr};
     // To keep compatibility, so don't use IntrusivePtr.
     RefVector<Texture *> _colorTextures;
     IntrusivePtr<Texture> _depthStencilTexture;

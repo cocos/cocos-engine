@@ -91,16 +91,16 @@ void ShadowFlow::render(scene::Camera *camera) {
         return;
     }
 
+    if (shadowInfo->isShadowMapDirty()) {
+        resizeShadowMap();
+    }
+
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     const scene::DirectionalLight *mainLight = camera->getScene()->getMainLight();
     if (mainLight) {
         gfx::DescriptorSet *globalDS = _pipeline->getDescriptorSet();
         if (!shadowFramebufferMap.count(mainLight)) {
             initShadowFrameBuffer(_pipeline, mainLight);
-        } else {
-            if (shadowInfo->isShadowMapDirty()) {
-                resizeShadowMap(mainLight, globalDS);
-            }
         }
 
         gfx::Framebuffer *shadowFrameBuffer = shadowFramebufferMap.at(mainLight);
@@ -119,17 +119,11 @@ void ShadowFlow::render(scene::Camera *camera) {
 
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
-        }else {
-            if (shadowInfo->isShadowMapDirty()) {
-                resizeShadowMap(light, globalDS);
-            }
         }
 
         gfx::Framebuffer *shadowFrameBuffer = shadowFramebufferMap.at(light);
         renderStage(globalDS, camera, light, shadowFrameBuffer);
     }
-
-    shadowInfo->setShadowMapDirty(false);
 }
 
 void ShadowFlow::renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level) {
@@ -190,63 +184,47 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds) {
+void ShadowFlow::resizeShadowMap() {
     const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getShadows();
+    auto *shadowInfo = sceneData->getShadows();
     auto *device = gfx::Device::getInstance();
     const auto width = static_cast<uint32_t>(shadowInfo->getSize().x);
     const auto height = static_cast<uint32_t>(shadowInfo->getSize().y);
     const auto format = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
-    gfx::Framebuffer *framebuffer = sceneData->getShadowFramebufferMap().at(light);
 
-    auto renderTargets = framebuffer->getColorTextures();
+    for (const auto &pair : sceneData->getShadowFramebufferMap()) {
+        gfx::Framebuffer *framebuffer = pair.second;
 
-    IntrusivePtr<gfx::Texture> texture = gfx::Device::getInstance()->createTexture({
-        gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        format,
-        width,
-        height,
-    });
-    for (auto *renderTarget : renderTargets) {
-        const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
-        _usedTextures.erase(iter);
+        auto renderTargets = framebuffer->getColorTextures();
+        renderTargets.clear();
+        IntrusivePtr<gfx::Texture> texture = gfx::Device::getInstance()->createTexture({
+            gfx::TextureType::TEX2D,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+            format,
+            width,
+            height,
+        });
+        renderTargets.emplace_back(texture);
+
+        IntrusivePtr<gfx::Texture> depth = device->createTexture({
+            gfx::TextureType::TEX2D,
+            gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+            gfx::Format::DEPTH,
+            width,
+            height,
+        });
+
+        framebuffer->destroy();
+        framebuffer->initialize({
+            _renderPass.get(),
+            renderTargets,
+            depth,
+        });
+
+        _usedTextures.emplace_back(std::move(texture));
     }
-    renderTargets.clear();
-    renderTargets.emplace_back(texture);
-    switch (light->getType()) {
-        case scene::LightType::DIRECTIONAL: {
-            ds->bindTexture(SHADOWMAP::BINDING, texture);
-        } break;
-        case scene::LightType::SPOT: {
-            ds->bindTexture(SPOTLIGHTINGMAP::BINDING, texture);
-        }break;
-        default:
-            break;
-    }
-    ds->forceUpdate();
-    _usedTextures.emplace_back(std::move(texture));
 
-    auto *uesedDetph = framebuffer->getDepthStencilTexture();
-    const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), uesedDetph);
-    _usedTextures.erase(iter);
-    IntrusivePtr<gfx::Texture> depth = device->createTexture({
-        gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
-        gfx::Format::DEPTH,
-        width,
-        height,
-    });
-    framebuffer->destroy();
-    framebuffer->initialize({
-        _renderPass,
-        renderTargets,
-        depth.get(),
-    });
-    _usedTextures.emplace_back(std::move(depth));
-
-    // sometimes there has equivalent pointers from createTetxure function, so we need force update descriptor set binding here
-    ds->forceUpdate();
+    shadowInfo->setShadowMapDirty(false);
 }
 
 void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light) {
@@ -296,39 +274,37 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
     }
 
     ccstd::vector<gfx::Texture *> renderTargets;
-    renderTargets.emplace_back(device->createTexture({
+    IntrusivePtr<gfx::Texture> texture = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         format,
         width,
         height,
-    }));
-    for (auto *renderTarget : renderTargets) {
-        _usedTextures.emplace_back(renderTarget);
-    }
+    });
+    renderTargets.emplace_back(texture);
 
-    gfx::Texture *depth = device->createTexture({
+    IntrusivePtr<gfx::Texture> depth = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         gfx::Format::DEPTH,
         width,
         height,
     });
-    _usedTextures.emplace_back(depth);
 
     gfx::Framebuffer *framebuffer = device->createFramebuffer({
-        _renderPass,
+        _renderPass.get(),
         renderTargets,
         depth,
     });
 
+    _usedTextures.emplace_back(std::move(texture));
     pipeline->getPipelineSceneData()->setShadowFramebuffer(light, framebuffer);
 }
 
 void ShadowFlow::destroy() {
     _renderPass = nullptr;
-    for (const auto &rpPair : renderPassHashMap) {
-        delete rpPair.second;
+    for (auto &rpPair : renderPassHashMap) {
+        rpPair.second = nullptr;
     }
     renderPassHashMap.clear();
 

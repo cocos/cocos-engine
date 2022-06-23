@@ -54,13 +54,13 @@ private:
 
     void clearShadowMap(scene::Camera *camera);
 
-    void resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds);
+    void resizeShadowMap();
 
     void initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light);
 
     static RenderFlowInfo initInfo;
 
-    gfx::RenderPass *_renderPass = nullptr;
+    IntrusivePtr<gfx::RenderPass> _renderPass{nullptr};
 
     ccstd::vector<const scene::Light *> _validLights;
     ccstd::vector<IntrusivePtr<gfx::Texture>> _usedTextures;
