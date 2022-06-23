@@ -32,20 +32,30 @@ export interface IAndroidParams {
 export class AndroidPackTool extends NativePackTool {
     params!: CocosParams<IAndroidParams>;
 
+    /**
+     *  [engine]templates/android
+     */
+    get androidNativeTmpDirInCocos() {
+        return ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform);
+    }
+
     protected async copyPlatformTemplate() {
-        // 原生工程不重复拷贝 TODO 复用前需要做版本检测
         if (!fs.existsSync(this.paths.nativePrjDir)) {
             // 拷贝 lite 仓库的 templates/android/build 文件到构建输出目录
-            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'build'), this.paths.nativePrjDir, { overwrite: false });
+            await fs.copy(ps.join(this.androidNativeTmpDirInCocos, 'build'), this.paths.nativePrjDir, { overwrite: false });
         }
-        // 原生工程不重复拷贝 TODO 复用前需要做版本检测
-        if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
+        if (!fs.existsSync(this.paths.platformTemplateDirInPrj) || this.expectAndroidCMakeLists()) {
             // 拷贝 lite 仓库的 templates/android/template 文件到构建输出目录
-            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
+            await fs.copy(ps.join(this.androidNativeTmpDirInCocos, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
             this.writeEngineVersion();
         } else {
             this.validateNativeDir();
         }
+    }
+
+    private expectAndroidCMakeLists() {
+        return fs.existsSync(ps.join(this.androidNativeTmpDirInCocos, 'template', 'CMakeLists.txt')) 
+        && !fs.existsSync(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'));
     }
 
     protected validatePlatformDirectory(missing: string[]): void {

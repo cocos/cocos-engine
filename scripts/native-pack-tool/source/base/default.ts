@@ -345,8 +345,13 @@ export abstract class NativePackTool {
         }
     }
 
+    private expectPlatformCMakeLists() {
+        return fs.existsSync(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'CMakeLists.txt'))
+            && !fs.existsSync(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'))
+    }
+
     protected async copyPlatformTemplate() {
-        if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
+        if (!fs.existsSync(this.paths.platformTemplateDirInPrj) || this.expectPlatformCMakeLists()) {
             // 拷贝 templates/平台/ 文件到 "native" 目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform), this.paths.platformTemplateDirInPrj, { overwrite: false });
             this.writeEngineVersion();
