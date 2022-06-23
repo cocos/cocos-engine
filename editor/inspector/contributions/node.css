@@ -59,7 +59,7 @@
     margin: 10px 0;
 }
 
-:host([sub-type='scene'][type="node"]) > .container > .scene {
+:host([type="node"][sub-type='scene']) > .container > .scene {
     display: block;
 }
 
