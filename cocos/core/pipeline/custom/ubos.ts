@@ -24,7 +24,8 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    supportsR32FloatTexture, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+    supportsR32FloatTexture, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
+} from '../define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../gfx';
 import { Camera } from '../../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../../math';
@@ -357,22 +358,24 @@ export class PipelineUBO {
         }
         case LightType.SPOT: {
             const spotLight = light as SpotLight;
-            Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
-            Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+            if (shadowInfo.enabled && spotLight && spotLight.shadowEnabled) {
+                Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
+                Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-            Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
+                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
 
-            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
-            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
+                _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
-            _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
-            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
+                _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
 
-            _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
-            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
+                _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
+            }
             break;
         }
         default:
@@ -479,7 +482,8 @@ export class PipelineUBO {
         cmdBuffer.updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0) {
+    public updateShadowUBOLight (light: Light, level = 0) {
+        const globalDS = this._pipeline.globalDSManager.globalDescriptorSet;
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, level);
         globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);

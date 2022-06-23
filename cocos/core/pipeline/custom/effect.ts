@@ -138,6 +138,5 @@ export function buildDeferredPipelineLayoutGraphData (device: Device): LayoutGra
     const lgData = new LayoutGraphData();
     const builder = new WebLayoutGraphBuilder(device, lgData);
     buildLayoutGraphDataImpl(lg, builder);
-    builder.compile();
     return lgData;
 }
