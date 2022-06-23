@@ -15,11 +15,16 @@ export type {
 
 export * from '../../cocos/core/animation/marionette/asset-creation';
 
-export { viewVariableBindings } from '../src/marionette';
+export { viewVariableBindings } from '../src/marionette/variable-binding';
+
+export type { VariableBindingView } from '../src/marionette/variable-binding';
 
 export {
     MotionPreviewer,
-    MotionPreviewerTimelineStats,
     TransitionPreviewer,
+} from '../src/marionette/preview';
+
+export type {
+    MotionPreviewerTimelineStats,
     TransitionPreviewerTimelineStats,
 } from '../src/marionette/preview';
