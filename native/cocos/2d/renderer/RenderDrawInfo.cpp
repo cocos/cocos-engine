@@ -11,6 +11,7 @@ RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
     this->_batcher = batcher;
 
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _seArrayBufferObject->root();
     _attrSharedBuffer = new ArrayBuffer();
     _attrSharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
 }
@@ -24,11 +25,13 @@ RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffs
     this->_batcher = nullptr;
 
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _seArrayBufferObject->root();
     _attrSharedBuffer = new ArrayBuffer();
-    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _attrSharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
+    _seArrayBufferObject->decRef();
 }
 
 void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
