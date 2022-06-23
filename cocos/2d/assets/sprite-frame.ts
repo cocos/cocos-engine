@@ -527,8 +527,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en mesh information, you should call the [[CheckAndCreateMesh]] function before using it
-     * @zh mesh 信息，你应该在使用它之前调用 [[CheckAndCreateMesh]] 函数来确保其可用
+     * @en mesh information, you should call the [[ensureMeshData]] function before using it
+     * @zh mesh 信息，你应该在使用它之前调用 [[ensureMeshData]] 函数来确保其可用
      */
     get mesh () {
         return this._mesh;
@@ -859,7 +859,7 @@ export class SpriteFrame extends Asset {
      * @en Make sure the mesh is available, you should call it before using the mesh
      * @zh 确保 mesh 可用，你应该在使用 mesh 之前调用它
      */
-    public CheckAndCreateMesh () {
+    public ensureMeshData () {
         if (this._mesh) return;
         // If SpriteFrame from load, we need init vertices when use mesh
         this._initVertices();
@@ -1402,7 +1402,7 @@ export class SpriteFrame extends Asset {
 
         this._checkPackable();
         if (this._mesh) {
-            this.updateMesh();
+            this._updateMesh();
         }
     }
 
@@ -1544,7 +1544,7 @@ export class SpriteFrame extends Asset {
         });
     }
 
-    protected updateMesh () {
+    protected _updateMesh () {
         if (this._mesh) {
             this._mesh.destroy();
         }

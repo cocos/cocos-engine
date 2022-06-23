@@ -65,7 +65,7 @@ export class SpriteRenderer extends ModelRenderer {
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
         if (this._spriteFrame) {
-            this._spriteFrame.CheckAndCreateMesh(); // Make sure the mesh is available, you should call it before using the mesh
+            this._spriteFrame.ensureMeshData(); // Make sure the mesh is available, you should call it before using the mesh
             const mesh = this._spriteFrame.mesh!;
             mesh.initialize();
         }
@@ -103,7 +103,7 @@ export class SpriteRenderer extends ModelRenderer {
     public onLoad () {
         if (this._spriteFrame) {
             if (!this._spriteFrame.mesh) {
-                this._spriteFrame.CheckAndCreateMesh();
+                this._spriteFrame.ensureMeshData();
             }
             this._spriteFrame.mesh!.initialize();
         }
@@ -170,7 +170,7 @@ export class SpriteRenderer extends ModelRenderer {
 
     protected _updateModelParams () {
         if (!this._spriteFrame || !this._model) { return; }
-        this._spriteFrame.CheckAndCreateMesh();
+        this._spriteFrame.ensureMeshData();
         const mesh = this._spriteFrame.mesh!;
         this.node.hasChangedFlags |= TransformBit.POSITION; // Same as model, Maybe a hack
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
