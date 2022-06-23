@@ -222,7 +222,7 @@ export class WebDescriptorHierarchy {
 
             for (let k = 0; k < shader.subpassInputs.length; ++k) {
                 const subpassInfo: EffectAsset.IInputAttachmentInfo = shader.subpassInputs[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                     ParameterType.TABLE, DescriptorTypeOrder.INPUT_ATTACHMENT, subpassInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, subpassInfo.name, Type.SUBPASS_INPUT);
             }
