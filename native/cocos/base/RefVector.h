@@ -222,9 +222,10 @@ public:
 
     // Can not return reference, or it can use like this
     // refVector[i] = val;
-    // Then, can not handle reference count:
+    // Then, reference count will be wrong. In order to correct reference count, should:
     // - dec refVector[i] reference count
     // - add `val` reference count.
+    // It is hard to use, so delete it.
     T &operator[](uint32_t idx) = delete;
     // As non const version is disabled, disable const version too.
     const T&operator[](uint32_t idx) const = delete;
