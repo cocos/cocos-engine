@@ -237,6 +237,25 @@ bool js_register_2d_UIMeshBuffer(se::Object* obj) // NOLINT(readability-identifi
 se::Object* __jsb_cc_RenderDrawInfo_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_RenderDrawInfo_class = nullptr;  // NOLINT
 
+static bool js_2d_RenderDrawInfo_getAttrSharedBufferForJS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getAttrSharedBufferForJS : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::ArrayBuffer& result = cobj->getAttrSharedBufferForJS();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_getAttrSharedBufferForJS : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS)
+
 static bool js_2d_RenderDrawInfo_getBlendHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1137,6 +1156,7 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("textureHash", _SE(js_2d_RenderDrawInfo_getTextureHash_asGetter), _SE(js_2d_RenderDrawInfo_setTextureHash_asSetter));
     cls->defineProperty("sampler", _SE(js_2d_RenderDrawInfo_getSampler_asGetter), _SE(js_2d_RenderDrawInfo_setSampler_asSetter));
     cls->defineProperty("blendHash", _SE(js_2d_RenderDrawInfo_getBlendHash_asGetter), _SE(js_2d_RenderDrawInfo_setBlendHash_asSetter));
+    cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
     cls->defineFunction("getDrawType", _SE(js_2d_RenderDrawInfo_getDrawType));
     cls->defineFunction("getEnabled", _SE(js_2d_RenderDrawInfo_getEnabled));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));

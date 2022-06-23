@@ -9,7 +9,7 @@ RenderEntity::RenderEntity(Batcher2d* batcher) {
     _batcher = batcher;
 
     for (uint32_t i = 0; i < RenderEntity::STATIC_DRAW_INFO_COUNT; i++) {
-        _staticDrawInfos[i] = RenderDrawInfo(_batcher);
+        _staticDrawInfos[i].setBatcher(_batcher);
     }
 }
 

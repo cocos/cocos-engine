@@ -8,25 +8,26 @@ import { Sampler, Texture } from '../../core/gfx';
 import { Batcher2D } from './batcher-2d';
 import IDGenerator from '../../core/utils/id-generator';
 
-export enum RenderDrawInfoSharedBufferView{
+export enum RenderDrawInfoSharedBufferView {
     enabled,
     count,
 }
 
 export class RenderDrawInfo {
-    public stencilStage:Stage = Stage.DISABLED;
+    public stencilStage: Stage = Stage.DISABLED;
 
     protected _enabled = true;
     get enabled () {
         return this._enabled;
     }
-    set enabled (val:boolean) {
+    set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
             this._sharedBuffer[RenderDrawInfoSharedBufferView.enabled] = val ? 1 : 0;
         }
     }
 
+    protected _batcher: Batcher2D | undefined;
     protected _bufferId: number | undefined;
     protected _vertexOffset: number | undefined;
     protected _indexOffset: number | undefined;
@@ -38,14 +39,14 @@ export class RenderDrawInfo {
     protected _vertDirty: boolean | undefined;
     protected _vbCount: number | undefined;
     protected _ibCount: number | undefined;
-    protected _dataHash :number |undefined;
-    protected _stencilStage :number |undefined;
-    protected _isMeshBuffer :boolean |undefined;
-    protected _material : Material|undefined;
+    protected _dataHash: number | undefined;
+    protected _stencilStage: number | undefined;
+    protected _isMeshBuffer: boolean | undefined;
+    protected _material: Material | undefined;
     protected _texture: Texture | undefined;
-    protected _textureHash :number |undefined;
-    protected _sampler :Sampler |undefined;
-    protected _blendHash :number |undefined;
+    protected _textureHash: number | undefined;
+    protected _sampler: Sampler | undefined;
+    protected _blendHash: number | undefined;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
 
@@ -59,7 +60,7 @@ export class RenderDrawInfo {
     protected _stride = 0;
     protected _drawType = 0;
 
-    constructor (batcher:Batcher2D, nativeDrawInfo?:NativeRenderDrawInfo) {
+    constructor (batcher: Batcher2D, nativeDrawInfo?: NativeRenderDrawInfo) {
         this.init(batcher, nativeDrawInfo);
     }
 
@@ -74,8 +75,9 @@ export class RenderDrawInfo {
         return this._render2dBuffer;
     }
 
-    private init (batcher:Batcher2D, nativeDrawInfo?:NativeRenderDrawInfo) {
+    private init (batcher: Batcher2D, nativeDrawInfo?: NativeRenderDrawInfo) {
         if (JSB) {
+            this._batcher = batcher;
             if (nativeDrawInfo) {
                 this._nativeObj = nativeDrawInfo;
             }
@@ -128,13 +130,13 @@ export class RenderDrawInfo {
         }
     }
 
-    public setVData (vDataBuffer:ArrayBufferLike) {
+    public setVData (vDataBuffer: ArrayBufferLike) {
         if (JSB) {
             this._nativeObj.vDataBuffer = vDataBuffer;
         }
     }
 
-    public setIData (iDataBuffer:ArrayBufferLike) {
+    public setIData (iDataBuffer: ArrayBufferLike) {
         if (JSB) {
             this._nativeObj.iDataBuffer = iDataBuffer;
         }
@@ -161,7 +163,7 @@ export class RenderDrawInfo {
         this._node = node;
     }
 
-    public setVertDirty (val:boolean) {
+    public setVertDirty (val: boolean) {
         if (JSB) {
             if (this._vertDirty !== val) {
                 this._nativeObj.vertDirty = val;
@@ -170,7 +172,7 @@ export class RenderDrawInfo {
         this._vertDirty = val;
     }
 
-    public setDataHash (dataHash:number) {
+    public setDataHash (dataHash: number) {
         if (JSB) {
             if (this._dataHash !== dataHash) {
                 this._nativeObj.dataHash = dataHash;
@@ -179,7 +181,7 @@ export class RenderDrawInfo {
         this._dataHash = dataHash;
     }
 
-    public setStencilStage (stencilStage:number) {
+    public setStencilStage (stencilStage: number) {
         if (JSB) {
             if (this._stencilStage !== stencilStage) {
                 this._nativeObj.stencilStage = stencilStage;
@@ -188,7 +190,7 @@ export class RenderDrawInfo {
         this._stencilStage = stencilStage;
     }
 
-    public setIsMeshBuffer (isMeshBuffer:boolean) {
+    public setIsMeshBuffer (isMeshBuffer: boolean) {
         if (JSB) {
             if (this._isMeshBuffer !== isMeshBuffer) {
                 this._nativeObj.isMeshBuffer = isMeshBuffer;
@@ -197,7 +199,7 @@ export class RenderDrawInfo {
         this._isMeshBuffer = isMeshBuffer;
     }
 
-    public setMaterial (material:Material) {
+    public setMaterial (material: Material) {
         if (JSB) {
             if (this._material !== material) {
                 this._nativeObj.material = material;
@@ -206,7 +208,7 @@ export class RenderDrawInfo {
         this._material = material;
     }
 
-    public setTexture (texture:Texture) {
+    public setTexture (texture: Texture) {
         if (JSB) {
             if (this._texture !== texture) {
                 this._nativeObj.texture = texture;
@@ -215,7 +217,7 @@ export class RenderDrawInfo {
         this._texture = texture;
     }
 
-    public setTextureHash (textureHash:number) {
+    public setTextureHash (textureHash: number) {
         if (JSB) {
             if (this._textureHash !== textureHash) {
                 this._nativeObj.textureHash = textureHash;
@@ -224,7 +226,7 @@ export class RenderDrawInfo {
         this._textureHash = textureHash;
     }
 
-    public setSampler (sampler:Sampler) {
+    public setSampler (sampler: Sampler) {
         if (JSB) {
             if (this._sampler !== sampler) {
                 this._nativeObj.sampler = sampler;
@@ -233,7 +235,7 @@ export class RenderDrawInfo {
         this._sampler = sampler;
     }
 
-    public setBlendHash (blendHash:number) {
+    public setBlendHash (blendHash: number) {
         if (JSB) {
             if (this._blendHash !== blendHash) {
                 this._nativeObj.blendHash = blendHash;
@@ -242,7 +244,7 @@ export class RenderDrawInfo {
         this._blendHash = blendHash;
     }
 
-    public initRender2dBuffer (vertexCount:number, stride:number) {
+    public initRender2dBuffer (vertexCount: number, stride: number) {
         if (JSB) {
             this._stride = stride;
             this._vertexCount = vertexCount;
@@ -256,7 +258,7 @@ export class RenderDrawInfo {
         }
     }
 
-    public fillRender2dBuffer (vertexDataArr:IRenderData[]) {
+    public fillRender2dBuffer (vertexDataArr: IRenderData[]) {
         if (JSB) {
             const fillLength = Math.min(this._vertexCount, vertexDataArr.length);
             let bufferOffset = 0;
@@ -267,12 +269,12 @@ export class RenderDrawInfo {
         }
     }
 
-    public updateVertexBuffer (bufferOffset:number, vertexData:IRenderData) {
+    public updateVertexBuffer (bufferOffset: number, vertexData: IRenderData) {
         if (JSB) {
             if (bufferOffset >= this.render2dBuffer.length) {
                 return;
             }
-            const temp:IRenderData = vertexData;
+            const temp: IRenderData = vertexData;
             this._render2dBuffer[bufferOffset++] = temp.x;
             this._render2dBuffer[bufferOffset++] = temp.y;
             this._render2dBuffer[bufferOffset++] = temp.z;
@@ -293,13 +295,14 @@ export class RenderDrawInfo {
 
     private initSharedBuffer () {
         if (JSB) {
-            this._sharedBuffer = new Int32Array(RenderDrawInfoSharedBufferView.count);
+            //this._sharedBuffer = new Int32Array(RenderDrawInfoSharedBufferView.count);
+            this._sharedBuffer = new Int32Array(this._nativeObj.getAttrSharedBufferForJS());
         }
     }
 
     public syncSharedBufferToNative () {
         if (JSB) {
-            this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
+            //this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
         }
     }
 }

@@ -108,6 +108,7 @@ void Batcher2d::walk(Node* node) {
 
                 if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
                     fillVertexBuffers(entity, drawInfo);
+                    drawInfo->setVertDirty(false);
                 }
                 fillIndexBuffers(drawInfo);
             }

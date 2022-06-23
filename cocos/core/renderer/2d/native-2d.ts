@@ -4,10 +4,14 @@ import { RenderDrawInfo } from '../../../2d/renderer/render-draw-info';
 import { Material } from '../../assets';
 import { Attribute, Device, Sampler, SamplerInfo, Texture } from '../../gfx';
 import { EmptyTexture } from '../../gfx/empty/empty-texture';
+import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 
 export class NativeRenderDrawInfo {
     constructor (batcher: NativeBatcher2d) {}
+
+    // get batcher ():NativeBatcher2d { return new NativeBatcher2d(); }
+    // set batcher (batcher: NativeBatcher2d) {}
 
     get bufferId ():number { return 0; }
     set bufferId (bufferId:number) {}
@@ -68,6 +72,8 @@ export class NativeRenderDrawInfo {
 
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number, type:number) {}
     syncSharedBufferToNative (data:TypedArray) {}
+
+    getAttrSharedBufferForJS () : ArrayBufferLike { return new ArrayBuffer(0); }
 }
 
 export class NativeRenderEntity {

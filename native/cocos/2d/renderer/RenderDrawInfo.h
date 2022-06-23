@@ -1,6 +1,7 @@
 #pragma once
 #include <cocos/2d/renderer/UIMeshBuffer.h>
 #include <cocos/base/TypeDef.h>
+#include <cocos/core/ArrayBuffer.h>
 #include <cocos/core/assets/Material.h>
 #include <cocos/core/scene-graph/Node.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
@@ -73,9 +74,16 @@ public:
     void syncSharedBufferToNative(uint32_t* buffer);
 
 public:
-    inline bool getEnabled() const { return _entityAttrLayout->enabledIndex != 0; }
+    inline Batcher2d* getBatcher() const { return _batcher; }
+    void setBatcher(Batcher2d* batcher);
+
+    inline bool getEnabled() const { return _drawInfoAttrLayout.enabledIndex != 0; }
 
     void parseAttrLayout();
+
+    //ArrayBuffer::Ptr getAttrSharedBufferForJS() const;
+
+    const ArrayBuffer& getAttrSharedBufferForJS() const;
 
 public:
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
@@ -94,8 +102,11 @@ private:
     uint8_t _stride{0};
     uint32_t _size{0};
 
-    DrawInfoAttrLayout* _entityAttrLayout{nullptr};
-    uint32_t* _attrSharedBuffer{nullptr};
+    DrawInfoAttrLayout _drawInfoAttrLayout{};
+    //uint32_t* _attrSharedBuffer{nullptr};
+
+    se::Object* _seArrayBufferObject;
+    ArrayBuffer _ab{};
 
 private:
     index_t _bufferId{0};

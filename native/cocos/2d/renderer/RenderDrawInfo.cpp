@@ -4,11 +4,15 @@
 #include <iostream>
 
 namespace cc {
-RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(0, 0, 0) {
+RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
     this->_batcher = batcher;
+
+    //_drawInfoAttrLayout = new DrawInfoAttrLayout();
+    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _ab.setJSArrayBuffer(_seArrayBufferObject);
 }
 
 RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset) {
@@ -18,9 +22,17 @@ RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffs
     this->_stride = 0;
     this->_size = 0;
     this->_batcher = nullptr;
+
+    //_drawInfoAttrLayout = new DrawInfoAttrLayout();
+    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
+    //CC_SAFE_DELETE(_drawInfoAttrLayout);
+}
+
+void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
+    _batcher = batcher;
 }
 
 void RenderDrawInfo::setBufferId(index_t bufferId) {
@@ -110,11 +122,22 @@ void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, 
 }
 
 void RenderDrawInfo::syncSharedBufferToNative(uint32_t* buffer) {
-    _attrSharedBuffer = buffer;
+    //_attrSharedBuffer = buffer;
     parseAttrLayout();
 }
 
 void RenderDrawInfo::parseAttrLayout() {
-    _entityAttrLayout = reinterpret_cast<DrawInfoAttrLayout*>(_attrSharedBuffer);
+    //_drawInfoAttrLayout = reinterpret_cast<DrawInfoAttrLayout*>(_attrSharedBuffer);
+    //_drawInfoAttrLayout = reinterpret_cast<DrawInfoAttrLayout*>();
 }
+
+const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
+    return _ab;
+}
+
+//ArrayBuffer::Ptr RenderDrawInfo::getAttrSharedBufferForJS() const {
+//    ArrayBuffer::Ptr buffer = ccnew ArrayBuffer();
+//    buffer->setJSArrayBuffer(_seArrayBufferObject);
+//    return buffer;
+//}
 } // namespace cc
