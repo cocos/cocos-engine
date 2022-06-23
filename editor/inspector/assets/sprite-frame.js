@@ -43,6 +43,27 @@ exports.template = `
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.height" tooltip="i18n:ENGINE.assets.spriteFrame.heightTip"></ui-label>
             <ui-num-input slot="content" class="height-input"step="1"></ui-num-input>
         </ui-prop>
+        <ui-section expand>
+            <ui-label slot="header" value="Mesh Options"></ui-label>
+                <div class="mesh">
+                    <ui-prop>
+                        <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.meshType" tooltip="i18n:ENGINE.assets.spriteFrame.meshTypeTip"></ui-label>
+                        <ui-select slot="content" class="meshType-select"></ui-select>
+                    </ui-prop>
+                    <ui-prop>
+                        <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.pixelsToUnit" tooltip="i18n:ENGINE.assets.spriteFrame.pixelsToUnitTip"></ui-label>
+                        <ui-num-input slot="content" class="pixelsToUnit-input" min="0" step="1"></ui-num-input>
+                    </ui-prop>
+                    <ui-prop>
+                        <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.pivotX" tooltip="i18n:ENGINE.assets.spriteFrame.pivotXTip"></ui-label>
+                        <ui-num-input slot="content" class="pivotX-input"></ui-num-input>
+                    </ui-prop>
+                    <ui-prop>
+                        <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.pivotY" tooltip="i18n:ENGINE.assets.spriteFrame.pivotYTip"></ui-label>
+                        <ui-num-input slot="content" class="pivotY-input"></ui-num-input>
+                    </ui-prop>
+                </div>
+            </ui-section>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.borderTop" tooltip="i18n:ENGINE.assets.spriteFrame.borderTopTip"></ui-label>
             <ui-num-input slot="content" class="borderTop-input" min="0" step="1"></ui-num-input>
@@ -69,12 +90,12 @@ exports.template = `
 `;
 
 exports.style = `
-    .asset-sprite-frame { 
+    .asset-sprite-frame {
         display: flex;
         flex: 1;
         flex-direction: column;
      }
-    .asset-sprite-frame > .content {  
+    .asset-sprite-frame > .content {
         padding-bottom: 15px;
         flex: 1;
     }
@@ -84,6 +105,13 @@ exports.style = `
     .asset-sprite-frame > .content > .edit-row {
         text-align: center;
         margin-top: 10px;
+    }
+    .asset-sprite-frame .mesh {
+        padding-top: 4px;
+        padding-left: 10px;
+    }
+    .asset-sprite-frame .mesh > ui-prop {
+        margin: 4px 0;
     }
 `;
 
@@ -104,6 +132,10 @@ exports.$ = {
     borderLeftInput: '.borderLeft-input',
     borderRightInput: '.borderRight-input',
     editButton: '.edit-button',
+    pixelsToUnitInput: '.pixelsToUnit-input',
+    pivotXInput: '.pivotX-input',
+    pivotYInput: '.pivotY-input',
+    meshTypeSelect: '.meshType-select',
 };
 
 /**
@@ -450,6 +482,93 @@ const Elements = {
             const panel = this;
 
             Editor.Message.removeBroadcastListener('sprite-editor:changed', panel.updateFromBroadcastBind);
+        },
+    },
+    pixelsToUnit: {
+        ready() {
+            const panel = this;
+
+            panel.$.pixelsToUnitInput.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.pixelsToUnit = event.target.value;
+                });
+                panel.dispatch('change');
+                Editor.Message.send('inspector', 'sprite-keys', panel.meta);
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.pixelsToUnitInput.value = panel.meta.userData.pixelsToUnit;
+
+            panel.updateInvalid(panel.$.pixelsToUnitInput, 'pixelsToUnit');
+            panel.updateReadonly(panel.$.pixelsToUnitInput);
+        },
+    },
+    pivotX: {
+        ready() {
+            const panel = this;
+
+            panel.$.pivotXInput.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.pivotX = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.pivotXInput.value = panel.meta.userData.pivotX;
+
+            panel.updateInvalid(panel.$.pivotXInput, 'pivotX');
+        },
+    },
+    pivotY: {
+        ready() {
+            const panel = this;
+
+            panel.$.pivotYInput.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.pivotY = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.pivotYInput.value = panel.meta.userData.pivotY;
+
+            panel.updateInvalid(panel.$.pivotYInput, 'pivotY');
+        },
+    },
+    meshType: {
+        ready() {
+            const panel = this;
+
+            panel.$.meshTypeSelect.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.meshType = Number(event.target.value);
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            // const types = ['rect', 'polygon']; // polygon is not ready
+            const types = ['rect'];
+            types.forEach((name, index) => {
+                optionsHtml += `<option value="${index}">${name}</option>`;
+            });
+            panel.$.meshTypeSelect.innerHTML = optionsHtml;
+
+            panel.$.meshTypeSelect.value = panel.meta.userData.meshType;
+
+            panel.updateInvalid(panel.$.meshTypeSelect, 'meshType');
+            panel.updateReadonly(panel.$.meshTypeSelect);
         },
     },
 };
