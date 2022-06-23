@@ -37,9 +37,7 @@ export interface VariableBindingView {
 
 export function* viewVariableBindings(animationGraph: AnimationGraph): Generator<VariableBindingView> {
     for (const layer of animationGraph.layers) {
-        for (const variableReference of visitStateMachine(layer.stateMachine)) {
-            yield variableReference;
-        }
+        yield* visitStateMachine(layer.stateMachine);
     }
 
     function createVariableBindingView<T extends string>(
@@ -89,9 +87,7 @@ export function* viewVariableBindings(animationGraph: AnimationGraph): Generator
                     // TODO?
                 }
             } else if (state instanceof SubStateMachine) {
-                for (const variableReference of visitStateMachine(state.stateMachine)) {
-                    yield variableReference;
-                }
+                yield* visitStateMachine(state.stateMachine);
             }
         }
     }
