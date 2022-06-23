@@ -48,7 +48,7 @@ void GLES2Framebuffer::doInit(const FramebufferInfo & /*info*/) {
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTexture = static_cast<GLES2Texture *>(_colorTextures[i]);
+        auto *colorTexture = static_cast<GLES2Texture *>(_colorTextures.at(i));
         _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
         _gpuFBO->lodLevel = colorTexture->getViewInfo().baseLevel;
         GLES2Device::getInstance()->framebufferHub()->connect(colorTexture->gpuTexture(), _gpuFBO);

@@ -220,7 +220,7 @@ bool RenderingSubMesh::destroy() {
 
     if (!_jointMappedBuffers.empty() && !_jointMappedBufferIndices.empty()) {
         for (uint32_t index : _jointMappedBufferIndices) {
-            _jointMappedBuffers.at(static_cast<int>(index))->destroy();
+            _jointMappedBuffers.at(index)->destroy();
         }
         _jointMappedBuffers.clear();
         _jointMappedBufferIndices.clear();
@@ -289,7 +289,7 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
             buffers.pushBack(buffer);
             indices.emplace_back(i);
         } else {
-            buffers.pushBack(_vertexBuffers.at(static_cast<int32_t>(prim.vertexBundelIndices[i])));
+            buffers.pushBack(_vertexBuffers.at(prim.vertexBundelIndices[i]));
         }
     }
 
