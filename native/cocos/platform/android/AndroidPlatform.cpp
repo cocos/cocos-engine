@@ -347,6 +347,10 @@ public:
             }
             case APP_CMD_WINDOW_RESIZED: {
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_WINDOW_RESIZED");
+                if (_width < 0) {
+                    _width = ANativeWindow_getWidth(_androidPlatform->_app->window);
+                    break;
+                }
                 cc::WindowEvent ev;
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
@@ -415,6 +419,7 @@ private:
     bool _isVisible{false};
     bool _hasWindow{false};
     bool _isActive{false};
+    int32_t _width{-1};
 };
 
 static void handleCmdProxy(struct android_app *app, int32_t cmd) {
