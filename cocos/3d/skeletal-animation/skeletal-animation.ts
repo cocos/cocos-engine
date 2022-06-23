@@ -26,7 +26,7 @@
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
 } from 'cc.decorator';
-import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
+// import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4 } from '../../core/math';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../core/scene-graph/node';
@@ -40,6 +40,7 @@ import { js } from '../../core/utils/js';
 import type { AnimationState } from '../../core/animation/animation-state';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getGlobalAnimationManager } from '../../core/animation/global-animation-manager';
+import { Renderer } from '../../core';
 
 /**
  * @en The socket to synchronize transform from skeletal joint to target node.
@@ -149,7 +150,7 @@ export class SkeletalAnimation extends Animation {
         }
 
         this._users.forEach((user) => {
-            user.setUseBakedAnimation(val);
+            // user.setUseBakedAnimation(val);
         });
 
         if (this._useBakedAnimation) {
@@ -169,12 +170,13 @@ export class SkeletalAnimation extends Animation {
     public onLoad () {
         super.onLoad();
         // Actively search for potential users and notify them that an animation is usable.
-        const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
+        // const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
+        const comps = this.node.getComponentsInChildren(Renderer);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
-            if (comp.skinningRoot === this.node) {
-                this.notifySkinnedMeshAdded(comp);
-            }
+            // if (comp.skinningRoot === this.node) {
+            // this.notifySkinnedMeshAdded(comp);
+            // }
         }
     }
 
@@ -291,31 +293,31 @@ export class SkeletalAnimation extends Animation {
     /**
      * @internal This method only friends to skinned mesh renderer.
      */
-    public notifySkinnedMeshAdded (skinnedMeshRenderer: SkinnedMeshRenderer) {
-        const { _useBakedAnimation: useBakedAnimation } = this;
-        const formerBound = skinnedMeshRenderer.associatedAnimation;
-        if (formerBound) {
-            formerBound._users.delete(skinnedMeshRenderer);
-        }
-        skinnedMeshRenderer.associatedAnimation = this;
-        skinnedMeshRenderer.setUseBakedAnimation(useBakedAnimation, true);
-        if (useBakedAnimation) {
-            const { _currentBakedState: playingState } = this;
-            if (playingState) {
-                skinnedMeshRenderer.uploadAnimation(playingState.clip);
-            }
-        }
-        this._users.add(skinnedMeshRenderer);
+    public notifySkinnedMeshAdded (skinnedMeshRenderer: Renderer) {
+        // const { _useBakedAnimation: useBakedAnimation } = this;
+        // const formerBound = skinnedMeshRenderer.associatedAnimation;
+        // if (formerBound) {
+        //     formerBound._users.delete(skinnedMeshRenderer);
+        // }
+        // skinnedMeshRenderer.associatedAnimation = this;
+        // skinnedMeshRenderer.setUseBakedAnimation(useBakedAnimation, true);
+        // if (useBakedAnimation) {
+        //     const { _currentBakedState: playingState } = this;
+        //     if (playingState) {
+        //         skinnedMeshRenderer.uploadAnimation(playingState.clip);
+        //     }
+        // }
+        // this._users.add(skinnedMeshRenderer);
     }
 
     /**
      * @internal This method only friends to skinned mesh renderer.
      */
-    public notifySkinnedMeshRemoved (skinnedMeshRenderer: SkinnedMeshRenderer) {
-        assertIsTrue(skinnedMeshRenderer.associatedAnimation === this || skinnedMeshRenderer.associatedAnimation === null);
-        skinnedMeshRenderer.setUseBakedAnimation(false);
-        skinnedMeshRenderer.associatedAnimation = null;
-        this._users.delete(skinnedMeshRenderer);
+    public notifySkinnedMeshRemoved (skinnedMeshRenderer: Renderer) {
+        // assertIsTrue(skinnedMeshRenderer.associatedAnimation === this || skinnedMeshRenderer.associatedAnimation === null);
+        // skinnedMeshRenderer.setUseBakedAnimation(false);
+        // skinnedMeshRenderer.associatedAnimation = null;
+        // this._users.delete(skinnedMeshRenderer);
     }
 
     /**
@@ -349,7 +351,7 @@ export class SkeletalAnimation extends Animation {
         }
     }
 
-    private _users = new Set<SkinnedMeshRenderer>();
+    private _users = new Set<Renderer>();
 
     private _currentBakedState: SkeletalAnimationState | null = null;
 
