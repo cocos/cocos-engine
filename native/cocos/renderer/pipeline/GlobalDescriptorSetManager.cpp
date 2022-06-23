@@ -135,7 +135,7 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
             UBOShadow::SIZE,
             gfx::BufferFlagBit::NONE,
         });
-        _shadowUBOs.push_back(shadowUBO);
+        _shadowUBOs.emplace_back(shadowUBO);
         descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
 
         descriptorSet->update();
