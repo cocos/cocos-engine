@@ -27,7 +27,8 @@ se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;  // NOLINT
 static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_countOfMaxProcessingTasks : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_countOfMaxProcessingTasks : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -54,7 +55,8 @@ SE_BIND_PROP_SET(js_network_DownloaderHints_set_countOfMaxProcessingTasks)
 static bool js_network_DownloaderHints_get_timeoutInSeconds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_timeoutInSeconds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_timeoutInSeconds : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -81,7 +83,8 @@ SE_BIND_PROP_SET(js_network_DownloaderHints_set_timeoutInSeconds)
 static bool js_network_DownloaderHints_get_tempFileNameSuffix(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_tempFileNameSuffix : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_tempFileNameSuffix : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -218,7 +221,8 @@ se::Class* __jsb_cc_network_Downloader_class = nullptr;  // NOLINT
 static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskProgress : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskProgress : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
