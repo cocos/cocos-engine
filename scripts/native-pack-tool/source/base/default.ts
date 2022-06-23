@@ -205,14 +205,14 @@ export abstract class NativePackTool {
                 return false;
             }
 
-            if(!fs.existsSync(srcFile)) {
+            if (!fs.existsSync(srcFile)) {
                 console.error(`${f} not exists in ${commonSrc}`);
                 return false;
             }
 
-            if(!compFile(srcFile, dstFile)) {
+            if (!compFile(srcFile, dstFile)) {
                 console.log(`File ${dstFile} differs from ${srcFile}`);
-                return false;   
+                return false;
             }
         }
         return true;
@@ -346,8 +346,8 @@ export abstract class NativePackTool {
     }
 
     private expectPlatformCMakeLists() {
-        return fs.existsSync(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'CMakeLists.txt'))
-            && !fs.existsSync(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'))
+        return fs.existsSync(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'CMakeLists.txt')) &&
+            !fs.existsSync(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'))
     }
 
     protected async copyPlatformTemplate() {

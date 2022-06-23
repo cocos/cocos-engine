@@ -54,8 +54,8 @@ export class AndroidPackTool extends NativePackTool {
     }
 
     private expectAndroidCMakeLists() {
-        return fs.existsSync(ps.join(this.androidNativeTmpDirInCocos, 'template', 'CMakeLists.txt')) 
-        && !fs.existsSync(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'));
+        return fs.existsSync(ps.join(this.androidNativeTmpDirInCocos, 'template', 'CMakeLists.txt')) &&
+            !fs.existsSync(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'));
     }
 
     protected validatePlatformDirectory(missing: string[]): void {
