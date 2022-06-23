@@ -3,7 +3,8 @@
 static bool ${signature_name}_get_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    SE_PRECONDITION2(cobj, false, "${signature_name}_get_${name} : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "${signature_name}_get_${name} : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;

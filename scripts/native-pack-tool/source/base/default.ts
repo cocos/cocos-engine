@@ -83,6 +83,10 @@ export abstract class NativePackTool {
     init(params: CocosParams<Object>) {
         this.params = new CocosParams(params);
         this.paths = new Paths(params);
+
+        this.setEnv('NATIVE_DIR', this.paths.platformTemplateDirInPrj);
+        this.setEnv('COMMON_DIR', this.paths.commonDirInPrj);
+        this.setEnv('PROJECT_NAME', this.params.projectName);
     }
 
     protected parseVersion(content: string, key: string, def: number): number {
