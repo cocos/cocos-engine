@@ -622,7 +622,7 @@ elseif(LINUX)
 endif()
 
 ############ module log
-if(NOT NX)
+if(NOT NX AND NOT NX_WINDOWS)
 cocos_source_files(MODULE cclog
     cocos/base/Log.cpp
     cocos/base/Log.h

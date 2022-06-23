@@ -329,7 +329,7 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     localStorageObj->defineProperty("length", _SE(JSB_localStorage_getLength), nullptr);
 
     std::string strFilePath = cc::FileUtils::getInstance()->getWritablePath();
-#if defined(__QNX__)
+#if CC_PLATFORM == CC_PLATFORM_QNX
     // In the QNX environment, the execution of this statement will not take effect.
     // Not sure why
     // strFilePath += "/jsb.sqlite";
@@ -338,6 +338,11 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     char path[256] = {0};
     sprintf(path, "%s/jsb.sqlite", strFilePath.c_str());
     localStorageInit(path);
+#elif CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
+    // Windows native path needs to be used here,
+    // because in nx windows, the path of windows is the path of simulated nx.
+    // So here we need to use the native windows path
+    localStorageInit("jsb.sqlite");
 #else
     strFilePath += "/jsb.sqlite";
     localStorageInit(strFilePath);
