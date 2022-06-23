@@ -177,6 +177,11 @@ describe('NewGen Anim', () => {
         animationGraph.addInteger('c', 66);
         animationGraph.addTrigger('d', true);
 
+        const layer = animationGraph.addLayer();
+        const stateMachine = layer.stateMachine;
+        const motion = stateMachine.addMotion();
+        motion.speedMultiplier = 'a';
+
         const expectedSnapshot: Array<[string, { type: VariableType, value: any; }]> = [
             ['a', { type: VariableType.FLOAT, value: 3.14 }],
             ['b', { type: VariableType.BOOLEAN, value: true }],
@@ -211,6 +216,9 @@ describe('NewGen Anim', () => {
         animationGraph.renameVariable('b', 'B');
         expectedSnapshot[1][0] = 'B';
         check();
+
+        // Renaming does not touch existing bindings.
+        expect(motion.speedMultiplier).toBe('a');
     });
 
     test('Bugfix cocos/3d-tasks#11980: alter reset mode of trigger variable', () => {
