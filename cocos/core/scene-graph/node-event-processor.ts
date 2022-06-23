@@ -133,7 +133,6 @@ export class NodeEventProcessor {
 
     // Whether dispatch cancel event when node is destroyed.
     private _dispatchingTouch: Touch | null = null;
-
     private _isEnabled = false;
     private _node: Node;
 
