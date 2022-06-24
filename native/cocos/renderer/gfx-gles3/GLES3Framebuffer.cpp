@@ -48,7 +48,7 @@ void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTexture = static_cast<GLES3Texture *>(_colorTextures[i]);
+        auto *colorTexture = static_cast<GLES3Texture *>(_colorTextures.at(i));
         _gpuFBO->gpuColorViews[i] = colorTexture->gpuTextureView();
         GLES3Device::getInstance()->framebufferHub()->connect(colorTexture->gpuTexture(), _gpuFBO);
     }

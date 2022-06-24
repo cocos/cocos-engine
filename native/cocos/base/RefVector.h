@@ -220,13 +220,15 @@ public:
         return *this;
     }
 
-    T &operator[](uint32_t idx) {
-        return _data[idx];
-    }
-
-    const T&operator[](uint32_t idx) const {
-        return _data[idx];
-    }
+    // Can not return reference, or it can use like this
+    // refVector[i] = val;
+    // Then, reference count will be wrong. In order to correct reference count, should:
+    // - dec refVector[i] reference count
+    // - add `val` reference count.
+    // It is hard to use, so delete it.
+    T &operator[](uint32_t idx) = delete;
+    // As non const version is disabled, disable const version too.
+    const T&operator[](uint32_t idx) const = delete;
 
     /**
      * Requests that the vector capacity be at least enough to contain n elements.

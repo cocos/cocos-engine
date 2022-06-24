@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <sys/types.h>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -63,6 +64,9 @@ public:
 
     void addLoadCallback(const std::function<void(bool)> &callback);
 
+    uint32_t getChannelCount() const { return _channelCount; }
+    bool isStreaming() const { return _isStreaming; }
+
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
     void readDataTask(unsigned int selfId);
@@ -77,6 +81,9 @@ protected:
     float _duration;
     uint32_t _totalFrames;
     uint32_t _framesRead;
+
+    bool _isStreaming{false};
+    uint32_t _channelCount{1};
 
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE

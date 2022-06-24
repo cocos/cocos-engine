@@ -26,9 +26,11 @@
 
 #pragma once
 
+#include <cstdint>
 #include <chrono>
 #include <functional>
 #include "audio/include/Export.h"
+#include "audio/include/AudioDef.h"
 #include "base/Macros.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
@@ -314,6 +316,24 @@ public:
      * Check whether AudioEngine is enabled.
      */
     static bool isEnabled();
+
+    /**
+     * @brief Get the PCMHeader of audio
+     * 
+     * @param url The file url of an audio. same as filePath
+     * @return PCMHeader of audio
+     */
+    static PCMHeader getPCMHeader(const char *url);
+
+    /**
+     * @brief Get the Buffer object
+     * 
+     * @param channelID as there might be several channels at same time, select one to get buffer. 
+     * Start from 0
+     * @return PCM datas behave as a ccstd::vector<char>. You can check byte length in PCMHeader.
+     */
+    static ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
+
 
 protected:
     static void addTask(const std::function<void()> &task);

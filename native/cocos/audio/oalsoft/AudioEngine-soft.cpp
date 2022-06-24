@@ -24,6 +24,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <cstdint>
+#include <cstring>
+#include <cstdlib>
+#include <algorithm>
+#include "audio/oalsoft/AudioDecoder.h"
+#include "base/Log.h"
+#include "base/Utils.h"
+#include "base/std/container/vector.h"
 #define LOG_TAG "AudioEngine-OALSOFT"
 
 #include "audio/oalsoft/AudioEngine-soft.h"
@@ -531,4 +539,95 @@ void AudioEngineImpl::uncacheAll() {
 
 bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
+}
+
+PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
+    PCMHeader header{};
+    ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (_fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return header;
+    }
+    AudioDecoder *decoder = AudioDecoderManager::createDecoder(_fileFullPath.c_str());
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return header;
+    }
+    // Ready to decode
+    do {
+        if (!decoder->open(_fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        header = decoder->getPCMHeader();
+    } while (false);
+
+    AudioDecoderManager::destroyDecoder(decoder);
+    return header;
+}
+
+
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return pcmData;
+    }
+    AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return pcmData;
+    }
+    do {
+        if (!decoder->open(fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        auto audioInfo = decoder->getPCMHeader();
+        const uint32_t bytesPerChannelInFrame = audioInfo.bytesPerFrame / audioInfo.channelCount;
+        if (channelID >= audioInfo.channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", audioInfo.channelCount, channelID);
+            break;
+        }
+        uint32_t totalFrames = decoder->getTotalFrames();
+        uint32_t remainingFrames = totalFrames;
+        uint32_t framesRead = 0;
+        uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(decoder->getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
+        AudioDataFormat type = audioInfo.dataFormat;
+        auto tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerChannelInFrame));
+        pcmData.resize(bytesPerChannelInFrame * audioInfo.totalFrames);
+        uint8_t *p = pcmData.data();
+        while (remainingFrames > 0) {
+            framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
+            framesRead = decoder->read(framesToReadOnce, tmpBuf);
+            for (int itr = 0; itr < framesToReadOnce; itr++) {
+                memcpy(p, tmpBuf + itr * audioInfo.bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+
+                p += bytesPerChannelInFrame;
+            }
+            remainingFrames -= framesToReadOnce;
+            
+        };
+        free(tmpBuf);
+        // Adjust total frames by setting position to the end of frames and try to read more data.
+        // This is a workaround for https://github.com/cocos2d/cocos2d-x/issues/16938
+        if (decoder->seek(totalFrames)) {
+            tmpBuf = static_cast<char *>(malloc(audioInfo.bytesPerFrame * framesToReadOnce));
+            do {
+                framesRead = decoder->read(framesToReadOnce, tmpBuf); //read one by one to easy divide
+                pcmData.reserve(totalFrames + framesRead);
+                if (framesRead > 0) { // Adjust frames exist
+                    for (int itr = 0; itr < framesRead; itr++) {
+                        memcpy(p, tmpBuf + itr * audioInfo.bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+                        p += bytesPerChannelInFrame;
+                    }
+                }
+            } while (framesRead > 0);
+            free(tmpBuf);
+        }
+        BREAK_IF_ERR_LOG(!decoder->seek(0), "AudioDecoder::seek(0) failed!");
+    } while (false);
+    AudioDecoderManager::destroyDecoder(decoder);
+    return pcmData;
 }

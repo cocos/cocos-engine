@@ -53,9 +53,7 @@ void GlobalDSManager::activate(gfx::Device *device) {
     });
 
     setDescriptorSetLayout();
-    CC_SAFE_DESTROY_NULL(_descriptorSetLayout)
     _descriptorSetLayout = device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
-    CC_SAFE_DESTROY_NULL(_globalDescriptorSet)
     _globalDescriptorSet = device->createDescriptorSet({_descriptorSetLayout});
 }
 
@@ -137,7 +135,7 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
             UBOShadow::SIZE,
             gfx::BufferFlagBit::NONE,
         });
-        _shadowUBOs.push_back(shadowUBO);
+        _shadowUBOs.emplace_back(shadowUBO);
         descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
 
         descriptorSet->update();
@@ -147,16 +145,12 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
 }
 
 void GlobalDSManager::destroy() {
-    for (auto *shadowUBO : _shadowUBOs) {
-        CC_SAFE_DELETE(shadowUBO)
-    }
-    for (auto &pair : _descriptorSetMap) {
-        CC_SAFE_DELETE(pair.second)
-    }
+    _shadowUBOs.clear();
     _descriptorSetMap.clear();
-
-    CC_SAFE_DESTROY_NULL(_descriptorSetLayout)
-    CC_SAFE_DELETE(_globalDescriptorSet)
+    _descriptorSetLayout = nullptr;
+    _globalDescriptorSet = nullptr;
+    _linearSampler = nullptr;
+    _pointSampler = nullptr;
 }
 
 void GlobalDSManager::setDescriptorSetLayout() {
