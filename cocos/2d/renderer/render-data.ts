@@ -160,13 +160,15 @@ export class BaseRenderData {
             } else if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
                 if (!this._renderDrawInfo) {
                     this._renderDrawInfo = new RenderDrawInfo(this.batcher);
+                    // for no resize() invoking components
+                    this.setRenderDrawInfoAttributes();
                     renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
                 }
             }
         }
     }
 
-    protected setRenderEntityAttributes () {
+    protected setRenderDrawInfoAttributes () {
         if (JSB) {
             if (!this._renderDrawInfo) {
                 return;
@@ -326,16 +328,16 @@ export class RenderData extends BaseRenderData {
 
         if (JSB) {
             // for sync vData and iData address to native
-            this.setRenderEntityAttributes();
+            this.setRenderDrawInfoAttributes();
         }
     }
 
-    protected setRenderEntityAttributes () {
+    protected setRenderDrawInfoAttributes () {
         if (JSB) {
             if (!this._renderDrawInfo) {
                 return;
             }
-            super.setRenderEntityAttributes();
+            super.setRenderDrawInfoAttributes();
             this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
             this._renderDrawInfo.setTextureHash(this.textureHash);
             this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
@@ -444,7 +446,7 @@ export class RenderData extends BaseRenderData {
         // Hack Do not update pre frame
         if (JSB) {
             // for sync vData and iData address to native
-            this.setRenderEntityAttributes();
+            this.setRenderDrawInfoAttributes();
             // sync shared buffer to native
             this.copyRenderDataToSharedBuffer();
         }

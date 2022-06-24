@@ -43,7 +43,7 @@ export class RenderEntity {
             if (!this._nativeObj) {
                 this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
             }
-            this._renderEntityType = entityType;
+            this.setRenderEntityType(entityType);
         }
     }
 
@@ -93,5 +93,14 @@ export class RenderEntity {
             }
         }
         this._node = node;
+    }
+
+    setRenderEntityType (type:RenderEntityType) {
+        if (JSB) {
+            if (this._renderEntityType !== type) {
+                this._nativeObj.setRenderEntityType(this._renderEntityType);
+            }
+        }
+        this._renderEntityType = type;
     }
 }
