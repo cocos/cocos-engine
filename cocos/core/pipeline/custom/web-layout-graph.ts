@@ -182,7 +182,20 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     }
 
     public addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void {
-        // need implementation
+        const g: LayoutGraphData = this._data;
+        const ppl: PipelineLayoutData = g.getLayout(nodeID);
+        const layout: DescriptorSetLayoutData | undefined = ppl.descriptorSets.get(index.updateFrequency)?.descriptorSetLayoutData;
+        if (layout !== undefined) {
+            let nameID: number | undefined = g.attributeIndex.get(name);
+            if (nameID === undefined) {
+                const id = g.valueNames.length;
+                g.attributeIndex.set(name, id);
+                g.valueNames.push(name);
+            }
+
+            nameID = g.attributeIndex.get(name);
+            layout.uniformBlocks.set(nameID as number, uniformBlock);
+        }
     }
 
     public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
