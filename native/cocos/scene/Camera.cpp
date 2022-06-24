@@ -278,15 +278,14 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
         // transform to world
         out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
         out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
-        _matViewProjInv.transformPoint(&out);
-
+        out.transformMat4(out, _matViewProjInv);
         // lerp to depth z
         Vec3 tmpVec3;
         if (_node) {
             tmpVec3.set(_node->getWorldPosition());
         }
 
-        out = out.lerp(tmpVec3, MathUtil::lerp(_nearClip / _farClip, 1, screenPos.z));
+        out = tmpVec3.lerp(out, MathUtil::lerp(_nearClip / _farClip, 1, screenPos.z));
     } else {
         out.set(
             (screenPos.x - cx) / cw * 2 - 1,
@@ -296,7 +295,7 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
         // transform to world
         out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
         out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
-        _matViewProjInv.transformPoint(&out);
+        out.transformMat4(out, _matViewProjInv);
     }
 
     return out;
