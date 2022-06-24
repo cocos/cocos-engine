@@ -35,13 +35,13 @@ public:
     BufferAsset() = default;
     ~BufferAsset() override = default;
 
-    inline ArrayBuffer *getBuffer() const { return _buffer; }
+    inline ArrayBuffer* getBuffer() const { return _buffer; }
 
     inline void setNativeAssetForJS(ArrayBuffer* buffer) { _buffer = buffer; }
     inline ArrayBuffer* getNativeAssetForJS() const { return _buffer; }
 
     ccstd::any getNativeAsset() const override;
-    void setNativeAsset(const ccstd::any &obj) override;
+    void setNativeAsset(const ccstd::any& obj) override;
     bool validate() const override { return _buffer != nullptr; }
 
 private:
