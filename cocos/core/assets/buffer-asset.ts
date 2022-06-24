@@ -46,8 +46,13 @@ export class BufferAsset extends Asset {
         }
     }
 
+    /**
+     * @zh 获取此资源中的缓冲数据。
+     * @en Get the ArrayBuffer data of this asset.
+     * @returns @en The ArrayBuffer. @zh 缓冲数据
+     */
     public buffer () {
-        return this._buffer;
+        return this._buffer as ArrayBuffer;
     }
 
     public validate () {
