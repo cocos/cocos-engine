@@ -50,7 +50,8 @@
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/cutils/log.h"
-
+#include "audio/android/AudioDecoder.h"
+#include "audio/android/AudioDecoderProvider.h"
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
 
@@ -395,4 +396,79 @@ void AudioEngineImpl::onResume() {
     if (_audioPlayerProvider != nullptr) {
         _audioPlayerProvider->resume();
     }
+}
+
+PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
+    PCMHeader header{};
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return header;
+    }
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return header;
+    }
+    if (!decoder->start()){
+        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+        return header;
+    }
+    // Ready to decode
+    do {
+        PcmData data = decoder->getResult();
+        header.bytesPerFrame = data.bitsPerSample / 8;
+        header.channelCount = data.numChannels;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = data.sampleRate;
+        header.totalFrames = data.numFrames;
+    } while (false);
+
+    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return header;
+}
+
+
+
+
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return pcmData;
+    }
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return pcmData;
+    }
+    if (!decoder->start()){
+        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+        return pcmData;
+    }
+    do {
+        PcmData data = decoder->getResult();
+
+        const uint32_t channelCount = data.numChannels;
+        if (channelID >= channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
+            break;
+        }
+        // bytesPerSample  = bitsPerSample / 8, according to 1 byte = 8 bits
+        const uint32_t bytesPerFrame = data.numChannels * data.bitsPerSample / 8;
+        const uint32_t numFrames = data.numFrames;
+        const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
+
+        pcmData.resize(bytesPerChannelInFrame * numFrames);
+        uint8_t *p = pcmData.data();
+        char *tmpBuf = data.pcmBuffer->data(); // shared ptr
+        for (int itr = 0; itr < numFrames; itr++) {
+            memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+            p += bytesPerChannelInFrame;
+        }
+    } while (false);
+    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return pcmData;
 }
