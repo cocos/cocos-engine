@@ -84,6 +84,11 @@ void Device::destroy() {
     }
     _textureBarriers.clear();
 
+    for (auto pair : _bufferBarriers) {
+        CC_SAFE_DELETE(pair.second);
+    }
+    _bufferBarriers.clear();
+
     doDestroy();
 
     CC_SAFE_DELETE(_onAcquire);
@@ -128,6 +133,13 @@ TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
         _textureBarriers[info] = createTextureBarrier(info);
     }
     return _textureBarriers[info];
+}
+
+BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
+    if (!_bufferBarriers.count(info)) {
+        _bufferBarriers[info] = createBufferBarrier(info);
+    }
+    return _bufferBarriers[info];
 }
 
 } // namespace gfx

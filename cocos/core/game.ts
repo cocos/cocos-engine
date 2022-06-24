@@ -37,7 +37,7 @@ import { macro } from './platform/macro';
 import type { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { bindingMappingInfo } from './pipeline/define';
+import { bindingMappingInfo, localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline/render-pipeline';
 import { Node } from './scene-graph/node';
@@ -688,7 +688,7 @@ export class Game extends EventTarget {
      * @param node - The node to be made persistent
      */
     public addPersistRootNode (node: Node) {
-        if (!legacyCC.Node.isNode(node) || !node.uuid || node.scene !== legacyCC.director._scene) {
+        if (!legacyCC.Node.isNode(node) || !node.uuid) {
             debug.warnID(3800);
             return;
         }
@@ -698,6 +698,7 @@ export class Game extends EventTarget {
             if (legacyCC.isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
+                    node._originalSceneId = scene.uuid;
                 } else if (!(node.parent instanceof legacyCC.Scene)) {
                     debug.warnID(3801);
                     return;
@@ -750,6 +751,8 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
+        //set max joints after device initialize.
+        this._resizeMaxJointForDS();
         const director = legacyCC.director;
         return Promise.resolve(director._init()).then(() => {
             legacyCC.view.init();
@@ -1053,6 +1056,12 @@ export class Game extends EventTarget {
         } else {
             this.emit(event);
         }
+    }
+
+    private _resizeMaxJointForDS () {
+        let maxJoints = Math.floor((this._gfxDevice!.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 

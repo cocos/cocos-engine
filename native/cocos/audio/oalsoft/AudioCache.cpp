@@ -115,14 +115,14 @@ void AudioCache::readDataTask(unsigned int selfId) {
         const uint32_t originalTotalFrames = decoder->getTotalFrames();
         const uint32_t bytesPerFrame = decoder->getBytesPerFrame();
         const uint32_t sampleRate = decoder->getSampleRate();
-        const uint32_t channelCount = decoder->getChannelCount();
+        _channelCount = decoder->getChannelCount();
 
         uint32_t totalFrames = originalTotalFrames;
         uint32_t dataSize = totalFrames * bytesPerFrame;
         uint32_t remainingFrames = totalFrames;
         uint32_t adjustFrames = 0;
 
-        _format = channelCount > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+        _format = _channelCount > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
         _sampleRate = static_cast<ALsizei>(sampleRate);
         _duration = 1.0F * totalFrames / sampleRate;
         _totalFrames = totalFrames;

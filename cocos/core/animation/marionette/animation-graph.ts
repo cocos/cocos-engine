@@ -823,4 +823,30 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
     public getVariable (name: string): VariableDescription | undefined {
         return this._variables[name] as VariableDescription | undefined;
     }
+
+    /**
+     * @zh 重命名一个变量。注意，所有对该变量的引用都不会修改。
+     * 如果变量的原始名称不存在或者新的名称已存在，此方法不会做任何事。
+     * 变量在图中的顺序会保持不变。
+     * @en Renames an variable. Note, this won't changes any reference to the variable.
+     * If the original name of the variable doesn't exists or
+     * the new name has already existed, this method won't do anything.
+     * The variable's order in the graph is also retained.
+     * @param name @zh 要重命名的变量的名字。 @en The name of the variable to be renamed.
+     * @param newName @zh 新的名字。 @en New name.
+     */
+    public renameVariable (name: string, newName: string) {
+        const { _variables: variables } = this;
+        if (!(name in variables)) {
+            return;
+        }
+        if (newName in variables) {
+            return;
+        }
+        // Rename but also retain order.
+        this._variables = Object.entries(variables).reduce((result, [k, v]) => {
+            result[k === name ? newName : k] = v;
+            return result;
+        }, {} as AnimationGraph['_variables']);
+    }
 }

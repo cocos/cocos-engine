@@ -168,7 +168,58 @@ describe('NewGen Anim', () => {
         const bVar = graph.getVariable('b');
         expect(bVar.type).toBe(VariableType.FLOAT);
         expect(bVar.value).toBe(2.0);
-    })
+    });
+
+    test('Rename a variable', () => {
+        const animationGraph = new AnimationGraph();
+        animationGraph.addFloat('a', 3.14);
+        animationGraph.addBoolean('b', true);
+        animationGraph.addInteger('c', 66);
+        animationGraph.addTrigger('d', true);
+
+        const layer = animationGraph.addLayer();
+        const stateMachine = layer.stateMachine;
+        const motion = stateMachine.addMotion();
+        motion.speedMultiplier = 'a';
+
+        const expectedSnapshot: Array<[string, { type: VariableType, value: any; }]> = [
+            ['a', { type: VariableType.FLOAT, value: 3.14 }],
+            ['b', { type: VariableType.BOOLEAN, value: true }],
+            ['c', { type: VariableType.INTEGER, value: 66 }],
+            ['d', { type: VariableType.TRIGGER, value: true }],
+        ];
+        const check = () => {
+            // Type, value, order are all retained.
+            expect([...animationGraph.variables].map(([s, w]) =>
+                [s, { type: w.type, value: w.value }])).toStrictEqual(expectedSnapshot);
+        };
+
+        // Original name does not exist.
+        animationGraph.renameVariable('x', 'y');
+        check();
+
+        // New name does exist.
+        animationGraph.renameVariable('a', 'b');
+        check();
+
+        // Rename the first.
+        animationGraph.renameVariable('a', 'A');
+        expectedSnapshot[0][0] = 'A';
+        check();
+
+        // Rename the last.
+        animationGraph.renameVariable('d', 'D');
+        expectedSnapshot[3][0] = 'D';
+        check();
+
+        // The order is retained.
+        animationGraph.renameVariable('b', 'B');
+        expectedSnapshot[1][0] = 'B';
+        check();
+
+        // Renaming does not touch existing bindings.
+        expect(motion.speedMultiplier).toBe('a');
+    });
 
     test('Bugfix cocos/3d-tasks#11980: alter reset mode of trigger variable', () => {
         const animationGraph = new AnimationGraph();

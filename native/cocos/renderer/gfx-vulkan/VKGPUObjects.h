@@ -188,6 +188,7 @@ struct CCVKGPUBuffer {
     VkDeviceSize size = 0U;
 
     VkDeviceSize instanceSize = 0U; // per-back-buffer instance
+    ccstd::vector<ThsvsAccessType> currentAccessTypes;
 
     // for barrier manager
     ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
@@ -340,6 +341,17 @@ struct CCVKGPUPipelineState {
     CCVKGPURenderPass *gpuRenderPass = nullptr;
     uint32_t subpass = 0U;
     VkPipeline vkPipeline = VK_NULL_HANDLE;
+};
+
+struct CCVKGPUBufferBarrier {
+    VkPipelineStageFlags srcStageMask = 0U;
+    VkPipelineStageFlags dstStageMask = 0U;
+    VkBufferMemoryBarrier vkBarrier{};
+
+    ccstd::vector<ThsvsAccessType> prevAccesses;
+    ccstd::vector<ThsvsAccessType> nextAccesses;
+
+    ThsvsBufferBarrier barrier{};
 };
 
 struct CCVKGPUTextureBarrier {

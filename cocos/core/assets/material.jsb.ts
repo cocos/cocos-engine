@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
 import { EffectAsset } from './effect-asset';
 import { Texture } from '../gfx';
 import { TextureBase } from './texture-base';

@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "audio/oalsoft/AudioDecoderOgg.h"
+#include <stdint.h>
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
 
@@ -68,10 +69,11 @@ bool AudioDecoderOgg::open(const char *path) {
 #endif
         // header
         vorbis_info *vi = ov_info(&_vf, -1);
-        _sampleRate = static_cast<uint32_t>(vi->rate);
-        _channelCount = vi->channels;
-        _bytesPerFrame = vi->channels * sizeof(int16_t);
-        _totalFrames = static_cast<uint32_t>(ov_pcm_total(&_vf, -1));
+        _pcmHeader.sampleRate = static_cast<uint32_t>(vi->rate);
+        _pcmHeader.channelCount = vi->channels;
+        _pcmHeader.bytesPerFrame = vi->channels * sizeof(int16_t);
+        _pcmHeader.dataFormat = AudioDataFormat::SIGNED_16;
+        _pcmHeader.totalFrames = static_cast<uint32_t>(ov_pcm_total(&_vf, -1));
         _isOpened = true;
         return true;
     }
@@ -87,7 +89,7 @@ void AudioDecoderOgg::close() {
 
 uint32_t AudioDecoderOgg::read(uint32_t framesToRead, char *pcmBuf) {
     int currentSection = 0;
-    auto bytesToRead = framesToRead * _bytesPerFrame;
+    auto bytesToRead = framesToRead * _pcmHeader.bytesPerFrame;
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     auto bytesRead = ov_read(&_vf, pcmBuf, bytesToRead, 0, 2, 1, &currentSection);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
@@ -96,7 +98,7 @@ uint32_t AudioDecoderOgg::read(uint32_t framesToRead, char *pcmBuf) {
 #elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     auto bytesRead = ov_read(&_vf, pcmBuf, bytesToRead, 0, 2, 1, &currentSection);
 #endif
-    return static_cast<uint32_t>(bytesRead / _bytesPerFrame);
+    return static_cast<uint32_t>(bytesRead / _pcmHeader.bytesPerFrame);
 }
 
 bool AudioDecoderOgg::seek(uint32_t frameOffset) {

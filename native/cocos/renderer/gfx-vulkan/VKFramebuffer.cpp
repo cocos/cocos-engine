@@ -46,7 +46,7 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTex = static_cast<CCVKTexture *>(_colorTextures[i]);
+        auto *colorTex = static_cast<CCVKTexture *>(_colorTextures.at(i));
         _gpuFBO->gpuColorViews[i] = colorTex->gpuTextureView();
         CCVKDevice::getInstance()->gpuFramebufferHub()->connect(colorTex->gpuTexture(), _gpuFBO);
     }

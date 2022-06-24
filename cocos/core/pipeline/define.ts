@@ -479,19 +479,39 @@ localDescriptorSetLayout.bindings[UBOSkinningAnimation.BINDING] = UBOSkinningAni
 
 export const INST_JOINT_ANIM_INFO = 'a_jointAnimInfo';
 export class UBOSkinning {
-    public static readonly JOINTS_OFFSET = 0;
-    public static readonly COUNT = UBOSkinning.JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
-    public static readonly SIZE = UBOSkinning.COUNT * 4;
+    private static _jointUniformCapacity = 0;
+    public static get JOINT_UNIFORM_CAPACITY () { return UBOSkinning._jointUniformCapacity; }
+    private static _count = 0;
+    public static get COUNT () { return UBOSkinning._count; }
+    private static _size = 0;
+    public static get SIZE () { return UBOSkinning._size; }
 
     public static readonly NAME = 'CCSkinning';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSkinning.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinning.BINDING, UBOSkinning.NAME, [
-        new Uniform('cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3),
+        new Uniform('cc_joints', Type.FLOAT4, 1),
     ], 1);
+
+    /**
+     * @internal This method only used init UBOSkinning configure.
+    */
+    public static initLayout (capacity: number) {
+        UBOSkinning._jointUniformCapacity = capacity;
+        UBOSkinning._count = capacity * 12;
+        UBOSkinning._size = UBOSkinning._count * 4;
+        UBOSkinning.LAYOUT.members[0].count = capacity * 3;
+    }
 }
-localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
-localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
+
+/**
+ * @internal This method only used to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
+*/
+export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number) {
+    UBOSkinning.initLayout(maxCount);
+    localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
+    localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
+}
 
 /**
  * @en The uniform buffer object for morph setting
@@ -539,6 +559,17 @@ const UNIFORM_JOINT_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_
 const UNIFORM_JOINT_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_JOINT_TEXTURE_BINDING, UNIFORM_JOINT_TEXTURE_NAME, Type.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_JOINT_TEXTURE_NAME] = UNIFORM_JOINT_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_JOINT_TEXTURE_BINDING] = UNIFORM_JOINT_TEXTURE_DESCRIPTOR;
+
+/**
+ * @en The sampler for real-time joint texture
+ * @zh 实时骨骼纹理采样器。
+ */
+const UNIFORM_REALTIME_JOINT_TEXTURE_NAME = 'cc_realtimeJoint';
+export const UNIFORM_REALTIME_JOINT_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_JOINTS;
+const UNIFORM_REALTIME_JOINT_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REALTIME_JOINT_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
+const UNIFORM_REALTIME_JOINT_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING, UNIFORM_REALTIME_JOINT_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REALTIME_JOINT_TEXTURE_NAME] = UNIFORM_REALTIME_JOINT_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REALTIME_JOINT_TEXTURE_BINDING] = UNIFORM_REALTIME_JOINT_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for morph texture of position

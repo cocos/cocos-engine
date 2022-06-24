@@ -48,7 +48,10 @@ class RenderFlow;
 // Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
 // But still, you can tweak this for your own need by changing the number below
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
-constexpr int JOINT_UNIFORM_CAPACITY = 30;
+class CC_DLL SkinningJointCapacity {
+public:
+    static uint32_t jointUniformCapacity;
+};
 
 constexpr float SHADOW_CAMERA_MAX_FAR = 2000.0F;
 const float COEFFICIENT_OF_EXPANSION = 2.0F * sqrtf(3.0F);
@@ -341,13 +344,13 @@ struct CC_DLL UBOSkinningAnimation {
 };
 
 struct CC_DLL UBOSkinning {
-    static constexpr uint32_t JOINTS_OFFSET = 0;
-    static constexpr uint32_t COUNT = UBOSkinning::JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
-    static constexpr uint32_t SIZE = UBOSkinning::COUNT * 4;
+    static uint32_t count;
+    static uint32_t size;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_SKINNING_TEXTURE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformBlock LAYOUT;
+    static gfx::UniformBlock layout;
     static const ccstd::string NAME;
+    static void initLayout (uint capacity);
 };
 
 struct CC_DLL UBOMorph {
@@ -549,6 +552,13 @@ struct CC_DLL DIFFUSEMAP {
 
 struct CC_DLL JOINTTEXTURE {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_JOINTS);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REALTIMEJOINTTEXTURE {
+    static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_JOINTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

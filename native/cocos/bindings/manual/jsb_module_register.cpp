@@ -57,6 +57,7 @@
 
 #if CC_USE_AUDIO
     #include "cocos/bindings/auto/jsb_audio_auto.h"
+    #include "cocos/bindings/manual/jsb_audio_manual.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
@@ -147,6 +148,7 @@ bool jsb_register_all_modules() {
 
 #if CC_USE_AUDIO
     se->addRegisterCallback(register_all_audio);
+    se->addRegisterCallback(register_all_audio_manual);
 #endif
 
 #if CC_USE_SOCKET
