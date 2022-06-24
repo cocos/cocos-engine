@@ -98,7 +98,7 @@ export class RenderEntity {
     setRenderEntityType (type:RenderEntityType) {
         if (JSB) {
             if (this._renderEntityType !== type) {
-                this._nativeObj.setRenderEntityType(this._renderEntityType);
+                this._nativeObj.setRenderEntityType(type);
             }
         }
         this._renderEntityType = type;
