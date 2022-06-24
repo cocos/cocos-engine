@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import { Camera } from '../../renderer/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
+import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
@@ -153,6 +153,7 @@ export abstract class LayoutGraphBuilder {
     public abstract addRenderPhase(name: string, parentID: number): number;
     public abstract addShader(name: string, parentPhaseID: number): void;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    public abstract addUniformBlock(nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void;
     public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
     public abstract compile(): number;
     public abstract print(): string;

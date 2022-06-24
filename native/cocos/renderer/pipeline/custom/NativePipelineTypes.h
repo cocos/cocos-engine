@@ -53,6 +53,7 @@ public:
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addShader(const ccstd::string& name, uint32_t parentPhaseID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
+    void addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const ccstd::string& name, const gfx::UniformBlock& uniformBlock) override;
     void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
     int compile() override;
 
