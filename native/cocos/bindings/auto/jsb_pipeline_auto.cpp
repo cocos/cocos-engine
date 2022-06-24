@@ -2553,26 +2553,6 @@ static bool js_pipeline_GlobalDSManager_getDescriptorSetLayout(se::State& s) // 
 }
 SE_BIND_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout)
 
-static bool js_pipeline_GlobalDSManager_getDescriptorSetMap(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    // SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getDescriptorSetMap : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        std::unordered_map<unsigned int, cc::gfx::DescriptorSet *> result = cobj->getDescriptorSetMap();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getDescriptorSetMap : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap)
-
 static bool js_pipeline_GlobalDSManager_getGlobalDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
@@ -2712,7 +2692,6 @@ bool js_register_pipeline_GlobalDSManager(se::Object* obj) // NOLINT(readability
     cls->defineFunction("bindSampler", _SE(js_pipeline_GlobalDSManager_bindSampler));
     cls->defineFunction("bindTexture", _SE(js_pipeline_GlobalDSManager_bindTexture));
     cls->defineFunction("getDescriptorSetLayout", _SE(js_pipeline_GlobalDSManager_getDescriptorSetLayout));
-    cls->defineFunction("getDescriptorSetMap", _SE(js_pipeline_GlobalDSManager_getDescriptorSetMap));
     cls->defineFunction("getGlobalDescriptorSet", _SE(js_pipeline_GlobalDSManager_getGlobalDescriptorSet));
     cls->defineFunction("getLinearSampler", _SE(js_pipeline_GlobalDSManager_getLinearSampler));
     cls->defineFunction("getOrCreateDescriptorSet", _SE(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet));
