@@ -410,10 +410,10 @@ struct DescriptorSetLayoutData {
     DescriptorSetLayoutData& operator=(DescriptorSetLayoutData&& rhs) = default;
     DescriptorSetLayoutData& operator=(DescriptorSetLayoutData const& rhs) = delete;
 
-    uint32_t                                                 slot{0xFFFFFFFF};
-    uint32_t                                                 capacity{0};
-    ccstd::pmr::vector<DescriptorBlockData>                  descriptorBlocks;
-    ccstd::pmr::unordered_map<NameLocalID, UniformBlockData> uniformBlocks;
+    uint32_t                                                  slot{0xFFFFFFFF};
+    uint32_t                                                  capacity{0};
+    ccstd::pmr::vector<DescriptorBlockData>                   descriptorBlocks;
+    ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
 };
 
 struct DescriptorSetData {
