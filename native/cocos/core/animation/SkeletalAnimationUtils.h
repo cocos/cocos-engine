@@ -42,20 +42,13 @@ struct IJointTransform : RefCounted {
     IntrusivePtr<IJointTransform> parent;
 };
 
-class RealTimeJointTexture final {
-public:
-    RealTimeJointTexture() {
-        textures.clear();
-    }
-
+struct RealTimeJointTexture {
     ~RealTimeJointTexture() {
-        textures.clear();
-        delete[] buffer;
-        buffer = nullptr;
+        CC_SAFE_DELETE_ARRAY(buffer);
+        for (auto &texture : textures) {
+            texture->destroy();
+        }
     }
-
-    static const uint32_t WIDTH = 256;
-    static const uint32_t HEIGHT = 3;
     std::vector<IntrusivePtr<gfx::Texture>> textures;
     float *buffer = nullptr;
 };

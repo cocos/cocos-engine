@@ -50,7 +50,7 @@ class RenderFlow;
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
 class CC_DLL SkinningJointCapacity {
 public:
-    static uint jointUniformCapacity;
+    static uint32_t jointUniformCapacity;
 };
 
 constexpr float SHADOW_CAMERA_MAX_FAR = 2000.0F;

@@ -114,6 +114,12 @@ export class SkinningModel extends MorphModel {
             }
             this._buffers.length = 0;
         }
+        this._dataArray.length = 0;
+        this._realTimeJointTexture._textures.forEach((tex) => {
+            tex.destroy();
+        });
+        this._realTimeJointTexture._textures.length = 0;
+        this._realTimeJointTexture._buffers.length = 0;
         super.destroy();
     }
 
@@ -137,12 +143,14 @@ export class SkinningModel extends MorphModel {
         }
         this._bufferIndices = null; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
+        this._realTimeTextureMode = false;
+        if (UBOSkinning.JOINT_UNIFORM_CAPACITY < skeleton.joints.length) { this._realTimeTextureMode = true; }
         this.transform = skinningRoot;
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const jointMaps = mesh.struct.jointMaps;
-        this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1, skeleton.joints.length);
+        this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
         this._bufferIndices = mesh.jointBufferIndices;
-        this._initRealTimeJointTexture(skeleton.joints.length);
+        this._initRealTimeJointTexture();
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
@@ -203,12 +211,12 @@ export class SkinningModel extends MorphModel {
                 uploadJointData(this._dataArray[buffers[b]], indices[b] * 12, m4_1, i === 0);
             }
         }
-        if (this._realTimeTextureMode === false) {
+        if (this._realTimeTextureMode) {
+            this._updateRealTimeJointTextureBuffer();
+        } else {
             for (let b = 0; b < this._buffers.length; b++) {
                 this._buffers[b].update(this._dataArray[b]);
             }
-        } else {
-            this._updateRealTimeJointTextureBuffer();
         }
         return true;
     }
@@ -247,9 +255,12 @@ export class SkinningModel extends MorphModel {
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const idx = this._bufferIndices![submodelIdx];
-        const buffer = this._buffers[idx];
-        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
-        this._bindRealTimeJointTexture(idx, descriptorSet);
+        if (this._realTimeTextureMode) {
+            this._bindRealTimeJointTexture(idx, descriptorSet);
+        } else {
+            const buffer = this._buffers[idx];
+            if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
+        }
     }
 
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
@@ -260,29 +271,43 @@ export class SkinningModel extends MorphModel {
         super._updateInstancedAttributes(attributes, pass);
     }
 
-    private _ensureEnoughBuffers (count: number, jointCount : number) {
-        for (let i = 0; i < count; i++) {
-            if (!this._buffers[i]) {
+    private _ensureEnoughBuffers (count: number) {
+        if (this._buffers.length) {
+            for (let i = 0; i < this._buffers.length; i++) {
+                this._buffers[i].destroy();
+            }
+            this._buffers.length = 0;
+        }
+
+        if (this._dataArray.length) this._dataArray.length = 0;
+
+        if (!this._realTimeTextureMode) {
+            for (let i = 0; i < count; i++) {
                 this._buffers[i] = this._device.createBuffer(new BufferInfo(
                     BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                     UBOSkinning.SIZE,
                     UBOSkinning.SIZE,
                 ));
+                const maxJoints = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+                this._dataArray[i] = new Float32Array(12 * maxJoints);
             }
-            if (!this._dataArray[i]) {
-                let maxJoints = UBOSkinning.JOINT_UNIFORM_CAPACITY;
-                if (jointCount > UBOSkinning.JOINT_UNIFORM_CAPACITY) {
-                    maxJoints = RealTimeJointTexture.WIDTH;
-                }
+        } else {
+            for (let i = 0; i < count; i++) {
+                const maxJoints = RealTimeJointTexture.WIDTH;
                 this._dataArray[i] = new Float32Array(12 * maxJoints);
             }
         }
     }
-    private _initRealTimeJointTexture (jointCount: number) {
-        if (UBOSkinning.JOINT_UNIFORM_CAPACITY < jointCount) {
-            this._realTimeTextureMode = true;
+
+    private _initRealTimeJointTexture () {
+        if (this._realTimeJointTexture._textures.length) {
+            this._realTimeJointTexture._textures.forEach((tex) => {
+                tex.destroy();
+            });
+            this._realTimeJointTexture._textures.length = 0;
         }
+        this._realTimeJointTexture._buffers.length = 0;
         if (!this._realTimeTextureMode) return;
 
         const gfxDevice = director.root!.device;

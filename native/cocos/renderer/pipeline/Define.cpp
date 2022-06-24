@@ -286,9 +286,9 @@ gfx::UniformBlock UBOSkinning::layout = {
     },
     1,
 };
-void UBOSkinning::initLayout (uint capacity) {
+void UBOSkinning::initLayout (uint32_t capacity) {
     UBOSkinning::count = capacity * 12;
-    UBOSkinning::size = UBOSkinning::count * 4;
+    UBOSkinning::size = UBOSkinning::count * sizeof(float);
     UBOSkinning::layout.members[0].count = capacity * 3;
 }
 
