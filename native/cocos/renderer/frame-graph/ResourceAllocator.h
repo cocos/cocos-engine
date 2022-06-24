@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include "base/memory/Memory.h"
+#include "base/RefVector.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef.h"
 
@@ -50,7 +51,7 @@ public:
     void gc(uint32_t unusedFrameCount) noexcept;
 
 private:
-    using DeviceResourcePool = ccstd::vector<DeviceResourceType *>;
+    using DeviceResourcePool = RefVector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator() = default;
@@ -83,7 +84,7 @@ DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, Device
     if (!resource) {
         DeviceResourceCreator creator;
         resource = creator(desc);
-        pool.push_back(resource);
+        pool.pushBack(resource);
     }
 
     _ages[resource] = -1;
@@ -115,7 +116,7 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
         int destroyBegin = count - 1;
 
         for (int i = 0; i < count; ++i) {
-            int64_t ageI = _ages[pool[i]];
+            int64_t ageI = _ages[pool.at(i)];
             if (ageI < 0 || _age - ageI < unusedFrameCount) {
                 continue;
             }
@@ -123,9 +124,9 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
             int j = destroyBegin;
 
             for (; j > i; --j) {
-                int64_t ageJ = _ages[pool[j]];
+                int64_t ageJ = _ages[pool.at(j)];
                 if (ageJ < 0 || _age - ageJ < unusedFrameCount) {
-                    std::swap(pool[i], pool[j]);
+                    std::swap(pool.at(i), pool.at(j));
                     destroyBegin = j - 1;
                     break;
                 }
@@ -142,9 +143,8 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
 
         while (++destroyBegin < count) {
             auto *resource = pool.back();
-            delete resource;
             _ages.erase(resource);
-            pool.pop_back();
+            pool.popBack();
         }
     }
 }
@@ -166,7 +166,7 @@ public:
     void gc(uint32_t unusedFrameCount) noexcept;
 
 private:
-    using DeviceResourcePool = std::vector<DeviceResourceType *>;
+    using DeviceResourcePool = RefVector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator() = default;
@@ -200,7 +200,7 @@ DeviceResourceType *ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, 
     if (!resource) {
         DeviceResourceCreator creator;
         resource = creator(desc);
-        pool.push_back(resource);
+        pool.pushBack(resource);
     }
 
     _ages[resource] = -1;
@@ -232,7 +232,7 @@ void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceC
         int destroyBegin = count - 1;
 
         for (int i = 0; i < count; ++i) {
-            int64_t ageI = _ages[pool[i]];
+            int64_t ageI = _ages[pool.at(i)];
             if (ageI < 0 || _age - ageI < unusedFrameCount) {
                 continue;
             }
@@ -240,9 +240,9 @@ void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceC
             int j = destroyBegin;
 
             for (; j > i; --j) {
-                int64_t ageJ = _ages[pool[j]];
+                int64_t ageJ = _ages[pool.at(j)];
                 if (ageJ < 0 || _age - ageJ < unusedFrameCount) {
-                    std::swap(pool[i], pool[j]);
+                    std::swap(pool.at(i), pool.at(j));
                     destroyBegin = j - 1;
                     break;
                 }
@@ -259,9 +259,9 @@ void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceC
 
         while (++destroyBegin < count) {
             auto *resource = pool.back();
-            delete resource;
+//            delete resource;
             _ages.erase(resource);
-            pool.pop_back();
+            pool.popBack();
         }
     }
 }
