@@ -138,6 +138,7 @@ extern se::Class * __jsb_cc_BufferAsset_class; // NOLINT
 
 bool js_register_cc_BufferAsset(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_BufferAsset_getBuffer);
 SE_DECLARE_FUNC(js_assets_BufferAsset_BufferAsset);
 
 extern se::Object *__jsb_cc_IPropertyInfo_proto; // NOLINT
