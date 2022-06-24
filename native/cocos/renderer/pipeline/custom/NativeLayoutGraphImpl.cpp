@@ -103,6 +103,10 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
     layout.capacity += block.capacity;
 }
 
+void NativeLayoutGraphBuilder::addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const ccstd::string& name, const gfx::UniformBlock& uniformBlock) {
+    
+}
+
 namespace {
 
 gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {

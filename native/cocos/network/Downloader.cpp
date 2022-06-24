@@ -61,11 +61,7 @@ DownloadTask::~DownloadTask() {
 ////////////////////////////////////////////////////////////////////////////////
 //  Implement Downloader
 Downloader::Downloader() {
-    DownloaderHints hints =
-        {
-            6,
-            45,
-            ".tmp"};
+    DownloaderHints hints;
     ccnew_placement(this) Downloader(hints);
 }
 

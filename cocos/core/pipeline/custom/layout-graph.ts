@@ -662,7 +662,7 @@ export class DescriptorSetLayoutData {
     slot: number;
     capacity: number;
     readonly descriptorBlocks: DescriptorBlockData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
+    readonly uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
 }
 
 export class DescriptorSetData {

@@ -90,9 +90,27 @@ declare namespace jsb {
     export let onClose: () => void | undefined;
     export function openURL(url: string): void;
     export function garbageCollect(): void;
-
+    enum AudioFormat {
+        UNKNOWN = 0,
+        SIGNED_8,
+        UNSIGNED_8,
+        SIGNED_16,
+        UNSIGNED_16,
+        SIGNED_32,
+        UNSIGNED_32,
+        FLOAT_32,
+        FLOAT_64
+    }
+    interface PCMHeader {
+        totalFrames: number;
+        sampleRate: number;
+        bytesPerFrame: number;
+        audioFormat: AudioFormat;
+        channelCount: number;
+    }
     export namespace AudioEngine {
         export function preload (url: string, cb: (isSuccess: boolean) => void);
+
         export function play2d (url: string, loop: boolean, volume: number): number;
         export function pause (id: number);
         export function pauseAll ();
@@ -117,6 +135,17 @@ declare namespace jsb {
         export function uncacheAll ();
         export function setErrorCallback (id: number, cb: (err: any) => void);
         export function setFinishCallback (id: number, cb: () => void);
+
+        /**
+         * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer instead
+         */
+        export function getPCMHeader (url: string) : PCMHeader;
+        /**
+         * Get PCM Data in decode format for example Int16Array, the format information is written in PCMHeader.
+         * @param url: file relative path, for example player._path
+         * @param channelID: ChannelID which should smaller than channel count, start from 0
+         */
+        export function getOriginalPCMBuffer (url: string, channelID: number): ArrayBuffer | undefined;
     }
 
     export namespace reflection{

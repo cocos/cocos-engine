@@ -33,10 +33,46 @@ export declare namespace native {
     export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
 
     /**
+     * @en DownloaderHints @zh 下载任务的配置接口
+     * @param countOfMaxProcessingTasks
+     * @en Maximum number of download tasks processed at the same time, optional, default is 6
+     * @zh 同时处理的最大下载任务数量, 可选, 默认值为6
+     * @param timeoutInSeconds @en Download request timeout, optional, default is 45 seconds @zh 下载请求的超时时间, 可选, 默认值为45秒
+     * @param tempFileNameSuffix  @en Temporary file suffix generated during download, optional, default is .tmp @zh 下载时产生的临时文件后缀, 可选, 默认值为.tmp
+     */
+    export interface DownloaderHints {
+        countOfMaxProcessingTasks?: number;
+        timeoutInSeconds?: number;
+        tempFileNameSuffix?: string;
+    }
+
+    /**
      * @en Downloader class for task download
      * @zh Downloader 任务下载类
      */
     export class Downloader {
+        /**
+         * @en Downloader default constructor, constructed by the default value of DownloaderHints.
+         * @zh Downloader的默认构造函数, 通过DownloaderHints的默认值构造.
+         * @example
+         * ```ts
+         * let downloader = new native.Downloader(); // create a Downloader object by default constructor
+         */
+        constructor();
+
+        /**
+         * @en Downloader constructor with parameter, constructed by DownloaderHints.
+         * @zh Downloader的有参构造函数, 通过传递的DownloaderHints去构造.
+         * @example
+         * ```ts
+         * const hints: native.DownloaderHints = { // create a DownloaderHints interface
+         *     countOfMaxProcessingTasks: 6,
+         *     timeoutInSeconds: 100,
+         *     tempFileNameSuffix: ".tmp"
+         * };
+         * let downloader = new native.Downloader(hints); // create a Downloader object with DownloaderHints
+         */
+        constructor (hints: DownloaderHints);
         /**
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
@@ -46,8 +82,6 @@ export declare namespace native {
          * @return @en DownloaderTask @zh 下载任务对象
          * @example
          * ```ts
-         * // create a download task
-         * let downloader = new native.Downloader();
          * let task = downloader.createDownloadFileTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
          */
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
@@ -59,7 +93,7 @@ export declare namespace native {
          * @example
          * ```ts
          *  // set a download success callback
-         *  down.setOnFileTaskSuccess((task)=>{
+         *  downloader.setOnFileTaskSuccess((task)=>{
          *  console.log('Success!'); // call when task download success
          * });
          */
@@ -72,7 +106,7 @@ export declare namespace native {
          * @example
          * ```ts
          *  // set a callback for download progress prompt
-         *  down.setOnTaskProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected)=>{
+         *  downloader.setOnTaskProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected)=>{
          *  console.log(bytesReceived, totalBytesReceived); // download data info
          *  console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
          * });
@@ -86,7 +120,7 @@ export declare namespace native {
          * @example
          * ```ts
          * // set a download error callback
-         *  down.setOnTaskError((task, errorCode, errorCodeInternal, errorStr)=>{
+         *  downloader.setOnTaskError((task, errorCode, errorCodeInternal, errorStr)=>{
          *  console.log('Error:', errorStr);
          * });
         */

@@ -1,5 +1,6 @@
-/*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,12 +22,28 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+****************************************************************************/
 
-export * from './canvas';
-export * from './ui-component';
-export * from './ui-renderer';
-export * from './ui-transform';
-export * from './deprecated';
-export * from './render-root-2d';
-export * from './sprite-renderer';
+#pragma once
+#include <cstdint>
+#include <functional>
+enum class AudioDataFormat {
+    UNKNOWN = 0,
+    SIGNED_8,
+    UNSIGNED_8,
+    SIGNED_16,
+    UNSIGNED_16,
+    SIGNED_32,
+    UNSIGNED_32,
+    FLOAT_32,
+    FLOAT_64,
+};
+struct PCMHeader {
+    uint32_t totalFrames {0};
+    uint32_t bytesPerFrame {0};
+    uint32_t sampleRate {0};
+    uint32_t channelCount {0};
+    AudioDataFormat dataFormat {AudioDataFormat::UNKNOWN};
+};
+
+

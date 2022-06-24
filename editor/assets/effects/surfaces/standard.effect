@@ -131,6 +131,9 @@ CCProgram surface-vertex %{
     vec3 worldNormal = In.worldNormal.xyz;
     worldNormal.x += sin(cc_time.x * 3.0);
     worldNormal.y += cos(cc_time.x * 3.0);
+  #if CC_SURFACES_USE_TWO_SIDED
+      worldNormal.xyz *= In.worldNormal.w;
+  #endif
     return normalize(worldNormal);
   }*/
   
@@ -138,7 +141,7 @@ CCProgram surface-vertex %{
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
     In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if USE_SECOND_UV && !CC_USE_LIGHTMAP
+  #if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
     In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
   #endif
   }
