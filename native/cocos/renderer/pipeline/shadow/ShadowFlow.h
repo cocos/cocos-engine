@@ -60,7 +60,7 @@ private:
 
     static RenderFlowInfo initInfo;
 
-    IntrusivePtr<gfx::RenderPass> _renderPass{nullptr};
+    IntrusivePtr<gfx::RenderPass> _renderPass;
 
     ccstd::vector<const scene::Light *> _validLights;
     ccstd::vector<IntrusivePtr<gfx::Texture>> _usedTextures;
