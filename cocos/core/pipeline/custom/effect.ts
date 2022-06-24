@@ -48,6 +48,9 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGraphBuilde
             if (block.capacity > 0) {
                 lgData.addDescriptorBlock(vid, index, flattened);
             }
+            for (let i = 0; i < flattened.uniformBlockNames.length; ++i) {
+                lgData.addUniformBlock(vid, index, flattened.uniformBlockNames[i], flattened.uniformBlocks[i]);
+            }
         });
     }
 
