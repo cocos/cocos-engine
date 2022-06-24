@@ -292,6 +292,11 @@
             "value": false,
             "internal": false
         },
+        "NET_MODE": {
+            "comment": "Running in the net mode.\nCurrently it's only providing a default value for editor build workflow.",
+            "value": false,
+            "internal": true
+        },
 
 
         "DEV": {
