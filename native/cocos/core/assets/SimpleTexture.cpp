@@ -181,7 +181,6 @@ gfx::Texture *SimpleTexture::createTextureView(gfx::Device *device) {
 
 void SimpleTexture::tryDestroyTexture() {
     if (_gfxTexture != nullptr) {
-        _gfxTexture->destroy();
         _gfxTexture = nullptr;
 
         notifyTextureUpdated();
@@ -190,7 +189,6 @@ void SimpleTexture::tryDestroyTexture() {
 
 void SimpleTexture::tryDestroyTextureView() {
     if (_gfxTextureView != nullptr) {
-        _gfxTextureView->destroy();
         _gfxTextureView = nullptr;
 
         //TODO(minggo): should notify JS if the performance is low.
