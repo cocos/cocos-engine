@@ -128,5 +128,5 @@ declare module 'internal:constants' {
      * - 1 ListenServer
      * - 2 HostServer
      */
-    export const NET_MODE: 0 | 1 | 2;
+    export const NET_MODE: number;
 }
