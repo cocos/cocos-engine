@@ -42,21 +42,21 @@ var fsUtils = {
         tempDir = fsUtils.getUserDataPath() + '/temp';
         !fs.isDirectoryExist(tempDir) && fs.createDirectory(tempDir);
 
-        jsb_downloader.setOnFileTaskSuccess(task => {
+        jsb_downloader.setOnSuccess(task => {
             if (!downloading.has(task.requestURL)) return;
             let { onComplete } = downloading.remove(task.requestURL);
 
             onComplete && onComplete(null, task.storagePath);
         });
 
-        jsb_downloader.setOnTaskError((task, errorCode, errorCodeInternal, errorStr) => {
+        jsb_downloader.setOnError((task, errorCode, errorCodeInternal, errorStr) => {
             if (!downloading.has(task.requestURL)) return;
             let { onComplete } = downloading.remove(task.requestURL);
             cc.error(`Download file failed: path: ${task.requestURL} message: ${errorStr}, ${errorCode}`);
             onComplete(new Error(errorStr), null);
         });
 
-        jsb_downloader.setOnTaskProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected) => {
+        jsb_downloader.setOnProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected) => {
             if (!downloading.has(task.requestURL)) return;
             let { onProgress } = downloading.get(task.requestURL);
 
@@ -91,7 +91,7 @@ var fsUtils = {
         downloading.add(remoteUrl, { onProgress, onComplete });
         var storagePath = filePath;
         if (!storagePath) storagePath = tempDir + '/' + performance.now() + cc.path.extname(remoteUrl);
-        jsb_downloader.createDownloadFileTask(remoteUrl, storagePath, header);
+        jsb_downloader.createDownloadTask(remoteUrl, storagePath, header);
     },
 
     saveFile (srcPath, destPath, onComplete) {

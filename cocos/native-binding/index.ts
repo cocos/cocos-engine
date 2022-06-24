@@ -73,7 +73,63 @@ export declare namespace native {
          * let downloader = new native.Downloader(hints); // create a Downloader object with DownloaderHints
          */
         constructor (hints: DownloaderHints);
+
         /**
+         * @en create a download task. The maximum size for a single download file is 4GB.
+         * @zh 创建一个下载任务. 单个下载文件最大为4GB.
+         * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+         * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
+         * @param identifier  @en identifier @zh 标识符
+         * @return @en DownloaderTask @zh 下载任务对象
+         * @example
+         * ```ts
+         * let task = downloader.createDownloadTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
+         */
+        createDownloadTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
+
+        /**
+         * @en set callback function after download success
+         * @zh 设置任务成功下载后的回调函数
+         * @param onSucceed @en Download success callback @zh 下载成功后的回调函数
+         * @example
+         * ```ts
+         *  // set a download success callback
+         *  downloader.setOnSuccess((task)=>{
+         *  console.log('Success!'); // call when task download success
+         * });
+         */
+        setOnSuccess (onSucceed: (task: DownloaderTask) => void): void;
+
+        /**
+         * @en set callback function while download.
+         * @zh 设置任务下载过程中的回调函数.
+         * @param onProgress @en Download progress callback @zh 下载过程中的回调函数
+         * @example
+         * ```ts
+         *  // set a callback for download progress prompt
+         *  downloader.setOnProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected)=>{
+         *  console.log(bytesReceived, totalBytesReceived); // download data info
+         *  console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
+         * });
+         */
+        setOnProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
+            totalBytesReceived: number, totalBytesExpected: number) => void): void;
+
+        /**
+         * @en set callback function when download error
+         * @zh 设置任务下载发生错误时的回调函数
+         * @param onError @en Download error callback @zh 下载发生错误时的回调函数
+         * @example
+         * ```ts
+         * // set a download error callback
+         *  downloader.setOnError((task, errorCode, errorCodeInternal, errorStr)=>{
+         *  console.log('Error:', errorStr);
+         * });
+         */
+        setOnError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
+
+        /**
+         * @deprecated since v3.6.0, please use `createDownloadTask` to instead.
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
          * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
@@ -87,6 +143,7 @@ export declare namespace native {
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
         /**
+         * @deprecated since v3.6.0, please use `setOnSuccess` to instead.
          * @en set callback function after download success
          * @zh 设置任务成功下载后的回调函数
          * @param onSucceed @en Download success callback @zh 下载成功后的回调函数
@@ -100,6 +157,7 @@ export declare namespace native {
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
         /**
+         * @deprecated since v3.6.0, please use `setOnProgress` to instead.
          * @en set callback function while download.
          * @zh 设置任务下载过程中的回调函数.
          * @param onProgress @en Download progress callback @zh 下载过程中的回调函数
@@ -114,6 +172,7 @@ export declare namespace native {
         setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
         /**
+         * @deprecated since v3.6.0, please use `setOnError` to instead.
          * @en set callback function when download error
          * @zh 设置任务下载发生错误时的回调函数
          * @param onError @en Download error callback @zh 下载发生错误时的回调函数
