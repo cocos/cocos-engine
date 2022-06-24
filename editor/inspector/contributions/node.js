@@ -154,6 +154,68 @@ exports.listeners = {
             console.error(error);
         }
     },
+    'preview-dump'(event) {
+        const panel = this;
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        const dump = event.target.dump;
+        if (!dump || panel.isDialoging) {
+            return;
+        }
+
+        const { method, value: assetUuid } = event.detail;
+        if (method === 'confirm') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                panel.previewTimeId = setTimeout(() => {
+                    for (let i = 0; i < panel.uuidList.length; i++) {
+                        const uuid = panel.uuidList[i];
+                        const { path, type } = dump;
+                        let value = dump.value;
+
+                        if (dump.values) {
+                            value = dump.values[i];
+                        }
+
+                        // 预览新的值
+                        value.uuid = assetUuid;
+
+                        Editor.Message.send('scene', 'preview-set-property', {
+                            uuid,
+                            path,
+                            dump: {
+                                type,
+                                value,
+                            },
+                        });
+                    }
+                }, 500);
+            } catch (error) {
+                console.error(error);
+            }
+        } else if (method === 'cancel') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                for (let i = 0; i < panel.uuidList.length; i++) {
+                    const uuid = panel.uuidList[i];
+                    const { path } = dump;
+
+                    Editor.Message.send('scene', 'cancel-preview-set-property', {
+                        uuid,
+                        path,
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    },
 };
 
 exports.template = /* html*/`
@@ -940,6 +1002,10 @@ const Elements = {
                             exports.listeners['create-dump'].call(panel, event);
                         });
 
+                        $panel.shadowRoot.addEventListener('preview-dump', (event) => {
+                            exports.listeners['preview-dump'].call(panel, event);
+                        });
+
                         $section.appendChild($panel);
                         $section.__panels__.push($panel);
                         $panel.dump = component;
@@ -1153,7 +1219,7 @@ const Elements = {
 
                     materialPanel.addEventListener('focus', () => {
                         const children = Array.from(materialPanel.parentElement.children);
-                        children.forEach(child => {
+                        children.forEach((child) => {
                             if (child === materialPanel) {
                                 child.setAttribute('focused', '');
                             } else {
@@ -1599,8 +1665,8 @@ exports.update = async function update(uuidList, renderMap, dropConfig, typeMana
     const panel = this;
 
     const enginePath = path.join('editor', 'inspector', 'components');
-    Object.values(renderMap).forEach(config => {
-        Object.values(config).forEach(renders => {
+    Object.values(renderMap).forEach((config) => {
+        Object.values(config).forEach((renders) => {
             renders.sort((a, b) => {
                 return b.indexOf(enginePath) - a.indexOf(enginePath);
             });

@@ -47,6 +47,7 @@ import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pip
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
+import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
 
 /**
@@ -686,6 +687,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+
+        const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+        str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
+
         this._constantMacros = str;
     }
 

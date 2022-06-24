@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+import './embedded-player/embedded-player';
+import './embedded-player/embedded-animation-clip-player';
+import './embedded-player/embedded-particle-system-player';
+
 export * from './target-path';
 export * from './value-proxy';
 export { UniformProxyFactory } from './value-proxy-factories/uniform';

@@ -62,6 +62,7 @@ export interface IParticleSystemRenderer {
     beforeRender (): void;
     setUseInstance (value: boolean): void;
     getUseInstance (): boolean;
+    getNoisePreview (out: number[], width: number, height: number): void;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -168,4 +169,5 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
     public abstract beforeRender (): void;
     public abstract setUseInstance (value: boolean): void;
+    public abstract getNoisePreview (out: number[], width: number, height: number): void;
 }
