@@ -1315,6 +1315,21 @@ static bool js_2d_RenderEntity_getStaticRenderDrawInfos(se::State& s) // NOLINT(
 }
 SE_BIND_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos)
 
+static bool js_2d_RenderEntity_removeDynamicRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_removeDynamicRenderDrawInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->removeDynamicRenderDrawInfo();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderEntity_removeDynamicRenderDrawInfo)
+
 static bool js_2d_RenderEntity_setDynamicRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -1440,6 +1455,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("addDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_addDynamicRenderDrawInfo));
     cls->defineFunction("getStaticRenderDrawInfo", _SE(js_2d_RenderEntity_getStaticRenderDrawInfo));
     cls->defineFunction("getStaticRenderDrawInfos", _SE(js_2d_RenderEntity_getStaticRenderDrawInfos));
+    cls->defineFunction("removeDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_removeDynamicRenderDrawInfo));
     cls->defineFunction("setDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_setDynamicRenderDrawInfo));
     cls->defineFunction("setRenderEntityType", _SE(js_2d_RenderEntity_setRenderEntityType));
     cls->defineFinalizeFunction(_SE(js_cc_RenderEntity_finalize));

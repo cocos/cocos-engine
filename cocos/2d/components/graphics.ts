@@ -266,7 +266,7 @@ export class Graphics extends UIRenderer {
         this._flushAssembler();
         if (JSB) {
             this._graphicsNativeProxy.initModel(this.node);
-            // this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+            this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
         }
     }
 

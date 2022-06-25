@@ -55,6 +55,7 @@ bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos);
+SE_DECLARE_FUNC(js_2d_RenderEntity_removeDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderEntityType);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);

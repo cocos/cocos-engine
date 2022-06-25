@@ -25,6 +25,10 @@ void RenderEntity::setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t i
         _dynamicDrawInfos[index] = drawInfo;
     }
 }
+void RenderEntity::removeDynamicRenderDrawInfo() {
+    if (_dynamicDrawInfos.empty()) return;
+    _dynamicDrawInfos.pop_back(); // 泄漏 & crash
+}
 void RenderEntity::setNode(Node* node) {
     _node = node;
     node->setUserData(this);

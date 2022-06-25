@@ -85,6 +85,7 @@ export class NativeRenderEntity {
 
     addDynamicRenderDrawInfo (drawInfo: NativeRenderDrawInfo) { }
     setDynamicRenderDrawInfo (drawInfo: NativeRenderDrawInfo, index: number) { }
+    removeDynamicRenderDrawInfo () { }
 
     get node (): Node { return new Node(); }
     set node (node: Node) { }

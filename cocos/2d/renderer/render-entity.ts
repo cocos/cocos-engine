@@ -56,6 +56,13 @@ export class RenderEntity {
         }
     }
 
+    public removeDynamicRenderDrawInfo () {
+        if (JSB) {
+            this._dynamicDrawInfoArr.pop();
+            this._nativeObj.removeDynamicRenderDrawInfo();
+        }
+    }
+
     public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number) {
         if (JSB) {
             if (renderDrawInfo) {

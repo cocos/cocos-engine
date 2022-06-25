@@ -37,34 +37,40 @@ void GraphicsProxy::activeSubModel(uint8_t val) {
         renderMesh->setSubMeshIdx(0);
 
         RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
-        RenderDrawInfo* drawInfo = entity->getStaticRenderDrawInfo(0);
+        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val); // 可能会越界
         _model->initSubModel(val, renderMesh, drawInfo->getMaterial()); //材质实例
         _graphicsUseSubMeshes.emplace_back(renderMesh);
     }
 }
 
 void GraphicsProxy::uploadData() {
-    RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData()); // 这儿是一对多// list
-    RenderDrawInfo* drawInfo = entity->getStaticRenderDrawInfo(0);
+    RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
+    auto drawInfos = entity->getDynamicRenderDrawInfos();
     auto subModelList = _model->getSubModels();
-    for (size_t i = 0; i < subModelList.size(); i++) { // 可能会多
-        auto* ia = subModelList.at(0)->getInputAssembler();
+    for (size_t i = 0; i < drawInfos.size(); i++) {
+        auto drawInfo = drawInfos[i];
+        auto* ia = subModelList.at(i)->getInputAssembler();
         if (drawInfo->getVbCount() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
         if (vBuffers.size() > 0) {
             auto size = drawInfo->getVbCount() * _stride;
-            vBuffers[0]->resize(size);
+            // if (size > vBuffers[0]->getSize()) {
+                vBuffers[0]->resize(size);
+            // }
             vBuffers[0]->update(drawInfo->getVDataBuffer()); // vdata
         }
         ia->setVertexCount(drawInfo->getVbCount()); // count
 
         gfx::Buffer* iBuffer = ia->getIndexBuffer();
-        auto size = drawInfo->getIbCount() * 2;
-        iBuffer->resize(size);
+        auto size = drawInfo->getIbCount() * sizeof(uint16_t);
+        // if (size > iBuffer->getSize()) {
+            iBuffer->resize(size);
+        // }
         iBuffer->update(drawInfo->getIDataBuffer()); // idata
         ia->setIndexCount(drawInfo->getIbCount());   // indexCount
+        // drawInfo->setModel(_model); // 会重复渲染
     }
-    drawInfo->setModel(_model);
+    drawInfos[0]->setModel(_model);
 }
 
 void GraphicsProxy::destroy() {

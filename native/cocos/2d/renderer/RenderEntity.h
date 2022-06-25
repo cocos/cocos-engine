@@ -23,6 +23,7 @@ public:
 
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
+    void removeDynamicRenderDrawInfo();
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);

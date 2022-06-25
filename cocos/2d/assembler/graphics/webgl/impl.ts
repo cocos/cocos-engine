@@ -194,6 +194,7 @@ export class Impl {
             }
 
             MeshRenderData.remove(data);
+            data.removeRenderDrawInfo(this._comp);
         }
 
         this._renderDataList.length = 0;

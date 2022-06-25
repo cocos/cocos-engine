@@ -98,6 +98,7 @@ void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, N
             resetRenderStates();
             // stencil stage
             auto model = drawInfo->getModel();
+            if (model == nullptr) return;
             // need stamp
             auto stamp = CC_CURRENT_ENGINE()->getTotalFrames();
             model->updateTransform(stamp);

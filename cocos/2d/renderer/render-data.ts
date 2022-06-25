@@ -172,6 +172,15 @@ export class BaseRenderData {
         }
     }
 
+    public removeRenderDrawInfo (comp:UIRenderer) {
+        if (JSB) {
+            const renderEntity:RenderEntity = comp.renderEntity!;
+            if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
+                renderEntity.removeDynamicRenderDrawInfo();
+            }
+        }
+    }
+
     public assignExtraDrawInfoAttrs (comp: UIRenderer) {
         if (JSB) {
             if (!this._renderDrawInfo || !comp) {
