@@ -1640,6 +1640,10 @@ exports.methods = {
         const panel = this;
 
         const materialUuids = panel.assets['cc.Material'];
+        if (!materialUuids) {
+            return;
+        }
+
         try {
             for (const dumpPath in materialUuids[assetUuid]) {
                 const dumpData = materialUuids[assetUuid][dumpPath];
