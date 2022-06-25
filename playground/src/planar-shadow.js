@@ -18,7 +18,7 @@ lightNode.setRotationFromEuler(-50, 0, 0);
 lightNode.addComponent('cc.DirectionalLight');
 
 const material = new cc.Material();
-material.initialize({ effectName: 'standard' });
+material.initialize({ effectName: 'builtin-standard' });
 
 const manifest = [
   { name: 'box', pos: cc.v3(0, 1, 10) },

@@ -46,10 +46,7 @@ System.warmup({
 });
 
 System.import('<%= applicationJs %>').then(({ createApplication }) => {
-    return createApplication({
-        loadJsListFile: (url) => require(`./${url}`),
-        fetchWasm: (url) => url,
-    });
+    return createApplication();
 }).then((application) => {
     return onApplicationCreated(application);
 }).catch((err) => {
@@ -64,8 +61,6 @@ function onApplicationCreated(application) {
         require('./libs/common/cache-manager.js');
         // Adjust devicePixelRatio
         cc.view._maxPixelRatio = 4;
-        // Release Image objects after uploaded gl texture
-        cc.macro.CLEANUP_IMAGE_CACHE = false;
 
         // post system info to open data context
         swan.getOpenDataContext().postMessage({
@@ -74,11 +69,6 @@ function onApplicationCreated(application) {
             systemInfo: swan.getSystemInfoSync(),
         });
 
-        return application.start({
-            findCanvas: () => {
-                var container = document.createElement('div');
-                return { frame: container, canvas: window.canvas, container };
-            },
-        });
+        return application.start();
     });
 }

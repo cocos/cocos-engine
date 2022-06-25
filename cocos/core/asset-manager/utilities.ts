@@ -24,7 +24,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset, Prefab, SceneAsset } from '../assets';
+import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
 import { js } from '../utils/js';
@@ -32,7 +32,6 @@ import { callInNextTick } from '../utils/misc';
 import Config from './config';
 import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
-import { IDependProp } from './deserialize';
 import { isScene } from './helper';
 import RequestItem from './request-item';
 import { assets, AssetType, CompleteCallbackNoData, CompleteCallback, IOptions, ProgressCallback, references } from './shared';

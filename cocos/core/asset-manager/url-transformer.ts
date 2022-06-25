@@ -24,7 +24,8 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { js, path } from '../utils';
+import { js } from '../utils/js';
+import * as path from '../utils/path';
 import Config, { IAddressableInfo, IAssetInfo } from './config';
 import { decodeUuid } from './helper';
 import RequestItem from './request-item';

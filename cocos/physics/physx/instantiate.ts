@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { selector } from '../framework/physics-selector';
 
 import { PhysXWorld } from './physx-world';
@@ -44,7 +42,7 @@ import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
 import { Game, game } from '../../core';
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('physx', {
         PhysicsWorld: PhysXWorld,
         RigidBody: PhysXRigidBody,

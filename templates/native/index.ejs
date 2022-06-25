@@ -18,24 +18,12 @@ System.warmup({
 });
 
 System.import('<%= applicationJs %>').then(({ createApplication }) => {
-    return createApplication({
-        loadJsListFile: (url) => require(url),
-        fetchWasm: (url) => url,
-    });
+    return createApplication();
 }).then((application) => {
     return application.import('cc').then((cc) => {
         require('jsb-adapter/jsb-engine.js');
-        cc.macro.CLEANUP_IMAGE_CACHE = false;
     }).then(() => {
-        return application.start({
-            settings: window._CCSettings,
-            findCanvas: () => {
-                var container = document.createElement('div');
-                var frame = document.documentElement;
-                var canvas = window.__canvas;
-                return { frame, canvas, container };
-            },
-        });
+        return application.start();
     });
 }).catch((err) => {
     console.error(err.toString());

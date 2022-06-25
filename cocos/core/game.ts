@@ -30,37 +30,28 @@
 
 import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { ConfigOrientation } from 'pal/screen-adapter';
-import { IAssetManagerOptions } from './asset-manager/asset-manager';
+import { findCanvas, loadJsFile } from 'pal/env';
+import { Pacer } from 'pal/pacer';
+import assetManager from './asset-manager/asset-manager';
 import { EventTarget } from './event';
+import { AsyncDelegate } from './event/async-delegate';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
+import { deviceManager } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import type { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
-import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline/render-pipeline';
-import { Node } from './scene-graph/node';
-import { BrowserType } from '../../pal/system-info/enum-type';
-import { Layers } from './scene-graph';
-import { log2 } from './math/bits';
+import { Layers, Node } from './scene-graph';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
 import { builtinResMgr } from './builtin/builtin-res-mgr';
-
-interface ISceneInfo {
-    url: string;
-    uuid: string;
-}
-
-export interface LayerItem {
-    name: string;
-    value: number;
-}
+import { Settings, settings } from './settings';
+import { Director, director } from './director';
+import { bindingMappingInfo } from './pipeline/define';
+import { assert } from './platform/debug';
+import { IBundleOptions } from './asset-manager/shared';
 
 /**
  * @zh
@@ -71,119 +62,21 @@ export interface LayerItem {
 export interface IGameConfig {
     /**
      * @zh
+     * 引擎配置文件路径
+     * @en
+     * The path of settings.json
+     */
+    settingsPath?: string;
+
+    /**
+     * @zh
      * 设置 debug 模式，在浏览器中这个选项会被忽略。
      * @en
      * Set debug mode, only valid in non-browser environment.
      */
     debugMode?: debug.DebugMode;
 
-    /**
-     * @zh
-     * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
-     * @en
-     * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
-     */
-    showFPS?: boolean;
-
-    /**
-     * @zh
-     * 暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。
-     * @en
-     * Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.
-     */
-    exposeClassName?: boolean;
-
-    /**
-     * @zh
-     * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
-     * @en
-     * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
-     */
-    frameRate?: number;
-
-    /**
-     * @zh
-     * Web 页面上的 Canvas Element ID，仅适用于 web 端。
-     * @en
-     * Sets the id of your canvas element on the web page, it's useful only on web.
-     */
-    id?: string | HTMLElement;
-
-    /**
-     * @zh
-     * 渲染模式。
-     * 设置渲染器类型，仅适用于 web 端：
-     * - 0 - 通过引擎自动选择。
-     * - 1 - 强制使用 canvas 渲染。
-     * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
-     * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
-     * @en
-     * Sets the renderer type, only useful on web:
-     * - 0 - Automatically chosen by engine.
-     * - 1 - Forced to use canvas renderer.
-     * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
-     * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
-     */
-    renderMode?: 0 | 1 | 2 | 3;
-
-    /**
-     * @zh
-     * 当前包中可用场景。
-     * @en
-     * Include available scenes in the current bundle.
-     */
-    scenes?: ISceneInfo[];
-
-    /**
-     * For internal use.
-     */
-    jsList?: string[];
-
-    /**
-     * Render pipeline resources
-     */
-    renderPipeline?: string;
-
-    /**
-     * Asset Manager initialization options
-     */
-    assetOptions?: IAssetManagerOptions;
-
-    /**
-     * GPU instancing options
-     */
-    customJointTextureLayouts?: ICustomJointTextureLayout[];
-
-    /**
-     * Physics system config
-     */
-    physics?: IPhysicsConfig;
-
-    /**
-     * User layers config
-     */
-    layers?: LayerItem[];
-
-    /**
-     * The adapter stores various platform-related objects.
-     */
-    adapter?: {
-        canvas: HTMLCanvasElement,
-        frame: HTMLDivElement,
-        container: HTMLDivElement,
-        [x: string]: any,
-    };
-
-    /**
-     * The orientation from the builder configuration.
-     * Available value can be 'auto', 'landscape', 'portrait'.
-     */
-    orientation?: ConfigOrientation;
-    /**
-     * Determine whether the game frame exact fits the screen.
-     * Now it only works on Web platform.
-     */
-    exactFitScreen: boolean,
+    overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: any }>
 }
 
 /**
@@ -248,6 +141,19 @@ export class Game extends EventTarget {
      * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
      */
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
+
+    public static readonly EVENT_PRE_SETTINGS_INIT = 'pre_settings_init';
+    public static readonly EVENT_POST_SETTINGS_INIT = 'post_settings_init';
+    public static readonly EVENT_PRE_BASE_INIT = 'pre_base_init';
+    public static readonly EVENT_POST_BASE_INIT = 'post_base_init';
+    public static readonly EVENT_PRE_PAL_INIT = 'pre_pal_init';
+    public static readonly EVENT_POST_PAL_INIT = 'post_pal_init';
+    public static readonly EVENT_PRE_INFRASTRUCTURE_INIT = 'pre_infrastructure_init';
+    public static readonly EVENT_POST_INFRASTRUCTURE_INIT = 'post_infrastructure_init';
+    public static readonly EVENT_PRE_SUBSYSTEM_INIT = 'pre_subsystem_init';
+    public static readonly EVENT_POST_SUBSYSTEM_INIT = 'post_subsystem_init';
+    public static readonly EVENT_PRE_PROJECT_INIT = 'pre_project_init';
+    public static readonly EVENT_POST_PROJECT_INIT = 'post_project_init';
 
     /**
      * @en Event triggered when game restart
@@ -354,7 +260,7 @@ export class Game extends EventTarget {
         }
         this._frameRate = frameRate;
         this.frameTime = 1000 / frameRate;
-        this._setAnimFrame();
+        this._pacer!.targetFrameRate = this._frameRate;
     }
 
     /**
@@ -387,27 +293,7 @@ export class Game extends EventTarget {
      */
     public frameTime = 1000 / 60;
 
-    public collisionMatrix = [];
-    public groupList: any[] = [];
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _persistRootNodes = {};
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _gfxDevice: Device | null = null;
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _swapchain: Swapchain | null = null;
     // states
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _configLoaded = false; // whether config loaded
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -418,12 +304,24 @@ export class Game extends EventTarget {
     private _paused = true;
     // frame control
     private _frameRate = 60;
-    private _intervalId = 0; // interval target of main
+    private _pacer: Pacer | null = null;
     private _initTime = 0;
     private _startTime = 0;
     private _deltaTime = 0.0;
-    private declare _frameCB: (time: number) => void;
-    private _onEngineInitedCallback: Array<() => (Promise<void> | void)> = [];
+    private _shouldLoadLaunchScene = true;
+
+    public readonly onPreSettingsInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPostSettingsInitDelegate: AsyncDelegate<(settings: Settings) => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPreBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPostBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPrePALInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPostPALInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPreInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPostInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPreSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPostSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPreProjectInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    public readonly onPostProjectInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
 
     // @Methods
 
@@ -453,7 +351,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        legacyCC.director.tick(this.frameTime / 1000);
+        director.tick(this.frameTime / 1000);
     }
 
     /**
@@ -474,10 +372,7 @@ export class Game extends EventTarget {
     public pause () {
         if (this._paused) { return; }
         this._paused = true;
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
-        }
+        this._pacer?.stop();
     }
 
     /**
@@ -489,13 +384,8 @@ export class Game extends EventTarget {
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
-        }
         this._paused = false;
-        this._updateCallback();
-        this._intervalId = window.rAF(this._frameCB);
+        this._pacer?.start();
     }
 
     /**
@@ -511,23 +401,14 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart (): Promise<void> {
-        const endFramePromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => resolve()) as void);
+        const endFramePromise = new Promise<void>((resolve) => { director.once(Director.EVENT_END_FRAME, () => resolve()); });
         return endFramePromise.then(() => {
-            for (const id in this._persistRootNodes) {
-                this.removePersistRootNode(this._persistRootNodes[id]);
-            }
-
-            // Clear scene
-            legacyCC.director.getScene().destroy();
-            legacyCC.Object._deferredDestroy();
-
-            legacyCC.director.reset();
+            director.reset();
             legacyCC.profiler.reset();
+            legacyCC.Object._deferredDestroy();
             this.pause();
-            return this._setRenderPipelineNShowSplash().then(() => {
-                this.resume();
-                this._safeEmit(Game.EVENT_RESTART);
-            });
+            this.resume();
+            this._safeEmit(Game.EVENT_RESTART);
         });
     }
 
@@ -589,39 +470,139 @@ export class Game extends EventTarget {
      * @param config - Pass configuration object
      */
     public init (config: IGameConfig) {
-        this._initConfig(config);
-        // TODO: unify the screen initialization workflow.
-        if (HTML5) {
-            // @ts-expect-error access private method.
-            screen._init({
-                configOrientation: config.orientation || 'auto',
-                exactFitScreen: config.exactFitScreen,
-            });
-        }
-        // Init assetManager
-        if (this.config.assetOptions) {
-            legacyCC.assetManager.init(this.config.assetOptions);
-        }
-
-        if (this.config.layers) {
-            const userLayers: LayerItem[] = this.config.layers;
-            for (let i = 0; i < userLayers.length; i++) {
-                const layer = userLayers[i];
-                const bitNum = log2(layer.value);
-                Layers.addLayer(layer.name, bitNum);
-            }
-        }
-
-        return this._initEngine().then(() => {
-            if (!EDITOR) {
+        // DONT change the order unless you know what's you doing
+        return Promise.resolve()
+            .then(() => {
+                this.emit(Game.EVENT_PRE_BASE_INIT);
+                return this.onPreBaseInitDelegate.dispatch();
+            })
+            .then(() => {
+                const debugMode = config.debugMode || debug.DebugMode.NONE;
+                debug._resetDebugSetting(debugMode);
+                sys.init();
                 this._initEvents();
-            }
+            })
+            .then(() => {
+                this.emit(Game.EVENT_POST_BASE_INIT);
+                return this.onPostBaseInitDelegate.dispatch();
+            })
+            // settings initialization
+            .then(() => {
+                this.emit(Game.EVENT_PRE_SETTINGS_INIT);
+                return this.onPreSettingsInitDelegate.dispatch();
+            })
+            .then(() => settings.init(config.settingsPath, config.overrideSettings))
+            .then(() => {
+                this.emit(Game.EVENT_POST_SETTINGS_INIT);
+                return this.onPostSettingsInitDelegate.dispatch(settings);
+            })
+            // Infrastructure region
+            .then(() => {
+                this.emit(Game.EVENT_PRE_INFRASTRUCTURE_INIT);
+                return this.onPreInfrastructureInitDelegate.dispatch();
+            })
+            .then(() => {
+                macro.init();
+                const adapter = findCanvas();
+                if (adapter) {
+                    this.canvas = adapter.canvas;
+                    this.frame = adapter.frame;
+                    this.container = adapter.container;
+                }
+                screen.init();
+                garbageCollectionManager.init();
+                deviceManager.init(this.canvas, bindingMappingInfo);
+                assetManager.init();
+                builtinResMgr.init();
+                Layers.init();
+                this.initPacer();
+            })
+            .then(() => {
+                this.emit(Game.EVENT_POST_INFRASTRUCTURE_INIT);
+                return this.onPostInfrastructureInitDelegate.dispatch();
+            })
+            // Infrastructure region
+            // Subsystem region
+            .then(() => {
+                this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
+                return this.onPreSubsystemInitDelegate.dispatch();
+            })
+            .then(() => director.init())
+            .then(() => builtinResMgr.loadBuiltinAsset())
+            .then(() => {
+                this.emit(Game.EVENT_POST_SUBSYSTEM_INIT);
+                return this.onPostSubsystemInitDelegate.dispatch();
+            })
+            .then(() => {
+                debug.log(`Cocos Creator v${VERSION}`);
+                this.emit(Game.EVENT_ENGINE_INITED);
+                this._engineInited = true;
+            })
+            // Subsystem region
+            // Project region
+            .then(() => {
+                this.emit(Game.EVENT_PRE_PROJECT_INIT);
+                return this.onPreProjectInitDelegate.dispatch();
+            })
+            .then(() => {
+                const jsList = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'jsList');
+                let promise = Promise.resolve();
+                if (jsList) {
+                    jsList.forEach((jsListFile) => {
+                        promise = promise.then(() => loadJsFile(`${PREVIEW ? 'plugins' : 'src'}/${jsListFile}`));
+                    });
+                }
+                return promise;
+            })
+            .then(() => {
+                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
+                if (scriptPackages) {
+                    return Promise.all(scriptPackages.map((pack) => import(pack)));
+                }
+            })
+            .then(() => this._loadProjectBundles())
+            .then(() => this._setupRenderPipeline())
+            .then(() => this._loadPreloadAssets())
+            .then(() => SplashScreen.instance.init())
+            .then(() => {
+                this.emit(Game.EVENT_POST_PROJECT_INIT);
+                return this.onPostProjectInitDelegate.dispatch();
+            })
+            .then(() => {
+                this._inited = true;
+                this._safeEmit(Game.EVENT_GAME_INITED);
+            });
+        // Project region
+    }
 
-            if (legacyCC.director.root && legacyCC.director.root.dataPoolManager) {
-                legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
-            }
-            return this._engineInited;
-        });
+    _loadPreloadAssets () {
+        const preloadAssets = settings.querySettings<string[]>(Settings.Category.ASSETS, 'preloadAssets');
+        if (!preloadAssets) return Promise.resolve([]);
+        return Promise.all(preloadAssets.map((uuid) => new Promise<void>((resolve, reject) => {
+            assetManager.loadAny(uuid, (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
+        })));
+    }
+
+    _loadProjectBundles () {
+        const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
+        if (!preloadBundles) return Promise.resolve([]);
+        return Promise.all(preloadBundles.map(({ bundle, version }) => new Promise<void>((resolve, reject) => {
+            const opts: IBundleOptions = {};
+            if (version) opts.version = version;
+            assetManager.loadBundle(bundle, opts, (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
+        })));
     }
 
     /**
@@ -629,171 +610,20 @@ export class Game extends EventTarget {
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @param onStart - function to be executed after game initialized
      */
-    public run(onStart?: Game.OnStart): Promise<void>;
-
-    public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
-        // To compatible with older version,
-        // we allow the `run(config, onstart?)` form. But it's deprecated.
-        let initPromise: Promise<boolean> | undefined;
-        if (typeof configOrCallback !== 'function' && configOrCallback) {
-            initPromise = this.init(configOrCallback);
-            this.onStart = onStart ?? null;
-        } else {
-            this.onStart = configOrCallback ?? null;
+    public run (onStart?: Game.OnStart) {
+        if (onStart) {
+            this.onStart = onStart;
         }
-        garbageCollectionManager.init();
-
-        return Promise.resolve(initPromise)
-            .then(() => Promise.resolve(builtinResMgr.initBuiltinRes(this._gfxDevice!)))
-            .then(() => this._setRenderPipelineNShowSplash()).then(() => {
-                if (!HTML5) {
-                    // @ts-expect-error access private method.
-                    screen._init({
-                        configOrientation: 'auto',
-                        exactFitScreen: true,
-                    });
-                }
-            });
-    }
-
-    //  @ Persist root node section
-    /**
-     * @en
-     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
-     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
-     * @zh
-     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
-     * 目标节点必须位于为层级的根节点，否则无效。
-     * @param node - The node to be made persistent
-     */
-    public addPersistRootNode (node: Node) {
-        if (!legacyCC.Node.isNode(node) || !node.uuid) {
-            debug.warnID(3800);
+        if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
             return;
         }
-        const id = node.uuid;
-        if (!this._persistRootNodes[id]) {
-            const scene = legacyCC.director._scene;
-            if (legacyCC.isValid(scene)) {
-                if (!node.parent) {
-                    node.parent = scene;
-                } else if (!(node.parent instanceof legacyCC.Scene)) {
-                    debug.warnID(3801);
-                    return;
-                } else if (node.parent !== scene) {
-                    debug.warnID(3802);
-                    return;
-                } else {
-                    node._originalSceneId = scene.uuid;
-                }
-            }
-            this._persistRootNodes[id] = node;
-            node._persistNode = true;
-            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
-        }
-    }
-
-    /**
-     * @en Remove a persistent root node.
-     * @zh 取消常驻根节点。
-     * @param node - The node to be removed from persistent node list
-     */
-    public removePersistRootNode (node: Node) {
-        const id = node.uuid || '';
-        if (node === this._persistRootNodes[id]) {
-            delete this._persistRootNodes[id];
-            node._persistNode = false;
-            node._originalSceneId = '';
-            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
-        }
-    }
-
-    /**
-     * @en Check whether the node is a persistent root node.
-     * @zh 检查节点是否是常驻根节点。
-     * @param node - The node to be checked
-     */
-    public isPersistRootNode (node: { _persistNode: any; }): boolean {
-        return !!node._persistNode;
-    }
-
-    /**
-     * TODO: Only hack for PhysX initialization, should be removed in future
-     * @internal
-     */
-    public onEngineInitedAsync (func: () => (Promise<void> | void)) {
-        this._onEngineInitedCallback.push(func);
-    }
-
-    //  @Engine loading
-
-    private _initEngine () {
-        this._initDevice();
-        const director = legacyCC.director;
-        return Promise.resolve(director._init()).then(() => {
-            legacyCC.view.init();
-            // Log engine version
-            debug.log(`Cocos Creator v${VERSION}`);
-            this.emit(Game.EVENT_ENGINE_INITED);
-            this._engineInited = true;
-            if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
-        }).then(() => {
-            const initCallbackPromises = this._onEngineInitedCallback.map((func) => func()).filter(Boolean);
-            this._onEngineInitedCallback.length = 0;
-            return Promise.all(initCallbackPromises);
-        });
+        this.resume();
     }
 
     // @Methods
 
-    //  @Time ticker section
-    private _setAnimFrame () {
-        const frameRate = this._frameRate;
-        if (JSB) {
-            // @ts-expect-error JSB Call
-            jsb.setPreferredFramesPerSecond(frameRate);
-            window.rAF = window.requestAnimationFrame;
-            window.cAF = window.cancelAnimationFrame;
-        } else {
-            const rAF = window.requestAnimationFrame = window.requestAnimationFrame
-                     || window.webkitRequestAnimationFrame
-                     || window.mozRequestAnimationFrame
-                     || window.oRequestAnimationFrame
-                     || window.msRequestAnimationFrame;
-            if (frameRate !== 60 && frameRate !== 30) {
-                window.rAF = this._stTime.bind(this);
-                window.cAF = this._ctTime;
-            } else {
-                window.rAF = rAF || this._stTime.bind(this);
-                window.cAF = window.cancelAnimationFrame
-                    || window.cancelRequestAnimationFrame
-                    || window.msCancelRequestAnimationFrame
-                    || window.mozCancelRequestAnimationFrame
-                    || window.oCancelRequestAnimationFrame
-                    || window.webkitCancelRequestAnimationFrame
-                    || window.msCancelAnimationFrame
-                    || window.mozCancelAnimationFrame
-                    || window.webkitCancelAnimationFrame
-                    || window.ocancelAnimationFrame
-                    || this._ctTime;
-
-                // update callback function for 30 fps version
-                this._updateCallback();
-            }
-        }
-    }
-    private _stTime (callback: () => void) {
-        const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - this._startTime));
-        const timeToCall = Math.max(0, this.frameTime - elapseTime);
-        const id = window.setTimeout(callback, timeToCall);
-        return id;
-    }
-    private _ctTime (id: number | undefined) {
-        window.clearTimeout(id);
-    }
-    private _calculateDT (now?: number) {
-        if (!now) now = performance.now();
+    private _calculateDT () {
+        const now = performance.now();
         this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
         if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
             this._deltaTime = this.frameTime / 1000;
@@ -803,153 +633,36 @@ export class Game extends EventTarget {
     }
 
     private _updateCallback () {
-        const director = legacyCC.director;
-        let callback;
-        if (!JSB && !RUNTIME_BASED && this._frameRate === 30) {
-            let skip = true;
-            callback = (time: number) => {
-                this._intervalId = window.rAF(this._frameCB);
-                skip = !skip;
-                if (skip) {
-                    return;
-                }
-                director.tick(this._calculateDT(time));
-            };
-        } else {
-            callback = (time: number) => {
-                director.tick(this._calculateDT(time));
-                this._intervalId = window.rAF(this._frameCB);
-            };
-        }
-        this._frameCB = callback;
-    }
-
-    // Run game.
-    private _runMainLoop () {
-        if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
-            return;
-        }
-        const config = this.config;
-        const director = legacyCC.director;
-
-        debug.setDisplayStats(!!config.showFPS);
-        director.startAnimation();
-        this.resume();
-    }
-
-    // @Game loading section
-    private _initConfig (config: IGameConfig) {
-        // Configs adjustment
-        if (typeof config.debugMode !== 'number') {
-            config.debugMode = debug.DebugMode.NONE;
-        }
-        config.exposeClassName = !!config.exposeClassName;
-        if (typeof config.frameRate !== 'number') {
-            config.frameRate = 60;
-        }
-        const renderMode = config.renderMode;
-        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
-            config.renderMode = 0;
-        }
-        config.showFPS = !!config.showFPS;
-
-        debug._resetDebugSetting(config.debugMode);
-
-        this.config = config as NormalizedGameConfig;
-        this._configLoaded = true;
-
-        this.frameRate = config.frameRate;
-    }
-
-    private _determineRenderType () {
-        const config = this.config;
-        const userRenderMode = parseInt(config.renderMode as any, 10);
-
-        // Determine RenderType
-        this.renderType = Game.RENDER_TYPE_CANVAS;
-        let supportRender = false;
-
-        if (userRenderMode === 1) {
-            this.renderType = Game.RENDER_TYPE_CANVAS;
-            supportRender = true;
-        } else if (userRenderMode === 0 || userRenderMode === 2) {
-            this.renderType = Game.RENDER_TYPE_WEBGL;
-            supportRender = true;
-        } else if (userRenderMode === 3) {
-            this.renderType = Game.RENDER_TYPE_HEADLESS;
-            supportRender = true;
-        }
-
-        if (!supportRender) {
-            throw new Error(debug.getError(3820, userRenderMode));
-        }
-    }
-
-    private _initDevice () {
-        // Avoid setup to be called twice.
-        if (this._rendererInitialized) { return; }
-
-        // Obtain platform-related objects through the adapter
-        const adapter = this.config.adapter;
-        if (adapter) {
-            this.canvas = adapter.canvas;
-            this.frame = adapter.frame;
-            this.container = adapter.container;
-        }
-
-        this._determineRenderType();
-
-        // WebGL context created successfully
-        if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const deviceInfo = new DeviceInfo(bindingMappingInfo);
-
-            if (JSB && window.gfx) {
-                this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
+        if (!this._inited) return;
+        if (!SplashScreen.instance.isFinished) {
+            SplashScreen.instance.update(this._calculateDT());
+        } else if (this._shouldLoadLaunchScene) {
+            this._shouldLoadLaunchScene = false;
+            const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene');
+            if (launchScene) {
+                // load scene
+                director.loadScene(launchScene, () => {
+                    console.log(`Success to load scene: ${launchScene}`);
+                    this._initTime = performance.now();
+                    director.startAnimation();
+                    this.onStart?.();
+                });
             } else {
-                let useWebGL2 = (!!window.WebGL2RenderingContext);
-                const userAgent = window.navigator.userAgent.toLowerCase();
-                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
-                ) {
-                    useWebGL2 = false;
-                }
-
-                const deviceCtors: Constructor<Device>[] = [];
-                if (useWebGL2 && legacyCC.WebGL2Device) {
-                    deviceCtors.push(legacyCC.WebGL2Device);
-                }
-                if (legacyCC.WebGLDevice) {
-                    deviceCtors.push(legacyCC.WebGLDevice);
-                }
-                if (legacyCC.EmptyDevice) {
-                    deviceCtors.push(legacyCC.EmptyDevice);
-                }
-
-                Device.canvas = this.canvas!;
-                for (let i = 0; i < deviceCtors.length; i++) {
-                    this._gfxDevice = new deviceCtors[i]();
-                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
-                }
+                this._initTime = performance.now();
+                director.startAnimation();
+                this.onStart?.();
             }
-        } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
-            this._gfxDevice = new legacyCC.EmptyDevice();
-            this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
+        } else {
+            director.tick(this._calculateDT());
         }
+    }
 
-        if (!this._gfxDevice) {
-            // todo fix here for wechat game
-            debug.error('can not support canvas rendering in 3D');
-            this.renderType = Game.RENDER_TYPE_CANVAS;
-            return;
-        }
-
-        const swapchainInfo = new SwapchainInfo(this.canvas!);
-        const windowSize = screen.windowSize;
-        swapchainInfo.width = windowSize.width;
-        swapchainInfo.height = windowSize.height;
-        this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
-
-        this.canvas!.oncontextmenu = () => false;
+    private initPacer () {
+        const frameRate = settings.querySettings(Settings.Category.SCREEN, 'frameRate') ?? 60;
+        assert(typeof frameRate === 'number');
+        this._pacer = new Pacer();
+        this._pacer.onTick(this._updateCallback.bind(this));
+        this.frameRate = frameRate;
     }
 
     private _initEvents () {
@@ -967,29 +680,48 @@ export class Game extends EventTarget {
         this.resume();
     }
 
-    private _setRenderPipelineNShowSplash () {
-        return Promise.resolve(this._setupRenderPipeline()).then(
-            () => Promise.resolve(this._showSplashScreen()).then(
-                () => {
-                    this._inited = true;
-                    this._initTime = performance.now();
-                    this._runMainLoop();
-                    this._safeEmit(Game.EVENT_GAME_INITED);
-                    if (this.onStart) {
-                        this.onStart();
-                    }
-                },
-            ),
-        );
+    //  @ Persist root node section
+    /**
+     * @en
+     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
+     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
+     * @zh
+     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
+     * 目标节点必须位于为层级的根节点，否则无效。
+     * @param node - The node to be made persistent
+     * @deprecated Since v3.6.0, please use director.addPersistRootNode instead.
+     */
+    public addPersistRootNode (node: Node) {
+        director.addPersistRootNode(node);
+    }
+
+    /**
+     * @en Remove a persistent root node.
+     * @zh 取消常驻根节点。
+     * @param node - The node to be removed from persistent node list
+     * @deprecated Since v3.6.0, please use director.removePersistRootNode instead.
+     */
+    public removePersistRootNode (node: Node) {
+        director.removePersistRootNode(node);
+    }
+
+    /**
+     * @en Check whether the node is a persistent root node.
+     * @zh 检查节点是否是常驻根节点。
+     * @param node - The node to be checked.
+     * @deprecated Since v3.6.0, please use director.isPersistRootNode instead.
+     */
+    public isPersistRootNode (node: Node): boolean {
+        return director.isPersistRootNode(node);
     }
 
     private _setupRenderPipeline () {
-        const { renderPipeline } = this.config;
+        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline');
         if (!renderPipeline) {
             return this._setRenderPipeline();
         }
         return new Promise<RenderPipeline>((resolve, reject) => {
-            legacyCC.assetManager.loadAny(renderPipeline, (err, asset) => ((err || !(asset instanceof RenderPipeline))
+            assetManager.loadAny(renderPipeline, (err, asset) => ((err || !(asset instanceof RenderPipeline))
                 ? reject(err)
                 : resolve(asset)));
         }).then((asset) => {
@@ -1001,20 +733,8 @@ export class Game extends EventTarget {
         });
     }
 
-    private _showSplashScreen () {
-        if (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
-            const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-            splashScreen.main(legacyCC.director.root);
-            return new Promise<void>((resolve) => {
-                splashScreen.setOnFinish(() => resolve());
-                splashScreen.loadFinish = true;
-            });
-        }
-        return null;
-    }
-
     private _setRenderPipeline (rppl?: RenderPipeline) {
-        if (!legacyCC.director.root.setRenderPipeline(rppl)) {
+        if (!director.root!.setRenderPipeline(rppl)) {
             this._setRenderPipeline();
         }
 

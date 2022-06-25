@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import { AABB, Frustum, intersect, Sphere } from '../../geometry';
+import { deviceManager } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { RenderScene } from '../../renderer';
@@ -102,7 +103,7 @@ export class WebSceneTask extends SceneTask {
 
     protected _quantizeDirLightShadowCamera (out: Frustum, dirLight: DirectionalLight,
         camera: Camera, shadowInfo: Shadows) {
-        const device = legacyCC.director.root.device;
+        const device = deviceManager.gfxDevice;
         const _dirLightFrustum = new Frustum();
         const _matShadowTrans = new Mat4();
         const _matShadowView = new Mat4();

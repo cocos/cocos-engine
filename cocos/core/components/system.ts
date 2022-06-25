@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ISchedulable } from '../scheduler';
 import { Enum } from '../value-types/enum';
 
@@ -91,4 +89,6 @@ export default class System implements ISchedulable {
      * @param dt Delta time after the last frame
      */
     postUpdate (dt: number) {}
+
+    destroy () {}
 }

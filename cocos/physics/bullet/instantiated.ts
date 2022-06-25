@@ -27,6 +27,7 @@
 import bulletModule, { bulletType } from '@cocos/bullet';
 import { WECHAT } from 'internal:constants';
 import { physics } from '../../../exports/physics-framework';
+import { game } from '../../core/game';
 import { sys } from '../../core/platform';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 
@@ -47,7 +48,7 @@ export const bt: instanceExt = {} as any;
 globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 
-export function waitForAmmoInstantiation (dirRoot: string) {
+export function waitForAmmoInstantiation (dirRoot?: string) {
     // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
     const supported = (() => {
         // iOS 15.4 has some wasm memory issue, can not use wasm for bullet
@@ -118,3 +119,5 @@ export function waitForAmmoInstantiation (dirRoot: string) {
         }
     });
 }
+
+game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);

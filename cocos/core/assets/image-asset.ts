@@ -31,7 +31,7 @@
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
+import { Device, deviceManager, Feature, Format, FormatFeatureBit } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
@@ -325,10 +325,6 @@ export class ImageAsset extends Asset {
 }
 
 function _getGlobalDevice (): Device | null {
-    if (legacyCC.director.root) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return legacyCC.director.root.device;
-    }
-    return null;
+    return deviceManager.gfxDevice;
 }
 legacyCC.ImageAsset = ImageAsset;

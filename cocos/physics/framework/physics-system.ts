@@ -42,6 +42,7 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
+import { Settings, settings } from '../../core/settings';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
@@ -322,7 +323,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 重置物理配置。
      */
     resetConfiguration (config?: IPhysicsConfig) {
-        const con = config || (game.config ? game.config.physics : null);
+        const con = config || settings.querySettings(Settings.Category.PHYSICS) || null;
         if (con) {
             if (typeof con.allowSleep === 'boolean') this._allowSleep = con.allowSleep;
             if (typeof con.fixedTimeStep === 'number') this._fixedTimeStep = con.fixedTimeStep;

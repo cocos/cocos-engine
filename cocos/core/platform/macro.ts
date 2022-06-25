@@ -30,7 +30,9 @@
  * @module core
  */
 
+import { EDITOR, MINIGAME, NATIVE, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { Settings, settings } from '../settings';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
@@ -1064,6 +1066,11 @@ interface Macro {
      * @default 144 KB
      */
     BATCHER2D_MEM_INCREMENT: number;
+
+    /**
+     * @internal
+     */
+    init (): void;
 }
 
 /**
@@ -1093,6 +1100,23 @@ const macro: Macro = {
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
+    init () {
+        if (NATIVE || MINIGAME || RUNTIME_BASED) {
+            this.CLEANUP_IMAGE_CACHE = true;
+        }
+        const defaultValues = settings.querySettings(Settings.Category.ENGINE, 'macros');
+        if (defaultValues) {
+            for (const key in defaultValues) {
+                macro[key] = defaultValues[key];
+            }
+        }
+        if (PREVIEW || EDITOR) {
+            this.ENABLE_WEBGL_ANTIALIAS = true;
+        }
+        if (EDITOR) {
+            this.ENABLE_TRANSPARENT_CANVAS = false;
+        }
+    },
 };
 
 legacyCC.macro = macro;

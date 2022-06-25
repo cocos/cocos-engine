@@ -24,6 +24,18 @@ jest.mock(
 );
 
 jest.mock(
+    'pal/env',
+    () => jest.requireActual('../pal/env/web/env'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'pal/pacer',
+    () => jest.requireActual('../pal/pacer/pacer-web'),
+    { virtual: true, },
+);
+
+jest.mock(
     'pal/screen-adapter',
     () => jest.requireActual('../pal/screen-adapter/web/screen-adapter'),
     { virtual: true, },
@@ -60,23 +72,41 @@ jest.mock('serialization-test-helper/run-test', () => {
 
 import '../exports/base';
 import { DebugMode } from "../cocos/core/platform/debug";
-import { game, IGameConfig } from '../exports/base';
+import { EffectAsset, game, IGameConfig } from '../exports/base';
 import './asset-manager/init';
 import '../cocos/core/gfx/empty/empty-device';
 import '../cocos/3d/skeletal-animation/data-pool-manager';
 import '../cocos/core/animation';
+import "../exports/physics-physx";
+import "../exports/physics-builtin";
+import "../exports/wait-for-ammo-instantiation";
+import "../exports/physics-ammo";
+import "../exports/physics-cannon";
+import { effects } from './fixtures/builtin-effects';
+import { glsl4 } from './fixtures/builtin-glsl4';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');
 const config: IGameConfig = {
-    customJointTextureLayouts: [],
     debugMode: DebugMode.INFO,
-    renderMode: 3, // Headless Mode
-    adapter: {
-        canvas: canvas,
-        frame: div,
-        container: div
+    overrideSettings: {
+        rendering: {
+            renderMode: 3, // Headless Mode
+        }
     }
 }
-game.init(config);
-game.run();
+globalThis.waitThis((async () => {
+    effects.forEach((e, effectIndex) => {
+        const effect = Object.assign(new EffectAsset(), e);
+        effect.shaders.forEach((shaderInfo, shaderIndex) => {
+            const shaderSource = glsl4[effectIndex][shaderIndex];
+            if (shaderSource) {
+                shaderInfo['glsl4'] = shaderSource;
+            }
+        });
+        effect.hideInEditor = true;
+        effect.onLoaded();
+    });
+    await game.init(config);
+    await game.run();
+})());

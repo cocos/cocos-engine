@@ -43,29 +43,12 @@ System.warmup({
     },
 });
 
-/**
- * Fetch WebAssembly binaries.
- * 
- * Whereas WeChat expects the argument passed to `WebAssembly.instantiate`
- * to be file path and the path should be relative from project's root dir,
- * we do the path conversion and directly return the converted path.
- * 
- * @param path The path to `.wasm` file **relative from engine's out dir**(no leading `./`).
- * See 'assetURLFormat' field of build engine options.
- */
-function fetchWasm(path) {
-    const engineDir = '<%-engineDir%>'; // Relative from project out
-    return `${engineDir}/${path}`;
-}
 firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then(() => {
     return System.import('<%= applicationJs %>');
 }).then((module) => {
     return firstScreen.setProgress(0.2).then(() => Promise.resolve(module));
 }).then(({ createApplication }) => {
-    return createApplication({
-        loadJsListFile: (url) => require(url),
-        fetchWasm,
-    });
+    return createApplication();
 }).then((application) => {
     return firstScreen.setProgress(0.4).then(() => Promise.resolve(application));
 }).then((application) => {
@@ -83,14 +66,7 @@ function onApplicationCreated(application) {
         require('./libs/common/cache-manager.js');
         // Adjust devicePixelRatio
         cc.view._maxPixelRatio = 4;
-        // Release Image objects after uploaded gl texture
-        cc.macro.CLEANUP_IMAGE_CACHE = false;
-        return firstScreen.end().then(() => application.start({
-            findCanvas: () => {
-                var container = document.createElement('div');
-                return { frame: container, canvas: window.canvas, container };
-            },
-        }));
+        return firstScreen.end().then(() => application.start());
     });
 }
 

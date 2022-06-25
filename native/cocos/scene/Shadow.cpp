@@ -169,7 +169,7 @@ void Shadows::createInstanceMaterial() {
     _instancingMaterial = ccnew Material();
 
     IMaterialInfo materialInfo;
-    materialInfo.effectName = "planar-shadow";
+    materialInfo.effectName = "pipeline/planar-shadow";
     MacroRecord microRecord{{"USE_INSTANCING", true}};
     materialInfo.defines = microRecord;
     _instancingMaterial->initialize(materialInfo);
@@ -179,7 +179,7 @@ void Shadows::createMaterial() {
     _material = ccnew Material();
 
     IMaterialInfo materialInfo;
-    materialInfo.effectName = "planar-shadow";
+    materialInfo.effectName = "pipeline/planar-shadow";
     _material->initialize(materialInfo);
 }
 

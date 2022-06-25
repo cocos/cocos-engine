@@ -154,6 +154,15 @@ export const presets: Record<string, Record<string, any>> = {
 export enum BuiltinBundleName {
     /**
      * @en
+     * The builtin bundle of default asset
+     *
+     * @zh
+     * 内置 bundle, 对应默认资源
+     */
+    INTERNAL = 'internal',
+
+    /**
+     * @en
      * The builtin bundle corresponds to 'assets/resources'.
      *
      * @zh

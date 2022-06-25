@@ -24,7 +24,7 @@ void DeferredPipelineSceneData::initPipelinePassInfo() {
     _lightingMaterial = ccnew Material();
     _lightingMaterial->setUuid("builtin-deferred-material");
     IMaterialInfo materialInfo;
-    materialInfo.effectName = "deferred-lighting";
+    materialInfo.effectName = "pipeline/deferred-lighting";
     _lightingMaterial->initialize(materialInfo);
     for (const auto &pass : *_lightingMaterial->getPasses()) {
         pass->tryCompile();
@@ -32,7 +32,7 @@ void DeferredPipelineSceneData::initPipelinePassInfo() {
 
     _bloomMaterial = ccnew Material();
     _bloomMaterial->setUuid("builtin-bloom-material");
-    materialInfo.effectName = "bloom";
+    materialInfo.effectName = "pipeline/bloom";
     _bloomMaterial->initialize(materialInfo);
     for (const auto &pass : *_bloomMaterial->getPasses()) {
         pass->tryCompile();
@@ -43,7 +43,7 @@ void DeferredPipelineSceneData::initPipelinePassInfo() {
 #if ENABLE_ANTIALIAS_FXAA > 0
     _antiAliasing = AntiAliasing::FXAA;
 #endif
-    materialInfo.effectName = "post-process";
+    materialInfo.effectName = "pipeline/post-process";
     MacroRecord record{{"ANTIALIAS_TYPE", static_cast<int32_t>(_antiAliasing)}};
     materialInfo.defines = record;
     _postProcessMaterial->initialize(materialInfo);

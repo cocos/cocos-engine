@@ -1,11 +1,5 @@
 import { director, Node, Scene } from "../../cocos/core";
 import { physics, PhysicsSystem } from "../../exports/physics-framework";
-import "../../exports/physics-physx";
-import "../../exports/physics-builtin";
-import waitForAmmoInstantiation from "../../exports/wait-for-ammo-instantiation";
-waitForAmmoInstantiation(null);
-import "../../exports/physics-ammo";
-import "../../exports/physics-cannon";
 
 import EventTest from "./event";
 import RaycastTest from "./raycast";

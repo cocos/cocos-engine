@@ -259,7 +259,7 @@ void Skybox::activate() {
         auto *mat = ccnew Material();
         MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
-        matInfo.effectName = ccstd::string{"skybox"};
+        matInfo.effectName = ccstd::string{"pipeline/skybox"};
         matInfo.defines = IMaterialInfo::DefinesType{defines};
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;

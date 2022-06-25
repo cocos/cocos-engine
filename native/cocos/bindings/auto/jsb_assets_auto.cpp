@@ -15147,17 +15147,14 @@ static bool js_assets_BuiltinResMgr_initBuiltinRes(se::State& s) // NOLINT(reada
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::Device*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_BuiltinResMgr_initBuiltinRes : Error processing arguments");
-        bool result = cobj->initBuiltinRes(arg0.value());
+    if (argc == 0) {
+        bool result = cobj->initBuiltinRes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_BuiltinResMgr_initBuiltinRes : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
 SE_BIND_FUNC(js_assets_BuiltinResMgr_initBuiltinRes)

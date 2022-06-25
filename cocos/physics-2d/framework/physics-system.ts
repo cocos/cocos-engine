@@ -13,6 +13,7 @@ import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physic
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
 import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
+import { Settings, settings } from '../../core/settings';
 
 let instance: PhysicsSystem2D | null = null;
 
@@ -203,7 +204,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     private constructor () {
         super();
 
-        const config = game.config ? game.config.physics as IPhysicsConfig : null;
+        const config = settings.querySettings<IPhysicsConfig>(Settings.Category.PHYSICS) || null;
         if (config) {
             Vec2.copy(this._gravity, config.gravity as IVec2Like);
             this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);

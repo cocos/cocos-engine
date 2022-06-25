@@ -32,7 +32,7 @@ export default function downloadScript (
     url: string,
     options: IBundleOptions,
     onComplete: CompleteCallback,
-): HTMLScriptElement | null{
+): HTMLScriptElement | null {
     // no need to load script again
     if (downloaded[url]) {
         if (onComplete) { onComplete(null); }

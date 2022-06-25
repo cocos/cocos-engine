@@ -1,9 +1,9 @@
 import { MeshBuffer } from '../../cocos/2d/renderer/mesh-buffer';
 import { vfmtPosUvColor } from '../../cocos/2d/renderer/vertex-format';
-import { director } from '../../cocos/core';
+import { deviceManager } from '../../cocos/core/gfx';
 
 const meshBuffer = new MeshBuffer();
-meshBuffer.initialize(director.root.device, vfmtPosUvColor, 1024, 2048);
+meshBuffer.initialize(deviceManager.gfxDevice, vfmtPosUvColor, 1024, 2048);
 
 test('basic', () => {
     expect(meshBuffer.vertexOffset).toBe(0);

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';

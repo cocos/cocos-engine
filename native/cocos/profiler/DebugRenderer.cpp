@@ -66,10 +66,10 @@ inline uint32_t getFontIndex(bool bold, bool italic) {
 inline ccstd::string getFontPath(uint32_t index) {
     // stanley todo: use readable names later.
     static const ccstd::string UUIDS[DEBUG_FONT_COUNT] = {
-        "0835f102-5471-47a3-9a76-01c07ac9cdb2", //"OpenSans-Regular",
-        "b5475517-23b9-4873-bc1a-968d96616081", //"OpenSans-Bold",
-        "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", //"OpenSans-Italic",
-        "b23391b6-52eb-46a6-8da1-6244d9d315fb", //"OpenSans-BoldItalic"
+        "OpenSans-Regular", //"OpenSans-Regular",
+        "OpenSans-Bold", //"OpenSans-Bold",
+        "OpenSans-Italic", //"OpenSans-Italic",
+        "OpenSans-BoldItalic", //"OpenSans-BoldItalic"
     };
 
     auto *asset = BuiltinResMgr::getInstance()->getAsset(UUIDS[index]);

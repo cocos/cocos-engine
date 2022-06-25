@@ -30,7 +30,7 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
-import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
+import { Device, deviceManager, Feature, Format, FormatFeatureBit } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
 import { warnID } from '../platform';
@@ -200,7 +200,7 @@ imageAssetProto._deserialize = function (data: any) {
         this._height = data.h;
         fmtStr = data.fmt;
     }
-    const device = legacyCC.director.root.device;
+    const device = deviceManager.gfxDevice;
     const extensionIDs = fmtStr.split('_');
 
     let preferedExtensionIndex = Number.MAX_VALUE;
