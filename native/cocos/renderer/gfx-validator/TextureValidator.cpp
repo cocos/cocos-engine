@@ -50,7 +50,8 @@ TextureValidator::TextureValidator(Texture *actor)
 
 TextureValidator::~TextureValidator() {
     DeviceResourceTracker<Texture>::erase(this);
-    if (_ownTheActor) CC_SAFE_DELETE(_actor);
+    //if (_ownTheActor) CC_SAFE_DELETE(_actor);
+    if (_ownTheActor) _actor = nullptr;
 }
 
 void TextureValidator::doInit(const TextureInfo &info) {
