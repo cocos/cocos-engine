@@ -301,18 +301,26 @@ void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Textur
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();
 
-    auto blockSize = formatAlignment(dst->getFormat());
+    uint32_t blockWidth = formatAlignment(dst->getFormat()).first;
+    uint32_t blockHeight = formatAlignment(dst->getFormat()).second;
 
     for (uint32_t i = 0; i < count; ++i) {
         const auto region = regions[i];
+        uint32_t level = region.texSubres.mipLevel;
 
-        CC_ASSERT(region.texOffset.x % blockSize.first == 0);
-        CC_ASSERT(region.texOffset.y % blockSize.second == 0);
+        uint32_t offsetX = region.texOffset.x;
+        uint32_t offsetY = region.texOffset.y;
+        uint32_t extentX = region.texExtent.width;
+        uint32_t extentY = region.texExtent.height;
+        uint32_t imgWidth = dst->getWidth() >> level;
+        uint32_t imgHeight = dst->getHeight() >> level;
 
-        CC_ASSERT((region.texExtent.width % blockSize.first == 0) || (region.texExtent.width % blockSize.first != 0 && region.texOffset.x + region.texExtent.width == dst->getWidth()));
-        CC_ASSERT((region.texExtent.height % blockSize.second == 0) || (region.texExtent.height % blockSize.second != 0 && region.texOffset.y + region.texExtent.height == dst->getHeight()));
+        CC_ASSERT(offsetX % blockWidth == 0);
+        CC_ASSERT(offsetY % blockHeight == 0);
+
+        CC_ASSERT((extentX % blockWidth == 0) || (extentX % blockWidth != 0 && offsetX + extentX == imgWidth));
+        CC_ASSERT((extentY % blockHeight == 0) || (extentY % blockHeight != 0 && offsetY + extentY == imgHeight));
     }
-
     /////////// execute ///////////
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
