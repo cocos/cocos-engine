@@ -44,7 +44,7 @@ GLES2Framebuffer::~GLES2Framebuffer() {
 
 void GLES2Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO = ccnew GLES2GPUFramebuffer;
-    _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass.get())->gpuRenderPass();
+    _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {

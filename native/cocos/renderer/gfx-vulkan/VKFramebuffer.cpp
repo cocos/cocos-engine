@@ -42,7 +42,7 @@ CCVKFramebuffer::~CCVKFramebuffer() {
 
 void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO = ccnew CCVKGPUFramebuffer;
-    _gpuFBO->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass.get())->gpuRenderPass();
+    _gpuFBO->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
