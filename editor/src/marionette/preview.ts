@@ -23,7 +23,11 @@ class AnimationGraphPartialPreviewer {
     }
 
     public addVariable(id: string, type: VariableType, value: Value) {
-        this._varInstances[id] = new VarInstance(type, value);
+        const { _varInstances: varInstances } = this;
+        if (id in varInstances) {
+            return;
+        }
+        varInstances[id] = new VarInstance(type, value);
     }
 
     public removeVariable(id: string) {
@@ -31,7 +35,11 @@ class AnimationGraphPartialPreviewer {
     }
 
     public updateVariable(id: string, value: Value) {
-        this._varInstances[id].value = value;
+        const varInstance = this._varInstances[id];
+        if (!varInstance) {
+            return;
+        }
+        varInstance.value = value;
     }
 
     protected createMotionEval(motion: Motion) {
