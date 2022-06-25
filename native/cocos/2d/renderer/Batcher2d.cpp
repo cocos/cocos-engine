@@ -5,6 +5,7 @@
 #include <scene/Pass.h>
 #include <deque>
 #include <iostream>
+#include "application/ApplicationManager.h"
 
 namespace cc {
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
@@ -76,41 +77,66 @@ void Batcher2d::walk(Node* node) {
             }
 
             if (drawInfo && drawInfo->getEnabled()) {
-                uint32_t dataHash = drawInfo->getDataHash();
-                if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial()
-                    /* || stencilmanager */) { //stencilStage for Mask component
-                    // Generate a batch if not batching
+                if (drawInfo->getIsMeshBuffer()) {
                     generateBatch(_currEntity);
-                    if (!drawInfo->getIsMeshBuffer()) {
-                        if (_currBID != drawInfo->getBufferId()) {
-                            UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-                            _currBID = drawInfo->getBufferId();
-                            _indexStart = buffer->getIndexOffset();
+                    resetRenderStates();
+                    // stencil stage
+                    auto model = drawInfo->getModel();
+                    // need stamp
+                    auto stamp = CC_CURRENT_ENGINE()->getTotalFrames();
+                    model->updateTransform(stamp);
+                    model->updateUBOs(stamp);
+
+                    auto subModelList = model->getSubModels();
+                    for (size_t i = 0; i < subModelList.size(); i++) {
+                        auto* curdrawBatch = _drawBatchPool.alloc();
+                        auto submodel = subModelList[i];
+                        curdrawBatch->setVisFlags(entity->getNode()->getLayer());
+                        curdrawBatch->setModel(model);
+                        curdrawBatch->setInputAssembler(submodel->getInputAssembler());
+                        curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
+                        curdrawBatch->setUseLocalFlag(nullptr);
+
+                        curdrawBatch->fillPass(drawInfo->getMaterial(), nullptr, 0, nullptr, 0, &(submodel->getPatches()));
+                        _batches.push_back(curdrawBatch);
+                    }
+                } else {
+                    uint32_t dataHash = drawInfo->getDataHash();
+                    if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial()
+                        /* || stencilmanager */) { // stencilStage for Mask component
+                        // Generate a batch if not batching
+                        generateBatch(_currEntity);
+                        if (!drawInfo->getIsMeshBuffer()) {
+                            if (_currBID != drawInfo->getBufferId()) {
+                                UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+                                _currBID = drawInfo->getBufferId();
+                                _indexStart = buffer->getIndexOffset();
+                            }
+                        }
+
+                        _currHash = dataHash;
+                        _currMaterial = drawInfo->getMaterial();
+                        // stencil stage
+                        _currLayer = entity->getNode()->getLayer();
+                        _currEntity = drawInfo;
+
+                        // if(frame)
+                        _currTexture = drawInfo->getTexture();
+                        _currTextureHash = drawInfo->getTextureHash();
+                        _currSampler = drawInfo->getSampler();
+                        if (_currSampler == nullptr) {
+                            _currSamplerHash = 0;
+                        } else {
+                            _currSamplerHash = _currSampler->getHash();
                         }
                     }
 
-                    _currHash = dataHash;
-                    _currMaterial = drawInfo->getMaterial();
-                    // stencil stage
-                    _currLayer = entity->getNode()->getLayer();
-                    _currEntity = drawInfo;
-
-                    //if(frame)
-                    _currTexture = drawInfo->getTexture();
-                    _currTextureHash = drawInfo->getTextureHash();
-                    _currSampler = drawInfo->getSampler();
-                    if (_currSampler == nullptr) {
-                        _currSamplerHash = 0;
-                    } else {
-                        _currSamplerHash = _currSampler->getHash();
+                    if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
+                        fillVertexBuffers(entity, drawInfo);
+                        drawInfo->setVertDirty(false);
                     }
+                    fillIndexBuffers(drawInfo);
                 }
-
-                if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
-                    fillVertexBuffers(entity, drawInfo);
-                    drawInfo->setVertDirty(false);
-                }
-                fillIndexBuffers(drawInfo);
             }
         }
 

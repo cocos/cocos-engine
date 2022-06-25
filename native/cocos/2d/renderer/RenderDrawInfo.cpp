@@ -117,6 +117,10 @@ void RenderDrawInfo::setBlendHash(uint32_t blendHash) {
     this->_blendHash = blendHash;
 }
 
+void RenderDrawInfo::setModel(scene::Model* model) {
+    _model = model;
+}
+
 void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type) {
     this->_stride = stride;
     this->_size = size;

@@ -41,7 +41,7 @@ namespace scene {
     void DrawBatch2D::clear() {
     }
 
-    void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, ccstd::vector<IMacroPatch> *patches) {
+    void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, const ccstd::vector<IMacroPatch> *patches) {
         const auto &passes = mat->getPasses();
         if (passes->empty()) return;
         uint32_t hashFactor = 0;

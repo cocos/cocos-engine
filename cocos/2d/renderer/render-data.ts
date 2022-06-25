@@ -89,6 +89,10 @@ export class BaseRenderData {
         return this._drawType;
     }
 
+    public setDrawType (type = 0) {
+        this._drawType = type;
+    }
+
     public chunk: StaticVBChunk = null!;
 
     // entity for native
@@ -165,6 +169,16 @@ export class BaseRenderData {
                     renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
                 }
             }
+        }
+    }
+
+    public assignExtraDrawInfoAttrs (comp: UIRenderer) {
+        if (JSB) {
+            if (!this._renderDrawInfo || !comp) {
+                return;
+            }
+            this._renderDrawInfo.setNode(comp.node);
+            this._renderDrawInfo.enabled = comp.enabled;
         }
     }
 
@@ -310,10 +324,6 @@ export class RenderData extends BaseRenderData {
         this._accessor = accessor;
     }
 
-    public setDrawType (type = 0) {
-        this._drawType = type;
-    }
-
     public resize (vertexCount: number, indexCount: number) {
         if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
         this._vc = vertexCount;
@@ -342,16 +352,6 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setTextureHash(this.textureHash);
             this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
             this._renderDrawInfo.setBlendHash(this.blendHash);
-        }
-    }
-
-    public assignExtraDrawInfoAttrs (comp: UIRenderer) {
-        if (JSB) {
-            if (!this._renderDrawInfo || !comp) {
-                return;
-            }
-            this._renderDrawInfo.setNode(comp.node);
-            this._renderDrawInfo.enabled = comp.enabled;
         }
     }
 
@@ -511,20 +511,23 @@ export class RenderData extends BaseRenderData {
  */
 export class MeshRenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor) {
-        const rd = _meshDataPool.add();
+        // const rd = _meshDataPool.add();
+        const rd = new MeshRenderData();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
         return rd;
     }
 
     public static remove (data: MeshRenderData) {
-        const idx = _meshDataPool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
+        // const idx = _meshDataPool.data.indexOf(data);
+        // if (idx === -1) {
+        //     return;
+        // }
 
-        _meshDataPool.data[idx].clear();
-        _meshDataPool.removeAt(idx);
+        // _meshDataPool.data[idx].clear();
+        // _meshDataPool.removeAt(idx);
+
+        data.clear();
     }
 
     /**
@@ -735,6 +738,21 @@ export class MeshRenderData extends BaseRenderData {
         this.iData = new Uint16Array(iCount);
         if (oldIData) {
             this.iData.set(oldIData, 0);
+        }
+    }
+
+    public setRenderDrawInfoAttributes () {
+        if (JSB) {
+            if (!this._renderDrawInfo) {
+                return;
+            }
+            this._renderDrawInfo.setVData(this.vData.buffer);
+            this._renderDrawInfo.setIData(this.iData.buffer);
+            this._renderDrawInfo.setVBCount(this.vertexStart);
+            this._renderDrawInfo.setIBCount(this.indexStart);
+
+            this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
+            this._renderDrawInfo.setMaterial(this.material!);
         }
     }
 }

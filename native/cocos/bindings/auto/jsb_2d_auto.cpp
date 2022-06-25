@@ -7,6 +7,7 @@
 #include "2d/renderer/UIMeshBuffer.h"
 #include "2d/renderer/Batcher2d.h"
 #include "2d/renderer/RenderEntity.h"
+#include "2d/renderer/GraphicsProxy.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
 
 #ifndef JSB_ALLOC
@@ -1519,6 +1520,131 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_GraphicsProxy_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_GraphicsProxy_class = nullptr;  // NOLINT
+
+static bool js_2d_GraphicsProxy_activeSubModel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_activeSubModel : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<uint8_t, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_GraphicsProxy_activeSubModel : Error processing arguments");
+        cobj->activeSubModel(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_GraphicsProxy_activeSubModel)
+
+static bool js_2d_GraphicsProxy_clear(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_GraphicsProxy_clear)
+
+static bool js_2d_GraphicsProxy_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_GraphicsProxy_destroy)
+
+static bool js_2d_GraphicsProxy_initModel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_initModel : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Node*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_GraphicsProxy_initModel : Error processing arguments");
+        cobj->initModel(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_GraphicsProxy_initModel)
+
+static bool js_2d_GraphicsProxy_uploadData(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_uploadData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->uploadData();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_GraphicsProxy_uploadData)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_GraphicsProxy_finalize)
+
+static bool js_2d_GraphicsProxy_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::GraphicsProxy);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_2d_GraphicsProxy_constructor, __jsb_cc_GraphicsProxy_class, js_cc_GraphicsProxy_finalize)
+
+static bool js_cc_GraphicsProxy_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_GraphicsProxy_finalize)
+
+bool js_register_2d_GraphicsProxy(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("GraphicsProxy", obj, nullptr, _SE(js_2d_GraphicsProxy_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("activeSubModel", _SE(js_2d_GraphicsProxy_activeSubModel));
+    cls->defineFunction("clear", _SE(js_2d_GraphicsProxy_clear));
+    cls->defineFunction("destroy", _SE(js_2d_GraphicsProxy_destroy));
+    cls->defineFunction("initModel", _SE(js_2d_GraphicsProxy_initModel));
+    cls->defineFunction("uploadData", _SE(js_2d_GraphicsProxy_uploadData));
+    cls->defineFinalizeFunction(_SE(js_cc_GraphicsProxy_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::GraphicsProxy>(cls);
+
+    __jsb_cc_GraphicsProxy_proto = cls->getProto();
+    __jsb_cc_GraphicsProxy_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_2d(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -1532,6 +1658,7 @@ bool register_all_2d(se::Object* obj)    // NOLINT
     se::Object* ns = nsVal.toObject();
 
     js_register_2d_Batcher2d(ns);
+    js_register_2d_GraphicsProxy(ns);
     js_register_2d_RenderDrawInfo(ns);
     js_register_2d_RenderEntity(ns);
     js_register_2d_UIMeshBuffer(ns);

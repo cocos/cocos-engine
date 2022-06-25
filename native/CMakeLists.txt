@@ -1629,6 +1629,8 @@ endif()
 cocos_source_files(
     cocos/2d/renderer/Batcher2d.h
     cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/GraphicsProxy.h
+    cocos/2d/renderer/GraphicsProxy.cpp
     cocos/2d/renderer/RenderDrawInfo.h
     cocos/2d/renderer/RenderDrawInfo.cpp
     cocos/2d/renderer/UIMeshBuffer.h

@@ -6,6 +6,7 @@ import { Attribute, Device, Sampler, SamplerInfo, Texture } from '../../gfx';
 import { EmptyTexture } from '../../gfx/empty/empty-texture';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
+import { Model } from '../scene';
 
 export class NativeRenderDrawInfo {
     constructor (batcher: NativeBatcher2d) {}
@@ -70,6 +71,9 @@ export class NativeRenderDrawInfo {
     get blendHash (): number { return 0; }
     set blendHash (blendHash:number) {}
 
+    get model ():Model { return new Model(); }
+    set model (model:Model) {}
+
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number, type:number) {}
     syncSharedBufferToNative (data:TypedArray) {}
 
@@ -118,4 +122,15 @@ export class NativeBatcher2d {
     reset () {}
 
     addRootNode (node:Node) {}
+}
+
+export class NativeGraphicsProxy {
+    // get model () { return new Model(); }// use less
+    // set model (val:Model) {}
+
+    initModel (node) {}
+    activeSubModel (index: number) {}
+    uploadData () {}
+    destroy () {}
+    clear () {}
 }

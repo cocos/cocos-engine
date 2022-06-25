@@ -7,6 +7,7 @@ import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
 import { Batcher2D } from './batcher-2d';
 import IDGenerator from '../../core/utils/id-generator';
+import { Model } from '../../core/renderer/scene';
 
 export enum RenderDrawInfoSharedBufferView {
     enabled,
@@ -47,6 +48,8 @@ export class RenderDrawInfo {
     protected _textureHash: number | undefined;
     protected _sampler: Sampler | undefined;
     protected _blendHash: number | undefined;
+
+    protected _model: Model | undefined;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
 
@@ -242,6 +245,14 @@ export class RenderDrawInfo {
             }
         }
         this._blendHash = blendHash;
+    }
+
+    public setModel (model: Model) {
+        if (JSB) {
+            if (this._model !== model) {
+                this._nativeObj.model = model;
+            }
+        }
     }
 
     public initRender2dBuffer (vertexCount: number, stride: number) {

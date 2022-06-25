@@ -10,6 +10,7 @@
 #include <math/Vec3.h>
 #include <math/Vec4.h>
 #include <vector>
+#include <cocos/scene/Model.h>
 
 namespace cc {
 struct Render2dLayout {
@@ -45,7 +46,8 @@ public:
     void setVDataBuffer(float_t* vDataBuffer);
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
-    inline uint32_t getVbCount() const { return this->_vbCount; }
+    inline uint32_t getVbCount() const {
+        return this->_vbCount; }
     void setVbCount(uint32_t vbCount);
     inline uint32_t getIbCount() const { return this->_ibCount; }
     void setIbCount(uint32_t ibCount);
@@ -69,6 +71,8 @@ public:
     void setSampler(gfx::Sampler* sampler);
     inline uint32_t getBlendHash() const { return this->_blendHash; }
     void setBlendHash(uint32_t blendHash);
+    inline scene::Model* getModel() const { return this->_model; }
+    void setModel(scene::Model* model);
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type);
     void syncSharedBufferToNative(uint32_t* buffer);
@@ -125,6 +129,8 @@ private:
 
     bool _vertDirty{false};
     uint8_t _drawType{0};
+
+    scene::Model* _model{nullptr};
 
 private: // for merging batches
     uint32_t _dataHash{0};
