@@ -41,6 +41,8 @@ SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getDrawType);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getEnabled);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getMeshBuffer);
+SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getModel);
+SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_syncSharedBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_RenderDrawInfo);
@@ -52,6 +54,7 @@ bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderEntityType);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);

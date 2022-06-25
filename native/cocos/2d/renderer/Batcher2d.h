@@ -43,6 +43,7 @@ public:
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
+    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void generateBatch(RenderDrawInfo* entity);
     void resetRenderStates();
 

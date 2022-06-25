@@ -15,6 +15,8 @@ enum class RenderEntityType {
 
 class RenderEntity final : public Node::UserData {
 public:
+    static constexpr uint32_t STATIC_DRAW_INFO_CAPACITY = 4;
+
     RenderEntity();
     explicit RenderEntity(Batcher2d* batcher);
     ~RenderEntity();
@@ -28,14 +30,17 @@ public:
     inline RenderEntityType getRenderEntityType() const { return _renderEntityType; };
     void setRenderEntityType(uint32_t type);
 
-    RenderDrawInfo* getStaticRenderDrawInfo(uint32_t index);
+    inline uint32_t getStaticDrawInfoSize() const { return _staticDrawInfoSize; };
+    void setStaticDrawInfoSize(uint32_t size);
 
+    RenderDrawInfo* getStaticRenderDrawInfo(uint32_t index);
+    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& getStaticRenderDrawInfos();
     RenderDrawInfo* getDynamicRenderDrawInfo(uint32_t index);
     ccstd::vector<RenderDrawInfo*>& getDynamicRenderDrawInfos();
 
 private:
-    static constexpr uint32_t STATIC_DRAW_INFO_COUNT = 4;
-    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_COUNT> _staticDrawInfos{};
+    uint32_t _staticDrawInfoSize{0};
+    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos{};
     ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos{};
 
     Batcher2d* _batcher{nullptr};

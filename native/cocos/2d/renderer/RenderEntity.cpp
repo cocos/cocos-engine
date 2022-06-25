@@ -8,7 +8,7 @@ RenderEntity::RenderEntity() : RenderEntity(nullptr) {
 RenderEntity::RenderEntity(Batcher2d* batcher) {
     _batcher = batcher;
 
-    for (uint32_t i = 0; i < RenderEntity::STATIC_DRAW_INFO_COUNT; i++) {
+    for (uint32_t i = 0; i < RenderEntity::STATIC_DRAW_INFO_CAPACITY; i++) {
         _staticDrawInfos[i].setBatcher(_batcher);
     }
 }
@@ -43,10 +43,15 @@ RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {
 ccstd::vector<RenderDrawInfo*>& RenderEntity::getDynamicRenderDrawInfos() {
     return _dynamicDrawInfos;
 }
+void RenderEntity::setStaticDrawInfoSize(uint32_t size) {
+    CC_ASSERT(size < RenderEntity::STATIC_DRAW_INFO_CAPACITY);
+    _staticDrawInfoSize = size;
+}
 RenderDrawInfo* RenderEntity::getStaticRenderDrawInfo(uint32_t index) {
-    if (index < 0 || index >= RenderEntity::STATIC_DRAW_INFO_COUNT) {
-        return nullptr;
-    }
+    CC_ASSERT(index < _staticDrawInfoSize);
     return &(_staticDrawInfos[index]);
+}
+std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& RenderEntity::getStaticRenderDrawInfos() {
+    return _staticDrawInfos;
 }
 } // namespace cc

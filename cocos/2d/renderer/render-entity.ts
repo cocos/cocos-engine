@@ -69,7 +69,7 @@ export class RenderEntity {
 
     public getStaticRenderDrawInfo (): RenderDrawInfo | null {
         if (JSB) {
-            const nativeDrawInfo = this._nativeObj.getStaticRenderDrawInfo(0);
+            const nativeDrawInfo = this._nativeObj.getStaticRenderDrawInfo(this._nativeObj.staticDrawInfoSize++);
             const drawInfo = new RenderDrawInfo(this._batcher!, nativeDrawInfo);
             return drawInfo;
         }
