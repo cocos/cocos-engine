@@ -735,7 +735,7 @@ const Elements = {
                 panel.$.postProcess.render(panel.dump._globals.postProcess);
             }
 
-            const $skyProps = panel.$.sceneSkybox.querySelectorAll('section > ui-prop');
+            const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType' || $prop.dump.name === 'envmap') {
                     if (!$prop.regenerate) {
