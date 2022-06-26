@@ -4,7 +4,7 @@ CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - vert: general-vs:vert # builtin header
+    - vert: legacy/main-functions/general-vs:vert # builtin header
       frag: unlit-fs:frag
       properties: &props
         mainTexture:    { value: white }
@@ -25,8 +25,8 @@ CCEffect %{
 
 CCProgram unlit-fs %{
   precision highp float;
-  #include <output>
-  #include <cc-fog-fs>
+  #include <legacy/output>
+  #include <legacy/fog-fs>
 
   in vec2 v_uv;
   in vec3 v_position;
