@@ -17,11 +17,13 @@ System.warmup({
     },
 });
 
-System.import('<%= applicationJs %>').then(({ createApplication }) => {
-    return createApplication();
+System.import('<%= applicationJs %>')
+.then(({ Application }) => {
+    return new Application();
 }).then((application) => {
-    return application.import('cc').then((cc) => {
+    return System.import('cc').then((cc) => {
         require('jsb-adapter/jsb-engine.js');
+        application.init(cc);
     }).then(() => {
         return application.start();
     });

@@ -77,13 +77,9 @@ import './asset-manager/init';
 import '../cocos/core/gfx/empty/empty-device';
 import '../cocos/3d/skeletal-animation/data-pool-manager';
 import '../cocos/core/animation';
-import "../exports/physics-physx";
-import "../exports/physics-builtin";
-import "../exports/wait-for-ammo-instantiation";
-import "../exports/physics-ammo";
-import "../exports/physics-cannon";
 import { effects } from './fixtures/builtin-effects';
 import { glsl4 } from './fixtures/builtin-glsl4';
+import { initBuiltinMaterial } from './fixtures/builtin-material';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');
@@ -108,5 +104,6 @@ globalThis.waitThis((async () => {
         effect.onLoaded();
     });
     await game.init(config);
+    initBuiltinMaterial();
     await game.run();
 })());

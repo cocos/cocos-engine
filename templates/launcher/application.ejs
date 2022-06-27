@@ -1,37 +1,37 @@
 <%- include(versionCheckTemplate, { version: '1.0.0'}) %>
-export function createApplication () {
-    const System = globalThis.System;
-
-    let promise = Promise.resolve();
-
-    return promise.then(() => {
-        return {
-            start,
-            ['import']: topLevelImport,
-        };
-    });
-
-    function start () {
-        let settings;
-        let cc;
-        return Promise.resolve()
-            .then(() => topLevelImport('cc'))
-            .then((engine) => {
-                cc = engine;
-                return cc.game.init({
-                    debugMode: !<%= debugMode %>,
-                    settingsPath: '<%= settingsJsonPath %>',
-                    overrideSettings: {
-                        profiling: {
-                            showFPS: !<%= showFPS %>,
-                        }
-                    }
-                });
-            })
-            .then(() => cc.game.run());
+let cc;
+export class Application {
+    constructor () {
+        this.settingsPath = '<%= settingsJsonPath %>';
+        this.showFPS = <%= showFPS %>;
+    }
+    
+    init (engine) {
+        cc = engine;
+        cc.game.onPostSettingsInitDelegate.add(this.onPostInitSettings.bind(this));
+        cc.game.onPostSubsystemInitDelegate.add(this.onPostSystemInit.bind(this));
     }
 
-    function topLevelImport (url) {
-        return System.import(url);
+    onPostInitSettings (settings) {
+        // do custom logic
+    }
+
+    onPostSystemInit () {
+        // do custom logic
+    }
+
+    start () {
+        return cc.game.init({
+            debugMode: <%= debugMode %> ? cc.DebugMode.INFO : cc.DebugMode.ERROR,
+            settingsPath: this.settingsPath,
+            overrideSettings: {
+                // assets: {
+                //      preloadBundles: [{ bundle: 'main', version: 'xxx' }],
+                // }
+                profiling: {
+                    showFPS: this.showFPS,
+                }
+            }
+        }).then(() => cc.game.run());
     }
 }

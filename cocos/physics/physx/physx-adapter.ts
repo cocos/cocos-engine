@@ -54,7 +54,7 @@ const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 // Init physx libs when engine init.
 game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
-function InitPhysXLibs () {
+export function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
         if (!EDITOR && !TEST) console.info('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
@@ -739,9 +739,9 @@ interface IPhysicsConfigEXT extends IPhysicsConfig {
 }
 
 function initConfigForByteDance () {
-    const physics = settings.querySettings(Settings.Category.PHYSICS);
-    if (physics && (physics as IPhysicsConfigEXT).physX) {
-        const { epsilon, multiThread, subThreadCount } = (physics as IPhysicsConfigEXT).physX;
+    const physX = settings.querySettings(Settings.Category.PHYSICS, 'physX');
+    if (physX) {
+        const { epsilon, multiThread, subThreadCount } = physX;
         PX.EPSILON = epsilon;
         PX.MULTI_THREAD = multiThread;
         PX.SUB_THREAD_COUNT = subThreadCount;

@@ -32,8 +32,46 @@ import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
 import { BrowserType } from '../../../pal/system-info/enum-type';
 import { screen } from '../platform/screen';
-import { HTML5 } from '../default-constants';
 import { Settings, settings } from '../settings';
+
+/**
+ * @en
+ * Sets the renderer type, only useful on web
+ *
+ * @zh
+ * 渲染模式。
+ * 设置渲染器类型，仅适用于 web 端：
+ */
+export enum LegacyRenderMode {
+    /**
+     * @en
+     * Automatically chosen by engine.
+     * @zh
+     * 通过引擎自动选择。
+     */
+    AUTO = 0,
+    /**
+     * @en
+     * Forced to use canvas renderer.
+     * @zh
+     * 强制使用 canvas 渲染。
+     */
+    CANVAS = 1,
+    /**
+     * @en
+     * Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+     * @zh
+     * 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+     */
+    WEBGL = 2,
+    /**
+     * @en
+     * Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
+     * @zh
+     * 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用。
+     */
+    HEADLESS = 3
+}
 
 export enum RenderType {
     UNKNOWN = -1,
@@ -64,13 +102,10 @@ export class DeviceManager {
     public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo) {
         // Avoid setup to be called twice.
         if (this.initialized) { return; }
-        let renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
         this._canvas = canvas;
 
-        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
-            renderMode = 0;
-        }
-        this._determineRenderType(renderMode);
+        this._renderType = this._determineRenderType(renderMode);
 
         // WebGL context created successfully
         if (this._renderType === RenderType.WEBGL) {
@@ -125,28 +160,32 @@ export class DeviceManager {
         if (this._canvas) { this._canvas.oncontextmenu = () => false; }
     }
 
-    private _determineRenderType (renderType: number) {
+    private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
+        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
+            renderMode = LegacyRenderMode.AUTO;
+        }
         // Determine RenderType
-        this._renderType = RenderType.CANVAS;
+        let renderType = RenderType.CANVAS;
         let supportRender = false;
 
-        if (renderType === 1) {
-            this._renderType = RenderType.CANVAS;
+        if (renderMode === LegacyRenderMode.CANVAS) {
+            renderType = RenderType.CANVAS;
             supportRender = true;
-        } else if (renderType === 0 || renderType === 2) {
-            this._renderType = RenderType.WEBGL;
+        } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGL) {
+            renderType = RenderType.WEBGL;
             supportRender = true;
-        } else if (renderType === 3) {
-            this._renderType = RenderType.HEADLESS;
+        } else if (renderMode === LegacyRenderMode.HEADLESS) {
+            renderType = RenderType.HEADLESS;
             supportRender = true;
-        } else if (renderType > 3 || renderType < 0) {
-            this._renderType = RenderType.WEBGL;
+        } else if (renderMode > 3 || renderMode < 0) {
+            renderType = RenderType.WEBGL;
             supportRender = true;
         }
 
         if (!supportRender) {
-            throw new Error(getError(3820, renderType));
+            throw new Error(getError(3820, renderMode));
         }
+        return renderType;
     }
 }
 

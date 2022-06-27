@@ -287,6 +287,10 @@ class BuiltinResMgr {
         }
     }
 
+    public addAsset (key: string, asset: Asset) {
+        this._resources[key] = asset;
+    }
+
     public get<T extends Asset> (uuid: string) {
         return this._resources[uuid] as T;
     }

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR, PREVIEW } from 'internal:constants';
 import * as easing from './easing/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -36,7 +37,6 @@ import { legacyCC } from './global-exports';
 import { SetIndex } from './pipeline/define';
 import { Mat4, Vec2 } from './math';
 import { Settings, settings } from './settings';
-import { EDITOR, PREVIEW } from 'internal:constants';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -82,27 +82,15 @@ export class SplashScreen {
     }
 
     public init (): Promise<void> | undefined {
-        const splashScreenSettings = settings.querySettings<ISplashSetting>(Settings.Category.SPLASH_SCREEN);
-        if (splashScreenSettings) {
-            const setting: Writable<ISplashSetting> = this.settings = splashScreenSettings;
-            setting.enabled = this.settings.enabled ?? true;
-            setting.totalTime = this.settings.totalTime != null ? this.settings.totalTime : 3000;
-            setting.base64src = this.settings.base64src || '';
-            setting.effect = this.settings.effect || 'FADE-INOUT';
-            setting.clearColor = this.settings.clearColor || new Color(0.88, 0.88, 0.88, 1);
-            setting.displayRatio = this.settings.displayRatio != null ? this.settings.displayRatio : 0.4;
-            setting.displayWatermark = this.settings.displayWatermark != null ? this.settings.displayWatermark : true;
-        } else {
-            this.settings = {
-                enabled: true,
-                totalTime: 3000,
-                base64src: '',
-                effect: 'FADE-INOUT',
-                clearColor: new Color(0.88, 0.88, 0.88, 1),
-                displayRatio: 0.4,
-                displayWatermark: true,
-            };
-        }
+        this.settings = {
+            enabled: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'enabled') ?? true,
+            totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
+            base64src: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'base64src') ?? '',
+            effect: settings.querySettings<SplashEffectType>(Settings.Category.SPLASH_SCREEN, 'effect') ?? 'FADE-INOUT',
+            clearColor: settings.querySettings<Color>(Settings.Category.SPLASH_SCREEN, 'clearColor') ?? new Color(0.88, 0.88, 0.88, 1),
+            displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
+            displayWatermark: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'displayWatermark') ?? true,
+        };
         this._curTime = 0;
 
         if (EDITOR || PREVIEW || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {

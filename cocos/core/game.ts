@@ -227,7 +227,7 @@ export class Game extends EventTarget {
      * 当前的游戏配置
      * 注意：请不要直接修改这个对象，它不会有任何效果。
      */
-    public config: NormalizedGameConfig = {} as NormalizedGameConfig;
+    public config: IGameConfig = {} as IGameConfig;
 
     /**
      * @en Callback when the scripts of engine have been load.
@@ -661,7 +661,7 @@ export class Game extends EventTarget {
         const frameRate = settings.querySettings(Settings.Category.SCREEN, 'frameRate') ?? 60;
         assert(typeof frameRate === 'number');
         this._pacer = new Pacer();
-        this._pacer.onTick(this._updateCallback.bind(this));
+        this._pacer.onTick = this._updateCallback.bind(this);
         this.frameRate = frameRate;
     }
 
@@ -768,7 +768,3 @@ legacyCC.Game = Game;
  * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
  */
 export const game = legacyCC.game = new Game();
-
-type NormalizedGameConfig = IGameConfig & {
-    frameRate: NonNullable<IGameConfig['frameRate']>;
-};

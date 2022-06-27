@@ -204,30 +204,30 @@ export class PhysicsSystem2D extends Eventify(System) {
     private constructor () {
         super();
 
-        const config = settings.querySettings<IPhysicsConfig>(Settings.Category.PHYSICS) || null;
-        if (config) {
-            Vec2.copy(this._gravity, config.gravity as IVec2Like);
+        const gravity = settings.querySettings(Settings.Category.PHYSICS, 'gravity');
+        if (gravity) {
+            Vec2.copy(this._gravity, gravity as IVec2Like);
             this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);
-
-            this._allowSleep = config.allowSleep as boolean;
-            this._fixedTimeStep = config.fixedTimeStep as number;
-            this._maxSubSteps = config.maxSubSteps as number;
-            this._autoSimulation = config.autoSimulation as boolean;
-
-            if (config.collisionMatrix) {
-                for (const i in config.collisionMatrix) {
-                    const bit = parseInt(i);
-                    const value = 1 << parseInt(i);
-                    this.collisionMatrix[`${value}`] = config.collisionMatrix[bit];
-                }
+        }
+        this._allowSleep = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'allowSleep') ?? this._allowSleep;
+        this._fixedTimeStep = settings.querySettings<number>(Settings.Category.PHYSICS, 'fixedTimeStep') ?? this._fixedTimeStep;
+        this._maxSubSteps = settings.querySettings<number>(Settings.Category.PHYSICS, 'maxSubSteps') ?? this._maxSubSteps;
+        this._autoSimulation = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'autoSimulation') ?? this._autoSimulation;
+        const collisionMatrix = settings.querySettings(Settings.Category.PHYSICS, 'collisionMatrix');
+        if (collisionMatrix) {
+            for (const i in collisionMatrix) {
+                const bit = parseInt(i);
+                const value = 1 << parseInt(i);
+                this.collisionMatrix[`${value}`] = collisionMatrix[bit];
             }
+        }
 
-            if (config.collisionGroups) {
-                const cg = config.collisionGroups;
-                if (cg instanceof Array) {
-                    cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
-                    Enum.update(PhysicsGroup);
-                }
+        const collisionGroups = settings.querySettings<Array<{ name: string, index: number }>>(Settings.Category.PHYSICS, 'collisionGroups');
+        if (collisionGroups) {
+            const cg = collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                Enum.update(PhysicsGroup);
             }
         }
 

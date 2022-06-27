@@ -1,3 +1,5 @@
+import { assertIsTrue } from "../../cocos/core/data/utils/asserts";
+
 declare const __globalAdapter: any;
 export class Pacer {
     private _rafHandle = 0;
@@ -20,6 +22,7 @@ export class Pacer {
 
     set targetFrameRate (val: number) {
         if (this._targetFrameRate !== val) {
+            assertIsTrue(val > 0);
             this._targetFrameRate = val;
             __globalAdapter.setPreferredFramesPerSecond(this._targetFrameRate);
             if (this._isPlaying) {
@@ -29,8 +32,12 @@ export class Pacer {
         }
     }
 
-    onTick (cb: () => void): void {
-        this._onTick = cb;
+    set onTick (val: (() => void) | null) {
+        this._onTick = val;
+    }
+
+    get onTick (): (() => void) | null {
+        return this._onTick;
     }
 
     start (): void {

@@ -1,3 +1,5 @@
+import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+
 export class Pacer {
     private _rafHandle = 0;
     private _stHandle = 0;
@@ -6,14 +8,16 @@ export class Pacer {
     private _frameTime = 0;
     private _startTime = 0;
     private _isPlaying = false;
+    private _rAF: typeof requestAnimationFrame;
+    private _cAF: typeof cancelAnimationFrame;
     constructor () {
-        window._rAF = window.requestAnimationFrame
+        this._rAF = window.requestAnimationFrame
         || window.webkitRequestAnimationFrame
         || window.mozRequestAnimationFrame
         || window.oRequestAnimationFrame
         || window.msRequestAnimationFrame
         || this._stTime.bind(this);
-        window._cAF = window.cancelAnimationFrame
+        this._cAF = window.cancelAnimationFrame
         || window.cancelRequestAnimationFrame
         || window.msCancelRequestAnimationFrame
         || window.mozCancelRequestAnimationFrame
@@ -32,6 +36,7 @@ export class Pacer {
 
     set targetFrameRate (val: number) {
         if (this._targetFrameRate !== val) {
+            assertIsTrue(val > 0);
             this._targetFrameRate = val;
             this._frameTime = 1000 / this._targetFrameRate;
             if (this._isPlaying) {
@@ -41,8 +46,12 @@ export class Pacer {
         }
     }
 
-    onTick (cb: () => void): void {
-        this._onTick = cb;
+    set onTick (val: (() => void) | null) {
+        this._onTick = val;
+    }
+
+    get onTick (): (() => void) | null {
+        return this._onTick;
     }
 
     start (): void {
@@ -52,9 +61,9 @@ export class Pacer {
                 if (this._onTick) {
                     this._onTick();
                 }
-                this._rafHandle = window._rAF(updateCallback);
+                this._rafHandle = this._rAF.call(window, updateCallback);
             };
-            this._rafHandle = window._rAF(updateCallback);
+            this._rafHandle = this._rAF.call(window, updateCallback);
         } else {
             const updateCallback = () => {
                 this._startTime = performance.now();
@@ -71,7 +80,7 @@ export class Pacer {
 
     stop (): void {
         if (!this._isPlaying) return;
-        window._cAF(this._rafHandle);
+        this._cAF.call(window, this._rafHandle);
         this._ctTime(this._stHandle);
         this._isPlaying = false;
     }
@@ -80,11 +89,11 @@ export class Pacer {
         const currTime = performance.now();
         const elapseTime = Math.max(0, (currTime - this._startTime));
         const timeToCall = Math.max(0, this._frameTime - elapseTime);
-        const id = window.setTimeout(callback, timeToCall);
+        const id = setTimeout(callback, timeToCall);
         return id;
     }
 
     private _ctTime (id: number | undefined) {
-        window.clearTimeout(id);
+        clearTimeout(id);
     }
 }

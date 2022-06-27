@@ -44,7 +44,14 @@ export class Settings {
     static Category = Category;
 
     init (path = '', overrides: Record<string, any> = {}): Promise<void> {
-        this._override = overrides;
+        for (const categoryName in overrides) {
+            const category = overrides[categoryName];
+            if (category) {
+                for (const name in category) {
+                    this.overrideSettings(categoryName, name, category[name]);
+                }
+            }
+        }
         if (!path) return Promise.resolve();
         return new Promise((resolve, reject) => {
             if (!HTML5) {
@@ -71,25 +78,24 @@ export class Settings {
         });
     }
 
-    querySettings<T = any> (category: Category | string, name?: string): T | null {
+    overrideSettings<T = any> (category: Category | string, name: string, value: T) {
+        if (!(category in this._override)) {
+            this._override[category] = {};
+        }
+        this._override[category][name] = value;
+    }
+
+    querySettings<T = any> (category: Category | string, name: string): T | null {
         if (category in this._override) {
-            if (name) {
-                const categorySettings = this._override[category];
-                if (typeof categorySettings === 'object' && categorySettings && name in categorySettings) {
-                    return categorySettings[name] as T;
-                }
-            } else {
-                return this._override[category] as T;
+            const categorySettings = this._override[category];
+            if (categorySettings && name in categorySettings) {
+                return categorySettings[name] as T;
             }
         }
         if (category in this._settings) {
-            if (name) {
-                const categorySettings = this._settings[category];
-                if (typeof categorySettings === 'object' && categorySettings && name in categorySettings) {
-                    return categorySettings[name] as T;
-                }
-            } else {
-                return this._settings[category] as T;
+            const categorySettings = this._settings[category];
+            if (categorySettings && name in categorySettings) {
+                return categorySettings[name] as T;
             }
         }
         return null;
