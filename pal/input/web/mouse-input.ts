@@ -1,4 +1,4 @@
-import { TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { MouseCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
@@ -25,14 +25,17 @@ export class MouseInputSource {
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas && !TEST) {
+            if (!this._canvas && !TEST && !EDITOR) {
                 console.warn('failed to access canvas');
             }
 
             this._handleMouseDown = this._createCallback(InputEventType.MOUSE_DOWN);
             this._handleMouseMove = this._createCallback(InputEventType.MOUSE_MOVE);
             this._handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
-            this._registerEvent();
+            // In Editor, we receive mouse event from manually event dispatching.
+            if (!EDITOR) {
+                this._registerEvent();
+            }
         }
     }
 
