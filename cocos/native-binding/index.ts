@@ -88,45 +88,50 @@ export declare namespace native {
         createDownloadTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
         /**
-         * @en set callback function after download success
-         * @zh 设置任务成功下载后的回调函数
-         * @param onSucceed @en Download success callback @zh 下载成功后的回调函数
+         * @en setter for the callback function after download success
+         * @zh 任务成功下载后的回调函数的修改器
+         * @param task @en download task @zh 下载的任务
          * @example
          * ```ts
          *  // set a download success callback
-         *  downloader.setOnSuccess((task)=>{
-         *  console.log('Success!'); // call when task download success
-         * });
+         *  downloader.onSuccess = (task) => {
+         *      console.log('Success!'); // call when task download success
+         * };
          */
-        setOnSuccess (onSucceed: (task: DownloaderTask) => void): void;
+        onSuccess: (task: DownloaderTask) => void | undefined;
 
         /**
-         * @en set callback function while download.
-         * @zh 设置任务下载过程中的回调函数.
-         * @param onProgress @en Download progress callback @zh 下载过程中的回调函数
+         * @en setter for the callback function while download.
+         * @zh 任务下载过程中的回调函数的修改器.
+         * @param task @en download task @zh 下载任务
+         * @param bytesReceived @en received bytes in current call @zh 此次接收到的字节
+         * @param totalBytesReceived @en total bytes have been received @zh 已接收到的所有字节
+         * @param totalBytesExpected @en total bytes expected to receive  @zh 预计接收的所有字节
          * @example
          * ```ts
-         *  // set a callback for download progress prompt
-         *  downloader.setOnProgress((task, bytesReceived, totalBytesReceived, totalBytesExpected)=>{
-         *  console.log(bytesReceived, totalBytesReceived); // download data info
-         *  console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
-         * });
+         *  // setter for the callback for download progress prompt
+         *  downloader.onProgress(task, bytesReceived, totalBytesReceived, totalBytesExpected) => {
+         *      console.log(bytesReceived, totalBytesReceived); // download data info
+         *      console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
+         * };
          */
-        setOnProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
-            totalBytesReceived: number, totalBytesExpected: number) => void): void;
+        onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void | undefined;
 
         /**
-         * @en set callback function when download error
-         * @zh 设置任务下载发生错误时的回调函数
-         * @param onError @en Download error callback @zh 下载发生错误时的回调函数
+         * @en setter for the callback function when download error
+         * @zh 任务下载发生错误时的回调函数的修改器
+         * @param task @en download task @zh 下载任务
+         * @param errorCode @en  error code  @zh 错误码
+         * @param errorCodeInternal @en internal error code @zh 内部错误码
+         * @param errorStr @en error info string @zh 错误信息
          * @example
          * ```ts
          * // set a download error callback
-         *  downloader.setOnError((task, errorCode, errorCodeInternal, errorStr)=>{
+         *  downloader.onError(task, errorCode, errorCodeInternal, errorStr) => {
          *  console.log('Error:', errorStr);
-         * });
+         * };
          */
-        setOnError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
+        onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void | undefined;
 
         /**
          * @deprecated since v3.6.0, please use `createDownloadTask` to instead.
@@ -143,7 +148,7 @@ export declare namespace native {
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
         /**
-         * @deprecated since v3.6.0, please use `setOnSuccess` to instead.
+         * @deprecated since v3.6.0, please use setter `onSuccess` to instead.
          * @en set callback function after download success
          * @zh 设置任务成功下载后的回调函数
          * @param onSucceed @en Download success callback @zh 下载成功后的回调函数
@@ -157,7 +162,7 @@ export declare namespace native {
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
         /**
-         * @deprecated since v3.6.0, please use `setOnProgress` to instead.
+         * @deprecated since v3.6.0, please use setter `onProgress` to instead.
          * @en set callback function while download.
          * @zh 设置任务下载过程中的回调函数.
          * @param onProgress @en Download progress callback @zh 下载过程中的回调函数
@@ -172,7 +177,7 @@ export declare namespace native {
         setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
         /**
-         * @deprecated since v3.6.0, please use `setOnError` to instead.
+         * @deprecated since v3.6.0, please use setter `onError` to instead.
          * @en set callback function when download error
          * @zh 设置任务下载发生错误时的回调函数
          * @param onError @en Download error callback @zh 下载发生错误时的回调函数

@@ -220,7 +220,7 @@ static bool js_network_Downloader_setOnSuccess(se::State &s) { // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_network_Downloader_setOnSuccess) // NOLINT(readability-identifier-naming)
+SE_BIND_FUNC_AS_PROP_SET(js_network_Downloader_setOnSuccess)
 
 // deprecated in v3.6
 static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(readability-identifier-naming)
@@ -319,20 +319,18 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_network_Downloader_setOnError) // NOLINT(readability-identifier-naming)
+SE_BIND_FUNC_AS_PROP_SET(js_network_Downloader_setOnError)
 
 bool register_all_network_manual(se::Object * /*obj*/) {
+    __jsb_cc_network_Downloader_proto->defineProperty("onSuccess", nullptr, _SE(js_network_Downloader_setOnSuccess_asSetter));
+    __jsb_cc_network_Downloader_proto->defineProperty("onError", nullptr, _SE(js_network_Downloader_setOnError_asSetter));
+    __jsb_cc_network_Downloader_proto->defineFunction("createDownloadTask",
+                                                      _SE(js_network_Downloader_createDownloadTask));
     __jsb_cc_network_Downloader_proto->defineFunction("createDownloadFileTask",
                                                       _SE(js_network_Downloader_createDownloadFileTask)); // deprecated since v3.6
     __jsb_cc_network_Downloader_proto->defineFunction("setOnTaskError",
                                                       _SE(js_network_Downloader_setOnTaskError)); // deprecated since v3.6
     __jsb_cc_network_Downloader_proto->defineFunction("setOnFileTaskSuccess",
                                                       _SE(js_network_Downloader_setOnFileTaskSuccess));  // deprecated since v3.6
-    __jsb_cc_network_Downloader_proto->defineFunction("createDownloadTask",
-                                                      _SE(js_network_Downloader_createDownloadTask));
-    __jsb_cc_network_Downloader_proto->defineFunction("setOnError",
-                                                      _SE(js_network_Downloader_setOnTaskError));
-    __jsb_cc_network_Downloader_proto->defineFunction("setOnSuccess",
-                                                      _SE(js_network_Downloader_setOnFileTaskSuccess));
     return true;
 }
