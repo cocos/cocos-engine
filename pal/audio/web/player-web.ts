@@ -349,7 +349,9 @@ export class AudioPlayerWeb implements OperationQueueable {
                 this._startSourceNode();
                 resolve();
             } else {
-                // Running event may be emit when resume audio context or when enter foreground from background.
+                // Running event may be emit when:
+                // - manually resume audio context.
+                // - system automatically resume audio context when enter foreground from background.
                 audioContextAgent!.onceRunning(() => {
                     this._startSourceNode();
                     resolve();
