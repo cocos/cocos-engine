@@ -54,6 +54,7 @@ public:
     bool empty() { return _queues.empty(); }
 
 private:
+    // `InstancedBuffer *`: weak reference
     ccstd::unordered_set<InstancedBuffer *> _queues;
 };
 
