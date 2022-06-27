@@ -345,13 +345,17 @@ if(USE_AUDIO)
         )
     elseif(APPLE)
         cocos_source_files(
-                                    cocos/audio/apple/AudioDecoder.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
+            #                         cocos/audio/apple/AudioDecoder.h
+            # NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-Impl.mm
                                     cocos/audio/apple/AudioEngine-Impl.h
                                     cocos/audio/apple/AudioCache.h
-                                    cocos/audio/apple/AudioCache.mm
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
                                     cocos/audio/apple/AudioMacros.h
+                                    cocos/audio/apple/AudioPlayer.h
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
+                                    # cocos/audio/apple/AudioDecoder.h
+            # NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
         )
     endif()
 

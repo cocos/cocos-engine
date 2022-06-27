@@ -25,12 +25,12 @@
 ****************************************************************************/
 #pragma once
 #include <mutex>
+#include "AudioDef.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
-#include "audio/include/AudioDef.h"
-
 #ifdef __OBJC__
 #import <AVFoundation/AVAudioFile.h>
+//#import <AVFoundation/AVAudioPCMBuffer.h>
 #else
 #endif
 #ifdef __OBJC__
@@ -40,7 +40,6 @@ typedef struct AudioFileDescriptor {
 } AudioFileDescriptor;
 #else
 typedef struct AudioFileDescriptor {
-    ccstd::string fileFullPath;
 } AudioFileDescriptor;
 #endif
 
@@ -48,37 +47,52 @@ typedef struct AudioFileDescriptor {
 // By default, memory use of audio data in total is 32 mb, de/increase MAX_BUFFER_LENGTH and MAX_CACHE_COUNT to change memory usage.
 #define MAX_BUFFER_LENGTH 262144 // 256 kilo-bytes
 #define MAX_CACHE_COUNT 128 // 128 audio cache can be create.
-
+#define MAX_BUFFER_COUNT 3 // Max buffer count that can be stored in memory.
 typedef std::function<void(bool)> LoadCallback;
 namespace cc {
-    class AudioCache {
+class AudioCache {
+public:
 
-        // ready -> loaded -> unloaded -> loaded again.
-        enum State {
-            READY, // Ready to load
-            LOADED,
-            UNLOADED, // Unloaded.
-        };
-        // Once constructed, state become READY
-        AudioCache(ccstd::string& fileFullPath); 
-        // If not unloaded, force unload the audio buffer
-        ~AudioCache(); 
-
-         // With a single thread to use. once load or unload end, the loadCallback will be triggered.
-        bool unload(LoadCallback &cb);
-        bool load(LoadCallback &cb);
-        bool resample(PCMHeader header);
-        
-        // Can only be called when state is LOADED
-        ccstd::vector<char> getPCMBuffer();
-        ccstd::vector<char> getPCMBuffer(uint32_t channelID);
-        PCMHeader getPCMHeader();
-        State loadState;
-    private:
-        AudioFileDescriptor                     _descriptor;
-        std::mutex                              _readDataMutex;
-        PCMHeader                               _pcmHeader; // Smaller than MAX_BUFFER_LENGTH
-        std::shared_ptr<std::vector<char>>      _pcmBuffer {nullptr}; // nullptr when it's on Apple platform.
-        bool                                    _isStreaming {false};
+    // ready -> loaded -> unloaded -> loaded again.
+    enum State {
+        READY, // Ready to load
+        LOADED,
+        UNLOADED, // Unloaded.
+        FAILED
     };
+    // Once constructed, state become READY
+    AudioCache(std::string& fileFullPath);
+    // If not unloaded, force unload the audio buffer
+    ~AudioCache();
+
+     // With a single thread to use. once load or unload end, the loadCallback will be triggered.
+    bool unload();
+    bool load();
+    void addLoadCallback(const LoadCallback &callback);
+    void addPlayCallback(const std::function<void()> &callback);
+#ifdef __OBJC__
+    void loadToBuffer(AVAudioFramePosition &pos, AVAudioPCMBuffer* buffer);
+#endif
+    bool resample(PCMHeader header);
+    
+    // Can only be called when state is LOADED
+    std::vector<char> getPCMBuffer();
+    std::vector<char> getPCMBuffer(uint32_t channelID);
+    AudioFileDescriptor getDescriptor() {return _descriptor;}
+    
+    PCMHeader getPCMHeader();
+    State loadState;
+    uint32_t useCount {0};
+private:
+    ccstd::string _fileFullPath;
+    AudioFileDescriptor                     _descriptor;
+    std::mutex                              _readDataMutex;
+    std::mutex _playCallbackMutex;
+    PCMHeader                               _pcmHeader; // Smaller than MAX_BUFFER_LENGTH
+    std::shared_ptr<std::vector<char>>      _pcmBuffer {nullptr}; // nullptr when it's on Apple platform.
+    bool                                    _isStreaming {false};
+    ccstd::vector<std::function<void(bool)>>  _loadCallbacks;
+    ccstd::vector<std::function<void()>>      _playCallbacks;
+    friend class AudioEngineImpl;
+};
 }

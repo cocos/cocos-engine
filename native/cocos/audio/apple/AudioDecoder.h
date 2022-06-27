@@ -108,7 +108,6 @@ public:
 
 private:
     bool _isOpened;
-    ExtAudioFileRef _extRef;
     uint32_t _totalFrames;
     uint32_t _bytesPerFrame;
     uint32_t _sampleRate;
