@@ -33,7 +33,7 @@ import './deprecated';
 export { AudioClip } from './audio-clip';
 
 export { AudioSource };
-export type { AudioArrayBuffer } from '../../pal/audio/type';
+export { AudioPCMDataView } from '../../pal/audio/type';
 
 export { AudioSource as AudioSourceComponent };
 legacyCC.AudioSourceComponent = AudioSource;

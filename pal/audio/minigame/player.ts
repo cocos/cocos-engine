@@ -1,7 +1,6 @@
 import { minigame } from 'pal/minigame';
-import { warnID } from '../../../cocos/core';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { AudioLoadOptions, AudioType, AudioState, AudioArrayBuffer } from '../type';
+import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
 import { AudioPlayerMinigame, OneShotAudioMinigame } from './player-minigame';
 import { AudioPlayerWeb, OneShotAudioWeb } from './player-web';
 
@@ -90,8 +89,7 @@ export class AudioPlayer {
     get duration (): number { return this._player.duration; }
     get currentTime (): number { return this._player.currentTime; }
     get sampleRate (): number { return this._player.sampleRate; }
-    get bitDepth (): number { return this._player.bitDepth; }
-    getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined { return this._player.getPCMBuffer(channelIndex); }
+    getPCMData (channelIndex: number): AudioPCMDataView | undefined { return this._player.getPCMData(channelIndex); }
     seek (time: number): Promise<void> { return this._player.seek(time); }
 
     play (): Promise<void> { return this._player.play(); }

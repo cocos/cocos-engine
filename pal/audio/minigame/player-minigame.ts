@@ -1,7 +1,7 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { AudioArrayBuffer, AudioEvent, AudioState, AudioType } from '../type';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
@@ -218,11 +218,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return 0;
     }
 
-    get bitDepth (): number {
-        return 1;
-    }
-
-    getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined {
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
         return undefined;
     }
 

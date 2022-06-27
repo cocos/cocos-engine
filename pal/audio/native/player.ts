@@ -1,5 +1,5 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioType, AudioState, AudioEvent, AudioArrayBuffer } from '../type';
+import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -16,24 +16,28 @@ enum AudioBufferFormat {
     UNSIGNED_8,
     SIGNED_16,
     UNSIGNED_16,
-    // SIGNED_24,
-    // UNSIGNED_24,
     SIGNED_32,
     UNSIGNED_32,
     FLOAT_32,
     FLOAT_64
 }
 
-const bufferConstructorMap: Record<number, Constructor<AudioArrayBuffer> | undefined> = {
+interface AudioBufferInfo {
+    ctor: Constructor<AudioBufferView>,
+    maxValue: number;
+}
+
+const bufferConstructorMap: Record<number, AudioBufferInfo | undefined> = {
     [AudioBufferFormat.UNKNOWN]: undefined,
-    [AudioBufferFormat.SIGNED_8]: Int8Array,
-    [AudioBufferFormat.UNSIGNED_8]: Uint8Array,
-    [AudioBufferFormat.SIGNED_16]: Int16Array,
-    [AudioBufferFormat.UNSIGNED_16]: Uint16Array,
-    [AudioBufferFormat.SIGNED_32]: Int32Array,
-    [AudioBufferFormat.UNSIGNED_32]: Uint32Array,
-    [AudioBufferFormat.FLOAT_32]: Float32Array,
-    [AudioBufferFormat.FLOAT_64]: Float64Array,
+    [AudioBufferFormat.SIGNED_8]: { ctor: Int8Array, maxValue: 127 },
+    [AudioBufferFormat.UNSIGNED_8]: { ctor: Uint8Array, maxValue: 255 },
+    [AudioBufferFormat.SIGNED_16]: { ctor: Int16Array, maxValue: 32767 },
+    [AudioBufferFormat.UNSIGNED_16]: { ctor: Uint16Array, maxValue: 65535 },
+    [AudioBufferFormat.SIGNED_32]: { ctor: Int32Array, maxValue: 2147483647 },
+    [AudioBufferFormat.UNSIGNED_32]: { ctor: Uint32Array, maxValue: 4294967295 },
+    // decoded float data is normalized data, so we specify the maxValue as 1.
+    [AudioBufferFormat.FLOAT_32]: { ctor: Float32Array, maxValue: 1 },
+    [AudioBufferFormat.FLOAT_64]: { ctor: Float64Array, maxValue: 1 },
 };
 
 export class OneShotAudio {
@@ -217,19 +221,14 @@ export class AudioPlayer implements OperationQueueable {
         return this._pcmHeader.sampleRate;
     }
 
-    get bitDepth (): number {
-        const pcmHeader = this._pcmHeader;
-        return pcmHeader.bytesPerFrame / pcmHeader.channelCount;
-    }
-
-    public getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined {
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
         const arrayBuffer = audioEngine.getOriginalPCMBuffer(this._url, channelIndex);
         const pcmHeader = this._pcmHeader;
-        const BufferConstructor = bufferConstructorMap[pcmHeader.audioFormat];
-        if (!arrayBuffer || !BufferConstructor) {
+        const audioBufferInfo = bufferConstructorMap[pcmHeader.audioFormat];
+        if (!arrayBuffer || !audioBufferInfo) {
             return undefined;
         }
-        return new BufferConstructor(arrayBuffer);
+        return new AudioPCMDataView(arrayBuffer, audioBufferInfo.ctor, 1 / audioBufferInfo.maxValue);
     }
 
     @enqueueOperation

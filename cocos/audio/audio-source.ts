@@ -25,7 +25,7 @@
 
 import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
-import { AudioArrayBuffer, AudioState } from '../../pal/audio/type';
+import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './audio-clip';
@@ -228,17 +228,17 @@ export class AudioSource extends Component {
     }
     /**
      * @en
-     * Get PCM buffer from specified channel.
+     * Get PCM data from specified channel.
      * Currently it is only available in Native platform and Web Audio (including Web and ByteDance platforms).
      *
      * @zh
-     * 通过指定的通道获取音频的 PCM buffer。
+     * 通过指定的通道获取音频的 PCM data。
      * 目前仅在原生平台和 Web Audio（包括 Web 和 字节平台）中可用。
      *
      * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
-     * @returns A Promise to get the buffer after audio is loaded.
+     * @returns A Promise to get the PCM data after audio is loaded.
      */
-    public getPCMBuffer (channelIndex: number): Promise<AudioArrayBuffer | undefined> {
+    public getPCMData (channelIndex: number): Promise<AudioPCMDataView | undefined> {
         return new Promise((resolve) => {
             if (channelIndex !== 0 && channelIndex !== 1) {
                 console.warn('Only support channel index 0 or 1 to get buffer');
@@ -246,33 +246,10 @@ export class AudioSource extends Component {
                 return;
             }
             if (this._player) {
-                resolve(this._player.getPCMBuffer(channelIndex));
+                resolve(this._player.getPCMData(channelIndex));
             } else {
                 this.node.once(_LOADED_EVENT, () => {
-                    resolve(this._player!.getPCMBuffer(channelIndex));
-                });
-            }
-        });
-    }
-
-    /**
-     * @en
-     * Get the bit depth of the audio, currently it is only available in Native platform.
-     * In some platform which not support accessing bit depth, this getter will return 1.
-     *
-     * @zh
-     * 获取音频的位深，目前仅在原生平台支持。
-     * 在一些不支持获取位深的平台，返回 1。
-     *
-     * @returns A Promise to get the bit depth after audio is loaded.
-     */
-    public getBitDepth (): Promise<number> {
-        return new Promise((resolve) => {
-            if (this._player) {
-                resolve(this._player.bitDepth);
-            } else {
-                this.node.once(_LOADED_EVENT, () => {
-                    resolve(this._player!.bitDepth);
+                    resolve(this._player?.getPCMData(channelIndex));
                 });
             }
         });
