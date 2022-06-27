@@ -36,6 +36,7 @@ import { Constraint } from './constraint';
 import { Vec3, IVec3Like } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
+import { legacyCC } from '../../../../core/global-exports';
 
 @ccclass('cc.PointToPointConstraint')
 @help('i18n:cc.PointToPointConstraint')
@@ -54,7 +55,7 @@ export class PointToPointConstraint extends Constraint {
 
     set pivotA (v: IVec3Like) {
         Vec3.copy(this._pivotA, v);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.constraint.setPivotA(this._pivotA);
         }
     }
@@ -72,7 +73,7 @@ export class PointToPointConstraint extends Constraint {
 
     set pivotB (v: IVec3Like) {
         Vec3.copy(this._pivotB, v);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.constraint.setPivotB(this._pivotB);
         }
     }

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module custom-pipeline
- */
-
 import { Pipeline } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { rebuildLayoutGraph } from './effect';

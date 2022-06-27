@@ -38,13 +38,48 @@
     }
   #endif
 #else
-  mat4 getJointMatrix (float i) {
-    int idx = int(i);
-    vec4 v1 = cc_joints[idx * 3];
-    vec4 v2 = cc_joints[idx * 3 + 1];
-    vec4 v3 = cc_joints[idx * 3 + 2];
-    return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
-  }
+  #if CC_USE_REAL_TIME_JOINT_TEXTURE
+    #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
+      mat4 getJointMatrix (float i) {
+        float x = i;
+        vec4 v1 = texture(cc_realtimeJoint, vec2( x / 256.0, 0.5 / 3.0));
+        vec4 v2 = texture(cc_realtimeJoint, vec2( x / 256.0, 1.5 / 3.0));
+        vec4 v3 = texture(cc_realtimeJoint, vec2( x / 256.0, 2.5 / 3.0));
+        return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
+      }
+    #else
+      mat4 getJointMatrix (float i) {
+       float x = 4.0 * i;
+        vec4 v1 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 0.5 / 3.0)))
+        );
+        vec4 v2 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 1.5 / 3.0)))
+        );
+        vec4 v3 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 2.5 / 3.0)))
+        );
+        return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
+      }
+    #endif
+  #else
+    mat4 getJointMatrix (float i) {
+      int idx = int(i);
+      vec4 v1 = cc_joints[idx * 3];
+      vec4 v2 = cc_joints[idx * 3 + 1];
+      vec4 v3 = cc_joints[idx * 3 + 2];
+      return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
+    }
+  #endif
 #endif
 
 mat4 skinMatrix () {

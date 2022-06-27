@@ -227,6 +227,7 @@ int SimulatorApp::getPositionY() {
 }
 
 int SimulatorApp::run() {
+    createFileUtils();
     INITCOMMONCONTROLSEX InitCtrls;
     InitCtrls.dwSize = sizeof(InitCtrls);
     InitCtrls.dwICC  = ICC_WIN95_CLASSES;

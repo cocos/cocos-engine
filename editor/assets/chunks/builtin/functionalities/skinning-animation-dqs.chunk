@@ -35,12 +35,48 @@
     }
   #endif
 #else
-  void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
-    int idx = int(i);
-    Qr = cc_joints[idx * 3];
-    Qt = cc_joints[idx * 3 + 1];
-    S = cc_joints[idx * 3 + 2].xyz;
-  }
+  #if CC_USE_REAL_TIME_JOINT_TEXTURE
+    #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
+      void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+        float x = i;
+        Qr = texture(cc_realtimeJoint, vec2( x / 256.0, 0.5 / 3.0));
+        Qt = texture(cc_realtimeJoint, vec2( x / 256.0, 1.5 / 3.0));
+        S = texture(cc_realtimeJoint, vec2( x / 256.0, 2.5 / 3.0)).xyz;
+      }
+    #else
+      void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+        float x = 4.0 * i;
+        vec4 v1 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 0.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 0.5 / 3.0)))
+        );
+        vec4 v2 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 1.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 1.5 / 3.0)))
+        );
+        vec4 v3 = vec4(
+          decode32(texture(cc_realtimeJoint, vec2((x + 0.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 1.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 2.5)/ 1024.0, 2.5 / 3.0))),
+          decode32(texture(cc_realtimeJoint, vec2((x + 3.5)/ 1024.0, 2.5 / 3.0)))
+        );
+        Qr = v1;
+        Qt = v2;
+        S = v3.xyz;
+      }
+    #endif
+  #else
+    void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
+      int idx = int(i);
+      Qr = cc_joints[idx * 3];
+      Qt = cc_joints[idx * 3 + 1];
+      S = cc_joints[idx * 3 + 2].xyz;
+    }
+  #endif
 #endif
 
 // [Kavan07] Skinning with Dual Quaternions

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module custom-pipeline
- */
-
 declare const render: any;
 
 import { Pipeline } from './pipeline';

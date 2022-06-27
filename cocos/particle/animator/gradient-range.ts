@@ -30,6 +30,7 @@ import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { legacyCC } from '../../core/global-exports';
 
 const SerializableTable = EDITOR && [
     ['_mode', 'color'],
@@ -58,7 +59,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());

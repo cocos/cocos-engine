@@ -38,8 +38,8 @@ namespace cc {
 namespace pipeline {
 RenderFlowInfo MainFlow::initInfo = {
     "MainFlow",
-    static_cast<uint>(DeferredFlowPriority::MAIN),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(DeferredFlowPriority::MAIN),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
     {},
 };
 const RenderFlowInfo &MainFlow::getInitializeInfo() { return MainFlow::initInfo; }

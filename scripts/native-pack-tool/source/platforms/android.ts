@@ -40,9 +40,18 @@ export class AndroidPackTool extends NativePackTool {
         }
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测
         if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
-            // 拷贝 lite 仓库的 templates/android/build 文件到构建输出目录
+            // 拷贝 lite 仓库的 templates/android/template 文件到构建输出目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
+            this.writeEngineVersion();
+        } else {
+            this.validateNativeDir();
         }
+    }
+
+    protected validatePlatformDirectory(missing: string[]): void {
+        const srcDir = ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'template');
+        const dstDir = this.paths.platformTemplateDirInPrj;
+        this.validateDirectory(srcDir, dstDir, missing);
     }
 
     async create() {
@@ -141,7 +150,7 @@ export class AndroidPackTool extends NativePackTool {
         console.log(`update settings.properties`);
         await cchelper.replaceInFile([
             { reg: '^rootProject\\.name.*', text: `rootProject.name = "${this.params.projectName}"` },
-            { reg: ':CocosGame', text: `:${this.params.projectName}`}
+            { reg: ':CocosGame', text: `:${this.params.projectName}` }
         ], ps.join(this.paths.nativePrjDir, 'settings.gradle'));
 
         console.log(`update gradle.properties`);
@@ -215,7 +224,7 @@ export class AndroidPackTool extends NativePackTool {
             console.log('android instant not configured');
             return;
         }
-        const url =this.params.platformParams.remoteUrl;
+        const url = this.params.platformParams.remoteUrl;
         if (!url) {
             return;
         }
@@ -278,7 +287,7 @@ export class AndroidPackTool extends NativePackTool {
         return true;
     }
 
-// ---------------------------- run ------------------------- //
+    // ---------------------------- run ------------------------- //
 
     async run() {
         if (await this.install()) {

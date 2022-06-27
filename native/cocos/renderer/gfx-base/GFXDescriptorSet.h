@@ -40,7 +40,7 @@ public:
     void destroy();
 
     virtual void update() = 0;
-    void forceUpdate();
+    virtual void forceUpdate() = 0;
 
     virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
     virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index);

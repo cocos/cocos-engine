@@ -1,7 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const child_process = require('child_process');
-const { filter } = require('async');
 const version_parser = require('./plugin_support/plugin_cfg');
 
 const MAX_SEARCH_LEVEL = 7;
@@ -47,7 +45,7 @@ function search_cc_config_json_levels(dir, depth) {
 
 for (let searchPath of PROJ_SEARCH_PATHS) {
     if (!fs.existsSync(searchPath)) {
-        console.warn(`[searching plugins] directory ${searchPath} does not exist`);
+        console.log(`[searching plugins] directory ${searchPath} does not exist`);
         continue;
     }
     search_cc_config_json_levels(searchPath, 1);
@@ -55,7 +53,7 @@ for (let searchPath of PROJ_SEARCH_PATHS) {
 
 
 if (cc_config_json_list.length === 0) {
-    console.warn("[searching plugins] no plugins found!");
+    console.log("[searching plugins] no plugins found!");
     process.exit(0)
 }
 
@@ -207,13 +205,13 @@ for (let plugin_dir of cc_config_json_list) {
             continue;
         }
         if (!test_enable_by_configurations(cc_plugin_json)) {
-            console.warn(` ${maybe_plugin_name} disabled by configuration`);
+            console.log(` ${maybe_plugin_name} disabled by configuration`);
             continue;
         }
         const plugin_name = cc_plugin_json.name;
         const module_type = get_property_variants(cc_plugin_json, "module_type")
         if (module_type !== undefined && module_type !== 'release') {
-            console.warn(` plugin ${plugin_name} is not a release, should be include or add_subdirectory in dev env.`);
+            console.log(` plugin ${plugin_name} is not a release, should be include or add_subdirectory in dev env.`);
             continue;
         }
         const packages = parse_package_dependency(cc_plugin_json);
@@ -247,7 +245,7 @@ for (let plugin_dir of cc_config_json_list) {
         if (packages.length > 0) {
             console.log(` record plugin ${plugin_name}`);
         } else {
-            console.warn(` no sub module found`);
+            console.log(` no sub module found`);
         }
     } catch (e) {
         console.error(`Parsing plugin directory: ${plugin_dir}`)

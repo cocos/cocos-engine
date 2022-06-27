@@ -31,6 +31,7 @@ import { sys } from '../core/platform/sys';
 import { EventTarget } from '../core/event/event-target';
 import { Event, EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
+import { legacyCC } from '../core/global-exports';
 
 export enum EventDispatcherPriority {
     GLOBAL = 0,
@@ -181,7 +182,7 @@ export class Input {
      * @param target - The event listener's target and callee
      */
     public on<K extends keyof InputEventMap> (eventType: K, callback: InputEventMap[K], target?: any) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return callback;
         }
         this._eventTarget.on(eventType, callback, target);
@@ -199,7 +200,7 @@ export class Input {
      * @param target - The event listener's target and callee
      */
     public once<K extends keyof InputEventMap> (eventType: K, callback: InputEventMap[K], target?: any) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return callback;
         }
         this._eventTarget.once(eventType, callback, target);
@@ -217,7 +218,7 @@ export class Input {
      * @param target - The event listener's target and callee
      */
     public off<K extends keyof InputEventMap> (eventType: K, callback?: InputEventMap[K], target?: any) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._eventTarget.off(eventType, callback, target);
@@ -230,7 +231,7 @@ export class Input {
      * 是否启用加速度计事件。
      */
     public setAccelerometerEnabled (isEnable: boolean) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         if (isEnable) {
@@ -248,7 +249,7 @@ export class Input {
      * 设置加速度计间隔值。
      */
     public setAccelerometerInterval (intervalInMileSeconds: number): void {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._accelerometerInput.setInterval(intervalInMileSeconds);

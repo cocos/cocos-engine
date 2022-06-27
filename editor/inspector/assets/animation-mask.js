@@ -17,43 +17,52 @@ exports.template = `
 `;
 
 exports.methods = {
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
+    record() {
+        return JSON.stringify(this.queryData);
     },
+
+    async restore(record) {
+        record = JSON.parse(record);
+        if (!record || typeof record !== 'object') {
+            return false;
+        }
+
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'change-dump',
+            dump: record,
+        });
+        await this.changed({ snapshot: false });
+        return true;
+    },
+
     async query(uuid) {
-        this.queryData = await Editor.Message.request('scene', 'query-animation-mask', uuid);
-        this.updateTree();
+        return await Editor.Message.request('scene', 'query-animation-mask', uuid);
     },
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-animation-mask', this.asset.uuid);
     },
     reset() {
-        this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
     },
-    async dataChange() {
-        await Editor.Message.request('scene', 'change-animation-mask', {
-            method: 'change-dump',
-            dump: this.queryData,
-        });
-
+    async changed(state) {
+        this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change');
+
+        this.dispatch('change', state);
     },
 
-    jointEnableChange(key, checked, loop) {
-        const { children, origin } = this.flatData[key];
-        origin.value.enabled.value = checked;
+    updateInterface() {
+        const convertData = this.convertData(this.queryData.joints.value);
+        this.flatData = convertData.flatData;
+        this.$.tree.tree = convertData.treeData;
+    },
 
-        if (loop) {
-            children.forEach((childKey) => {
-                this.jointEnableChange(childKey, checked, loop);
-            });
+    updateReadonly(element) {
+        if (this.asset.readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
         }
     },
 
@@ -65,6 +74,8 @@ exports.methods = {
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
+
+            this.dispatch('snapshot');
         }
     },
 
@@ -159,10 +170,15 @@ exports.methods = {
         return { flatData, treeData };
     },
 
-    updateTree() {
-        const convertData = this.convertData(this.queryData.joints.value);
-        this.flatData = convertData.flatData;
-        this.$.tree.tree = convertData.treeData;
+    jointEnableChange(key, checked, loop) {
+        const { children, origin } = this.flatData[key];
+        origin.value.enabled.value = checked;
+
+        if (loop) {
+            children.forEach((childKey) => {
+                this.jointEnableChange(childKey, checked, loop);
+            });
+        }
     },
 };
 
@@ -229,9 +245,7 @@ exports.ready = function() {
                         uuid: info.redirect.uuid,
                     });
 
-                    panel.updateTree();
-                    panel.setDirtyData();
-                    panel.dispatch('change');
+                    panel.changed();
                 },
             },
         });
@@ -251,9 +265,7 @@ exports.ready = function() {
                 uuid: this.asset.uuid,
             });
 
-            panel.updateTree();
-            panel.setDirtyData();
-            panel.dispatch('change');
+            this.changed();
         }
     });
 
@@ -267,12 +279,17 @@ exports.ready = function() {
     panel.$.tree.setTemplate('left', '<ui-checkbox tooltip="i18n:ENGINE.assets.animationMask.nodeEnableTip"></ui-checkbox>');
     panel.$.tree.setTemplateInit('left', ($left) => {
         $left.$checkbox = $left.querySelector('ui-checkbox');
-        $left.$checkbox.addEventListener('click', (event) => {
+        $left.$checkbox.addEventListener('click', async (event) => {
             const key = $left.data.detail.key;
             const origin = panel.flatData[key].origin;
             panel.jointEnableChange(key, !origin.value.enabled.value, !event.altKey);
-            panel.dataChange();
-            panel.$.tree.render();
+
+            panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+                method: 'change-dump',
+                dump: panel.queryData,
+            });
+
+            panel.changed();
         });
     });
     panel.$.tree.setRender('left', ($left) => {
@@ -307,7 +324,7 @@ exports.update = async function(assetList, metaList) {
     this.meta = metaList[0];
 
     if (assetList.length !== 1) {
-        this.$.container.innerText = '';
+        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
         return;
     }
 
@@ -316,8 +333,9 @@ exports.update = async function(assetList, metaList) {
         this.dirtyData.origin = '';
     }
 
-    await this.query(this.asset.uuid);
+    this.queryData = await this.query(this.asset.uuid);
 
+    this.updateInterface();
     this.setDirtyData();
 };
 

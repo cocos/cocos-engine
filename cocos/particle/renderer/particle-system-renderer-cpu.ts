@@ -27,16 +27,19 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
-import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
+import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
+import { ParticleNoise } from '../noise';
+import { NoiseModule } from '../animator/noise-module';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -51,6 +54,7 @@ const _anim_module = [
     '_limitVelocityOvertimeModule',
     '_rotationOvertimeModule',
     '_textureAnimationModule',
+    '_noiseModule',
 ];
 
 const _uvs = [
@@ -308,7 +312,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -340,6 +344,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         pass.setUniform(this._uScaleHandle, this._node_scale);
     }
+
+    private noise: ParticleNoise = new ParticleNoise();
 
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
@@ -412,6 +418,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         this._model!.enabled = this._particles!.length > 0;
         return this._particles!.length;
+    }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+        this._runAnimateList.forEach((value) => {
+            if (value.name === PARTICLE_MODULE_NAME.NOISE) {
+                const m = value as NoiseModule;
+                m.getNoisePreview(out, this._particleSystem, width, height);
+            }
+        });
     }
 
     // internal function

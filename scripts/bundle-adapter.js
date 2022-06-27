@@ -36,12 +36,12 @@ async function bundleNativeAdapter () {
     // bundle engine-adapter.js
     const engineAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/native/engine/index.js'));
     const engineAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/engine-adapter.js'));
-    await bundle(engineAdapterEntry, engineAdapterOutput, 'chrome 80');
+    await bundle(engineAdapterEntry, engineAdapterOutput, true, 'chrome 80');
 
     // bundle web-adapter.js
     const webAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/native/builtin/index.js'));
     const webAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/web-adapter.js'));
-    await bundle(webAdapterEntry, webAdapterOutput, 'chrome 80');
+    await bundle(webAdapterEntry, webAdapterOutput, true, 'chrome 80');
 }
 
 async function bundleMinigameAdapter () {
@@ -51,10 +51,13 @@ async function bundleMinigameAdapter () {
 
     for (let platform of platforms) {
         console.log(`handle platform: ${chalk.green(platform)}`);
+
+        const needUglify = (platform !== 'xiaomi');  // uglify conflicts with the webpack tool on xiaomi platform
+
         // bundle engine-adapter.js
         const engineEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/engine/index.js`));
         const engineOutput = normalizePath(ps.join(engineRoot, `bin/adapter/minigame/${platform}/engine-adapter.js`));
-        await bundle(engineEntry, engineOutput);
+        await bundle(engineEntry, engineOutput, needUglify);
 
         // bundle web-adapter.js
         let builtinEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/builtin/index.js`));
@@ -62,7 +65,7 @@ async function bundleMinigameAdapter () {
             builtinEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/builtin.js`));
         }
         const builtinOutput = normalizePath(ps.join(engineRoot, `bin/adapter/minigame/${platform}/web-adapter.js`));
-        await bundle(builtinEntry, builtinOutput);
+        await bundle(builtinEntry, builtinOutput, needUglify);
     }
 }
 
@@ -75,7 +78,7 @@ async function bundleRuntimeAdapter () {
         // bundle engine-adapter.js
         const engineEntry = normalizePath(ps.join(engineRoot, `platforms/runtime/platforms/${platform}/engine/index.js`));
         const engineOutput = normalizePath(ps.join(engineRoot, `bin/adapter/runtime/${platform}/engine-adapter.js`));
-        await bundle(engineEntry, engineOutput);
+        await bundle(engineEntry, engineOutput, true);
     }
 }
 
@@ -88,9 +91,10 @@ function normalizePath (path) {
  * Create bundle task
  * @param {string} src 
  * @param {string} dst 
+ * @param {boolean} needUglify
  * @param {string} targets
  */
-function createBundleTask (src, dst, targets) {
+function createBundleTask (src, dst, needUglify, targets) {
     let targetFileName = ps.basename(dst);
     let targetFileNameMin = ps.basename(targetFileName, '.js') + '.min.js';
     dst = ps.dirname(dst);
@@ -108,7 +112,7 @@ function createBundleTask (src, dst, targets) {
         .pipe(gulp.dest(dst))
         .pipe(rename(targetFileNameMin));
     // TODO: es6 module should use uglify-es
-    if (!targets) {
+    if (needUglify && !targets) {
         task = task.pipe(uglify());
     }
     task = task.pipe(gulp.dest(dst));
@@ -119,11 +123,12 @@ function createBundleTask (src, dst, targets) {
  * Build adapters
  * @param {string} entry 
  * @param {string} output 
+ * @param {boolean} needUglify
  * @param {string} targets
  */
-async function bundle (entry, output, targets = '') {
+async function bundle (entry, output, needUglify, targets = '') {
     await new Promise((resolve) => {
         console.log(`Generate bundle: ${chalk.green(ps.basename(output))}`);
-        createBundleTask(entry, output, targets).on('end', resolve);
+        createBundleTask(entry, output, needUglify, targets).on('end', resolve);
     });
 }

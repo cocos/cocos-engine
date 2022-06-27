@@ -40,6 +40,7 @@ CCProgram lighting-fs %{
   #include <legacy/output-standard>
   #include <legacy/fog-base>
   #include <common/math/octahedron-transform>
+  #include <common/math/coordinates>
 
   in vec2 v_uv;
 
@@ -68,6 +69,20 @@ CCProgram lighting-fs %{
   #if !CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT || __VERSION__ >= 450
     layout(location = 0) out vec4 fragColor;
   #endif
+
+
+  vec4 screen2WS(vec3 coord) {
+    vec3 ndc = vec3(
+  	  2.0 * (coord.x - cc_viewPort.x) / cc_viewPort.z - 1.0,
+      2.0 * (coord.y - cc_viewPort.y) / cc_viewPort.w - 1.0,
+      #if __VERSION__ >= 450
+      coord.z);
+      #else
+      2.0 * coord.z - 1.0);
+      #endif
+  
+    return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
+  }
 
   void main () {
     StandardSurface s;

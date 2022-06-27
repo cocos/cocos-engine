@@ -28,8 +28,8 @@
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
-#include "base/TypeDef.h"
 #include "core/assets/Asset.h"
+
 namespace cc {
 
 namespace gfx {

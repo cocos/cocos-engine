@@ -7,6 +7,7 @@ exports.methods = {
     record() {
         return JSON.stringify(this.physicsMaterial);
     },
+
     async restore(record) {
         record = JSON.parse(record);
         if (!record || typeof record !== 'object') {

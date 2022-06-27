@@ -29,7 +29,7 @@
 
 namespace se {
 
-BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
+BufferPool::BufferPool(PoolType type, uint32_t entryBits, uint32_t bytesPerEntry)
 : _allocator(type),
   _entryBits(entryBits),
   _bytesPerEntry(bytesPerEntry),
@@ -44,7 +44,7 @@ BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
 BufferPool::~BufferPool() = default;
 
 se::Object *BufferPool::allocateNewChunk() {
-    se::Object *jsObj = _allocator.alloc(static_cast<uint>(_chunks.size()), _bytesPerChunk);
+    se::Object *jsObj = _allocator.alloc(static_cast<uint32_t>(_chunks.size()), _bytesPerChunk);
 
     uint8_t *realPtr = nullptr;
     size_t len = 0;

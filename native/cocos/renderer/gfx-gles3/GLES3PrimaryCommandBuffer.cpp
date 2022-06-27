@@ -230,11 +230,36 @@ void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
     cmdFuncGLES3Dispatch(GLES3Device::getInstance(), gpuInfo);
 }
 
-void GLES3PrimaryCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
-    if (!barrier) return;
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const * /*buffers*/, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const * /*textures*/, uint32_t textureBarrierCount) {
+    if (!barrier && !bufferBarrierCount && !textureBarrierCount) return;
 
-    const auto *gpuBarrier = static_cast<const GLES3GeneralBarrier *>(barrier)->gpuBarrier();
-    cmdFuncGLES3MemoryBarrier(GLES3Device::getInstance(), gpuBarrier->glBarriers, gpuBarrier->glBarriersByRegion);
+    GLuint glBarriers{0};
+    GLuint glBarriersByRegion{0};
+
+    if (barrier) {
+        GLES3GPUGeneralBarrier genBarrier = *(static_cast<const GLES3GeneralBarrier *>(barrier)->gpuBarrier());
+        glBarriers |= genBarrier.glBarriers;
+        glBarriersByRegion |= genBarrier.glBarriersByRegion;
+    }
+
+    auto fullfill = [&glBarriers, &glBarriersByRegion](auto *barriers, uint32_t count) {
+        for (size_t i = 0; i < count; ++i) {
+            GLES3GPUGeneralBarrier barrier{
+                barriers[i]->getInfo().prevAccesses,
+                barriers[i]->getInfo().nextAccesses,
+                0,
+                0,
+            };
+            completeBarrier(&barrier);
+            glBarriers |= barrier.glBarriers;
+            glBarriersByRegion |= barrier.glBarriersByRegion;
+        }
+    };
+
+    fullfill(bufferBarriers, bufferBarrierCount);
+    fullfill(textureBarriers, textureBarrierCount);
+
+    cmdFuncGLES3MemoryBarrier(GLES3Device::getInstance(), glBarriers, glBarriersByRegion);
 }
 
 } // namespace gfx

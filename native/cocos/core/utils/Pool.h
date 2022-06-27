@@ -26,11 +26,6 @@
 #pragma once
 
 /**
- * @packageDocumentation
- * @module core
- */
-
-/**
  * @en
  * A fixed-length object pool designed for general type.<br>
  * The implementation of this object pool is very simple,

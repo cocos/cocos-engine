@@ -53,12 +53,12 @@ public:
     CCMTLCommandBuffer &operator=(const CCMTLCommandBuffer &) = delete;
     CCMTLCommandBuffer &operator=(CCMTLCommandBuffer &&) = delete;
 
-    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void bindPipelineState(PipelineState *pso) override;
-    void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
+    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
     void bindInputAssembler(InputAssembler *ia) override;
     void setViewport(const Viewport &vp) override;
     void setScissor(const Rect &rect) override;
@@ -66,17 +66,17 @@ public:
     void setDepthBias(float constant, float clamp, float slope) override;
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
-    void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
+    void setStencilWriteMask(StencilFace face, uint32_t mask) override;
+    void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
-    void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
-    void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
-    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count);
+    void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count);
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
     void resetQueryPool(QueryPool *queryPool) override;
@@ -99,8 +99,8 @@ protected:
     id<MTLCommandBuffer> getMTLCommandBuffer();
 
     ccstd::vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets; // NOLINT(bugprone-reserved-identifier)
-    ccstd::vector<ccstd::vector<uint>> _dynamicOffsets;
-    uint _firstDirtyDescriptorSet = UINT_MAX;
+    ccstd::vector<ccstd::vector<uint32_t>> _dynamicOffsets;
+    uint32_t _firstDirtyDescriptorSet = UINT_MAX;
 
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;

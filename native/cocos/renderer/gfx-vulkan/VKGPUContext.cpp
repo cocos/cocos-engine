@@ -35,6 +35,8 @@ constexpr uint32_t FORCE_MINOR_VERSION = 0; // 0 for default version, otherwise 
 #define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 1
 
+using ccstd::vector;
+
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
 constexpr uint32_t DISABLE_VALIDATION_ASSERTIONS = 1; // 0 for default behavior, otherwise assertions will be disabled
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -149,7 +151,7 @@ bool CCVKGPUContext::initialize() {
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
     // Determine the optimal validation layers to enable that are necessary for useful debugging
-    vector<vector<const char *>> validationLayerPriorityList{
+    ccstd::vector<ccstd::vector<const char *>> validationLayerPriorityList{
         // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
         {"VK_LAYER_KHRONOS_validation"},
 
@@ -168,7 +170,7 @@ bool CCVKGPUContext::initialize() {
         // Otherwise as a last resort we fallback to attempting to enable the LunarG core layer
         {"VK_LAYER_LUNARG_core_validation"},
     };
-    for (vector<const char *> &validationLayers : validationLayerPriorityList) {
+    for (ccstd::vector<const char *> &validationLayers : validationLayerPriorityList) {
         bool found = true;
         for (const char *layer : validationLayers) {
             if (!isLayerSupported(layer, supportedLayers)) {

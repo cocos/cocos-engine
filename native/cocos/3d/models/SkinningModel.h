@@ -67,12 +67,18 @@ public:
 
 private:
     static void uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
-    void ensureEnoughBuffers(index_t count);
+    void ensureEnoughBuffers(uint32_t count);
+    void updateRealTimeJointTextureBuffer();
+    void initRealTimeJointTexture();
+    void bindRealTimeJointTexture(uint32_t idx, gfx::DescriptorSet *descriptorset);
+    void releaseData();
 
     ccstd::vector<index_t> _bufferIndices;
     ccstd::vector<IntrusivePtr<gfx::Buffer>> _buffers;
     ccstd::vector<JointInfo> _joints;
-    ccstd::vector<ccstd::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
+    ccstd::vector<float *> _dataArray;
+    bool _realTimeTextureMode = false;
+    RealTimeJointTexture *_realTimeJointTexture = nullptr;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SkinningModel);
 };
