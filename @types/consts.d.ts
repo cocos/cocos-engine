@@ -118,7 +118,15 @@ declare module 'internal:constants' {
     export const SUPPORT_JIT: boolean;
 
     /**
-     * Running in server mode.
+     * Running in server mode, without rendering.
      */
     export const SERVER_MODE: boolean;
+
+    /**
+     * The network access mode.
+     * - 0 Client
+     * - 1 ListenServer
+     * - 2 HostServer
+     */
+    export const NET_MODE: number;
 }
