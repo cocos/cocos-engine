@@ -65,6 +65,16 @@ if(USE_SERVER_MODE)
     add_definitions(-DCC_SERVER_MODE)
 endif()
 
+
+add_definitions(-DCC_NETMODE_CLIENT=0)
+add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
+add_definitions(-DCC_NETMODE_HOST_SERVER=2)
+if(${NET_MODE} EQUAL "0" OR ${NET_MODE} EQUAL "1" OR ${NET_MODE} EQUAL "2")
+    add_definitions(-DCC_NETMODE=${NET_MODE})
+else()
+    message(FATAL_ERROR "NET_MODE only support setting to 1 2 or 3.")
+endif()
+
 if(USE_PHYSICS_PHYSX)
     if (ANDROID AND CMAKE_ANDROID_ARCH_ABI MATCHES x86)
         set(USE_PHYSICS_PHYSX OFF)
