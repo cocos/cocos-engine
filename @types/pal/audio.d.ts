@@ -123,7 +123,7 @@ declare module 'pal/audio' {
         get sampleRate (): number;
 
         /**
-         * Get buffer from specified channel.
+         * Get pcm data view from specified channel.
          * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
          */
         public getPCMData (channelIndex: number): import('pal/audio/type').AudioPCMDataView | undefined;
