@@ -143,8 +143,6 @@ export class Game extends EventTarget {
     public static readonly EVENT_POST_SETTINGS_INIT = 'post_settings_init';
     public static readonly EVENT_PRE_BASE_INIT = 'pre_base_init';
     public static readonly EVENT_POST_BASE_INIT = 'post_base_init';
-    public static readonly EVENT_PRE_PAL_INIT = 'pre_pal_init';
-    public static readonly EVENT_POST_PAL_INIT = 'post_pal_init';
     public static readonly EVENT_PRE_INFRASTRUCTURE_INIT = 'pre_infrastructure_init';
     public static readonly EVENT_POST_INFRASTRUCTURE_INIT = 'post_infrastructure_init';
     public static readonly EVENT_PRE_SUBSYSTEM_INIT = 'pre_subsystem_init';
@@ -311,8 +309,6 @@ export class Game extends EventTarget {
     public readonly onPostSettingsInitDelegate: AsyncDelegate<(settings: Settings) => (Promise<void> | void)> = new AsyncDelegate();
     public readonly onPreBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     public readonly onPostBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
-    public readonly onPrePALInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
-    public readonly onPostPALInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     public readonly onPreInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     public readonly onPostInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     public readonly onPreSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
