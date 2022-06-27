@@ -42,6 +42,7 @@ import { createCustomPipeline } from './pipeline/custom';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
 import { settings, Settings } from './settings';
+import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 
 /**
  * @en Initialization information for the Root
@@ -309,6 +310,7 @@ export class Root {
         this._curWindow = this._mainWindow;
         const customJointTextureLayouts = settings.querySettings(Settings.Category.ANIMATION, 'customJointTextureLayouts') || [];
         this._dataPoolMgr?.jointTexturePool.registerCustomTextureLayouts(customJointTextureLayouts);
+        this._resizeMaxJointForDS();
     }
 
     /**
@@ -354,7 +356,7 @@ export class Root {
      * @param rppl The render pipeline
      * @returns The setup is successful or not
      */
-    public setRenderPipeline (rppl: RenderPipeline): boolean {
+    public setRenderPipeline (rppl?: RenderPipeline): boolean {
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
@@ -695,6 +697,12 @@ export class Root {
                 }
             }
         }
+    }
+
+    private _resizeMaxJointForDS () {
+        let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 

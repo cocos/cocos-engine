@@ -509,8 +509,6 @@ export class Game extends EventTarget {
                 screen.init();
                 garbageCollectionManager.init();
                 deviceManager.init(this.canvas, bindingMappingInfo);
-                //set max joints after device initialize.
-                this._resizeMaxJointForDS();
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();
@@ -751,12 +749,6 @@ export class Game extends EventTarget {
         } else {
             this.emit(event);
         }
-    }
-
-    private _resizeMaxJointForDS () {
-        let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - 38) / 3);
-        maxJoints = maxJoints < 256 ? maxJoints : 256;
-        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 
