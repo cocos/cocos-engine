@@ -48,13 +48,14 @@ enum class ShowOption : uint32_t {
  */
 class Profiler {
 public:
+    static Profiler *getInstance();
+
+    Profiler();
+    ~Profiler();
     Profiler(const Profiler &) = delete;
     Profiler(Profiler &&) = delete;
     Profiler &operator=(const Profiler &) = delete;
     Profiler &operator=(Profiler &&) = delete;
-
-    static Profiler *getInstance();
-    static void destroyInstance();
 
     void setEnable(ShowOption option, bool b = true);
     bool isEnabled(ShowOption option) const;
@@ -68,11 +69,9 @@ public:
     inline ObjectStats &getObjectStats() { return _objectStats; }
 
 private:
-    Profiler();
-    ~Profiler();
+    static void doFrameUpdate();
 
     void doIntervalUpdate();
-    static void doFrameUpdate();
     void printStats();
 
     void beginBlock(const ccstd::string &name);
@@ -116,38 +115,62 @@ private:
  * Profiler is used through macros only, if CC_USE_PROFILER is 0, there is no side effects on performance.
  */
 #if CC_USE_PROFILER
-    #define CC_PROFILER                           cc::Profiler::getInstance()
-    #define CC_PROFILER_SET_ENABLE(option, b)     CC_PROFILER->setEnable(option, (b))
-    #define CC_PROFILER_IS_ENABLED(option)        CC_PROFILER->isEnabled(option)
-    #define CC_PROFILER_UPDATE                    CC_PROFILER->update()
-    #define CC_PROFILER_BEGIN_FRAME               CC_PROFILER->beginFrame()
-    #define CC_PROFILER_END_FRAME                 CC_PROFILER->endFrame()
-    #define CC_PROFILE(name)                      cc::AutoProfiler auto_profiler_##name(CC_PROFILER, #name)
-    #define CC_PROFILE_MEMORY_UPDATE(name, count) CC_PROFILER->getMemoryStats().update(#name, (count))
-    #define CC_PROFILE_MEMORY_INC(name, count)    CC_PROFILER->getMemoryStats().inc(#name, (count))
-    #define CC_PROFILE_MEMORY_DEC(name, count)    CC_PROFILER->getMemoryStats().dec(#name, (count))
+    #define CC_PROFILER cc::Profiler::getInstance()
+    #define CC_PROFILER_SET_ENABLE(option, b)    \
+        if (CC_PROFILER) {                       \
+            CC_PROFILER->setEnable(option, (b)); \
+        }
+    #define CC_PROFILER_IS_ENABLED(option)  \
+        if (CC_PROFILER) {                  \
+            CC_PROFILER->isEnabled(option); \
+        }
+    #define CC_PROFILER_UPDATE     \
+        if (CC_PROFILER) {         \
+            CC_PROFILER->update(); \
+        }
+    #define CC_PROFILER_BEGIN_FRAME    \
+        if (CC_PROFILER) {             \
+            CC_PROFILER->beginFrame(); \
+        }
+    #define CC_PROFILER_END_FRAME    \
+        if (CC_PROFILER) {           \
+            CC_PROFILER->endFrame(); \
+        }
+    #define CC_PROFILE(name) cc::AutoProfiler auto_profiler_##name(CC_PROFILER, #name)
+    #define CC_PROFILE_MEMORY_UPDATE(name, count)                 \
+        if (CC_PROFILER) {                                        \
+            CC_PROFILER->getMemoryStats().update(#name, (count)); \
+        }
+    #define CC_PROFILE_MEMORY_INC(name, count)                 \
+        if (CC_PROFILER) {                                     \
+            CC_PROFILER->getMemoryStats().inc(#name, (count)); \
+        }
+    #define CC_PROFILE_MEMORY_DEC(name, count)                 \
+        if (CC_PROFILER) {                                     \
+            CC_PROFILER->getMemoryStats().dec(#name, (count)); \
+        }
     #define CC_PROFILE_RENDER_UPDATE(name, count)                   \
-        if (CC_PROFILER->isMainThread()) {                          \
+        if (CC_PROFILER && CC_PROFILER->isMainThread()) {           \
             CC_PROFILER->getObjectStats().renders[#name] = (count); \
         }
     #define CC_PROFILE_RENDER_INC(name, count)                       \
-        if (CC_PROFILER->isMainThread()) {                           \
+        if (CC_PROFILER && CC_PROFILER->isMainThread()) {            \
             CC_PROFILER->getObjectStats().renders[#name] += (count); \
         }
     #define CC_PROFILE_RENDER_DEC(name, count)                       \
-        if (CC_PROFILER->isMainThread()) {                           \
+        if (CC_PROFILER && CC_PROFILER->isMainThread()) {            \
             CC_PROFILER->getObjectStats().renders[#name] -= (count); \
         }
     #define CC_PROFILE_OBJECT_UPDATE(name, count)                   \
-        if (CC_PROFILER->isMainThread()) {                          \
+        if (CC_PROFILER && CC_PROFILER->isMainThread()) {           \
             CC_PROFILER->getObjectStats().objects[#name] = (count); \
         }
     #define CC_PROFILE_OBJECT_INC(name, count)                      \
-        if (CC_PROFILER->isMainThread()) {                          \
+        if (CC_PROFILER && CC_PROFILER->isMainThread()) {           \
             C_PROFILER->getObjectStats().objects[#name] += (count); \
         }
     #define CC_PROFILE_OBJECT_DEC(name, count)                       \
-        if (CC_PROFILER->isMainThread()) {                           \
+        if (CC_PROFILER && CC_PROFILER->isMainThread()) {            \
             CC_PROFILER->getObjectStats().objects[#name] -= (count); \
         }
 #else

@@ -84,10 +84,10 @@ void Object::nativeObjectFinalizeHook(Object *seObj) {
     }
 
     if (seObj->_finalizeCb != nullptr) {
-        seObj->_finalizeCb(seObj->_privateObject);
+        seObj->_finalizeCb(seObj);
     } else {
         if (seObj->_getClass() != nullptr && seObj->_getClass()->_finalizeFunc != nullptr) {
-            seObj->_getClass()->_finalizeFunc(seObj->_privateObject);
+            seObj->_getClass()->_finalizeFunc(seObj);
         }
     }
     seObj->decRef();
@@ -107,29 +107,26 @@ void Object::cleanup() {
     Object *obj = nullptr;
     Class *cls = nullptr;
 
-    const auto &nativePtrToObjectMap = NativePtrToObjectMap::instance();
-    for (const auto &e : nativePtrToObjectMap) {
-        nativeObj = e.first;
-        obj = e.second;
-        PrivateObjectBase *privateObject = obj->getPrivateObject();
+    auto iter = NativePtrToObjectMap::begin();
+    while (iter != NativePtrToObjectMap::end()) {
+        nativeObj = iter->first;
+        obj = iter->second;
+
         if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(privateObject);
+            obj->_finalizeCb(obj);
         } else {
             if (obj->_getClass() != nullptr) {
                 if (obj->_getClass()->_finalizeFunc != nullptr) {
-                    obj->_getClass()->_finalizeFunc(privateObject);
+                    obj->_getClass()->_finalizeFunc(obj);
                 }
             }
         }
-        // internal data should only be freed in Object::cleanup, since in other case, it is freed in ScriptEngine::privateDataFinalize
-        if (obj->_internalData != nullptr) {
-            free(obj->_internalData);
-            obj->_internalData = nullptr;
-        }
+
         obj->decRef();
+        iter = NativePtrToObjectMap::erase(iter);
     }
 
-    NativePtrToObjectMap::clear();
+    SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 
     if (__objectMap) {
         ccstd::vector<Object *> toReleaseObjects;
@@ -507,22 +504,22 @@ bool Object::isTypedArray() const {
 Object::TypedArrayType Object::getTypedArrayType() const {
     v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
     TypedArrayType ret = TypedArrayType::NONE;
-    if (value->IsInt8Array()) {
-        ret = TypedArrayType::INT8;
-    } else if (value->IsInt16Array()) {
-        ret = TypedArrayType::INT16;
-    } else if (value->IsInt32Array()) {
-        ret = TypedArrayType::INT32;
-    } else if (value->IsUint8Array()) {
-        ret = TypedArrayType::UINT8;
-    } else if (value->IsUint8ClampedArray()) {
-        ret = TypedArrayType::UINT8_CLAMPED;
-    } else if (value->IsUint16Array()) {
-        ret = TypedArrayType::UINT16;
+    if (value->IsFloat32Array()) {
+        ret = TypedArrayType::FLOAT32;
     } else if (value->IsUint32Array()) {
         ret = TypedArrayType::UINT32;
-    } else if (value->IsFloat32Array()) {
-        ret = TypedArrayType::FLOAT32;
+    } else if (value->IsUint16Array()) {
+        ret = TypedArrayType::UINT16;
+    } else if (value->IsUint8Array()) {
+        ret = TypedArrayType::UINT8;
+    } else if (value->IsInt32Array()) {
+        ret = TypedArrayType::INT32;
+    } else if (value->IsInt16Array()) {
+        ret = TypedArrayType::INT16;
+    } else if (value->IsInt8Array()) {
+        ret = TypedArrayType::INT8;
+    } else if (value->IsUint8ClampedArray()) {
+        ret = TypedArrayType::UINT8_CLAMPED;
     } else if (value->IsFloat64Array()) {
         ret = TypedArrayType::FLOAT64;
     }
@@ -576,19 +573,15 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
         }
     }
     #endif
-    internal::setPrivate(__isolate, _obj, data, this, &_internalData);
+    internal::setPrivate(__isolate, _obj, this);
     _privateObject = data;
 
     if (data != nullptr) {
         NativePtrToObjectMap::emplace(data->getRaw(), this);
-        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data->getRaw()))), false, false, false);
     }
 }
 
 PrivateObjectBase *Object::getPrivateObject() const {
-    if (_privateObject == nullptr) {
-        const_cast<Object *>(this)->_privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate)));
-    }
     return _privateObject;
 }
 
@@ -598,7 +591,6 @@ void Object::clearPrivateData(bool clearMapping) {
             NativePtrToObjectMap::erase(_privateObject->getRaw());
         }
         internal::clearPrivate(__isolate, _obj);
-        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))), false, false, false);
         delete _privateObject;
         _privateObject = nullptr;
     }
@@ -702,29 +694,8 @@ bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(length != nullptr);
     auto *thiz = const_cast<Object *>(this);
 
-    v8::MaybeLocal<v8::String> lengthStr = ScriptEngine::getInstance()->_getStringPool().get(__isolate, "length");
-    if (lengthStr.IsEmpty()) {
-        *length = 0;
-        return false;
-    }
-    v8::Local<v8::Context> context = __isolate->GetCurrentContext();
-
-    v8::MaybeLocal<v8::Value> val = thiz->_obj.handle(__isolate)->Get(context, lengthStr.ToLocalChecked());
-    if (val.IsEmpty()) {
-        return false;
-    }
-
-    v8::MaybeLocal<v8::Object> obj = val.ToLocalChecked()->ToObject(context);
-    if (obj.IsEmpty()) {
-        return false;
-    }
-
-    v8::Maybe<uint32_t> mbLen = obj.ToLocalChecked()->Uint32Value(context);
-    if (mbLen.IsNothing()) {
-        return false;
-    }
-
-    *length = mbLen.FromJust();
+    v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
+    *length = v8Arr->Length();
     return true;
 }
 

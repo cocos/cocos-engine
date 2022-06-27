@@ -419,6 +419,7 @@ std::string getCurAppName(void)
 }
 - (void) startup
 {
+    createFileUtils();
     _project.dump();
 
     const string projectDir = _project.getProjectDir();

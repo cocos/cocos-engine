@@ -31,6 +31,12 @@
 #include "base/std/container/vector.h"
 #include "math/Math.h"
 
+#ifdef Status
+    // Fix linux compile errors
+    // In /usr/include/X11/Xlib.h Status defined as int
+    #undef Status
+#endif
+
 /**
  * Some general guide lines:
  * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout
@@ -63,6 +69,7 @@ class Swapchain;
 class Buffer;
 class GeneralBarrier;
 class TextureBarrier;
+class BufferBarrier;
 class Texture;
 class Sampler;
 class Shader;
@@ -79,6 +86,7 @@ class QueryPool;
 class Window;
 class Context;
 
+using BufferBarrierList = ccstd::vector<BufferBarrier *>;
 using TextureBarrierList = ccstd::vector<TextureBarrier *>;
 using BufferDataList = ccstd::vector<const uint8_t *>;
 using BufferSrcList = ccstd::vector<uint8_t *>;
@@ -98,6 +106,10 @@ using TextureList = ccstd::vector<Texture *>;
 using SamplerList = ccstd::vector<Sampler *>;
 using DescriptorSetLayoutList = ccstd::vector<DescriptorSetLayout *>;
 
+/**
+ * @en Graphics object type
+ * @zh 图形API对象的类型
+ */
 enum class ObjectType : uint32_t {
     UNKNOWN,
     SWAPCHAIN,
@@ -155,7 +167,6 @@ enum class Feature : uint32_t {
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    MEMORY_ALIASING,
     COMPUTE_SHADER,
     // This flag indicates whether the device can benefit from subpass-style usages.
     // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
@@ -775,6 +786,13 @@ enum class ClearFlagBit : uint32_t {
 using ClearFlags = ClearFlagBit;
 CC_ENUM_BITWISE_OPERATORS(ClearFlagBit);
 
+enum class BarrierType : uint32_t {
+    FULL,
+    SPLIT_BEGIN,
+    SPLIT_END,
+};
+CC_ENUM_BITWISE_OPERATORS(BarrierType);
+
 #define EXPOSE_COPY_FN(type)      \
     type &copy(const type &rhs) { \
         *this = rhs;              \
@@ -884,6 +902,7 @@ struct TextureBlit {
 using TextureBlitList = ccstd::vector<TextureBlit>;
 
 struct BufferTextureCopy {
+    uint32_t buffOffset{0};
     uint32_t buffStride{0};
     uint32_t buffTexHeight{0};
     Offset texOffset;
@@ -915,22 +934,22 @@ struct Color {
 };
 using ColorList = ccstd::vector<Color>;
 
-/**
- * For non-vulkan backends, to maintain compatibility and maximize
- * descriptor cache-locality, descriptor-set-based binding numbers need
- * to be mapped to backend-specific bindings based on maximum limit
- * of available descriptor slots in each set.
- *
- * The GFX layer assumes the binding numbers for each descriptor type inside each set
- * are guaranteed to be consecutive, so the mapping procedure is reduced
- * to a simple shifting operation. This data structure specifies the
- * capacity for each descriptor type in each set.
- *
- * The `setIndices` field defines the binding ordering between different sets.
- * The last set index is treated as the 'flexible set', whose capacity is dynamically
- * assigned based on the total available descriptor slots on the runtime device.
- */
 struct BindingMappingInfo {
+    /**
+     * For non-vulkan backends, to maintain compatibility and maximize
+     * descriptor cache-locality, descriptor-set-based binding numbers need
+     * to be mapped to backend-specific bindings based on maximum limit
+     * of available descriptor slots in each set.
+     *
+     * The GFX layer assumes the binding numbers for each descriptor type inside each set
+     * are guaranteed to be consecutive, so the mapping procedure is reduced
+     * to a simple shifting operation. This data structure specifies the
+     * capacity for each descriptor type in each set.
+     *
+     * The `setIndices` field defines the binding ordering between different sets.
+     * The last set index is treated as the 'flexible set', whose capacity is dynamically
+     * assigned based on the total available descriptor slots on the runtime device.
+     */
     IndexList maxBlockCounts{0};
     IndexList maxSamplerTextureCounts{0};
     IndexList maxSamplerCounts{0};
@@ -1293,6 +1312,8 @@ struct ALIGNAS(8) GeneralBarrierInfo {
     AccessFlags prevAccesses{AccessFlagBit::NONE};
     AccessFlags nextAccesses{AccessFlagBit::NONE};
 
+    BarrierType type{BarrierType::FULL};
+
     EXPOSE_COPY_FN(GeneralBarrierInfo)
 };
 using GeneralBarrierInfoList = ccstd::vector<GeneralBarrierInfo>;
@@ -1300,6 +1321,13 @@ using GeneralBarrierInfoList = ccstd::vector<GeneralBarrierInfo>;
 struct ALIGNAS(8) TextureBarrierInfo {
     AccessFlags prevAccesses{AccessFlagBit::NONE};
     AccessFlags nextAccesses{AccessFlagBit::NONE};
+
+    BarrierType type{BarrierType::FULL};
+
+    uint32_t baseMipLevel{0};
+    uint32_t levelCount{1};
+    uint32_t baseSlice{0};
+    uint32_t sliceCount{1};
 
     uint64_t discardContents{0}; // @ts-boolean
 
@@ -1309,6 +1337,24 @@ struct ALIGNAS(8) TextureBarrierInfo {
     EXPOSE_COPY_FN(TextureBarrierInfo)
 };
 using TextureBarrierInfoList = ccstd::vector<TextureBarrierInfo>;
+
+struct ALIGNAS(8) BufferBarrierInfo {
+    AccessFlags prevAccesses{AccessFlagBit::NONE};
+    AccessFlags nextAccesses{AccessFlagBit::NONE};
+
+    BarrierType type{BarrierType::FULL};
+
+    uint32_t offset{0};
+    uint32_t size{0};
+
+    uint64_t discardContents{0}; // @ts-boolean
+
+    Queue *srcQueue{nullptr}; // @ts-nullable
+    Queue *dstQueue{nullptr}; // @ts-nullable
+
+    EXPOSE_COPY_FN(BufferBarrierInfo)
+};
+using BufferBarrierInfoList = ccstd::vector<BufferBarrierInfo>;
 
 struct FramebufferInfo {
     RenderPass *renderPass{nullptr};

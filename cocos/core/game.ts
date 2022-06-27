@@ -23,10 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
 
 import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
@@ -41,6 +37,7 @@ import { deviceManager } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { legacyCC, VERSION } from './global-exports';
+import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline/render-pipeline';
 import { Layers, Node } from './scene-graph';
@@ -512,6 +509,8 @@ export class Game extends EventTarget {
                 screen.init();
                 garbageCollectionManager.init();
                 deviceManager.init(this.canvas, bindingMappingInfo);
+                //set max joints after device initialize.
+                this._resizeMaxJointForDS();
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();
@@ -752,6 +751,12 @@ export class Game extends EventTarget {
         } else {
             this.emit(event);
         }
+    }
+
+    private _resizeMaxJointForDS () {
+        let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 

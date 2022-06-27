@@ -34,12 +34,13 @@ namespace gfx {
 
 RenderPassValidator::RenderPassValidator(RenderPass *actor)
 : Agent<RenderPass>(actor) {
+    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 RenderPassValidator::~RenderPassValidator() {
     DeviceResourceTracker<RenderPass>::erase(this);
-    CC_SAFE_DELETE(_actor);
+    CC_SAFE_RELEASE(_actor);
 }
 
 void RenderPassValidator::doInit(const RenderPassInfo &info) {

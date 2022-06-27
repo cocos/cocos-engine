@@ -57,9 +57,10 @@
 
 #if CC_USE_AUDIO
     #include "cocos/bindings/auto/jsb_audio_auto.h"
+    #include "cocos/bindings/manual/jsb_audio_manual.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #endif
 
@@ -67,7 +68,7 @@
     #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
     #if CC_USE_VIDEO
         #include "cocos/bindings/auto/jsb_video_auto.h"
@@ -77,7 +78,7 @@
         #include "cocos/bindings/auto/jsb_webview_auto.h"
     #endif
 
-#endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if CC_USE_SOCKET && CC_USE_WEBSOCKET_SERVER
     #include "cocos/bindings/manual/jsb_websocket_server.h"
@@ -135,7 +136,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_scene_manual);
     se->addRegisterCallback(register_all_render);
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     se->addRegisterCallback(register_javascript_objc_bridge);
     se->addRegisterCallback(register_script_native_bridge);
 #endif
@@ -147,6 +148,7 @@ bool jsb_register_all_modules() {
 
 #if CC_USE_AUDIO
     se->addRegisterCallback(register_all_audio);
+    se->addRegisterCallback(register_all_audio_manual);
 #endif
 
 #if CC_USE_SOCKET
@@ -173,7 +175,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_physics);
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
     #if CC_USE_VIDEO
     se->addRegisterCallback(register_all_video);
@@ -183,7 +185,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_webview);
     #endif
 
-#endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if CC_USE_SOCKET && CC_USE_WEBSOCKET_SERVER
     se->addRegisterCallback(register_all_websocket_server);

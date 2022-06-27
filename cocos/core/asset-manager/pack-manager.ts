@@ -22,10 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
 
 import { ImageAsset } from '../assets/image-asset';
 import { Texture2D } from '../assets/texture-2d';
@@ -47,10 +43,10 @@ interface IUnpackRequest {
 
 /**
  * @en
- * Handle the packed asset, include unpacking, loading, cache and so on. It is a singleton. All member can be accessed with `cc.assetManager.packManager`
+ * Handle the packed asset, include unpacking, loading, cache and so on. It is a singleton. All member can be accessed with `assetManager.packManager`
  *
  * @zh
- * 处理打包资源，包括拆包，加载，缓存等等，这是一个单例, 所有成员能通过 `cc.assetManager.packManager` 访问
+ * 处理打包资源，包括拆包，加载，缓存等等，这是一个单例, 所有成员能通过 `assetManager.packManager` 访问
  *
  */
 export class PackManager {
@@ -200,7 +196,7 @@ export class PackManager {
      * @param onComplete.data - The unpacked data retrieved from package
      *
      * @example
-     * var requestItem = cc.AssetManager.RequestItem.create();
+     * var requestItem = AssetManager.RequestItem.create();
      * requestItem.uuid = 'fcmR3XADNLgJ1ByKhqcC5Z';
      * requestItem.info = config.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
      * packManager.load(requestItem, null, (err, data) => console.log(err));

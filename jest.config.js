@@ -17,6 +17,7 @@ module.exports = {
     ],
     setupFilesAfterEnv: [
         "./tests/setup-after-env.ts",
+        "./tests/utils/log-capture-setup-after-env.ts"
     ],
     setupFiles: [
         './tests/init.ts',

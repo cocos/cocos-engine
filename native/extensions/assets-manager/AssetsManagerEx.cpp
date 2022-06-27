@@ -113,11 +113,10 @@ AssetsManagerEx::~AssetsManagerEx() {
 }
 
 AssetsManagerEx *AssetsManagerEx::create(const std::string &manifestUrl, const std::string &storagePath) {
-    auto *ret = new (std::nothrow) AssetsManagerEx(manifestUrl, storagePath);
+    auto *ret = ccnew AssetsManagerEx(manifestUrl, storagePath);
     if (ret) {
+        ret->addRef();
         cc::DeferredReleasePool::add(ret);
-    } else {
-        CC_SAFE_DELETE(ret);
     }
     return ret;
 }
@@ -125,8 +124,9 @@ AssetsManagerEx *AssetsManagerEx::create(const std::string &manifestUrl, const s
 void AssetsManagerEx::initManifests() {
     _inited = true;
     // Init and load temporary manifest
-    _tempManifest = new (std::nothrow) Manifest();
+    _tempManifest = ccnew Manifest();
     if (_tempManifest) {
+        _tempManifest->addRef();
         _tempManifest->parseFile(_tempManifestPath);
         // Previous update is interrupted
         if (_fileUtils->isFileExist(_tempManifestPath)) {
@@ -142,10 +142,11 @@ void AssetsManagerEx::initManifests() {
     }
 
     // Init remote manifest for future usage
-    _remoteManifest = new (std::nothrow) Manifest();
+    _remoteManifest = ccnew Manifest();
     if (!_remoteManifest) {
         _inited = false;
     }
+    _remoteManifest->addRef();
 
     if (!_inited) {
         CC_SAFE_RELEASE(_localManifest);
@@ -189,8 +190,9 @@ bool AssetsManagerEx::loadLocalManifest(Manifest *localManifest, const std::stri
     // Find the cached manifest file
     Manifest *cachedManifest = nullptr;
     if (_fileUtils->isFileExist(_cacheManifestPath)) {
-        cachedManifest = new (std::nothrow) Manifest();
+        cachedManifest = ccnew Manifest();
         if (cachedManifest) {
+            cachedManifest->addRef();
             cachedManifest->parseFile(_cacheManifestPath);
             if (!cachedManifest->isLoaded()) {
                 _fileUtils->removeFile(_cacheManifestPath);
@@ -233,15 +235,17 @@ bool AssetsManagerEx::loadLocalManifest(const std::string &manifestUrl) {
     }
     _manifestUrl = manifestUrl;
     // Init and load local manifest
-    _localManifest = new (std::nothrow) Manifest();
+    _localManifest = ccnew Manifest();
     if (!_localManifest) {
         return false;
     }
+    _localManifest->addRef();
     Manifest *cachedManifest = nullptr;
     // Find the cached manifest file
     if (_fileUtils->isFileExist(_cacheManifestPath)) {
-        cachedManifest = new (std::nothrow) Manifest();
+        cachedManifest = ccnew Manifest();
         if (cachedManifest) {
+            cachedManifest->addRef();
             cachedManifest->parseFile(_cacheManifestPath);
             if (!cachedManifest->isLoaded()) {
                 _fileUtils->removeFile(_cacheManifestPath);
@@ -496,7 +500,7 @@ void AssetsManagerEx::decompressDownloadedZip(const std::string &customId, const
         bool succeed;
     };
 
-    auto *asyncData = new AsyncData;
+    auto *asyncData = ccnew AsyncData();
     asyncData->customId = customId;
     asyncData->zipFile = storagePath;
     asyncData->succeed = false;
@@ -549,7 +553,8 @@ void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, 
     }
 
     if (_eventCallback != nullptr) {
-        auto *event = new (std::nothrow) EventAssetsManagerEx(_eventName, this, code, assetId, message, curleCode, curlmCode);
+        auto *event = ccnew EventAssetsManagerEx(_eventName, this, code, assetId, message, curleCode, curlmCode);
+        event->addRef();
         _eventCallback(event);
         event->release();
     }

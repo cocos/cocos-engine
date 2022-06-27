@@ -32,7 +32,7 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
 
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 
@@ -44,9 +44,9 @@ TextureBase::TextureBase() {
     // Id for generate hash in material
     _id = idGenerator.getNewId();
     _gfxDevice = getGFXDevice();
-    std::size_t seed = 666;
-    boost::hash_range(seed, _id.begin(), _id.end());
-    _textureHash = static_cast<uint32_t>(seed);
+    ccstd::hash_t seed = 666;
+    ccstd::hash_range(seed, _id.begin(), _id.end());
+    _textureHash = seed;
 }
 
 TextureBase::~TextureBase() = default;
@@ -126,7 +126,7 @@ gfx::Sampler *TextureBase::getGFXSampler() const {
     return _gfxSampler;
 }
 
-cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
+ccstd::any TextureBase::serialize(const ccstd::any & /*ctxForExporting*/) {
     //cjh TODO:    if (EDITOR || TEST) {
     //        return `${this._minFilter},${this._magFilter},${
     //            this._wrapS},${this._wrapT},${
@@ -135,8 +135,8 @@ cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
     return ccstd::string("");
 }
 
-void TextureBase::deserialize(const cc::any &serializedData, const cc::any & /*handle*/) {
-    const auto *pData = cc::any_cast<const ccstd::string>(&serializedData);
+void TextureBase::deserialize(const ccstd::any &serializedData, const ccstd::any & /*handle*/) {
+    const auto *pData = ccstd::any_cast<const ccstd::string>(&serializedData);
     if (pData == nullptr) {
         return;
     }
@@ -165,7 +165,7 @@ gfx::Format TextureBase::getGFXFormat() const {
     return getGFXPixelFormat(_format);
 }
 
-void TextureBase::setGFXFormat(const cc::optional<PixelFormat> &format) {
+void TextureBase::setGFXFormat(const ccstd::optional<PixelFormat> &format) {
     _format = format.has_value() ? format.value() : PixelFormat::RGBA8888;
 }
 

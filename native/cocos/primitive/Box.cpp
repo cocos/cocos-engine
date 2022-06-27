@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "primitive/Box.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 namespace cc {
 namespace {
@@ -56,7 +56,7 @@ const ccstd::vector<ccstd::vector<float>> FACE_TANGENTS{
 };
 } // namespace
 
-IGeometry box(const cc::optional<IBoxOptions> &options) {
+IGeometry box(const ccstd::optional<IBoxOptions> &options) {
     const uint32_t ws = options->widthSegments.has_value() ? options->widthSegments.value() : 1;
     const uint32_t hs = options->heightSegments.has_value() ? options->heightSegments.value() : 1;
     const uint32_t ls = options->lengthSegments.has_value() ? options->lengthSegments.value() : 1;

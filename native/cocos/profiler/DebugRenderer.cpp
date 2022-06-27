@@ -207,18 +207,15 @@ DebugRendererInfo::DebugRendererInfo()
 
 DebugRenderer *DebugRenderer::instance = nullptr;
 DebugRenderer *DebugRenderer::getInstance() {
-    if (!instance) {
-        instance = ccnew DebugRenderer();
-    }
-
     return instance;
 }
 
-void DebugRenderer::destroyInstance() {
-    if (instance) {
-        delete instance;
-        instance = nullptr;
-    }
+DebugRenderer::DebugRenderer() {
+    DebugRenderer::instance = this;
+}
+
+DebugRenderer::~DebugRenderer() {
+    DebugRenderer::instance = nullptr;
 }
 
 void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {

@@ -57,10 +57,10 @@ constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    ccstd::vector<uint> dynamicBindings;
-    ccstd::vector<uint> descriptorIndices;
-    ccstd::vector<uint> bindingIndices;
-    uint descriptorCount = 0;
+    ccstd::vector<uint32_t> dynamicBindings;
+    ccstd::vector<uint32_t> descriptorIndices;
+    ccstd::vector<uint32_t> bindingIndices;
+    uint32_t descriptorCount = 0;
 };
 typedef ccstd::vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
 
@@ -71,34 +71,34 @@ struct CCMTLGPUPipelineLayout {
 
 struct CCMTLGPUUniformBlock {
     ccstd::string name;
-    uint set = INVALID_BINDING;
-    uint binding = INVALID_BINDING;
-    uint mappedBinding = INVALID_BINDING;
+    uint32_t set = INVALID_BINDING;
+    uint32_t binding = INVALID_BINDING;
+    uint32_t mappedBinding = INVALID_BINDING;
     ShaderStageFlags stages = ShaderStageFlagBit::NONE;
     size_t size = 0;
-    uint count = 0;
+    uint32_t count = 0;
 };
 
 struct CCMTLGPUSamplerBlock {
     ccstd::string name;
-    uint set = INVALID_BINDING;
-    uint binding = INVALID_BINDING;
-    uint textureBinding = INVALID_BINDING;
-    uint samplerBinding = INVALID_BINDING;
+    uint32_t set = INVALID_BINDING;
+    uint32_t binding = INVALID_BINDING;
+    uint32_t textureBinding = INVALID_BINDING;
+    uint32_t samplerBinding = INVALID_BINDING;
     ShaderStageFlags stages = ShaderStageFlagBit::NONE;
     Type type = Type::UNKNOWN;
-    uint count = 0;
+    uint32_t count = 0;
 };
 
 struct CCMTLGPUSubpassAttachment {
     ccstd::string name;
-    uint set = INVALID_BINDING;
-    uint binding = INVALID_BINDING;
+    uint32_t set = INVALID_BINDING;
+    uint32_t binding = INVALID_BINDING;
 };
 
 struct CCMTLGPUShader {
-    ccstd::unordered_map<uint, CCMTLGPUUniformBlock> blocks;
-    ccstd::unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
+    ccstd::unordered_map<uint32_t, CCMTLGPUUniformBlock> blocks;
+    ccstd::unordered_map<uint32_t, CCMTLGPUSamplerBlock> samplers;
 
     ccstd::vector<CCMTLGPUSubpassAttachment> inputs;
     ccstd::vector<CCMTLGPUSubpassAttachment> outputs;
@@ -119,18 +119,18 @@ struct CCMTLGPUPipelineState {
     id<MTLRenderPipelineState> mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> mtlDepthStencilState = nil;
     id<MTLComputePipelineState> mtlComputePipelineState = nil;
-    uint stencilRefFront = 0;
-    uint stencilRefBack = 0;
-    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
+    uint32_t stencilRefFront = 0;
+    uint32_t stencilRefBack = 0;
+    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint32_t /**stream*/>> vertexBufferBindingInfo;
     const CCMTLGPUPipelineLayout *gpuPipelineLayout = nullptr;
     const CCMTLGPUShader *gpuShader = nullptr;
 };
 
 struct CCMTLGPUBuffer {
-    uint stride = 0;
-    uint count = 0;
-    uint size = 0;
-    uint startOffset = 0;
+    uint32_t stride = 0;
+    uint32_t count = 0;
+    uint32_t size = 0;
+    uint32_t startOffset = 0;
     uint8_t *mappedData = nullptr;
     id<MTLBuffer> mtlBuffer = nil;
 };
@@ -161,7 +161,7 @@ typedef ccstd::vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
 
 struct CCMTLGPUDescriptorSet {
     MTLGPUDescriptorList gpuDescriptors;
-    const ccstd::vector<uint> *descriptorIndices = nullptr;
+    const ccstd::vector<uint32_t> *descriptorIndices = nullptr;
 };
 
 class CCMTLGPUStagingBufferPool final {
@@ -186,10 +186,10 @@ public:
     }
 
     inline void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
-    void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
+    void alloc(CCMTLGPUBuffer *gpuBuffer, uint32_t alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
-        uint offset = 0;
+        uint32_t offset = 0;
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
             offset = mu::alignUp(cur->curOffset, alignment);
@@ -199,7 +199,7 @@ public:
             }
         }
         if (!buffer) {
-            uint mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
+            uint32_t mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
             mbNeeds = cc::utils::nextPOT(mbNeeds);
             CC_ASSERT(mbNeeds > gpuBuffer->size / static_cast<float>(MegaBytesToBytes));
 
@@ -262,11 +262,11 @@ protected:
         id<MTLBuffer> mtlBuffer = nil;
         ccstd::vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
         uint8_t *mappedData = nullptr;
-        uint curOffset = 0;
+        uint32_t curOffset = 0;
     };
 
     bool _tripleEnabled = false;
-    uint _inflightIndex = 0;
+    uint32_t _inflightIndex = 0;
     id<MTLDevice> _device = nil;
     ccstd::vector<Buffer> _pool;
 };
@@ -334,9 +334,9 @@ struct CCMTLGPUSwapChainObject {
 
 struct CCMTLGPUQueueObject {
     id<MTLCommandQueue> mtlCommandQueue = nil;
-    uint numDrawCalls = 0;
-    uint numInstances = 0;
-    uint numTriangles = 0;
+    uint32_t numDrawCalls = 0;
+    uint32_t numInstances = 0;
+    uint32_t numTriangles = 0;
 };
 
 struct CCMTLGPUCommandBufferObject {

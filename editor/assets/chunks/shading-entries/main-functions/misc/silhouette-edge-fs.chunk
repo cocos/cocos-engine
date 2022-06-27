@@ -1,0 +1,22 @@
+layout(location = 0) out vec4 fragColorX;
+
+void main () {
+  // for alpha clip
+  vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+
+  //#uniformStyle need sync here
+
+  // Color output
+#if CC_USE_HDR
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+    if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
+  #endif
+  color.rgb = ACESToneMap(color.rgb);
+#endif
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
+#endif
+  color.rgb = LinearToSRGB(color.rgb);
+
+  fragColorX = color;
+}

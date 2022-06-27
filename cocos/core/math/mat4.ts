@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
@@ -325,7 +320,6 @@ export class Mat4 extends ValueType {
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
     public static translate <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
-        console.warn('function changed');
         if (a === out) {
             out.m12 += v.x;
             out.m13 += v.y;
@@ -1905,7 +1899,6 @@ export class Mat4 extends ValueType {
      * @param vec vector to translate by
      */
     public translate (vec: Vec3) {
-        console.warn('function changed');
         this.m12 += vec.x;
         this.m13 += vec.y;
         this.m14 += vec.z;

@@ -25,11 +25,6 @@
 */
 
 /**
- * @packageDocumentation
- * @module ui
- */
-
-/**
  * @en
  * Handling touch events in a ViewGroup takes special care,
  * because it's common for a ViewGroup to have children that are targets for different touch events than the ViewGroup itself.

@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60",
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60"
+        "imageUuidOrDatabaseUri": "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60",
+        "visible": true
       },
       "displayName": "default-layer-texture",
       "id": "6c48a",

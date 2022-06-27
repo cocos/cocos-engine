@@ -31,8 +31,6 @@
 #include "base/Log.h"
 #include "core/assets/EffectAsset.h"
 #include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/pipeline/Define.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
@@ -44,32 +42,32 @@ int32_t getBitCount(int32_t cnt) {
 }
 
 bool recordAsBool(const MacroRecord::mapped_type &v) {
-    if (cc::holds_alternative<bool>(v)) {
-        return cc::get<bool>(v);
+    if (ccstd::holds_alternative<bool>(v)) {
+        return ccstd::get<bool>(v);
     }
-    if (cc::holds_alternative<ccstd::string>(v)) {
-        return cc::get<ccstd::string>(v) == "true";
+    if (ccstd::holds_alternative<ccstd::string>(v)) {
+        return ccstd::get<ccstd::string>(v) == "true";
     }
-    if (cc::holds_alternative<int32_t>(v)) {
-        return cc::get<int32_t>(v);
+    if (ccstd::holds_alternative<int32_t>(v)) {
+        return ccstd::get<int32_t>(v);
     }
     return false;
 }
 
 ccstd::string recordAsString(const MacroRecord::mapped_type &v) {
-    if (cc::holds_alternative<bool>(v)) {
-        return cc::get<bool>(v) ? "1" : "0";
+    if (ccstd::holds_alternative<bool>(v)) {
+        return ccstd::get<bool>(v) ? "1" : "0";
     }
-    if (cc::holds_alternative<ccstd::string>(v)) {
-        return cc::get<ccstd::string>(v);
+    if (ccstd::holds_alternative<ccstd::string>(v)) {
+        return ccstd::get<ccstd::string>(v);
     }
-    if (cc::holds_alternative<int32_t>(v)) {
-        return std::to_string(cc::get<int32_t>(v));
+    if (ccstd::holds_alternative<int32_t>(v)) {
+        return std::to_string(ccstd::get<int32_t>(v));
     }
     return "";
 }
 
-ccstd::string mapDefine(const IDefineInfo &info, const cc::optional<MacroRecord::mapped_type> &def) {
+ccstd::string mapDefine(const IDefineInfo &info, const ccstd::optional<MacroRecord::mapped_type> &def) {
     if (info.type == "boolean") {
         return def.has_value() ? (recordAsBool(def.value()) ? "1" : "0") : "0";
     }
@@ -88,8 +86,8 @@ ccstd::vector<IMacroInfo> prepareDefines(const MacroRecord &records, const ccstd
     for (const auto &tmp : defList) {
         const auto &name = tmp.name;
         auto it = records.find(name);
-        auto value = mapDefine(tmp, it == records.end() ? cc::nullopt : cc::optional<MacroValue>(it->second));
-        bool isDefault = it == records.end() || (cc::holds_alternative<ccstd::string>(it->second) && cc::get<ccstd::string>(it->second) == "0");
+        auto value = mapDefine(tmp, it == records.end() ? ccstd::nullopt : ccstd::optional<MacroValue>(it->second));
+        bool isDefault = it == records.end() || (ccstd::holds_alternative<ccstd::string>(it->second) && ccstd::get<ccstd::string>(it->second) == "0");
         macros.emplace_back();
         auto &info = macros.back();
         info.name = name;
@@ -271,9 +269,20 @@ void IProgramInfo::copyFrom(const IShaderInfo &o) {
     subpassInputs = o.subpassInputs;
 }
 
-ProgramLib::ProgramLib() = default;
+ProgramLib::ProgramLib() {
+    ProgramLib::instance = this;
+}
 
-ProgramLib::~ProgramLib() = default;
+ProgramLib::~ProgramLib() {
+    ProgramLib::instance = nullptr;
+#if CC_DEBUG
+    for (const auto &cache : _cache) {
+        if (cache.second->getRefCount() > 1) {
+            CC_LOG_WARNING("ProgramLib cache: %s ref_count is %d and may leak", cache.second->getName().c_str(), cache.second->getRefCount());
+        }
+    }
+#endif
+}
 
 //
 /*static*/
@@ -281,17 +290,7 @@ ProgramLib::~ProgramLib() = default;
 ProgramLib *ProgramLib::instance = nullptr;
 
 ProgramLib *ProgramLib::getInstance() {
-    if (!ProgramLib::instance) {
-        ProgramLib::instance = ccnew ProgramLib();
-    }
     return ProgramLib::instance;
-}
-
-void ProgramLib::destroyInstance() {
-    if (ProgramLib::instance) {
-        delete ProgramLib::instance;
-        ProgramLib::instance = nullptr;
-    }
 }
 
 void ProgramLib::registerEffect(EffectAsset *effect) {
@@ -327,11 +326,11 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             auto &range = def.range.value();
             cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
             def.map = [=](const MacroValue &value) -> int32_t {
-                if (cc::holds_alternative<int32_t>(value)) {
-                    return cc::get<int32_t>(value) - range[0];
+                if (ccstd::holds_alternative<int32_t>(value)) {
+                    return ccstd::get<int32_t>(value) - range[0];
                 }
-                if (cc::holds_alternative<bool>(value)) {
-                    return (cc::get<bool>(value) ? 1 : 0) - range[0];
+                if (ccstd::holds_alternative<bool>(value)) {
+                    return (ccstd::get<bool>(value) ? 1 : 0) - range[0];
                 }
                 CC_ASSERT(false); // We only support macro with int32_t type now.
                 return 0;
@@ -339,7 +338,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         } else if (def.type == "string") {
             cnt = getBitCount(static_cast<int32_t>(def.options.value().size()));
             def.map = [=](const MacroValue &value) -> int32_t {
-                const auto *pValue = cc::get_if<ccstd::string>(&value);
+                const auto *pValue = ccstd::get_if<ccstd::string>(&value);
                 if (pValue != nullptr) {
                     auto idx = static_cast<int32_t>(std::find(def.options.value().begin(), def.options.value().end(), *pValue) - def.options.value().begin());
                     return std::max(0, idx);
@@ -348,15 +347,15 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             };
         } else if (def.type == "boolean") {
             def.map = [](const MacroValue &value) -> int32_t {
-                const auto *pBool = cc::get_if<bool>(&value);
+                const auto *pBool = ccstd::get_if<bool>(&value);
                 if (pBool != nullptr) {
                     return *pBool ? 1 : 0;
                 }
-                const auto *pInt = cc::get_if<int32_t>(&value);
+                const auto *pInt = ccstd::get_if<int32_t>(&value);
                 if (pInt != nullptr) {
                     return *pInt ? 1 : 0;
                 }
-                const auto *pString = cc::get_if<ccstd::string>(&value);
+                const auto *pString = ccstd::get_if<ccstd::string>(&value);
                 if (pString != nullptr) {
                     return *pString != "0" || !(*pString).empty() ? 1 : 0;
                 }
@@ -389,7 +388,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             tmplInfo.blockSizes.emplace_back(getSize(block));
             tmplInfo.bindings.emplace_back();
             auto &bindingsInfo = tmplInfo.bindings.back();
-            bindingsInfo.binding = static_cast<uint>(block.binding);
+            bindingsInfo.binding = block.binding;
             bindingsInfo.descriptorType = gfx::DescriptorType::UNIFORM_BUFFER;
             bindingsInfo.count = 1;
             bindingsInfo.stageFlags = block.stageFlags;
@@ -407,8 +406,8 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             }
             tmplInfo.shaderInfo.blocks.emplace_back();
             auto &blocksInfo = tmplInfo.shaderInfo.blocks.back();
-            blocksInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
-            blocksInfo.binding = static_cast<uint>(block.binding);
+            blocksInfo.set = static_cast<uint32_t>(pipeline::SetIndex::MATERIAL);
+            blocksInfo.binding = block.binding;
             blocksInfo.name = block.name;
             blocksInfo.members = uniforms;
             blocksInfo.count = 1; // effect compiler guarantees block count = 1
@@ -416,15 +415,15 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         for (const auto &samplerTexture : tmpl.samplerTextures) {
             tmplInfo.bindings.emplace_back();
             auto &descriptorLayoutBindingInfo = tmplInfo.bindings.back();
-            descriptorLayoutBindingInfo.binding = static_cast<uint>(samplerTexture.binding);
+            descriptorLayoutBindingInfo.binding = samplerTexture.binding;
             descriptorLayoutBindingInfo.descriptorType = gfx::DescriptorType::SAMPLER_TEXTURE;
             descriptorLayoutBindingInfo.count = samplerTexture.count;
             descriptorLayoutBindingInfo.stageFlags = samplerTexture.stageFlags;
 
             tmplInfo.shaderInfo.samplerTextures.emplace_back();
             auto &samplerTextureInfo = tmplInfo.shaderInfo.samplerTextures.back();
-            samplerTextureInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
-            samplerTextureInfo.binding = static_cast<uint>(samplerTexture.binding);
+            samplerTextureInfo.set = static_cast<uint32_t>(pipeline::SetIndex::MATERIAL);
+            samplerTextureInfo.binding = samplerTexture.binding;
             samplerTextureInfo.name = samplerTexture.name;
             samplerTextureInfo.type = samplerTexture.type;
             samplerTextureInfo.count = samplerTexture.count;
@@ -432,14 +431,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &sampler : tmpl.samplers) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(sampler.binding),
+                sampler.binding,
                 gfx::DescriptorType::SAMPLER,
                 sampler.count,
                 sampler.stageFlags});
 
             tmplInfo.shaderInfo.samplers.emplace_back(gfx::UniformSampler{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(sampler.binding),
+                sampler.binding,
                 sampler.name,
                 sampler.count,
             });
@@ -447,14 +446,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &texture : tmpl.textures) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(texture.binding),
+                texture.binding,
                 gfx::DescriptorType::TEXTURE,
                 texture.count,
                 texture.stageFlags});
 
             tmplInfo.shaderInfo.textures.emplace_back(gfx::UniformTexture{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(texture.binding),
+                texture.binding,
                 texture.name,
                 texture.type,
                 texture.count,
@@ -463,14 +462,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &buffer : tmpl.buffers) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(buffer.binding),
+                buffer.binding,
                 gfx::DescriptorType::STORAGE_BUFFER,
                 1,
                 buffer.stageFlags});
 
             tmplInfo.shaderInfo.buffers.emplace_back(gfx::UniformStorageBuffer{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(buffer.binding),
+                buffer.binding,
                 buffer.name,
                 1,
                 buffer.memoryAccess}); // effect compiler guarantees buffer count = 1
@@ -478,14 +477,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &image : tmpl.images) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(image.binding),
+                image.binding,
                 gfx::DescriptorType::STORAGE_IMAGE,
                 image.count,
                 image.stageFlags});
 
             tmplInfo.shaderInfo.images.emplace_back(gfx::UniformStorageImage{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(image.binding),
+                image.binding,
                 image.name,
                 image.type,
                 image.count,
@@ -494,14 +493,14 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
 
         for (const auto &subpassInput : tmpl.subpassInputs) {
             tmplInfo.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{
-                static_cast<uint32_t>(subpassInput.binding),
+               subpassInput.binding,
                 gfx::DescriptorType::INPUT_ATTACHMENT,
                 subpassInput.count,
                 subpassInput.stageFlags});
 
             tmplInfo.shaderInfo.subpassInputs.emplace_back(gfx::UniformInputAttachment{
                 static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-                static_cast<uint32_t>(subpassInput.binding),
+                subpassInput.binding,
                 subpassInput.name,
                 subpassInput.count});
         }
@@ -583,7 +582,7 @@ gfx::DescriptorSetLayout *ProgramLib::getDescriptorSetLayout(gfx::Device *device
         info.bindings = pipeline::localDescriptorSetLayout.bindings;
         tmplInfo.setLayouts.replace(static_cast<index_t>(pipeline::SetIndex::LOCAL), device->createDescriptorSetLayout(info));
     }
-    return tmplInfo.setLayouts.at(isLocal ? static_cast<index_t>(pipeline::SetIndex::LOCAL) : static_cast<index_t>(pipeline::SetIndex::MATERIAL));
+    return tmplInfo.setLayouts.at(isLocal ? static_cast<uint32_t>(pipeline::SetIndex::LOCAL) : static_cast<uint32_t>(pipeline::SetIndex::MATERIAL));
 }
 
 ccstd::string ProgramLib::getKey(const ccstd::string &name, const MacroRecord &defines) {
@@ -707,7 +706,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
 
     auto *shader = device->createShader(tmplInfo.shaderInfo);
     _cache[key] = shader;
-    CC_LOG_DEBUG("ProgramLib::_cache[%s]=%p, defines: %d", key.c_str(), shader, defines.size());
+//    CC_LOG_DEBUG("ProgramLib::_cache[%s]=%p, defines: %d", key.c_str(), shader, defines.size());
     return shader;
 }
 

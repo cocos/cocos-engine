@@ -50,7 +50,7 @@ void CCMTLFramebuffer::doInit(const FramebufferInfo&) {
     }
 
     if (_depthStencilTexture) {
-        auto* ccTex = static_cast<CCMTLTexture*>(_depthStencilTexture);
+        auto* ccTex = static_cast<CCMTLTexture*>(_depthStencilTexture.get());
         if (ccTex->swapChain()) {
             _swapChain = ccTex->swapChain();
             _isOffscreen = false;

@@ -26,8 +26,7 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "base/TypeDef.h"
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -115,8 +114,9 @@ public:
 
     Scene *getScene() const;
 
-    void walk(const std::function<void(Node *)> &preFunc);
-    void walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc);
+    using WalkCallback = std::function<void(Node *)>;
+    void walk(const WalkCallback &preFunc);
+    void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
@@ -265,9 +265,9 @@ public:
     inline Node *getParent() const { return _parent; }
     inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
 
-    Node *getChildByUuid(const ccstd::string &) const;
-    Node *getChildByName(const ccstd::string &) const;
-    Node *getChildByPath(const ccstd::string &) const;
+    Node *getChildByUuid(const ccstd::string &uuid) const;
+    Node *getChildByName(const ccstd::string &name) const;
+    Node *getChildByPath(const ccstd::string &path) const;
     inline index_t getSiblingIndex() const { return _siblingIndex; }
     inline UserData *getUserData() { return _userData.get(); }
     inline void setUserData(UserData *data) { _userData = data; }
@@ -356,10 +356,10 @@ public:
     /**
      * @en Inversely transform a point from world coordinate system to local coordinate system.
      * @zh 逆向变换一个空间点，一般用于将世界坐标转换到本地坐标系中。
-     * @param out The result point in local coordinate system will be stored in this vector
      * @param p A position in world coordinate system
+     * @return The result point in local coordinate system will be stored in this vector
      */
-    void inverseTransformPoint(Vec3 &out, const Vec3 &p);
+    Vec3 inverseTransformPoint(const Vec3 &p);
 
     /**
      * @en Set position in world coordinate system
@@ -501,8 +501,13 @@ public:
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    inline uint32_t getChangedFlags() const { return _flagChange; }
-    inline void setChangedFlags(uint32_t value) { _flagChange = value; }
+    inline uint32_t getChangedFlags() const {
+        return _hasChangedFlagsVersion == globalFlagChangeVersion ? _hasChangedFlags : 0;
+    }
+    inline void setChangedFlags(uint32_t value) {
+        _hasChangedFlagsVersion = globalFlagChangeVersion;
+        _hasChangedFlags = value;
+    }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
@@ -514,8 +519,6 @@ public:
     inline void setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
-
-    inline void setUIPropsTransformDirtyPtr(uint32_t *pDirty) { _uiTransformDirty = pDirty; }
 
     //    // ------------------  Component code start -----------------------------
     //    // TODO(Lenovo):
@@ -615,9 +618,10 @@ public:
     inline uint32_t getEventMask() const { return _eventMask; }
     inline void setEventMask(uint32_t mask) { _eventMask = mask; }
 
-protected:
     bool onPreDestroy() override;
+    bool onPreDestroyBase();
 
+protected:
     void onSetParent(Node *oldParent, bool keepWorldTransform);
 
     virtual void updateScene();
@@ -626,8 +630,6 @@ protected:
     void onHierarchyChangedBase(Node *oldParent);
 
     virtual void onBatchCreated(bool dontChildPrefab);
-
-    bool onPreDestroyBase();
 
 #if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {
@@ -639,6 +641,9 @@ protected:
     static uint32_t clearRound;
 
 private:
+    // increase on every frame, used to identify the frame
+    static uint32_t globalFlagChangeVersion;
+
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
     }
@@ -664,10 +669,13 @@ protected:
 
     uint32_t _eventMask{0};
 
-    Mat4 _rtMat{Mat4::IDENTITY};
-    cc::Mat4 _worldMatrix{Mat4::IDENTITY};
+    Mat4 _worldMatrix{Mat4::IDENTITY};
 
-    uint32_t _flagChange{0};
+    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
+    * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
+    */
+    uint32_t _hasChangedFlagsVersion{0};
+    uint32_t _hasChangedFlags{0};
     uint32_t _dirtyFlag{0};
 
     bool _eulerDirty{false};
@@ -682,19 +690,19 @@ public:
     index_t _siblingIndex{0};
     // For deserialization
     ccstd::string _id;
-    ccstd::vector<IntrusivePtr<Node>> _children;
     Node *_parent{nullptr};
     bool _active{true};
 
 private:
+    ccstd::vector<IntrusivePtr<Node>> _children;
     // local transform
-    cc::Vec3 _localPosition{Vec3::ZERO};
-    cc::Quaternion _localRotation{Quaternion::identity()};
-    cc::Vec3 _localScale{Vec3::ONE};
+    Vec3 _localPosition{Vec3::ZERO};
+    Quaternion _localRotation{Quaternion::identity()};
+    Vec3 _localScale{Vec3::ONE};
     // world transform
-    cc::Vec3 _worldPosition{Vec3::ZERO};
-    cc::Quaternion _worldRotation{Quaternion::identity()};
-    cc::Vec3 _worldScale{Vec3::ONE};
+    Vec3 _worldPosition{Vec3::ZERO};
+    Quaternion _worldRotation{Quaternion::identity()};
+    Vec3 _worldScale{Vec3::ONE};
     //
     Vec3 _euler{0, 0, 0};
 
@@ -703,9 +711,6 @@ private:
     IntrusivePtr<UserData> _userData;
     friend class NodeActivator;
     friend class Scene;
-
-    // Used to shared memory of Node._uiProps._uiTransformDirty.
-    uint32_t *_uiTransformDirty{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Node);
 };

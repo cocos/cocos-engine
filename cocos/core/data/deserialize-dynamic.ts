@@ -53,7 +53,6 @@ function compileObjectTypeJit (
         if (!assumeHavePropIfIsValue) {
             sources.push('if(prop){');
         }
-        // @ts-expect-error Typing
         const ctorCode = js.getClassName(defaultValue);
         sources.push(`s._deserializeFastDefinedObject(o${accessorToSet},prop,${ctorCode});`);
         if (!assumeHavePropIfIsValue) {
@@ -145,10 +144,10 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
         // function undefined object(null) string boolean number
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
-        if (fastMode) {
+        const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
+        if (fastMode && (defaultValue !== undefined || userType)) {
             let isPrimitiveType;
-            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
-            if (defaultValue === undefined && userType) {
+            if (defaultValue === undefined) {
                 isPrimitiveType = userType instanceof Attr.PrimitiveType;
             } else {
                 const defaultType = typeof defaultValue;
@@ -217,10 +216,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             }
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
+            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
             let isPrimitiveType = false;
-            if (fastMode) {
+            if (fastMode && (defaultValue !== undefined || userType)) {
                 const userType = attrs[propName + POSTFIX_TYPE];
-                if (defaultValue === undefined && userType) {
+                if (defaultValue === undefined) {
                     isPrimitiveType = userType instanceof Attr.PrimitiveType;
                 } else {
                     const defaultType = typeof defaultValue;
@@ -574,7 +574,6 @@ class _Deserializer {
                 if (DEBUG) {
                     error(`Deserialize ${klass.name} failed, ${(e as { stack: string; }).stack}`);
                 }
-                this._reportMissingClass(type);
                 const obj = createObject(MissingScript);
                 this._deserializeInto(value, obj, MissingScript);
                 return obj;
@@ -666,14 +665,10 @@ class _Deserializer {
                         object: Record<string, unknown>,
                         deserialized: Record<string, unknown>,
                         constructor: AnyFunction) {
-                        try {
-                            if (!JSON.parse(JSON.stringify(deserialized._$erialized))) {
-                                error(`Unable to load previously serialized data. ${JSON.stringify(deserialized)}`);
-                            }
-                        } catch (e) {
-                            error(`Error when checking MissingScript 7, ${e}`);
-                        }
                         rawDeserialize(deserializer, object, deserialized, constructor);
+                        if (!object._$erialized) {
+                            error(`Unable to stash previously serialized data. ${JSON.stringify(deserialized)}`);
+                        }
                     };
                 }
             } catch (e) {
@@ -853,7 +848,9 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy(EditorExtends.serialize.asAsset);
+        details.assignAssetsBy((uuid, options) => {
+            EditorExtends.serialize.asAsset(uuid, options.type);
+        });
     }
 
     // var afterJson = JSON.stringify(data, null, 2);

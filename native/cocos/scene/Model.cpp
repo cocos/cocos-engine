@@ -179,9 +179,7 @@ void Model::updateTransform(uint32_t stamp) {
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
-        }
-        if (_scene) {
-            _scene->updateOctree(this);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -193,6 +191,7 @@ void Model::updateWorldBound() {
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -203,6 +202,7 @@ void Model::updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             geometry::AABB::fromPoints(min, max, _modelBounds);
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -210,6 +210,7 @@ void Model::updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max
 void Model::updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb) {
     _worldBounds->center = aabb->center;
     _worldBounds->halfExtents = aabb->halfExtents;
+    _worldBoundsDirty = true;
 }
 
 void Model::updateUBOs(uint32_t stamp) {
@@ -235,8 +236,8 @@ void Model::updateUBOs(uint32_t stamp) {
     Mat4 mat4;
     int idx = _instMatWorldIdx;
     if (idx >= 0) {
-        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
-        uploadMat4AsVec4x3(worldMatrix, cc::get<Float32Array>(attrs[idx]), cc::get<Float32Array>(attrs[idx + 1]), cc::get<Float32Array>(attrs[idx + 2]));
+        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock().views;
+        uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
     } else if (_localBuffer) {
         mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
         Mat4::inverseTranspose(worldMatrix, &mat4);
@@ -247,6 +248,13 @@ void Model::updateUBOs(uint32_t stamp) {
         if (enableOcclusionQuery) {
             updateWorldBoundUBOs();
         }
+    }
+}
+
+void Model::updateOctree() {
+    if (_scene && _worldBoundsDirty) {
+        _worldBoundsDirty = false;
+        _scene->updateOctree(this);
     }
 }
 
@@ -263,7 +271,7 @@ void Model::updateWorldBoundUBOs() {
     }
 }
 
-void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::optional<Vec3> &maxPos) {
+void Model::createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos) {
     if (!minPos.has_value() || !maxPos.has_value()) {
         return;
     }
@@ -277,6 +285,7 @@ void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::opti
         _worldBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
+    _worldBoundsDirty = true;
 }
 
 SubModel *Model::createSubModel() {
@@ -332,6 +341,11 @@ void Model::onGeometryChanged() {
     for (SubModel *subModel : _subModels) {
         subModel->onGeometryChanged();
     }
+}
+
+void Model::initLightingmap(Texture2D *texture, const Vec4 &uvParam) {
+    _lightmap = texture;
+    _lightmapUVParam = uvParam;
 }
 
 void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
@@ -418,6 +432,9 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     attrs.buffer = Uint8Array(size);
     attrs.views.clear();
     attrs.attributes.clear();
+    attrs.views.reserve(attributes.size());
+    attrs.attributes.reserve(attributes.size());
+
     uint32_t offset = 0;
 
     for (const gfx::Attribute &attribute : attributes) {
@@ -491,7 +508,7 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
     }
 }
 void Model::setInstancedAttributesViewData(index_t viewIdx, index_t arrIdx, float value) {
-    cc::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
+    ccstd::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
 }
 
 void Model::updateLocalShadowBias() {
@@ -500,6 +517,37 @@ void Model::updateLocalShadowBias() {
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
     _localDataUpdated = true;
+}
+
+void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
+    const auto &attributes = getInstancedAttributeBlock().attributes;
+    auto &views = getInstancedAttributeBlock().views;
+
+    for (size_t i = 0, len = attributes.size(); i < len; ++i) {
+        const auto &attribute = attributes[i];
+        if (attribute.name == name) {
+            const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+            switch (info.type) {
+                case gfx::FormatType::NONE:
+                case gfx::FormatType::UNORM:
+                case gfx::FormatType::SNORM:
+                case gfx::FormatType::UINT:
+                case gfx::FormatType::INT: {
+                    CC_ASSERT(false); // NOLINT
+                } break;
+                case gfx::FormatType::FLOAT:
+                case gfx::FormatType::UFLOAT: {
+                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
+                    auto &view = ccstd::get<Float32Array>(views[i]);
+                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
+                    CC_ASSERT(byteLength <= view.byteLength());
+                    memcpy(dstData, value, byteLength);
+                } break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 } // namespace scene

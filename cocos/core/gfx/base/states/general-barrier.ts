@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
 import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
 
@@ -49,6 +44,6 @@ export class GeneralBarrier extends GFXObject {
     }
 
     static computeHash (info: Readonly<GeneralBarrierInfo>) {
-        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses}`, 666);
+        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses} ${info.type}`, 666);
     }
 }

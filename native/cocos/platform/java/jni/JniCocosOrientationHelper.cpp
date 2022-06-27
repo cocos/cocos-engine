@@ -49,7 +49,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrienta
     }
 
     cc::DeviceEvent ev;
-    ev.type = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
+    ev.type = cc::DeviceEvent::Type::ORIENTATION;
     ev.args[0].intVal = orientation;
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *platform = cc::BasePlatform::getPlatform();

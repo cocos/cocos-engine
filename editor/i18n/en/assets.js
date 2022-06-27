@@ -43,6 +43,7 @@ module.exports = {
             mipFilterTip: 'Mip Filter',
             wrapModeSTip: 'Wrap Mode S',
             wrapModeTTip: 'Wrap Mode T',
+            bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
                 title: 'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
@@ -126,6 +127,14 @@ module.exports = {
             borderRightTip: 'The right margin of 9-slicing',
             edit: 'Edit',
             editTip: 'Edit',
+            meshType: 'Mesh Type',
+            meshTypeTip: 'Type of the mesh generated for the sprite frame',
+            pixelsToUnit: 'Pixels To Unit',
+            pixelsToUnitTip: 'How many pixels in the sprite frame correspond to one unit in the world space',
+            pivotX: 'Pivot X',
+            pivotXTip: 'The origin`s X-axis position of sprite frame in the local coordinate system',
+            pivotY: 'Pivot Y',
+            pivotYTip: 'The origin`s Y-axis position of sprite frame in the local coordinate system',
         },
         texture: {
             anisotropy: 'Anisotropy',
@@ -318,9 +327,14 @@ module.exports = {
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
                 title:
-                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
-                    'If one is not preferred, or one is invalid for use, the time range is robustly calculated. ' +
+                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file.<br>' +
+                    'If one is not preferred, or one is invalid for use, the time range is robustly calculated.<br>' +
                     'Some FBX generators may not export this information.',
+            },
+            smartMaterialEnabled: {
+                name: 'Smart Material Conversion',
+                title: 'Convert DCC materials to engine builtin materials which match the internal lighting model.',
+                warn: 'The model feature "Smart Material Conversion" in the project settings is turned off, please enable this feature to modify model level settings.',
             },
         },
         textureCube: {

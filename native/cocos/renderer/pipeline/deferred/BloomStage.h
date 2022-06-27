@@ -36,13 +36,15 @@ namespace cc {
 namespace pipeline {
 
 struct CC_DLL UBOBloom {
-    static constexpr uint TEXTURE_SIZE_OFFSET = 0;
-    static constexpr uint COUNT = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
-    static constexpr uint SIZE = UBOBloom::COUNT * 4;
+    static constexpr uint32_t TEXTURE_SIZE_OFFSET = 0;
+    static constexpr uint32_t COUNT = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
+    static constexpr uint32_t SIZE = UBOBloom::COUNT * 4;
 };
 
 class CC_DLL BloomStage : public RenderStage {
 public:
+    using SampleUBOArray = ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM>;
+
     BloomStage();
     ~BloomStage() override = default;
 
@@ -53,8 +55,8 @@ public:
     void render(scene::Camera *camera) override;
 
     gfx::Buffer *getPrefilterUBO() { return _prefilterUBO; }
-    auto &getDownsampleUBO() { return _downsampleUBO; }
-    auto &getUpsampleUBO() { return _upsampleUBO; }
+    SampleUBOArray &getDownsampleUBO() { return _downsampleUBO; }
+    SampleUBOArray &getUpsampleUBO() { return _upsampleUBO; }
     gfx::Buffer *getCombineUBO() { return _combineUBO; }
     gfx::Sampler *getSampler() const { return _sampler; }
 
@@ -68,7 +70,7 @@ public:
     }
 
 private:
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 
     static RenderStageInfo initInfo;
 
@@ -77,8 +79,8 @@ private:
     int _iterations = 2;
     gfx::Sampler *_sampler = nullptr;
     gfx::Buffer *_prefilterUBO = nullptr;
-    ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _downsampleUBO{};
-    ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _upsampleUBO{};
+    SampleUBOArray _downsampleUBO{};
+    SampleUBOArray _upsampleUBO{};
     gfx::Buffer *_combineUBO = nullptr;
     framegraph::StringHandle _fgStrHandleBloomOut;
 };

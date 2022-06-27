@@ -24,18 +24,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { WECHAT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
+import { Vec2 } from '../math/vec2';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
-import { Vec2 } from '../math';
 import { screen } from './screen';
 
 export declare namespace sys {
@@ -51,7 +47,6 @@ export declare namespace sys {
 /**
  * @en A set of system related variables
  * @zh 一系列系统相关环境变量
- * @main
  */
 export const sys = {
     Feature,
@@ -59,7 +54,7 @@ export const sys = {
     /**
      * @en
      * Returns if the specified platform related feature is supported.
-     * @zn
+     * @zh
      * 返回指定的平台相关的特性是否支持。
      */
     hasFeature (feature: sys.Feature): boolean {

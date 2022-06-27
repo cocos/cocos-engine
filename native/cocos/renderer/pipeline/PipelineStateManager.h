@@ -40,11 +40,11 @@ public:
                                                         gfx::Shader *shader,
                                                         gfx::InputAssembler *inputAssembler,
                                                         gfx::RenderPass *renderPass,
-                                                        uint subpass = 0);
+                                                        uint32_t subpass = 0);
     static void destroyAll();
 
 private:
-    static ccstd::unordered_map<size_t, IntrusivePtr<gfx::PipelineState>> psoHashMap;
+    static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<gfx::PipelineState>> psoHashMap;
 };
 
 } // namespace pipeline

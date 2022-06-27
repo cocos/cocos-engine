@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "scene/Pass.h"
 
 namespace cc {
@@ -38,7 +38,7 @@ class PassInstance final : public scene::Pass {
 public:
     using Super = scene::Pass;
 
-    PassInstance(Pass *parent, MaterialInstance *owner);
+    PassInstance(scene::Pass *parent, MaterialInstance *owner);
     ~PassInstance() override;
     /**
      * @en The parent pass
@@ -55,7 +55,7 @@ public:
      */
     void overridePipelineStates(const IPassInfo &original, const PassOverrides &override) override;
 
-    bool tryCompile(const cc::optional<MacroRecord> &defineOverrides) override;
+    bool tryCompile(const ccstd::optional<MacroRecord> &defineOverrides) override;
 
     /**
      * @en Prepare to change states of the pass and do not notify the material to rebuild the pipeline state object

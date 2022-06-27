@@ -105,7 +105,6 @@ private:
     float _timeScale = 1;
     bool _paused = false;
     bool _useAttach = false;
-    bool _batch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
     bool _premultipliedAlpha = false;
 

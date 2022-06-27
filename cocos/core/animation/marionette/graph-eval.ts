@@ -159,6 +159,10 @@ export class AnimationGraphEval {
         varInstance.value = value;
     }
 
+    public getLayerWeight (layerIndex: number) {
+        return this._layerEvaluations[layerIndex].weight;
+    }
+
     public setLayerWeight (layerIndex: number, weight: number) {
         this._layerEvaluations[layerIndex].weight = weight;
     }
@@ -167,30 +171,60 @@ export class AnimationGraphEval {
     private _hasAutoTrigger = false;
 }
 
+/**
+ * @en
+ * Runtime status of a transition.
+ * @zh
+ * 过渡的运行状态。
+ */
 export interface TransitionStatus {
     /**
+     * @en
      * The duration of the transition.
+     * @zh
+     * 过渡的周期。
      */
     duration: number;
 
     /**
+     * @en
      * The progress of the transition.
+     * @zh
+     * 过渡的进度。
      */
     time: number;
 }
 
+/**
+ * @en
+ * Runtime clip status of a motion state.
+ * @zh
+ * 动作状态中包含的剪辑的运行状态。
+ */
 export interface ClipStatus {
     /**
+     * @en
      * The clip object.
+     * @zh
+     * 剪辑对象。
      */
     clip: AnimationClip;
 
     /**
+     * @en
      * The clip's weight.
+     * @zh
+     * 剪辑的权重。
      */
     weight: number;
 }
 
+/**
+ * @en
+ * Runtime status of a motion state.
+ * @zh
+ * 动作状态的运行状态。
+ */
 export interface MotionStateStatus {
     /**
      * For testing.
@@ -200,7 +234,15 @@ export interface MotionStateStatus {
     __DEBUG_ID__?: string;
 
     /**
+     * @en
      * The normalized time of the state.
+     * It would be the fraction part of `elapsed-time / duration` if elapsed time is non-negative,
+     * and would be 1 plus the fraction part of `(elapsed-time / duration)` otherwise.
+     * This is **NOT** the clip's progress if the state is not a clip motion or its wrap mode isn't loop.
+     * @zh
+     * 状态的规范化时间。
+     * 如果流逝的时间是非负的，它就是 `流逝时间 / 周期` 的小数部分；否则，它是 `(流逝时间 / 周期)` 的小数部分加 1。
+     * 它并不一定代表剪辑的进度，因为该状态可能并不是一个剪辑动作，或者它的循环模式并非循环。
      */
     progress: number;
 }
@@ -443,6 +485,7 @@ class LayerEval {
                     triggers: undefined,
                     duration: 0.0,
                     normalizedDuration: false,
+                    destinationStart: 0.0,
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                 };
@@ -452,6 +495,7 @@ class LayerEval {
                     transitionEval.normalizedDuration = outgoing.relativeDuration;
                     transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
                     transitionEval.exitCondition = outgoing.exitCondition;
+                    transitionEval.destinationStart = outgoing.destinationStart;
                 } else if (outgoing instanceof EmptyStateTransition) {
                     transitionEval.duration = outgoing.duration;
                 }
@@ -853,6 +897,12 @@ class LayerEval {
     }
 
     private _doTransitionToMotion (targetNode: MotionStateEval | EmptyStateEval) {
+        const {
+            _currentTransitionPath: currentTransitionPath,
+        } = this;
+
+        assertIsTrue(currentTransitionPath.length !== 0);
+
         // Reset triggers
         this._resetTriggersAlongThePath();
 
@@ -861,7 +911,10 @@ class LayerEval {
         this._toUpdated = false;
 
         if (targetNode.kind === NodeKind.animation) {
-            targetNode.resetToPort();
+            const {
+                destinationStart,
+            } = currentTransitionPath[0];
+            targetNode.resetToPort(destinationStart);
         }
         this._callEnterMethods(targetNode);
     }
@@ -1071,7 +1124,7 @@ enum NodeKind {
 
 export class StateEval {
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public declare __DEBUG_ID__?: string;
 
@@ -1248,8 +1301,8 @@ export class MotionStateEval extends StateEval {
         return stateStatus;
     }
 
-    public resetToPort () {
-        this._toPort.progress = 0.0;
+    public resetToPort (at: number) {
+        this._toPort.progress = at;
     }
 
     public finishTransition () {
@@ -1302,7 +1355,8 @@ function calcProgressUpdate (currentProgress: number, duration: number, deltaTim
 }
 
 function normalizeProgress (progress: number) {
-    return progress - Math.trunc(progress);
+    const signedFrac = progress - Math.trunc(progress);
+    return signedFrac >= 0.0 ? signedFrac : (1.0 + signedFrac);
 }
 
 interface MotionEvalPort {
@@ -1336,6 +1390,7 @@ interface TransitionEval {
     conditions: ConditionEval[];
     exitConditionEnabled: boolean;
     exitCondition: number;
+    destinationStart: number;
     /**
      * Bound triggers, once this transition satisfied. All triggers would be reset.
      */

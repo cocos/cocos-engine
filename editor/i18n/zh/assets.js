@@ -43,6 +43,7 @@ module.exports = {
             mipFilterTip: 'Mip Filter',
             wrapModeSTip: 'Wrap Mode S',
             wrapModeTTip: 'Wrap Mode T',
+            bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
                 title:
@@ -127,6 +128,14 @@ module.exports = {
             borderRightTip: '九宫格右边距',
             edit: 'Edit',
             editTip: '编辑',
+            meshType: 'Mesh Type',
+            meshTypeTip: 'SpriteFrame 生成的网格类型',
+            pixelsToUnit: 'Pixels To Unit',
+            pixelsToUnitTip: 'SpriteFrame 像素对应世界空间内单位长度的比例尺',
+            pivotX: 'Pivot X',
+            pivotXTip: 'SpriteFrame 本地坐标系原点的 X 轴位置',
+            pivotY: 'Pivot Y',
+            pivotYTip: 'SpriteFrame 本地坐标系原点的 Y 轴位置',
         },
         texture: {
             anisotropy: 'Anisotropy',
@@ -312,7 +321,12 @@ module.exports = {
             },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
-                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。<br>若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+            },
+            smartMaterialEnabled: {
+                name: '材质智能转换',
+                title: '将 DCC 材质转化为引擎材质, 并匹对 DCC 材质的光照模型',
+                warn: '项目设置里的模型配置 "材质智能转换" 已关闭，请启用此项功能来修改模型级别设置。',
             },
         },
         textureCube: {

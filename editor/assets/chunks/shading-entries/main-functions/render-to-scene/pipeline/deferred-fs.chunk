@@ -1,0 +1,13 @@
+  layout(location = 0) out vec4 fragColor0;
+  layout(location = 1) out vec4 fragColor1;
+  layout(location = 2) out vec4 fragColor2;
+
+  void main () {
+    // Surface
+    SurfacesMaterialData surfaceData;
+    CCSurfacesFragmentGetMaterialData(surfaceData);
+
+    fragColor0 = CCSurfacesDeferredOutput0(surfaceData);
+    fragColor1 = CCSurfacesDeferredOutput1(surfaceData);
+    fragColor2 = CCSurfacesDeferredOutput2(surfaceData);
+  }

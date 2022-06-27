@@ -34,11 +34,11 @@
 
 namespace cc {
 namespace pipeline {
-ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, BatchedBuffer *>> BatchedBuffer::buffers;
+ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, BatchedBuffer *>> BatchedBuffer::buffers;
 BatchedBuffer *BatchedBuffer::get(scene::Pass *pass) {
     return BatchedBuffer::get(pass, 0);
 }
-BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
+BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint32_t extraKey) {
     auto &record = BatchedBuffer::buffers[pass];
     auto &buffer = record[extraKey];
     if (buffer == nullptr) buffer = ccnew BatchedBuffer(pass);
@@ -47,11 +47,12 @@ BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
 
 void BatchedBuffer::destroyBatchedBuffer() {
     for (auto &pair : BatchedBuffer::buffers) {
-        const ccstd::unordered_map<uint, BatchedBuffer *> &bufferItem = pair.second;
+        const ccstd::unordered_map<uint32_t, BatchedBuffer *> &bufferItem = pair.second;
         for (const auto &item : bufferItem) {
             BatchedBuffer *batchedBuffer = item.second;
             if (batchedBuffer) {
                 batchedBuffer->destroy();
+                delete batchedBuffer;
             }
         }
     }
@@ -84,7 +85,7 @@ void BatchedBuffer::destroy() {
     _batches.clear();
 }
 
-void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const scene::Model *model) {
+void BatchedBuffer::merge(const scene::SubModel *subModel, uint32_t passIdx, const scene::Model *model) {
     const auto *subMesh = subModel->getSubMesh();
     const auto &flatBuffers = subMesh->getFlatBuffers();
     auto flatBuffersCount = static_cast<uint32_t>(flatBuffers.size());
@@ -93,8 +94,8 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     }
 
     const auto &flatBuffer = flatBuffers[0];
-    uint vbSize = 0;
-    uint indexSize = 0;
+    uint32_t vbSize = 0;
+    uint32_t indexSize = 0;
     const auto vbCount = flatBuffer.count;
     const auto *const pass = subModel->getPass(passIdx);
     auto *const shader = subModel->getShader(passIdx);
@@ -104,7 +105,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     for (auto &batch : _batches) {
         if (batch.vbs.size() == flatBuffersCount && batch.mergeCount < UBOLocalBatched::BATCHING_COUNT) {
             isBatchExist = true;
-            for (uint j = 0; j < flatBuffersCount; ++j) {
+            for (uint32_t j = 0; j < flatBuffersCount; ++j) {
                 auto *const vb = batch.vbs[j];
                 if (vb->getStride() != flatBuffers[j].stride) {
                     isBatchExist = false;
@@ -113,11 +114,11 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
             }
 
             if (isBatchExist) {
-                for (uint j = 0; j < flatBuffersCount; ++j) {
+                for (uint32_t j = 0; j < flatBuffersCount; ++j) {
                     const auto &flatBuffer = flatBuffers[j];
                     auto *batchVB = batch.vbs[j];
                     auto *vbData = batch.vbDatas[j];
-                    const uint vbBufSizeOld = batchVB->getSize();
+                    const uint32_t vbBufSizeOld = batchVB->getSize();
                     vbSize = (vbCount + batch.vbCount) * flatBuffer.stride;
                     if (vbSize > vbBufSizeOld) {
                         auto *vbDataNew = static_cast<uint8_t *>(CC_MALLOC(vbSize));
@@ -179,7 +180,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     ccstd::vector<uint8_t *> vbDatas(flatBuffersCount, nullptr);
     ccstd::vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1, nullptr);
 
-    for (uint i = 0; i < flatBuffersCount; ++i) {
+    for (uint32_t i = 0; i < flatBuffersCount; ++i) {
         const auto &flatBuffer = flatBuffers[i];
         auto *newVB = _device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -200,12 +201,12 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     auto *indexBuffer = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-        static_cast<uint>(indexBufferSize),
+        static_cast<uint32_t>(indexBufferSize),
         sizeof(float),
     });
     auto *indexData = static_cast<float *>(CC_MALLOC(indexBufferSize));
     memset(indexData, 0, indexBufferSize);
-    indexBuffer->update(indexData, static_cast<uint>(indexBufferSize));
+    indexBuffer->update(indexData, static_cast<uint32_t>(indexBufferSize));
     totalVBs[flatBuffersCount] = indexBuffer;
 
     ccstd::vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
@@ -257,7 +258,7 @@ void BatchedBuffer::clear() {
     }
 }
 
-void BatchedBuffer::setDynamicOffset(uint idx, uint value) {
+void BatchedBuffer::setDynamicOffset(uint32_t idx, uint32_t value) {
     _dynamicOffsets[idx] = value;
 }
 

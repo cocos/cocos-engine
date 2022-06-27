@@ -180,7 +180,6 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
     const auto &srcIB = frameData->ib;
 
     auto *paramsBuffer = _paramsBuffer->getBuffer();
-    const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
 
     int colorOffset = 0;
     ArmatureCache::ColorData *nowColor = colors[colorOffset++];
@@ -270,18 +269,6 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
         dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
         dstColorBuffer = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
         vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
-
-        // batch handle
-        if (_batch) {
-            cc::Vec3 *point = nullptr;
-
-            for (auto posIndex = 0; posIndex < segment->vertexFloatCount; posIndex += VF_XYZUVC) {
-                point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
-                // force z value to zero
-                point->z = 0;
-                point->transformMat4(*point, nodeWorldMat);
-            }
-        }
 
         // handle vertex color
         if (needColor) {

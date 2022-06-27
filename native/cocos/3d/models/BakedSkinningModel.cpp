@@ -61,12 +61,12 @@ void BakedSkinningModel::destroy() {
     _jointMedium.boundsInfo.clear();
 
     if (_jointMedium.buffer != nullptr) {
-        CC_SAFE_DESTROY(_jointMedium.buffer);
+        CC_SAFE_DESTROY_NULL(_jointMedium.buffer);
     }
     if (_jointMedium.texture.has_value()) {
         CC_SAFE_DELETE(_jointMedium.texture.value());
     }
-    applyJointTexture(cc::nullopt);
+    applyJointTexture(ccstd::nullopt);
     Super::destroy();
 }
 
@@ -83,8 +83,8 @@ void BakedSkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Me
         _jointMedium.buffer = _device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOSkinning::SIZE,
-            pipeline::UBOSkinning::SIZE,
+            pipeline::UBOSkinning::size,
+            pipeline::UBOSkinning::size,
         });
     }
 }
@@ -106,6 +106,7 @@ void BakedSkinningModel::updateTransform(uint32_t stamp) {
     if (_worldBounds && skelBound != nullptr) {
         Node *node = getTransform();
         skelBound->transform(node->getWorldMatrix(), _worldBounds);
+        _worldBoundsDirty = true;
     }
 }
 
@@ -119,7 +120,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     //    float curFrame = info.data[0];
     //    uint32_t curFrameDataBytes = info.data.byteLength();
     if (idx >= 0) {
-        auto &views = getInstancedAttributeBlock()->views[idx];
+        auto &views = getInstancedAttributeBlock().views[idx];
         setTypedArrayValue(views, 0, *curFrame);
     } else if (*info.dirtyForJSB != 0) {
         info.buffer->update(curFrame, frameDataBytes);
@@ -127,7 +128,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     }
 }
 
-void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandle *> &texture) {
+void BakedSkinningModel::applyJointTexture(const ccstd::optional<IJointTextureHandle *> &texture) {
     auto oldTex = _jointMedium.texture;
     if (oldTex.has_value() && texture.has_value() && (&oldTex.value() != &texture.value())) {
         //        _dataPoolManager->jointTexturePool->releaseHandle(oldTex.value());
@@ -187,7 +188,7 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     index_t idx = _instAnimInfoIdx;
     if (idx >= 0) {
-        auto &view = getInstancedAttributeBlock()->views[idx];
+        auto &view = getInstancedAttributeBlock().views[idx];
         setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.
         setTypedArrayValue(view, 1, jointTextureInfo[1]);
         setTypedArrayValue(view, 2, jointTextureInfo[2]);
@@ -201,8 +202,8 @@ void BakedSkinningModel::syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Arr
     _jointMedium.animInfo.dirtyForJSB = &dirty[0];
 }
 
-void BakedSkinningModel::syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
-                                       const cc::optional<geometry::AABB> &modelBound,
+void BakedSkinningModel::syncDataForJS(const ccstd::vector<ccstd::optional<geometry::AABB>> &boundsInfo,
+                                       const ccstd::optional<geometry::AABB> &modelBound,
                                        float jointTextureInfo0,
                                        float jointTextureInfo1,
                                        float jointTextureInfo2,
@@ -225,6 +226,11 @@ void BakedSkinningModel::syncDataForJS(const ccstd::vector<cc::optional<geometry
 
     _jointMedium.animInfo.curFrame = &animInfoData[0];
     _jointMedium.animInfo.frameDataBytes = animInfoData.byteLength();
+
+    if (_jointMedium.texture.has_value()) {
+        delete _jointMedium.texture.value();
+        _jointMedium.texture = ccstd::nullopt;
+    }
     IJointTextureHandle *textureInfo = IJointTextureHandle::createJoinTextureHandle();
     textureInfo->handle.texture = tex;
     _jointMedium.texture = textureInfo;

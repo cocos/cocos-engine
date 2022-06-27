@@ -25,6 +25,8 @@
 ****************************************************************************/
 
 #include "audio/oalsoft/AudioDecoderMp3.h"
+#include <malloc.h>
+#include <stdint.h>
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
 
@@ -101,13 +103,15 @@ bool AudioDecoderMp3::open(const char *path) {
             break;
         }
 
-        _channelCount = channel;
-        _sampleRate = rate;
+        _pcmHeader.channelCount = channel;
+        _pcmHeader.sampleRate = rate;
 
         if (mp3Encoding == MPG123_ENC_SIGNED_16) {
-            _bytesPerFrame = 2 * _channelCount;
+            _pcmHeader.bytesPerFrame = 2 * _pcmHeader.channelCount;
+            _pcmHeader.dataFormat = AudioDataFormat::SIGNED_16;
         } else if (mp3Encoding == MPG123_ENC_FLOAT_32) {
-            _bytesPerFrame = 4 * _channelCount;
+            _pcmHeader.bytesPerFrame = 4 * _pcmHeader.channelCount;
+            _pcmHeader.dataFormat = AudioDataFormat::FLOAT_32;
         } else {
             ALOGE("Bad encoding: 0x%x!\n", mp3Encoding);
             break;
@@ -119,7 +123,7 @@ bool AudioDecoderMp3::open(const char *path) {
         /* Ensure that we can get accurate length by call mpg123_length */
         mpg123_scan(_mpg123handle);
 
-        _totalFrames = mpg123_length(_mpg123handle);
+        _pcmHeader.totalFrames = mpg123_length(_mpg123handle);
 
         _isOpened = true;
         return true;
@@ -137,6 +141,7 @@ void AudioDecoderMp3::close() {
     if (isOpened()) {
         if (_mpg123handle != nullptr) {
             mpg123_close(_mpg123handle);
+
             mpg123_delete(_mpg123handle);
             _mpg123handle = nullptr;
         }
@@ -151,7 +156,7 @@ void AudioDecoderMp3::close() {
 }
 
 uint32_t AudioDecoderMp3::read(uint32_t framesToRead, char *pcmBuf) {
-    size_t bytesToRead = framesToRead * _bytesPerFrame;
+    size_t bytesToRead = framesToRead * _pcmHeader.bytesPerFrame;
     size_t bytesRead = 0;
     int err = mpg123_read(_mpg123handle, reinterpret_cast<unsigned char *>(pcmBuf), bytesToRead, &bytesRead);
     if (err == MPG123_ERR) {
@@ -159,7 +164,7 @@ uint32_t AudioDecoderMp3::read(uint32_t framesToRead, char *pcmBuf) {
         return 0;
     }
 
-    return static_cast<uint32_t>(bytesRead / _bytesPerFrame);
+    return static_cast<uint32_t>(bytesRead / _pcmHeader.bytesPerFrame);
 }
 
 bool AudioDecoderMp3::seek(uint32_t frameOffset) {

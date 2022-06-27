@@ -76,7 +76,7 @@ ccstd::string getTypedFormatter(DebugMode mode, uint32_t id) {
     return msg;
 }
 
-void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int paramsLength) {
+void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int paramsLength) {
     ccstd::string msg = fmt;
     const ccstd::string &prefix = getPrefixTag(mode);
     LogLevel logLevel = getLogLevel(mode);
@@ -90,35 +90,35 @@ void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int params
         }
 
         if (arr[i].type() == typeid(const ccstd::string)) {
-            const ccstd::string s = cc::any_cast<const ccstd::string>(arr[i]);
+            const ccstd::string s = ccstd::any_cast<const ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
         } else if (arr[i].type() == typeid(ccstd::string)) {
-            ccstd::string s = cc::any_cast<ccstd::string>(arr[i]);
+            ccstd::string s = ccstd::any_cast<ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
         } else if (arr[i].type() == typeid(int)) {
-            int value = cc::any_cast<int>(arr[i]);
+            int value = ccstd::any_cast<int>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, std::to_string(value));
             } else {
                 msg += " " + std::to_string(value);
             }
         } else if (arr[i].type() == typeid(float)) {
-            auto value = cc::any_cast<float>(arr[i]);
+            auto value = ccstd::any_cast<float>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, std::to_string(value));
             } else {
                 msg += " " + std::to_string(value);
             }
         } else if (arr[i].type() == typeid(const char *)) {
-            ccstd::string s = cc::any_cast<const char *>(arr[i]);
+            ccstd::string s = ccstd::any_cast<const char *>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {

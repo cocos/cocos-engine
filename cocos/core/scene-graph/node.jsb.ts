@@ -19,13 +19,8 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable, type } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
-
+import { EDITOR } from 'internal:constants';
+import { ccclass, editable, serializable, type } from 'cc.decorator'
 import { legacyCC } from '../global-exports';
 import { errorID, getError } from '../platform/debug';
 import { Component } from '../components/component';
@@ -34,20 +29,15 @@ import { CCObject } from '../data/object';
 import { NodeUIProperties } from './node-ui-properties';
 import { NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../math';
-import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
-import { SerializationContext, SerializationOutput, serializeTag } from '../data';
-import { EDITOR } from '../default-constants';
-import {
-    applyMountedChildren,
-    applyMountedComponents, applyPropertyOverrides,
-    applyRemovedComponents, applyTargetOverrides,
-    createNodeWithPrefab,
-    generateTargetMap,
-} from '../utils/prefab/utils';
+import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
+import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
-import { BaseNode } from "./base-node.jsb";
+import { property } from '../data/class-decorator';
+import './base-node';
+
+const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
 declare const jsb: any;
 
@@ -55,8 +45,6 @@ export const Node = jsb.Node;
 // @ts-ignore
 export type Node = jsb.Node;
 legacyCC.Node = Node;
-
-const clsDecorator = ccclass('cc.Node');
 
 const NodeCls: any = Node;
 /**
@@ -84,13 +72,11 @@ NodeCls.TransformDirtyBit = TransformBit;
  */
 NodeCls.TransformBit = TransformBit;
 
+const TRANSFORMBIT_TRS = TransformBit.TRS;
+
 const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
-
-// For optimize getPosition, getRotation, getScale
-export const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(20 * 4));
-//
 
 Node._setTempFloatArray(_tempFloatArray.buffer);
 
@@ -200,6 +186,7 @@ nodeProto.addComponent = function (typeOrClassName) {
             EditorExtends.Component.add(component._id, component);
         }
     }
+    this.emit(NodeEventType.COMPONENT_ADDED, component);
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
@@ -332,6 +319,7 @@ nodeProto._removeComponent = function (component: Component) {
             if (EDITOR && EditorExtends.Component) {
                 EditorExtends.Component.remove(component._id);
             }
+            this.emit(NodeEventType.COMPONENT_REMOVED, component);
         } else if (component.node !== this) {
             errorID(3815);
         }
@@ -413,14 +401,51 @@ nodeProto._onChildAdded = function (child) {
 
 nodeProto._onNodeDestroyed = function () {
     this.emit(NodeEventType.NODE_DESTROYED, this);
+    // destroy children
+    const children = this._children;
+    for (let i = 0; i < children.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        children[i]._destroyImmediate();
+    }
+};
+
+const oldPreDestroy = nodeProto._onPreDestroy;
+nodeProto._onPreDestroy = function _onPreDestroy () {
+    const ret = oldPreDestroy.call(this);
+
+    // emit node destroy event (this should before event processor destroy)
+    this.emit(NodeEventType.NODE_DESTROYED, this);
+
+    // Destroy node event processor
+    this._eventProcessor.destroy();
+
+    // destroy children
+    const children = this._children;
+    for (let i = 0; i < children.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        children[i]._destroyImmediate();
+    }
+
+    // destroy self components
+    const comps = this._components;
+    for (let i = 0; i < comps.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        // TO DO
+        comps[i]._destroyImmediate();
+    }
+
+    return ret;
+};
+
+nodeProto.destroyAllChildren = function destroyAllChildren () {
+    const children = this._children;
+    for (let i = 0, len = children.length; i < len; ++i) {
+        children[i].destroy();
+    }
 };
 
 nodeProto._onSiblingOrderChanged = function () {
     this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
-};
-
-nodeProto._onUiTransformDirty = function () {
-    this._uiProps.uiTransformDirty = true;
 };
 
 nodeProto._onActivateNode = function (shouldActiveNow) {
@@ -527,12 +552,9 @@ NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
     return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
 };
 
-const oldGetPosition = nodeProto.getPosition;
 const oldSetPosition = nodeProto.setPosition;
-const oldGetRotation = nodeProto.getRotation;
 const oldSetRotation = nodeProto.setRotation;
 const oldSetRotationFromEuler = nodeProto.setRotationFromEuler;
-const oldGetScale = nodeProto.getScale;
 const oldSetScale = nodeProto.setScale;
 const oldGetWorldPosition = nodeProto.getWorldPosition;
 const oldGetWorldRotation = nodeProto.getWorldRotation;
@@ -585,19 +607,10 @@ nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
 };
 
 nodeProto.getPosition = function (out?: Vec3): Vec3 {
-    // oldGetPosition.call(this);
-    // if (out) {
-    //     return Vec3.set(out, _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
-    // }
-    // const pos = this._positionCache;
-    // pos.x = _tempFloatArray[0];
-    // pos.y = _tempFloatArray[1];
-    // pos.z = _tempFloatArray[2];
-    // return pos;
     if (out) {
         return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
     }
-    return Vec3.copy(this._positionCache, this._lpos);
+    return Vec3.copy(new Vec3(), this._lpos);
 };
 
 nodeProto.setPosition = function setPosition (val: Readonly<Vec3> | number, y?: number, z?: number) {
@@ -625,7 +638,7 @@ nodeProto.getRotation = function (out?: Quat): Quat {
     if (out) {
         return Quat.set(out, lrot.x, lrot.y, lrot.z, lrot.w);
     }
-    return Quat.copy(this._rotationCache, lrot);
+    return Quat.copy(new Quat(), lrot);
 };
 
 nodeProto.setRotation = function (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
@@ -663,16 +676,10 @@ nodeProto.setRotationFromEuler = function (val: Vec3 | number, y?: number, zOpt?
 };
 
 nodeProto.getScale = function (out?: Vec3): Vec3 {
-    // const r = oldGetScale.call(this);
-    // if (out) {
-    //     return Vec3.set(out, r.x, r.y, r.z);
-    // }
-    // return Vec3.copy(this._scaleCache || (this._scaleCache = new Vec3()), r);
-
     if (out) {
         return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
     }
-    return Vec3.copy(this._scaleCache, this._lscale);
+    return Vec3.copy(new Vec3(), this._lscale);
 };
 
 nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
@@ -700,7 +707,7 @@ nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._worldPositionCache, r);
+    return Vec3.copy(new Vec3(), r);
 };
 
 nodeProto.getWorldRotation = function (out?: Quat): Quat {
@@ -708,7 +715,7 @@ nodeProto.getWorldRotation = function (out?: Quat): Quat {
     if (out) {
         return Quat.copy(out, r);
     }
-    return Quat.copy(this._worldRotationCache, r);
+    return Quat.copy(new Quat(), r);
 };
 
 nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
@@ -716,18 +723,13 @@ nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._worldScaleCache, r);
+    return Vec3.copy(new Vec3(), r);
 };
 
 nodeProto.getWorldMatrix = function getWorldMatrix (out?: Mat4): Mat4 {
     oldGetWorldMatrix.call(this);
-    const target = out || this._worldMatrixCache;
-    target.set(
-        _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3],
-        _tempFloatArray[4], _tempFloatArray[5], _tempFloatArray[6], _tempFloatArray[7],
-        _tempFloatArray[8], _tempFloatArray[9], _tempFloatArray[10], _tempFloatArray[11],
-        _tempFloatArray[12], _tempFloatArray[13], _tempFloatArray[14], _tempFloatArray[15],
-    );
+    const target = out || new Mat4();
+    fillMat4WithTempFloatArray(target);
     return target;
 };
 
@@ -736,7 +738,7 @@ nodeProto.getEulerAngles = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._eulerAnglesCache, r);
+    return Vec3.copy(new Vec3(), r);
 };
 
 nodeProto.getForward = function (out?: Vec3): Vec3 {
@@ -744,7 +746,7 @@ nodeProto.getForward = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._forwardCache, r);
+    return Vec3.copy(new Vec3(), r);
 };
 
 nodeProto.getUp = function (out?: Vec3): Vec3 {
@@ -752,7 +754,7 @@ nodeProto.getUp = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._upCache, r);
+    return Vec3.copy(new Vec3(), r);
 };
 
 nodeProto.getRight = function (out?: Vec3): Vec3 {
@@ -760,7 +762,7 @@ nodeProto.getRight = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._rightCache, r);
+    return Vec3.copy(new Vec3(), r);
 };
 
 Object.defineProperty(nodeProto, 'position', {
@@ -959,7 +961,7 @@ Object.defineProperty(nodeProto, 'right', {
 Object.defineProperty(nodeProto, 'eventProcessor', {
     configurable: true,
     enumerable: true,
-    get (): NodeEventProcessor {
+    get () {
         return this._eventProcessor;
     },
 });
@@ -1043,35 +1045,41 @@ nodeProto.insertChild = function (child: Node, siblingIndex: number) {
     child.setSiblingIndex(siblingIndex);
 };
 
-// nodeProto.removeFromParent = function () {
-//     if (this._parent) {
-//         this._parent.removeChild(this);
-//     }
-// };
-//
-// const oldRemoveChild = nodeProto.removeChild;
-// nodeProto.removeChild = function (child: Node) {
-//     oldRemoveChild.call(this, child);
-//     jsb.unregisterNativeRef(this, child);
-// };
-//
-// const oldRemoveAllChildren = nodeProto.removeAllChildren;
-// nodeProto.removeAllChildren = function () {
-//     oldRemoveAllChildren.call(this);
-//     // cjh TODO: need to improve performance
-//     const children = this.children;
-//     for (let i = children.length - 1; i >= 0; i--) {
-//         const node = children[i];
-//         if (node) {
-//             jsb.unregisterNativeRef(this, node);
-//         }
-//     }
-// };
-
 nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, context: SerializationContext) {
     if (!EDITOR) {
         serializationOutput.writeThis();
     }
+
+    // Detects if this node is mounted node of `PrefabInstance`
+        // TODO: optimize
+        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+        // Returns if this node is under `PrefabInstance`
+        // eslint-disable-next-line arrow-body-style
+        const isSyncPrefab = () => {
+            // 1. Under `PrefabInstance`, but not mounted
+            // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
+            return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
+        };
+        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+            || !isSyncPrefab() || context.root === this);
+        if (canDiscardByPrefabRoot()) {
+            // discard props disallow to synchronize
+            const isRoot = this._prefab?.root === this;
+            if (isRoot) {
+                serializationOutput.writeProperty('_objFlags', this._objFlags);
+                serializationOutput.writeProperty('_parent', this._parent);
+                serializationOutput.writeProperty('_prefab', this._prefab);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
+                // TODO: editorExtrasTag may be a symbol in the future
+                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
+            } else {
+                // should not serialize child node of synchronizable prefab
+            }
+        } else {
+            serializationOutput.writeThis();
+        }
 };
 
 nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
@@ -1079,13 +1087,15 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 };
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
-    this.hasChangedFlags = TransformBit.TRS;
-    this._dirtyFlags |= TransformBit.TRS;
+    this.hasChangedFlags = TRANSFORMBIT_TRS;
+    this._dirtyFlags |= TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
+    let child;
     for (let i = 0; i < len; ++i) {
-        children[i]._siblingIndex = i;
-        children[i]._onBatchCreated(dontSyncChildPrefab);
+        child = children[i];
+        child._siblingIndex = i;
+        child._onBatchCreated(dontSyncChildPrefab);
     }
 
     // Sync node _lpos, _lrot, _lscale to native
@@ -1165,129 +1175,8 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     return cloned;
 };
 
-// Deserialization
-const _class2$u = Node;
-
-// cjh FIXME: replace object.ts with object.jsb.ts
-// _applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return '';
-//     },
-// });
-
-// _applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return 0;
-//     },
-// });
-//
-
-const _descriptor$o = _applyDecoratedDescriptor(_class2$u.prototype, '_parent', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
-
-const _descriptor2$h = _applyDecoratedDescriptor(_class2$u.prototype, '_children', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor3$b = _applyDecoratedDescriptor(_class2$u.prototype, '_active', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return true;
-    },
-});
-
-const _descriptor4$9 = _applyDecoratedDescriptor(_class2$u.prototype, '_components', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor5$6 = _applyDecoratedDescriptor(_class2$u.prototype, '_prefab', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
-
-// Node
-const _class2$v = Node;
-const _descriptor$p = _applyDecoratedDescriptor(_class2$v.prototype, '_lpos', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return new Vec3();
-    },
-});
-
-const _descriptor2$i = _applyDecoratedDescriptor(_class2$v.prototype, '_lrot', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return new Quat();
-    },
-});
-
-const _descriptor3$c = _applyDecoratedDescriptor(_class2$v.prototype, '_lscale', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return new Vec3(1, 1, 1);
-    },
-});
-
-const _descriptor4$a = _applyDecoratedDescriptor(_class2$v.prototype, '_layer', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return Layers.Enum.DEFAULT;
-    },
-});
-
-const _descriptor5$7 = _applyDecoratedDescriptor(_class2$v.prototype, '_euler', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return new Vec3();
-    },
-});
-
-const _dec2$i = type(Vec3);
-_applyDecoratedDescriptor(_class2$v.prototype, 'eulerAngles', [_dec2$i], Object.getOwnPropertyDescriptor(_class2$v.prototype, 'eulerAngles'), _class2$v.prototype);
-_applyDecoratedDescriptor(_class2$v.prototype, 'angle', [editable], Object.getOwnPropertyDescriptor(_class2$v.prototype, 'angle'), _class2$v.prototype);
-_applyDecoratedDescriptor(_class2$v.prototype, 'layer', [editable], Object.getOwnPropertyDescriptor(_class2$v.prototype, 'layer'), _class2$v.prototype);
-
 //
 nodeProto._ctor = function (name?: string) {
-    BaseNode.prototype._ctor.apply(this, arguments);
     this.__nativeRefs = {};
     this.__jsb_ref_id = undefined;
     this._iN$t = null;
@@ -1305,39 +1194,6 @@ nodeProto._ctor = function (name?: string) {
     this._originalSceneId = '';
 
     this._registerListeners();
-    // // for deserialization
-    // // eslint-disable-next-line @typescript-eslint/no-this-alias
-    // const _this = this;
-    // // baseNode properties
-    // _initializerDefineProperty(_this, "_parent", _descriptor$o, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_children", _descriptor2$h, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_active", _descriptor3$b, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_components", _descriptor4$9, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_prefab", _descriptor5$6, _assertThisInitialized(_this));
-    // // Node properties
-    // _initializerDefineProperty(_this, "_lpos", _descriptor$p, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_lrot", _descriptor2$i, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_lscale", _descriptor3$c, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_layer", _descriptor4$a, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_euler", _descriptor5$7, _assertThisInitialized(_this));
-    // //
-    // defineArrayProxy({
-    //     owner: this,
-    //     arrElementType: "object",
-    //     arrPropertyName: "_children",
-    //     getArrayElementCB(index: number) {
-    //         return this._getChild(index);
-    //     },
-    //     getArraySizeCB(): number {
-    //         return this._getChildrenSize();
-    //     },
-    //     setArrayElementCB(index: number, val: any): void {
-    //         this._setChild(index, val);
-    //     },
-    //     setArraySizeCB(size: number): void {
-    //         this._setChildrenSize(size);
-    //     },
-    // });
 
     this._children = [];
     // this._isChildrenRedefined = false;
@@ -1346,24 +1202,6 @@ nodeProto._ctor = function (name?: string) {
     this._lrot = new Quat();
     this._lscale = new Vec3(1, 1, 1);
     this._euler = new Vec3();
-
-    // inner use properties
-    // FIXME: The following variables for cache will cost more memory per node.
-    // Do we really need to achieve it in this way?
-    this._positionCache = new Vec3();
-    this._rotationCache = new Quat();
-    this._scaleCache = new Vec3();
-
-    this._worldPositionCache = new Vec3();
-    this._worldRotationCache = new Quat();
-    this._worldScaleCache = new Vec3();
-    this._worldMatrixCache = new Mat4();
-    this._eulerAnglesCache = new Vec3();
-    this._forwardCache = new Vec3();
-    this._upCache = new Vec3();
-    this._rightCache = new Vec3();
-    this._worldRTCache = new Mat4();
-    //
 
     this._registeredNodeEventTypeMask = 0;
 
@@ -1394,13 +1232,43 @@ nodeProto._ctor = function (name?: string) {
         }
     }
 };
-//
-clsDecorator(Node);
 
 const oldGetWorldRT = nodeProto.getWorldRT;
 nodeProto.getWorldRT = function (out?: Mat4) {
     const worldRT = oldGetWorldRT.call(this);
-    const target = out || this._worldRTCache;
+    const target = out || new Mat4();
     Mat4.copy(target, worldRT);
     return target;
 };
+
+// handle meta data, it is generated automatically
+const NodeProto = Node.prototype;
+const _persistNodeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, '_persistNode');
+property(NodeProto, '_persistNode', _persistNodeDescriptor);
+const nameDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'name');
+editable(NodeProto, 'name', nameDescriptor);
+const childrenDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'children');
+editable(NodeProto, 'children', childrenDescriptor);
+const activeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'active');
+editable(NodeProto, 'active', activeDescriptor);
+const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'activeInHierarchy');
+editable(NodeProto, 'activeInHierarchy', activeInHierarchyDescriptor);
+const parentDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'parent');
+editable(NodeProto, 'parent', parentDescriptor);
+serializable(NodeProto, '_parent');
+serializable(NodeProto, '_children');
+serializable(NodeProto, '_active');
+serializable(NodeProto, '_components');
+serializable(NodeProto, '_prefab');
+serializable(NodeProto, '_lpos');
+serializable(NodeProto, '_lrot');
+serializable(NodeProto, '_lscale');
+serializable(NodeProto, '_layer');
+serializable(NodeProto, '_euler');
+const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
+type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
+const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
+editable(NodeProto, 'angle', angleDescriptor);
+const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
+editable(NodeProto, 'layer', layerDescriptor);
+ccclass('cc.Node')(Node);

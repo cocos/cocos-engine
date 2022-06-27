@@ -27,7 +27,7 @@ import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
-import { RenderRoot2D, Renderable2D } from '../framework';
+import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager } from '../../core/gfx';
 import { Pool } from '../../core/memop';
@@ -92,7 +92,7 @@ export class Batcher2D implements IBatcher {
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
-    private _currComponent: Renderable2D | null = null;
+    private _currComponent: UIRenderer | null = null;
     private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
@@ -148,7 +148,8 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 添加屏幕组件管理。
      *
-     * @param comp - 屏幕组件。
+     * @param comp @en The render root of 2d.
+     *             @zh 2d 渲染入口组件。
      */
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
@@ -159,7 +160,8 @@ export class Batcher2D implements IBatcher {
      * @zh
      * Removes the Canvas from the list.
      *
-     * @param comp - 被移除的屏幕。
+     * @param comp @en The target to removed.
+     *             @zh 被移除的屏幕。
      */
     public removeScreen (comp: RenderRoot2D) {
         const idx = this._screens.indexOf(comp);
@@ -273,8 +275,9 @@ export class Batcher2D implements IBatcher {
     }
 
     /**
-     * Switch the mesh buffer for corresponding vertex layout if necessary.
-     * @param attributes use [[VertexFormat.vfmtPosUvColor]] by default
+     * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
+     * @en Switch the mesh buffer for corresponding vertex layout if necessary.
+     * @param attributes use VertexFormat.vfmtPosUvColor by default
      */
     public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor) {
         const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
@@ -321,7 +324,7 @@ export class Batcher2D implements IBatcher {
      * @param assembler - The assembler for the current component, could be null
      * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
-    public commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
+    public commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
         let dataHash = 0;
         let mat;
         let bufferID = -1;
@@ -368,17 +371,17 @@ export class Batcher2D implements IBatcher {
 
     /**
      * @en
-     * Render component data submission process for individual [[InputAssembler]]
+     * Render component data submission process for individual [[gfx.InputAssembler]]
      * @zh
-     * 渲染组件中针对独立 [[InputAssembler]] 的提交流程
+     * 渲染组件中针对独立 [[gfx.InputAssembler]] 的提交流程
      * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
      * @param comp - The committed renderable component
-     * @param ia - The committed [[InputAssembler]]
+     * @param ia - The committed [[gfx.InputAssembler]]
      * @param tex - The texture used
      * @param mat - The material used
      * @param [transform] - The related node transform if the render data is based on node's local coordinates
      */
-    public commitIA (renderComp: Renderable2D, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
+    public commitIA (renderComp: UIRenderer, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -427,7 +430,7 @@ export class Batcher2D implements IBatcher {
      * @param model - The committed model
      * @param mat - The material used, could be null
      */
-    public commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -489,7 +492,8 @@ export class Batcher2D implements IBatcher {
      *
      * @zh
      * 提交独立渲染数据.
-     * @param comp 静态组件
+     * @param comp @en The UIStaticBatch component.
+     *             @zh 静态组件
      */
     public commitStaticBatch (comp: UIStaticBatch) {
         this._batches.concat(comp.drawBatchList);
@@ -503,7 +507,7 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 根据合批条件，结束一段渲染数据并提交。
      */
-    public autoMergeBatches (renderComp?: Renderable2D) {
+    public autoMergeBatches (renderComp?: UIRenderer) {
         const mat = this._currMaterial;
         if (!mat) {
             return;
@@ -577,10 +581,12 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 强行修改当前批次数据并合并。
      *
-     * @param material - 当前批次的材质。
-     * @param sprite - 当前批次的精灵帧。
+     * @param material @en The material of the current batch.
+     *                 @zh 当前批次的材质。
+     * @param sprite @en Sprite frame of current batch.
+     *               @zh 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer) {
         this._currMaterial = material;
 
         if (frame) {
@@ -637,7 +643,7 @@ export class Batcher2D implements IBatcher {
         }
         const children = node.children;
         const uiProps = node._uiProps;
-        const render = uiProps.uiComp as Renderable2D;
+        const render = uiProps.uiComp as UIRenderer;
 
         // Save opacity
         const parentOpacity = this._pOpacity;

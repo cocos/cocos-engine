@@ -12,13 +12,23 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_geometry_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_geometry_getter_return_true)
+#endif
 se::Object* __jsb_cc_geometry_ShapeBase_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_geometry_ShapeBase_class = nullptr;  // NOLINT
 
 static bool js_geometry_ShapeBase_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::ShapeBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_ShapeBase_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_ShapeBase_getType : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -37,7 +47,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_geometry_ShapeBase_getType)
 static bool js_geometry_ShapeBase_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::ShapeBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_ShapeBase_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_ShapeBase_setType : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -57,6 +68,9 @@ bool js_register_geometry_ShapeBase(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("ShapeBase", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_type", _SE(js_geometry_ShapeBase_getType_asGetter), _SE(js_geometry_ShapeBase_setType_asSetter));
     cls->install();
     JSBClassType::registerClass<cc::geometry::ShapeBase>(cls);
@@ -74,7 +88,8 @@ se::Class* __jsb_cc_geometry_AABB_class = nullptr;  // NOLINT
 static bool js_geometry_AABB_contain(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::AABB>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_AABB_contain : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_AABB_contain : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -148,7 +163,8 @@ SE_BIND_FUNC(js_geometry_AABB_toBoundingSphere_static)
 static bool js_geometry_AABB_get_center(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::AABB>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_AABB_get_center : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_AABB_get_center : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -175,7 +191,8 @@ SE_BIND_PROP_SET(js_geometry_AABB_set_center)
 static bool js_geometry_AABB_get_halfExtents(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::AABB>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_AABB_get_halfExtents : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_AABB_get_halfExtents : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -253,6 +270,9 @@ bool js_register_geometry_AABB(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("AABB", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_AABB_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("center", _SE(js_geometry_AABB_get_center), _SE(js_geometry_AABB_set_center));
     cls->defineProperty("halfExtents", _SE(js_geometry_AABB_get_halfExtents), _SE(js_geometry_AABB_set_halfExtents));
     cls->defineFunction("contain", _SE(js_geometry_AABB_contain));
@@ -275,7 +295,8 @@ se::Class* __jsb_cc_geometry_Capsule_class = nullptr;  // NOLINT
 static bool js_geometry_Capsule_transform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Capsule>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Capsule_transform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Capsule_transform : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -377,6 +398,9 @@ bool js_register_geometry_Capsule(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Capsule", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Capsule_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("transform", _SE(js_geometry_Capsule_transform));
     cls->defineFinalizeFunction(_SE(js_cc_geometry_Capsule_finalize));
     cls->install();
@@ -396,7 +420,8 @@ static bool js_geometry_Plane_define(se::State& s) // NOLINT(readability-identif
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2( cobj, false, "js_geometry_Plane_define : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "js_geometry_Plane_define : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -438,7 +463,8 @@ SE_BIND_FUNC(js_geometry_Plane_define)
 static bool js_geometry_Plane_distance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_distance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_distance : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -460,7 +486,8 @@ SE_BIND_FUNC(js_geometry_Plane_distance)
 static bool js_geometry_Plane_getW(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getW : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getW : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -479,7 +506,8 @@ SE_BIND_FUNC(js_geometry_Plane_getW)
 static bool js_geometry_Plane_getX(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getX : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getX : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -498,7 +526,8 @@ SE_BIND_FUNC(js_geometry_Plane_getX)
 static bool js_geometry_Plane_getY(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getY : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getY : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -517,7 +546,8 @@ SE_BIND_FUNC(js_geometry_Plane_getY)
 static bool js_geometry_Plane_getZ(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getZ : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_getZ : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -536,7 +566,8 @@ SE_BIND_FUNC(js_geometry_Plane_getZ)
 static bool js_geometry_Plane_transform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_transform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_transform : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -581,7 +612,8 @@ SE_BIND_FUNC(js_geometry_Plane_create_static)
 static bool js_geometry_Plane_get_n(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_get_n : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_get_n : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -608,7 +640,8 @@ SE_BIND_PROP_SET(js_geometry_Plane_set_n)
 static bool js_geometry_Plane_get_d(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Plane_get_d : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Plane_get_d : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -680,6 +713,9 @@ bool js_register_geometry_Plane(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("Plane", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Plane_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("n", _SE(js_geometry_Plane_get_n), _SE(js_geometry_Plane_set_n));
     cls->defineProperty("d", _SE(js_geometry_Plane_get_d), _SE(js_geometry_Plane_set_d));
     cls->defineFunction("define", _SE(js_geometry_Plane_define));
@@ -707,7 +743,8 @@ se::Class* __jsb_cc_geometry_Frustum_class = nullptr;  // NOLINT
 static bool js_geometry_Frustum_createOrtho(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_createOrtho : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_createOrtho : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -734,7 +771,8 @@ SE_BIND_FUNC(js_geometry_Frustum_createOrtho)
 static bool js_geometry_Frustum_setAccurate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_setAccurate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_setAccurate : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -753,7 +791,8 @@ SE_BIND_FUNC(js_geometry_Frustum_setAccurate)
 static bool js_geometry_Frustum_transform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_transform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_transform : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -880,7 +919,8 @@ SE_BIND_FUNC(js_geometry_Frustum_createOrtho_static)
 static bool js_geometry_Frustum_get_vertices(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_get_vertices : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_get_vertices : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -907,7 +947,8 @@ SE_BIND_PROP_SET(js_geometry_Frustum_set_vertices)
 static bool js_geometry_Frustum_get_planes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_get_planes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_get_planes : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -951,6 +992,9 @@ bool js_register_geometry_Frustum(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Frustum", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Frustum_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vertices", _SE(js_geometry_Frustum_get_vertices), _SE(js_geometry_Frustum_set_vertices));
     cls->defineProperty("planes", _SE(js_geometry_Frustum_get_planes), _SE(js_geometry_Frustum_set_planes));
     cls->defineFunction("createOrtho", _SE(js_geometry_Frustum_createOrtho));
@@ -978,7 +1022,8 @@ se::Class* __jsb_cc_geometry_Line_class = nullptr;  // NOLINT
 static bool js_geometry_Line_length(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Line>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Line_length : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Line_length : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1286,6 +1331,9 @@ bool js_register_geometry_Line(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Line", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Line_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("length", _SE(js_geometry_Line_length));
     cls->defineStaticFunction("clone", _SE(js_geometry_Line_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Line_copy_static));
@@ -1656,6 +1704,9 @@ bool js_register_geometry_Ray(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Ray", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Ray_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("clone", _SE(js_geometry_Ray_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Ray_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Ray_create_static));
@@ -1678,7 +1729,8 @@ se::Class* __jsb_cc_geometry_Sphere_class = nullptr;  // NOLINT
 static bool js_geometry_Sphere_clone(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_clone : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_clone : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1697,7 +1749,8 @@ SE_BIND_FUNC(js_geometry_Sphere_clone)
 static bool js_geometry_Sphere_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_copy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_copy : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1719,7 +1772,8 @@ SE_BIND_FUNC(js_geometry_Sphere_copy)
 static bool js_geometry_Sphere_define(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_define : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_define : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1738,7 +1792,8 @@ SE_BIND_FUNC(js_geometry_Sphere_define)
 static bool js_geometry_Sphere_getCenter(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_getCenter : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_getCenter : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1757,7 +1812,8 @@ SE_BIND_FUNC(js_geometry_Sphere_getCenter)
 static bool js_geometry_Sphere_getRadius(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_getRadius : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_getRadius : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1777,7 +1833,8 @@ static bool js_geometry_Sphere_interset(se::State& s) // NOLINT(readability-iden
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2( cobj, false, "js_geometry_Sphere_interset : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "js_geometry_Sphere_interset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -1817,7 +1874,8 @@ static bool js_geometry_Sphere_merge(se::State& s) // NOLINT(readability-identif
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2( cobj, false, "js_geometry_Sphere_merge : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "js_geometry_Sphere_merge : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -1872,7 +1930,8 @@ SE_BIND_FUNC(js_geometry_Sphere_merge)
 static bool js_geometry_Sphere_mergeAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_mergeAABB : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_mergeAABB : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1891,7 +1950,8 @@ SE_BIND_FUNC(js_geometry_Sphere_mergeAABB)
 static bool js_geometry_Sphere_mergeFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_mergeFrustum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_mergeFrustum : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1910,7 +1970,8 @@ SE_BIND_FUNC(js_geometry_Sphere_mergeFrustum)
 static bool js_geometry_Sphere_mergePoint(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_mergePoint : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_mergePoint : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1929,7 +1990,8 @@ SE_BIND_FUNC(js_geometry_Sphere_mergePoint)
 static bool js_geometry_Sphere_setCenter(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_setCenter : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_setCenter : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1948,7 +2010,8 @@ SE_BIND_FUNC(js_geometry_Sphere_setCenter)
 static bool js_geometry_Sphere_setRadius(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_setRadius : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_setRadius : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1967,7 +2030,8 @@ SE_BIND_FUNC(js_geometry_Sphere_setRadius)
 static bool js_geometry_Sphere_setScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_setScale : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_setScale : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1988,7 +2052,8 @@ SE_BIND_FUNC(js_geometry_Sphere_setScale)
 static bool js_geometry_Sphere_sphereFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_sphereFrustum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_sphereFrustum : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2010,7 +2075,8 @@ SE_BIND_FUNC(js_geometry_Sphere_sphereFrustum)
 static bool js_geometry_Sphere_spherePlane(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_spherePlane : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_spherePlane : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2032,7 +2098,8 @@ SE_BIND_FUNC(js_geometry_Sphere_spherePlane)
 static bool js_geometry_Sphere_transform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_transform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_transform : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2059,7 +2126,8 @@ SE_BIND_FUNC(js_geometry_Sphere_transform)
 static bool js_geometry_Sphere_translateAndRotate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_translateAndRotate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Sphere_translateAndRotate : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2267,6 +2335,9 @@ bool js_register_geometry_Sphere(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Sphere", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Sphere_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("clone", _SE(js_geometry_Sphere_clone));
     cls->defineFunction("copy", _SE(js_geometry_Sphere_copy));
     cls->defineFunction("define", _SE(js_geometry_Sphere_define));
@@ -2308,7 +2379,8 @@ se::Class* __jsb_cc_geometry_Spline_class = nullptr;  // NOLINT
 static bool js_geometry_Spline_addKnot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_addKnot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_addKnot : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2327,7 +2399,8 @@ SE_BIND_FUNC(js_geometry_Spline_addKnot)
 static bool js_geometry_Spline_clearKnots(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_clearKnots : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_clearKnots : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -2342,7 +2415,8 @@ SE_BIND_FUNC(js_geometry_Spline_clearKnots)
 static bool js_geometry_Spline_getKnot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnot : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2364,7 +2438,8 @@ SE_BIND_FUNC(js_geometry_Spline_getKnot)
 static bool js_geometry_Spline_getKnotCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnotCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnotCount : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2383,7 +2458,8 @@ SE_BIND_FUNC(js_geometry_Spline_getKnotCount)
 static bool js_geometry_Spline_getKnots(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnots : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnots : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2402,7 +2478,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_geometry_Spline_getKnots)
 static bool js_geometry_Spline_getMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getMode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getMode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2421,7 +2498,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_geometry_Spline_getMode)
 static bool js_geometry_Spline_getPoint(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getPoint : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getPoint : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2455,7 +2533,8 @@ SE_BIND_FUNC(js_geometry_Spline_getPoint)
 static bool js_geometry_Spline_getPoints(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getPoints : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getPoints : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2489,7 +2568,8 @@ SE_BIND_FUNC(js_geometry_Spline_getPoints)
 static bool js_geometry_Spline_insertKnot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_insertKnot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_insertKnot : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2510,7 +2590,8 @@ SE_BIND_FUNC(js_geometry_Spline_insertKnot)
 static bool js_geometry_Spline_removeKnot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_removeKnot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_removeKnot : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2529,7 +2610,8 @@ SE_BIND_FUNC(js_geometry_Spline_removeKnot)
 static bool js_geometry_Spline_setKnot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setKnot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setKnot : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2550,7 +2632,8 @@ SE_BIND_FUNC(js_geometry_Spline_setKnot)
 static bool js_geometry_Spline_setKnots(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setKnots : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setKnots : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2569,7 +2652,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_geometry_Spline_setKnots)
 static bool js_geometry_Spline_setMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setMode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setMode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2588,7 +2672,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_geometry_Spline_setMode)
 static bool js_geometry_Spline_setModeAndKnots(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setModeAndKnots : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setModeAndKnots : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2732,6 +2817,9 @@ bool js_register_geometry_Spline(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Spline", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Spline_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("mode", _SE(js_geometry_Spline_getMode_asGetter), _SE(js_geometry_Spline_setMode_asSetter));
     cls->defineProperty("knots", _SE(js_geometry_Spline_getKnots_asGetter), _SE(js_geometry_Spline_setKnots_asSetter));
     cls->defineFunction("addKnot", _SE(js_geometry_Spline_addKnot));
@@ -3283,6 +3371,9 @@ bool js_register_geometry_Triangle(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("Triangle", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Triangle_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("clone", _SE(js_geometry_Triangle_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Triangle_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Triangle_create_static));

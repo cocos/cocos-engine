@@ -24,16 +24,11 @@
  ****************************************************************************/
 
 #include "core/scene-graph/Node.h"
-#include "base/CachedArray.h"
 #include "base/StringUtil.h"
-// #include "core/Director.h"
-// #include "core/Game.h"
 #include "core/data/Object.h"
-//#include "core/scene-graph/Find.h"
-//#include "core/scene-graph/NodeActivator.h"
+#include "core/memop/CachedArray.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/NodeEnum.h"
-//#include "core/scene-graph/NodeUIProperties.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
 
@@ -50,10 +45,10 @@ const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATIN
 const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
 index_t Node::stackId{0};
 ccstd::vector<ccstd::vector<Node *>> Node::stacks;
+uint32_t Node::globalFlagChangeVersion{0};
 //
 
 namespace {
-CachedArray<Node *> allNodes{128}; //cjh how to clear ?
 const ccstd::string EMPTY_NODE_NAME;
 IDGenerator idGenerator("Node");
 
@@ -87,13 +82,10 @@ Node::Node(const ccstd::string &name) {
     } else {
         _name = name;
     }
-    allNodes.push(this);
     _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
-    uint32_t index = allNodes.indexOf(this);
-    allNodes.fastRemove(index);
     CC_SAFE_DELETE(_eventProcessor);
 }
 
@@ -283,11 +275,11 @@ Scene *Node::getScene() const {
     return _scene;
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc) {
+void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc) {
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) {
     index_t index{1};
     index_t i{0};
     const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
@@ -415,12 +407,16 @@ bool Node::onPreDestroyBase() {
             _parent->emit(NodeEventType::CHILD_REMOVED, this);
         }
     }
-    emit(NodeEventType::NODE_DESTROYED, this);
-    for (const auto &child : _children) {
-        child->destroyImmediate();
-    }
 
-    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+    //NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
+    // and the logic will be done in TS.
+    //    emit(NodeEventType::NODE_DESTROYED, this);
+    //    for (const auto &child : _children) {
+    //        child->destroyImmediate();
+    //    }
+    //
+    //    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+
     _eventProcessor->destroy();
     return destroyByParent;
 }
@@ -543,7 +539,6 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 }
 
 //
-
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
@@ -695,7 +690,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) {
         const uint32_t hasChangedFlags = cur->getChangedFlags();
         if (cur->isValid() && (cur->getDirtyFlag() & hasChangedFlags & curDirtyBit) != curDirtyBit) {
             cur->setDirtyFlag(cur->getDirtyFlag() | curDirtyBit);
-            cur->_uiTransformDirty[0] = 1; // UIOnly TRS dirty
             cur->setChangedFlags(hasChangedFlags | curDirtyBit);
 
             for (Node *curChild : cur->getChildren()) {
@@ -864,7 +858,8 @@ void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
     setWorldRotation(qTemp);
 }
 
-void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
+Vec3 Node::inverseTransformPoint(const Vec3 &p) {
+    Vec3 out;
     out.set(p.x, p.y, p.z);
     Node *cur{this};
     index_t i{0};
@@ -875,8 +870,9 @@ void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
     while (i >= 0) {
         Vec3::transformInverseRTS(out, cur->getRotation(), cur->getPosition(), cur->getScale(), &out);
         --i;
-        cur = dirtyNodes[i];
+        cur = getDirtyNode(i);
     }
+    return out;
 }
 
 void Node::setMatrix(const Mat4 &val) {
@@ -937,9 +933,7 @@ void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFr
 }
 
 void Node::resetChangedFlags() {
-    for (uint32_t i = 0, len = allNodes.size(); i < len; ++i) {
-        allNodes[i]->setChangedFlags(0);
-    }
+    globalFlagChangeVersion++;
 }
 
 void Node::clearNodeArray() {

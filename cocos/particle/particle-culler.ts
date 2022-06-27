@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
-/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -25,22 +23,17 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
 import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../core/scene-graph/node';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
-import { Color, Mat4, Material, pseudoRandom, Quat, randomRangeInt, RenderingSubMesh, Vec3, Vec4 } from '../core';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
 import { INT_MAX } from '../core/math/bits';
 import { particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import { AABB } from '../core/geometry';
-import { scene } from '../core/renderer';
-import { BlendFactor } from '../core/gfx';
-import { Primitive } from '../primitive/primitive';
-import { Root } from '../core/root';
-import { legacyCC } from '../core/global-exports';
+import type { ParticleSystem } from './particle-system';
 
 const _node_mat = new Mat4();
 const _node_rol = new Quat();
@@ -57,7 +50,7 @@ const _anim_module = [
 ];
 
 export class ParticleCuller {
-    private _particleSystem: any;
+    private _particleSystem: ParticleSystem;
     private _processor: IParticleSystemRenderer;
     private _node: Node;
     private _particlesAll: Particle[];
@@ -96,7 +89,7 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    public setBoundingBoxCenter (px, py, pz) {
+    public setBoundingBoxCenter (px: number, py: number, pz: number) {
         this.maxPos.x = px + this._nodeSize.x * 0.5;
         this.maxPos.y = py + this._nodeSize.y * 0.5;
         this.maxPos.z = pz + this._nodeSize.z * 0.5;
@@ -264,13 +257,14 @@ export class ParticleCuller {
             }
         }
 
+        const worldMat = this._particleSystem.node.worldMatrix;
         for (let i = 0; i < this._particlesAll.length; ++i) {
             const p: Particle = this._particlesAll[i];
             Vec3.multiply(size, _node_scale, p.size);
             Vec3.multiply(size, size, meshSize);
             position.set(p.position);
             if (this._particleSystem.simulationSpace !== Space.World) {
-                Vec3.transformMat4(position, position, this._particleSystem.node._mat);
+                Vec3.transformMat4(position, position, worldMat);
             }
             if (isInit && i === 0) {
                 Vec3.subtract(this.minPos, position, size);

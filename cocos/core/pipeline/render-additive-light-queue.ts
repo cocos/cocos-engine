@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { RenderPipeline } from './render-pipeline';
 import { Model } from '../renderer/scene/model';
@@ -93,6 +89,24 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
     return hasValidLightPass;
 }
 
+function isInstancedOrBatched (model: Model) {
+    const subModels = model.subModels;
+    for (let m = 0; m < subModels.length; ++m) {
+        const passes = subModels[m].passes;
+        for (let p = 0; p < passes.length; ++p) {
+            const pass = passes[p];
+            const batchingScheme = pass.batchingScheme;
+            if (batchingScheme === BatchingSchemes.INSTANCING) {
+                return true;
+            }
+            if (batchingScheme === BatchingSchemes.VB_MERGING) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * @zh 叠加光照队列。
  */
@@ -100,6 +114,8 @@ export class RenderAdditiveLightQueue {
     private _pipeline: RenderPipeline;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
+    private _lightInstancedPasses: number[] = [];
+    private _lightBatchedPasses: number[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -144,6 +160,8 @@ export class RenderAdditiveLightQueue {
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
+        this._lightInstancedPasses.length = 0;
+        this._lightBatchedPasses.length = 0;
     }
 
     public destroy () {
@@ -205,10 +223,19 @@ export class RenderAdditiveLightQueue {
     }
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
+        for (let i = 0; i < this._lightInstancedPasses.length; i++) {
+            const light = this._lightInstancedPasses[i];
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
+            this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+        }
+
+        for (let i = 0; i < this._lightBatchedPasses.length; i++) {
+            const light = this._lightBatchedPasses[i];
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
+            this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+        }
+
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
             const pass = subModel.passes[passIdx];
@@ -235,15 +262,16 @@ export class RenderAdditiveLightQueue {
 
     // light culling
     protected _lightCulling (model:Model, validPunctualLights: Light[]) {
+        let isCulled = false;
+        const isNeedCulling = !isInstancedOrBatched(model);
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
-            let isCulled = false;
             switch (light.type) {
             case LightType.SPHERE:
-                isCulled = cullSphereLight(light as SphereLight, model);
+                if (isNeedCulling) { isCulled = cullSphereLight(light as SphereLight, model); }
                 break;
             case LightType.SPOT:
-                isCulled = cullSpotLight(light as SpotLight, model);
+                if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
                 break;
             default:
             }
@@ -263,6 +291,7 @@ export class RenderAdditiveLightQueue {
                 buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
                 buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                 this._instancedQueue.queue.add(buffer);
+                this._lightInstancedPasses.push(lightPassIdx);
             }
         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
             for (let l = 0; l < _lightIndices.length; l++) {
@@ -271,6 +300,7 @@ export class RenderAdditiveLightQueue {
                 buffer.merge(subModel, lightPassIdx, model);
                 buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                 this._batchedQueue.queue.add(buffer);
+                this._lightBatchedPasses.push(lightPassIdx);
             }
         } else {                                                         // standard draw
             const lp = _lightPassPool.alloc();
@@ -339,7 +369,7 @@ export class RenderAdditiveLightQueue {
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range);
                 matShadowProj = _matShadowViewProj.clone();
                 matShadowInvProj = _matShadowViewProj.clone().invert();
 
@@ -454,7 +484,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
-                _vec4Array[3] = ((light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
+                _vec4Array[3] = (shadowInfo.enabled && (light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);

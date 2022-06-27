@@ -28,21 +28,18 @@
 #include <utility>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include <cstdint>
 
-#include "base/TypeDef.h"
 #include "base/Value.h"
 #include "math/Vec3.h"
 
 namespace cc {
 
 struct Error {
-    cc::optional<ccstd::string> msg;
+    ccstd::optional<ccstd::string> msg;
 };
-
-using HTMLElement = void *;
 
 struct BoundingBox {
     Vec3 min;

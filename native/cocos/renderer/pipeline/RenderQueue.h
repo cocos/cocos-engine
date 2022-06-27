@@ -40,13 +40,14 @@ public:
     explicit RenderQueue(RenderPipeline *pipeline, RenderQueueCreateInfo desc, bool useOcclusionQuery = false);
 
     void clear();
-    bool insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx);
+    bool insertRenderPass(const RenderObject &renderObj, uint32_t subModelIdx, uint32_t passIdx);
     void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex = 0);
     void sort();
     bool empty() { return _queue.empty(); }
 
 private:
-    RenderPipeline *_pipeline = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
     RenderPassList _queue;
     RenderQueueCreateInfo _passDesc;
     bool _useOcclusionQuery{false};

@@ -36,7 +36,6 @@ import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
-import { JSB } from '../core/default-constants';
 import { Root } from '../core/root';
 import { PipelineRuntime } from '../core/pipeline/custom/pipeline';
 import { director, System } from '../core';
@@ -206,11 +205,11 @@ export class Profiler extends System {
                 this._swapchain = root.mainWindow!.swapchain;
                 this._pipeline = root.pipeline;
             }
-            if (!EDITOR) {
+            if (!EDITOR || legacyCC.GAME_VIEW) {
                 this.generateCanvas();
             }
             this.generateStats();
-            if (!EDITOR) {
+            if (!EDITOR || legacyCC.GAME_VIEW) {
                 legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
             } else {
                 this._inited = true;
@@ -277,13 +276,13 @@ export class Profiler extends System {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            if (!EDITOR) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            if (!EDITOR || legacyCC.GAME_VIEW) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             for (let j = 0; j < _characters.length; ++j) {
                 const offset = this._ctx.measureText(_characters[j]).width;
                 this._eachNumWidth = Math.max(this._eachNumWidth, offset);
@@ -296,7 +295,7 @@ export class Profiler extends System {
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        if (!EDITOR) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        if (!EDITOR || legacyCC.GAME_VIEW) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -305,6 +304,7 @@ export class Profiler extends System {
         }
 
         this._rootNode = new Node('PROFILER_NODE');
+        this._rootNode._objFlags = legacyCC.Object.Flags.DontSave | legacyCC.Object.Flags.HideInHierarchy;
         legacyCC.game.addPersistRootNode(this._rootNode);
 
         const managerNode = new Node('Profiler_Root');
@@ -421,7 +421,7 @@ export class Profiler extends System {
             return;
         }
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             const surfaceTransform = this._swapchain!.surfaceTransform;
             const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
@@ -466,7 +466,7 @@ export class Profiler extends System {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             const view = this.digitsData;
             for (const id in this._stats) {
                 const stat = this._stats[id] as ICounterOption;

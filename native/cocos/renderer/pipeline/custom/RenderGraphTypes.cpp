@@ -199,13 +199,17 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
 : isValid(rhs.isValid),
   rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
-  subpassGraph(std::move(rhs.subpassGraph), alloc) {}
+  subpassGraph(std::move(rhs.subpassGraph), alloc),
+  width(rhs.width),
+  height(rhs.height) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : isValid(rhs.isValid),
   rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
-  subpassGraph(rhs.subpassGraph, alloc) {}
+  subpassGraph(rhs.subpassGraph, alloc),
+  width(rhs.width),
+  height(rhs.height) {}
 
 ComputePass::ComputePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}
@@ -318,18 +322,23 @@ SceneData::SceneData(const allocator_type& alloc) noexcept
 : name(alloc),
   scenes(alloc) {}
 
-SceneData::SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept
+SceneData::SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, const allocator_type& alloc) noexcept
 : name(std::move(nameIn), alloc),
+  flags(flagsIn),
   scenes(alloc) {}
 
 SceneData::SceneData(SceneData&& rhs, const allocator_type& alloc)
 : name(std::move(rhs.name), alloc),
   camera(rhs.camera),
+  light(rhs.light),
+  flags(rhs.flags),
   scenes(std::move(rhs.scenes), alloc) {}
 
 SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
 : name(rhs.name, alloc),
   camera(rhs.camera),
+  light(rhs.light),
+  flags(rhs.flags),
   scenes(rhs.scenes, alloc) {}
 
 Dispatch::Dispatch(const allocator_type& alloc) noexcept

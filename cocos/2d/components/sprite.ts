@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
@@ -37,7 +32,7 @@ import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { IBatcher } from '../renderer/i-batcher';
-import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
+import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Material, RenderTexture } from '../../core';
@@ -175,7 +170,7 @@ enum EventType {
 @help('i18n:cc.Sprite')
 @executionOrder(110)
 @menu('2D/Sprite')
-export class Sprite extends Renderable2D {
+export class Sprite extends UIRenderer {
     /**
      * @en
      * The sprite atlas where the sprite is.

@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "RenderPipeline.h"
-#include <boost/functional/hash.hpp>
 #include "BatchedBuffer.h"
+#include "GeometryRenderer.h"
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
@@ -34,6 +34,7 @@
 #include "RenderFlow.h"
 #include "RenderPipeline.h"
 #include "base/StringUtil.h"
+#include "base/std/hash/hash.h"
 #include "frame-graph/FrameGraph.h"
 #include "gfx-base/GFXDevice.h"
 #include "helper/Utils.h"
@@ -124,12 +125,27 @@ void RenderPipeline::destroyQuadInputAssembler() {
     _quadIA.clear();
 }
 
+void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras) {
+    if (_geometryRenderer) {
+        return ;
+    }
+    
+    // Query the first camera rendering to swapchain.
+    for (const auto *camera : cameras) {
+        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain() ) {
+            _geometryRenderer = camera->getGeometryRenderer();
+            return;
+        }
+    }
+}
+
 bool RenderPipeline::destroy() {
     for (auto *flow : _flows) {
         CC_SAFE_DESTROY_AND_DELETE(flow);
     }
     _flows.clear();
 
+    _geometryRenderer = nullptr;
     _descriptorSet = nullptr;
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
@@ -199,8 +215,8 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
 
 bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
     // step 1 create vertex buffer
-    uint vbStride = sizeof(float) * 4;
-    uint vbSize = vbStride * 4;
+    uint32_t vbStride = sizeof(float) * 4;
+    uint32_t vbSize = vbStride * 4;
 
     if (*quadVB == nullptr) {
         *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -230,8 +246,8 @@ gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
     return {
         static_cast<int>(static_cast<float>(rect.x) * scale),
         static_cast<int>(static_cast<float>(rect.y) * scale),
-        static_cast<uint>(static_cast<float>(rect.width) * scale),
-        static_cast<uint>(static_cast<float>(rect.height) * scale)};
+        static_cast<uint32_t>(static_cast<float>(rect.width) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.height) * scale)};
 }
 
 gfx::Rect RenderPipeline::getScissor(scene::Camera *camera) {
@@ -240,8 +256,8 @@ gfx::Rect RenderPipeline::getScissor(scene::Camera *camera) {
     return {
         static_cast<int>(static_cast<float>(rect.x) * scale),
         static_cast<int>(static_cast<float>(rect.y) * scale),
-        static_cast<uint>(static_cast<float>(rect.width) * scale),
-        static_cast<uint>(static_cast<float>(rect.height) * scale)};
+        static_cast<uint32_t>(static_cast<float>(rect.width) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.height) * scale)};
 }
 
 gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
@@ -302,12 +318,14 @@ void RenderPipeline::generateConstantMacros() {
 #define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
 #define CC_PLATFORM_ANDROID_AND_WEBGL 0
 #define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+#define CC_JOINT_UNIFORM_CAPACITY %d
         )",
         hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
         _clusterEnabled ? 1 : 0,
         _device->getCapabilities().maxVertexUniformVectors,
         _device->getCapabilities().maxFragmentUniformVectors,
-        _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+        _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT),
+        SkinningJointCapacity::jointUniformCapacity);
 }
 
 gfx::DescriptorSetLayout *RenderPipeline::getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }

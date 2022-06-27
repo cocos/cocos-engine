@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "GFXFramebuffer.h"
+#include "GFXRenderPass.h"
 #include "GFXTexture.h"
 #include "base/Utils.h"
 
@@ -36,7 +37,7 @@ Framebuffer::Framebuffer()
 
 Framebuffer::~Framebuffer() = default;
 
-size_t Framebuffer::computeHash(const FramebufferInfo &info) {
+ccstd::hash_t Framebuffer::computeHash(const FramebufferInfo &info) {
     return Hasher<FramebufferInfo>()(info);
 }
 

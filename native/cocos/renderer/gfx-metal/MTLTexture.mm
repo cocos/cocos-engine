@@ -187,7 +187,7 @@ bool CCMTLTexture::createMTLTexture() {
     if (hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
 #if MEMLESS_ON
         // mac SDK mem_less unavailable before 11.0
-    #if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    #if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_IOS
         //xcode OS version warning
         if (@available(macOS 11.0, *)) {
             descriptor.storageMode = MTLStorageModeMemoryless;
@@ -252,7 +252,7 @@ void CCMTLTexture::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLTexture::doResize(uint width, uint height, uint size) {
+void CCMTLTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (_isTextureView) {
         CC_LOG_ERROR("TextureView does not support resize! at %p", this);
         return;

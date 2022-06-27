@@ -58,8 +58,8 @@ public:
     ~ImageAsset() override;
 
     //minggo: do not need it in c++.
-    //    cc::any getNativeAsset() const override { return cc::any(_nativeData); }
-    void setNativeAsset(const cc::any &obj) override;
+    //    ccstd::any getNativeAsset() const override { return ccstd::any(_nativeData); }
+    void setNativeAsset(const ccstd::any &obj) override;
 
     /**
      * @en Image data.
@@ -96,7 +96,7 @@ public:
      * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
      * @deprecated Please use [[nativeUrl]]
      */
-    ccstd::string getUrl() const;
+    const ccstd::string &getUrl() const;
 
     // Functions for TS.
     inline void setWidth(uint32_t width) { _width = width; }

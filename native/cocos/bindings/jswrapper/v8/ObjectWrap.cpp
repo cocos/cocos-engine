@@ -64,11 +64,9 @@ ObjectWrap::~ObjectWrap() {
 bool ObjectWrap::init(v8::Local<v8::Object> handle, Object *parent, bool registerWeak) {
     CC_ASSERT(persistent().IsEmpty());
     _parent = parent;
-    _registerWeak = registerWeak;
+    _registerWeakCallback = registerWeak;
     persistent().Reset(v8::Isolate::GetCurrent(), handle);
-    if (_registerWeak) {
-        makeWeak();
-    }
+    makeWeak();
     return true;
 }
 
@@ -79,13 +77,13 @@ void ObjectWrap::setFinalizeCallback(FinalizeFunc finalizeCb) {
 /*static*/
 void *ObjectWrap::unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex) {
     CC_ASSERT(!handle.IsEmpty());
-    CC_ASSERT(handle->InternalFieldCount() > 1);
-    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 2);
+    CC_ASSERT(handle->InternalFieldCount() > 0);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
     return handle->GetAlignedPointerFromInternalField(static_cast<int>(fieldIndex));
 }
 void ObjectWrap::wrap(void *nativeObj, uint32_t fieldIndex) {
-    CC_ASSERT(handle()->InternalFieldCount() > 1);
-    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 2);
+    CC_ASSERT(handle()->InternalFieldCount() > 0);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
     handle()->SetAlignedPointerInInternalField(static_cast<int>(fieldIndex), nativeObj);
 }
 
@@ -114,7 +112,11 @@ void ObjectWrap::makeWeak() {
     // the reason is that kFinalizer will trigger weak callback when some assets are
     // still being used, jsbinding code will get a dead se::Object pointer that was
     // freed by weak callback. According V8 documentation, kParameter is a better option.
-    persistent().SetWeak(_parent, weakCallback, v8::WeakCallbackType::kParameter);
+    if (_registerWeakCallback) {
+        persistent().SetWeak(_parent, weakCallback, v8::WeakCallbackType::kParameter);
+    } else {
+        persistent().SetWeak();
+    }
     //        persistent().MarkIndependent();
 }
 
@@ -128,7 +130,7 @@ void ObjectWrap::unref() {
     CC_ASSERT(!persistent().IsEmpty());
     CC_ASSERT(!persistent().IsWeak());
     CC_ASSERT(_refs > 0);
-    if (--_refs == 0 && _registerWeak) {
+    if (--_refs == 0) {
         makeWeak();
     }
 }

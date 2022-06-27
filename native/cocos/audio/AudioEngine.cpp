@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
+#include <cstdint>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -36,7 +37,7 @@
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/AudioEngine-inl.h"
-#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     #include "audio/apple/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS
     #include "audio/oalsoft/AudioEngine-soft.h"
@@ -54,7 +55,7 @@
     #undef ERROR
 #endif // ERROR
 
-using namespace cc; //NOLINT
+namespace cc {
 
 const int AudioEngine::INVALID_AUDIO_ID = -1;
 const float AudioEngine::TIME_UNKNOWN = -1.0F;
@@ -246,6 +247,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             audioRef.volume = volume;
             audioRef.loop = loop;
             audioRef.filePath = &it->first;
+            audioRef.state = AudioState::PLAYING;
 
             if (profileHelper) {
                 profileHelper->lastPlayTime = std::chrono::high_resolution_clock::now();
@@ -590,3 +592,11 @@ void AudioEngine::setEnabled(bool isEnabled) {
 bool AudioEngine::isEnabled() {
     return sIsEnabled;
 }
+
+PCMHeader AudioEngine::getPCMHeader(const char *url) {
+    return sAudioEngineImpl->getPCMHeader(url);
+}
+ccstd::vector<uint8_t> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    return sAudioEngineImpl->getOriginalPCMBuffer(url, channelID);
+}
+} // namespace cc

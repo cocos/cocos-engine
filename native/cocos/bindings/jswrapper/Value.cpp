@@ -365,6 +365,11 @@ void Value::setString(const ccstd::string &v) {
     *_u._string = v;
 }
 
+void Value::setString(const std::string_view &v) {
+    reset(Type::String);
+    _u._string->assign(v.data(), 0, v.length());
+}
+
 void Value::setObject(Object *object, bool autoRootUnroot /* = false*/) {
     if (object == nullptr) {
         reset(Type::Null);

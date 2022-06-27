@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
@@ -180,7 +175,10 @@ export class EffectAsset extends Asset {
      * @en Register the effect asset to the static map
      * @zh 将指定 effect 注册到全局管理器。
      */
-    public static register (asset: EffectAsset) { EffectAsset._effects[asset.name] = asset; }
+    public static register (asset: EffectAsset) {
+        EffectAsset._effects[asset.name] = asset;
+        EffectAsset._layoutValid = false;
+    }
 
     /**
      * @en Unregister the effect asset from the static map
@@ -188,7 +186,7 @@ export class EffectAsset extends Asset {
      */
     public static remove (asset: EffectAsset | string) {
         if (typeof asset !== 'string') {
-            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name].equals(asset)) {
+            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name] === asset) {
                 delete EffectAsset._effects[asset.name];
             }
         } else {
@@ -223,6 +221,10 @@ export class EffectAsset extends Asset {
     public static getAll () { return EffectAsset._effects; }
     protected static _effects: Record<string, EffectAsset> = {};
 
+    public static isLayoutValid (): boolean { return EffectAsset._layoutValid; }
+    public static setLayoutValid (): void { EffectAsset._layoutValid = true; }
+    protected static _layoutValid = true;
+
     /**
      * @en The techniques used by the current effect.
      * @zh 当前 effect 的所有可用 technique。
@@ -252,13 +254,13 @@ export class EffectAsset extends Asset {
     public hideInEditor = false;
 
     /**
-     * @en The loaded callback which should be invoked by the [[Loader]], will automatically register the effect.
-     * @zh 通过 [[Loader]] 加载完成时的回调，将自动注册 effect 资源。
+     * @en The loaded callback which should be invoked by the [[CCLoader]], will automatically register the effect.
+     * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
         programLib.register(this);
         EffectAsset.register(this);
-        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_RENDERER_INITED, this._precompile, this); }
+        if (!EDITOR || legacyCC.GAME_VIEW) { legacyCC.game.once(legacyCC.Game.EVENT_RENDERER_INITED, this._precompile, this); }
     }
 
     protected _precompile () {

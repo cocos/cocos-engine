@@ -185,6 +185,7 @@ public:
     // @serializable
     bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
+    IntrusivePtr<Material> _editableMaterial;
     Skybox *_resource{nullptr};
 };
 
@@ -261,11 +262,18 @@ public:
     bool isRGBE() const;
 
     /**
+     * @en Whether to use offline baked convolutional maps
+     * @zh 是否使用离线烘焙的卷积图？
+     */
+    bool isUsingConvolutionMap() const;
+
+    /**
      * @en The texture cube used diffuse convolution map
      * @zh 使用的漫反射卷积图
      */
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
+    void setSkyboxMaterial(Material* skyboxMat);
 
 private:
     void updatePipeline() const;
@@ -278,11 +286,13 @@ private:
     pipeline::GlobalDSManager *_globalDSManager{nullptr};
     IntrusivePtr<Model> _model;
     IntrusivePtr<Mesh> _mesh;
+    IntrusivePtr<Material> _material;
     IntrusivePtr<TextureCube> _default;
     bool _enabled{false};
     bool _useIBL{false};
     bool _useHDR{true};
     bool _useDiffuseMap{false};
+    IntrusivePtr<Material> _editableMaterial;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };

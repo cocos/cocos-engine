@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca"
+        "imageUuidOrDatabaseUri": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca",
+        "visible": false
       },
       "displayName": "default_sprite_splash",
       "id": "6c48a",

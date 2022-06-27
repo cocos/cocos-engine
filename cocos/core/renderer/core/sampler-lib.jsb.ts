@@ -22,19 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from "../../global-exports";
 
 const SamplerLib = nr.SamplerLib;
-
-const clsDecorator = ccclass('cc.SamplerLib');
-
-clsDecorator(SamplerLib);
 
 export const samplerLib = new SamplerLib();
 legacyCC.samplerLib = samplerLib;

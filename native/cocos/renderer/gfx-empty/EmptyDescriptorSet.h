@@ -33,6 +33,7 @@ namespace gfx {
 class CC_DLL EmptyDescriptorSet final : public DescriptorSet {
 public:
     void update() override;
+    void forceUpdate() override;
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;

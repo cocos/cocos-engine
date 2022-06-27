@@ -5,6 +5,8 @@
  * API for jsb module
  * Author: haroel
  * Homepage: https://github.com/haroel/creatorexDTS
+ *
+ * @deprecated since v3.6.0, please import `native` from 'cc' module instead like `import { native } from 'cc';`.
  */
 declare namespace jsb {
 
@@ -88,9 +90,27 @@ declare namespace jsb {
     export let onClose: () => void | undefined;
     export function openURL(url: string): void;
     export function garbageCollect(): void;
-
+    enum AudioFormat {
+        UNKNOWN = 0,
+        SIGNED_8,
+        UNSIGNED_8,
+        SIGNED_16,
+        UNSIGNED_16,
+        SIGNED_32,
+        UNSIGNED_32,
+        FLOAT_32,
+        FLOAT_64
+    }
+    interface PCMHeader {
+        totalFrames: number;
+        sampleRate: number;
+        bytesPerFrame: number;
+        audioFormat: AudioFormat;
+        channelCount: number;
+    }
     export namespace AudioEngine {
         export function preload (url: string, cb: (isSuccess: boolean) => void);
+
         export function play2d (url: string, loop: boolean, volume: number): number;
         export function pause (id: number);
         export function pauseAll ();
@@ -115,6 +135,17 @@ declare namespace jsb {
         export function uncacheAll ();
         export function setErrorCallback (id: number, cb: (err: any) => void);
         export function setFinishCallback (id: number, cb: () => void);
+
+        /**
+         * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer instead
+         */
+        export function getPCMHeader (url: string) : PCMHeader;
+        /**
+         * Get PCM Data in decode format for example Int16Array, the format information is written in PCMHeader.
+         * @param url: file relative path, for example player._path
+         * @param channelID: ChannelID which should smaller than channel count, start from 0
+         */
+        export function getOriginalPCMBuffer (url: string, channelID: number): ArrayBuffer | undefined;
     }
 
     export namespace reflection{
@@ -166,30 +197,6 @@ declare namespace jsb {
          * Remove all events, use it carefully!
          */
         export function removeAllListeners();
-    }
-    /**
-     * 下载任务对象
-     */
-    export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
-
-    /**
-     * Http file downloader for jsb！
-     */
-    export class Downloader {
-        /**
-         * create a download task
-         * @param requestURL
-         * @param storagePath
-         * @param identifier
-         */
-        createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
-
-        setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
-
-        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
-            totalBytesReceived: number, totalBytesExpected: number) => void): void;
-
-        setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
 
     export interface ManifestAsset {
@@ -399,48 +406,6 @@ declare namespace jsb {
          * Get default resource root path.
          */
         export function getDefaultResourceRootPath ():string;
-        /**
-         * Loads the filenameLookup dictionary from the contents of a filename.
-         *
-         * @note The plist file name should follow the format below:
-         *
-         * @code
-         * <?xml version="1.0" encoding="UTF-8"?>
-         * <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-         * <plist version="1.0">
-         * <dict>
-         *     <key>filenames</key>
-         *     <dict>
-         *         <key>sounds/click.wav</key>
-         *         <string>sounds/click.caf</string>
-         *         <key>sounds/endgame.wav</key>
-         *         <string>sounds/endgame.caf</string>
-         *         <key>sounds/gem-0.wav</key>
-         *         <string>sounds/gem-0.caf</string>
-         *     </dict>
-         *     <key>metadata</key>
-         *     <dict>
-         *         <key>version</key>
-         *         <integer>1</integer>
-         *     </dict>
-         * </dict>
-         * </plist>
-         * @endcode
-         * @param filename The plist file name.
-         *
-         @since v2.1
-        * @js loadFilenameLookup
-        * @lua loadFilenameLookup
-        */
-        export function loadFilenameLookup (filepath:string):void;
-        /** Checks whether to pop up a message box when failed to load an image.
-         *  @return True if pop up a message box when failed to load an image, false if not.
-         */
-        export function isPopupNotify ():boolean;
-        /**
-         *  Sets whether to pop-up a message box when failed to load an image.
-         */
-        export function setPopupNotify (notify:boolean):void;
 
         // Converts the contents of a file to a ValueVector.
         // This method is used internally.
@@ -536,23 +501,7 @@ declare namespace jsb {
          * @return bool True if write success
          */
         export function writeStringToFile (dataStr:string, fullPath:string):boolean;
-        /**
-         *  Sets the array that contains the search order of the resources.
-         *
-         *  @param searchResolutionsOrder The source array that contains the search order of the resources.
-         *  @see getSearchResolutionsOrder(), fullPathForFilename(const char*).
-         *  @since v2.1
-         *  In js:var setSearchResolutionsOrder(var jsval)
-         *  @lua NA
-         */
-        export function setSearchResolutionsOrder (searchResolutionsOrder:Array<string>):void;
-        /**
-         * Append search order of the resources.
-         *
-         * @see setSearchResolutionsOrder(), fullPathForFilename().
-         * @since v2.1
-         */
-        export function addSearchResolutionsOrder (order:string, front:boolean):void;
+
         /**
          * Add search path.
          *
@@ -622,14 +571,6 @@ declare namespace jsb {
         export function setDefaultResourceRootPath (filepath:string):void;
 
         /**
-         *  Gets the array that contains the search order of the resources.
-         *
-         *  @see setSearchResolutionsOrder(const std::vector<std::string>&), fullPathForFilename(const char*).
-         *  @since v2.1
-         *  @lua NA
-         */
-        export function getSearchResolutionsOrder ():Array<string>;
-        /**
          *  Creates a directory.
          *
          *  @param dirPath The path of the directory, it must be an absolute path.
@@ -647,123 +588,31 @@ declare namespace jsb {
          *  Gets the writable path.
          *  @return  The path that can be write/read a file in
          */
-        export function getWritablePath ():string;
-    }
-
-    /**
-     * ZipUtils  Helper class to handle unzip related operations.
-     */
-    export namespace zipUtils{
-        /**
-         * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
-         *
-         * It will allocate 256k for the destination buffer.
-         * If it is not enough it will multiply the previous buffer size per 2, until there is enough memory.
-         *
-         * @param outLengthHint It is assumed to be the needed room to allocate the inflated buffer, which is optional.
-         *
-         *
-         * @return The deflated buffer.
-         */
-        export function inflateMemory(input:string | ArrayBuffer | TypedArray, outLengthHint?: number): ArrayBuffer | null;
+        export function getWritablePath():string;
 
         /**
-         * Inflates a GZip file into memory.
+         *  Renames a file under the given directory.
          *
-         * @return The deflated buffer.
+         *  @param oldFullpath  The current fullpath of the file. Includes path and name.
+         *  @param newFullPath  The new fullpath of the file. Includes path and name.
+         *  @return True if the file have been renamed successfully, false if not.
          */
-        export function inflateGZipFile(path:string): ArrayBuffer | null;
+        export function renameFile(oldFullpath: string, newFullPath: string):boolean;
 
         /**
-         * Test a file is a GZip format file or not.
-         *
-         * @return True is a GZip format file. false is not.
+         *  Creates binary data from a file.
+         *  @param fullpath The current fullpath of the file. Includes path and name.
+         *  @return A data object.
          */
-        export function isGZipFile(path:string): boolean;
+        export function getDataFromFile(fullpath: string):ArrayBuffer;
 
         /**
-         * Test the buffer is GZip format or not.
+         * write Data into a file
          *
-         * @return True is GZip format. false is not.
+         *@param data the data want to save
+         *@param fullpath The full path to the file you want to save a string
+         *@return bool
          */
-        export function isGZipBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
-
-        /**
-         * Inflates a CCZ file into memory.
-         *
-         * @return The deflated buffer.
-         */
-        export function inflateCCZFile(path:string): ArrayBuffer | null;
-
-        /**
-         * Inflates a buffer with CCZ format into memory.
-         *
-         * @return The deflated buffer.
-         */
-        export function inflateCCZBuffer(buffer:string | ArrayBuffer | TypedArray): ArrayBuffer | null;
-
-        /**
-         * Test a file is a CCZ format file or not.
-         *
-         * @return True is a CCZ format file. false is not.
-         */
-        export function isCCZFile(path:string): boolean;
-
-        /**
-         * Test the buffer is CCZ format or not.
-         *
-         * @return True is CCZ format. false is not.
-         */
-        export function isCCZBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
-
-        /**
-         * Sets the pvr.ccz encryption key parts separately for added security.
-         *
-         * Example: If the key used to encrypt the pvr.ccz file is
-         * 0xaaaaaaaabbbbbbbbccccccccdddddddd you will call this function 4
-         * different times, preferably from 4 different source files, as follows
-         *
-         * setPvrEncryptionKeyPart(0, 0xaaaaaaaa);
-         * setPvrEncryptionKeyPart(1, 0xbbbbbbbb);
-         * setPvrEncryptionKeyPart(2, 0xcccccccc);
-         * setPvrEncryptionKeyPart(3, 0xdddddddd);
-         *
-         * Splitting the key into 4 parts and calling the function from 4 different source
-         * files increases the difficulty to reverse engineer the encryption key.
-         * Be aware that encryption is *never* 100% secure and the key code
-         * can be cracked by knowledgable persons.
-         *
-         * IMPORTANT: Be sure to call setPvrEncryptionKey or
-         * setPvrEncryptionKeyPart with all of the key parts *before* loading
-         * the sprite sheet or decryption will fail and the sprite sheet
-         * will fail to load.
-         *
-         * @param index Part of the key [0..3].
-         * @param value Value of the key part.
-         */
-        export function setPvrEncryptionKeyPart(index:number, value:number): void;
-
-        /**
-         * Sets the pvr.ccz encryption key.
-         *
-         * Example: If the key used to encrypt the pvr.ccz file is
-         * 0xaaaaaaaabbbbbbbbccccccccdddddddd you will call this function with
-         * the key split into 4 parts as follows
-         *
-         * setPvrEncryptionKey(0xaaaaaaaa, 0xbbbbbbbb, 0xcccccccc, 0xdddddddd);
-         *
-         * Note that using this function makes it easier to reverse engineer and discover
-         * the complete key because the key parts are present in one function call.
-         *
-         * IMPORTANT: Be sure to call setPvrEncryptionKey or setPvrEncryptionKeyPart
-         * with all of the key parts *before* loading the spritesheet or decryption
-         * will fail and the sprite sheet will fail to load.
-         *
-         * @param keyPart1 The key value part 1.
-         * @param keyPart2 The key value part 2.
-         * @param keyPart3 The key value part 3.
-         * @param keyPart4 The key value part 4.
-         */
-        export function setPvrEncryptionKey(keyPart1:number, keyPart2:number, keyPart3:number, keyPart4:number): void;
+        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):boolean;
     }
 }

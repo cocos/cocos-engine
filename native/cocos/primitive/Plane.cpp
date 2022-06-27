@@ -27,7 +27,7 @@
 #include "primitive/Plane.h"
 namespace cc {
 
-IGeometry plane(cc::optional<IPlaneOptions> options) {
+IGeometry plane(ccstd::optional<IPlaneOptions> options) {
     if (!options.has_value()) {
         options = IPlaneOptions();
     }

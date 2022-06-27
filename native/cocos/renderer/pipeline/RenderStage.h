@@ -43,8 +43,8 @@ class RenderQueue;
 
 struct CC_DLL RenderStageInfo {
     ccstd::string name;
-    uint priority = 0;
-    uint tag = 0;
+    uint32_t priority = 0;
+    uint32_t tag = 0;
     RenderQueueDescList renderQueues;
 };
 
@@ -60,22 +60,27 @@ public:
     virtual void render(scene::Camera *camera) = 0;
 
     inline const ccstd::string &getName() const { return _name; }
-    inline uint getPriority() const { return _priority; }
-    inline uint getTag() const { return _tag; }
+    inline uint32_t getPriority() const { return _priority; }
+    inline uint32_t getTag() const { return _tag; }
     inline RenderFlow *getFlow() const { return _flow; }
 
 protected:
     gfx::Rect _renderArea;
-    // Generate quad ia, cannot be updated inside renderpass
+    // Generate quad ia, cannot be updated inside renderpass.
+    // weak reference, it is created and recorded in RenderPipeline::_quadIA.
     gfx::InputAssembler *_inputAssembler{nullptr};
     RenderQueueDescList _renderQueueDescriptors;
+    // Manage memory manually.
     ccstd::vector<RenderQueue *> _renderQueues;
-    RenderPipeline *_pipeline = nullptr;
-    RenderFlow *_flow = nullptr;
-    gfx::Device *_device = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // weak reference
+    RenderFlow *_flow{nullptr};
+    // weak reference
+    gfx::Device *_device{nullptr};
     ccstd::string _name;
-    uint _priority = 0;
-    uint _tag = 0;
+    uint32_t _priority{0};
+    uint32_t _tag{0};
     gfx::ColorList _clearColors = {{0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}};
 };
 

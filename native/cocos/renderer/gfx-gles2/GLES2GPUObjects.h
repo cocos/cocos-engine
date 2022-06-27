@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include "GLES2Std.h"
 #include "GLES2Wrangler.h"
 #include "base/std/container/unordered_map.h"

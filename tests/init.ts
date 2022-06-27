@@ -1,7 +1,16 @@
 
 jest.mock(
     'internal:constants',
-    () => jest.requireActual('../cocos/core/default-constants'),
+    () => jest.requireActual('./constants-for-test'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'internal:native',
+    () => ({
+        __esModule: true,
+        default: {}
+    }),
     { virtual: true, },
 );
 
@@ -50,10 +59,21 @@ jest.mock(
 jest.mock('../cocos/core/platform/debug', () => {
     const result = {
         __esModule: true, // Use it when dealing with esModules
-        ...jest.requireActual('../cocos/core/platform/debug'),
+        ...jest.requireActual('../cocos/core/platform/debug')
     };
-    if (result.warnID) {
-        result.warnID = jest.fn();
+    const { feed } = require('./utils/log-capture');
+    for (const logMethodName of ['warn', 'error', 'warnID', 'errorID']) {
+        if (result[logMethodName]) {
+            const log = result[logMethodName];
+            result[logMethodName] = jest.fn((...args: unknown[]) => {
+                if (feed(logMethodName, ...args)) {
+                    // TODO: this is an old behaviour to shut some warns
+                    if (logMethodName !== 'warnID') {
+                        log.call(result, ...args);
+                    }
+                }
+            });
+        }
     }
     return result;
 });
@@ -80,6 +100,7 @@ import '../cocos/core/animation';
 import { effects } from './fixtures/builtin-effects';
 import { glsl4 } from './fixtures/builtin-glsl4';
 import { initBuiltinMaterial } from './fixtures/builtin-material';
+import '../cocos/2d/utils/dynamic-atlas/atlas-manager';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');

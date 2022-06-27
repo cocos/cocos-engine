@@ -38,9 +38,9 @@ static uint32_t localUBOCount = static_cast<uint32_t>(ModelLocalBindings::SAMPLE
 static uint32_t localSamplerCount = static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION) - localUBOCount;
 static uint32_t localStorageImageCount = static_cast<uint32_t>(ModelLocalBindings::COUNT) - localUBOCount - localSamplerCount;
 
-uint globalSet = static_cast<uint>(SetIndex::GLOBAL);
-uint materialSet = static_cast<uint>(SetIndex::MATERIAL);
-uint localSet = static_cast<uint>(SetIndex::LOCAL);
+uint32_t globalSet = static_cast<uint32_t>(SetIndex::GLOBAL);
+uint32_t materialSet = static_cast<uint32_t>(SetIndex::MATERIAL);
+uint32_t localSet = static_cast<uint32_t>(SetIndex::LOCAL);
 
 gfx::BindingMappingInfo bindingMappingInfo = {
     {globalUBOCount, 0, localUBOCount},         // Uniform Buffer Counts
@@ -71,6 +71,11 @@ const gfx::UniformBlock UBOGlobal::LAYOUT = {
         {"cc_time", gfx::Type::FLOAT4, 1},
         {"cc_screenSize", gfx::Type::FLOAT4, 1},
         {"cc_nativeSize", gfx::Type::FLOAT4, 1},
+
+        {"cc_debug_view_mode", gfx::Type::FLOAT, 4},
+        {"cc_debug_view_composite_pack_1", gfx::Type::FLOAT, 4},
+        {"cc_debug_view_composite_pack_2", gfx::Type::FLOAT, 4},
+        {"cc_debug_view_composite_pack_3", gfx::Type::FLOAT, 4},
     },
     1,
 };
@@ -88,7 +93,7 @@ const gfx::UniformBlock UBOLocalBatched::LAYOUT = {
     UBOLocalBatched::BINDING,
     UBOLocalBatched::NAME,
     {
-        {"cc_matWorlds", gfx::Type::MAT4, static_cast<uint>(UBOLocalBatched::BATCHING_COUNT)},
+        {"cc_matWorlds", gfx::Type::MAT4, static_cast<uint32_t>(UBOLocalBatched::BATCHING_COUNT)},
     },
     1,
 };
@@ -153,6 +158,13 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
         {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowColor", gfx::Type::FLOAT4, 1},
         {"cc_planarNDInfo", gfx::Type::FLOAT4, 1},
+        {"cc_matCSMView", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_matCSMViewProj", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_matCSMViewProjAtlas", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_csmProjDepthInfo", gfx::Type::FLOAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_csmProjInfo", gfx::Type::FLOAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_csmSplitsInfo", gfx::Type::FLOAT4, 1},
+        {"cc_csmInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -210,10 +222,10 @@ const gfx::UniformBlock UBOForwardLight::LAYOUT = {
     UBOForwardLight::BINDING,
     UBOForwardLight::NAME,
     {
-        {"cc_lightPos", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
-        {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
-        {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
-        {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightPos", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
     },
     1,
 };
@@ -254,6 +266,9 @@ const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
     1,
 };
 
+uint SkinningJointCapacity::jointUniformCapacity = 0;
+uint32_t UBOSkinning::count = 0;
+uint32_t UBOSkinning::size = 0;
 const ccstd::string UBOSkinning::NAME = "CCSkinning";
 const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     UBOSkinning::BINDING,
@@ -262,18 +277,23 @@ const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     gfx::ShaderStageFlagBit::VERTEX,
     {},
 };
-const gfx::UniformBlock UBOSkinning::LAYOUT = {
+gfx::UniformBlock UBOSkinning::layout = {
     localSet,
     UBOSkinning::BINDING,
     UBOSkinning::NAME,
     {
-        {"cc_joints", gfx::Type::FLOAT4, JOINT_UNIFORM_CAPACITY * 3},
+        {"cc_joints", gfx::Type::FLOAT4, 0},
     },
     1,
 };
+void UBOSkinning::initLayout (uint32_t capacity) {
+    UBOSkinning::count = capacity * 12;
+    UBOSkinning::size = UBOSkinning::count * sizeof(float);
+    UBOSkinning::layout.members[0].count = capacity * 3;
+}
 
-const uint UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
-const uint UBOMorph::SIZE = UBOMorph::COUNT_BASE_4_BYTES * 4;
+const uint32_t UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint32_t>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
+const uint32_t UBOMorph::SIZE = UBOMorph::COUNT_BASE_4_BYTES * 4;
 const ccstd::string UBOMorph::NAME = "CCMorph";
 const gfx::DescriptorSetLayoutBinding UBOMorph::DESCRIPTOR = {
     UBOMorph::BINDING,
@@ -287,7 +307,7 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
     UBOMorph::BINDING,
     UBOMorph::NAME,
     {
-        {"cc_displacementWeights", gfx::Type::FLOAT4, static_cast<uint>(UBOMorph::MAX_MORPH_TARGET_COUNT / 4)},
+        {"cc_displacementWeights", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOMorph::MAX_MORPH_TARGET_COUNT / 4)},
         {"cc_displacementTextureInfo", gfx::Type::FLOAT4, 1},
     },
     1,
@@ -390,6 +410,22 @@ const gfx::UniformSamplerTexture JOINTTEXTURE::LAYOUT = {
     1,
 };
 
+const ccstd::string REALTIMEJOINTTEXTURE::NAME = "cc_realtimeJoint";
+const gfx::DescriptorSetLayoutBinding REALTIMEJOINTTEXTURE::DESCRIPTOR = {
+    REALTIMEJOINTTEXTURE::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX,
+    {},
+};
+const gfx::UniformSamplerTexture REALTIMEJOINTTEXTURE::LAYOUT = {
+    localSet,
+    REALTIMEJOINTTEXTURE::BINDING,
+    REALTIMEJOINTTEXTURE::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
 const ccstd::string POSITIONMORPH::NAME = "cc_PositionDisplacements";
 const gfx::DescriptorSetLayoutBinding POSITIONMORPH::DESCRIPTOR = {
     POSITIONMORPH::BINDING,
@@ -464,7 +500,7 @@ const gfx::DescriptorSetLayoutBinding SPRITETEXTURE::DESCRIPTOR = {
 };
 const gfx::UniformSamplerTexture SPRITETEXTURE::LAYOUT = {
     localSet,
-    static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
+    static_cast<uint32_t>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
     gfx::Type::SAMPLER2D,
     1,
@@ -480,7 +516,7 @@ const gfx::DescriptorSetLayoutBinding REFLECTIONTEXTURE::DESCRIPTOR = {
 };
 const gfx::UniformSamplerTexture REFLECTIONTEXTURE::LAYOUT = {
     localSet,
-    static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION),
+    static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION),
     "cc_reflectionTexture",
     gfx::Type::SAMPLER2D,
     1,
@@ -496,15 +532,15 @@ const gfx::DescriptorSetLayoutBinding REFLECTIONSTORAGE::DESCRIPTOR = {
 };
 const gfx::UniformStorageImage REFLECTIONSTORAGE::LAYOUT = {
     localSet,
-    static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION),
+    static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION),
     "cc_reflectionStorage",
     gfx::Type::IMAGE2D,
     1,
 };
 
-uint skyboxFlag = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
+uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
 
-uint nextPow2(uint val) {
+uint32_t nextPow2(uint32_t val) {
     --val;
     val |= (val >> 1);
     val |= (val >> 2);
@@ -515,19 +551,19 @@ uint nextPow2(uint val) {
     return val;
 }
 
-bool supportsR16HalfFloatTexture(gfx::Device *device) {
+bool supportsR16HalfFloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
-bool supportsR32FloatTexture(gfx::Device *device) {
+bool supportsR32FloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
 static ccstd::unordered_map<ccstd::string, uint32_t> phases; //cjh how to clear this global variable when exiting game?
 static uint32_t phaseNum = 0;
 
-uint getPhaseID(const ccstd::string &phaseName) {
-    auto iter = phases.find(phaseName);
+uint32_t getPhaseID(const ccstd::string &phaseName) {
+    const auto iter = phases.find(phaseName);
     if (iter == phases.end()) {
         phases.emplace(phaseName, 1 << phaseNum);
         ++phaseNum;

@@ -162,9 +162,9 @@ CommandBuffer *CCWGPUDevice::createCommandBuffer(const CommandBufferInfo &info, 
     return ccnew CCWGPUCommandBuffer;
 }
 
-void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     Format dstFormat = dst->getFormat();
-    uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint>(dstFormat)].size;
+    uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint32_t>(dstFormat)].size;
     auto *texture = static_cast<CCWGPUTexture *>(dst);
 
     for (size_t i = 0; i < count; i++) {
@@ -232,7 +232,7 @@ void onQueueDone(WGPUQueueWorkDoneStatus status, void *userdata) {
 emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions) {
     auto *texture = static_cast<CCWGPUTexture *>(src);
     Format dstFormat = src->getFormat();
-    uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint>(dstFormat)].size;
+    uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint32_t>(dstFormat)].size;
     auto wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
 
     uint64_t size = std::accumulate(regions.begin(), regions.end(), 0, [pxSize](uint64_t initVal, const BufferTextureCopy &in) {
@@ -305,7 +305,7 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTex
     return *bufferMapData->retBuffer;
 }
 
-void CCWGPUDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+void CCWGPUDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
 }
 
 void CCWGPUDevice::acquire(Swapchain *const *swapchains, uint32_t count) {

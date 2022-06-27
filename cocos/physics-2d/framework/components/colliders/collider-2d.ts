@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+
 
 import { EDITOR } from 'internal:constants';
 
@@ -15,6 +12,7 @@ import { RigidBody2D } from '../rigid-body-2d';
 import { createShape } from '../../instance';
 import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
+import { legacyCC } from '../../../../core/global-exports';
 
 @ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {
@@ -128,7 +126,7 @@ export class Collider2D extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._shape = createShape(this.TYPE);
             this._shape.initialize(this);
 

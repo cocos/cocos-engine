@@ -53,8 +53,6 @@ ForwardPipeline::ForwardPipeline() {
     _pipelineSceneData = ccnew PipelineSceneData();
 }
 
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardDepthTexture = framegraph::FrameGraph::stringToHandle("forwardDepthTexture");
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass = framegraph::FrameGraph::stringToHandle("forwardPass");
 
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
@@ -91,6 +89,8 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 
 void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     CC_PROFILE(ForwardPipelineRender);
+    updateGeometryRenderer(cameras); // for capability
+    
     auto *device = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
@@ -145,10 +145,11 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     // update global defines when all states initialized.
     _macros["CC_USE_HDR"] = static_cast<bool>(_pipelineSceneData->isHDR());
     _macros["CC_SUPPORT_FLOAT_TEXTURE"] = hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
+    _macros["CC_USE_DEBUG_VIEW"] = static_cast<int32_t>(0);
 
     // step 2 create index buffer
-    uint ibStride = 4;
-    uint ibSize = ibStride * 6;
+    uint32_t ibStride = 4;
+    uint32_t ibSize = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                          gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
@@ -158,7 +159,7 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
         return false;
     }
 
-    uint ibData[] = {0, 1, 2, 1, 3, 2};
+    uint32_t ibData[] = {0, 1, 2, 1, 3, 2};
     _quadIB->update(ibData, sizeof(ibData));
 
     _width = swapchain->getWidth();

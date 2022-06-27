@@ -51,6 +51,10 @@ namespace cc {
 AAssetManager *FileUtilsAndroid::assetmanager = nullptr;
 ZipFile *FileUtilsAndroid::obbfile = nullptr;
 
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsAndroid();
+}
+
 void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
         LOGD("setassetmanager : received unexpected nullptr parameter");
@@ -60,25 +64,12 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     cc::FileUtilsAndroid::assetmanager = a;
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = ccnew FileUtilsAndroid();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtilsAndroid::FileUtilsAndroid() {
+    init();
 }
 
-FileUtilsAndroid::FileUtilsAndroid() = default;
-
 FileUtilsAndroid::~FileUtilsAndroid() {
-    if (obbfile) {
-        delete obbfile;
-        obbfile = nullptr;
-    }
+    CC_SAFE_DELETE(obbfile);
 }
 
 bool FileUtilsAndroid::init() {

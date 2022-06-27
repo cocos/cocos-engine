@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Color, Vec3, Mat4, Quat } from '../core/math';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
@@ -112,6 +110,7 @@ export const PARTICLE_MODULE_NAME = {
     SIZE: 'sizeModule',
     VELOCITY: 'velocityModule',
     TEXTURE: 'textureModule',
+    NOISE: 'noiseModule',
 };
 
 export const PARTICLE_MODULE_ORDER = [
@@ -122,6 +121,7 @@ export const PARTICLE_MODULE_ORDER = [
     'limitModule',
     'rotationModule',
     'textureModule',
+    'noiseModule',
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
@@ -133,6 +133,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_limitVelocityOvertimeModule',
     '_rotationOvertimeModule',
     '_textureAnimationModule',
+    '_noiseModule',
     '_trailModule',
 ];
 

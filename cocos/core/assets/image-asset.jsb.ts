@@ -24,16 +24,10 @@
 */
 import { ccclass, override } from 'cc.decorator';
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
-import { Device, deviceManager, Feature, Format, FormatFeatureBit } from '../gfx';
+import { Format, FormatFeatureBit, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { warnID } from '../platform';
+import { macro, sys, warnID } from '../platform';
 
 export type ImageAsset = jsb.ImageAsset;
 export const ImageAsset = jsb.ImageAsset;
@@ -51,7 +45,7 @@ export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSou
 const extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
 function isImageBitmap (imageSource: any): boolean {
-    return !!(legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap);
+    return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
@@ -130,6 +124,18 @@ imageAssetProto.reset = function (data: ImageSource) {
     this._syncDataToNative();
 };
 
+const superDestroy = jsb.Asset.prototype.destroy;
+imageAssetProto.destroy = function () {
+    if(this.data && this.data instanceof HTMLImageElement) {
+        this.data.src = '';
+        this._setRawAsset('');
+        this.data.destroy();
+    } else if (isImageBitmap(this.data)) {
+        this.data.close && this.data.close();
+    }
+    return superDestroy.call(this);
+};
+
 Object.defineProperty(imageAssetProto, 'width', {
     configurable: true,
     enumerable: true,
@@ -153,7 +159,7 @@ imageAssetProto._syncDataToNative = function () {
 
     this.setWidth(this._width);
     this.setHeight(this._height);
-    this.setUrl(this.nativeUrl);
+    this.url = this.nativeUrl;
 
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);
@@ -207,7 +213,7 @@ imageAssetProto._deserialize = function (data: any) {
     // let format = this._format;
     let format = this.format;
     let ext = '';
-    const SupportTextureFormats = legacyCC.macro.SUPPORT_TEXTURE_FORMATS as string[];
+    const SupportTextureFormats = macro.SUPPORT_TEXTURE_FORMATS as string[];
     for (const extensionID of extensionIDs) {
         const extFormat = extensionID.split('@');
 
@@ -231,7 +237,7 @@ imageAssetProto._deserialize = function (data: any) {
             } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
                 && (!device || !(device.getFormatFeatures(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                 continue;
-            } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
+            } else if (tmpExt === '.webp' && !sys.hasFeature(sys.Feature.WEBP)) {
                 continue;
             }
             preferedExtensionIndex = index;
@@ -249,12 +255,10 @@ imageAssetProto._deserialize = function (data: any) {
     }
 };
 
-const clsDecorator = ccclass('cc.ImageAsset');
-
-const _class2$a = ImageAsset;
-
-// cjh FIXME:  _applyDecoratedDescriptor(_class2$a.prototype, '_nativeAsset', [override], Object.getOwnPropertyDescriptor(_class2$a.prototype, '_nativeAsset'), _class2$a.prototype);
-
-clsDecorator(ImageAsset);
-
 legacyCC.ImageAsset = jsb.ImageAsset;
+
+// handle meta data, it is generated automatically
+const ImageAssetProto = ImageAsset.prototype;
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(ImageAssetProto, '_nativeAsset');
+override(ImageAssetProto, '_nativeAsset', _nativeAssetDescriptor);
+ccclass('cc.ImageAsset')(ImageAsset);
