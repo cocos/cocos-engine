@@ -75,6 +75,7 @@ void PipelineSceneData::destroy() {
 }
 
 void PipelineSceneData::initOcclusionQuery() {
+    CC_ASSERT(!_occlusionQueryInputAssembler);
     _occlusionQueryInputAssembler = createOcclusionQueryIA();
 
     if (!_occlusionQueryMaterial) {
