@@ -105,6 +105,7 @@ void DescriptorSetValidator::update() {
 }
 
 void DescriptorSetValidator::forceUpdate() {
+    _isDirty = true;
     _actor->forceUpdate();
     _isDirty = false;
 }
