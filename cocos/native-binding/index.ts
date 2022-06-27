@@ -110,7 +110,7 @@ export declare namespace native {
          * @example
          * ```ts
          *  // setter for the callback for download progress prompt
-         *  downloader.onProgress(task, bytesReceived, totalBytesReceived, totalBytesExpected) => {
+         *  downloader.onProgress = (task, bytesReceived, totalBytesReceived, totalBytesExpected) => {
          *      console.log(bytesReceived, totalBytesReceived); // download data info
          *      console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
          * };
@@ -127,7 +127,7 @@ export declare namespace native {
          * @example
          * ```ts
          * // set a download error callback
-         *  downloader.onError(task, errorCode, errorCodeInternal, errorStr) => {
+         *  downloader.onError = (task, errorCode, errorCodeInternal, errorStr) => {
          *  console.log('Error:', errorStr);
          * };
          */
