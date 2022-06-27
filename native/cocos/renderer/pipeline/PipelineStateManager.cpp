@@ -37,7 +37,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
                                                                    gfx::Shader *shader,
                                                                    gfx::InputAssembler *inputAssembler,
                                                                    gfx::RenderPass *renderPass,
-                                                                   uint subpass) {
+                                                                   uint32_t subpass) {
     const auto passHash = pass->getHash();
     const auto renderPassHash = renderPass->getHash();
     const auto iaHash = inputAssembler->getAttributesHash();

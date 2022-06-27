@@ -211,6 +211,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 3935, "We don't currently support conversion of `CubicSplineQuatValue`." },
 { 3936, "Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this." },
 { 3937, "Previous error occurred when instantiating animation clip %s on node %s." },
+{ 3938, "'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'." },
 { 4003, "Label font size can't be shirnked less than 0!" },
 { 4004, "force notify all fonts loaded!" },
 { 4011, "Property spriteFrame of Font '%s' is invalid. Using system font instead." },
@@ -445,6 +446,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 15001, "Can not find environment map, disable IBL lighting" },
 { 15002, "Diffuse map resource is missing, please change environment lighting type to regenerate resource" },
 { 15003, "The shadow visible distance is so small that CSM stratification is not effective, Please change the value of shadowDistance so that it is 10 times greater than 0.1" },
+{ 15004, "The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade." },
 
 };
 }//namespace cc

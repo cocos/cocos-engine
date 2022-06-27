@@ -29,7 +29,8 @@ se::Class* __jsb_cc_middleware_Texture2D_class = nullptr;  // NOLINT
 static bool js_editor_support_Texture2D_getPixelsHigh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getPixelsHigh : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getPixelsHigh : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -48,7 +49,8 @@ SE_BIND_FUNC(js_editor_support_Texture2D_getPixelsHigh)
 static bool js_editor_support_Texture2D_getPixelsWide(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getPixelsWide : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getPixelsWide : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -67,7 +69,8 @@ SE_BIND_FUNC(js_editor_support_Texture2D_getPixelsWide)
 static bool js_editor_support_Texture2D_getRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getRealTextureIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getRealTextureIndex : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -86,7 +89,8 @@ SE_BIND_FUNC(js_editor_support_Texture2D_getRealTextureIndex)
 static bool js_editor_support_Texture2D_setPixelsHigh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setPixelsHigh : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setPixelsHigh : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -105,7 +109,8 @@ SE_BIND_FUNC(js_editor_support_Texture2D_setPixelsHigh)
 static bool js_editor_support_Texture2D_setPixelsWide(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setPixelsWide : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setPixelsWide : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -124,7 +129,8 @@ SE_BIND_FUNC(js_editor_support_Texture2D_setPixelsWide)
 static bool js_editor_support_Texture2D_setRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setRealTextureIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setRealTextureIndex : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -143,7 +149,8 @@ SE_BIND_FUNC(js_editor_support_Texture2D_setRealTextureIndex)
 static bool js_editor_support_Texture2D_setTexParamCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setTexParamCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setTexParamCallback : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -239,7 +246,8 @@ se::Class* __jsb_cc_middleware_SharedBufferManager_class = nullptr;  // NOLINT
 static bool js_editor_support_SharedBufferManager_getSharedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::SharedBufferManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_SharedBufferManager_getSharedBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_SharedBufferManager_getSharedBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -258,7 +266,8 @@ SE_BIND_FUNC(js_editor_support_SharedBufferManager_getSharedBuffer)
 static bool js_editor_support_SharedBufferManager_setResizeCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::SharedBufferManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_SharedBufferManager_setResizeCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_SharedBufferManager_setResizeCallback : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -346,7 +355,8 @@ se::Class* __jsb_cc_middleware_MiddlewareManager_class = nullptr;  // NOLINT
 static bool js_editor_support_MiddlewareManager_getAttachInfoMgr(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getAttachInfoMgr : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getAttachInfoMgr : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -365,7 +375,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getAttachInfoMgr)
 static bool js_editor_support_MiddlewareManager_getBufferCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getBufferCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getBufferCount : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -387,7 +398,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getBufferCount)
 static bool js_editor_support_MiddlewareManager_getIBTypedArray(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getIBTypedArray : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getIBTypedArray : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -411,7 +423,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getIBTypedArray)
 static bool js_editor_support_MiddlewareManager_getIBTypedArrayLength(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getIBTypedArrayLength : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getIBTypedArrayLength : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -435,7 +448,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getIBTypedArrayLength)
 static bool js_editor_support_MiddlewareManager_getRenderInfoMgr(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getRenderInfoMgr : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getRenderInfoMgr : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -454,7 +468,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getRenderInfoMgr)
 static bool js_editor_support_MiddlewareManager_getVBTypedArray(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getVBTypedArray : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getVBTypedArray : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -478,7 +493,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getVBTypedArray)
 static bool js_editor_support_MiddlewareManager_getVBTypedArrayLength(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getVBTypedArrayLength : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getVBTypedArrayLength : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -502,7 +518,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getVBTypedArrayLength)
 static bool js_editor_support_MiddlewareManager_render(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_render : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_render : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -521,7 +538,8 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_render)
 static bool js_editor_support_MiddlewareManager_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_update : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;

@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "55052bc6-9909-43c1-b2fc-8818060fb069",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "55052bc6-9909-43c1-b2fc-8818060fb069"
+        "imageUuidOrDatabaseUri": "55052bc6-9909-43c1-b2fc-8818060fb069",
+        "visible": true
       },
       "displayName": "particle-system",
       "id": "6c48a",

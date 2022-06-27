@@ -68,7 +68,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         });
 
         auto longestAttr = std::max_element(_inputState.attributes.begin(), _inputState.attributes.end(), [&](const Attribute &lhs, const Attribute &rhs) {
-            return GFX_FORMAT_INFOS[static_cast<uint>(lhs.format)].size < GFX_FORMAT_INFOS[static_cast<uint>(rhs.format)].size;
+            return GFX_FORMAT_INFOS[static_cast<uint32_t>(lhs.format)].size < GFX_FORMAT_INFOS[static_cast<uint32_t>(rhs.format)].size;
         });
         uint8_t mostToleranceStream = (*longestAttr).stream;
 
@@ -98,7 +98,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                     .shaderLocation = attrs[i].location,
                 };
                 wgpuAttrsVec[(*iter).stream].push_back(attr);
-                offset[(*iter).stream] += GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+                offset[(*iter).stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
             } else {
                 // all none-input attr are put in 1st buffer layout with offset = 0;
                 Format format = attrs[i].format;
@@ -108,12 +108,12 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                     .shaderLocation = attrs[i].location,
                 };
 
-                if (GFX_FORMAT_INFOS[static_cast<uint>(format)].size > GFX_FORMAT_INFOS[static_cast<uint>((*longestAttr).format)].size) {
-                    printf("found attr %s %s in shader exceed size of longest attr %s %s\n", attrName.c_str(), GFX_FORMAT_INFOS[static_cast<uint>(format)].name.c_str(),
-                           (*longestAttr).name.c_str(), GFX_FORMAT_INFOS[static_cast<uint>((*longestAttr).format)].name.c_str());
+                if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].size) {
+                    printf("found attr %s %s in shader exceed size of longest attr %s %s\n", attrName.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].name.c_str(),
+                           (*longestAttr).name.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].name.c_str());
                     _gpuPipelineStateObj->redundantAttr.push_back(attr);
-                    if (GFX_FORMAT_INFOS[static_cast<uint>(format)].size > _gpuPipelineStateObj->maxAttrLength) {
-                        _gpuPipelineStateObj->maxAttrLength = GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+                    if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > _gpuPipelineStateObj->maxAttrLength) {
+                        _gpuPipelineStateObj->maxAttrLength = GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
                     }
                 } else {
                     wgpuAttrsVec[mostToleranceStream].push_back(attr);
@@ -130,7 +130,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             });
             if (iter == attrs.end()) {
                 Format format = attribute.format;
-                offset[attribute.stream] += GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+                offset[attribute.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
             }
         }
 

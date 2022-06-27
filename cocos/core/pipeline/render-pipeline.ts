@@ -47,6 +47,7 @@ import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pip
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
+import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
 
 /**
@@ -385,6 +386,18 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
+    public setMacroString (name: string, value: string): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroInt (name: string, value: number): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroBool (name: string, value: boolean): void {
+        this._macros[name] = value;
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
@@ -400,6 +413,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._pipelineUBO.activate(this._device, this);
         // update global defines in advance here for deferred pipeline may tryCompile shaders.
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._macros.CC_USE_DEBUG_VIEW = 0;
         this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device);
 
@@ -673,6 +687,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+
+        const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+        str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
+
         this._constantMacros = str;
     }
 

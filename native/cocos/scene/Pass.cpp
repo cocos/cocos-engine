@@ -205,12 +205,12 @@ void Pass::setUniformArray(uint32_t handle, const MaterialPropertyList &value) {
     _rootBufferDirty = true;
 }
 
-void Pass::bindTexture(uint32_t binding, gfx::Texture *value, index_t index /* = CC_INVALID_INDEX */) {
-    _descriptorSet->bindTexture(binding, value, index != CC_INVALID_INDEX ? index : 0);
+void Pass::bindTexture(uint32_t binding, gfx::Texture *value, uint32_t index) {
+    _descriptorSet->bindTexture(binding, value, index);
 }
 
-void Pass::bindSampler(uint32_t binding, gfx::Sampler *value, index_t index /* = CC_INVALID_INDEX */) {
-    _descriptorSet->bindSampler(binding, value, index != CC_INVALID_INDEX ? index : 0);
+void Pass::bindSampler(uint32_t binding, gfx::Sampler *value, uint32_t index) {
+    _descriptorSet->bindSampler(binding, value, index);
 }
 
 void Pass::setDynamicState(gfx::DynamicStateFlagBit state, float value) {
@@ -316,7 +316,11 @@ void Pass::resetUniform(const ccstd::string &name) {
     _rootBufferDirty = true;
 }
 
-void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID_INDEX */) {
+void Pass::resetTexture(const ccstd::string &name) {
+    resetTexture(name, 0);
+}
+
+void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
     const uint32_t handle = getHandle(name);
     if (0 == handle) {
         return;

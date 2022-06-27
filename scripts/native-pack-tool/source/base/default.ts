@@ -56,6 +56,8 @@ export interface ICMakeConfig {
 
 export type InternaleNativePlatform = 'mac' | 'android' | 'windows' | 'ios' | 'ohos';
 
+const ErrorCodeIncompatible = 15004;
+
 export interface INativePlatformOptions {
     extends?: InternaleNativePlatform, //传入继承的平台，将会继承已有平台注册的一些代码
     overwrite?: InternaleNativePlatform, //传入继承但如果有同名的方法等会复写平台，将会继承已有平台注册的一些代码
@@ -81,6 +83,10 @@ export abstract class NativePackTool {
     init(params: CocosParams<Object>) {
         this.params = new CocosParams(params);
         this.paths = new Paths(params);
+
+        this.setEnv('NATIVE_DIR', this.paths.platformTemplateDirInPrj);
+        this.setEnv('COMMON_DIR', this.paths.commonDirInPrj);
+        this.setEnv('PROJECT_NAME', this.params.projectName);
     }
 
     protected parseVersion(content: string, key: string, def: number): number {
@@ -92,15 +98,260 @@ export abstract class NativePackTool {
     }
 
     protected async copyCommonTemplate() {
-        // 拷贝引擎原生模板到项目的 native 目录下 TODO 为何每次都重新拷贝？
-        await fs.copy(this.paths.commonDirInCocos, this.paths.commonDirInPrj);
+        if (!fs.existsSync(ps.join(this.paths.commonDirInPrj, 'CMakeLists.txt'))) {
+            await fs.copy(this.paths.commonDirInCocos, this.paths.commonDirInPrj, { overwrite: false });
+        }
+    }
+
+    private get projEngineVersionPath() {
+        return ps.join(this.paths.commonDirInPrj, 'cocos-version.json');
+    }
+
+    private _debugInfo: any = null;
+    private get DebugInfos(): { [key: number]: string } {
+        if (!this._debugInfo) {
+            this._debugInfo = require(ps.join(Paths.enginePath, 'DebugInfos.json'));
+            if (!this._debugInfo) {
+                console.error(`Failed to load DebugInfos.json`);
+            }
+        }
+        return this._debugInfo;
+    }
+
+    private _versionParser: any = null;
+    private get versionParser() {
+        if (!this._versionParser) {
+            const scriptPath = ps.join(Paths.enginePath, 'native/cmake/scripts/plugin_support/plugin_cfg.js');
+            this._versionParser = require(scriptPath);
+        }
+        return this._versionParser;
+    }
+
+    /**
+     * Read version number from cocos-version.json
+     */
+    protected tryReadProjectTemplateVersion(): { version: string, skipCheck: boolean | undefined } | null {
+        const versionJsonPath = this.projEngineVersionPath;
+        if (!fs.existsSync(versionJsonPath)) {
+            console.warn(`${versionJsonPath} not exists`);
+            return null;
+        }
+        try {
+            const content = fs.readJsonSync(versionJsonPath);
+            if (content.version === undefined) {
+                console.error(`Field 'version' missing in ${versionJsonPath}`);
+                return null;
+            }
+            return content;
+        } catch (e) {
+            console.error(`Failed to read json file ${versionJsonPath}`);
+            console.error(e);
+        }
+        return null;
+    }
+
+    /**
+     * Read package.json file in the root folder and return the version field. 
+     */
+    protected tryGetEngineVersion(): string | null {
+        const pkgJSON = ps.join(Paths.enginePath, 'package.json');
+        if (!fs.existsSync(pkgJSON)) {
+            console.error(`Failed to read file ${pkgJSON}`);
+            return null;
+        }
+        return fs.readJsonSync(pkgJSON).version || "3.6.0";
+    }
+
+    /**
+     * Version condition from compatibility-info.json for current platform.
+     */
+    protected tryGetCompatibilityInfo(): string | null {
+        const compInfo = ps.join(Paths.enginePath, 'templates/compatibility-info.json');
+        if (!fs.existsSync(compInfo)) {
+            console.error(`${compInfo} does not exist`);
+            return null;
+        }
+        const json = fs.readJsonSync(compInfo);
+        if (!json.native) {
+            console.error(`${compInfo} does not contain "native" field`);
+            return null;
+        }
+        const native = json.native;
+        const defaultCfg = native.default;
+        if (!defaultCfg) {
+            console.error(`${compInfo} does not contain "native.default" field`);
+            return null;
+        }
+        const plt = this.params.platform;
+        if (!native[plt]) {
+            return defaultCfg;
+        }
+        return native[plt];
+    }
+
+    private commonDirAreIdentical(): boolean {
+        let commonSrc = this.paths.commonDirInCocos;
+        let commonDst = this.paths.commonDirInPrj;
+        const compFile = (src: string, dst: string): boolean => {
+            const linesSrc: string[] = fs.readFileSync(src).toString("utf8").split("\n").map((line) => line.trim());
+            const linesDst: string[] = fs.readFileSync(dst).toString("utf8").split("\n").map((line) => line.trim());
+            return linesSrc.length === linesDst.length && linesSrc.every((line, index) => line === linesDst[index]);
+        };
+        let compFiles = ["Classes/Game.h", "Classes/Game.cpp"];
+        for (let f of compFiles) {
+            const srcFile = ps.join(commonSrc, f);
+            const dstFile = ps.join(commonDst, f);
+            if (!fs.existsSync(dstFile)) {
+                return false;
+            }
+
+            if(!fs.existsSync(srcFile)) {
+                console.error(`${f} not exists in ${commonSrc}`);
+                return false;
+            }
+
+            if(!compFile(srcFile, dstFile)) {
+                console.log(`File ${dstFile} differs from ${srcFile}`);
+                return false;   
+            }
+        }
+        return true;
+    }
+
+    private skipVersionCheck = false;
+    /**
+     * The engine version used to generate the 'native/' folder should match the 
+     * condition written in the 'compatibility-info.json' file.
+     */
+    private validateTemplateVersion(): boolean {
+        console.log(`Checking template version...`);
+        const engineVersion = this.tryGetEngineVersion();
+        const projEngineVersionObj = this.tryReadProjectTemplateVersion();
+        if (projEngineVersionObj === null) {
+            if (this.commonDirAreIdentical()) {
+                console.log(`The files under common/Classes directory are identical with the ones in the template. Append version file to the project.`);
+                this.writeEngineVersion();
+                return true;
+            }
+            console.error(`Error code ${ErrorCodeIncompatible}, ${this.DebugInfos[ErrorCodeIncompatible]}`)
+            return false;
+        }
+        let versionRange = this.tryGetCompatibilityInfo();
+        const projEngineVersion = projEngineVersionObj?.version;
+        if (!versionRange) {
+            console.error(`Ignore version range check`);
+            return true;
+        }
+        if (projEngineVersionObj.skipCheck === true) {
+            console.log(`Skip version range check by project`);
+            this.skipVersionCheck = true;
+            return true;
+        }
+        let cond = this.versionParser.parse(versionRange);
+        if (!cond) {
+            return true;
+        }
+        if (cond.match(projEngineVersion)) {
+
+            const newerThanEngineVersion = this.versionParser.parse(`>${engineVersion}`);
+            if (newerThanEngineVersion.match(projEngineVersion)) {
+                console.warn(`warning: ${projEngineVersion} is newer than engine version ${engineVersion}`);
+            }
+            return true;
+        }
+        console.error(`'native/' folder was generated by ${projEngineVersion} which is incompatible with ${engineVersion}, condition: '${versionRange}'`);
+        console.error(`${this.DebugInfos[ErrorCodeIncompatible]}`)
+        return false;
+    }
+
+    /**
+     * Utility function to check if a file exists dst as in src.
+     */
+    protected validateDirectory(src: string, dst: string, missingDirs: string[]) {
+        if (!fs.existsSync(dst)) {
+            missingDirs.push(dst);
+            return;
+        }
+        const st = fs.statSync(src);
+        if (!st.isDirectory()) {
+            return;
+        }
+        let list = fs.readdirSync(src);
+        for (let f of list) {
+            if (f.startsWith('.')) continue;
+            this.validateDirectory(ps.join(src, f), ps.join(dst, f), missingDirs);
+        }
+    }
+
+    /**
+     *  Check files under `native/engine/platform` folder
+     */
+    protected validatePlatformDirectory(missing: string[]): void {
+        console.log(`Validating platform source code directories...`);
+        const srcDir = ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform);
+        const dstDir = this.paths.platformTemplateDirInPrj;
+        this.validateDirectory(srcDir, dstDir, missing)
+    }
+
+    /**
+     * Check if any file removed from the 'native/' folder
+     */
+    private validateTemplateConsistency() {
+        console.log(`Validating template consistency...`);
+        let commonSrc = this.paths.commonDirInCocos;
+        let commonDst = this.paths.commonDirInPrj;
+        let missingDirs: string[] = [];
+        // validate common directory
+        this.validateDirectory(commonSrc, commonDst, missingDirs);
+        this.validatePlatformDirectory(missingDirs);
+        if (missingDirs.length > 0) {
+            console.error(`Following files are missing`);
+            for (let f of missingDirs) {
+                console.error(`  ${f}`);
+            }
+            console.error(`Consider fix the problem or remove the directory`);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * - Ensure the engine version used to generete 'native/' folder is compatible
+     *   with the current engine version.
+     * - Check if any file under the 'native/' folder is removed.
+     */
+    protected validateNativeDir() {
+        try {
+            if (this.validateTemplateVersion()) {
+                if (!this.skipVersionCheck && !this.validateTemplateConsistency()) {
+                    console.error(`Failed to validate "native" directory`);
+                }
+            }
+        } catch (e) {
+            console.error(`Failed to validate native directory`);
+            console.error(e);
+        }
+    }
+
+    /**
+     * Write cocos-version.json into native/common/cocos-version.json
+     */
+    protected writeEngineVersion() {
+        if (!fs.existsSync(this.projEngineVersionPath)) {
+            fs.writeJSON(this.projEngineVersionPath, {
+                version: this.tryGetEngineVersion(),
+                skipCheck: false,
+            });
+        }
     }
 
     protected async copyPlatformTemplate() {
-        // TODO version check
         if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
-            // 拷贝 lite 仓库的 templates/平台/ 文件到 native 目录
+            // 拷贝 templates/平台/ 文件到 "native" 目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform), this.paths.platformTemplateDirInPrj, { overwrite: false });
+            this.writeEngineVersion();
+        } else {
+            this.validateNativeDir();
         }
     }
 
@@ -223,7 +474,7 @@ export abstract class NativePackTool {
 
             config.encrypted = true;
             fs.writeJSONSync(configPath, config);
-    
+
             fs.copySync(scriptDest, ps.join(backupPath, ps.relative(this.paths.buildAssetsDir, scriptDest)));
             fs.removeSync(scriptDest);
         }
@@ -241,9 +492,9 @@ export abstract class NativePackTool {
         }
     }
 
-    create?():  Promise<boolean>;
-    make?():  Promise<boolean>;
-    run?():  Promise<boolean>;
+    create?(): Promise<boolean>;
+    make?(): Promise<boolean>;
+    run?(): Promise<boolean>;
 }
 
 // cocos.compile.json 
@@ -283,7 +534,7 @@ export class CocosParams<T> {
      * @zh 是否压缩脚本
      * @en is compress script
      */
-     compressZip?: boolean;
+    compressZip?: boolean;
     /**
      * @zh 加密密钥
      * @en encrypt Key
@@ -301,7 +552,7 @@ export class CocosParams<T> {
         CC_USE_GLES2: true,
         USE_SERVER_MODE: 'set(USE_SERVER_MODE OFF)',
         NET_MODE: 'set(NET_MODE 0)',
-        XXTEAKEY : '',
+        XXTEAKEY: '',
         CC_ENABLE_SWAPPY: false,
     }
 

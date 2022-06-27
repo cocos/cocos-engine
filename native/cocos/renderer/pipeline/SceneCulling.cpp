@@ -34,7 +34,6 @@
 #include "core/geometry/Intersect.h"
 #include "core/geometry/Sphere.h"
 #include "core/scene-graph/Node.h"
-#include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
@@ -53,7 +52,7 @@ namespace pipeline {
 RenderObject genRenderObject(const scene::Model *model, const scene::Camera *camera) {
     float depth = 0;
     if (model->getNode()) {
-        auto *node = model->getTransform();
+        const auto *node = model->getTransform();
         cc::Vec3 position;
         cc::Vec3::subtract(node->getWorldPosition(), camera->getPosition(), &position);
         depth = position.dot(camera->getForward());
@@ -149,13 +148,13 @@ void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, ccstd
     memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, shadowInfo->getShadowColor4f().data(), sizeof(float) * 4);
 }
 
-void updatePlanarNormalAndDistance(scene::Shadows *shadowInfo, ccstd::array<float, UBOShadow::COUNT> *shadowUBO) {
+void updatePlanarNormalAndDistance(const scene::Shadows* shadowInfo, ccstd::array<float, UBOShadow::COUNT>* shadowUBO) {
     const Vec3 normal = shadowInfo->getNormal().getNormalized();
     const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadowInfo->getDistance()};
     memcpy(shadowUBO->data() + UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET, &planarNDInfo, sizeof(planarNDInfo));
 }
 
-void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera) {
+void validPunctualLightsCulling(const RenderPipeline* pipeline, const scene::Camera* camera) {
     const auto *const scene = camera->getScene();
     PipelineSceneData *sceneData = pipeline->getPipelineSceneData();
     sceneData->clearValidPunctualLights();
@@ -200,7 +199,7 @@ void updateDirFrustum(const geometry::Sphere *cameraBoundingSphere, const Quater
 }
 
  // Todo If you want to optimize the cutting efficiency, you can get it from the octree
-void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, ShadowTransformInfo *layer) {
+void shadowCulling(const RenderPipeline* pipeline, const scene::Camera* camera, ShadowTransformInfo* layer) {
     const auto *sceneData = pipeline->getPipelineSceneData();
     auto *csmLayers = sceneData->getCSMLayers();
     const auto *const scene = camera->getScene();
@@ -219,8 +218,8 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
                 const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
                 if (accurate) {
                     layer->addShadowObject(genRenderObject(model, camera));
-                    if (layer->getLevel() < static_cast<uint>(mainLight->getCsmLevel())) {
-                        if (static_cast<uint>(mainLight->getCsmOptimizationMode()) == 2 &&
+                    if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
+                        if (static_cast<uint32_t>(mainLight->getCSMOptimizationMode()) == 2 &&
                             aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
                             csmLayers->getLayerObjects().erase(csmLayers->getLayerObjects().begin() + static_cast<uint32_t>(i));
                             i--;
@@ -232,7 +231,7 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
     }
 }
 
-void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
+void sceneCulling(const RenderPipeline* pipeline, scene::Camera* camera) {
     CC_PROFILE(SceneCulling);
     PipelineSceneData *const sceneData = pipeline->getPipelineSceneData();
     const scene::Shadows *shadowInfo = sceneData->getShadows();

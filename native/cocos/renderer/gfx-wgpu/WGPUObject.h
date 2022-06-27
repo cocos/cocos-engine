@@ -198,9 +198,9 @@ struct CCWGPUDescriptorSetObject {
 };
 
 struct CCWGPUStencilMasks {
-    uint writeMask = 0;
-    uint compareRef = 0;
-    uint compareMask = 0;
+    uint32_t writeMask = 0;
+    uint32_t compareRef = 0;
+    uint32_t compareMask = 0;
 };
 
 struct CCWGPUStateCache {

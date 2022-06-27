@@ -563,15 +563,17 @@ const Elements = {
             panel.$.rulerMaking.innerText = '';
             const maxNum = panel.gridConfig.mod + 1;
             for (let minNum = 1; minNum <= maxNum; minNum++) {
-                const label = document.createElement('div');
-                label.setAttribute('class', 'label-item');
-                label.style.left = `${panel.gridConfig.spacing * 5 * (minNum - 1) - 6}px`;
-                panel.$.rulerMaking.appendChild(label);
-
-                const span = document.createElement('span');
-                span.setAttribute('class', 'mid-label');
-                span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(2);
-                label.appendChild(span);
+                // If the remaining cells are less than 1.5, hide the label
+                if (((panel.gridConfig.width / panel.gridConfig.spacing) % 5) >= 1.5 || minNum !== maxNum) {
+                    const label = document.createElement('div');
+                    label.setAttribute('class', 'label-item');
+                    label.style.left = `${panel.gridConfig.spacing * 5 * (minNum - 1) - 6}px`;
+                    panel.$.rulerMaking.appendChild(label);
+                    const span = document.createElement('span');
+                    span.setAttribute('class', 'mid-label');
+                    span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(2);
+                    label.appendChild(span);
+                }
             }
             const lastMakingLabel = document.createElement('div');
             lastMakingLabel.setAttribute('class', 'label-item');

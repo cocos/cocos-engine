@@ -15,17 +15,26 @@ CCEffect %{
 }%
 
 
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+  vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+  {
+    // Apply uniform scaling for atmosphere effects
+    return In.worldPos;
+  }
+}%
+
 CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
-     vec3 c = cc_ambientSky.xyz;
+     vec3 c = vec3(1.0);
   #if CC_USE_IBL
      vec3 normal = normalize(FSInput_worldNormal);
     #if USE_RGBE_CUBEMAP
-      c *= unpackRGBE(texture(cc_environment, normal.xyz));
+      c *= unpackRGBE(fragTextureLod(cc_environment, normal.xyz, 0.0));
     #else
-      c *= SRGBToLinear(texture(cc_environment, normal.xyz).rgb);
+      c *= SRGBToLinear(fragTextureLod(cc_environment, normal.xyz, 0.0).rgb);
     #endif
   #endif
     return vec4(c * cc_ambientSky.w, 1.0);
@@ -37,16 +46,16 @@ CCProgram sky-vs %{
 
   #include <surfaces/effect-macros/sky>
   #include <surfaces/includes/common-vs>
+  #include <surface-vertex>
   #include <shading-entries/main-functions/misc/sky-vs>
 }%
 
 
 CCProgram sky-fs %{
   precision highp float;
+
   #include <surfaces/effect-macros/sky>
   #include <surfaces/includes/common-fs>
-
   #include <surface-fragment>
-
   #include <shading-entries/main-functions/misc/sky-fs>
 }%

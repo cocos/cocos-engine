@@ -267,6 +267,18 @@ export class Model {
     }
 
     /**
+     * @en Rendering priority in the transparent queue of model.
+     * @zh Model 在透明队列中的渲染排序优先级
+     */
+    get priority () : number {
+        return this._priority;
+    }
+
+    set priority (val: number) {
+        this._priority = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -411,6 +423,8 @@ export class Model {
      * @zh 可见性标志位
      */
     protected _visFlags = Layers.Enum.NONE;
+
+    protected _priority = 0;
 
     /**
      * @internal
@@ -653,8 +667,19 @@ export class Model {
     }
 
     /**
-     * @en Update the light map
-     * @zh 更新光照贴图
+     * @internal
+     * If the model has lighting map
+     * initialize lighting map info before model initializing
+     * because the lighting map will influence the shader
+     */
+    public initLightingmap (texture: Texture2D | null, uvParam: Vec4) {
+        this._lightmap = texture;
+        this._lightmapUVParam = uvParam;
+    }
+
+    /**
+     * @en Update the light map info
+     * @zh 更新光照贴图信息
      * @param texture light map
      * @param uvParam uv coordinate
      */

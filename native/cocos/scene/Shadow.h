@@ -137,7 +137,7 @@ enum class PCFType {
 };
 
 /**
- * @zh 联级阴影贴图层级。
+ * @zh 级联阴影贴图层级。
  * @en The CSM shadow level
  * @static
  * @enum Shadows.CSMLevel
@@ -173,7 +173,7 @@ enum class CSMLevel {
 };
 
 /**
- * @zh 联级阴影性能优化模式。
+ * @zh 级联阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @static
  * @enum Shadows.CSMOptimizationMode
@@ -266,16 +266,12 @@ public:
         return _size.x;
     }
 
-    inline const Vec2 &getSize() const {
-        return _size;
-    }
-
     /**
      * @en Set plane which receives shadow with the given node's world transformation
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
      */
-    void setPlaneFromNode(Node *node);
+    void setPlaneFromNode(const Node* node);
 
     void activate(Shadows *resource);
 
@@ -422,7 +418,7 @@ private:
     Mat4 _matLight;
     IntrusivePtr<Material> _material{nullptr};
     IntrusivePtr<Material> _instancingMaterial{nullptr};
-    Vec2 _size{512.F, 512.F};
+    Vec2 _size{1024.F, 1024.F};
     bool _enabled{false};
     float _distance{0.F};
     ShadowType _type{ShadowType::NONE};

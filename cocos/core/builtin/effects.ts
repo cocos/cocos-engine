@@ -9,9 +9,9 @@ export const effects = [
     "shaders": [
       {
         "name": "billboard|vert:vs_main|tinted-fs:add",
-        "hash": 1676330124,
+        "hash": 962627914,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 55, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 59, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -82,9 +82,9 @@ export const effects = [
     "shaders": [
       {
         "name": "debug-renderer|debug-renderer-vs:vert|debug-renderer-fs:frag",
-        "hash": 1999441158,
+        "hash": 188031190,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -119,9 +119,9 @@ export const effects = [
     "shaders": [
       {
         "name": "geometry-renderer|line-vs:vert|line-fs:front",
-        "hash": 3619465454,
+        "hash": 1281261871,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -142,9 +142,9 @@ export const effects = [
       },
       {
         "name": "geometry-renderer|line-vs:vert|line-fs:back",
-        "hash": 1057739685,
+        "hash": 2558417469,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -165,9 +165,9 @@ export const effects = [
       },
       {
         "name": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front",
-        "hash": 3439667104,
+        "hash": 3080709039,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -188,9 +188,9 @@ export const effects = [
       },
       {
         "name": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:back",
-        "hash": 1998990011,
+        "hash": 2686269546,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -211,9 +211,9 @@ export const effects = [
       },
       {
         "name": "geometry-renderer|triangle-vs:vert|triangle-fs:front",
-        "hash": 2829294556,
+        "hash": 869569523,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -235,9 +235,9 @@ export const effects = [
       },
       {
         "name": "geometry-renderer|triangle-vs:vert|triangle-fs:back",
-        "hash": 990534784,
+        "hash": 1077666120,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -267,9 +267,9 @@ export const effects = [
     "shaders": [
       {
         "name": "graphics|vs:vert|fs:frag",
-        "hash": 3547073107,
+        "hash": 3387382926,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 50, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -297,9 +297,9 @@ export const effects = [
     "shaders": [
       {
         "name": "occlusion-query|occlusion-query-vs:vert|occlusion-query-fs:frag",
-        "hash": 1316302916,
+        "hash": 4177124405,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 42, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 46, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCWorldBound", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -320,14 +320,14 @@ export const effects = [
   {
     "name": "particle-gpu",
     "techniques": [
-      { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }
+      { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle-gpu|builtin/internal/particle-vs-gpu:gpvs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }
     ],
     "shaders": [
       {
-        "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
-        "hash": 2909083171,
+        "name": "particle-gpu|builtin/internal/particle-vs-gpu:gpvs_main|tinted-fs:add",
+        "hash": 2375623434,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 65, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 69, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -416,14 +416,14 @@ export const effects = [
   {
     "name": "particle-trail",
     "techniques": [
-      { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle-trail|particle-trail:vs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "frameTile_velLenScale": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }
+      { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle-trail|builtin/internal/particle-trail:vs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "frameTile_velLenScale": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }
     ],
     "shaders": [
       {
-        "name": "particle-trail|particle-trail:vs_main|tinted-fs:add",
-        "hash": 2767485474,
+        "name": "particle-trail|builtin/internal/particle-trail:vs_main|tinted-fs:add",
+        "hash": 1784594556,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 58, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -464,14 +464,14 @@ export const effects = [
   {
     "name": "particle",
     "techniques": [
-      { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }
+      { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle|builtin/internal/particle-vs-legacy:lpvs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }
     ],
     "shaders": [
       {
-        "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 3975181301,
+        "name": "particle|builtin/internal/particle-vs-legacy:lpvs_main|tinted-fs:add",
+        "hash": 2320189417,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 58, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -522,9 +522,9 @@ export const effects = [
     "shaders": [
       {
         "name": "spine|sprite-vs:vert|sprite-fs:frag",
-        "hash": 152031249,
+        "hash": 3890043391,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 50, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": [] }], "buffers": [], "images": [] }
         },
@@ -561,9 +561,9 @@ export const effects = [
     "shaders": [
       {
         "name": "sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 1575198579,
+        "hash": 3438030836,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 50, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
         },
@@ -603,11 +603,11 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 4285586095,
+        "hash": 3591917274,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 282, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 134 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }, { "name": "CCCSM", "defines": ["CC_RECEIVE_SHADOW"] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["CC_USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 196, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 128 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }, { "name": "cc_lightingMap", "defines": ["CC_USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -618,10 +618,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" },
           { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
           { "name": "USE_VERTEX_COLOR", "type": "boolean" },
@@ -697,11 +698,11 @@ export const effects = [
       },
       {
         "name": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 4235079079,
+        "hash": 3398834153,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 184, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 134 },
-          "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }, { "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCCSM", "defines": ["CC_RECEIVE_SHADOW"] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 152, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 128 },
+          "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }, { "name": "CCGlobal", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "CCCamera", "defines": ["CC_RECEIVE_SHADOW"] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -712,10 +713,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" },
           { "name": "HAS_SECOND_UV", "type": "boolean" },
           { "name": "USE_ALBEDO_MAP", "type": "boolean" },
           { "name": "ALBEDO_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
@@ -768,10 +770,10 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 2886943268,
+        "hash": 1948633034,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 130, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 130 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }, { "name": "CCCSM", "defines": ["CC_RECEIVE_SHADOW"] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 134, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 124 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_lightingMap", "defines": ["CC_USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
         "defines": [
@@ -831,9 +833,9 @@ export const effects = [
       },
       {
         "name": "terrain|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 1104371006,
+        "hash": 2518358927,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 70, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 132, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -861,11 +863,11 @@ export const effects = [
     "shaders": [
       {
         "name": "unlit|unlit-vs:vert|unlit-fs:frag",
-        "hash": 4199175795,
+        "hash": 3608581236,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 199, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 42 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 113, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 46 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -876,10 +878,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" },
           { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
           { "name": "USE_VERTEX_COLOR", "type": "boolean" },
@@ -934,11 +937,11 @@ export const effects = [
     "shaders": [
       {
         "name": "bloom|bloom-vs|prefilter-fs",
-        "hash": 696288644,
+        "hash": 3484556824,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 148, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 62, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -949,10 +952,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" }
+          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -986,11 +990,11 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|downsample-fs",
-        "hash": 3434961402,
+        "hash": 25210646,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 148, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 62, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -1001,10 +1005,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" }
+          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1038,11 +1043,11 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|upsample-fs",
-        "hash": 2149583569,
+        "hash": 1340179983,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 148, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 62, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -1053,10 +1058,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" }
+          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1090,11 +1096,11 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|combine-fs",
-        "hash": 2129678041,
+        "hash": 985336304,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 148, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 62, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 45 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -1105,10 +1111,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" }
+          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1151,11 +1158,11 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 1174111565,
+        "hash": 99450109,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 128 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }, { "name": "CCCSM", "defines": ["CC_RECEIVE_SHADOW"] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [], "buffers": [], "images": [] }
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 122 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCForwardLight", "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -1218,11 +1225,11 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 2402869293,
+        "hash": 2489631761,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 218, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 60 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 190, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 122 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -1233,10 +1240,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
-          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" }
+          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1272,11 +1280,11 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 1675033909,
+        "hash": 2821682086,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 148, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 62, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "!CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_realtimeJoint", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION", "CC_USE_REAL_TIME_JOINT_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_INSTANCING", "type": "boolean" },
@@ -1287,10 +1295,11 @@ export const effects = [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
-          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_USE_REAL_TIME_JOINT_TEXTURE", "type": "boolean" },
           { "name": "ANTIALIAS_TYPE", "type": "number", "range": [0, 3] }
         ],
         "attributes": [
@@ -1329,9 +1338,9 @@ export const effects = [
     "shaders": [
       {
         "name": "skybox|sky-vs:vert|sky-fs:frag",
-        "hash": 3355006655,
+        "hash": 992216169,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 40, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 44, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_environment", "defines": [] }], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -1381,9 +1390,9 @@ export const effects = [
     "shaders": [
       {
         "name": "profiler|profiler-vs:vert|profiler-fs:frag",
-        "hash": 1980486553,
+        "hash": 2632890994,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 61, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 65, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 44 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },

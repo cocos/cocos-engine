@@ -1,0 +1,31 @@
+#pragma define-meta CC_USE_FOG range([0, 4])
+#pragma define CC_FOG_LINEAR 0
+#pragma define CC_FOG_EXP 1
+#pragma define CC_FOG_EXP_SQUARED 2
+#pragma define CC_FOG_LAYERED 3
+#pragma define CC_FOG_NONE 4
+
+#include <builtin/uniforms/cc-global>
+#if CC_USE_FOG != CC_FOG_NONE
+  #include <common/effect/fog>
+#endif
+
+// Fog helper functions
+void CC_TRANSFER_FOG_BASE(vec4 pos, out float factor)
+{
+#if CC_USE_FOG == CC_FOG_LINEAR
+	factor = LinearFog(pos, cc_cameraPos.xyz, cc_fogBase.x, cc_fogBase.y);
+#elif CC_USE_FOG == CC_FOG_EXP
+	factor = ExpFog(pos, cc_cameraPos.xyz, cc_fogBase.x, cc_fogBase.z, cc_fogAdd.z);
+#elif CC_USE_FOG == CC_FOG_EXP_SQUARED
+	factor = ExpSquaredFog(pos, cc_cameraPos.xyz, cc_fogBase.x, cc_fogBase.z, cc_fogAdd.z);
+#elif CC_USE_FOG == CC_FOG_LAYERED
+	factor = LayeredFog(pos, cc_cameraPos.xyz, cc_fogAdd.x, cc_fogAdd.y, cc_fogAdd.z);
+#else
+	factor = 1.0;
+#endif
+}
+
+void CC_APPLY_FOG_BASE(inout vec4 color, float factor) {
+	color = vec4(mix(cc_fogColor.rgb, color.rgb, factor), color.a);
+}

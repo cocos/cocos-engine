@@ -43,7 +43,7 @@ Misc free functions
 namespace cc {
 namespace utils {
 
-CC_DLL ccstd::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
+CC_DLL ccstd::string getStacktrace(uint32_t skip = 0, uint32_t maxDepth = UINT32_MAX);
 
 /**
  * Returns the Next Power of Two value.
@@ -55,7 +55,7 @@ CC_DLL ccstd::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
  * @return Returns the next power of two value.
  * @since v0.99.5
 */
-CC_DLL uint nextPOT(uint x);
+CC_DLL uint32_t nextPOT(uint32_t x);
 
 /**
  * Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.

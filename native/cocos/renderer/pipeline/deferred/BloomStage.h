@@ -36,9 +36,9 @@ namespace cc {
 namespace pipeline {
 
 struct CC_DLL UBOBloom {
-    static constexpr uint TEXTURE_SIZE_OFFSET = 0;
-    static constexpr uint COUNT = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
-    static constexpr uint SIZE = UBOBloom::COUNT * 4;
+    static constexpr uint32_t TEXTURE_SIZE_OFFSET = 0;
+    static constexpr uint32_t COUNT = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
+    static constexpr uint32_t SIZE = UBOBloom::COUNT * 4;
 };
 
 class CC_DLL BloomStage : public RenderStage {
@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    uint _phaseID = 0;
+    uint32_t _phaseID = 0;
 
     static RenderStageInfo initInfo;
 

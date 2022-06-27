@@ -94,13 +94,13 @@ CCProgram shared-ubos %{
 
 CCProgram standard-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
@@ -126,7 +126,7 @@ CCProgram standard-vs %{
   #endif
 
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-vs>
+    #include <legacy/lightingmap-vs>
   #endif
 
   void main () {
@@ -183,12 +183,12 @@ CCProgram standard-vs %{
 
 CCProgram standard-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <shared-ubos>
-  #include <cc-fog-fs>
-  #include <standard-surface-entry>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+    #include <legacy/lightingmap-fs>
   #endif
 
   in vec3 v_position;
@@ -381,12 +381,12 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <decode-base>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/decode-base>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-shadow>
 
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
@@ -422,8 +422,8 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
-  #include <packing>
-  #include <cc-shadow-map-base>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
 
   in vec2 v_uv;
   in vec2 v_uv1;

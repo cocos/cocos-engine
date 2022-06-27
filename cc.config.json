@@ -1,6 +1,8 @@
 {
+    "$schema": "./cc.config.schema.json",
+
     "features": {
-        "base": { "modules": [ "base" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
+        "base": { "modules": [ "base", "native" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
         "3d": { "modules": [ "3d" ] },
@@ -39,6 +41,13 @@
     },
     "moduleOverrides": [
         {
+            "test": "true",
+            "isVirtualModule": true,
+            "overrides": {
+                "internal:native": "cocos/native-binding/impl.ts"
+            }
+        },
+        {
             "test": "context.mode === 'BUILD'",
             "isVirtualModule": false,
             "overrides": {
@@ -64,8 +73,8 @@
                 "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
                 "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
                 "cocos/core/renderer/2d/native-2d.ts": "cocos/core/renderer/2d/native-2d.jsb.ts",
+                "cocos/core/gfx/base/pipeline-state.ts": "cocos/core/gfx/base/pipeline-state.jsb.ts",
                 "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
-                "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
@@ -162,5 +171,162 @@
         "./editor/exports/**/*.{ts,js,json}",
         "./cocos/**/*.{ts,js,json}",
         "./pal/**/*.{ts,js,json}"
-    ]
+    ],
+
+    "constants": {
+        "HTML5": {
+            "comment": "Running in Web platform",
+            "value": false,
+            "internal": false,
+            "dynamic": true
+        },
+        "NATIVE": {
+            "comment": "Running in native platform (mobile app, desktop app, or simulator).",
+            "value": false,
+            "internal": false,
+            "dynamic": true
+        },
+        "WECHAT": {
+            "comment": "Running in the Wechat's mini game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "BAIDU": {
+            "comment": "Running in the baidu's mini game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "XIAOMI": {
+            "comment": "Running in the xiaomi's quick game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "ALIPAY": {
+            "comment": "Running in the alipay's mini game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "BYTEDANCE": {
+            "comment": "Running in the ByteDance's mini game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "OPPO": {
+            "comment": "Running in the oppo's quick game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "VIVO": {
+            "comment": "Running in the vivo's quick game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "HUAWEI": {
+            "comment": "Running in the huawei's quick game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "COCOSPLAY": {
+            "comment": "Running in the cocosplay.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "QTT": {
+            "comment": "Running in the qtt's quick game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "LINKSURE": {
+            "comment": "Running in the linksure's quick game.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+
+        "EDITOR": {
+            "comment": "Running in the editor.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "PREVIEW": {
+            "comment": "Preview in browser or simulator.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "BUILD": {
+            "comment": "Running in published project.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "TEST": {
+            "comment": "Running in the engine's unit test.",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+
+
+        "DEBUG": {
+            "comment": "Running debug mode.",
+            "value": true,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "SERVER_MODE": {
+            "comment": "Running in the server mode.",
+            "value": false,
+            "internal": false
+        },
+
+
+        "DEV": {
+            "comment": "Running in the editor or preview.",
+            "value": "$EDITOR || $PREVIEW || $TEST",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "MINIGAME": {
+            "comment": "Running in mini game.",
+            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $BYTEDANCE",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "RUNTIME_BASED": {
+            "comment": "Running in runtime based environment.",
+            "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "SUPPORT_JIT": {
+            "comment": "Support JIT.",
+            "value": "!($MINIGAME || $RUNTIME_BASED)",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "JSB": {
+            "comment": "Running in environment where using JSB as the JavaScript interface binding scheme.",
+            "value": "$NATIVE",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        }
+    }
 }

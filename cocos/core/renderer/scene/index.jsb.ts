@@ -207,28 +207,28 @@ export const CSMLevel = Enum({
      * @en level 1
      * @readonly
      */
-    level_1: 1,
+    LEVEL_1: 1,
 
     /**
      * @zh 2 个层级
      * @en level 2
      * @readonly
      */
-    level_2: 2,
+    LEVEL_2: 2,
 
     /**
      * @zh 3 个层级
      * @en level 3
      * @readonly
      */
-    level_3: 3,
+    LEVEL_3: 3,
 
     /**
      * @zh 4 个层级
      * @en level 4
      * @readonly
      */
-    level_4: 4,
+    LEVEL_4: 4,
 });
 /**
  * @zh 级联阴影性能优化模式。
@@ -256,6 +256,32 @@ export const CSMLevel = Enum({
       * @readonly
       */
     DisableRotaitonFix: 3,
+});
+export const EnvironmentLightingType = Enum({
+    /**
+     * @zh
+     * 半球漫反射
+     * @en
+     * hemisphere diffuse
+     * @readonly
+     */
+    HEMISPHERE_DIFFUSE: 0,
+    /**
+     * @zh
+     * 半球漫反射和环境反射
+     * @en
+     * hemisphere diffuse and Environment reflection
+     * @readonly
+     */
+    AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION: 1,
+    /**
+     * @zh
+     * 漫反射卷积图和环境反射
+     * @en
+     * diffuse convolution map and environment reflection
+     * @readonly
+     */
+    DIFFUSEMAP_WITH_REFLECTION: 2,
 });
 export const ShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = jsb.ShadowsInfo;

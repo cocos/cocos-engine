@@ -39,12 +39,12 @@ struct DownloaderHints;
 
 class DownloaderCURL : public IDownloaderImpl {
 public:
-    DownloaderCURL(const DownloaderHints &hints);
-    virtual ~DownloaderCURL();
+    explicit DownloaderCURL(const DownloaderHints &hints);
+     ~DownloaderCURL() override;
 
-    virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask> &task) override;
+     IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask> &task) override;
 
-    virtual void abort(const std::unique_ptr<IDownloadTask> &task) override;
+     void abort(const std::unique_ptr<IDownloadTask> &task) override;
 
 protected:
     class Impl;
@@ -52,10 +52,10 @@ protected:
 
     // for transfer data on schedule
     DownloadTaskCURL *_currTask; // temp ref
-    std::function<int64_t(void *, int64_t)> _transferDataToBuffer;
+    std::function<uint32_t(void *, uint32_t)> _transferDataToBuffer;
 
     // scheduler for update processing and finished task in main schedule
-    void _onSchedule(float);
+    void onSchedule(float);
     ccstd::string _schedulerKey;
     std::weak_ptr<Scheduler> _scheduler;
 };

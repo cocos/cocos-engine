@@ -28,6 +28,7 @@ cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
 cc_set_if_undefined(USE_CCACHE               OFF)
+cc_set_if_undefined(USE_PLUGINS              ON)
 
 add_definitions()
 
@@ -101,6 +102,9 @@ if(USE_JOB_SYSTEM_TASKFLOW)
 endif()
 
 if(ANDROID)
+    if(USE_CCACHE AND NOT CCACHE_EXECUTABLE)
+       message(AUTHOR_WARNING "ccache executable not found!")
+    endif()
     if(CCACHE_EXECUTABLE AND USE_CCACHE)
         set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_EXECUTABLE}")
         set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_EXECUTABLE}")
@@ -133,6 +137,7 @@ cc_inspect_values(
     USE_SERVER_MODE
     USE_CCACHE
     CCACHE_EXECUTABLE
+    NODE_EXECUTABLE
 )
 
 ################################# external source code ################################
@@ -147,6 +152,7 @@ if(USE_AUDIO)
     cocos_source_files(
                      cocos/audio/AudioEngine.cpp
                      cocos/audio/include/AudioEngine.h
+                     cocos/audio/include/AudioDef.h
                      cocos/audio/include/Export.h
     )
     if(WINDOWS)
@@ -296,6 +302,15 @@ if(USE_AUDIO)
 
 endif()
 
+##### plugins
+cocos_source_files(
+    cocos/plugins/Plugins.h
+    cocos/plugins/Plugins.cpp
+    cocos/plugins/bus/BusTypes.h
+    cocos/plugins/bus/EventBus.h
+    cocos/plugins/bus/EventBus.cpp
+)
+
 ##### base
 cocos_source_files(
     cocos/base/Agent.h
@@ -303,7 +318,6 @@ cocos_source_files(
     cocos/base/astc.h
     cocos/base/base64.cpp
     cocos/base/base64.h
-    cocos/base/CachedArray.h
     cocos/base/Config.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.h
@@ -979,6 +993,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/states/GFXSampler.h
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.cpp
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
@@ -1520,6 +1536,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/states/VKSampler.h
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.h
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.h
     )
 
     if(ANDROID)
@@ -1694,7 +1712,6 @@ cocos_source_files(
 
     # memop
     cocos/core/memop/CachedArray.h
-    cocos/core/memop/CachedArray.cpp
     cocos/core/memop/Pool.h
     cocos/core/memop/Pool.cpp
     cocos/core/memop/RecyclePool.h
@@ -2309,7 +2326,12 @@ cocos_source_files(
             cocos/bindings/manual/jsb_pipeline_manual.h
             cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
-
+if(USE_AUDIO)
+    cocos_source_files(
+            cocos/bindings/manual/jsb_audio_manual.cpp
+            cocos/bindings/manual/jsb_audio_manual.h
+    )
+endif()
 if(USE_SOCKET)
     cocos_source_files(
                      cocos/bindings/manual/jsb_socketio.cpp

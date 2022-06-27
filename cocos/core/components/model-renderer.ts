@@ -36,12 +36,9 @@ import { Renderer } from './renderer';
  */
 @ccclass('cc.ModelRenderer')
 export class ModelRenderer extends Renderer {
-    @serializable
-    protected _visFlags = Layers.Enum.NONE;
-
     /**
-     * @zh 组件所属层，影响该组件下的所有 model 的 visFlags
-     * @en The layer of the current component, which affects all the visFlags of the models belonging to this component.
+     * @en The visibility which will be applied to the committed models.
+     * @zh 应用于所有提交渲染的 Model 的可见性
      */
     get visibility () {
         return this._visFlags;
@@ -52,7 +49,23 @@ export class ModelRenderer extends Renderer {
         this._onVisibilityChange(val);
     }
 
+    /**
+     * @en The priority which will be applied to the committed models.(Valid only in transparent queues)
+     * @zh 应用于所有提交渲染的 Model 的排序优先级（只在半透明渲染队列中起效）
+     */
+    get priority () {
+        return this._priority;
+    }
+
+    set priority (val) {
+        if (val === this._priority) return;
+        this._updatePriority();
+    }
+
+    @serializable
+    protected _visFlags = Layers.Enum.NONE;
     protected _models: scene.Model[] = [];
+    protected _priority = 0;
 
     /**
      * @zh 收集组件中的 models
@@ -63,6 +76,10 @@ export class ModelRenderer extends Renderer {
         return this._models;
     }
 
+    protected onEnable () {
+        this._updatePriority();
+    }
+
     protected _attachToScene () {
     }
 
@@ -70,5 +87,13 @@ export class ModelRenderer extends Renderer {
     }
 
     protected _onVisibilityChange (val) {
+    }
+
+    protected _updatePriority () {
+        if (this._models.length > 0) {
+            for (let i = 0; i < this._models.length; i++) {
+                this._models[i].priority = this._priority;
+            }
+        }
     }
 }

@@ -439,7 +439,7 @@ export class Label extends UIRenderer {
         // if delete the font, we should change isSystemFontUsed to true
         this._isSystemFontUsed = !value;
 
-        if (EDITOR && value) {
+        if (EDITOR) {
             this._userDefinedFont = value;
         }
 

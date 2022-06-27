@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import { _applyDecoratedDescriptor } from '../../core/data/utils/decorator-jsb-utils';
 import { legacyCC } from '../../core/global-exports';
 
 export declare namespace Mesh {
@@ -47,34 +46,8 @@ const meshAssetProto: any = jsb.Mesh.prototype;
 
 meshAssetProto.createNode = null!;
 
-const clsDecorator = ccclass('cc.Mesh');
-
-const _class2$V = Mesh;
-
-const _descriptor$M = _applyDecoratedDescriptor(_class2$V.prototype, '_struct', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return {
-            vertexBundles: [],
-            primitives: [],
-        };
-    },
-});
-const _descriptor2$y = _applyDecoratedDescriptor(_class2$V.prototype, '_hash', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
-
 meshAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
-    // _initializerDefineProperty(_this, "_struct", _descriptor$M, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_hash", _descriptor2$y, _assertThisInitialized(_this));
     this._struct = {
         vertexBundles: [],
         primitives: [],
@@ -95,6 +68,10 @@ meshAssetProto.onLoaded = function () {
     this._struct = null;
 };
 
-clsDecorator(Mesh);
-
 legacyCC.Mesh = jsb.Mesh;
+
+// handle meta data, it is generated automatically
+const MeshProto = Mesh.prototype;
+serializable(MeshProto, '_struct');
+serializable(MeshProto, '_hash');
+ccclass('cc.Mesh')(Mesh);

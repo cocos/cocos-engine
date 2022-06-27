@@ -48,22 +48,22 @@ public:
     void destroy() override;
 
 private:
-    void renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint level = 0);
+    void renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level = 0);
 
     void lightCollecting();
 
     void clearShadowMap(scene::Camera *camera);
 
-    void resizeShadowMap();
+    void resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds);
 
-    void initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light);
+    void initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light);
 
     static RenderFlowInfo initInfo;
 
     gfx::RenderPass *_renderPass = nullptr;
 
     ccstd::vector<const scene::Light *> _validLights;
-    ccstd::vector<gfx::Texture *> _usedTextures;
+    ccstd::vector<IntrusivePtr<gfx::Texture>> _usedTextures;
 
     static ccstd::unordered_map<ccstd::hash_t, cc::gfx::RenderPass *> renderPassHashMap;
 };

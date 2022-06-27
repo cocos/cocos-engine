@@ -138,6 +138,7 @@ extern se::Class * __jsb_cc_BufferAsset_class; // NOLINT
 
 bool js_register_cc_BufferAsset(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_BufferAsset_getBuffer);
 SE_DECLARE_FUNC(js_assets_BufferAsset_BufferAsset);
 
 extern se::Object *__jsb_cc_IPropertyInfo_proto; // NOLINT
@@ -325,8 +326,10 @@ bool js_register_cc_EffectAsset(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_EffectAsset_get);
 SE_DECLARE_FUNC(js_assets_EffectAsset_getAll);
+SE_DECLARE_FUNC(js_assets_EffectAsset_isLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_registerAsset);
 SE_DECLARE_FUNC(js_assets_EffectAsset_remove);
+SE_DECLARE_FUNC(js_assets_EffectAsset_setLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_EffectAsset);
 
 extern se::Object *__jsb_cc_IMemoryImageSource_proto; // NOLINT
@@ -384,6 +387,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4Array);
+SE_DECLARE_FUNC(js_assets_Material_setPropertyNull);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternion);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternionArray);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyTextureBase);
@@ -758,6 +762,7 @@ SE_DECLARE_FUNC(js_assets_Mesh_getStruct);
 SE_DECLARE_FUNC(js_assets_Mesh_initialize);
 SE_DECLARE_FUNC(js_assets_Mesh_merge);
 SE_DECLARE_FUNC(js_assets_Mesh_readAttribute);
+SE_DECLARE_FUNC(js_assets_Mesh_readAttributeFormat);
 SE_DECLARE_FUNC(js_assets_Mesh_readIndices);
 SE_DECLARE_FUNC(js_assets_Mesh_reset);
 SE_DECLARE_FUNC(js_assets_Mesh_setStruct);

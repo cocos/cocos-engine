@@ -64,10 +64,6 @@ enum class DescriptorTypeOrder {
     INPUT_ATTACHMENT,
 };
 
-struct UniformBlockDB {
-    ccstd::map<ccstd::string, gfx::Uniform> values;
-};
-
 struct Descriptor {
     Descriptor() = default;
     Descriptor(gfx::Type typeIn) noexcept // NOLINT
@@ -78,10 +74,19 @@ struct Descriptor {
 };
 
 struct DescriptorBlock {
-    ccstd::map<ccstd::string, Descriptor>     descriptors;
-    ccstd::map<ccstd::string, UniformBlockDB> uniformBlocks;
-    uint32_t                                  capacity{0};
-    uint32_t                                  count{0};
+    ccstd::map<ccstd::string, Descriptor>        descriptors;
+    ccstd::map<ccstd::string, gfx::UniformBlock> uniformBlocks;
+    uint32_t                                     capacity{0};
+    uint32_t                                     count{0};
+};
+
+struct DescriptorBlockFlattened {
+    ccstd::vector<ccstd::string>     descriptorNames;
+    ccstd::vector<ccstd::string>     uniformBlockNames;
+    ccstd::vector<Descriptor>        descriptors;
+    ccstd::vector<gfx::UniformBlock> uniformBlocks;
+    uint32_t                         capacity{0};
+    uint32_t                         count{0};
 };
 
 struct DescriptorBlockIndex {
@@ -262,10 +267,10 @@ struct LayoutGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<RenderStageTag, RenderPhaseTag>;
-    using VertexValue       = boost::variant2::variant<uint32_t*, RenderPhase*>;
-    using VertexConstValue = boost::variant2::variant<const uint32_t*, const RenderPhase*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<RenderStageTag, RenderPhaseTag>;
+    using VertexValue       = ccstd::variant<uint32_t*, RenderPhase*>;
+    using VertexConstValue = ccstd::variant<const uint32_t*, const RenderPhase*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RenderStageTag, vertex_descriptor>,
         impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>;
 
@@ -620,10 +625,10 @@ struct LayoutGraphData {
     }
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<RenderStageTag, RenderPhaseTag>;
-    using VertexValue       = boost::variant2::variant<RenderStageData*, RenderPhaseData*>;
-    using VertexConstValue = boost::variant2::variant<const RenderStageData*, const RenderPhaseData*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<RenderStageTag, RenderPhaseTag>;
+    using VertexValue       = ccstd::variant<RenderStageData*, RenderPhaseData*>;
+    using VertexConstValue = ccstd::variant<const RenderStageData*, const RenderPhaseData*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RenderStageTag, vertex_descriptor>,
         impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>;
 
@@ -671,6 +676,7 @@ struct LayoutGraphData {
     ccstd::pmr::vector<ccstd::pmr::string>      valueNames;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
+    PmrFlatMap<ccstd::pmr::string, uint32_t>    shaderLayoutIndex;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

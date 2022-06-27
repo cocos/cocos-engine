@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "GFXFramebuffer.h"
+#include "GFXRenderPass.h"
 #include "GFXTexture.h"
 #include "base/Utils.h"
 

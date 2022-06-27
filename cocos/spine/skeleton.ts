@@ -207,7 +207,7 @@ export class Skeleton extends UIRenderer {
             this._needUpdateSkeltonData = true;
             this.defaultSkin = '';
             this.defaultAnimation = '';
-            if (EDITOR) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
                 this._refreshInspector();
             }
             this._updateSkeletonData();
@@ -277,7 +277,7 @@ export class Skeleton extends UIRenderer {
         if (skinName !== undefined) {
             this.defaultSkin = skinName;
             this.setSkin(this.defaultSkin);
-            if (EDITOR /* && !cc.engine.isPlaying */) {
+            if (EDITOR && !legacyCC.GAME_VIEW /* && !cc.engine.isPlaying */) {
                 this._refreshInspector();
                 this.markForUpdateRenderData();
             }
@@ -294,7 +294,7 @@ export class Skeleton extends UIRenderer {
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
     get _animationIndex () {
-        const animationName = EDITOR ? this.defaultAnimation : this.animation;
+        const animationName = EDITOR && !legacyCC.GAME_VIEW ? this.defaultAnimation : this.animation;
         if (this.skeletonData) {
             if (animationName) {
                 const animsEnum = this.skeletonData.getAnimsEnum();
@@ -326,7 +326,7 @@ export class Skeleton extends UIRenderer {
         const animName = animsEnum[value];
         if (animName !== undefined) {
             this.animation = animName;
-            if (EDITOR) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
                 this.defaultAnimation = animName;
                 this._refreshInspector();
             } else {
@@ -452,7 +452,7 @@ export class Skeleton extends UIRenderer {
     }
 
     set sockets (val: SpineSocket[]) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._verifySockets(val);
         }
         this._sockets = val;
@@ -651,7 +651,7 @@ export class Skeleton extends UIRenderer {
             uiTrans.setContentSize(skeletonData.width, skeletonData.height);
         }
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -714,7 +714,7 @@ export class Skeleton extends UIRenderer {
     // IMPLEMENT
     public __preload () {
         super.__preload();
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             const Flags = CCObject.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
@@ -734,7 +734,7 @@ export class Skeleton extends UIRenderer {
         this._indexBoneSockets();
         this._updateSocketBindings();
 
-        if (EDITOR) { this._refreshInspector(); }
+        if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
     }
 
     /**
@@ -764,13 +764,13 @@ export class Skeleton extends UIRenderer {
      * @zh 当前是否处于缓存模式。
      */
     public isAnimationCached () {
-        if (EDITOR) return false;
+        if (EDITOR && !legacyCC.GAME_VIEW) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
     public updateAnimation (dt: number) {
         this.markForUpdateRenderData();
-        if (EDITOR) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         if (this.paused) return;
 
         dt *= this._timeScale * timeScale;
@@ -1149,7 +1149,7 @@ export class Skeleton extends UIRenderer {
             warn('\'clearTrack\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTrack(trackIndex);
-            if (EDITOR/* && !cc.engine.isPlaying */) {
+            if (EDITOR && !legacyCC.GAME_VIEW/* && !cc.engine.isPlaying */) {
                 this._state.update(0);
             }
         }

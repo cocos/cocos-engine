@@ -1,0 +1,209 @@
+#pragma define SHADOWMAP_FORMAT_RGBA8 1
+#pragma define SHADOWMAP_FORMAT_FLOAT 0
+
+// NDC shadowPos applied with normal bias and depth bias
+
+float NativePCFShadowFactorHard (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
+{
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+    return step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, shadowNDCPos.xy)));
+  #else
+    return step(shadowNDCPos.z, texture(shadowMap, shadowNDCPos.xy).x);
+  #endif
+}
+
+float NativePCFShadowFactorSoft (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
+{
+  vec2 oneTap = 1.0 / shadowMapResolution;
+  vec2 shadowNDCPos_offset = shadowNDCPos.xy + oneTap;
+
+  float block0, block1, block2, block3;
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+    block0 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y))));
+    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos.y))));
+    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset.y))));
+    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos_offset.y))));
+  #else
+    block0 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y)).x);
+    block1 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos.y)).x);
+    block2 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset.y)).x);
+    block3 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos_offset.y)).x);
+  #endif
+
+  float coefX   = mod(shadowNDCPos.x, oneTap.x) * shadowMapResolution.x;
+  float resultX = mix(block0, block1, coefX);
+  float resultY = mix(block2, block3, coefX);
+  float coefY   = mod(shadowNDCPos.y, oneTap.y) * shadowMapResolution.y;
+  
+  return mix(resultX, resultY, coefY);
+}
+
+float NativePCFShadowFactorSoft3X (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
+{
+  vec2 oneTap = 1.0 / shadowMapResolution;
+  float shadowNDCPos_offset_L = shadowNDCPos.x - oneTap.x;
+  float shadowNDCPos_offset_R = shadowNDCPos.x + oneTap.x;
+  float shadowNDCPos_offset_U = shadowNDCPos.y - oneTap.y;
+  float shadowNDCPos_offset_D = shadowNDCPos.y + oneTap.y;
+
+  float block0, block1, block2, block3, block4, block5, block6, block7, block8;
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+    block0 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_U))));
+    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_U))));
+    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_U))));
+    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos.y))));
+    block4 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y))));
+    block5 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos.y))));
+    block6 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_D))));
+    block7 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_D))));
+    block8 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_D))));
+  #else
+    block0 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_U)).x);
+    block1 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_U)).x);
+    block2 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_U)).x);
+    block3 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos.y)).x);
+    block4 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y)).x);
+    block5 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos.y)).x);
+    block6 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_D)).x);
+    block7 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_D)).x);
+    block8 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_D)).x);
+  #endif
+
+  float coefX = mod(shadowNDCPos.x, oneTap.x) * shadowMapResolution.x;
+  float coefY = mod(shadowNDCPos.y, oneTap.y) * shadowMapResolution.y;
+
+  float shadow = 0.0;
+  float resultX = mix(block0, block1, coefX);
+  float resultY = mix(block3, block4, coefX);
+  shadow += mix(resultX , resultY, coefY);
+
+  resultX = mix(block1, block2, coefX);
+  resultY = mix(block4, block5, coefX);
+  shadow += mix(resultX , resultY, coefY);
+
+  resultX = mix(block3, block4, coefX);
+  resultY = mix(block6, block7, coefX);
+  shadow += mix(resultX, resultY, coefY);
+
+  resultX = mix(block4, block5, coefX);
+  resultY = mix(block7, block8, coefX);
+  shadow += mix(resultX, resultY, coefY);
+
+  return shadow * 0.25;
+}
+
+float NativePCFShadowFactorSoft5X (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
+{
+  vec2 oneTap = 1.0 / shadowMapResolution;  
+  vec2 twoTap = oneTap * 2.0;
+  
+  vec2 offset1 = shadowNDCPos.xy + vec2(-twoTap.x, -twoTap.y);
+  vec2 offset2 = shadowNDCPos.xy + vec2(-oneTap.x, -twoTap.y);
+  vec2 offset3 = shadowNDCPos.xy + vec2(0.0, -twoTap.y);
+  vec2 offset4 = shadowNDCPos.xy + vec2(oneTap.x, -twoTap.y);
+  vec2 offset5 = shadowNDCPos.xy + vec2(twoTap.x, -twoTap.y);
+  vec2 offset6 = shadowNDCPos.xy + vec2(-twoTap.x, -oneTap.y);
+  vec2 offset7 = shadowNDCPos.xy + vec2(-oneTap.x, -oneTap.y);
+  vec2 offset8 = shadowNDCPos.xy + vec2(0.0, -oneTap.y);
+  vec2 offset9 = shadowNDCPos.xy + vec2(oneTap.x, -oneTap.y);
+  vec2 offset10 = shadowNDCPos.xy + vec2(twoTap.x, -oneTap.y);
+  vec2 offset11 = shadowNDCPos.xy + vec2(-twoTap.x, 0.0);
+  vec2 offset12 = shadowNDCPos.xy + vec2(-oneTap.x, 0.0);
+  vec2 offset13 = shadowNDCPos.xy + vec2(0.0, 0.0);
+  vec2 offset14 = shadowNDCPos.xy + vec2(oneTap.x, 0.0);
+  vec2 offset15 = shadowNDCPos.xy + vec2(twoTap.x, 0.0);
+  vec2 offset16 = shadowNDCPos.xy + vec2(-twoTap.x, oneTap.y);
+  vec2 offset17 = shadowNDCPos.xy + vec2(-oneTap.x, oneTap.y);
+  vec2 offset18 = shadowNDCPos.xy + vec2(0.0, oneTap.y);
+  vec2 offset19 = shadowNDCPos.xy + vec2(oneTap.x, oneTap.y);
+  vec2 offset20 = shadowNDCPos.xy + vec2(twoTap.x, oneTap.y);
+  vec2 offset21 = shadowNDCPos.xy + vec2(-twoTap.x, twoTap.y);
+  vec2 offset22 = shadowNDCPos.xy + vec2(-oneTap.x, twoTap.y);
+  vec2 offset23 = shadowNDCPos.xy + vec2(0.0, twoTap.y);
+  vec2 offset24 = shadowNDCPos.xy + vec2(oneTap.x, twoTap.y);
+  vec2 offset25 = shadowNDCPos.xy + vec2(twoTap.x, twoTap.y);
+  
+  float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset1)));
+    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset2)));
+    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset3)));
+    block4 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset4)));
+    block5 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset5)));
+    block6 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset6)));
+    block7 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset7)));
+    block8 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset8)));
+    block9 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset9)));
+    block10 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset10)));
+    block11 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset11)));
+    block12 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset12)));
+    block13 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset13)));
+    block14 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset14)));
+    block15 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset15)));
+    block16 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset16)));
+    block17 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset17)));
+    block18 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset18)));
+    block19 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset19)));
+    block20 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset20)));
+    block21 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset21)));
+    block22 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset22)));
+    block23 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset23)));
+    block24 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset24)));
+    block25 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset25)));
+  #else
+    block1 = step(shadowNDCPos.z, texture(shadowMap, offset1).x);
+    block2 = step(shadowNDCPos.z, texture(shadowMap, offset2).x);
+    block3 = step(shadowNDCPos.z, texture(shadowMap, offset3).x);
+    block4 = step(shadowNDCPos.z, texture(shadowMap, offset4).x);
+    block5 = step(shadowNDCPos.z, texture(shadowMap, offset5).x);
+    block6 = step(shadowNDCPos.z, texture(shadowMap, offset6).x);
+    block7 = step(shadowNDCPos.z, texture(shadowMap, offset7).x);
+    block8 = step(shadowNDCPos.z, texture(shadowMap, offset8).x);
+    block9 = step(shadowNDCPos.z, texture(shadowMap, offset9).x);
+    block10 = step(shadowNDCPos.z, texture(shadowMap, offset10).x);
+    block11 = step(shadowNDCPos.z, texture(shadowMap, offset11).x);
+    block12 = step(shadowNDCPos.z, texture(shadowMap, offset12).x);
+    block13 = step(shadowNDCPos.z, texture(shadowMap, offset13).x);
+    block14 = step(shadowNDCPos.z, texture(shadowMap, offset14).x);
+    block15 = step(shadowNDCPos.z, texture(shadowMap, offset15).x);
+    block16 = step(shadowNDCPos.z, texture(shadowMap, offset16).x);
+    block17 = step(shadowNDCPos.z, texture(shadowMap, offset17).x);
+    block18 = step(shadowNDCPos.z, texture(shadowMap, offset18).x);
+    block19 = step(shadowNDCPos.z, texture(shadowMap, offset19).x);
+    block20 = step(shadowNDCPos.z, texture(shadowMap, offset20).x);
+    block21 = step(shadowNDCPos.z, texture(shadowMap, offset21).x);
+    block22 = step(shadowNDCPos.z, texture(shadowMap, offset22).x);
+    block23 = step(shadowNDCPos.z, texture(shadowMap, offset23).x);
+    block24 = step(shadowNDCPos.z, texture(shadowMap, offset24).x);
+    block25 = step(shadowNDCPos.z, texture(shadowMap, offset25).x);
+  #endif
+
+  vec2 coef = fract(shadowNDCPos.xy * shadowMapResolution);
+  vec2 v1X1 = mix(vec2(block1, block6), vec2(block2, block7), coef.xx);
+  vec2 v1X2 = mix(vec2(block2, block7), vec2(block3, block8), coef.xx);
+  vec2 v1X3 = mix(vec2(block3, block8), vec2(block4, block9), coef.xx);
+  vec2 v1X4 = mix(vec2(block4, block9), vec2(block5, block10), coef.xx);
+  float v1 = mix(v1X1.x, v1X1.y, coef.y) + mix(v1X2.x, v1X2.y, coef.y) + mix(v1X3.x, v1X3.y, coef.y) + mix(v1X4.x, v1X4.y, coef.y);
+  vec2 v2X1 = mix(vec2(block6, block11), vec2(block7, block12), coef.xx);
+  vec2 v2X2 = mix(vec2(block7, block12), vec2(block8, block13), coef.xx);
+  vec2 v2X3 = mix(vec2(block8, block13), vec2(block9, block14), coef.xx);
+  vec2 v2X4 = mix(vec2(block9, block14), vec2(block10, block15), coef.xx);
+  float v2 = mix(v2X1.x, v2X1.y, coef.y) + mix(v2X2.x, v2X2.y, coef.y) + mix(v2X3.x, v2X3.y, coef.y) + mix(v2X4.x, v2X4.y, coef.y);
+  vec2 v3X1 = mix(vec2(block11, block16), vec2(block12, block17), coef.xx);
+  vec2 v3X2 = mix(vec2(block12, block17), vec2(block13, block18), coef.xx);
+  vec2 v3X3 = mix(vec2(block13, block18), vec2(block14, block19), coef.xx);
+  vec2 v3X4 = mix(vec2(block14, block19), vec2(block15, block20), coef.xx);
+  float v3 = mix(v3X1.x, v3X1.y, coef.y) + mix(v3X2.x, v3X2.y, coef.y) + mix(v3X3.x, v3X3.y, coef.y) + mix(v3X4.x, v3X4.y, coef.y);
+  vec2 v4X1 = mix(vec2(block11, block16), vec2(block12, block17), coef.xx);
+  vec2 v4X2 = mix(vec2(block12, block17), vec2(block13, block18), coef.xx);
+  vec2 v4X3 = mix(vec2(block13, block18), vec2(block14, block19), coef.xx);
+  vec2 v4X4 = mix(vec2(block14, block19), vec2(block15, block20), coef.xx);
+  float v4 = mix(v4X1.x, v4X1.y, coef.y) + mix(v4X2.x, v4X2.y, coef.y) + mix(v4X3.x, v4X3.y, coef.y) + mix(v4X4.x, v4X4.y, coef.y);
+  vec2 v5X1 = mix(vec2(block16, block21), vec2(block17, block22), coef.xx);
+  vec2 v5X2 = mix(vec2(block17, block22), vec2(block18, block23), coef.xx);
+  vec2 v5X3 = mix(vec2(block18, block23), vec2(block19, block24), coef.xx);
+  vec2 v5X4 = mix(vec2(block19, block24), vec2(block20, block25), coef.xx);
+  float v5 = mix(v5X1.x, v5X1.y, coef.y) + mix(v5X2.x, v5X2.y, coef.y) + mix(v5X3.x, v5X3.y, coef.y) + mix(v5X4.x, v5X4.y, coef.y);
+  float fAvg = (v1 + v2 + v3 + v4 + v5) * 0.05;
+  return fAvg;
+}

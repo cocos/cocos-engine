@@ -2,6 +2,7 @@
 #include "NativePipelineGraphs.h"
 #include "RenderGraphGraphs.h"
 #include "LayoutGraphGraphs.h"
+#include "pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 
@@ -29,9 +30,12 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
     iter->second.emplace_back(view);
 }
 
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, const ccstd::string &name) {
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string &name) {
     SceneData scene(renderGraph->get_allocator());
+    scene.name = name;
+    scene.flags = sceneFlags;
     scene.camera = camera;
+    scene.light = light;
     auto sceneID = addVertex(
         SceneTag{},
         std::forward_as_tuple(name.c_str()),
@@ -43,18 +47,22 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, const ccs
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera) {
-    addSceneOfCamera(camera, "Scene");
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Light* light, SceneFlags sceneFlags) {
+    addSceneOfCamera(camera, light, sceneFlags, "Camera");
 }
 
-void NativeRasterQueueBuilder::addScene(const ccstd::string &name) {
+void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
+    SceneData scene(renderGraph->get_allocator());
+    scene.name = name;
+    scene.flags = sceneFlags;
+
     auto sceneID = addVertex(
         SceneTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(scene)),
         *renderGraph, queueID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }

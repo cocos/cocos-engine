@@ -36,12 +36,13 @@ namespace gfx {
 
 DescriptorSetLayoutValidator::DescriptorSetLayoutValidator(DescriptorSetLayout *actor)
 : Agent<DescriptorSetLayout>(actor) {
+    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
     DeviceResourceTracker<DescriptorSetLayout>::erase(this);
-    CC_SAFE_DELETE(_actor);
+    CC_SAFE_RELEASE(_actor);
 }
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
@@ -90,7 +91,7 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
          */
         uint32_t type{DESCRIPTOR_TYPE_ORDERS[utils::getBitPosition(toNumber(binding.descriptorType))]};
         // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
-        CC_ASSERT(lastType <= type);
+        // CC_ASSERT(lastType <= type);
         lastType = type;
         ++_typeCounts[type];
     }

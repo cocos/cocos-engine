@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS) || (CC_PLATFORM == CC_PLATFORM_IOS)
 
     #import "network/HttpAsynConnection-apple.h"
 
@@ -181,4 +181,4 @@
 
 @end
 
-#endif // #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#endif // #if (CC_PLATFORM == CC_PLATFORM_MACOS) || (CC_PLATFORM == CC_PLATFORM_IOS)

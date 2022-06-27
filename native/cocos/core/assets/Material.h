@@ -172,6 +172,7 @@ public:
      */
     void setProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX);
 
+    void setPropertyNull(const ccstd::string &name, index_t passIdx = CC_INVALID_INDEX);
     void setPropertyFloat32(const ccstd::string &name, float val, index_t passIdx = CC_INVALID_INDEX);
     void setPropertyInt32(const ccstd::string &name, int32_t val, index_t passIdx = CC_INVALID_INDEX);
     void setPropertyVec2(const ccstd::string &name, const Vec2 &val, index_t passIdx = CC_INVALID_INDEX);
@@ -310,7 +311,7 @@ public:
 protected:
     void update(bool keepProps = true);
     bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
-    void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index = CC_INVALID_INDEX);
+    void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index = 0);
 
     template <typename T1, typename T2>
     void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {

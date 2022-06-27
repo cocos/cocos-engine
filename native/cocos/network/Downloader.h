@@ -63,9 +63,9 @@ private:
 };
 
 struct CC_DLL DownloaderHints {
-    uint32_t countOfMaxProcessingTasks;
-    uint32_t timeoutInSeconds;
-    ccstd::string tempFileNameSuffix;
+    uint32_t countOfMaxProcessingTasks{6};
+    uint32_t timeoutInSeconds{45};
+    ccstd::string tempFileNameSuffix{".tmp"};
 };
 
 class CC_DLL Downloader final {
@@ -81,9 +81,9 @@ public:
     std::function<void(const DownloadTask &task)> onFileTaskSuccess;
 
     std::function<void(const DownloadTask &task,
-                       int64_t bytesReceived,
-                       int64_t totalBytesReceived,
-                       int64_t totalBytesExpected)>
+                       uint32_t bytesReceived,
+                       uint32_t totalBytesReceived,
+                       uint32_t totalBytesExpected)>
         onTaskProgress;
 
     std::function<void(const DownloadTask &task,
@@ -95,9 +95,9 @@ public:
     void setOnFileTaskSuccess(const std::function<void(const DownloadTask &task)> &callback) { onFileTaskSuccess = callback; };
 
     void setOnTaskProgress(const std::function<void(const DownloadTask &task,
-                                                    int64_t bytesReceived,
-                                                    int64_t totalBytesReceived,
-                                                    int64_t totalBytesExpected)> &callback) { onTaskProgress = callback; };
+                                                    uint32_t bytesReceived,
+                                                    uint32_t totalBytesReceived,
+                                                    uint32_t totalBytesExpected)> &callback) { onTaskProgress = callback; };
 
     void setOnTaskError(const std::function<void(const DownloadTask &task,
                                                  int errorCode,

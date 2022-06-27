@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+import { JSB } from 'internal:constants';
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
     Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature } from '../../core/gfx';
@@ -35,7 +32,6 @@ import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../core/assets';
-import { JSB } from '../../core/default-constants';
 import { legacyCC } from '../../core/global-exports';
 
 const _uvs = [

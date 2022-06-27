@@ -55,6 +55,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderScene);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IRenderWindowInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderWindow);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SphereLight);
+JSB_REGISTER_OBJECT_TYPE(cc::DebugViewConfig);
 JSB_REGISTER_OBJECT_TYPE(cc::Root);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SkyboxInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Skybox);
@@ -129,7 +130,6 @@ SE_DECLARE_FUNC(js_scene_Node_setRotationInternal);
 SE_DECLARE_FUNC(js_scene_Node_setScaleForJS);
 SE_DECLARE_FUNC(js_scene_Node_setScaleInternal);
 SE_DECLARE_FUNC(js_scene_Node_setSiblingIndex);
-SE_DECLARE_FUNC(js_scene_Node_setUIPropsTransformDirtyPtr);
 SE_DECLARE_FUNC(js_scene_Node_setWorldPosition);
 SE_DECLARE_FUNC(js_scene_Node_setWorldRotation);
 SE_DECLARE_FUNC(js_scene_Node_setWorldRotationFromEuler);
@@ -285,8 +285,7 @@ SE_DECLARE_FUNC(js_scene_Model_getInstancedBuffer);
 SE_DECLARE_FUNC(js_scene_Model_getInstancedBufferSize);
 SE_DECLARE_FUNC(js_scene_Model_getLocalData);
 SE_DECLARE_FUNC(js_scene_Model_getMacroPatches);
-SE_DECLARE_FUNC(js_scene_Model_getShadowBias);
-SE_DECLARE_FUNC(js_scene_Model_getShadowNormalBias);
+SE_DECLARE_FUNC(js_scene_Model_initLightingmap);
 SE_DECLARE_FUNC(js_scene_Model_initLocalDescriptors);
 SE_DECLARE_FUNC(js_scene_Model_initSubModel);
 SE_DECLARE_FUNC(js_scene_Model_initWorldBoundDescriptors);
@@ -298,9 +297,8 @@ SE_DECLARE_FUNC(js_scene_Model_onMacroPatchesStateChanged);
 SE_DECLARE_FUNC(js_scene_Model_setBounds);
 SE_DECLARE_FUNC(js_scene_Model_setCalledFromJS);
 SE_DECLARE_FUNC(js_scene_Model_setInstMatWorldIdx);
+SE_DECLARE_FUNC(js_scene_Model_setInstancedAttribute);
 SE_DECLARE_FUNC(js_scene_Model_setInstancedAttributesViewData);
-SE_DECLARE_FUNC(js_scene_Model_setShadowBias);
-SE_DECLARE_FUNC(js_scene_Model_setShadowNormalBias);
 SE_DECLARE_FUNC(js_scene_Model_setSubModelMaterial);
 SE_DECLARE_FUNC(js_scene_Model_setSubModelMesh);
 SE_DECLARE_FUNC(js_scene_Model_updateInstancedAttributes);
@@ -384,6 +382,14 @@ bool js_register_cc_scene_SphereLight(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_SphereLight_SphereLight);
 
+extern se::Object *__jsb_cc_DebugViewConfig_proto; // NOLINT
+extern se::Class * __jsb_cc_DebugViewConfig_class; // NOLINT
+
+bool js_register_cc_DebugViewConfig(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::DebugViewConfig *, se::Object *ctx); //NOLINT
+
 extern se::Object *__jsb_cc_Root_proto; // NOLINT
 extern se::Class * __jsb_cc_Root_class; // NOLINT
 
@@ -401,11 +407,14 @@ SE_DECLARE_FUNC(js_scene_Root_destroyScenes);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindow);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindows);
 SE_DECLARE_FUNC(js_scene_Root_frameMove);
+SE_DECLARE_FUNC(js_scene_Root_getBatcher2D);
+SE_DECLARE_FUNC(js_scene_Root_getDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
 SE_DECLARE_FUNC(js_scene_Root_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_scene_Root_resetCumulativeTime);
 SE_DECLARE_FUNC(js_scene_Root_resize);
+SE_DECLARE_FUNC(js_scene_Root_setDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_setRenderPipeline);
 SE_DECLARE_FUNC(js_scene_Root_getInstance);
 SE_DECLARE_FUNC(js_scene_Root_Root);
@@ -451,8 +460,6 @@ extern se::Class * __jsb_cc_scene_DirectionalLight_class; // NOLINT
 
 bool js_register_cc_scene_DirectionalLight(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_scene_DirectionalLight_isShadowCSMValueDirty);
-SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowCSMValueDirty);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_DirectionalLight);
 
 extern se::Object *__jsb_cc_scene_SpotLight_proto; // NOLINT

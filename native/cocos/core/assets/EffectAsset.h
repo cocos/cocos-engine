@@ -36,7 +36,6 @@
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
-//#include "scene/Define.h"
 
 namespace cc {
 
@@ -135,20 +134,20 @@ struct DepthStencilStateInfo {
 
     ccstd::optional<gfx::ComparisonFunc> depthFunc;
     ccstd::optional<gfx::ComparisonFunc> stencilFuncFront;
-    ccstd::optional<uint> stencilReadMaskFront;
-    ccstd::optional<uint> stencilWriteMaskFront;
+    ccstd::optional<uint32_t> stencilReadMaskFront;
+    ccstd::optional<uint32_t> stencilWriteMaskFront;
     ccstd::optional<gfx::StencilOp> stencilFailOpFront;
     ccstd::optional<gfx::StencilOp> stencilZFailOpFront;
     ccstd::optional<gfx::StencilOp> stencilPassOpFront;
-    ccstd::optional<uint> stencilRefFront;
+    ccstd::optional<uint32_t> stencilRefFront;
 
     ccstd::optional<gfx::ComparisonFunc> stencilFuncBack;
-    ccstd::optional<uint> stencilReadMaskBack;
-    ccstd::optional<uint> stencilWriteMaskBack;
+    ccstd::optional<uint32_t> stencilReadMaskBack;
+    ccstd::optional<uint32_t> stencilWriteMaskBack;
     ccstd::optional<gfx::StencilOp> stencilFailOpBack;
     ccstd::optional<gfx::StencilOp> stencilZFailOpBack;
     ccstd::optional<gfx::StencilOp> stencilPassOpBack;
-    ccstd::optional<uint> stencilRefBack;
+    ccstd::optional<uint32_t> stencilRefBack;
 
     void fromGFXDepthStencilState(const gfx::DepthStencilState &ds) {
         depthTest = ds.depthTest;
@@ -397,14 +396,14 @@ struct ITechniqueInfo {
 };
 
 struct IBlockInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     ccstd::vector<gfx::Uniform> members;
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
@@ -413,7 +412,7 @@ struct ISamplerTextureInfo {
 
 struct ITextureInfo {
     uint32_t set{0};
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
@@ -422,21 +421,21 @@ struct ITextureInfo {
 
 struct ISamplerInfo {
     uint32_t set{0};
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IBufferInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::MemoryAccess memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IImageInfo {
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
@@ -446,7 +445,7 @@ struct IImageInfo {
 
 struct IInputAttachmentInfo {
     uint32_t set{0};
-    int32_t binding{-1};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
@@ -556,6 +555,9 @@ public:
      */
     static RegisteredEffectAssetMap &getAll() { return EffectAsset::effects; }
 
+    static bool isLayoutValid() { return layoutValid; }
+    static void setLayoutValid() { layoutValid = true; }
+
     inline void setTechniques(const ccstd::vector<ITechniqueInfo> &val) { _techniques = val; }
     inline void setShaders(const ccstd::vector<IShaderInfo> &val) { _shaders = val; }
     inline void setCombinations(const ccstd::vector<IPreCompileInfo> &val) { _combinations = val; }
@@ -616,6 +618,7 @@ public:
     //
 protected:
     static RegisteredEffectAssetMap effects; //cjh TODO: how to clear when game exits.
+    static bool layoutValid;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(EffectAsset);
 

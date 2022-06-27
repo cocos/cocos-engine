@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
-
 import { assertIsTrue } from '../data/utils/asserts';
 import { clamp, Vec3 } from '../math';
 import { warnID } from '../platform/debug';
@@ -44,7 +39,7 @@ export enum SplineMode {
      * Piecewise Bezier curve:
      * Every four knots form a curve. Total knots number must be a multiple of 4.
      * Each curve passes only the first and fourth knots, and does not pass through the middle two control knots.
-     * 
+     *
      * If you need a whole continuous curve:
      * (1) Suppose the four knots of the previous curve are A, B, C, D
      * (2) The four knots of the next curve must be D, E, F, G
@@ -58,7 +53,7 @@ export enum SplineMode {
      * The whole curve passes through all knots.
      */
     CATMULL_ROM = 2
-};
+}
 
 const SPLINE_WHOLE_INDEX = 0xffffffff;
 
@@ -79,7 +74,7 @@ export class Spline {
     private _mode: SplineMode = SplineMode.CATMULL_ROM;
     private _knots: Vec3[] = [];
 
-    private constructor(mode: SplineMode = SplineMode.CATMULL_ROM, knots: Readonly<Vec3[]> = []) {
+    private constructor (mode: SplineMode = SplineMode.CATMULL_ROM, knots: Readonly<Vec3[]> = []) {
         this._type = enums.SHAPE_SPLINE;
         this._mode = mode;
 
@@ -130,48 +125,48 @@ export class Spline {
         }
     }
 
-    public clearKnots() { 
+    public clearKnots () {
         this._knots.length = 0;
     }
 
-    public getKnotCount() { 
-        return this._knots.length; 
+    public getKnotCount () {
+        return this._knots.length;
     }
 
-    public addKnot(knot: Vec3) { 
-        this._knots.push(new Vec3(knot)); 
+    public addKnot (knot: Vec3) {
+        this._knots.push(new Vec3(knot));
     }
 
-    public insertKnot(index: number, knot: Vec3) {
+    public insertKnot (index: number, knot: Vec3) {
         const item = new Vec3(knot);
         if (index >= this._knots.length) {
             this._knots.push(item);
             return;
         }
-    
+
         this._knots.splice(index, 0, item);
     }
 
-    public removeKnot(index: number) {
-        assertIsTrue(index >= 0 && index < this._knots.length, "Spline: invalid index");
+    public removeKnot (index: number) {
+        assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
 
         this._knots.splice(index, 1);
     }
 
-    public setKnot(index: number, knot: Vec3) {
-        assertIsTrue(index >= 0 && index < this._knots.length, "Spline: invalid index");
+    public setKnot (index: number, knot: Vec3) {
+        assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
 
         this._knots[index].set(knot);
     }
 
-    public getKnot(index: number): Readonly<Vec3> {
-        assertIsTrue(index >= 0 && index < this._knots.length, "Spline: invalid index");
+    public getKnot (index: number): Readonly<Vec3> {
+        assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
 
         return this._knots[index];
     }
 
     // get a point at t with repect to the `index` segment of curve or the whole curve.
-    public getPoint(t: number, index: number = SPLINE_WHOLE_INDEX) {
+    public getPoint (t: number, index: number = SPLINE_WHOLE_INDEX) {
         t = clamp(t, 0.0, 1.0);
 
         const segments = this.getSegments();
@@ -191,68 +186,68 @@ export class Spline {
         }
 
         switch (this._mode) {
-            case SplineMode.LINEAR:
-                return Spline.calcLinear(this._knots[index], this._knots[index + 1], t);
-            case SplineMode.BEZIER:
-                return Spline.calcBezier(this._knots[index * 4], this._knots[index * 4 + 1], this._knots[index * 4 + 2], this._knots[index * 4 + 3], t);
-            case SplineMode.CATMULL_ROM: {
-                const v0 = index > 0 ? this._knots[index - 1] : this._knots[index];
-                const v3 = index + 2 < this._knots.length ? this._knots[index + 2] : this._knots[index + 1];
-                return Spline.calcCatmullRom(v0, this._knots[index], this._knots[index + 1], v3, t);
-            }
-            default:
-                return new Vec3(0.0, 0.0, 0.0);
+        case SplineMode.LINEAR:
+            return Spline.calcLinear(this._knots[index], this._knots[index + 1], t);
+        case SplineMode.BEZIER:
+            return Spline.calcBezier(this._knots[index * 4], this._knots[index * 4 + 1], this._knots[index * 4 + 2], this._knots[index * 4 + 3], t);
+        case SplineMode.CATMULL_ROM: {
+            const v0 = index > 0 ? this._knots[index - 1] : this._knots[index];
+            const v3 = index + 2 < this._knots.length ? this._knots[index + 2] : this._knots[index + 1];
+            return Spline.calcCatmullRom(v0, this._knots[index], this._knots[index + 1], v3, t);
+        }
+        default:
+            return new Vec3(0.0, 0.0, 0.0);
         }
     }
 
     // get num points from 0 to 1 uniformly with repect to the `index` segment of curve or the whole curve
-    public getPoints(num: number, index: number = SPLINE_WHOLE_INDEX): Vec3[] {
+    public getPoints (num: number, index: number = SPLINE_WHOLE_INDEX): Vec3[] {
         if (num == 0) {
             return [];
         }
-    
+
         if (num == 1) {
             const point = this.getPoint(0.0, index);
             return [point];
         }
-    
-        let points: Vec3[] = [];
+
+        const points: Vec3[] = [];
         const deltaT = 1.0 / (num - 1.0);
-    
+
         for (let i = 0; i < num; i++) {
             const t     = i * deltaT;
             const point = this.getPoint(t, index);
-    
+
             points.push(point);
         }
-    
+
         return points;
     }
 
-    private getSegments() {
+    private getSegments () {
         const count = this._knots.length;
         switch (this._mode) {
-            case SplineMode.LINEAR:
-            case SplineMode.CATMULL_ROM:
-                if (count < 2) {
-                    warnID(14300);
-                    return 0;
-                }
+        case SplineMode.LINEAR:
+        case SplineMode.CATMULL_ROM:
+            if (count < 2) {
+                warnID(14300);
+                return 0;
+            }
 
-                return count - 1;
-            case SplineMode.BEZIER:
-                if (count < 4 || count % 4 != 0) {
-                    warnID(14301);
-                    return 0;
-                }
+            return count - 1;
+        case SplineMode.BEZIER:
+            if (count < 4 || count % 4 != 0) {
+                warnID(14301);
+                return 0;
+            }
 
-                return count / 4;
-            default:
-                assertIsTrue(false, "Spline error: invalid mode");
+            return count / 4;
+        default:
+            assertIsTrue(false, 'Spline error: invalid mode');
         }
     }
 
-    private static calcLinear(v0: Vec3, v1: Vec3, t: number) {
+    private static calcLinear (v0: Vec3, v1: Vec3, t: number) {
         const result = new Vec3();
         Vec3.multiplyScalar(_v0, v0, (1.0 - t));
         Vec3.multiplyScalar(_v1, v1, t);
@@ -261,7 +256,7 @@ export class Spline {
         return result;
     }
 
-    private static calcBezier(v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number) {
+    private static calcBezier (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number) {
         const result = new Vec3();
         const s = 1.0 - t;
         Vec3.multiplyScalar(_v0, v0, s * s * s);
@@ -274,7 +269,7 @@ export class Spline {
 
         return result;
     }
-    private static calcCatmullRom(v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number) {
+    private static calcCatmullRom (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number) {
         const result = new Vec3();
         const t2 = t * t;
         const t3 = t2 * t;

@@ -27,25 +27,23 @@
 
 #include "PoolType.h"
 #include "cocos/base/Macros.h"
-#include "cocos/base/Object.h"
-#include "cocos/base/TypeDef.h"
 #include "cocos/base/std/container/unordered_map.h"
 #include "cocos/bindings/jswrapper/Object.h"
 
 namespace se {
 
-class CC_DLL BufferAllocator final : public cc::Object {
+class CC_DLL BufferAllocator final {
 public:
     explicit BufferAllocator(PoolType type);
-    ~BufferAllocator() override;
+    ~BufferAllocator();
 
-    se::Object *alloc(uint index, uint bytes);
-    void free(uint index);
+    se::Object *alloc(uint32_t index, uint32_t bytes);
+    void free(uint32_t index);
 
 private:
-    static constexpr uint BUFFER_MASK = ~(1 << 30);
+    static constexpr uint32_t BUFFER_MASK = ~(1 << 30);
 
-    ccstd::unordered_map<uint, se::Object *> _buffers;
+    ccstd::unordered_map<uint32_t, se::Object *> _buffers;
     PoolType _type = PoolType::UNKNOWN;
 };
 

@@ -27,7 +27,8 @@ se::Class* __jsb_cc_AudioProfile_class = nullptr;  // NOLINT
 static bool js_audio_AudioProfile_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
-    SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_name : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_name : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -54,7 +55,8 @@ SE_BIND_PROP_SET(js_audio_AudioProfile_set_name)
 static bool js_audio_AudioProfile_get_maxInstances(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
-    SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_maxInstances : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_maxInstances : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -81,7 +83,8 @@ SE_BIND_PROP_SET(js_audio_AudioProfile_set_maxInstances)
 static bool js_audio_AudioProfile_get_minDelay(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
-    SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_minDelay : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_minDelay : Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
