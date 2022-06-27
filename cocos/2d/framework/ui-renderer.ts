@@ -222,7 +222,8 @@ export class UIRenderer extends Renderer {
                 }
             }
         }
-      
+    }
+
     /**
      * @internal
      */
