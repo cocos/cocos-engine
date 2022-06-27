@@ -53,8 +53,6 @@ ForwardPipeline::ForwardPipeline() {
     _pipelineSceneData = ccnew PipelineSceneData();
 }
 
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardDepthTexture = framegraph::FrameGraph::stringToHandle("forwardDepthTexture");
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass = framegraph::FrameGraph::stringToHandle("forwardPass");
 
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
