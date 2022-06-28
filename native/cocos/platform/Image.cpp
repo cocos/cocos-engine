@@ -314,9 +314,11 @@ bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen) {
             case Format::JPG:
                 ret = initWithJpgData(unpackedData, unpackedLen);
                 break;
+#if CC_USE_WEBP
             case Format::WEBP:
                 ret = initWithWebpData(unpackedData, unpackedLen);
                 break;
+#endif
             case Format::PVR:
                 ret = initWithPVRData(unpackedData, unpackedLen);
                 break;
@@ -884,10 +886,9 @@ bool Image::initWithPVRData(const unsigned char *data, uint32_t dataLen) {
     return initWithPVRv2Data(data, dataLen) || initWithPVRv3Data(data, dataLen);
 }
 
-bool Image::initWithWebpData(const unsigned char *data, uint32_t dataLen) {
 #if CC_USE_WEBP
+bool Image::initWithWebpData(const unsigned char *data, uint32_t dataLen) {
     bool ret = false;
-
     do {
         WebPDecoderConfig config;
         if (WebPInitDecoderConfig(&config) == 0) break;
@@ -917,8 +918,8 @@ bool Image::initWithWebpData(const unsigned char *data, uint32_t dataLen) {
         ret = true;
     } while (false);
     return ret;
-#endif // CC_USE_WEBP
 }
+#endif // CC_USE_WEBP
 
 bool Image::initWithRawData(const unsigned char *data, uint32_t /*dataLen*/, int width, int height, int /*bitsPerComponent*/, bool /*preMulti*/) {
     bool ret = false;
