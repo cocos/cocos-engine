@@ -20,8 +20,8 @@ void main()  {
         {
             vec4 csmPos;
             vec4 shadowProjDepthInfo, shadowProjInfo;
-            mat4 matShadowView;
-            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matShadowView, surfaceData.worldPos);
+            vec4 line0, line1, line2, line3;
+            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, line0, line1, line2, line3, surfaceData.worldPos);
             bool OutOfRange = csmLayer < 0;
             if (OutOfRange)
                 colDebugCSMLayer = vec3(1.0);
