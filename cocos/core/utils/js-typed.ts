@@ -566,19 +566,21 @@ function setup (tag: string, table: Record<string | number, any>) {
         value(constructor.prototype, tag, id);
         // register class
         if (id) {
-            const registered = table[id];
-            if (registered && registered !== constructor) {
-                let err = `A Class already exists with the same ${tag} : "${id}".`;
-                if (TEST) {
-                    // eslint-disable-next-line no-multi-str
-                    err += ' (This may be caused by error of unit test.) \
-If you dont need serialization, you can set class id to "". You can also call \
-js.unregisterClass to remove the id of unused class';
-                }
-                error(err);
-            } else {
-                table[id] = constructor;
-            }
+            table[id] = constructor;
+
+            //             const registered = table[id];
+            //             if (registered && registered !== constructor) {
+            //                 let err = `A Class already exists with the same ${tag} : "${id}".`;
+            //                 if (TEST) {
+            //                     // eslint-disable-next-line no-multi-str
+            //                     err += ' (This may be caused by error of unit test.) \
+            // If you dont need serialization, you can set class id to "". You can also call \
+            // js.unregisterClass to remove the id of unused class';
+            //                 }
+            //                 error(err);
+            //             } else {
+            //                 table[id] = constructor;
+            //             }
             // if (id === "") {
             //    console.trace("", table === _nameToClass);
             // }
@@ -725,7 +727,6 @@ export function getClassByName (classname) {
  * @param obj - instance or constructor
  * @param [allowTempId = true]   - can return temp id in editor
  * @return
- * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
