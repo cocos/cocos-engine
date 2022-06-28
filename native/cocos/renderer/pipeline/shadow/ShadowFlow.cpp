@@ -225,7 +225,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
             break;
     }
     ds->forceUpdate();
-    _usedTextures.emplace_back(std::move(texture));
+    _usedTextures.emplace_back(texture);
 
     auto *uesedDetph = framebuffer->getDepthStencilTexture();
     const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), uesedDetph);
@@ -243,7 +243,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         renderTargets,
         depth,
     });
-    _usedTextures.emplace_back(std::move(depth));
+    _usedTextures.emplace_back(depth);
 
     // sometimes there has equivalent pointers from createTetxure function, so we need force update descriptor set binding here
     ds->forceUpdate();
