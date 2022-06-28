@@ -61,7 +61,7 @@
 #include "network/HttpClient.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #if CC_USE_DEBUG_RENDERER
-#include "profiler/DebugRenderer.h"
+    #include "profiler/DebugRenderer.h"
 #endif
 #include "profiler/Profiler.h"
 
@@ -222,7 +222,6 @@ void Engine::close() { // NOLINT
     _scheduler->unscheduleAll();
 
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
-    
 
     // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
     exit(0);

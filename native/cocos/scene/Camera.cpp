@@ -31,7 +31,7 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
 #if CC_USE_GEOMETRY_RENDERER
-#include "renderer/pipeline/GeometryRenderer.h"
+    #include "renderer/pipeline/GeometryRenderer.h"
 #endif
 
 namespace cc {

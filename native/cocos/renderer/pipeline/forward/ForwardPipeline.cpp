@@ -92,7 +92,7 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
 #if CC_USE_GEOMETRY_RENDERER
     updateGeometryRenderer(cameras); // for capability
 #endif
-    
+
     auto *device = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {

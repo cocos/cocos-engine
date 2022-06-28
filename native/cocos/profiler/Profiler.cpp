@@ -25,7 +25,7 @@
 
 #include "Profiler.h"
 #if CC_USE_DEBUG_RENDERER
-#include "DebugRenderer.h"
+    #include "DebugRenderer.h"
 #endif
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
@@ -131,7 +131,7 @@ Profiler::Profiler() {
     _mainThreadId = std::this_thread::get_id();
     _root = ccnew ProfilerBlock(nullptr, "MainThread");
     _current = _root;
-    
+
     Profiler::instance = this;
 }
 

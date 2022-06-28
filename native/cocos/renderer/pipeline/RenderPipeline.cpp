@@ -26,7 +26,7 @@
 #include "RenderPipeline.h"
 #include "BatchedBuffer.h"
 #if CC_USE_GEOMETRY_RENDERER
-#include "GeometryRenderer.h"
+    #include "GeometryRenderer.h"
 #endif
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
@@ -41,7 +41,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "helper/Utils.h"
 #if CC_USE_DEBUG_RENDERER
-#include "profiler/DebugRenderer.h"
+    #include "profiler/DebugRenderer.h"
 #endif
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
@@ -133,12 +133,12 @@ void RenderPipeline::destroyQuadInputAssembler() {
 
 void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras) {
     if (_geometryRenderer) {
-        return ;
+        return;
     }
-    
+
     // Query the first camera rendering to swapchain.
     for (const auto *camera : cameras) {
-        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain() ) {
+        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain()) {
             _geometryRenderer = camera->getGeometryRenderer();
             return;
         }

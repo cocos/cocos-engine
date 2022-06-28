@@ -26,7 +26,7 @@
 #include "ForwardStage.h"
 #include "../BatchedBuffer.h"
 #if CC_USE_GEOMETRY_RENDERER
-#include "../GeometryRenderer.h"
+    #include "../GeometryRenderer.h"
 #endif
 #include "../InstancedBuffer.h"
 #include "../PipelineSceneData.h"

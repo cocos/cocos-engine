@@ -151,4 +151,3 @@ public:
 
 } // namespace pipeline
 } // namespace cc
-

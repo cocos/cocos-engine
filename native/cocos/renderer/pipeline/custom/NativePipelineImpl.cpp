@@ -63,7 +63,7 @@
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/RenderInterfaceTypes.h"
 #if CC_USE_DEBUG_RENDERER
-#include "profiler/DebugRenderer.h"
+    #include "profiler/DebugRenderer.h"
 #endif
 
 namespace cc {
@@ -275,10 +275,10 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
     return ccnew NativeLayoutGraphBuilder(device, &layoutGraph);
 }
 
-gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) {
+gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
     auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
-        const auto& layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
+        const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);
         if (iter2 != layouts.end()) {
             return iter2->second.descriptorSetLayout.get();
@@ -498,15 +498,15 @@ void NativePipeline::setShadingScale(float scale) {
     pipelineSceneData->setShadingScale(scale);
 }
 
-void NativePipeline::setMacroString(const ccstd::string& name, const ccstd::string& value) {
+void NativePipeline::setMacroString(const ccstd::string &name, const ccstd::string &value) {
     macros[name] = value;
 }
 
-void NativePipeline::setMacroInt(const ccstd::string& name, int32_t value) {
+void NativePipeline::setMacroInt(const ccstd::string &name, int32_t value) {
     macros[name] = value;
 }
 
-void NativePipeline::setMacroBool(const ccstd::string& name, bool value) {
+void NativePipeline::setMacroBool(const ccstd::string &name, bool value) {
     macros[name] = value;
 }
 

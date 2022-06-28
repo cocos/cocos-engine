@@ -25,25 +25,25 @@
 
 #if CC_USE_DEBUG_RENDERER
 
-#include "DebugRenderer.h"
-#include <algorithm>
-#include "Profiler.h"
-#include "application/ApplicationManager.h"
-#include "base/Log.h"
-#include "base/UTF8.h"
-#include "base/memory/Memory.h"
-#include "core/assets/BitmapFont.h"
-#include "core/assets/FreeTypeFont.h"
-#include "math/Vec2.h"
-#include "platform/interfaces/modules/Device.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
-#include "renderer/gfx-base/GFXDescriptorSet.h"
-#include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/pipeline/Define.h"
-#include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/PipelineStateManager.h"
-#include "renderer/pipeline/RenderPipeline.h"
+    #include "DebugRenderer.h"
+    #include <algorithm>
+    #include "Profiler.h"
+    #include "application/ApplicationManager.h"
+    #include "base/Log.h"
+    #include "base/UTF8.h"
+    #include "base/memory/Memory.h"
+    #include "core/assets/BitmapFont.h"
+    #include "core/assets/FreeTypeFont.h"
+    #include "math/Vec2.h"
+    #include "platform/interfaces/modules/Device.h"
+    #include "platform/interfaces/modules/ISystemWindow.h"
+    #include "renderer/gfx-base/GFXDescriptorSet.h"
+    #include "renderer/gfx-base/GFXDevice.h"
+    #include "renderer/pipeline/Define.h"
+    #include "renderer/pipeline/GlobalDescriptorSetManager.h"
+    #include "renderer/pipeline/PipelineSceneData.h"
+    #include "renderer/pipeline/PipelineStateManager.h"
+    #include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
 
@@ -350,11 +350,11 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
 
         offsetX += glyph->advance * scale;
 
-#ifdef USE_KERNING
+    #ifdef USE_KERNING
         if (i < unicodeText.size() - 1) {
             offsetX += face->getKerning(code, unicodeText[i + 1]) * scale;
         }
-#endif
+    #endif
     }
 }
 

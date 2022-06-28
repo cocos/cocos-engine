@@ -27,7 +27,7 @@
 #include "../BatchedBuffer.h"
 #include "../Define.h"
 #if CC_USE_GEOMETRY_RENDERER
-#include "../GeometryRenderer.h"
+    #include "../GeometryRenderer.h"
 #endif
 #include "../GlobalDescriptorSetManager.h"
 #include "../InstancedBuffer.h"
@@ -537,7 +537,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 #if CC_USE_GEOMETRY_RENDERER
         || !camera->getGeometryRenderer()->empty()) {
 #else
-        ) {
+    ) {
 #endif
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_TRANSPARENT),
                                                       DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);

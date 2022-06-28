@@ -26,7 +26,7 @@
 #include "renderer/pipeline/helper/Utils.h"
 #include "renderer/pipeline/PipelineStateManager.h"
 #if CC_USE_DEBUG_RENDERER
-#include "profiler/DebugRenderer.h"
+    #include "profiler/DebugRenderer.h"
 #endif
 #include "gfx-base/GFXSwapchain.h"
 #include "pipeline/Define.h"
