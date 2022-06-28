@@ -20,12 +20,11 @@
 ****************************************************************************/
 
 #include <sstream>
-#include "jsb_conversions.h"
-
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
+#include "cocos/editor-support/middleware-adapter.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/math/Quaternion.h"
 #include "cocos/math/Vec2.h"
@@ -35,6 +34,7 @@
 #include "core/assets/TextureCube.h"
 #include "core/geometry/AABB.h"
 #include "extensions/cocos-ext.h"
+#include "jsb_conversions.h"
 #include "network/Downloader.h"
 
 #include "bindings/auto/jsb_assets_auto.h"
