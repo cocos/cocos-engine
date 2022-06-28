@@ -78,7 +78,7 @@ protected:
     physx::PxQuat _mRotation;
     uint8_t _mFlag{0};
     bool _mEnabled{false};
-    uint32_t         _mObjectID{0};
+    uint32_t _mObjectID{0};
 
     virtual void updateCenter();
     virtual void onComponentSet() = 0;

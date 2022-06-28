@@ -33,8 +33,7 @@
 namespace cc {
 namespace physics {
 
-PhysXCylinder::PhysXCylinder() : _mMesh(nullptr),
-                                 PhysXShape(){};
+PhysXCylinder::PhysXCylinder() : _mMesh(nullptr){};
 
 void PhysXCylinder::setConvex(uint32_t objectID) {
     uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);

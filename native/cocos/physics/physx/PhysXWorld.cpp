@@ -134,8 +134,8 @@ uint32_t PhysXWorld::createConvex(ConvexDesc &desc) {
     convexDesc.points.data = static_cast<physx::PxVec3 *>(desc.positions);
     convexDesc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
     physx::PxConvexMesh *convexMesh = getCooking().createConvexMesh(convexDesc, PxGetPhysics().getPhysicsInsertionCallback());
-    uint32_t PXobjectID = addPXObject(reinterpret_cast<uintptr_t>(convexMesh));
-    return PXobjectID;
+    uint32_t pxObjectID = addPXObject(reinterpret_cast<uintptr_t>(convexMesh));
+    return pxObjectID;
 }
 
 uint32_t PhysXWorld::createTrimesh(TrimeshDesc &desc) {
@@ -153,8 +153,8 @@ uint32_t PhysXWorld::createTrimesh(TrimeshDesc &desc) {
         meshDesc.triangles.data = static_cast<physx::PxU32 *>(desc.triangles);
     }
     physx::PxTriangleMesh *triangleMesh = getCooking().createTriangleMesh(meshDesc, PxGetPhysics().getPhysicsInsertionCallback());
-    uint32_t PXobjectID = addPXObject(reinterpret_cast<uintptr_t>(triangleMesh));
-    return PXobjectID;
+    uint32_t pxObjectID = addPXObject(reinterpret_cast<uintptr_t>(triangleMesh));
+    return pxObjectID;
 }
 
 uint32_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
@@ -176,8 +176,8 @@ uint32_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
     hfDesc.samples.stride = sizeof(physx::PxHeightFieldSample);
     physx::PxHeightField *hf = getCooking().createHeightField(hfDesc, PxGetPhysics().getPhysicsInsertionCallback());
     delete[] samples;
-    uint32_t PXobjectID = addPXObject(reinterpret_cast<uintptr_t>(hf));
-    return PXobjectID;
+    uint32_t pxObjectID = addPXObject(reinterpret_cast<uintptr_t>(hf));
+    return pxObjectID;
 }
 
 bool PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
@@ -333,20 +333,20 @@ RaycastResult &PhysXWorld::raycastClosestResult() {
 }
 
 uint32_t PhysXWorld::addPXObject(uintptr_t PXObjectPtr) {
-    uint32_t PXobjectID = _msPXObjectID;
+    uint32_t pxObjectID = _msPXObjectID;
     _msPXObjectID++;
     assert(_msPXObjectID < 0xffffffff);
 
-    _mPXObjects[PXobjectID] = PXObjectPtr;
-    return PXobjectID;
+    _mPXObjects[pxObjectID] = PXObjectPtr;
+    return pxObjectID;
 };
 
-void PhysXWorld::removePXObject(uint32_t PXobjectID) {
-    _mPXObjects.erase(PXobjectID);
+void PhysXWorld::removePXObject(uint32_t pxObjectID) {
+    _mPXObjects.erase(pxObjectID);
 }
 
-uintptr_t PhysXWorld::getPXPtrWithPXObjectID(uint32_t PXObjectID) {
-    auto const & iter = _mPXObjects.find(PXObjectID);
+uintptr_t PhysXWorld::getPXPtrWithPXObjectID(uint32_t pxObjectID) {
+    auto const & iter = _mPXObjects.find(pxObjectID);
     if (iter == _mPXObjects.end()) {
         return 0;
     }

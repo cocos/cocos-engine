@@ -85,8 +85,8 @@ public:
 
     //Mapping PhysX Object ID and Pointer
     uint32_t addPXObject(uintptr_t PXObjectPtr);
-    void removePXObject(uint32_t PXobjectID);
-    uintptr_t getPXPtrWithPXObjectID(uint32_t PXObjectID);
+    void removePXObject(uint32_t pxObjectID);
+    uintptr_t getPXPtrWithPXObjectID(uint32_t pxObjectID);
 
     //Mapping Wrapper PhysX Object ID and Pointer
     uint32_t addWrapperObject(uintptr_t wrapperObjectPtr);

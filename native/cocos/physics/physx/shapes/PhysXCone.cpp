@@ -33,8 +33,7 @@
 namespace cc {
 namespace physics {
 
-PhysXCone::PhysXCone() : _mMesh(nullptr),
-                         PhysXShape(){};
+PhysXCone::PhysXCone() : _mMesh(nullptr){};
 
 void PhysXCone::setConvex(uint32_t objectID) {
     uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
