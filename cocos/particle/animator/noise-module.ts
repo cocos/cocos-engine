@@ -59,7 +59,7 @@ export class NoiseModule extends ParticleModuleBase {
         this._strengthX = value;
     }
     @serializable
-    private _strengthX = 0;
+    private _strengthX = 10;
 
     @type(Number)
     @range([0, 100])
@@ -72,7 +72,7 @@ export class NoiseModule extends ParticleModuleBase {
         this._strengthY = value;
     }
     @serializable
-    private _strengthY = 0;
+    private _strengthY = 10;
 
     @type(Number)
     @range([0, 100])
@@ -85,7 +85,7 @@ export class NoiseModule extends ParticleModuleBase {
         this._strengthZ = value;
     }
     @serializable
-    private _strengthZ = 0;
+    private _strengthZ = 10;
 
     @type(Number)
     @range([0, 100])
@@ -138,7 +138,7 @@ export class NoiseModule extends ParticleModuleBase {
         this._noiseFrequency = value;
     }
     @serializable
-    private _noiseFrequency = 0;
+    private _noiseFrequency = 1;
 
     @visible(false)
     @type(Number)
@@ -212,7 +212,7 @@ export class NoiseModule extends ParticleModuleBase {
         this._octaveMultiplier = value;
     }
     @serializable
-    private _octaveMultiplier = 1;
+    private _octaveMultiplier = 0.5;
 
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
@@ -227,7 +227,7 @@ export class NoiseModule extends ParticleModuleBase {
         this._octaveScale = value;
     }
     @serializable
-    private _octaveScale = 1;
+    private _octaveScale = 2;
 
     public name = PARTICLE_MODULE_NAME.NOISE;
 
