@@ -182,8 +182,8 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _addDomToGameContainer () {
-        if (game.container && this._edTxt) {
-            game.container.appendChild(this._edTxt);
+        if (this._edTxt) {
+            game.container!.appendChild(this._edTxt);
             document.head.appendChild(this._placeholderStyleSheet!);
         }
     }
