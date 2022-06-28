@@ -237,6 +237,16 @@ export class AudioSource extends Component {
      *
      * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
      * @returns A Promise to get the PCM data after audio is loaded.
+     *
+     * @example
+     * ```ts
+     * audioSource.getPCMData(0).then(dataView => {
+     *   if (!dataView)  return;
+     *   for (let i = 0; i < dataView.length; ++i) {
+     *     console.log('data: ' + dataView.getData(i));
+     *   }
+     * });
+     * ```
      */
     public getPCMData (channelIndex: number): Promise<AudioPCMDataView | undefined> {
         return new Promise((resolve) => {
