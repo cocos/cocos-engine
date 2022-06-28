@@ -45,7 +45,7 @@
         void onDestroy() override;                           \
         void setEnableCollision(bool v) override;            \
         void setConnectedBody(uint32_t rigidBodyID) override;\
-        uint32_t getObjectID() override;
+        uint32_t getObjectID() const override;
 namespace cc {
 namespace physics {
 

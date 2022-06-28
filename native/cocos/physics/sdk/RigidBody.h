@@ -72,7 +72,7 @@ public:
     void setGroup(uint32_t g) override;
     uint32_t getMask() override;
     void setMask(uint32_t m) override;
-    uint32_t getObjectID() override;
+    uint32_t getObjectID() const override;
 
 private:
     std::unique_ptr<IRigidBody> _impl;

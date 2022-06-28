@@ -94,7 +94,7 @@
         return _impl->getBoundingSphere();                           \
     }                                                                \
                                                                      \
-    uint32_t CLASS::getObjectID() {                                  \
+    uint32_t CLASS::getObjectID() const {                            \
         return _impl->getObjectID();                                 \
     }
 

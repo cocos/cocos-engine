@@ -37,11 +37,7 @@ using physx::PxVec3;
 namespace cc {
 namespace physics {
 
-PhysXRigidBody::PhysXRigidBody() : _mSharedBody(nullptr),
-                                   _mEnabled(false),
-                                   _mGroup(1),
-                                   _mObjectID(0)
-                                    {
+PhysXRigidBody::PhysXRigidBody(){
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 }
 

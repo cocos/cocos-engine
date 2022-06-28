@@ -64,7 +64,7 @@ public:
     virtual void setGroup(uint32_t g) = 0;
     virtual uint32_t getMask() = 0;
     virtual void setMask(uint32_t m) = 0;
-    virtual uint32_t getObjectID() = 0;
+    virtual uint32_t getObjectID() const = 0;
 };
 
 class ISphereShape : virtual public IBaseShape {

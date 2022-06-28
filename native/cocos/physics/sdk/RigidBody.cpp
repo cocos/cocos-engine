@@ -186,7 +186,7 @@ void RigidBody::setMask(uint32_t m) {
     _impl->setMask(m);
 }
 
-uint32_t RigidBody::getObjectID(){
+uint32_t RigidBody::getObjectID() const {
     return _impl->getObjectID();
 }
 

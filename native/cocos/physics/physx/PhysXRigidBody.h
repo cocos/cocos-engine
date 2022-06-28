@@ -78,14 +78,14 @@ public:
     void setGroup(uint32_t g) override;
     void setMask(uint32_t m) override;
     inline uint32_t getInitialGroup() const { return _mGroup; }
-    uint32_t getObjectID() override {return _mObjectID;};
+    uint32_t getObjectID() const override {return _mObjectID;};
 
 protected:
     // physx::PhysXWorld* mWrappedWorld;
-    PhysXSharedBody *_mSharedBody;
-    uint32_t _mGroup;
-    bool _mEnabled;
-    uint32_t _mObjectID;
+    PhysXSharedBody *_mSharedBody{nullptr};
+    uint32_t _mGroup{1};
+    bool _mEnabled{false};
+    uint32_t _mObjectID{0};
 };
 
 } // namespace physics

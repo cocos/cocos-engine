@@ -60,7 +60,7 @@
     void CLASS::setEnableCollision(bool v) {                 \
         _impl->setEnableCollision(v);                        \
     }                                                        \
-    uint32_t CLASS::getObjectID() {                          \
+    uint32_t CLASS::getObjectID() const {                    \
         return _impl->getObjectID();                         \
     }
 
