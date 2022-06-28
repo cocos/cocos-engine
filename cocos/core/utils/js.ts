@@ -40,6 +40,7 @@ import {
     getClassByName,
     getClassById,
     getClassName,
+    getClassId,
     getPropertyDescriptor,
     getset,
     getSuper,
