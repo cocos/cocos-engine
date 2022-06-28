@@ -810,9 +810,11 @@ const Elements = {
         },
         async skyboxReflectionConvolutionWatch(uuid) {
             const panel = this;
-            const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (envMapData.value && envMapData.value.uuid === uuid) {
-                envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
+            if (panel.dump && panel.dump._globals && panel.dump._globals.skybox) {
+                const envMapData = panel.dump._globals.skybox.value['envmap'];
+                if (envMapData.value && envMapData.value.uuid === uuid) {
+                    envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
+                }
             }
         },
         close() {
