@@ -42,7 +42,7 @@ ShaderAgent::~ShaderAgent() {
         ShaderDestruct,
         actor, _actor,
         {
-            CC_SAFE_DELETE(actor);
+            actor = nullptr;
         });
 }
 
