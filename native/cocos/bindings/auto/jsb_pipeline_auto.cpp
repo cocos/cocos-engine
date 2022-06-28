@@ -3876,26 +3876,6 @@ static bool js_pipeline_PipelineSceneData_setShadowFramebuffer(se::State& s) // 
 }
 SE_BIND_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer)
 
-static bool js_pipeline_PipelineSceneData_setValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    // SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<const cc::scene::Light *>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Error processing arguments");
-        cobj->setValidPunctualLights(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights)
-
 static bool js_pipeline_PipelineSceneData_updatePipelineSceneData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
@@ -3958,7 +3938,6 @@ bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readabili
     cls->defineFunction("getOctree", _SE(js_pipeline_PipelineSceneData_getOctree));
     cls->defineFunction("getValidPunctualLights", _SE(js_pipeline_PipelineSceneData_getValidPunctualLights));
     cls->defineFunction("setShadowFramebuffer", _SE(js_pipeline_PipelineSceneData_setShadowFramebuffer));
-    cls->defineFunction("setValidPunctualLights", _SE(js_pipeline_PipelineSceneData_setValidPunctualLights));
     cls->defineFunction("updatePipelineSceneData", _SE(js_pipeline_PipelineSceneData_updatePipelineSceneData));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_PipelineSceneData_finalize));
     cls->install();
