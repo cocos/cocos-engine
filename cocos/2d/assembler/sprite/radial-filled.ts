@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
 import { Color, Mat4, Vec2, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -31,7 +32,6 @@ import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
-import { JSB } from '../../../core/default-constants';
 
 const PI_2 = Math.PI * 2;
 const EPSILON = 1e-6;

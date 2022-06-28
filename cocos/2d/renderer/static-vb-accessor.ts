@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
@@ -31,7 +32,6 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pool } from '../../core/memop/pool';
 import { macro } from '../../core/platform/macro';
 import { director } from '../../core';
-import { JSB } from '../../core/default-constants';
 
 interface IFreeEntry {
     offset: number;

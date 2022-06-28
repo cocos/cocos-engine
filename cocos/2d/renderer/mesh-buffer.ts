@@ -23,12 +23,12 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { JSB } from '../../core/default-constants';
 import { NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
 
 interface IIARef {

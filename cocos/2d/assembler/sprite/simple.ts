@@ -28,6 +28,7 @@
  * @module ui-assembler
  */
 
+import { JSB } from 'internal:constants';
 import { Vec3, Vec2, Color } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -38,7 +39,6 @@ import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 import { RenderDrawInfo } from '../../renderer/render-draw-info';
 import { Batcher2D } from '../../renderer/batcher-2d';
 import { director } from '../../../core';
-import { JSB } from '../../../core/default-constants';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from '../../../../core/default-constants';
+import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../../core/math';
 import { Graphics } from '../../../components';
 import { MeshRenderData } from '../../../renderer/render-data';

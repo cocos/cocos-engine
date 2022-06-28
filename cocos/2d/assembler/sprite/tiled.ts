@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { IUV, SpriteFrame } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -31,7 +32,6 @@ import { Sprite } from '../../components/sprite';
 import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssembler } from '../../renderer/base';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
-import { JSB } from '../../../core/default-constants';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
