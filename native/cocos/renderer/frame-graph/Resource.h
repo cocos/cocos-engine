@@ -102,6 +102,7 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::cr
     if (!_deviceObject) {
         DeviceResourceCreatorType creator;
         _deviceObject = creator(_desc);
+        _deviceObject->addRef();
     }
 }
 
@@ -114,7 +115,7 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::de
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::destroyPersistent() noexcept {
     if (_deviceObject) {
-        delete _deviceObject;
+        _deviceObject->release();
         _deviceObject = nullptr;
     }
 }

@@ -86,5 +86,10 @@ void GLES3DescriptorSet::update() {
     }
 }
 
+void GLES3DescriptorSet::forceUpdate() {
+    _isDirty = true;
+    update();
+}
+
 } // namespace gfx
 } // namespace cc

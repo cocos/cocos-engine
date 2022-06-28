@@ -48,11 +48,6 @@ void DescriptorSet::initialize(const DescriptorSetInfo &info) {
     doInit(info);
 }
 
-void DescriptorSet::forceUpdate() {
-    _isDirty = true;
-    update();
-}
-
 void DescriptorSet::destroy() {
     doDestroy();
 
