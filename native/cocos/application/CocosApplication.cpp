@@ -125,10 +125,8 @@ void CocosApplication::onClose() {
 }
 
 void CocosApplication::setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {
-#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger(serverAddr, port, isWaitForConnect);
-#endif
 }
 
 void CocosApplication::runScript(const ccstd::string &filePath) {
