@@ -629,7 +629,7 @@ export function setClassName (className: string, constructor: Constructor) {
  * @zh 为类设置别名。
  * 当 `setClassAlias(target, alias)` 后，
  * `alias` 将作为类 `target`的“单向 ID” 和“单向名称”。
- * 因此，`_getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
+ * 因此，`getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
  * 这种映射是单向的，意味着 `getClassName(target)` 和 `_getClassId(target)` 将不会是 `alias`。
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
@@ -700,9 +700,8 @@ export function unregisterClass (...constructors: Function[]) {
  * 通过 id 获取已注册的类型
  * @param classId
  * @return constructor
- * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export function _getClassById (classId) {
+export function getClassById (classId) {
     return _idToClass[classId];
 }
 

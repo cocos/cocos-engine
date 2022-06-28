@@ -91,7 +91,7 @@ export default function deserializeAsset (json: Record<string, any>, options: Re
             uuid: decodeUuid(dependUuid),
             owner: objList[i],
             prop: propList[i],
-            type: js._getClassById(typeList[i]) as Constructor<Asset>,
+            type: js.getClassById(typeList[i]) as Constructor<Asset>,
         };
     }
 

@@ -30,7 +30,6 @@ import IDGenerator from './id-generator';
 import {
     _idToClass,
     _nameToClass,
-    _getClassById,
     _getClassId,
     _setClassId,
     addon,
@@ -40,6 +39,7 @@ import {
     formatStr,
     get,
     getClassByName,
+    getClassById,
     getClassName,
     getPropertyDescriptor,
     getset,
@@ -90,6 +90,7 @@ export const js = {
     setClassName,
     setClassAlias,
     getClassByName,
+    getClassById,
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
@@ -149,10 +150,6 @@ export const js = {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _setClassId,
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    _getClassById,
     obsolete,
     obsoletes,
     formatStr,

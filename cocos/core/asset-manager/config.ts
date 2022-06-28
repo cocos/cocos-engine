@@ -288,7 +288,7 @@ export default class Config {
 
             const assetInfo = this.assetInfos.get(uuid) as IAddressableInfo;
             assetInfo.path = path;
-            assetInfo.ctor = js._getClassById(type) as Constructor<Asset>;
+            assetInfo.ctor = js.getClassById(type) as Constructor<Asset>;
             if (paths.has(path)) {
                 if (isSubAsset) {
                     paths.get(path)!.push(assetInfo);

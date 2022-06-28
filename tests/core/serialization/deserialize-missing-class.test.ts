@@ -33,7 +33,7 @@ describe(`Missing class deserialization`, () => {
 
     test(`Class finder returns MissingScript`, () => {
         function classFinder(type: any) {
-            const result = js._getClassById(type);
+            const result = js.getClassById(type);
             if (result) {
                 return result;
             } else {

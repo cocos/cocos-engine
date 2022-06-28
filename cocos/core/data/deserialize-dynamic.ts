@@ -545,7 +545,7 @@ class _Deserializer {
 
         const klass = this._classFinder(type, value, owner, propName);
         if (!klass) {
-            const notReported = this._classFinder === js._getClassById;
+            const notReported = this._classFinder === js.getClassById;
             if (notReported) {
                 this._reportMissingClass(type);
             }
@@ -830,7 +830,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     reportMissingClass?: ReportMissingClass;
 }) {
     options = options || {};
-    const classFinder = options.classFinder || js._getClassById;
+    const classFinder = options.classFinder || js.getClassById;
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
