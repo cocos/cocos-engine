@@ -27,7 +27,7 @@
 import { JSB } from 'internal:constants';
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature } from '../../core/gfx';
+    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
@@ -92,7 +92,7 @@ export default class ParticleBatchModel extends scene.Model {
         this._vertStaticAttrsFloatCount = 0;
         this._insBuffers = [];
         this._insIndices = null;
-        if (!legacyCC.game._gfxDevice.hasFeature(Feature.INSTANCED_ARRAYS)) {
+        if (!deviceManager.gfxDevice.hasFeature(Feature.INSTANCED_ARRAYS)) {
             this._useInstance = false;
         } else {
             this._useInstance = true;
