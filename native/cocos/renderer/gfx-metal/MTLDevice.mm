@@ -156,9 +156,9 @@ void CCMTLDevice::doDestroy() {
 
     CC_SAFE_DELETE(_gpuDeviceObj);
 
-    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
-    CC_SAFE_DESTROY_AND_DELETE(_queue);
-    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
+    _queryPool = nullptr;
+    _queue = nullptr;
+    _cmdBuff = nullptr;
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
 
@@ -193,7 +193,7 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     }
 
     // Clear queue stats
-    CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
+    CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue.get());
     queue->gpuQueueObj()->numDrawCalls = 0;
     queue->gpuQueueObj()->numInstances = 0;
     queue->gpuQueueObj()->numTriangles = 0;
@@ -201,7 +201,7 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void CCMTLDevice::present() {
     CC_PROFILE(CCMTLDevicePresent);
-    CCMTLQueue *queue = (CCMTLQueue *)_queue;
+    CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue.get());
     _numDrawCalls = queue->gpuQueueObj()->numDrawCalls;
     _numInstances = queue->gpuQueueObj()->numInstances;
     _numTriangles = queue->gpuQueueObj()->numTriangles;
@@ -313,12 +313,12 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
     // breaking compatibilities. When we reached some conclusion on this subject,
     // getting rid of this interface all together may become a better option.
-    static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
+    static_cast<CCMTLCommandBuffer *>(_cmdBuff.get())->copyBuffersToTexture(buffers, texture, regions, count);
 }
 
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     CC_PROFILE(CCMTLDeviceCopyTextureToBuffers);
-    static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
+    static_cast<CCMTLCommandBuffer *>(_cmdBuff.get())->copyTextureToBuffers(src, buffers, region, count);
 }
 
 void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {
