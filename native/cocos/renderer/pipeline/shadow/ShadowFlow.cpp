@@ -165,7 +165,7 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
             initShadowFrameBuffer(_pipeline, mainLight);
         }
 
-        auto *shadowFrameBuffer = shadowFramebufferMap.at(mainLight);
+        auto *shadowFrameBuffer = shadowFramebufferMap.at(mainLight).get();
         for (auto *stage : _stages) {
             auto *shadowStage = static_cast<ShadowStage *>(stage);
             shadowStage->setUsage(globalDS, mainLight, shadowFrameBuffer);
@@ -181,7 +181,7 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
             continue;
         }
 
-        auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
+        auto *shadowFrameBuffer = shadowFramebufferMap.at(light).get();
         for (auto *stage : _stages) {
             auto *shadowStage = static_cast<ShadowStage *>(stage);
             shadowStage->setUsage(globalDS, light, shadowFrameBuffer);
