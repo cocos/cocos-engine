@@ -109,7 +109,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
     const sources = [
         'var prop;',
     ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
 
     for (let p = 0; p < props.length; p++) {
@@ -192,7 +192,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 }
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
     const shouldCopyId = js.isChildClassOf(klass, legacyCC._BaseNode) || js.isChildClassOf(klass, legacyCC.Component);
     let shouldCopyRawData = false;
 

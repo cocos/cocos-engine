@@ -278,7 +278,7 @@ void TextureCube::deserialize(const ccstd::any &serializedData, const ccstd::any
         _mipmaps[i] = mipmap;
         //        auto* mipmap = data->mipmaps[i];
 
-        //cjh TODO: what's handle.result??        const imageAssetClassId = js._getClassId(ImageAsset);
+        //cjh TODO: what's handle.result??        const imageAssetClassId = js.getClassId(ImageAsset);
         //
         //        handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
         //        handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);

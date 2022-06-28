@@ -177,7 +177,7 @@ export class EventHandler {
 
     private _compName2Id (compName) {
         const comp = legacyCC.js.getClassByName(compName);
-        return legacyCC.js._getClassId(comp);
+        return legacyCC.js.getClassId(comp);
     }
 
     private _compId2Name (compId) {

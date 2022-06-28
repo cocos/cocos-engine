@@ -289,7 +289,7 @@ export class Texture2D extends SimpleTexture {
                 continue;
             }
             const mipmapUUID = data.mipmaps[i];
-            handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
+            handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js.getClassId(ImageAsset));
         }
     }
 

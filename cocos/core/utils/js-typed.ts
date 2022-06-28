@@ -630,7 +630,7 @@ export function setClassName (className: string, constructor: Constructor) {
  * 当 `setClassAlias(target, alias)` 后，
  * `alias` 将作为类 `target`的“单向 ID” 和“单向名称”。
  * 因此，`getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
- * 这种映射是单向的，意味着 `getClassName(target)` 和 `_getClassId(target)` 将不会是 `alias`。
+ * 这种映射是单向的，意味着 `getClassName(target)` 和 `getClassId(target)` 将不会是 `alias`。
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
  */
@@ -727,7 +727,7 @@ export function getClassByName (classname) {
  * @return
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export function _getClassId (obj, allowTempId?: boolean) {
+export function getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;

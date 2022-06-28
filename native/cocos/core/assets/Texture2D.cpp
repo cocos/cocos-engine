@@ -177,7 +177,7 @@ void Texture2D::deserialize(const ccstd::any &serializedData, const ccstd::any &
             continue;
         }
         ccstd::string mipmapUUID = data->mipmaps[i];
-        //cjh TODO:        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
+        //cjh TODO:        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js.getClassId(ImageAsset));
     }
 }
 
