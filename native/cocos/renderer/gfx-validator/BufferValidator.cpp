@@ -34,13 +34,11 @@ namespace gfx {
 
 BufferValidator::BufferValidator(Buffer *actor)
 : Agent<Buffer>(actor) {
-    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
-    CC_SAFE_RELEASE(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
     // skip those that have never been updated
