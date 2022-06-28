@@ -25,8 +25,10 @@
 ****************************************************************************/
 #include "AudioCache.h"
 #include "base/std/container/vector.h"
+#include "application/ApplicationManager.h"
 #import <AVFoundation/AVAudioFile.h>
 #import <AVFoundation/AVAudioBuffer.h>
+
 AudioDataFormat formatConverter(AVAudioCommonFormat originalAppleFormat){
     switch (originalAppleFormat) {
         case AVAudioPCMFormatInt16:
@@ -64,7 +66,7 @@ AudioCache::AudioCache(std::string &fileFullPath) {
     NSError * err;
     _descriptor.audioFile = [[AVAudioFile alloc] initForReading:url error:&err];
     if (_descriptor.audioFile == nil) {
-        NSLog(@"%AVAudioFile Error: ", [err localizedDescription]);
+        NSLog(@"AVAudioFile Error: ", [err localizedDescription]);
         [err release];
         assert([err retainCount] == 0);
     }
@@ -101,13 +103,18 @@ bool AudioCache::load() {
     }
     NSError* err = nil;
     // TODO: should buffer be initilized?
-    
+//    AVAudioFormat* format =;
+    _descriptor.buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:frameCount];
     [_descriptor.audioFile readIntoBuffer:_descriptor.buffer frameCount:frameCount error:&err];
     if (err) {
         NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
         [err release];
         ret = false;
+        assert(ret);
     }
+    loadState = State::LOADED;
+    invokingLoadCallbacks();
+    invokingPlayCallbacks();
     _readDataMutex.unlock();
     return ret;
 }
@@ -117,6 +124,7 @@ bool AudioCache::unload() {
     if (loadState == State::LOADED) {
         [_descriptor.buffer release];
     }
+    loadState = State::UNLOADED;
     _readDataMutex.unlock();
     return ret;
 }
@@ -172,8 +180,8 @@ void AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer) {
 //}
 
 // TODO: If is streaming audio, return partial data? or whole data.
-ccstd::vector<char> AudioCache::getPCMBuffer(uint32_t channelID){
-    ccstd::vector<char> ret;
+ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
+    ccstd::vector<uint8_t> ret;
     if (loadState != State::LOADED) {
         return ret;
     }
@@ -182,7 +190,7 @@ ccstd::vector<char> AudioCache::getPCMBuffer(uint32_t channelID){
     }
     const uint32_t frameCount = _pcmHeader.totalFrames;
     ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
-    char *buffer = ret.data();
+    uint8_t *buffer = ret.data();
     
     uint32_t bitLength = _pcmHeader.bytesPerFrame / _pcmHeader.channelCount * 8;
     switch (_pcmHeader.dataFormat) {
@@ -256,5 +264,23 @@ void AudioCache::addPlayCallback(const std::function<void()> &callback) {
             break;
     }
 }
+void AudioCache::invokingPlayCallbacks() {
+    std::lock_guard<std::mutex> lk(_playCallbackMutex);
 
+    for (auto &&cb : _playCallbacks) {
+        cb();
+    }
+
+    _playCallbacks.clear();
+}
+void AudioCache::invokingLoadCallbacks() {
+    auto scheduler = CC_CURRENT_ENGINE()->getScheduler();
+    scheduler->performFunctionInCocosThread([&]() {
+
+        for (auto &&cb : _loadCallbacks) {
+            cb(loadState == State::LOADED);
+        }
+        _loadCallbacks.clear();
+    });
+}
 }

@@ -25,7 +25,7 @@
 ****************************************************************************/
 #pragma once
 #include <mutex>
-#include "AudioDef.h"
+#include "audio/include/AudioDef.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 #ifdef __OBJC__
@@ -70,14 +70,16 @@ public:
     bool load();
     void addLoadCallback(const LoadCallback &callback);
     void addPlayCallback(const std::function<void()> &callback);
+    void invokingPlayCallbacks();
+    void invokingLoadCallbacks();
 #ifdef __OBJC__
     void loadToBuffer(AVAudioFramePosition &pos, AVAudioPCMBuffer* buffer);
 #endif
     bool resample(PCMHeader header);
     
     // Can only be called when state is LOADED
-    std::vector<char> getPCMBuffer();
-    std::vector<char> getPCMBuffer(uint32_t channelID);
+    std::vector<uint8_t> getPCMBuffer();
+    std::vector<uint8_t> getPCMBuffer(uint32_t channelID);
     AudioFileDescriptor getDescriptor() {return _descriptor;}
     
     PCMHeader getPCMHeader();

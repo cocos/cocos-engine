@@ -41,7 +41,6 @@ AudioPlayer::~AudioPlayer(){
 }
 bool AudioPlayer::load(AudioCache* cache){
     _cache = cache;
-    [_descriptor.node scheduleBuffer:_cache->getDescriptor().buffer   completionHandler:nullptr];
     return true;
 }
 bool AudioPlayer::unload() {
@@ -55,7 +54,7 @@ bool AudioPlayer::play() {
     _descriptor.curFrame = (int64_t)(_currentTime * _cache->getPCMHeader().sampleRate);
     // if bigger than max buffer length, need to read buffer and schedule
     if(_cache->getPCMHeader().totalFrames > MAX_BUFFER_LENGTH) {
-        _descriptor.bufferToPlay = [[AVAudioPCMBuffer alloc] init];
+        _descriptor.bufferToPlay = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:MAX_BUFFER_LENGTH];
         _cache->loadToBuffer(_descriptor.curFrame, _descriptor.bufferToPlay);
         
         [_descriptor.node scheduleBuffer:_descriptor.bufferToPlay atTime:nil options: AVAudioPlayerNodeBufferLoops completionCallbackType:AVAudioPlayerNodeCompletionDataConsumed completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
@@ -69,7 +68,7 @@ bool AudioPlayer::play() {
             }
         }];
     } else {
-        _cache->load();
+//        _cache->load();
         if(_isLoop) {
             [_descriptor.node scheduleBuffer:_cache->getDescriptor().buffer atTime:nil options:AVAudioPlayerNodeBufferLoops completionCallbackType:AVAudioPlayerNodeCompletionDataConsumed completionHandler:nil];
         } else {
@@ -88,7 +87,7 @@ bool AudioPlayer::pause() {
     state = State::PAUSED;
 }
 bool AudioPlayer::resume(){
-    [_descriptor.node resume];
+//    [_descriptor.node resume];
     state = State::PLAYING;
 }
 bool AudioPlayer::stop() {

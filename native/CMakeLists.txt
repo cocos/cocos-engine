@@ -210,7 +210,6 @@ if(USE_AUDIO)
                      cocos/audio/include/AudioEngine.h
                      cocos/audio/include/AudioDef.h
                      cocos/audio/include/Export.h
-                     cocos/audio/include/AudioDef.h
     )
     if(WINDOWS)
         cocos_source_files(
@@ -345,8 +344,6 @@ if(USE_AUDIO)
         )
     elseif(APPLE)
         cocos_source_files(
-            #                         cocos/audio/apple/AudioDecoder.h
-            # NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
             NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-Impl.mm
                                     cocos/audio/apple/AudioEngine-Impl.h
                                     cocos/audio/apple/AudioCache.h

@@ -90,8 +90,10 @@ public:
 
     void uncache(const ccstd::string &filePath);
     void uncacheAll();
-    
+    PCMHeader getPCMHeader(const char* url);
+    ccstd::vector<uint8_t> getOriginalPCMBuffer(char const* url, uint32_t channelID);
     // return CacheID
+    AudioCache* forceLoad(const ccstd::string &filePath, const LoadCallback &callback);
     AudioCache* preload(const ccstd::string &filePath, const LoadCallback &callback);
     void update(float dt);
 

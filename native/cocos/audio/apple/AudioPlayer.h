@@ -75,6 +75,7 @@ public:
     void update();
     bool isForceCache {false};
     State state;
+    bool isAttached {false};
     std::function<void(int, const std::string&)> finishCallback {nullptr};
 private:
     std::mutex _playMutex;
