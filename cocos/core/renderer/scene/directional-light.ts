@@ -62,6 +62,7 @@ export class DirectionalLight extends Light {
     protected _shadowNear = 0.1;
     protected _shadowFar = 10.0;
     protected _shadowOrthoSize = 5;
+    protected _hasCastShadowObjects = false;
 
     /**
      * @en The direction vector of the light
@@ -281,6 +282,17 @@ export class DirectionalLight extends Light {
     }
     set shadowOrthoSize (val) {
         this._shadowOrthoSize = val;
+    }
+
+    /**
+     * @en get or set this light has Cast Shadow Objects
+     * @zh 获取或者设置灯光有没有可以投射阴影的物体
+     */
+    get hasCastShadowObjects () {
+        return this._hasCastShadowObjects;
+    }
+    set hasCastShadowObjects (val) {
+        this._hasCastShadowObjects = val;
     }
 
     constructor () {
