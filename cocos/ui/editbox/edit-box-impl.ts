@@ -182,8 +182,8 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _addDomToGameContainer () {
-        if (this._edTxt) {
-            game.container!.appendChild(this._edTxt);
+        if (game.container && this._edTxt) {
+            game.container.appendChild(this._edTxt);
             document.head.appendChild(this._placeholderStyleSheet!);
         }
     }
@@ -273,10 +273,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         const node = this._delegate!.node;
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
-        const widthRatio = 1;
-        const heightRatio = 1;
-        scaleX *= widthRatio;
-        scaleY *= heightRatio;
         const viewport = view.getViewportRect();
         // TODO: implement editBox in PAL
         const dpr = screenAdapter.devicePixelRatio;
@@ -315,7 +311,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         const d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
-        offsetX += viewport.x * widthRatio / dpr;
+        offsetX += viewport.x / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
