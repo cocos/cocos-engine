@@ -46,10 +46,6 @@
     #define HAVE_INSPECTOR      0
 #endif
 
-#if USE_V8_DEBUGGER != 1
-#error "v8 debbugger should be ON/OFF?"
-#endif 
-
 #ifdef ANDROID
 
     #include <android/log.h>
