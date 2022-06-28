@@ -32,7 +32,8 @@ se::Class* __jsb_cc_UIMeshBuffer_class = nullptr;  // NOLINT
 static bool js_2d_UIMeshBuffer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_destroy : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -47,7 +48,8 @@ SE_BIND_FUNC(js_2d_UIMeshBuffer_destroy)
 static bool js_2d_UIMeshBuffer_getIData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getIData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getIData : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -66,7 +68,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_UIMeshBuffer_getIData)
 static bool js_2d_UIMeshBuffer_getVData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getVData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_getVData : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -85,7 +88,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_UIMeshBuffer_getVData)
 static bool js_2d_UIMeshBuffer_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_initialize : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -110,7 +114,8 @@ SE_BIND_FUNC(js_2d_UIMeshBuffer_initialize)
 static bool js_2d_UIMeshBuffer_reset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_reset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_reset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -125,7 +130,8 @@ SE_BIND_FUNC(js_2d_UIMeshBuffer_reset)
 static bool js_2d_UIMeshBuffer_setIData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setIData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setIData : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -144,7 +150,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_UIMeshBuffer_setIData)
 static bool js_2d_UIMeshBuffer_setVData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setVData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_setVData : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -163,7 +170,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_UIMeshBuffer_setVData)
 static bool js_2d_UIMeshBuffer_syncSharedBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_syncSharedBufferToNative : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_syncSharedBufferToNative : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -182,7 +190,8 @@ SE_BIND_FUNC(js_2d_UIMeshBuffer_syncSharedBufferToNative)
 static bool js_2d_UIMeshBuffer_uploadBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_uploadBuffers : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_UIMeshBuffer_uploadBuffers : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -241,7 +250,8 @@ se::Class* __jsb_cc_RenderDrawInfo_class = nullptr;  // NOLINT
 static bool js_2d_RenderDrawInfo_getAttrSharedBufferForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getAttrSharedBufferForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getAttrSharedBufferForJS : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -260,7 +270,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS)
 static bool js_2d_RenderDrawInfo_getBlendHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getBlendHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getBlendHash : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -279,7 +290,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getBlendHash)
 static bool js_2d_RenderDrawInfo_getBufferId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getBufferId : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getBufferId : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -298,7 +310,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getBufferId)
 static bool js_2d_RenderDrawInfo_getDataHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getDataHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getDataHash : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -317,7 +330,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getDataHash)
 static bool js_2d_RenderDrawInfo_getDrawType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getDrawType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getDrawType : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -336,7 +350,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_getDrawType)
 static bool js_2d_RenderDrawInfo_getEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getEnabled : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -355,7 +370,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_getEnabled)
 static bool js_2d_RenderDrawInfo_getIDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIDataBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIDataBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -374,7 +390,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getIDataBuffer)
 static bool js_2d_RenderDrawInfo_getIbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIbBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIbBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -393,7 +410,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getIbBuffer)
 static bool js_2d_RenderDrawInfo_getIbCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIbCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIbCount : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -412,7 +430,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getIbCount)
 static bool js_2d_RenderDrawInfo_getIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIndexOffset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIndexOffset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -431,7 +450,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getIndexOffset)
 static bool js_2d_RenderDrawInfo_getIsMeshBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIsMeshBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getIsMeshBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -450,7 +470,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getIsMeshBuffer)
 static bool js_2d_RenderDrawInfo_getMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getMaterial : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -469,7 +490,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getMaterial)
 static bool js_2d_RenderDrawInfo_getMeshBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getMeshBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getMeshBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -488,7 +510,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_getMeshBuffer)
 static bool js_2d_RenderDrawInfo_getModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getModel : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -507,7 +530,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_getModel)
 static bool js_2d_RenderDrawInfo_getNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getNode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -526,7 +550,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getNode)
 static bool js_2d_RenderDrawInfo_getSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getSampler : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getSampler : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -545,7 +570,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getSampler)
 static bool js_2d_RenderDrawInfo_getStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getStencilStage : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getStencilStage : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -564,7 +590,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getStencilStage)
 static bool js_2d_RenderDrawInfo_getTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getTexture : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getTexture : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -583,7 +610,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getTexture)
 static bool js_2d_RenderDrawInfo_getTextureHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getTextureHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getTextureHash : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -602,7 +630,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getTextureHash)
 static bool js_2d_RenderDrawInfo_getVDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVDataBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVDataBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -621,7 +650,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVDataBuffer)
 static bool js_2d_RenderDrawInfo_getVbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVbBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVbBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -640,7 +670,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVbBuffer)
 static bool js_2d_RenderDrawInfo_getVbCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVbCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVbCount : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -659,7 +690,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVbCount)
 static bool js_2d_RenderDrawInfo_getVertDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVertDirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVertDirty : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -678,7 +710,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVertDirty)
 static bool js_2d_RenderDrawInfo_getVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVertexOffset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getVertexOffset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -697,7 +730,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVertexOffset)
 static bool js_2d_RenderDrawInfo_setBlendHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setBlendHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setBlendHash : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -716,7 +750,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setBlendHash)
 static bool js_2d_RenderDrawInfo_setBufferId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setBufferId : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setBufferId : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -735,7 +770,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setBufferId)
 static bool js_2d_RenderDrawInfo_setDataHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setDataHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setDataHash : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -754,7 +790,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setDataHash)
 static bool js_2d_RenderDrawInfo_setIDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIDataBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIDataBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -773,7 +810,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setIDataBuffer)
 static bool js_2d_RenderDrawInfo_setIbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIbBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIbBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -792,7 +830,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setIbBuffer)
 static bool js_2d_RenderDrawInfo_setIbCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIbCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIbCount : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -811,7 +850,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setIbCount)
 static bool js_2d_RenderDrawInfo_setIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIndexOffset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIndexOffset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -830,7 +870,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setIndexOffset)
 static bool js_2d_RenderDrawInfo_setIsMeshBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIsMeshBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setIsMeshBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -849,7 +890,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setIsMeshBuffer)
 static bool js_2d_RenderDrawInfo_setMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setMaterial : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -868,7 +910,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setMaterial)
 static bool js_2d_RenderDrawInfo_setModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setModel : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -887,7 +930,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_setModel)
 static bool js_2d_RenderDrawInfo_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setNode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -906,7 +950,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setNode)
 static bool js_2d_RenderDrawInfo_setRender2dBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setRender2dBufferToNative : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setRender2dBufferToNative : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -931,7 +976,8 @@ SE_BIND_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative)
 static bool js_2d_RenderDrawInfo_setSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setSampler : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setSampler : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -950,7 +996,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setSampler)
 static bool js_2d_RenderDrawInfo_setStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setStencilStage : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setStencilStage : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -969,7 +1016,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setStencilStage)
 static bool js_2d_RenderDrawInfo_setTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setTexture : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setTexture : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -988,7 +1036,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setTexture)
 static bool js_2d_RenderDrawInfo_setTextureHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setTextureHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setTextureHash : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1007,7 +1056,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setTextureHash)
 static bool js_2d_RenderDrawInfo_setVDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVDataBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVDataBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1026,7 +1076,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVDataBuffer)
 static bool js_2d_RenderDrawInfo_setVbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVbBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVbBuffer : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1045,7 +1096,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVbBuffer)
 static bool js_2d_RenderDrawInfo_setVbCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVbCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVbCount : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1064,7 +1116,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVbCount)
 static bool js_2d_RenderDrawInfo_setVertDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVertDirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVertDirty : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1083,7 +1136,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVertDirty)
 static bool js_2d_RenderDrawInfo_setVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVertexOffset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setVertexOffset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1102,7 +1156,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVertexOffset)
 static bool js_2d_RenderDrawInfo_syncSharedBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_syncSharedBufferToNative : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_syncSharedBufferToNative : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1220,7 +1275,8 @@ se::Class* __jsb_cc_RenderEntity_class = nullptr;  // NOLINT
 static bool js_2d_RenderEntity_addDynamicRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_addDynamicRenderDrawInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_addDynamicRenderDrawInfo : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1239,7 +1295,8 @@ SE_BIND_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo)
 static bool js_2d_RenderEntity_getNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getNode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1258,7 +1315,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getNode)
 static bool js_2d_RenderEntity_getStaticDrawInfoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getStaticDrawInfoSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getStaticDrawInfoSize : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1277,7 +1335,8 @@ SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getStaticDrawInfoSize)
 static bool js_2d_RenderEntity_getStaticRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getStaticRenderDrawInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getStaticRenderDrawInfo : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1299,7 +1358,8 @@ SE_BIND_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo)
 static bool js_2d_RenderEntity_getStaticRenderDrawInfos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getStaticRenderDrawInfos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getStaticRenderDrawInfos : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1318,7 +1378,8 @@ SE_BIND_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos)
 static bool js_2d_RenderEntity_removeDynamicRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_removeDynamicRenderDrawInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_removeDynamicRenderDrawInfo : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1333,7 +1394,8 @@ SE_BIND_FUNC(js_2d_RenderEntity_removeDynamicRenderDrawInfo)
 static bool js_2d_RenderEntity_setDynamicRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setDynamicRenderDrawInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setDynamicRenderDrawInfo : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1354,7 +1416,8 @@ SE_BIND_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo)
 static bool js_2d_RenderEntity_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setNode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1373,7 +1436,8 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setNode)
 static bool js_2d_RenderEntity_setRenderEntityType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setRenderEntityType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setRenderEntityType : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1392,7 +1456,8 @@ SE_BIND_FUNC(js_2d_RenderEntity_setRenderEntityType)
 static bool js_2d_RenderEntity_setStaticDrawInfoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setStaticDrawInfoSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setStaticDrawInfoSize : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1475,7 +1540,8 @@ se::Class* __jsb_cc_Batcher2d_class = nullptr;  // NOLINT
 static bool js_2d_Batcher2d_addRootNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_addRootNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_addRootNode : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1494,7 +1560,8 @@ SE_BIND_FUNC(js_2d_Batcher2d_addRootNode)
 static bool js_2d_Batcher2d_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_initialize : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1513,7 +1580,8 @@ SE_BIND_FUNC(js_2d_Batcher2d_initialize)
 static bool js_2d_Batcher2d_reset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_reset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_reset : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1528,7 +1596,8 @@ SE_BIND_FUNC(js_2d_Batcher2d_reset)
 static bool js_2d_Batcher2d_syncMeshBuffersToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_syncMeshBuffersToNative : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_syncMeshBuffersToNative : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1549,7 +1618,8 @@ SE_BIND_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative)
 static bool js_2d_Batcher2d_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_update : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1564,7 +1634,8 @@ SE_BIND_FUNC(js_2d_Batcher2d_update)
 static bool js_2d_Batcher2d_uploadBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_uploadBuffers : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_uploadBuffers : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1641,7 +1712,8 @@ se::Class* __jsb_cc_GraphicsProxy_class = nullptr;  // NOLINT
 static bool js_2d_GraphicsProxy_activeSubModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_activeSubModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_activeSubModel : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1660,7 +1732,8 @@ SE_BIND_FUNC(js_2d_GraphicsProxy_activeSubModel)
 static bool js_2d_GraphicsProxy_clear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_clear : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_clear : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1675,7 +1748,8 @@ SE_BIND_FUNC(js_2d_GraphicsProxy_clear)
 static bool js_2d_GraphicsProxy_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_destroy : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1690,7 +1764,8 @@ SE_BIND_FUNC(js_2d_GraphicsProxy_destroy)
 static bool js_2d_GraphicsProxy_initModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_initModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_initModel : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1709,7 +1784,8 @@ SE_BIND_FUNC(js_2d_GraphicsProxy_initModel)
 static bool js_2d_GraphicsProxy_uploadData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::GraphicsProxy>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_uploadData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "js_2d_GraphicsProxy_uploadData : Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {

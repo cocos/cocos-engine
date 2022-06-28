@@ -1,4 +1,4 @@
-import { JSB } from '../../core/default-constants';
+import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';

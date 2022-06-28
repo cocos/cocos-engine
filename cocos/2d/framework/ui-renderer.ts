@@ -214,12 +214,17 @@ export class UIRenderer extends Renderer {
         this._renderData = val;
         const entity = this.renderEntity;
         if (entity) {
-            if (entity.renderDrawInfoArr.length === 0) {
-                entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
-            } else if (entity.renderDrawInfoArr.length > 0) {
-                if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
-                    entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
+            if (val) {
+                if (entity.renderDrawInfoArr.length === 0) {
+                    entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
+                } else if (entity.renderDrawInfoArr.length > 0) {
+                    if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
+                        entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
+                    }
                 }
+            } else {
+                //TODO:remove draw info
+                //entity.removeDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
             }
         }
     }
