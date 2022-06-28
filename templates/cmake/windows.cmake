@@ -12,7 +12,6 @@ function(cc_win32_definations target)
         _CRT_SECURE_NO_WARNINGS
         _SCL_SECURE_NO_WARNINGS
         _USRLIBSIMSTATIC
-        SE_ENABLE_INSPECTOR
     )
 endfunction()
 
