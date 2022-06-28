@@ -39,6 +39,9 @@
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/SpotLight.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "BasePlatform.h"
 
 namespace cc {
 
@@ -67,28 +70,43 @@ Root::~Root() {
     instance = nullptr;
 }
 
-void Root::initialize(gfx::Swapchain *swapchain) {
-    _swapchain = swapchain;
+void Root::initialize(gfx::Swapchain *swapchain_) {
+    //_swapchain = swapchain;
 
-    gfx::RenderPassInfo renderPassInfo;
+    ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
+    const auto &windows = windowMgr->getWindows();
+    for (auto pair : windows) {
+        auto *window = pair.second.get();
+        auto handle = window->getWindowHandler();
+        const auto &size = window->getViewSize();
 
-    gfx::ColorAttachment colorAttachment;
-    colorAttachment.format = swapchain->getColorTexture()->getFormat();
-    renderPassInfo.colorAttachments.emplace_back(colorAttachment);
+        gfx::SwapchainInfo info;
+        info.width  = size.x;
+        info.height = size.y;
+        info.windowHandle = (void *)handle;
 
-    auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
-    depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
-    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
-    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
+        gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
+        _swapchains.emplace_back(swapchain);
 
-    scene::IRenderWindowInfo info;
-    info.title = ccstd::string{"rootMainWindow"};
-    info.width = swapchain->getWidth();
-    info.height = swapchain->getHeight();
-    info.renderPassInfo = renderPassInfo;
-    info.swapchain = swapchain;
-    _mainWindow = createWindow(info);
+        gfx::RenderPassInfo renderPassInfo;
 
+        gfx::ColorAttachment colorAttachment;
+        colorAttachment.format = swapchain->getColorTexture()->getFormat();
+        renderPassInfo.colorAttachments.emplace_back(colorAttachment);
+
+        auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
+        depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
+        depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+        depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
+
+        scene::IRenderWindowInfo windowInfo;
+        windowInfo.title = ccstd::string{"rootMainWindow"};
+        windowInfo.width = swapchain->getWidth();
+        windowInfo.height = swapchain->getHeight();
+        windowInfo.renderPassInfo = renderPassInfo;
+        windowInfo.swapchain = swapchain;
+        _mainWindow = createWindow(windowInfo);
+    }
     _curWindow = _mainWindow;
 
     // TODO(minggo):
@@ -309,9 +327,13 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
     }
 
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
-        _swapchains.clear();
-        _swapchains.emplace_back(_swapchain);
+        //_swapchains.clear();
+        //_swapchains.emplace_back(_swapchain);
         _device->acquire(_swapchains);
+
+        _cameraList[0]->changeTargetWindow(_windows[0]);
+        _cameraList[1]->changeTargetWindow(_windows[1]);
+
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
 

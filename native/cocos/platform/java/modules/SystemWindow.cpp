@@ -31,6 +31,7 @@
 #include <thread>
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/AndroidPlatform.h"
+    #include <android/native_window_jni.h>
 #endif
 
 #include "BasePlatform.h"
@@ -52,11 +53,18 @@ void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     copyTextToClipboardJNI(text);
 }
 
+void SystemWindow::setWindowHandle(void *nativeWindowHandle) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    _windowHandle = static_cast<ANativeWindow *>(nativeWindowHandle);
+#endif
+}
+
 uintptr_t SystemWindow::getWindowHandler() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    auto *platform = dynamic_cast<AndroidPlatform *>(BasePlatform::getPlatform());
-    CC_ASSERT(platform != nullptr);
-    return platform->getWindowHandler();
+    //auto *platform = dynamic_cast<AndroidPlatform *>(BasePlatform::getPlatform());
+    //CC_ASSERT(platform != nullptr);
+    //return platform->getWindowHandler();
+    return (uintptr_t)_windowHandle;
 #else
     return reinterpret_cast<uintptr_t>(
         JNI_NATIVE_GLUE()->getWindowHandler());

@@ -454,6 +454,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
     cocos/platform/interfaces/modules/ISystemWindow.h
+    cocos/platform/interfaces/modules/ISystemWindowManager.h
     cocos/platform/interfaces/modules/IVibrator.h
 )
 
@@ -504,6 +505,8 @@ if(WINDOWS)
         cocos/platform/win32/modules/Vibrator.h
         cocos/platform/win32/modules/System.cpp
         cocos/platform/win32/modules/System.h
+        cocos/platform/win32/modules/SystemWindowManager.cpp
+        cocos/platform/win32/modules/SystemWindowManager.h
     )
     if(USE_SERVER_MODE)
         cocos_source_files(
@@ -536,6 +539,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/CommonSystem.h
         cocos/platform/java/modules/SystemWindow.cpp
         cocos/platform/java/modules/SystemWindow.h
+        cocos/platform/java/modules/SystemWindowManager.cpp
+        cocos/platform/java/modules/SystemWindowManager.h
     )
 endif()
 

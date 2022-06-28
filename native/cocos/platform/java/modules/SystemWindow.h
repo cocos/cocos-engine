@@ -29,8 +29,11 @@
 
 #include "platform/interfaces/modules/ISystemWindow.h"
 
-namespace cc {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+class ANativeWindow;
+#endif
 
+namespace cc {
 class SystemWindow : public ISystemWindow {
 public:
     /**
@@ -38,8 +41,16 @@ public:
      */
     void setCursorEnabled(bool value) override;
     void copyTextToClipboard(const std::string& text) override;
+
+    void setWindowHandle(void *nativeWindowHandle) override;
     uintptr_t getWindowHandler() const override;
+
     Size getViewSize() const override;
+
+private:
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    ANativeWindow *_windowHandle = nullptr;
+#endif
 };
 
 } // namespace cc

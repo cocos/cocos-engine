@@ -104,6 +104,19 @@ public:
         return nullptr;
     }
 
+    static void addSurfaceEventListener() {
+        Device *device = Device::instance;
+        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
+			// linwei: swapchain test for Android
+            //device->destroySurface(e.args->ptrVal);
+        });
+
+        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
+			// linwei: swapchain test for Android
+            //device->createSurface(e.args->ptrVal);
+        });
+    }
+
     static constexpr bool isDetachDeviceThread() {
         return DETACH_DEVICE_THREAD;
     }

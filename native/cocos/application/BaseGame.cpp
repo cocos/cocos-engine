@@ -26,6 +26,7 @@
 #include "BaseGame.h"
 #include <string>
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 extern "C" void cc_load_all_plugins(); // NOLINT
 
@@ -46,12 +47,18 @@ int BaseGame::init() {
                                                       cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                 : _windowInfo.flags;
     std::call_once(_windowCreateFlag, [&]() {
-        if (_windowInfo.x == -1 || _windowInfo.y == -1) {
-            createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        } else {
-            createWindow(_windowInfo.title.c_str(),
-                         _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        }
+        //if (_windowInfo.x == -1 || _windowInfo.y == -1) {
+        //    createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+        //} else {
+        //    createWindow(_windowInfo.title.c_str(),
+        //                 _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+        //}
+
+        ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
+        ISystemWindow* window1 = windowMgr->createWindow("w1");
+        window1->createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+        ISystemWindow* window2 = windowMgr->createWindow("w2");
+        window2->createWindow("Window 2", 800, 600, _windowInfo.flags);
     });
 
 #endif
