@@ -70,7 +70,7 @@ private:
     static bool isInstancedOrBatched(const scene::Model *model);
 
     void clear();
-    void addRenderQueue(scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint32_t lightPassIdx);
+    void addRenderQueue(const scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx);
     void updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint32_t> *lightPassIndices) const;

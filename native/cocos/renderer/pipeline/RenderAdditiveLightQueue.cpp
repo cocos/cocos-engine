@@ -164,7 +164,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
             descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstLightBufferView);
             descriptorSet->update();
 
-            addRenderQueue(pass, subModel, model, lightPassIdx);
+            addRenderQueue(subModel, model, pass, lightPassIdx);
 
             ++i;
         }
@@ -224,7 +224,7 @@ bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
     return false;
 }
 
-void RenderAdditiveLightQueue::addRenderQueue(scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint32_t lightPassIdx) {
+void RenderAdditiveLightQueue::addRenderQueue(const scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
     const auto batchingScheme = pass->getBatchingScheme();
     const auto lightCount = _lightIndices.size();
     if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
