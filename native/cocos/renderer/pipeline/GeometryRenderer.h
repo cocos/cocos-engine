@@ -63,7 +63,6 @@ struct GeometryRendererInfo {
     uint32_t maxTriangles{0U};
 };
 
-
 class GeometryRenderer : public RefCounted {
 public:
     GeometryRenderer();
