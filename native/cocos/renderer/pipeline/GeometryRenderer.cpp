@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
+#if CC_USE_GEOMETRY_RENDERER
 #include "GeometryRenderer.h"
 #include <algorithm>
 #include <cmath>
@@ -880,3 +880,5 @@ void GeometryRenderer::addIndexedMesh(const Vec3 &center, const ccstd::vector<Ve
 
 } // namespace pipeline
 } // namespace cc
+
+#endif // #if CC_USE_GEOMETRY_RENDERER

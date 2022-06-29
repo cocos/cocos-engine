@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#if CC_USE_DEBUG_RENDERER
+
 #include "DebugRenderer.h"
 #include <algorithm>
 #include "Profiler.h"
@@ -386,3 +388,5 @@ void DebugRenderer::addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv,
 }
 
 } // namespace cc
+
+#endif

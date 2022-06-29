@@ -25,7 +25,9 @@
 
 #include "RenderPipeline.h"
 #include "BatchedBuffer.h"
+#if CC_USE_GEOMETRY_RENDERER
 #include "GeometryRenderer.h"
+#endif
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
@@ -38,7 +40,9 @@
 #include "frame-graph/FrameGraph.h"
 #include "gfx-base/GFXDevice.h"
 #include "helper/Utils.h"
+#if CC_USE_DEBUG_RENDERER
 #include "profiler/DebugRenderer.h"
+#endif
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
 
@@ -83,7 +87,9 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device);
+#if CC_USE_DEBUG_RENDERER
     CC_DEBUG_RENDERER->activate(_device);
+#endif
 
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
@@ -150,7 +156,9 @@ bool RenderPipeline::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
     CC_SAFE_DESTROY_NULL(_pipelineSceneData);
+#if CC_USE_DEBUG_RENDERER
     CC_DEBUG_RENDERER->destroy();
+#endif
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();

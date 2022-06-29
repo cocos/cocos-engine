@@ -30,7 +30,9 @@
 #include "math/MathUtil.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
+#if CC_USE_GEOMETRY_RENDERER
 #include "renderer/pipeline/GeometryRenderer.h"
+#endif
 
 namespace cc {
 namespace scene {
@@ -72,8 +74,10 @@ Camera::Camera(gfx::Device *device)
     _frustum->addRef();
     _frustum->setAccurate(true);
 
+#if CC_USE_GEOMETRY_RENDERER
     _geometryRenderer = ccnew pipeline::GeometryRenderer();
     _geometryRenderer->activate(device);
+#endif
 
     if (correctionMatrices.empty()) {
         float ySign = _device->getCapabilities().clipSpaceSignY;
@@ -107,7 +111,9 @@ void Camera::destroy() {
         _window = nullptr;
     }
     _name.clear();
+#if CC_USE_GEOMETRY_RENDERER
     CC_SAFE_DESTROY_NULL(_geometryRenderer);
+#endif
     CC_SAFE_RELEASE_NULL(_frustum);
 }
 

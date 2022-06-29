@@ -24,6 +24,9 @@
  ****************************************************************************/
 
 #pragma once
+
+#if CC_USE_DEBUG_RENDERER
+
 #include <math/Vec2.h>
 #include <math/Vec4.h>
 #include "base/std/container/array.h"
@@ -107,3 +110,5 @@ private:
 } // namespace cc
 
 #define CC_DEBUG_RENDERER cc::DebugRenderer::getInstance()
+
+#endif

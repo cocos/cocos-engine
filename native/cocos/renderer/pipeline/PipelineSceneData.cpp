@@ -60,8 +60,13 @@ PipelineSceneData::~PipelineSceneData() {
 
 void PipelineSceneData::activate(gfx::Device *device) {
     _device = device;
+#if CC_USE_GEOMETRY_RENDERER
     initGeometryRenderer();
+#endif
+
+#if CC_USE_DEBUG_RENDERER
     initDebugRenderer();
+#endif
     initOcclusionQuery();
 }
 

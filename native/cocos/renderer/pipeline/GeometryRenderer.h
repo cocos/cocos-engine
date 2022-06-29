@@ -63,6 +63,7 @@ struct GeometryRendererInfo {
     uint32_t maxTriangles{0U};
 };
 
+#if CC_USE_GEOMETRY_RENDERER
 class GeometryRenderer : public RefCounted {
 public:
     GeometryRenderer();
@@ -108,5 +109,46 @@ private:
     GeometryVertexBuffers *_buffers{nullptr};
 };
 
+#else
+class GeometryRenderer : public RefCounted {
+public:
+    GeometryRenderer() = default;
+    ~GeometryRenderer() override = default;
+    GeometryRenderer(const GeometryRenderer &) = delete;
+    GeometryRenderer(GeometryRenderer &&) = delete;
+    GeometryRenderer &operator=(const GeometryRenderer &) = delete;
+    GeometryRenderer &operator=(GeometryRenderer &&) = delete;
+
+    void activate(gfx::Device *device, const GeometryRendererInfo &info = GeometryRendererInfo()) {}
+    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData) {}
+    void destroy() {}
+    bool empty() const { return false; }
+
+    void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true) {}
+    void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true) {}
+    void addTriangle(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false) {}
+    void addQuad(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false) {}
+    void addBoundingBox(const geometry::AABB &aabb, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addCross(const Vec3 &center, float size, gfx::Color color, bool depthTest = true) {}
+    void addFrustum(const geometry::Frustum &frustum, gfx::Color color, bool depthTest = true) {}
+    void addCapsule(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segmentsU = 32U, uint32_t hemiSegmentsV = 8U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addCylinder(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addCone(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addCircle(const Vec3 &center, float radius, gfx::Color color, uint32_t segments = 32U, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addArc(const Vec3 &center, float radius, gfx::Color color, float startAngle, float endAngle, uint32_t segments = 32U, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addPolygon(const Vec3 &center, float radius, gfx::Color color, uint32_t segments = 6U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addDisc(const Vec3 &center, float radius, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addSector(const Vec3 &center, float radius, gfx::Color color, float startAngle, float endAngle, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addSphere(const Vec3 &center, float radius, gfx::Color color, uint32_t segmentsU = 32U, uint32_t segmentsV = 16U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addTorus(const Vec3 &center, float bigRadius, float radius, gfx::Color color, uint32_t segmentsU = 32U, uint32_t segmentsV = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addOctahedron(const Vec3 &center, float radius, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, uint32_t segments = 32U, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index = 0xffffffff, float knotSize = 0.5F, uint32_t segments = 32U, bool depthTest = true) {}
+    void addMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+    void addIndexedMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, const ccstd::vector<uint32_t> &indices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4()) {}
+};
+#endif
+
 } // namespace pipeline
 } // namespace cc
+

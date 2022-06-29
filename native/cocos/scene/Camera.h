@@ -312,7 +312,11 @@ public:
 
     inline gfx::SurfaceTransform getSurfaceTransform() const { return _curTransform; }
 
+#if CC_USE_GEOMETRY_RENDERER
     inline pipeline::GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer.get(); }
+#else
+    inline pipeline::GeometryRenderer *getGeometryRenderer() const { return nullptr; }
+#endif
 
     void detachCamera();
 
@@ -364,7 +368,9 @@ private:
     gfx::ClearFlagBit _clearFlag{gfx::ClearFlagBit::NONE};
     float _clearDepth{1.0F};
 
+#if CC_USE_GEOMETRY_RENDERER
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
+#endif
 
     static const ccstd::vector<float> FSTOPS;
     static const ccstd::vector<float> SHUTTERS;
