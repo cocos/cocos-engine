@@ -72,7 +72,16 @@ export interface IGameConfig {
      */
     debugMode?: debug.DebugMode;
 
-    overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: any }>
+    /**
+     * @zh
+     * 覆盖 settings 模块中的配置项, 用于控制引擎的启动和初始化，你可以在 game.init 中传入参数，也可以在 [game.onPostSettingsInitDelegate] 事件回调中覆盖。
+     * 需要注意的是你需要在 application.js 模板中指定此选项和监听此事件。
+     * @en
+     * Overrides the settings module's some configuration, which is used to control the startup and initialization of the engine.
+     * You can pass in parameters in game.init or override them in the [game.onPostSettingsInitDelegate] event callback.
+     * Note: you need to specify this option in the application.js template or add a delegate callback.
+     */
+    overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: Record<string, any> }>
 }
 
 /**
@@ -138,8 +147,20 @@ export class Game extends EventTarget {
      */
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
+    /**
+     * @en Event triggered pre settings initialization, at this point you can not use any settings module API.
+     * @zh 配置模块初始化之前的事件，在这个事件点你无法使用任何配置模块的相关接口
+     */
     public static readonly EVENT_PRE_SETTINGS_INIT = 'pre_settings_init';
+    /**
+     * @en Event triggered post settings initialization, at this point you can use any settings module API safely.
+     * @zh 配置模块初始化之后的事件，在这个事件点你可以安全地使用配置模块的相关接口
+     */
     public static readonly EVENT_POST_SETTINGS_INIT = 'post_settings_init';
+    /**
+     * @en Event triggered pre base module initialization, at this point you can not use pal/logging/sys API.
+     * @zh 基础模块初始化之前的事件，在这个事件点你无法使用 pal/logging/sys 的相关接口
+     */
     public static readonly EVENT_PRE_BASE_INIT = 'pre_base_init';
     public static readonly EVENT_POST_BASE_INIT = 'post_base_init';
     public static readonly EVENT_PRE_INFRASTRUCTURE_INIT = 'pre_infrastructure_init';
@@ -304,15 +325,55 @@ export class Game extends EventTarget {
     private _deltaTime = 0.0;
     private _shouldLoadLaunchScene = true;
 
+    /**
+     * @en The event delegate pre settings module initialization. At this point you can not use any settings module API.
+     * @zh 配置模块初始化之前的事件代理。在这个时间点你无法使用任何配置模块的 API。
+     */
     public readonly onPreSettingsInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate post settings module initialization. At this point you can use any settings module API safely.
+     * @zh 配置模块初始化之后的事件代理。在这个时间点你可以安全地使用任何配置模块的 API。
+     */
     public readonly onPostSettingsInitDelegate: AsyncDelegate<(settings: Settings) => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate pre base module initialization.
+     * @zh 基础模块初始化之前的事件代理。
+     */
     public readonly onPreBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate post base module initialization.
+     * @zh 基础模块初始化之后的事件代理。
+     */
     public readonly onPostBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate pre infrastructure module initialization.
+     * @zh 基础设施模块初始化之前的事件代理。
+     */
     public readonly onPreInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate post infrastructure module initialization.
+     * @zh 基础设施模块初始化之后的事件代理。
+     */
     public readonly onPostInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate pre sub system module initialization.
+     * @zh 子系统模块初始化之前的事件代理。
+     */
     public readonly onPreSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate post sub system module initialization.
+     * @zh 子系统模块初始化之后的事件代理。
+     */
     public readonly onPostSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate pre project data initialization.
+     * @zh 项目数据初始化之前的事件代理。
+     */
     public readonly onPreProjectInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
+    /**
+     * @en The event delegate post project data initialization.
+     * @zh 项目数据初始化之后的事件代理。
+     */
     public readonly onPostProjectInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
 
     // @Methods
@@ -571,7 +632,7 @@ export class Game extends EventTarget {
             });
     }
 
-    _loadPreloadAssets () {
+    private _loadPreloadAssets () {
         const preloadAssets = settings.querySettings<string[]>(Settings.Category.ASSETS, 'preloadAssets');
         if (!preloadAssets) return Promise.resolve([]);
         return Promise.all(preloadAssets.map((uuid) => new Promise<void>((resolve, reject) => {
@@ -585,7 +646,7 @@ export class Game extends EventTarget {
         })));
     }
 
-    _loadProjectBundles () {
+    private _loadProjectBundles () {
         const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
         if (!preloadBundles) return Promise.resolve([]);
         return Promise.all(preloadBundles.map(({ bundle, version }) => new Promise<void>((resolve, reject) => {

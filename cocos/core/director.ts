@@ -643,6 +643,21 @@ export class Director extends EventTarget {
     /**
      * @en Run main loop of director
      * @zh 运行主循环
+     * @deprecated Since v3.6, please use [tick] instead
+     */
+    public mainLoop (now: number) {
+        let dt;
+        if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
+            dt = now;
+        } else {
+            dt = legacyCC.game._calculateDT(now);
+        }
+        this.tick(dt);
+    }
+
+    /**
+     * @en Run main loop of director
+     * @zh 运行主循环
      * @param dt Delta time in seconds
      */
     public tick (dt: number) {
@@ -723,12 +738,12 @@ export class Director extends EventTarget {
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
-            const scene = legacyCC.director._scene;
+            const scene = this._scene as any;
             if (legacyCC.isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
                     node._originalSceneId = scene.uuid;
-                } else if (!(node.parent instanceof legacyCC.Scene)) {
+                } else if (!(node.parent instanceof Scene)) {
                     warnID(3801);
                     return;
                 } else if (node.parent !== scene) {
@@ -764,7 +779,7 @@ export class Director extends EventTarget {
      * @zh 检查节点是否是常驻根节点。
      * @param node - The node to be checked
      */
-    public isPersistRootNode (node: { _persistNode: any; }): boolean {
+    public isPersistRootNode (node: Node): boolean {
         return !!node._persistNode;
     }
 }
