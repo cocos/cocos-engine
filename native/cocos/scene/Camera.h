@@ -312,11 +312,13 @@ public:
 
     inline gfx::SurfaceTransform getSurfaceTransform() const { return _curTransform; }
 
+    inline pipeline::GeometryRenderer *getGeometryRenderer() const {
 #if CC_USE_GEOMETRY_RENDERER
-    inline pipeline::GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer.get(); }
+        return _geometryRenderer.get();
 #else
-    inline pipeline::GeometryRenderer *getGeometryRenderer() const { return nullptr; }
+        return nullptr;
 #endif
+    }
 
     void detachCamera();
 

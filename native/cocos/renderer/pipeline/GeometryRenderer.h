@@ -25,6 +25,10 @@
 
 #pragma once
 
+// NOTE: Still need to wrap all code in CC_USE_GEOMETRY_RENDERER block 
+// since auto-generated binding code will include GeometryRenderer.h
+#if CC_USE_GEOMETRY_RENDERER
+
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "gfx-base/GFXDef-common.h"
@@ -110,3 +114,5 @@ private:
 
 } // namespace pipeline
 } // namespace cc
+
+#endif // #if CC_USE_GEOMETRY_RENDERER

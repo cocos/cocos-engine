@@ -131,6 +131,7 @@ void RenderPipeline::destroyQuadInputAssembler() {
     _quadIA.clear();
 }
 
+#if CC_USE_GEOMETRY_RENDERER
 void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras) {
     if (_geometryRenderer) {
         return;
@@ -144,6 +145,7 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
         }
     }
 }
+#endif
 
 bool RenderPipeline::destroy() {
     for (auto *flow : _flows) {
@@ -151,7 +153,9 @@ bool RenderPipeline::destroy() {
     }
     _flows.clear();
 
+#if CC_USE_GEOMETRY_RENDERER
     _geometryRenderer = nullptr;
+#endif
     _descriptorSet = nullptr;
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
