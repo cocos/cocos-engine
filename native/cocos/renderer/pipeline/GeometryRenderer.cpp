@@ -22,25 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#if CC_USE_GEOMETRY_RENDERER
-    #include "GeometryRenderer.h"
-    #include <algorithm>
-    #include <cmath>
-    #include "Define.h"
-    #include "PipelineSceneData.h"
-    #include "PipelineStateManager.h"
-    #include "RenderPipeline.h"
-    #include "base/Log.h"
-    #include "base/std/container/array.h"
-    #include "core/geometry/AABB.h"
-    #include "core/geometry/Frustum.h"
-    #include "core/geometry/Spline.h"
-    #include "math/Mat4.h"
-    #include "math/Math.h"
-    #include "profiler/Profiler.h"
-    #include "scene/Camera.h"
-    #include "scene/Pass.h"
-    #include "scene/RenderWindow.h"
+
+#include "GeometryRenderer.h"
+#include <algorithm>
+#include <cmath>
+#include "Define.h"
+#include "PipelineSceneData.h"
+#include "PipelineStateManager.h"
+#include "RenderPipeline.h"
+#include "base/Log.h"
+#include "base/std/container/array.h"
+#include "core/geometry/AABB.h"
+#include "core/geometry/Frustum.h"
+#include "core/geometry/Spline.h"
+#include "math/Mat4.h"
+#include "math/Math.h"
+#include "profiler/Profiler.h"
+#include "scene/Camera.h"
+#include "scene/Pass.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
@@ -880,5 +880,3 @@ void GeometryRenderer::addIndexedMesh(const Vec3 &center, const ccstd::vector<Ve
 
 } // namespace pipeline
 } // namespace cc
-
-#endif // #if CC_USE_GEOMETRY_RENDERER
