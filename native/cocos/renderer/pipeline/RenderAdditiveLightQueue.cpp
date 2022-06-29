@@ -331,8 +331,8 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->isEnabled() &&
                                                                                                  spotLight->isShadowEnabled() &&
-                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F
-                                                                                                                                                         : 0.0F;
+                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP &&
+                                                                                                 spotLight->getHasCastShadowObjects()) ? 1.0F : 0.0F;
 
                 index = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction = spotLight->getDirection();
