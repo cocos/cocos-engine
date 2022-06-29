@@ -70,6 +70,10 @@ export class RenderTexture extends TextureBase {
         return this._window;
     }
 
+    /**
+     * @en Initialize the render texture.
+     * @zh 初始化渲染贴图。
+     */
     public initialize (info: IRenderTextureCreateInfo) {
         this._name = info.name || '';
         this._width = info.width;
@@ -77,10 +81,18 @@ export class RenderTexture extends TextureBase {
         this._initWindow(info);
     }
 
+    /**
+     * @en Reset the render texture. User may change the name and render pass info of the render texture.
+     * @zh 重置渲染贴图。用户可以更改渲染贴图的名称和渲染通道信息。
+     */
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
     }
 
+    /**
+     * @en Destroy the render texture.
+     * @zh 销毁渲染贴图。
+     */
     public destroy () {
         if (this._window) {
             const root = legacyCC.director.root as Root;
@@ -136,6 +148,10 @@ export class RenderTexture extends TextureBase {
         return this._window && this._window.framebuffer.colorTextures[0];
     }
 
+    /**
+     * @en Callback function after render texture is loaded in [[CCLoader]]. Initialize the render texture.
+     * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动初始化渲染贴图。
+     */
     public onLoaded () {
         this._initWindow();
     }
@@ -161,12 +177,22 @@ export class RenderTexture extends TextureBase {
         }
     }
 
+    /**
+     * @en Default initialization.
+     * @zh 默认初始化。
+     * @param uuid @en asset uuid @zh 资源 uuid
+     */
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this._width = this._height = 1;
         this._initWindow();
     }
 
+    /**
+     * @en Validate the correctness of the render texture.
+     * @zh 验证渲染贴图的正确性。
+     * @param uuid @en asset uuid @zh 资源 uuid
+     */
     public validate () {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
     }
