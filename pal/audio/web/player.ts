@@ -1,5 +1,5 @@
 import { warnID } from '../../../cocos/core';
-import { AudioLoadOptions, AudioType, AudioState } from '../type';
+import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
 import { AudioPlayerDOM, OneShotAudioDOM } from './player-dom';
 import { AudioContextAgent, AudioPlayerWeb, OneShotAudioWeb } from './player-web';
 
@@ -90,6 +90,8 @@ export class AudioPlayer {
     set volume (val: number) { this._player.volume = val; }
     get duration (): number { return this._player.duration; }
     get currentTime (): number { return this._player.currentTime; }
+    get sampleRate (): number { return this._player.sampleRate; }
+    getPCMData (channelIndex: number): AudioPCMDataView | undefined { return this._player.getPCMData(channelIndex); }
     seek (time: number): Promise<void> { return this._player.seek(time); }
 
     play (): Promise<void> { return this._player.play(); }
