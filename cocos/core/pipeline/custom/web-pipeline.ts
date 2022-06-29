@@ -49,7 +49,7 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { EffectAsset } from '../../assets/effect-asset';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
-import { GeometryRenderer } from '..';
+import { GeometryRenderer } from '../geometry-renderer';
 import { buildDeferredPipelineLayoutGraphData } from './effect';
 
 export class WebSetter {
