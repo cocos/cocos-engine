@@ -37,8 +37,7 @@
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
-        },
-        "custom-pipeline": { "modules": ["custom-pipeline"] }
+        }
     },
     "moduleOverrides": [
         {
