@@ -109,7 +109,7 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
+            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
         }
         const newEnv = {};
         Object.assign(newEnv, process.env);
@@ -147,11 +147,10 @@ gulp.task('clean-simulator', async function () {
     let isWin32 = process.platform === 'win32';
     let delPatterns = [
         formatPath(Path.join(__dirname, './simulator/*')),
-        formatPath(`!${Path.join(__dirname, './simulator/Debug')}`),
+        formatPath(`!${Path.join(__dirname, './simulator/Release')}`),
     ];
     if (!isWin32) {
-        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Debug/libcocos2d.a')));
-        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Debug/libsimulator.a')));
+        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Release/libsimulator.a')));
     }
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
