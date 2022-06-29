@@ -54,6 +54,13 @@ interface IAdditiveLightPass {
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
+interface InstancedOrBatchedLightPass {
+    dynamicOffsets: number[];
+    lights: number[];
+}
+
+const _instancedOrBatchedLightPassPool = new Pool<InstancedOrBatchedLightPass>(() => ({ dynamicOffsets: [], lights: [] }), 16);
+
 const _vec4Array = new Float32Array(4);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
@@ -114,8 +121,8 @@ export class RenderAdditiveLightQueue {
     private _pipeline: RenderPipeline;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
-    private _lightInstancedPasses: number[] = [];
-    private _lightBatchedPasses: number[] = [];
+    private _lightInstancedPasses: InstancedOrBatchedLightPass[] = [];
+    private _lightBatchedPasses: InstancedOrBatchedLightPass[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -160,7 +167,21 @@ export class RenderAdditiveLightQueue {
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
+
+        for (let i = 0; i < this._lightInstancedPasses.length; i++) {
+            const lightInstancedPass = this._lightInstancedPasses[i];
+            lightInstancedPass.dynamicOffsets.length = 0;
+            lightInstancedPass.lights.length = 0;
+        }
+        _instancedOrBatchedLightPassPool.freeArray(this._lightInstancedPasses);
         this._lightInstancedPasses.length = 0;
+
+        for (let i = 0; i < this._lightBatchedPasses.length; i++) {
+            const _lightBatchedPass = this._lightBatchedPasses[i];
+            _lightBatchedPass.dynamicOffsets.length = 0;
+            _lightBatchedPass.lights.length = 0;
+        }
+        _instancedOrBatchedLightPassPool.freeArray(this._lightBatchedPasses);
         this._lightBatchedPasses.length = 0;
     }
 
@@ -202,23 +223,20 @@ export class RenderAdditiveLightQueue {
 
             if (!_lightIndices.length) { continue; }
 
-            for (let l = 0; l < _lightIndices.length; l++) {
-                const lightIdx = _lightIndices[l];
-                for (let j = 0; j < subModels.length; j++) {
-                    const lightPassIdx = _lightPassIndices[j];
-                    if (lightPassIdx < 0) { continue; }
-                    const subModel = subModels[j];
-                    const pass = subModel.passes[lightPassIdx];
-                    // object has translucent base pass, prohibiting forward-add pass for multi light sources lighting
-                    const isTransparent = subModel.passes[0].blendState.targets[0].blend;
-                    if (isTransparent) {
-                        continue;
-                    }
-                    subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
-                    subModel.descriptorSet.update();
-
-                    this._addRenderQueue(pass, subModel, model, lightPassIdx, lightIdx);
+            for (let j = 0; j < subModels.length; j++) {
+                const lightPassIdx = _lightPassIndices[j];
+                if (lightPassIdx < 0) { continue; }
+                const subModel = subModels[j];
+                const pass = subModel.passes[lightPassIdx];
+                // object has translucent base pass, prohibiting forward-add pass for multi light sources lighting
+                const isTransparent = subModel.passes[0].blendState.targets[0].blend;
+                if (isTransparent) {
+                    continue;
                 }
+                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
+                subModel.descriptorSet.update();
+
+                this._addRenderQueue(pass, subModel, model, lightPassIdx);
             }
         }
         this._instancedQueue.uploadBuffers(cmdBuff);
@@ -228,15 +246,25 @@ export class RenderAdditiveLightQueue {
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         for (let i = 0; i < this._lightInstancedPasses.length; i++) {
-            const light = this._lightInstancedPasses[i];
-            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
-            this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+            const lights = this._lightInstancedPasses[i].lights;
+            const dynamicOffsets = this._lightInstancedPasses[i].dynamicOffsets;
+            for (let j = 0; j < dynamicOffsets.length; ++j) {
+                const lightIdx = lights[j];
+                _dynamicOffsets[0] = dynamicOffsets[j];
+                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(lightIdx);
+                this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
+            }
         }
 
         for (let i = 0; i < this._lightBatchedPasses.length; i++) {
-            const light = this._lightBatchedPasses[i];
-            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
-            this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+            const lights = this._lightBatchedPasses[i].lights;
+            const dynamicOffsets = this._lightBatchedPasses[i].dynamicOffsets;
+            for (let j = 0; j < dynamicOffsets.length; ++j) {
+                const lightIdx = lights[j];
+                _dynamicOffsets[0] = dynamicOffsets[j];
+                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(lightIdx);
+                this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
+            }
         }
 
         for (let i = 0; i < this._lightPasses.length; i++) {
@@ -285,32 +313,41 @@ export class RenderAdditiveLightQueue {
     }
 
     // add renderQueue
-    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number, lightIdx: number) {
+    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number) {
         const { batchingScheme } = pass;
         if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-            const buffer = pass.getInstancedBuffer(lightIdx);
+            const buffer = pass.getInstancedBuffer();
             buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
-            buffer.dynamicOffsets[0] = this._lightBufferStride * lightIdx;
+            buffer.dynamicOffsets[0] = this._lightBufferStride;
             this._instancedQueue.queue.add(buffer);
-            if (this._lightInstancedPasses.indexOf(lightIdx) < 0) {
-                this._lightInstancedPasses.push(lightIdx);
+            const instancedLightPassPool = _instancedOrBatchedLightPassPool.alloc();
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const lightIdx = _lightIndices[l];
+                instancedLightPassPool.lights.push(lightIdx);
+                instancedLightPassPool.dynamicOffsets.push(this._lightBufferStride * lightIdx);
             }
+            this._lightInstancedPasses.push(instancedLightPassPool);
         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
-            const buffer = pass.getBatchedBuffer(lightIdx);
+            const buffer = pass.getBatchedBuffer();
             buffer.merge(subModel, lightPassIdx, model);
-            buffer.dynamicOffsets[0] = this._lightBufferStride * lightIdx;
+            buffer.dynamicOffsets[0] = this._lightBufferStride;
             this._batchedQueue.queue.add(buffer);
-            this._lightBatchedPasses.push(lightIdx);
-            if (this._lightBatchedPasses.indexOf(lightIdx) < 0) {
-                this._lightBatchedPasses.push(lightIdx);
+            const batchedLightPassPool = _instancedOrBatchedLightPassPool.alloc();
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const lightIdx = _lightIndices[l];
+                batchedLightPassPool.lights.push(lightIdx);
+                batchedLightPassPool.dynamicOffsets.push(this._lightBufferStride * lightIdx);
             }
+            this._lightInstancedPasses.push(batchedLightPassPool);
         } else {                                                         // standard draw
             const lp = _lightPassPool.alloc();
             lp.subModel = subModel;
             lp.passIdx = lightPassIdx;
-            lp.lights.push(lightIdx);
-            lp.dynamicOffsets.push(this._lightBufferStride * lightIdx);
-
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                lp.lights.push(idx);
+                lp.dynamicOffsets.push(this._lightBufferStride * idx);
+            }
             this._lightPasses.push(lp);
         }
     }

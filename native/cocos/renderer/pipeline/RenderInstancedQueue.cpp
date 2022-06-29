@@ -49,7 +49,7 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds, uint32_t offset) {
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     for (const auto *instanceBuffer : _queues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 
@@ -66,8 +66,34 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Re
                 cmdBuffer->bindPipelineState(pso);
                 lastPSO = pso;
             }
-            if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
             cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
+            cmdBuffer->bindInputAssembler(instance.ia);
+            cmdBuffer->draw(instance.ia);
+        }
+    }
+}
+
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                                               const ccstd::vector<uint32_t> &dynamicOffsets, gfx ::DescriptorSet *ds, uint32_t offset) {
+    CC_ASSERT(ds);
+    for (const auto *instanceBuffer : _queues) {
+        if (!instanceBuffer->hasPendingModels()) continue;
+
+        const auto &instances = instanceBuffer->getInstances();
+        const auto *pass = instanceBuffer->getPass();
+        cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+        gfx::PipelineState *lastPSO = nullptr;
+        for (const auto &instance : instances) {
+            if (!instance.count) {
+                continue;
+            }
+            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
+            if (lastPSO != pso) {
+                cmdBuffer->bindPipelineState(pso);
+                lastPSO = pso;
+            }
+            cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
+            cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, dynamicOffsets);
             cmdBuffer->bindInputAssembler(instance.ia);
             cmdBuffer->draw(instance.ia);
         }

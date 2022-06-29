@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/TypeDef.h"
+#include "Define.h"
 #include "base/std/container/unordered_set.h"
 
 namespace cc {
@@ -47,7 +47,9 @@ public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
 
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                             const ccstd::vector<uint32_t> &dynamicOffsets, gfx ::DescriptorSet *ds = nullptr, uint32_t offset = 0);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void clear();

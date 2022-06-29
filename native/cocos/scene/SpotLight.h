@@ -88,6 +88,9 @@ public:
     inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
     inline float getShadowNormalBias() const { return _shadowNormalBias; }
 
+    inline void setHasCastShadowObjects(bool hasCastShadowObjects) { _hasCastShadowObjects = hasCastShadowObjects; }
+    inline bool getHasCastShadowObjects() const { return _hasCastShadowObjects; }
+
 private:
     bool _needUpdate{false};
     float _luminanceHDR{0.F};
@@ -107,6 +110,9 @@ private:
     float _shadowPcf{0.0F};
     float _shadowBias{0.00001F};
     float _shadowNormalBias{0.0F};
+
+    // local data
+    bool _hasCastShadowObjects{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SpotLight);
 };

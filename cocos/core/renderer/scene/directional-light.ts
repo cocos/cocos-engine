@@ -284,17 +284,6 @@ export class DirectionalLight extends Light {
         this._shadowOrthoSize = val;
     }
 
-    /**
-     * @en get or set this light has Cast Shadow Objects
-     * @zh 获取或者设置灯光有没有可以投射阴影的物体
-     */
-    get hasCastShadowObjects () {
-        return this._hasCastShadowObjects;
-    }
-    set hasCastShadowObjects (val) {
-        this._hasCastShadowObjects = val;
-    }
-
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;

@@ -81,26 +81,24 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                 }
             } break;
             case scene::LightType::SPOT: {
-                const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
                 if (spotLight->isShadowEnabled()) {
-                    const Mat4 matShadowView = light->getNode()->getWorldMatrix().getInversed();
-                    Mat4 matShadowProj;
-                    Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
-                    const Mat4 matShadowViewProj = matShadowProj * matShadowView;
                     geometry::AABB ab;
+                    bool hasCastShadowObjects = false;
                     for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
                         if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                             continue;
                         }
                         if (model->getWorldBounds()) {
-                            model->getWorldBounds()->transform(matShadowViewProj, &ab);
-                            if (ab.aabbFrustum(camera->getFrustum())) {
+                            if (model->getWorldBounds()->aabbFrustum(spotLight->getFrustum())) {
                                 add(model);
+                                hasCastShadowObjects = true;
                             }
                         }
                     }
+                    const_cast<scene::SpotLight *>(spotLight)->setHasCastShadowObjects(hasCastShadowObjects);
                 }
             } break;
 

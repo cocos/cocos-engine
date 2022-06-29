@@ -112,7 +112,7 @@ export class PipelineUBO {
 
         if (mainLight) {
             const shadowEnable = (shadowInfo.enabled && mainLight.shadowEnabled
-                && shadowInfo.type === ShadowType.ShadowMap && mainLight.hasCastShadowObjects) ? 1.0 : 0.0;
+                && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
             const mainLightDir = mainLight.direction;
             _lightDir.set(mainLightDir.x, mainLightDir.y, mainLightDir.z, shadowEnable);
             Vec4.toArray(cv, _lightDir, UBOCamera.MAIN_LIT_DIR_OFFSET);

@@ -47,7 +47,9 @@ public:
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                             const ccstd::vector<uint32_t> &dynamicOffsets, gfx ::DescriptorSet *ds = nullptr, uint32_t offset = 0);
     void add(BatchedBuffer *batchedBuffer);
     bool empty() const { return _queues.empty(); }
 

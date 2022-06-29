@@ -87,7 +87,6 @@ export class RenderShadowMapBatchedQueue {
             case LightType.DIRECTIONAL:
                 if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
                     const dirLight = light as DirectionalLight;
-                    dirLight.hasCastShadowObjects = false;
                     if (dirLight.shadowEnabled) {
                         const csmLayers = sceneData.csmLayers;
                         let layer;
@@ -98,13 +97,11 @@ export class RenderShadowMapBatchedQueue {
                         }
                         shadowCulling(camera, sceneData, layer);
                         const dirShadowObjects = layer.shadowObjects;
-                        if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
                         for (let i = 0; i < dirShadowObjects.length; i++) {
                             const ro = dirShadowObjects[i];
                             const model = ro.model;
                             if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                             this.add(model, _shadowPassIndices);
-                            dirLight.hasCastShadowObjects = true;
                         }
                     }
                 }
@@ -113,9 +110,9 @@ export class RenderShadowMapBatchedQueue {
             case LightType.SPOT:
                 // eslint-disable-next-line no-case-declarations
                 const spotLight = light as SpotLight;
-                spotLight.hasCastShadowObjects = false;
                 if (spotLight.shadowEnabled) {
                     const castShadowObjects = sceneData.csmLayers.castShadowObjects;
+                    let hasCastShadowObjects = false;
                     for (let i = 0; i < castShadowObjects.length; i++) {
                         const ro = castShadowObjects[i];
                         const model = ro.model;
@@ -125,8 +122,9 @@ export class RenderShadowMapBatchedQueue {
                         }
 
                         this.add(model, _shadowPassIndices);
-                        spotLight.hasCastShadowObjects = true;
+                        hasCastShadowObjects = true;
                     }
+                    spotLight.hasCastShadowObjects = hasCastShadowObjects;
                 }
                 break;
             default:
