@@ -556,7 +556,7 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: Record<string | number, any>) {
+function setup (tag: string, table: Record<string | number, any>, allowExist = false) {
     return function (id: string, constructor: Constructor) {
         // deregister old
         // eslint-disable-next-line no-prototype-builtins
@@ -565,25 +565,23 @@ function setup (tag: string, table: Record<string | number, any>) {
         }
         value(constructor.prototype, tag, id);
         // register class
-        if (id) {
-            table[id] = constructor;
-
-            //             const registered = table[id];
-            //             if (registered && registered !== constructor) {
-            //                 let err = `A Class already exists with the same ${tag} : "${id}".`;
-            //                 if (TEST) {
-            //                     // eslint-disable-next-line no-multi-str
-            //                     err += ' (This may be caused by error of unit test.) \
-            // If you dont need serialization, you can set class id to "". You can also call \
-            // js.unregisterClass to remove the id of unused class';
-            //                 }
-            //                 error(err);
-            //             } else {
-            //                 table[id] = constructor;
-            //             }
-            // if (id === "") {
-            //    console.trace("", table === _nameToClass);
-            // }
+        if (!allowExist && id) {
+            const registered = table[id];
+            if (registered && registered !== constructor) {
+                let err = `A Class already exists with the same ${tag} : "${id}".`;
+                if (TEST) {
+                    // eslint-disable-next-line no-multi-str
+                    err += ' (This may be caused by error of unit test.) \
+            If you dont need serialization, you can set class id to "". You can also call \
+            js.unregisterClass to remove the id of unused class';
+                }
+                error(err);
+            } else {
+                table[id] = constructor;
+            }
+            if (id === '') {
+                console.trace('', table === _nameToClass);
+            }
         }
     };
 }
@@ -600,7 +598,7 @@ function setup (tag: string, table: Record<string | number, any>) {
  */
 export const _setClassId = setup('__cid__', _idToClass);
 
-const doSetClassName = setup('__classname__', _nameToClass);
+const doSetClassName = setup('__classname__', _nameToClass, true);
 
 /**
  * @en
