@@ -1729,9 +1729,9 @@ exports.ready = async function ready() {
     }
 
     this.replaceAssetUuidInNodesBind = this.replaceAssetUuidInNodes.bind(this);
-    this.handlerSceneChangeMode = this.handlerSceneChangeMode.bind(this);
+    this.handlerSceneChangeModeBind = this.handlerSceneChangeMode.bind(this);
     Editor.Message.addBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
-    Editor.Message.addBroadcastListener('scene:change-mode', this.handlerSceneChangeMode);
+    Editor.Message.addBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.close = async function close() {
@@ -1745,7 +1745,7 @@ exports.close = async function close() {
     }
 
     Editor.Message.removeBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
-    Editor.Message.removeBroadcastListener('scene:change-mode', this.handlerSceneChangeMode);
+    Editor.Message.removeBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.beforeClose = async function beforeClose() {
