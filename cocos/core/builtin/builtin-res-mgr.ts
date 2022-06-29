@@ -298,7 +298,7 @@ class BuiltinResMgr {
     /**
      * @internal
      */
-    public loadBuiltinAsset () {
+    public loadBuiltinAssets () {
         const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
         if (TEST || !builtinAssets) return Promise.resolve();
         const resources = this._resources;

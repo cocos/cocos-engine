@@ -88,7 +88,7 @@ builtinResMgrProto.get = function (uuid: string) {
     return res || this.getAsset(uuid);
 };
 
-builtinResMgrProto.loadBuiltinAsset = function () {
+builtinResMgrProto.loadBuiltinAssets = function () {
    const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
    if (TEST || !builtinAssets) return Promise.resolve();
    const resources = this._resources;

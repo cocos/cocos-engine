@@ -161,7 +161,7 @@ export class DeviceManager {
     }
 
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
-        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
+        if (typeof renderMode !== 'number' || renderMode > RenderType.HEADLESS || renderMode < LegacyRenderMode.AUTO) {
             renderMode = LegacyRenderMode.AUTO;
         }
         // Determine RenderType
@@ -176,9 +176,6 @@ export class DeviceManager {
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.HEADLESS) {
             renderType = RenderType.HEADLESS;
-            supportRender = true;
-        } else if (renderMode > 3 || renderMode < 0) {
-            renderType = RenderType.WEBGL;
             supportRender = true;
         }
 

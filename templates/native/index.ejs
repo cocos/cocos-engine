@@ -23,7 +23,7 @@ System.import('<%= applicationJs %>')
 }).then((application) => {
     return System.import('cc').then((cc) => {
         require('jsb-adapter/engine-adapter.js');
-        application.init(cc);
+        return application.init(cc);
     }).then(() => {
         return application.start();
     });

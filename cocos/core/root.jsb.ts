@@ -1,5 +1,5 @@
 import { Pool } from './memop';
-import { warnID } from './platform';
+import { warnID } from './platform/debug';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';

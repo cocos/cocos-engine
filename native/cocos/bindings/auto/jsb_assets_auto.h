@@ -608,7 +608,6 @@ SE_DECLARE_FUNC(js_assets_BuiltinResMgr_addAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_isInitialized);
-SE_DECLARE_FUNC(js_assets_BuiltinResMgr_tryCompileAllPasses);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getInstance);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_BuiltinResMgr);
 

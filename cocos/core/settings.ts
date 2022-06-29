@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,6 +40,10 @@ enum Category {
     PROFILING = 'profiling',
 }
 
+/**
+ * @zh
+ * 配置模块用于获取配置文件中的设置信息
+ */
 export class Settings {
     static Category = Category;
 

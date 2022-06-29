@@ -43,8 +43,8 @@ firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then((
     return System.import('<%= applicationJs %>');
 }).then((module) => {
     return firstScreen.setProgress(0.2).then(() => Promise.resolve(module));
-}).then(({ createApplication }) => {
-    return createApplication();
+}).then(({ Application }) => {
+    return new Application();
 }).then((application) => {
     return firstScreen.setProgress(0.4).then(() => Promise.resolve(application));
 }).then((application) => {
@@ -54,12 +54,14 @@ firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then((
 });
 
 function onApplicationCreated(application) {
-    return application.import('cc').then((module) => {
+    return System.import('cc').then((module) => {
         return firstScreen.setProgress(0.6).then(() => Promise.resolve(module));
     }).then((cc) => {
         require('./engine-adapter');
         // Adjust devicePixelRatio
         cc.view._maxPixelRatio = 4;
+        return application.init(cc);
+    }).then(() => {
         return firstScreen.end().then(() => application.start());
     });
 }

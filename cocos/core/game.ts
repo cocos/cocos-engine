@@ -255,7 +255,7 @@ export class Game extends EventTarget {
         }
         this._frameRate = frameRate;
         this.frameTime = 1000 / frameRate;
-        this._pacer!.targetFrameRate = this._frameRate;
+        if (this._pacer) this._pacer.targetFrameRate = this._frameRate;
     }
 
     /**
@@ -465,6 +465,7 @@ export class Game extends EventTarget {
     public init (config: IGameConfig) {
         // DONT change the order unless you know what's you doing
         return Promise.resolve()
+            // #region Base
             .then(() => {
                 this.emit(Game.EVENT_PRE_BASE_INIT);
                 return this.onPreBaseInitDelegate.dispatch();
@@ -479,7 +480,8 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
-            // settings initialization
+            // #endregion Base
+            // #region Settings
             .then(() => {
                 this.emit(Game.EVENT_PRE_SETTINGS_INIT);
                 return this.onPreSettingsInitDelegate.dispatch();
@@ -489,7 +491,8 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_POST_SETTINGS_INIT);
                 return this.onPostSettingsInitDelegate.dispatch(settings);
             })
-            // Infrastructure region
+            // #endregion Settings
+            // #region Infrastructure
             .then(() => {
                 this.emit(Game.EVENT_PRE_INFRASTRUCTURE_INIT);
                 return this.onPreInfrastructureInitDelegate.dispatch();
@@ -514,14 +517,14 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_POST_INFRASTRUCTURE_INIT);
                 return this.onPostInfrastructureInitDelegate.dispatch();
             })
-            // Infrastructure region
-            // Subsystem region
+            // #endregion Infrastructure
+            // #region Subsystem
             .then(() => {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
             .then(() => director.init())
-            .then(() => builtinResMgr.loadBuiltinAsset())
+            .then(() => builtinResMgr.loadBuiltinAssets())
             .then(() => {
                 this.emit(Game.EVENT_POST_SUBSYSTEM_INIT);
                 return this.onPostSubsystemInitDelegate.dispatch();
@@ -531,8 +534,8 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })
-            // Subsystem region
-            // Project region
+            // #endregion Subsystem
+            // #region Project
             .then(() => {
                 this.emit(Game.EVENT_PRE_PROJECT_INIT);
                 return this.onPreProjectInitDelegate.dispatch();
@@ -561,11 +564,11 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_POST_PROJECT_INIT);
                 return this.onPostProjectInitDelegate.dispatch();
             })
+            // #endregion Project
             .then(() => {
                 this._inited = true;
                 this._safeEmit(Game.EVENT_GAME_INITED);
             });
-        // Project region
     }
 
     _loadPreloadAssets () {

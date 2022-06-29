@@ -23,8 +23,8 @@ System.warmup({
     },
 });
 
-System.import('<%= applicationJs %>').then(({ createApplication }) => {
-    return createApplication();
+System.import('<%= applicationJs %>').then(({ Application }) => {
+    return new Application();
 }).then((application) => {
     return onApplicationCreated(application);
 }).catch((err) => {
@@ -36,6 +36,6 @@ function onApplicationCreated(application) {
         require('./engine-adapter');
         // Adjust devicePixelRatio
         cc.view._maxPixelRatio = 4;
-        return application.start({});
-    });
+        return application.init(cc);
+    }).then(() => application.start());
 }

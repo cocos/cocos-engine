@@ -27,7 +27,9 @@ import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
-import { macro, sys, warnID } from '../platform';
+import { sys } from '../platform/sys';
+import { macro } from '../platform/macro';
+import { warnID } from '../platform/debug';
 
 export type ImageAsset = jsb.ImageAsset;
 export const ImageAsset = jsb.ImageAsset;

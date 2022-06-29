@@ -8,10 +8,6 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 }
 
 export function loadJsFile (path: string): Promise<void> {
-    if (BYTEDANCE || WECHAT) {
-        // eslint-disable-next-line import/no-dynamic-require
-        return require(`${path}`);
-    }
     // eslint-disable-next-line import/no-dynamic-require
-    return require(`./${path}`);
+    return require(`../${path}`);
 }
