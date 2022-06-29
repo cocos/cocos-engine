@@ -23,6 +23,9 @@ export class MacPackTool extends MacOSPackTool {
     }
 
     async generate() {
+        if(this.shouldSkipGenerate()) {
+            return false;
+        }
         const nativePrjDir = this.paths.nativePrjDir;
 
         if (!fs.existsSync(nativePrjDir)) {
