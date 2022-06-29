@@ -48,7 +48,7 @@ import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
-import { GeometryRenderer } from '..';
+import { GeometryRenderer } from '../geometry-renderer';
 
 export class WebSetter {
     constructor (data: RenderData) {

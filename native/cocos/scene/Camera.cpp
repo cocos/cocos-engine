@@ -72,9 +72,6 @@ Camera::Camera(gfx::Device *device)
     _frustum->addRef();
     _frustum->setAccurate(true);
 
-    _geometryRenderer = ccnew pipeline::GeometryRenderer();
-    _geometryRenderer->activate(device);
-
     if (correctionMatrices.empty()) {
         float ySign = _device->getCapabilities().clipSpaceSignY;
         assignMat4(correctionMatrices[static_cast<int>(gfx::SurfaceTransform::IDENTITY)], 1.F, 0, 0, 0, 0, ySign);
@@ -215,6 +212,13 @@ void Camera::changeTargetWindow(RenderWindow *window) {
         } else {
             resize(win->getWidth(), win->getHeight());
         }
+    }
+}
+
+void Camera::initGeometryRenderer() {
+    if (!_geometryRenderer) {
+        _geometryRenderer = ccnew pipeline::GeometryRenderer();
+        _geometryRenderer->activate(_device);
     }
 }
 
