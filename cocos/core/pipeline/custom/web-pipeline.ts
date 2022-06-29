@@ -35,7 +35,6 @@ import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLi
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
-import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert, macro } from '../../platform';
 import { WebSceneTransversal } from './web-scene';
