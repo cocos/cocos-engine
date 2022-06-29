@@ -57,28 +57,8 @@ void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    for (const auto *batchedBuffer : _queues) {
-        bool boundPSO = false;
-        const auto &batches = batchedBuffer->getBatches();
-        for (const auto &batch : batches) {
-            if (!batch.mergeCount) continue;
-            if (!boundPSO) {
-                auto *pso = PipelineStateManager::getOrCreatePipelineState(batch.pass, batch.shader, batch.ia, renderPass);
-                cmdBuffer->bindPipelineState(pso);
-                cmdBuffer->bindDescriptorSet(materialSet, batch.pass->getDescriptorSet());
-                boundPSO = true;
-            }
-            cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
-            cmdBuffer->bindInputAssembler(batch.ia);
-            cmdBuffer->draw(batch.ia);
-        }
-    }
-}
-
 void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
-                                             const ccstd::vector<uint32_t> &dynamicOffsets, gfx ::DescriptorSet *ds, uint32_t offset) {
-    CC_ASSERT(ds);
+                                             gfx ::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
     for (const auto *batchedBuffer : _queues) {
         bool boundPSO = false;
         const auto &batches = batchedBuffer->getBatches();
@@ -90,8 +70,13 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Rend
                 cmdBuffer->bindDescriptorSet(materialSet, batch.pass->getDescriptorSet());
                 boundPSO = true;
             }
-            cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
-            cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, dynamicOffsets);
+            if(ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
+            if (dynamicOffsets) {
+                cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, *dynamicOffsets);
+            }else {
+                cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
+            }
+            
             cmdBuffer->bindInputAssembler(batch.ia);
             cmdBuffer->draw(batch.ia);
         }

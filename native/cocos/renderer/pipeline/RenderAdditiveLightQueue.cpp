@@ -85,7 +85,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
             const auto lightIdx = lights[i];
             _dynamicOffsets[0] = dynamicOffsets[i];
             auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(lightIdx);
-            _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, _dynamicOffsets, globalDescriptorSet, offset);
+            _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
         }
     }
 
@@ -96,7 +96,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
             const auto lightIdx = lights[i];
             _dynamicOffsets[0] = dynamicOffsets[i];
             auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(lightIdx);
-            _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, _dynamicOffsets, globalDescriptorSet, offset);
+            _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
         }
     }
 

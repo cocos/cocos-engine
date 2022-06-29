@@ -46,10 +46,8 @@ class CC_DLL RenderInstancedQueue final {
 public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
-
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
-                             const ccstd::vector<uint32_t> &dynamicOffsets, gfx ::DescriptorSet *ds = nullptr, uint32_t offset = 0);
+                             gfx ::DescriptorSet *ds = nullptr, uint32_t offset = 0,const ccstd::vector<uint32_t> *dynamicOffsets = nullptr);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void clear();
