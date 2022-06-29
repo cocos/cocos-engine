@@ -29,7 +29,7 @@ extern se::Class * __jsb_cc_physics_RevoluteJoint_class; // NOLINT
 
 bool js_register_cc_physics_RevoluteJoint(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_getImpl);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_getObjectID);
 SE_DECLARE_FUNC(js_physics_RevoluteJoint_initialize);
 SE_DECLARE_FUNC(js_physics_RevoluteJoint_onDestroy);
 SE_DECLARE_FUNC(js_physics_RevoluteJoint_onDisable);
@@ -46,7 +46,7 @@ extern se::Class * __jsb_cc_physics_DistanceJoint_class; // NOLINT
 
 bool js_register_cc_physics_DistanceJoint(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_physics_DistanceJoint_getImpl);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_getObjectID);
 SE_DECLARE_FUNC(js_physics_DistanceJoint_initialize);
 SE_DECLARE_FUNC(js_physics_DistanceJoint_onDestroy);
 SE_DECLARE_FUNC(js_physics_DistanceJoint_onDisable);
@@ -73,10 +73,9 @@ SE_DECLARE_FUNC(js_physics_RigidBody_clearState);
 SE_DECLARE_FUNC(js_physics_RigidBody_clearVelocity);
 SE_DECLARE_FUNC(js_physics_RigidBody_getAngularVelocity);
 SE_DECLARE_FUNC(js_physics_RigidBody_getGroup);
-SE_DECLARE_FUNC(js_physics_RigidBody_getImpl);
 SE_DECLARE_FUNC(js_physics_RigidBody_getLinearVelocity);
 SE_DECLARE_FUNC(js_physics_RigidBody_getMask);
-SE_DECLARE_FUNC(js_physics_RigidBody_getNodeHandle);
+SE_DECLARE_FUNC(js_physics_RigidBody_getObjectID);
 SE_DECLARE_FUNC(js_physics_RigidBody_getSleepThreshold);
 SE_DECLARE_FUNC(js_physics_RigidBody_initialize);
 SE_DECLARE_FUNC(js_physics_RigidBody_isAwake);
@@ -111,8 +110,8 @@ bool js_register_cc_physics_SphereShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_SphereShape_getAABB);
 SE_DECLARE_FUNC(js_physics_SphereShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_SphereShape_getGroup);
-SE_DECLARE_FUNC(js_physics_SphereShape_getImpl);
 SE_DECLARE_FUNC(js_physics_SphereShape_getMask);
+SE_DECLARE_FUNC(js_physics_SphereShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_SphereShape_initialize);
 SE_DECLARE_FUNC(js_physics_SphereShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_SphereShape_onDisable);
@@ -134,8 +133,8 @@ bool js_register_cc_physics_BoxShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_BoxShape_getAABB);
 SE_DECLARE_FUNC(js_physics_BoxShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_BoxShape_getGroup);
-SE_DECLARE_FUNC(js_physics_BoxShape_getImpl);
 SE_DECLARE_FUNC(js_physics_BoxShape_getMask);
+SE_DECLARE_FUNC(js_physics_BoxShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_BoxShape_initialize);
 SE_DECLARE_FUNC(js_physics_BoxShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_BoxShape_onDisable);
@@ -157,8 +156,8 @@ bool js_register_cc_physics_CapsuleShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_CapsuleShape_getAABB);
 SE_DECLARE_FUNC(js_physics_CapsuleShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_CapsuleShape_getGroup);
-SE_DECLARE_FUNC(js_physics_CapsuleShape_getImpl);
 SE_DECLARE_FUNC(js_physics_CapsuleShape_getMask);
+SE_DECLARE_FUNC(js_physics_CapsuleShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_CapsuleShape_initialize);
 SE_DECLARE_FUNC(js_physics_CapsuleShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_CapsuleShape_onDisable);
@@ -182,8 +181,8 @@ bool js_register_cc_physics_PlaneShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_PlaneShape_getAABB);
 SE_DECLARE_FUNC(js_physics_PlaneShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_PlaneShape_getGroup);
-SE_DECLARE_FUNC(js_physics_PlaneShape_getImpl);
 SE_DECLARE_FUNC(js_physics_PlaneShape_getMask);
+SE_DECLARE_FUNC(js_physics_PlaneShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_PlaneShape_initialize);
 SE_DECLARE_FUNC(js_physics_PlaneShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_PlaneShape_onDisable);
@@ -206,8 +205,8 @@ bool js_register_cc_physics_TrimeshShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_TrimeshShape_getAABB);
 SE_DECLARE_FUNC(js_physics_TrimeshShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_TrimeshShape_getGroup);
-SE_DECLARE_FUNC(js_physics_TrimeshShape_getImpl);
 SE_DECLARE_FUNC(js_physics_TrimeshShape_getMask);
+SE_DECLARE_FUNC(js_physics_TrimeshShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_TrimeshShape_initialize);
 SE_DECLARE_FUNC(js_physics_TrimeshShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_TrimeshShape_onDisable);
@@ -230,8 +229,8 @@ bool js_register_cc_physics_CylinderShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_CylinderShape_getAABB);
 SE_DECLARE_FUNC(js_physics_CylinderShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_CylinderShape_getGroup);
-SE_DECLARE_FUNC(js_physics_CylinderShape_getImpl);
 SE_DECLARE_FUNC(js_physics_CylinderShape_getMask);
+SE_DECLARE_FUNC(js_physics_CylinderShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_CylinderShape_initialize);
 SE_DECLARE_FUNC(js_physics_CylinderShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_CylinderShape_onDisable);
@@ -254,8 +253,8 @@ bool js_register_cc_physics_ConeShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_ConeShape_getAABB);
 SE_DECLARE_FUNC(js_physics_ConeShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_ConeShape_getGroup);
-SE_DECLARE_FUNC(js_physics_ConeShape_getImpl);
 SE_DECLARE_FUNC(js_physics_ConeShape_getMask);
+SE_DECLARE_FUNC(js_physics_ConeShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_ConeShape_initialize);
 SE_DECLARE_FUNC(js_physics_ConeShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_ConeShape_onDisable);
@@ -278,8 +277,8 @@ bool js_register_cc_physics_TerrainShape(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_physics_TerrainShape_getAABB);
 SE_DECLARE_FUNC(js_physics_TerrainShape_getBoundingSphere);
 SE_DECLARE_FUNC(js_physics_TerrainShape_getGroup);
-SE_DECLARE_FUNC(js_physics_TerrainShape_getImpl);
 SE_DECLARE_FUNC(js_physics_TerrainShape_getMask);
+SE_DECLARE_FUNC(js_physics_TerrainShape_getObjectID);
 SE_DECLARE_FUNC(js_physics_TerrainShape_initialize);
 SE_DECLARE_FUNC(js_physics_TerrainShape_onDestroy);
 SE_DECLARE_FUNC(js_physics_TerrainShape_onDisable);
