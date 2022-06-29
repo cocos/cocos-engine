@@ -1,5 +1,5 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioType, AudioState, AudioEvent } from '../type';
+import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -9,6 +9,36 @@ import { Platform } from '../../system-info/enum-type';
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
 const INVALID_AUDIO_ID = -1;
+
+enum AudioBufferFormat {
+    UNKNOWN = 0,
+    SIGNED_8,
+    UNSIGNED_8,
+    SIGNED_16,
+    UNSIGNED_16,
+    SIGNED_32,
+    UNSIGNED_32,
+    FLOAT_32,
+    FLOAT_64
+}
+
+interface AudioBufferInfo {
+    ctor: Constructor<AudioBufferView>,
+    maxValue: number;
+}
+
+const bufferConstructorMap: Record<number, AudioBufferInfo | undefined> = {
+    [AudioBufferFormat.UNKNOWN]: undefined,
+    [AudioBufferFormat.SIGNED_8]: { ctor: Int8Array, maxValue: 127 },
+    [AudioBufferFormat.UNSIGNED_8]: { ctor: Uint8Array, maxValue: 255 },
+    [AudioBufferFormat.SIGNED_16]: { ctor: Int16Array, maxValue: 32767 },
+    [AudioBufferFormat.UNSIGNED_16]: { ctor: Uint16Array, maxValue: 65535 },
+    [AudioBufferFormat.SIGNED_32]: { ctor: Int32Array, maxValue: 2147483647 },
+    [AudioBufferFormat.UNSIGNED_32]: { ctor: Uint32Array, maxValue: 4294967295 },
+    // decoded float data is normalized data, so we specify the maxValue as 1.
+    [AudioBufferFormat.FLOAT_32]: { ctor: Float32Array, maxValue: 1 },
+    [AudioBufferFormat.FLOAT_64]: { ctor: Float64Array, maxValue: 1 },
+};
 
 export class OneShotAudio {
     private _id: number = INVALID_AUDIO_ID;
@@ -53,6 +83,7 @@ export class AudioPlayer implements OperationQueueable {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
+    private _pcmHeader: jsb.PCMHeader;
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -73,6 +104,7 @@ export class AudioPlayer implements OperationQueueable {
 
     constructor (url: string) {
         this._url = url;
+        this._pcmHeader = audioEngine.getPCMHeader(url);
 
         // event
         systemInfo.on('hide', this._onHide, this);
@@ -183,6 +215,20 @@ export class AudioPlayer implements OperationQueueable {
             return this._cachedState.currentTime;
         }
         return audioEngine.getCurrentTime(this._id);
+    }
+
+    get sampleRate (): number {
+        return this._pcmHeader.sampleRate;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        const arrayBuffer = audioEngine.getOriginalPCMBuffer(this._url, channelIndex);
+        const pcmHeader = this._pcmHeader;
+        const audioBufferInfo = bufferConstructorMap[pcmHeader.audioFormat];
+        if (!arrayBuffer || !audioBufferInfo) {
+            return undefined;
+        }
+        return new AudioPCMDataView(arrayBuffer, audioBufferInfo.ctor, 1 / audioBufferInfo.maxValue);
     }
 
     @enqueueOperation

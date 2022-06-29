@@ -312,6 +312,7 @@ public:
 
     inline gfx::SurfaceTransform getSurfaceTransform() const { return _curTransform; }
 
+    void initGeometryRenderer();
     inline pipeline::GeometryRenderer *getGeometryRenderer() const {
 #if CC_USE_GEOMETRY_RENDERER
         return _geometryRenderer.get();

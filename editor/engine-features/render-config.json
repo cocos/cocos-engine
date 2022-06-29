@@ -134,6 +134,12 @@
             "description": "i18n:ENGINE.features.geometry_renderer.description",
             "wechatPlugin": true
         },
+        "debug-renderer": {
+            "default": ["debug-renderer"],
+            "label": "i18n:ENGINE.features.debug_renderer.label",
+            "description": "i18n:ENGINE.features.debug_renderer.description",
+            "wechatPlugin": true
+        },
         "particle-2d": {
             "default": ["particle-2d"],
             "label": "i18n:ENGINE.features.particle_2d.label",
