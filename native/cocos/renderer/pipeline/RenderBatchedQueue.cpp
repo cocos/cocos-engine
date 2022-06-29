@@ -58,7 +58,7 @@ void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
 }
 
 void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
-                                             gfx ::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
+                                             gfx::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
     for (const auto *batchedBuffer : _queues) {
         bool boundPSO = false;
         const auto &batches = batchedBuffer->getBatches();
