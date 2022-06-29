@@ -3,11 +3,11 @@
 #include <cocos/core/Root.h>
 
 namespace cc {
-	class GraphicsProxy final {
+	class UIModelProxy final {
 
 	public:
-        GraphicsProxy();
-        ~GraphicsProxy();
+        UIModelProxy();
+        ~UIModelProxy();
 
     public:
 		void initModel(Node* node);
@@ -15,10 +15,16 @@ namespace cc {
 		void uploadData();
 		void destroy(); // clear
 		void clear();
+        // For UIModel
+        void updateModels(scene::Model* models);
+        void attachDrawInfo();
+        void attachNode(Node* node);
 	private:
 		Node* _node{ nullptr };
-		scene::Model* _model{ nullptr };
+        ccstd::vector<scene::Model*> _models{}; 
 		ccstd::vector<cc::RenderingSubMesh*> _graphicsUseSubMeshes{};
+        // For UIModel
+        scene::Model* _model{nullptr};
 
 		gfx::Device* _device = Root::getInstance()->getDevice();
 		uint32_t _stride{ 32 };
