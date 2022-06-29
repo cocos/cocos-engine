@@ -85,6 +85,7 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Reset the render texture. User may change the name, size or render pass info of the render texture.
      * @zh 重新初始化渲染贴图。用户可以更改渲染贴图的名称、尺寸、渲染通道信息。
+     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
      */
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
@@ -160,6 +161,7 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Implementation of the render texture initialization.
      * @zh 初始化渲染贴图的具体实现。
+     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
      */
     protected _initWindow (info?: IRenderTextureCreateInfo) {
         const root = legacyCC.director.root as Root;
