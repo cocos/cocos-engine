@@ -25,16 +25,16 @@
 
 #pragma once
 
-// NOTE: Still need to wrap all code in CC_USE_GEOMETRY_RENDERER block 
+// NOTE: Still need to wrap all code in CC_USE_GEOMETRY_RENDERER block
 // since auto-generated binding code will include GeometryRenderer.h
 #if CC_USE_GEOMETRY_RENDERER
 
-#include "base/Macros.h"
-#include "base/RefCounted.h"
-#include "gfx-base/GFXDef-common.h"
-#include "math/Vec2.h"
-#include "math/Vec3.h"
-#include "math/Vec4.h"
+    #include "base/Macros.h"
+    #include "base/RefCounted.h"
+    #include "gfx-base/GFXDef-common.h"
+    #include "math/Vec2.h"
+    #include "math/Vec3.h"
+    #include "math/Vec4.h"
 
 namespace cc {
 

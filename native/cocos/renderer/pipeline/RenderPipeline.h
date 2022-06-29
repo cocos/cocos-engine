@@ -120,7 +120,7 @@ public:
 
     inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
-    
+
     inline GeometryRenderer *getGeometryRenderer() const {
 #if CC_USE_GEOMETRY_RENDERER
         return _geometryRenderer;
