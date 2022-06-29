@@ -37,7 +37,6 @@ import { deviceManager } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { legacyCC, VERSION } from './global-exports';
-import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline/render-pipeline';
 import { Layers, Node } from './scene-graph';

@@ -40,7 +40,8 @@ import { Settings, settings } from '../settings';
  *
  * @zh
  * 渲染模式。
- * 设置渲染器类型，仅适用于 web 端：
+ * 设置渲染器类型，仅适用于 web 端
+ * @internal
  */
 export enum LegacyRenderMode {
     /**
@@ -73,6 +74,9 @@ export enum LegacyRenderMode {
     HEADLESS = 3
 }
 
+/**
+ * @internal
+ */
 export enum RenderType {
     UNKNOWN = -1,
     CANVAS = 0,
@@ -81,6 +85,9 @@ export enum RenderType {
     HEADLESS = 3,
 }
 
+/**
+ * @internal
+ */
 export class DeviceManager {
     private initialized = false;
     private _gfxDevice!: Device;
@@ -96,9 +103,6 @@ export class DeviceManager {
         return this._swapchain;
     }
 
-    /**
-     * @internal
-     */
     public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo) {
         // Avoid setup to be called twice.
         if (this.initialized) { return; }
@@ -186,4 +190,7 @@ export class DeviceManager {
     }
 }
 
+/**
+ * @internal
+ */
 export const deviceManager = new DeviceManager();
