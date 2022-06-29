@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
@@ -41,6 +41,9 @@ import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
+import { director } from '../core/director';
 
 export const timeScale = 1.0;
 
@@ -615,7 +618,15 @@ export class Skeleton extends UIRenderer {
 
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
+    private _drawInfoList : RenderDrawInfo[] = [];
 
+    private requestDrawInfo (idx: number) {
+        if (!this._drawInfoList[idx]) {
+            const batch2d = director.root!.batcher2D;
+            this._drawInfoList[idx] = new RenderDrawInfo(batch2d);
+        }
+        return this._drawInfoList[idx];
+    }
     // CONSTRUCTOR
     constructor () {
         super();
@@ -1365,7 +1376,11 @@ export class Skeleton extends UIRenderer {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
+        if (JSB) {
+            inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: false });
+        } else {
+            inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
+        }
         return inst;
     }
 
@@ -1553,7 +1568,7 @@ export class Skeleton extends UIRenderer {
         this._cleanMaterialCache();
         this.destroyRenderData();
         if (this._assembler && this._skeleton) {
-            this.renderData = this._assembler.createData(this);
+            this._renderData = this._assembler.createData(this);
             this.markForUpdateRenderData();
         }
     }
@@ -1671,7 +1686,7 @@ export class Skeleton extends UIRenderer {
             this._assembler = assembler;
         }
         if (this._skeleton && this._assembler) {
-            this.renderData = this._assembler.createData(this);
+            this._renderData = this._assembler.createData(this);
             this.markForUpdateRenderData();
             this._updateColor();
         }
@@ -1725,6 +1740,10 @@ export class Skeleton extends UIRenderer {
             this._materialCache[val].destroy();
         }
         this._materialCache = {};
+    }
+
+    protected initRenderEntity () {
+        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
     }
 }
 

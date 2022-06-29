@@ -81,6 +81,15 @@ export class ArmatureSystem extends System {
             armature.updateAnimation(dt);
         });
     }
+
+    public prepareRenderData () {
+        if (!this._armatures) {
+            return;
+        }
+        this._armatures.forEach((armature) => {
+            armature.markForUpdateRenderData();
+        });
+    }
 }
 
 legacyCC.internal.ArmatureSystem = ArmatureSystem;

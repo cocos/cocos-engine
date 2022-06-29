@@ -130,6 +130,11 @@ export class BaseRenderData {
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
     protected _drawType = 0;
+    protected _multiOwner = false;
+    get multiOwner () { return this._multiOwner; }
+    set multiOwner (val) {
+        this._multiOwner = val;
+    }
 
     protected _batcher: Batcher2D | null = null;
     get batcher () {
@@ -161,7 +166,7 @@ export class BaseRenderData {
                         this._renderDrawInfo = drawInfo;
                     }
                 }
-            } else if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
+            } else if (this.multiOwner === false) {
                 if (!this._renderDrawInfo) {
                     this._renderDrawInfo = new RenderDrawInfo(this.batcher);
                     // for no resize() invoking components
@@ -345,7 +350,7 @@ export class RenderData extends BaseRenderData {
         this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
         this.updateHash();
 
-        if (JSB) {
+        if (JSB && this.multiOwner === false) {
             // for sync vData and iData address to native
             this.setRenderDrawInfoAttributes();
         }
@@ -364,9 +369,29 @@ export class RenderData extends BaseRenderData {
         }
     }
 
+    public fillDrawInfoAttributes (drawInfo : RenderDrawInfo) {
+        if (JSB) {
+            if (!drawInfo) {
+                return;
+            }
+            drawInfo.setBufferId(this.chunk.bufferId);
+            drawInfo.setVertexOffset(this.chunk.vertexOffset);
+            drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+            drawInfo.setVB(this.chunk.vb);
+            drawInfo.setIB(this.chunk.ib);
+            drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+            drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            drawInfo.setVBCount(this._vc);
+            drawInfo.setIBCount(this._ic);
+            drawInfo.setDataHash(this.dataHash);
+            drawInfo.setIsMeshBuffer(this.isMeshBuffer);
+            drawInfo.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
+        }
+    }
+
     // Initial advance render data for native
     protected syncRender2dBuffer () {
-        if (JSB) {
+        if (JSB && this.multiOwner === false) {
             if (!this._renderDrawInfo) {
                 return;
             }
@@ -453,7 +478,7 @@ export class RenderData extends BaseRenderData {
         }
 
         // Hack Do not update pre frame
-        if (JSB) {
+        if (JSB && this.multiOwner === false) {
             // for sync vData and iData address to native
             this.setRenderDrawInfoAttributes();
             // sync shared buffer to native

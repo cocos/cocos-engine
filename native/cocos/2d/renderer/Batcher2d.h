@@ -43,8 +43,9 @@ public:
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
-    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
+    void handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
+    void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void generateBatch(RenderDrawInfo* entity);
     void resetRenderStates();
 
@@ -111,6 +112,13 @@ private:
             vbBuffer[offset++] = temp.y;
             vbBuffer[offset++] = temp.z;
         }
+    }
+    inline void setIndexRange(RenderDrawInfo* drawInfo) {
+        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+        uint32_t indexOffset = drawInfo->getIndexOffset();
+        uint32_t indexCount = drawInfo->getIbCount();
+        indexOffset += indexCount;
+        buffer->setIndexOffset(indexOffset);
     }
 
     inline void fillColors(RenderEntity* entity, RenderDrawInfo* drawInfo) {

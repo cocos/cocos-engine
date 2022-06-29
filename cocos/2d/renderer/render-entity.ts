@@ -117,10 +117,13 @@ export class RenderEntity {
     public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number) {
         if (JSB) {
             if (renderDrawInfo) {
-                if (this._dynamicDrawInfoArr.length > index) {
+                if (this._dynamicDrawInfoArr.length < index + 1) {
+                    this._dynamicDrawInfoArr.push(renderDrawInfo);
+                    this._nativeObj.addDynamicRenderDrawInfo(renderDrawInfo.nativeObj);
+                } else {
                     this._dynamicDrawInfoArr[index] = renderDrawInfo;
+                    this._nativeObj.setDynamicRenderDrawInfo(renderDrawInfo.nativeObj, index);
                 }
-                this._nativeObj.setDynamicRenderDrawInfo(renderDrawInfo.nativeObj, index);
             }
         }
     }
