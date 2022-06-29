@@ -1291,7 +1291,7 @@ cocos_source_files(
 )
 
 ##### profiler
-if (USE_DEBUGGER_RENDERER)
+if (USE_DEBUG_RENDERER)
 cocos_source_files(
     cocos/profiler/DebugRenderer.h
     cocos/profiler/DebugRenderer.cpp
@@ -1912,7 +1912,7 @@ cocos_source_files(
 )
 
 # FreeTypeFont is used in DebugRenderer currently
-if (USE_DEBUGGER_RENDERER)
+if (USE_DEBUG_RENDERER)
 cocos_source_files(
     cocos/core/assets/FreeTypeFont.h
     cocos/core/assets/FreeTypeFont.cpp
