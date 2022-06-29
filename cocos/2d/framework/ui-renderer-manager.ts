@@ -1,9 +1,10 @@
 import { js } from '../../core/utils/js';
+import { UIMeshRenderer } from '../components';
 import { UIRenderer } from './ui-renderer';
 
 export class UIRendererManager {
     private _allRenderers: UIRenderer[] = [];
-    private _dirtyRenderers: UIRenderer[] = [];
+    private _dirtyRenderers: (UIRenderer | UIMeshRenderer)[] = [];
     public addRenderer (uiRenderer: UIRenderer) {
         this._allRenderers.push(uiRenderer);
     }
@@ -12,7 +13,7 @@ export class UIRendererManager {
         js.array.fastRemove(this._allRenderers, uiRenderer);
     }
 
-    public markDirtyRenderer (uiRenderer: UIRenderer) {
+    public markDirtyRenderer (uiRenderer: UIRenderer | UIMeshRenderer) {
         this._dirtyRenderers.push(uiRenderer);
     }
 

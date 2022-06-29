@@ -9,7 +9,7 @@
 #include "cocos/2d/renderer/UIMeshBuffer.h"
 #include "cocos/2d/renderer/Batcher2d.h"
 #include "cocos/2d/renderer/RenderEntity.h"
-#include "cocos/2d/renderer/GraphicsProxy.h"
+#include "cocos/2d/renderer/UIModelProxy.h"
 
 bool register_all_2d(se::Object *obj);                   // NOLINT
 
@@ -17,7 +17,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::UIMeshBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderDrawInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderEntity);
 JSB_REGISTER_OBJECT_TYPE(cc::Batcher2d);
-JSB_REGISTER_OBJECT_TYPE(cc::GraphicsProxy);
+JSB_REGISTER_OBJECT_TYPE(cc::UIModelProxy);
 
 
 extern se::Object *__jsb_cc_UIMeshBuffer_proto; // NOLINT
@@ -79,15 +79,18 @@ SE_DECLARE_FUNC(js_2d_Batcher2d_update);
 SE_DECLARE_FUNC(js_2d_Batcher2d_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);
 
-extern se::Object *__jsb_cc_GraphicsProxy_proto; // NOLINT
-extern se::Class * __jsb_cc_GraphicsProxy_class; // NOLINT
+extern se::Object *__jsb_cc_UIModelProxy_proto; // NOLINT
+extern se::Class * __jsb_cc_UIModelProxy_class; // NOLINT
 
-bool js_register_cc_GraphicsProxy(se::Object *obj); // NOLINT
+bool js_register_cc_UIModelProxy(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_2d_GraphicsProxy_activeSubModel);
-SE_DECLARE_FUNC(js_2d_GraphicsProxy_clear);
-SE_DECLARE_FUNC(js_2d_GraphicsProxy_destroy);
-SE_DECLARE_FUNC(js_2d_GraphicsProxy_initModel);
-SE_DECLARE_FUNC(js_2d_GraphicsProxy_uploadData);
-SE_DECLARE_FUNC(js_2d_GraphicsProxy_GraphicsProxy);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_activeSubModel);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_attachDrawInfo);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_attachNode);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_clear);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_destroy);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_initModel);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_updateModels);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_uploadData);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_UIModelProxy);
 // clang-format on

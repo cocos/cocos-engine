@@ -1,21 +1,21 @@
-#include "GraphicsProxy.h"
+#include "UIModelProxy.h"
 #include "2d/renderer/RenderEntity.h"
 #include "cocos//core/assets/RenderingSubMesh.h"
 
 namespace cc {
-GraphicsProxy::GraphicsProxy() {
+UIModelProxy::UIModelProxy() {
 }
-GraphicsProxy::~GraphicsProxy() {
+UIModelProxy::~UIModelProxy() {
 }
 
-void GraphicsProxy::initModel(Node* node) {
+void UIModelProxy::initModel(Node* node) {
     _model = Root::getInstance()->createModel<scene::Model>();
     _model->setNode(node);
     _model->setTransform(node);
     _node = node;
 }
 
-void GraphicsProxy::activeSubModel(uint8_t val) {
+void UIModelProxy::activeSubModel(uint8_t val) {
     if (_model == nullptr) return;
     if (_model->getSubModels().size() <= val) {
         auto* vertexBuffer = _device->createBuffer({
@@ -37,13 +37,13 @@ void GraphicsProxy::activeSubModel(uint8_t val) {
         renderMesh->setSubMeshIdx(0);
 
         RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
-        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val); // 可能会越界
-        _model->initSubModel(val, renderMesh, drawInfo->getMaterial()); //材质实例
+        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
+        _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
         _graphicsUseSubMeshes.emplace_back(renderMesh);
     }
 }
 
-void GraphicsProxy::uploadData() {
+void UIModelProxy::uploadData() {
     RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
     auto drawInfos = entity->getDynamicRenderDrawInfos();
     auto subModelList = _model->getSubModels();
@@ -68,15 +68,33 @@ void GraphicsProxy::uploadData() {
         // }
         iBuffer->update(drawInfo->getIDataBuffer()); // idata
         ia->setIndexCount(drawInfo->getIbCount());   // indexCount
-        // drawInfo->setModel(_model); // 会重复渲染
+        // drawInfo->setModel(_model); // hack, render by model
     }
     drawInfos[0]->setModel(_model);
 }
 
-void GraphicsProxy::destroy() {
+void UIModelProxy::destroy() {
 }
 
-void GraphicsProxy::clear() {
+void UIModelProxy::clear() {
+}
+
+// for ui model
+void UIModelProxy::updateModels(scene::Model* model) {
+    _models.emplace_back(model);
+}
+
+void UIModelProxy::attachDrawInfo() {
+    RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
+    auto drawInfos = entity->getDynamicRenderDrawInfos();
+    if (drawInfos.size() != _models.size()) return;
+    for (size_t i = 0; i < drawInfos.size(); i++) {
+        drawInfos[i]->setModel(_models[i]);
+    }
+}
+
+void UIModelProxy::attachNode(Node* node) {
+    _node = node;
 }
 
 } // namespace cc

@@ -131,13 +131,13 @@ export class NativeBatcher2d {
     addRootNode (node: Node) { }
 }
 
-export class NativeGraphicsProxy {
-    // get model () { return new Model(); }// use less
-    // set model (val:Model) {}
-
+export class NativeUIModelProxy {
     initModel (node) { }
     activeSubModel (index: number) { }
     uploadData () { }
     destroy () { }
     clear () { }
+    updateModels (model) { }
+    attachDrawInfo () { }
+    attachNode (node) { }
 }

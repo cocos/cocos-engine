@@ -40,7 +40,7 @@ import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, M
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
-import { NativeGraphicsProxy } from '../../core/renderer/2d/native-2d';
+import { NativeUIModelProxy } from '../../core/renderer/2d/native-2d';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
 const attributes = vfmtPosColor.concat([
@@ -240,7 +240,7 @@ export class Graphics extends UIRenderer {
     private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
 
     //nativeObj
-    protected declare _graphicsNativeProxy:NativeGraphicsProxy;
+    protected declare _graphicsNativeProxy:NativeUIModelProxy;
     get graphicsNativeProxy () {
         return this._graphicsNativeProxy;
     }
@@ -250,7 +250,7 @@ export class Graphics extends UIRenderer {
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
         this.impl = new Impl(this);
         if (JSB) {
-            this._graphicsNativeProxy = new NativeGraphicsProxy();
+            this._graphicsNativeProxy = new NativeUIModelProxy();
         }
     }
 
