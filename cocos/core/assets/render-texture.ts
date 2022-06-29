@@ -195,7 +195,6 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Validate the correctness of the render texture.
      * @zh 验证渲染贴图的正确性。
-     * @param uuid @en asset uuid @zh 资源 uuid
      */
     public validate () {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
