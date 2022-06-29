@@ -68,7 +68,7 @@ export const simple: IAssembler = {
 
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
         this.updateUVs(sprite);// dirty need
-        this.updateColor(sprite);// dirty need
+        //this.updateColor(sprite);// dirty need
 
         const renderData = sprite.renderData;
         if (renderData && frame) {

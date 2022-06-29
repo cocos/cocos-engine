@@ -118,7 +118,7 @@ export const tiled: IAssembler = {
             // may can update color & uv here
             // need dirty
             this.updateWorldUVData(sprite);
-            this.updateColorLate(sprite);
+            //this.updateColorLate(sprite);
         }
 
         renderData.updateRenderData(sprite, frame);

@@ -4,12 +4,22 @@ import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
-import { Material, Node } from '../../core';
+import { color, Color, Material, Node } from '../../core';
 import { EmitLocation } from '../../particle/enum';
 
 export enum RenderEntityType {
     STATIC,
     DYNAMIC,
+}
+
+export enum RenderEntitySharedBufferView {
+    colorR,
+    colorG,
+    colorB,
+    colorA,
+    colorDirty,
+    localOpacity,
+    count,
 }
 
 export class RenderEntity {
@@ -20,6 +30,8 @@ export class RenderEntity {
     private _batcher: Batcher2D | undefined;
 
     protected _node: Node | undefined;
+
+    protected declare _sharedBuffer: Float32Array;
 
     private declare _nativeObj: NativeRenderEntity;
     get nativeObj () {
@@ -37,6 +49,42 @@ export class RenderEntity {
     //     this._renderEntityType = val;
     // }
 
+    protected _color:Color = Color.WHITE;
+    get color () {
+        return this._color;
+    }
+    set color (val:Color) {
+        this._color = val;
+        if (JSB) {
+            this._sharedBuffer[RenderEntitySharedBufferView.colorR] = val.r;
+            this._sharedBuffer[RenderEntitySharedBufferView.colorG] = val.g;
+            this._sharedBuffer[RenderEntitySharedBufferView.colorB] = val.b;
+            this._sharedBuffer[RenderEntitySharedBufferView.colorA] = val.a;
+        }
+    }
+
+    protected _colorDirty = true;
+    get colorDirty () {
+        return this._colorDirty;
+    }
+    set colorDirty (val:boolean) {
+        this._colorDirty = val;
+        if (JSB) {
+            this._sharedBuffer[RenderEntitySharedBufferView.colorDirty] = val ? 1 : 0;
+        }
+    }
+
+    protected _localOpacity = 255;
+    get localOpacity () {
+        return this._localOpacity;
+    }
+    set localOpacity (val:number) {
+        this._localOpacity  = val;
+        if (JSB) {
+            this._sharedBuffer[RenderEntitySharedBufferView.localOpacity] = val;
+        }
+    }
+
     constructor (batcher: Batcher2D, entityType: RenderEntityType) {
         if (JSB) {
             this._batcher = batcher;
@@ -44,6 +92,9 @@ export class RenderEntity {
                 this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
             }
             this.setRenderEntityType(entityType);
+
+            this.initSharedBuffer();
+            //this.syncSharedBufferToNative();
         }
     }
 
@@ -110,4 +161,17 @@ export class RenderEntity {
         }
         this._renderEntityType = type;
     }
+
+    private initSharedBuffer () {
+        if (JSB) {
+            //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
+            this._sharedBuffer = new Float32Array(this._nativeObj.getEntitySharedBufferForJS());
+        }
+    }
+
+    // public syncSharedBufferToNative () {
+    //     if (JSB) {
+    //         //this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
+    //     }
+    // }
 }

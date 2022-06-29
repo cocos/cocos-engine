@@ -87,6 +87,10 @@ void Batcher2d::walk(Node* node) {
         for (index_t i = children.size() - 1; i >= 0; i--) {
             assert(length < 1000000);
             nodeStack[length++] = children[i];
+
+            if (entity) {
+                children[i]->setParentOpacity(entity->getOpacity());
+            }
         }
     }
 }
@@ -152,8 +156,20 @@ void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, N
                 fillVertexBuffers(entity, drawInfo);
                 drawInfo->setVertDirty(false);
             }
+            handleColor(entity, drawInfo, curNode);
             fillIndexBuffers(drawInfo);
         }
+    }
+}
+
+void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
+    if (entity->getColorDirty()) {
+        float_t parentOpacity = node->getParentOpacity();
+        float_t localOpacity = entity->getLocalOpacity();
+        float_t localColorAlpha = entity->getColorAlpha();
+        entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
+        fillColors(entity, drawInfo);
+        entity->setColorDirty(false);
     }
 }
 

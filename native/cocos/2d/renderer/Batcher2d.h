@@ -44,6 +44,7 @@ public:
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
     void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
+    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void generateBatch(RenderDrawInfo* entity);
     void resetRenderStates();
 
@@ -92,7 +93,7 @@ private:
         buffer->setIndexOffset(indexOffset);
     }
 
-    inline void fillVertexBuffers(RenderEntity* entity,RenderDrawInfo* drawInfo) {
+    inline void fillVertexBuffers(RenderEntity* entity, RenderDrawInfo* drawInfo) {
         Node* node = entity->getNode();
         const Mat4& matrix = node->getWorldMatrix();
         uint8_t stride = drawInfo->getStride();
@@ -109,6 +110,23 @@ private:
             vbBuffer[offset++] = temp.x;
             vbBuffer[offset++] = temp.y;
             vbBuffer[offset++] = temp.z;
+        }
+    }
+
+    inline void fillColors(RenderEntity* entity, RenderDrawInfo* drawInfo) {
+        Color temp = entity->getColor();
+
+        uint8_t stride = drawInfo->getStride();
+        uint32_t size = drawInfo->getVbCount() * stride;
+        float_t* vbBuffer = drawInfo->getVbBuffer();
+
+        uint32_t offset = 0;
+        for (int i = 0; i < size; i += stride) {
+            offset = i + 5;
+            vbBuffer[offset++] = temp.r / 255;
+            vbBuffer[offset++] = temp.g / 255;
+            vbBuffer[offset++] = temp.b / 255;
+            vbBuffer[offset++] = entity->getOpacity();
         }
     }
 

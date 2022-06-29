@@ -11,6 +11,11 @@ RenderEntity::RenderEntity(Batcher2d* batcher) {
     for (uint32_t i = 0; i < RenderEntity::STATIC_DRAW_INFO_CAPACITY; i++) {
         _staticDrawInfos[i].setBatcher(_batcher);
     }
+
+    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_entityAttrLayout, sizeof(EntityAttrLayout), [](void* a, size_t b, void* c) {});
+    _seArrayBufferObject->root();
+    _entitySharedBuffer = new ArrayBuffer();
+    _entitySharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
 }
 
 RenderEntity::~RenderEntity() {

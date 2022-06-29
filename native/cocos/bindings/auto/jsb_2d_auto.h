@@ -53,10 +53,15 @@ extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
 bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getEntitySharedBufferForJS);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getLocalOpacity);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos);
 SE_DECLARE_FUNC(js_2d_RenderEntity_removeDynamicRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_setColorDirty);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_setOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderEntityType);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
 
@@ -66,6 +71,7 @@ extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_Batcher2d_addRootNode);
+SE_DECLARE_FUNC(js_2d_Batcher2d_handleColor);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
 SE_DECLARE_FUNC(js_2d_Batcher2d_reset);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative);

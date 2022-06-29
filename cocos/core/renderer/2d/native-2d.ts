@@ -99,6 +99,9 @@ export class NativeRenderEntity {
         const batcher = director.root!.batcher2D;
         return new NativeRenderDrawInfo(batcher.nativeObj);
     }
+
+    getEntitySharedBufferForJS (): ArrayBufferLike { return new ArrayBuffer(0); }
+    //syncSharedBufferToNative (data:TypedArray) {}
 }
 
 export class NativeUIMeshBuffer {

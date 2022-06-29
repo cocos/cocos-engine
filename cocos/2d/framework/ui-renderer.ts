@@ -24,8 +24,10 @@
 */
 
 import { EDITOR, JSB } from 'internal:constants';
-import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
-    type, displayOrder, serializable, override, visible, displayName, disallowAnimation } from 'cc.decorator';
+import {
+    ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
+} from 'cc.decorator';
 import { Color } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
@@ -193,7 +195,7 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    protected _renderData:RenderData|null = null;
+    protected _renderData: RenderData | null = null;
     /**
      * @internal
      */
@@ -207,7 +209,7 @@ export class UIRenderer extends Renderer {
         return this._renderData;
     }
 
-    set renderData (val:RenderData|null) {
+    set renderData (val: RenderData | null) {
         if (val === this._renderData) {
             return;
         }
@@ -278,12 +280,12 @@ export class UIRenderer extends Renderer {
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
-    public stencilStage : Stage = Stage.DISABLED;
+    public stencilStage: Stage = Stage.DISABLED;
 
     @override
     protected _materials: (Material | null)[] = [];
     @type(Material)
-    protected _customMaterial: Material| null = null;
+    protected _customMaterial: Material | null = null;
 
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
@@ -300,7 +302,7 @@ export class UIRenderer extends Renderer {
     protected _renderDataFlag = true;
     protected _renderFlag = true;
 
-    protected _renderEntity :RenderEntity|null = null;
+    protected _renderEntity: RenderEntity | null = null;
     protected _batcher: Batcher2D | null = null;
 
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
@@ -333,9 +335,9 @@ export class UIRenderer extends Renderer {
 
     protected _lastParent: Node | null = null;
 
-    public onLoad () {
-        this.initRenderEntity();
-    }
+    // public onLoad () {
+    //     this.initRenderEntity();
+    // }
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -484,19 +486,19 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    protected _render (render: IBatcher) {}
+    protected _render (render: IBatcher) { }
 
-    protected _postRender (render: IBatcher) {}
+    protected _postRender (render: IBatcher) { }
 
     protected _canRender () {
         return this.isValid
-               && this.getMaterial(0) !== null
-               && this.enabled
-               && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
-               && this._color.a > 0;
+            && this.getMaterial(0) !== null
+            && this.enabled
+            && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
+            && this._color.a > 0;
     }
 
-    protected _postCanRender () {}
+    protected _postCanRender () { }
 
     protected updateMaterial () {
         if (this._customMaterial) {
@@ -520,10 +522,69 @@ export class UIRenderer extends Renderer {
 
     protected _updateColor () {
         this.node._uiProps.colorDirty = true;
+        this.setEntityColorDirty(true);
+        this.setEntityColor(this._color);
+        this.setEntityOpacity(this.node._uiProps.localOpacity);
+
         if (this._assembler) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
+        }
+    }
+
+    // for uiOpacity
+    public static setUIOpacityAttrsRecursively (node:Node, localOpacity:number, dirty:boolean) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        if (render && render.renderEntity) {
+            render.renderEntity.localOpacity = localOpacity;// only for current node
+            render.renderEntity.colorDirty = dirty;
+            render.renderEntity.color = render.color;
+        }
+        for (let i = 0; i < node.children.length; i++) {
+            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
+        }
+    }
+
+    // for common
+    public static setEntityColorDirtyRecursively (node:Node, dirty:boolean) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        if (render && render.renderEntity) {
+            render.renderEntity.colorDirty = dirty;
+            render.renderEntity.color = render.color;
+        }
+        for (let i = 0; i < node.children.length; i++) {
+            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
+        }
+    }
+
+    private setEntityColorDirty (dirty: boolean) {
+        if (JSB) {
+            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+        }
+    }
+
+    // public setEntityColorDirty (dirty: boolean) {
+    //     if (JSB) {
+    //         if (this._renderEntity) {
+    //             this._renderEntity.colorDirty = dirty;
+    //         }
+    //     }
+    // }
+
+    public setEntityColor (color:Color) {
+        if (JSB) {
+            if (this._renderEntity) {
+                this._renderEntity.color = color;
+            }
+        }
+    }
+
+    public setEntityOpacity (opacity:number) {
+        if (JSB) {
+            if (this._renderEntity) {
+                this._renderEntity.localOpacity = opacity;
+            }
         }
     }
 
@@ -570,6 +631,7 @@ export class UIRenderer extends Renderer {
 
     protected _colorDirty () {
         this.node._uiProps.colorDirty = true;
+        this.setEntityColorDirty(true);
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
@@ -580,8 +642,8 @@ export class UIRenderer extends Renderer {
         super._onMaterialModified(idx, material);
     }
 
-    protected _updateBuiltinMaterial () : Material {
-        let mat : Material;
+    protected _updateBuiltinMaterial (): Material {
+        let mat: Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
             mat = builtinResMgr.get(`ui-base-material`);
@@ -602,7 +664,7 @@ export class UIRenderer extends Renderer {
         return mat;
     }
 
-    protected _flushAssembler? (): void;
+    protected _flushAssembler?(): void;
 
     public setNodeDirty () {
         if (this.renderData) {
