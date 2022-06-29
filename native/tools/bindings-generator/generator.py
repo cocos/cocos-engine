@@ -1672,7 +1672,6 @@ class Generator(object):
                     method_config_list = match.group(1).split(" ")
                     for method_config in method_config_list:
                         method_name, macro = method_config.split('/')
-                        logger.info('cjh %s, %s, %s', class_name, method_name, macro)
                         self.method_module_configs[class_name][method_name] = macro
                 else:
                     raise Exception("invalid list of method_module_configs methods")
