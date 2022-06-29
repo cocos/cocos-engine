@@ -375,8 +375,8 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (this.usesCustomPipeline && legacyCC.createCustomPipeline) {
-            this._customPipeline = legacyCC.createCustomPipeline();
+        if (this.usesCustomPipeline && legacyCC.internal.createCustomPipeline) {
+            this._customPipeline = legacyCC.internal.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
