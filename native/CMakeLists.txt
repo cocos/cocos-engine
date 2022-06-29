@@ -1162,8 +1162,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/PostProcessStage.h
                  cocos/renderer/pipeline/UIPhase.cpp
                  cocos/renderer/pipeline/UIPhase.h
-                 cocos/renderer/pipeline/GeometryRenderer.h
-                 cocos/renderer/pipeline/GeometryRenderer.cpp
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
@@ -1209,6 +1207,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
 )
+
+if (USE_GEOMETRY_RENDERER)
+    cocos_source_files(
+        cocos/renderer/pipeline/GeometryRenderer.h
+        cocos/renderer/pipeline/GeometryRenderer.cpp
+    )
+endif()
 
 ##### terrain
 #
