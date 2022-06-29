@@ -73,6 +73,7 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Initialize the render texture. Using IRenderTextureCreateInfo.
      * @zh 初始化渲染贴图。设置渲染贴图的名称、尺寸、渲染通道信息。
+     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
      */
     public initialize (info: IRenderTextureCreateInfo) {
         this._name = info.name || '';
