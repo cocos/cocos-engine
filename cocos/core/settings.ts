@@ -28,6 +28,7 @@ import { legacyCC } from './global-exports';
 declare const fsUtils: any;
 
 enum Category {
+    PATH = 'path',
     ENGINE = 'engine',
     ASSETS = 'assets',
     SCRIPTING = 'scripting',

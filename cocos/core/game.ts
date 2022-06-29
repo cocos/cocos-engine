@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -543,8 +543,9 @@ export class Game extends EventTarget {
                 const jsList = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'jsList');
                 let promise = Promise.resolve();
                 if (jsList) {
+                    const projectPath = settings.querySettings<string>(Settings.Category.PATH, 'projectPath') || '';
                     jsList.forEach((jsListFile) => {
-                        promise = promise.then(() => loadJsFile(`${PREVIEW ? 'plugins' : 'src'}/${jsListFile}`));
+                        promise = promise.then(() => loadJsFile(`${PREVIEW ? NATIVE ? projectPath : 'plugins' : 'src'}/${jsListFile}`));
                     });
                 }
                 return promise;

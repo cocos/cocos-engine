@@ -94,8 +94,6 @@ function loadCC() {
     function onApplicationCreated(application) {
         return System.import('cc').then((cc) => {
             require('./engine-adapter');
-            // Adjust devicePixelRatio
-            cc.view._maxPixelRatio = 4;
             return application.init(cc);
         }).then(() => { return application.start(); });
     }

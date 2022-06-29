@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
@@ -27,7 +26,8 @@
 import { js } from '../utils/js';
 
 /**
- * @
+ * @zh
+ * Async Delegate 用于支持异步的代理
  */
 export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = () => (Promise<void> | void)> {
     private _delegates: T[] = [];

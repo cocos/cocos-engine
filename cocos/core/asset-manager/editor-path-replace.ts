@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
+import { assert } from '../platform/debug';
+import { Settings, settings } from '../settings';
 import { fetchPipeline, pipeline } from './shared';
 import Task, { TaskCompleteCallback } from './task';
 
@@ -72,7 +74,12 @@ if ((EDITOR || PREVIEW) && !TEST) {
                     text = '.cconb';
                 }
             } else {
-                const response = await fetch(`${NATIVE ? 'http://<%= previewIp %>:<%= previewPort %>' : ''}/query-extname/${uuid}`);
+                let previewServer = '';
+                if (NATIVE) {
+                    previewServer = settings.querySettings<string>(Settings.Category.PATH, 'previewServer') || '';
+                    assert(previewServer);
+                }
+                const response = await fetch(`${previewServer}/query-extname/${uuid}`);
                 text = await response.text();
             }
             cache[uuid] = text;

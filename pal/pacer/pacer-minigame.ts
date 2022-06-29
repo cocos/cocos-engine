@@ -1,4 +1,4 @@
-import { assertIsTrue } from "../../cocos/core/data/utils/asserts";
+import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 
 declare const __globalAdapter: any;
 export class Pacer {
