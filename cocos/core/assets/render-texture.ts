@@ -71,8 +71,8 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @en Initialize the render texture.
-     * @zh 初始化渲染贴图。
+     * @en Initialize the render texture. Using IRenderTextureCreateInfo.
+     * @zh 初始化渲染贴图。设置渲染贴图的名称、尺寸、渲染通道信息。
      */
     public initialize (info: IRenderTextureCreateInfo) {
         this._name = info.name || '';
@@ -82,8 +82,8 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @en Reset the render texture. User may change the name and render pass info of the render texture.
-     * @zh 重置渲染贴图。用户可以更改渲染贴图的名称和渲染通道信息。
+     * @en Reset the render texture. User may change the name, size or render pass info of the render texture.
+     * @zh 重新初始化渲染贴图。用户可以更改渲染贴图的名称、尺寸、渲染通道信息。
      */
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
@@ -150,12 +150,16 @@ export class RenderTexture extends TextureBase {
 
     /**
      * @en Callback function after render texture is loaded in [[CCLoader]]. Initialize the render texture.
-     * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动初始化渲染贴图。
+     * @zh 通过 [[CCLoader]] 加载完成时的回调，初始化渲染贴图。
      */
     public onLoaded () {
         this._initWindow();
     }
 
+    /**
+     * @en Implementation of the render texture initialization.
+     * @zh 初始化渲染贴图的具体实现。
+     */
     protected _initWindow (info?: IRenderTextureCreateInfo) {
         const root = legacyCC.director.root as Root;
 
@@ -178,8 +182,8 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @en Default initialization.
-     * @zh 默认初始化。
+     * @en Initialize the render texture with uuid. The default size is 1x1.
+     * @zh 初始化渲染贴图。使用uuid进行初始化，贴图的尺寸为 1x1。
      * @param uuid @en asset uuid @zh 资源 uuid
      */
     public initDefault (uuid?: string) {
