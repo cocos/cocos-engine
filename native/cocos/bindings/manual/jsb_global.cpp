@@ -95,7 +95,7 @@ static void localDownloaderCreateTask(const ccstd::string &url, const std::funct
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
-    auto task = localDownloader()->createDownloadDataTask(url, key);
+    auto task = localDownloader()->createDataTask(url, key);
     gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 

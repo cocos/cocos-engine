@@ -43,7 +43,7 @@ BufferAgent::~BufferAgent() {
         BufferDestruct,
         actor, _actor,
         {
-            CC_SAFE_DELETE(actor);
+            actor = nullptr;
         });
 }
 

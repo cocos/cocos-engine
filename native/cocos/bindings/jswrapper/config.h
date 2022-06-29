@@ -34,14 +34,6 @@
     #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
 #endif
 
-#ifndef USE_V8_DEBUGGER
-    #if defined(CC_DEBUG) && CC_DEBUG > 0
-        #define USE_V8_DEBUGGER 1
-    #else
-        #define USE_V8_DEBUGGER 0
-    #endif
-#endif
-
 #define SE_LOG_TO_JS_ENV 0 // print log to JavaScript environment, for example DevTools
 
 #if !defined(ANDROID_INSTANT) && defined(USE_V8_DEBUGGER) && USE_V8_DEBUGGER > 0

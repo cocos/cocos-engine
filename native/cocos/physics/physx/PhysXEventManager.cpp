@@ -28,7 +28,7 @@
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/shapes/PhysXShape.h"
-#include "physics/spec/IWorld.h"
+#include "physics/physx/PhysXWorld.h"
 
 namespace cc {
 namespace physics {
@@ -103,8 +103,13 @@ void PhysXEventManager::SimulationEventCallback::onContact(const physx::PxContac
 
 void PhysXEventManager::refreshPairs() {
     for (auto iter = getTriggerPairs().begin(); iter != getTriggerPairs().end();) {
-        const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(iter->get()->shapeA)->getShape())));
-        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(iter->get()->shapeB)->getShape())));
+        uintptr_t wrapperPtrShapeA = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeA);
+        uintptr_t wrapperPtrShapeB = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeB);
+        if (wrapperPtrShapeA == 0 || wrapperPtrShapeB == 0)
+            return;
+
+        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeA)->getShape())));
+        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeB)->getShape())));
         if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
             iter = getTriggerPairs().erase(iter);
         } else if (iter->get()->state == ETouchState::EXIT) {
