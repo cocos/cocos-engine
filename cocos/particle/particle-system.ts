@@ -55,6 +55,7 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
+import { CCFloat } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -366,7 +367,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle bounding box half width.
      * @zh 粒子包围盒半宽。
      */
-    @type(Number)
+    @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfX')
     get aabbHalfX () {
@@ -389,7 +390,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle bounding box half height.
      * @zh 粒子包围盒半高。
      */
-    @type(Number)
+    @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfY')
     get aabbHalfY () {
@@ -412,7 +413,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle bounding box half depth.
      * @zh 粒子包围盒半深。
      */
-    @type(Number)
+    @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfZ')
     get aabbHalfZ () {
