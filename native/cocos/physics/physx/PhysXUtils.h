@@ -124,8 +124,8 @@ inline T pxAbsMax(const T &a, const T &b) {
 
 void pxSetFromTwoVectors(physx::PxQuat &out, const physx::PxVec3 &a, const physx::PxVec3 &b);
 
-inline ccstd::unordered_map<uintptr_t, uintptr_t> &getPxShapeMap() {
-    static ccstd::unordered_map<uintptr_t, uintptr_t> m;
+inline ccstd::unordered_map<uintptr_t, uint32_t> &getPxShapeMap() {
+    static ccstd::unordered_map<uintptr_t, uint32_t> m;
     return m;
 }
 

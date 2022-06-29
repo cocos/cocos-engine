@@ -20,7 +20,7 @@ CCEffect %{
         specularMap:           { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:        { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:    { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:             { value: normal }
@@ -120,6 +120,10 @@ CCProgram standard-vs %{
     out vec3 v_bitangent;
   #endif
 
+  #if CC_RECEIVE_SHADOW
+    out mediump vec2 v_shadowBias;
+  #endif
+
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
   #endif
@@ -167,6 +171,10 @@ CCProgram standard-vs %{
       CCLightingMapCaclUV();
     #endif
 
+    #if CC_RECEIVE_SHADOW
+      v_shadowBias = CCGetShadowBias();
+    #endif
+
     gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
   }
 }%
@@ -186,6 +194,10 @@ CCProgram standard-fs %{
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
+
+  #if CC_RECEIVE_SHADOW
+    in mediump vec2 v_shadowBias;
+  #endif
   
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
@@ -197,7 +209,7 @@ CCProgram standard-fs %{
 
   #if USE_SHININESS_MAP
     uniform sampler2D shininessExponentMap;
-    #pragma define-meta SHININESS_MAP_CHANNEL options([r,g,b,a])
+    #pragma define-meta SHININESS_MAP_CHANNEL options([a,r,g,b])
   #endif
   #if USE_SPECULAR_GLOSSINESS_MAP
     uniform sampler2D specularGlossinessMap;
@@ -277,7 +289,7 @@ CCProgram standard-fs %{
   }
   void surf (out StandardSurface s) {
     //diffuse
-    vec4 baseColor = diffuseColor;
+    vec4 baseColor = vec4(1.0);
     #if USE_VERTEX_COLOR
       baseColor.rgb *= SRGBToLinear(v_color.rgb);
       baseColor.a *= v_color.a;
@@ -285,7 +297,9 @@ CCProgram standard-fs %{
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor = texColor;
+      baseColor *= texColor;
+    #else
+      baseColor *= diffuseColor;
     #endif
     baseColor.rgb *= diffuseFactor;
     
@@ -295,6 +309,10 @@ CCProgram standard-fs %{
 
     #if USE_ALPHA_TEST
       if (baseColor.a < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    #if CC_RECEIVE_SHADOW
+      s.shadowBias = v_shadowBias;
     #endif
 
     vec4 specularColorAndFactor = getSpecularColorAndFactor();
@@ -309,7 +327,7 @@ CCProgram standard-fs %{
       #endif
     #else
       #if USE_SHININESS_MAP
-        #if SHININESS_MAP_CHANNEL
+        #if USE_SHININESS_MAP_CHANNEL
           inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).SHININESS_MAP_CHANNEL;
         #else
           inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);

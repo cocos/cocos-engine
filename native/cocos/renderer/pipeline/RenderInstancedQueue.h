@@ -56,6 +56,7 @@ public:
     bool empty() { return _queues.empty(); }
 
 private:
+    // `InstancedBuffer *`: weak reference
     ccstd::set<InstancedBuffer *> _queues;
     ccstd::vector<InstancedBuffer *> _renderQueues;
 };

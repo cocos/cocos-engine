@@ -188,13 +188,13 @@ private:
     // header info
     bool _acceptRanges;
     bool _headerAchieved;
-    int64_t _totalBytesExpected;
+    uint32_t _totalBytesExpected;
 
     ccstd::string _header; // temp buffer for receive header string, only used in thread proc
 
     // progress
-    int64_t _bytesReceived;
-    int64_t _totalBytesReceived;
+    uint32_t _bytesReceived;
+    uint32_t _totalBytesReceived;
 
     // error
     int _errCode;
@@ -387,14 +387,14 @@ private:
             bool acceptRanges = (ccstd::string::npos != coTask._header.find("Accept-Ranges")) ? true : false;
 
             // get current file size
-            int64_t fileSize = 0;
+            uint32_t fileSize = 0;
             if (acceptRanges && coTask._tempFileName.length()) {
                 fileSize = FileUtils::getInstance()->getFileSize(coTask._tempFileName);
             }
 
             // set header info to coTask
             std::lock_guard<std::mutex> lock(coTask._mutex);
-            coTask._totalBytesExpected = (int64_t)contentLen;
+            coTask._totalBytesExpected = (uint32_t)contentLen;
             coTask._acceptRanges = acceptRanges;
             if (acceptRanges && fileSize > 0) {
                 coTask._totalBytesReceived = fileSize;
@@ -633,9 +633,9 @@ DownloaderCURL::DownloaderCURL(const DownloaderHints &hints)
     _impl->hints = hints;
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
 
-    _transferDataToBuffer = [this](void *buf, int64_t len) -> int64_t {
+    _transferDataToBuffer = [this](void *buf, uint32_t len) -> uint32_t {
         DownloadTaskCURL &coTask = *_currTask;
-        int64_t dataLen = coTask._buf.size();
+        uint32_t dataLen = coTask._buf.size();
         if (len < dataLen) {
             return 0;
         }
@@ -650,7 +650,7 @@ DownloaderCURL::DownloaderCURL(const DownloaderHints &hints)
     _schedulerKey = key;
 
     if (auto sche = _scheduler.lock()) {
-        sche->schedule(std::bind(&DownloaderCURL::_onSchedule, this, std::placeholders::_1),
+        sche->schedule(std::bind(&DownloaderCURL::onSchedule, this, std::placeholders::_1),
                        this,
                        0.1f,
                        true,
@@ -688,7 +688,7 @@ void DownloaderCURL::abort(const std::unique_ptr<IDownloadTask> &task) {
     DLLOG("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void DownloaderCURL::_onSchedule(float) {
+void DownloaderCURL::onSchedule(float) {
     ccstd::vector<TaskWrapper> tasks;
 
     // update processing tasks

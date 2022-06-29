@@ -1,6 +1,7 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
+import legacyCC from '../../../predefine';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
@@ -174,8 +175,8 @@ class SystemInfo extends EventTarget {
             }).catch((err) => {});
         }
 
-        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
-        const supportMouse = !EDITOR && document.documentElement.onmouseup !== undefined;
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
+        const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,
@@ -184,7 +185,7 @@ class SystemInfo extends EventTarget {
             [Feature.SAFE_AREA]: false,
 
             [Feature.INPUT_TOUCH]: supportTouch,
-            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),

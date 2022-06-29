@@ -39,54 +39,13 @@ import { legacyCC } from '../global-exports';
 import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
 
 const DELIMETER = attributeUtils.DELIMETER;
+const CCCLASS_TAG = '__ctors__'; // Still use this historical name to avoid unsynchronized version issue
 
 function pushUnique (array, item) {
     if (array.indexOf(item) < 0) {
         array.push(item);
     }
 }
-
-const deferredInitializer: any = {
-
-    // Configs for classes which needs deferred initialization
-    datas: null,
-
-    // register new class
-    // data - {cls: cls, cb: properties, mixins: options.mixins}
-    push (data) {
-        if (this.datas) {
-            this.datas.push(data);
-        } else {
-            this.datas = [data];
-            // start a new timer to initialize
-            const self = this;
-            setTimeout(() => {
-                self.init();
-            }, 0);
-        }
-    },
-
-    init () {
-        const datas = this.datas;
-        if (datas) {
-            for (let i = 0; i < datas.length; ++i) {
-                const data = datas[i];
-                const cls = data.cls;
-                let properties = data.props;
-                if (typeof properties === 'function') {
-                    properties = properties();
-                }
-                const name = js.getClassName(cls);
-                if (properties) {
-                    declareProperties(cls, name, properties, cls.$super, data.mixins);
-                } else {
-                    errorID(3633, name);
-                }
-            }
-            this.datas = null;
-        }
-    },
-};
 
 // both getter and prop must register the name into __props__ array
 function appendProp (cls, name) {
@@ -170,15 +129,7 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-function mixinWithInherited (dest, src, filter?) {
-    for (const prop in src) {
-        if (!dest.hasOwnProperty(prop) && (!filter || filter(prop))) {
-            Object.defineProperty(dest, prop, js.getPropertyDescriptor(src, prop)!);
-        }
-    }
-}
-
-function doDefine (className, baseClass, mixins, options) {
+function doDefine (className, baseClass, options) {
     const ctor = options.ctor;
 
     if (DEV) {
@@ -188,35 +139,18 @@ function doDefine (className, baseClass, mixins, options) {
         }
     }
 
-    const ctors = [ctor];
-    const fireClass = ctor;
+    js.value(ctor, CCCLASS_TAG, true, true);
 
-    js.value(fireClass, '__ctors__', ctors.length > 0 ? ctors : null, true);
-
-    const prototype = fireClass.prototype;
+    const prototype = ctor.prototype;
     if (baseClass) {
-        fireClass.$super = baseClass;
+        ctor.$super = baseClass;
     }
 
-    if (mixins) {
-        for (let m = mixins.length - 1; m >= 0; m--) {
-            const mixin = mixins[m];
-            mixinWithInherited(prototype, mixin.prototype);
-
-            // mixin attributes
-            if (CCClass._isCCClass(mixin)) {
-                mixinWithInherited(attributeUtils.getClassAttrs(fireClass), attributeUtils.getClassAttrs(mixin));
-            }
-        }
-        // restore constuctor overridden by mixin
-        prototype.constructor = fireClass;
-    }
-
-    js.setClassName(className, fireClass);
-    return fireClass;
+    js.setClassName(className, ctor);
+    return ctor;
 }
 
-function define (className, baseClass, mixins, options) {
+function define (className, baseClass, options) {
     const Component = legacyCC.Component;
     const frame = RF.peek();
 
@@ -232,7 +166,7 @@ function define (className, baseClass, mixins, options) {
         className = className || frame.script;
     }
 
-    const cls = doDefine(className, baseClass, mixins, options);
+    const cls = doDefine(className, baseClass, options);
 
     if (EDITOR) {
         // for RenderPipeline, RenderFlow, RenderStage
@@ -312,20 +246,11 @@ function escapeForJS (s) {
 // simple test variable name
 const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-function declareProperties (cls, className, properties, baseClass, mixins) {
+function declareProperties (cls, className, properties, baseClass) {
     cls.__props__ = [];
 
     if (baseClass && baseClass.__props__) {
         cls.__props__ = baseClass.__props__.slice();
-    }
-
-    if (mixins) {
-        for (let m = 0; m < mixins.length; ++m) {
-            const mixin = mixins[m];
-            if (mixin.__props__) {
-                cls.__props__ = cls.__props__.concat(mixin.__props__.filter((x) => cls.__props__.indexOf(x) < 0));
-            }
-        }
     }
 
     if (properties) {
@@ -351,15 +276,13 @@ export function CCClass<TFunction> (options: {
     extends: null | (Function & { __props__?: any; _sealed?: boolean });
     ctor: TFunction;
     properties?: any;
-    mixins?: (Function & { __props__?: any })[];
     editor?: any;
 }) {
     let name = options.name;
     const base = options.extends/* || CCObject */;
-    const mixins = options.mixins;
 
     // create constructor
-    const cls = define(name, base, mixins, options);
+    const cls = define(name, base, options);
     if (!name) {
         name = legacyCC.js.getClassName(cls);
     }
@@ -371,19 +294,7 @@ export function CCClass<TFunction> (options: {
 
     // define Properties
     const properties = options.properties;
-    if (typeof properties === 'function'
-        || (base && base.__props__ === null)
-        || (mixins && mixins.some((x) => x.__props__ === null))
-    ) {
-        if (DEV) {
-            error('not yet implement deferred properties.');
-        } else {
-            deferredInitializer.push({ cls, props: properties, mixins });
-            cls.__props__ = cls.__values__ = null;
-        }
-    } else {
-        declareProperties(cls, name, properties, base, options.mixins);
-    }
+    declareProperties(cls, name, properties, base);
 
     const editor = options.editor;
     if (editor) {
@@ -399,9 +310,9 @@ export function CCClass<TFunction> (options: {
 
 /**
  * @en
- * Checks whether the constructor is created by `Class`.
+ * Checks whether the constructor is initialized by `@ccclass`.
  * @zh
- * 检查构造函数是否由 `Class` 创建。
+ * 检查构造函数是否经由 `@ccclass` 初始化。
  * @method _isCCClass
  * @param {Function} constructor
  * @return {Boolean}
@@ -411,7 +322,7 @@ CCClass._isCCClass = function isCCClass (constructor): boolean {
     // Does not support fastDefined class (ValueType).
     // Use `instanceof ValueType` if necessary.
     // eslint-disable-next-line no-prototype-builtins, @typescript-eslint/no-unsafe-return
-    return constructor?.hasOwnProperty?.('__ctors__');     // __ctors__ is not inherited
+    return constructor?.hasOwnProperty?.(CCCLASS_TAG);     // Remember, the static variable is not inheritable
 };
 
 //
@@ -425,7 +336,6 @@ CCClass._isCCClass = function isCCClass (constructor): boolean {
 //
 CCClass.fastDefine = function (className, constructor, serializableFields) {
     js.setClassName(className, constructor);
-    // constructor.__ctors__ = constructor.__ctors__ || null;
     const props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
     const attrs = attributeUtils.getClassAttrs(constructor);
     for (let i = 0; i < props.length; i++) {

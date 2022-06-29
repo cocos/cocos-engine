@@ -49,18 +49,18 @@ class DownloadTask;
 
 class CC_DLL IDownloadTask {
 public:
-    virtual ~IDownloadTask() {}
+    virtual ~IDownloadTask() = default;
 };
 
 class IDownloaderImpl {
 public:
-    virtual ~IDownloaderImpl() {}
+    virtual ~IDownloaderImpl() = default;
 
     std::function<void(const DownloadTask &task,
-                       int64_t bytesReceived,
-                       int64_t totalBytesReceived,
-                       int64_t totalBytesExpected,
-                       std::function<int64_t(void *buffer, int64_t len)> &transferDataToBuffer)>
+                       uint32_t bytesReceived,
+                       uint32_t totalBytesReceived,
+                       uint32_t totalBytesExpected,
+                       std::function<uint32_t(void *buffer, uint32_t len)> &transferDataToBuffer)>
         onTaskProgress;
 
     std::function<void(const DownloadTask &task,

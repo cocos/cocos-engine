@@ -16,23 +16,3 @@ vec3 oct_to_float32x3(vec2 e) {
   if (v.z < 0.0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
   return normalize(v);
 }
-
-float getCameraDepthRH(float ndcDepth, mat4 matProj)
-{
-    return -matProj[3][2] / (ndcDepth + matProj[2][2]);
-}
-
-vec4 screen2WS(vec3 coord) {
-  vec3 ndc = vec3(
-	  2.0 * (coord.x - cc_viewPort.x) / cc_viewPort.z - 1.0,
-    2.0 * (coord.y - cc_viewPort.y) / cc_viewPort.w - 1.0,
-    #if __VERSION__ >= 450
-    coord.z);
-    #else
-    2.0 * coord.z - 1.0);
-    #endif
-
-  float w = -getCameraDepthRH(ndc.z, cc_matProj);
-  vec4 world = (cc_matViewProjInv * vec4(ndc * w, w));
-  return world;
-}

@@ -50,7 +50,6 @@ CommandBufferValidator::CommandBufferValidator(CommandBuffer *actor)
 
 CommandBufferValidator::~CommandBufferValidator() {
     DeviceResourceTracker<CommandBuffer>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void CommandBufferValidator::initValidator() {
@@ -246,7 +245,7 @@ void CommandBufferValidator::bindDescriptorSet(uint32_t set, DescriptorSet *desc
     CC_ASSERT(descriptorSet && static_cast<DescriptorSetValidator *>(descriptorSet)->isInited());
 
     CC_ASSERT(set < DeviceValidator::getInstance()->bindingMappingInfo().setIndices.size());
-    //CC_ASSERT(descriptorSet->getLayout()->getDynamicBindings().size() == dynamicOffsetCount); // be more lenient on this
+    // CC_ASSERT(descriptorSet->getLayout()->getDynamicBindings().size() == dynamicOffsetCount); // be more lenient on this
 
     _curStates.descriptorSets[set] = descriptorSet;
     _curStates.dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
@@ -466,13 +465,16 @@ void CommandBufferValidator::dispatch(const DispatchInfo &info) {
     _actor->dispatch(info);
 }
 
-void CommandBufferValidator::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
+void CommandBufferValidator::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     CC_ASSERT(isInited());
 
     for (uint32_t i = 0U; i < textureBarrierCount; ++i) {
         CC_ASSERT(textures[i] && static_cast<const TextureValidator *>(textures[i])->isInited());
     }
 
+    for (uint32_t i = 0U; i < bufferBarrierCount; ++i) {
+        CC_ASSERT(buffers[i] && static_cast<const BufferValidator *>(buffers[i])->isInited());
+    }
     /////////// execute ///////////
 
     static ccstd::vector<Texture *> textureActors;
@@ -486,7 +488,18 @@ void CommandBufferValidator::pipelineBarrier(const GeneralBarrier *barrier, cons
         }
     }
 
-    _actor->pipelineBarrier(barrier, textureBarriers, actorTextures, textureBarrierCount);
+    static ccstd::vector<Buffer *> bufferActors;
+    bufferActors.resize(bufferBarrierCount);
+
+    Buffer **actorBuffers = nullptr;
+    if (bufferBarrierCount) {
+        actorBuffers = bufferActors.data();
+        for (uint32_t i = 0U; i < bufferBarrierCount; ++i) {
+            actorBuffers[i] = buffers[i] ? static_cast<const BufferValidator *>(buffers[i])->getActor() : nullptr;
+        }
+    }
+
+    _actor->pipelineBarrier(barrier, bufferBarriers, actorBuffers, bufferBarrierCount, textureBarriers, actorTextures, textureBarrierCount);
 }
 
 void CommandBufferValidator::beginQuery(QueryPool *queryPool, uint32_t id) {

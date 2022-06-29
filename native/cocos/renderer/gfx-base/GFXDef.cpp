@@ -219,6 +219,15 @@ bool operator==(const TextureBarrierInfo &lhs, const TextureBarrierInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(TextureBarrierInfo));
 }
 
+template <>
+ccstd::hash_t Hasher<BufferBarrierInfo>::operator()(const BufferBarrierInfo &info) const {
+    return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const BufferBarrierInfo &lhs, const BufferBarrierInfo &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(BufferBarrierInfo));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool operator==(const Viewport &lhs, const Viewport &rhs) {

@@ -31,6 +31,12 @@
           }
         }
       #endif
+      
+      #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+        if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW) {
+          shadow = 1.0;
+        }
+      #endif
 
         float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
 

@@ -131,6 +131,9 @@ CCProgram surface-vertex %{
     vec3 worldNormal = In.worldNormal.xyz;
     worldNormal.x += sin(cc_time.x * 3.0);
     worldNormal.y += cos(cc_time.x * 3.0);
+  #if CC_SURFACES_USE_TWO_SIDED
+      worldNormal.xyz *= In.worldNormal.w;
+  #endif
     return normalize(worldNormal);
   }*/
   
@@ -138,7 +141,7 @@ CCProgram surface-vertex %{
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
     In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if USE_SECOND_UV && !CC_USE_LIGHTMAP
+  #if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
     In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
   #endif
   }
@@ -205,7 +208,6 @@ CCProgram surface-fragment %{
     return baseColor;
   }
 
-
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
   vec3 SurfacesFragmentModifyWorldNormal()
   {
@@ -223,9 +225,9 @@ CCProgram surface-fragment %{
   {
       float anisotropyRotation = anisotropyParam.y;
       float anisotropyShape = anisotropyParam.x;
-#if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
+    #if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
       anisotropyRotation = fract(anisotropyRotation + texture(anisotropyRotationMap, DEFAULT_UV).x);
-#endif
+    #endif
       return vec4(anisotropyRotation, anisotropyShape, 0.0, 0.0);
   }
 

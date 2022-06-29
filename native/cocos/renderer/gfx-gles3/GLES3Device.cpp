@@ -236,9 +236,9 @@ void GLES3Device::doDestroy() {
     CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 
-    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
-    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
-    CC_SAFE_DESTROY_AND_DELETE(_queue)
+    _cmdBuff = nullptr;
+    _queryPool = nullptr;
+    _queue = nullptr;
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
 }
 
@@ -253,7 +253,7 @@ void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void GLES3Device::present() {
     CC_PROFILE(GLES3DevicePresent);
-    auto *queue = static_cast<GLES3Queue *>(_queue);
+    auto *queue = static_cast<GLES3Queue *>(_queue.get());
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;

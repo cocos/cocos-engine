@@ -39,7 +39,6 @@ ShaderValidator::ShaderValidator(Shader *actor)
 
 ShaderValidator::~ShaderValidator() {
     DeviceResourceTracker<Shader>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void ShaderValidator::doInit(const ShaderInfo &info) {

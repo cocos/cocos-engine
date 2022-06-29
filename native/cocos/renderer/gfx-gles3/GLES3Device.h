@@ -82,6 +82,16 @@ public:
         });
     }
 
+    inline uint8_t *getStagingBuffer(uint32_t size = 0) {
+        if (size > _stagingBufferSize) {
+            CC_FREE(_stagingBuffer);
+            _stagingBuffer = static_cast<uint8_t *>(CC_MALLOC(size));
+            _stagingBufferSize = size;
+        }
+
+        return _stagingBuffer;
+    }
+
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
 
 protected:
@@ -132,6 +142,9 @@ protected:
     ccstd::vector<ccstd::string> _extensions;
 
     ccstd::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
+
+    uint8_t *_stagingBuffer{nullptr};
+    uint32_t _stagingBufferSize{0};
 };
 
 } // namespace gfx

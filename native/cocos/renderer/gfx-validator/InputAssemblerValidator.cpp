@@ -40,7 +40,6 @@ InputAssemblerValidator::InputAssemblerValidator(InputAssembler *actor)
 
 InputAssemblerValidator::~InputAssemblerValidator() {
     DeviceResourceTracker<InputAssembler>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {

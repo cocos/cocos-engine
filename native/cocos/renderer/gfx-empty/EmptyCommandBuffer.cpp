@@ -100,8 +100,7 @@ void EmptyCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 void EmptyCommandBuffer::dispatch(const DispatchInfo &info) {
 }
 
-void EmptyCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
-}
+void EmptyCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {}
 
 void EmptyCommandBuffer::beginQuery(QueryPool *queryPool, uint32_t id) {
 }

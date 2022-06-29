@@ -280,6 +280,7 @@ export class cchelper {
     static async replaceInFile(patterns: { reg: string, text: string }[], filepath: string) {
         filepath = this.replaceEnvVariables(filepath);
         if (!fs.existsSync(filepath)) {
+            console.log(`While replace template content, file ${filepath}`);
             return;
         }
         // console.log(`replace ${filepath} with ${JSON.stringify(patterns)}`);

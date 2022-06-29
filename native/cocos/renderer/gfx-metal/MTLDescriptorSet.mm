@@ -86,5 +86,11 @@ void CCMTLDescriptorSet::update() {
         _isDirty = false;
     }
 }
+
+void CCMTLDescriptorSet::forceUpdate() {
+    _isDirty = true;
+    update();
+}
+
 } // namespace gfx
 } // namespace cc

@@ -249,6 +249,7 @@ std::string getCurAppName(void)
 
 -(void) run
 {
+    createFileUtils();
     SIMULATOR = self;
     player::PlayerMac::create();
 

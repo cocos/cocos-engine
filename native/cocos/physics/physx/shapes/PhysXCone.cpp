@@ -35,7 +35,9 @@ namespace physics {
 
 PhysXCone::PhysXCone() : _mMesh(nullptr){};
 
-void PhysXCone::setConvex(uintptr_t handle) {
+void PhysXCone::setConvex(uint32_t objectID) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (reinterpret_cast<uintptr_t>(_mMesh) == handle) return;
     _mMesh = reinterpret_cast<physx::PxConvexMesh *>(handle);
     if (_mShape) {

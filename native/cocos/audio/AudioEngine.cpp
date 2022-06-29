@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
+#include <cstdint>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -54,7 +55,7 @@
     #undef ERROR
 #endif // ERROR
 
-using namespace cc; //NOLINT
+namespace cc {
 
 const int AudioEngine::INVALID_AUDIO_ID = -1;
 const float AudioEngine::TIME_UNKNOWN = -1.0F;
@@ -591,3 +592,11 @@ void AudioEngine::setEnabled(bool isEnabled) {
 bool AudioEngine::isEnabled() {
     return sIsEnabled;
 }
+
+PCMHeader AudioEngine::getPCMHeader(const char *url) {
+    return sAudioEngineImpl->getPCMHeader(url);
+}
+ccstd::vector<uint8_t> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    return sAudioEngineImpl->getOriginalPCMBuffer(url, channelID);
+}
+} // namespace cc

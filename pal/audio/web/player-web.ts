@@ -1,11 +1,12 @@
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
+import legacyCC from '../../../predefine';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -128,7 +129,7 @@ export class OneShotAudioWeb {
     }
 
     public play (): void {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._bufferSourceNode.start();
@@ -237,6 +238,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
+    }
+
     private _onHide () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
@@ -302,7 +311,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     play (): Promise<void> {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return Promise.resolve();
         }
         return this._doPlay();

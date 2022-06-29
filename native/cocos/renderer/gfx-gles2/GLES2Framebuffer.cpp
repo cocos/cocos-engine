@@ -44,18 +44,18 @@ GLES2Framebuffer::~GLES2Framebuffer() {
 
 void GLES2Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO = ccnew GLES2GPUFramebuffer;
-    _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
+    _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass.get())->gpuRenderPass();
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTexture = static_cast<GLES2Texture *>(_colorTextures[i]);
+        auto *colorTexture = static_cast<GLES2Texture *>(_colorTextures.at(i));
         _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
         _gpuFBO->lodLevel = colorTexture->getViewInfo().baseLevel;
         GLES2Device::getInstance()->framebufferHub()->connect(colorTexture->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
-        auto *depthTexture = static_cast<GLES2Texture *>(_depthStencilTexture);
+        auto *depthTexture = static_cast<GLES2Texture *>(_depthStencilTexture.get());
         _gpuFBO->gpuDepthStencilTexture = depthTexture->gpuTexture();
         _gpuFBO->lodLevel = depthTexture->getViewInfo().baseLevel;
         GLES2Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
@@ -73,7 +73,7 @@ void GLES2Framebuffer::doDestroy() {
             GLES2Device::getInstance()->framebufferHub()->disengage(colorTexture->gpuTexture(), _gpuFBO);
         }
         if (_depthStencilTexture) {
-            auto *depthTexture = static_cast<GLES2Texture *>(_depthStencilTexture);
+            auto *depthTexture = static_cast<GLES2Texture *>(_depthStencilTexture.get());
             GLES2Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
         }
 

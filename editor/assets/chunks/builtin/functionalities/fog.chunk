@@ -1,12 +1,14 @@
-#include <builtin/uniforms/cc-global>
-#include <common/effect/fog>
-
 #pragma define-meta CC_USE_FOG range([0, 4])
 #pragma define CC_FOG_LINEAR 0
 #pragma define CC_FOG_EXP 1
 #pragma define CC_FOG_EXP_SQUARED 2
 #pragma define CC_FOG_LAYERED 3
 #pragma define CC_FOG_NONE 4
+
+#include <builtin/uniforms/cc-global>
+#if CC_USE_FOG != CC_FOG_NONE
+  #include <common/effect/fog>
+#endif
 
 // Fog helper functions
 void CC_TRANSFER_FOG_BASE(vec4 pos, out float factor)

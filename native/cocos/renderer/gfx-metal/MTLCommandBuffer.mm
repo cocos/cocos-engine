@@ -681,53 +681,114 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         return;
     }
 
-    uint32_t totalSize = 0;
-    ccstd::vector<uint32_t> bufferSize(count);
-    ccstd::vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
-    auto format = texture->getFormat();
     auto *mtlTexture = static_cast<CCMTLTexture *>(texture);
+    const bool isArrayTexture = mtlTexture->isArray();
+    auto textureType = mtlTexture->textureInfo().type;
+    
+    auto format = texture->getFormat();
+    // no rg8b/rgb32f support
     auto convertedFormat = mtlTexture->getConvertedFormat();
-    for (size_t i = 0; i < count; i++) {
-        const auto &region = regions[i];
-        auto &stagingRegion = stagingRegions[i];
-        auto w = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
-        auto h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
-        bufferSize[i] = w * h;
-        stagingRegion.sourceBytesPerRow = mu::getBytesPerRow(convertedFormat, w);
-        stagingRegion.sourceBytesPerImage = formatSize(convertedFormat, w, h, region.texExtent.depth);
-        stagingRegion.sourceSize = {w, h, region.texExtent.depth};
-        stagingRegion.destinationSlice = region.texSubres.baseArrayLayer;
-        stagingRegion.destinationLevel = region.texSubres.mipLevel;
-        stagingRegion.destinationOrigin = {
-            static_cast<uint32_t>(region.texOffset.x),
-            static_cast<uint32_t>(region.texOffset.y),
-            static_cast<uint32_t>(region.texOffset.z)};
-        totalSize += stagingRegion.sourceBytesPerImage;
-    }
-
-    size_t offset = 0;
+    auto blockSize = formatAlignment(convertedFormat);
+    
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
     id<MTLTexture> dstTexture = mtlTexture->getMTLTexture();
-    const bool isArrayTexture = mtlTexture->isArray();
+    
+    // Macro Pixel: minimum block to descirbe pixels.
+    // when a picture has a 4*4 size:
+    // ASTC_4x4: MacroPixelWidth:1 MacroPixelHeight:1
+    // RGBA_4x4: MacroPixelWidth:4 MacroPixelHeight:4
+    
     for (size_t i = 0; i < count; i++) {
-        const auto &stagingRegion = stagingRegions[i];
-        const auto *convertedData = mu::convertData(buffers[i], bufferSize[i], format);
-        const auto sourceBytesPerImage = isArrayTexture ? stagingRegion.sourceBytesPerImage : 0;
-        MTLRegion region = {stagingRegion.destinationOrigin, stagingRegion.sourceSize};
-        auto bytesPerRow = mtlTexture->isPVRTC() ? 0 : stagingRegion.sourceBytesPerRow;
-        auto bytesPerImage = mtlTexture->isPVRTC() ? 0 : sourceBytesPerImage;
-        [dstTexture replaceRegion:region
-                      mipmapLevel:stagingRegion.destinationLevel
-                            slice:stagingRegion.destinationSlice
-                        withBytes:convertedData
-                      bytesPerRow:bytesPerRow
-                    bytesPerImage:bytesPerImage];
-
-        offset += stagingRegion.sourceBytesPerImage;
-        if (convertedData != buffers[i]) {
-            CC_FREE(convertedData);
+        const auto &region = regions[i];
+        auto bufferPixelWidth = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        auto bufferPixelHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        auto targetWidth = region.texExtent.width;
+        auto targetHeight = region.texExtent.height;
+        
+        const MTLSize targetSize = {
+            bufferPixelWidth == 0 ? 0 : utils::alignTo(bufferPixelWidth, blockSize.first),
+            bufferPixelHeight == 0 ? 0 : utils::alignTo(bufferPixelHeight, blockSize.second),
+            region.texExtent.depth};
+        const MTLOrigin targetOffset = {
+            region.texOffset.x == 0 ? 0 : utils::alignTo(static_cast<uint>(region.texOffset.x), blockSize.first),
+            region.texOffset.y == 0 ? 0 : utils::alignTo(static_cast<uint>(region.texOffset.y), blockSize.second),
+            static_cast<uint>(region.texOffset.z)};
+        
+        auto bytesPerRowForTarget = formatSize(convertedFormat, targetWidth, 1, 1);
+        auto bytesPerImageForTarget = formatSize(convertedFormat, static_cast<uint32_t>(targetSize.width), static_cast<uint32_t>(targetSize.height), static_cast<uint32_t>(targetSize.depth));
+        
+        if(textureType == TextureType::TEX1D || textureType == TextureType::TEX1D_ARRAY || mtlTexture->isPVRTC()) {
+            bytesPerRowForTarget = 0;
         }
+        
+        if(textureType != TextureType::TEX3D || mtlTexture->isPVRTC()) {
+            bytesPerImageForTarget = 0;
+        }
+    
+        auto bufferSliceSize = formatSize(convertedFormat, bufferPixelWidth, bufferPixelHeight, 1);
+        auto bufferBytesPerRow = formatSize(convertedFormat, bufferPixelWidth, 1, 1);
+        auto bufferBytesPerImage = region.texExtent.depth * bufferBytesPerRow;
+        
+        auto macroPixelHeight = targetHeight / blockSize.second;
+        
+        bool compactMemory = bufferPixelWidth == region.texExtent.width;
+        for(size_t l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; ++l) {
+            for(size_t d = targetOffset.z; d < targetSize.depth + targetOffset.z; ++d) {
+                if(compactMemory) {
+                    const auto *convertedData = mu::convertData(buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImage
+                                                                + (d - targetOffset.z) * bufferSliceSize,
+                                                                bufferPixelWidth * blockSize.second, format);
+                    
+                    ccstd::vector<uint8_t> data(bufferSliceSize);
+                    memcpy(data.data(), convertedData, bufferSliceSize);
+                    
+                    MTLRegion mtlRegion = {
+                        {targetOffset.x, targetOffset.y, d},
+                        {targetSize.width, targetSize.height, 1}
+                    };
+                    
+                    [dstTexture replaceRegion:mtlRegion
+                                  mipmapLevel:region.texSubres.mipLevel
+                                        slice:l
+                                    withBytes:data.data()
+                                  bytesPerRow:bytesPerRowForTarget
+                                bytesPerImage:bytesPerImageForTarget];
+                    
+                    if (format == Format::RGB8 || format == Format::RGB32F) {
+                        CC_FREE(convertedData);
+                    }
+                } else {
+                    for(size_t h = targetOffset.y; h < targetSize.height + targetOffset.y; h += blockSize.second) {
+                        const auto *convertedData = mu::convertData(buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImage
+                                                                    + (d - targetOffset.z) * bufferSliceSize + h / blockSize.second * bufferBytesPerRow,
+                                                                    bufferPixelWidth * blockSize.second, format);
+                        
+                        ccstd::vector<uint8_t> data(bytesPerRowForTarget);
+                        memcpy(data.data(), convertedData, bytesPerRowForTarget );
+                        
+                        MTLRegion mtlRegion = {
+                            {targetOffset.x, targetOffset.y + h, d},
+                            {targetSize.width, blockSize.second, 1}
+                        };
+                        
+                        [dstTexture replaceRegion:mtlRegion
+                                      mipmapLevel:region.texSubres.mipLevel
+                                            slice:l
+                                        withBytes:data.data()
+                                      bytesPerRow:bytesPerRowForTarget
+                                    bytesPerImage:bytesPerImageForTarget];
+                        
+                        if (format == Format::RGB8 || format == Format::RGB32F) {
+                            CC_FREE(convertedData);
+                        }
+                    }
+                }
+            }
+        }
+        
+        
     }
+
     if (hasFlag(static_cast<CCMTLTexture *>(texture)->textureInfo().flags, TextureFlags::GEN_MIPMAP) && mu::pixelFormatIsColorRenderable(convertedFormat)) {
         [encoder generateMipmapsForTexture:dstTexture];
     }
@@ -919,8 +980,8 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
     _computeEncoder.endEncoding();
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
-    // Metal tracks non-heap resources automatically, which means no need to add a barrier same encoder.
+void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
+    // Metal tracks non-heap resources automatically, which means no need to add a barrier in the same encoder.
 }
 
 void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
