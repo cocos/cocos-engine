@@ -63,7 +63,10 @@ Object.defineProperty(meshAssetProto, 'struct', {
 });
 
 meshAssetProto.onLoaded = function () {
-    this.setStruct(this._struct);
+    // might be undefine
+    if (this._struct) {
+        this.setStruct(this._struct);
+    }
     // Set to null to release memory in JS
     this._struct = null;
 };
