@@ -73,7 +73,6 @@ private:
 
     // weak reference
     RenderPipeline *_pipeline{nullptr};
-//    ccstd::vector<ccstd::vector<scene::SubModel *>> _sortedSubModelsArray;
     ccstd::vector<ccstd::vector<uint32_t>> _sortedPSOCIArray;
     // weak reference
     ccstd::vector<const scene::Light *> _validPunctualLights;
