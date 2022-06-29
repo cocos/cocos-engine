@@ -231,7 +231,10 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
-        camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
+        if (camera->getGeometryRenderer()) {
+            camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
+        }
+        
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
         renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
