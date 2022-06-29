@@ -1623,7 +1623,7 @@ Failed to load prefab asset for node '%s'
 
 ### 3800
 
-The target can not be made persist because it's not a cc.Node or it doesn't have _id property or it's not in the current scene.
+The target can not be made persist because it's not a cc.Node or it doesn't have _id property.
 
 ### 3801
 
@@ -1839,6 +1839,10 @@ Instancing/Batching enabled for non-baked skinning model '%s', this may result i
 
 ### 3937
 Previous error occurred when instantiating animation clip %s on node %s.
+
+### 3938
+
+'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
 
 ### 4000
 

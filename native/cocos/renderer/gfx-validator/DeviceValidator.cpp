@@ -60,7 +60,7 @@ DeviceValidator::DeviceValidator(Device *device) : Agent(device) {
 }
 
 DeviceValidator::~DeviceValidator() {
-    CC_SAFE_DELETE(_actor);
+    destroy();
     DeviceValidator::instance = nullptr;
 }
 
@@ -89,14 +89,14 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    static_cast<QueueValidator *>(_queue)->_inited = true;
-    static_cast<QueryPoolValidator *>(_queryPool)->_inited = true;
-    static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
-    static_cast<CommandBufferValidator *>(_cmdBuff)->initValidator();
+    static_cast<QueueValidator *>(_queue.get())->_inited = true;
+    static_cast<QueryPoolValidator *>(_queryPool.get())->_inited = true;
+    static_cast<CommandBufferValidator *>(_cmdBuff.get())->_queue = _queue;
+    static_cast<CommandBufferValidator *>(_cmdBuff.get())->initValidator();
 
-    DeviceResourceTracker<CommandBuffer>::push(_cmdBuff);
-    DeviceResourceTracker<QueryPool>::push(_queryPool);
-    DeviceResourceTracker<Queue>::push(_queue);
+    DeviceResourceTracker<CommandBuffer>::push(_cmdBuff.get());
+    DeviceResourceTracker<QueryPool>::push(_queryPool.get());
+    DeviceResourceTracker<Queue>::push(_queue.get());
 
     CC_LOG_INFO("Device validator enabled.");
 
@@ -105,21 +105,12 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
 
 void DeviceValidator::doDestroy() {
     if (_cmdBuff) {
-        static_cast<CommandBufferValidator *>(_cmdBuff)->destroyValidator();
-        static_cast<CommandBufferValidator *>(_cmdBuff)->_actor = nullptr;
-        delete _cmdBuff;
+        static_cast<CommandBufferValidator *>(_cmdBuff.get())->destroyValidator();
         _cmdBuff = nullptr;
     }
-    if (_queryPool) {
-        static_cast<QueryPoolValidator *>(_queryPool)->_actor = nullptr;
-        delete _queryPool;
-        _queryPool = nullptr;
-    }
-    if (_queue) {
-        static_cast<QueueValidator *>(_queue)->_actor = nullptr;
-        delete _queue;
-        _queue = nullptr;
-    }
+    
+    _queryPool = nullptr;
+    _queue = nullptr;
 
     DeviceResourceTracker<CommandBuffer>::checkEmpty();
     DeviceResourceTracker<QueryPool>::checkEmpty();
@@ -137,7 +128,9 @@ void DeviceValidator::doDestroy() {
     DeviceResourceTracker<PipelineLayout>::checkEmpty();
     DeviceResourceTracker<PipelineState>::checkEmpty();
 
-    _actor->destroy();
+    if (_actor) {
+        _actor->destroy();
+    }
 }
 
 void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -301,18 +294,26 @@ void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Textur
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();
 
-    auto blockSize = formatAlignment(dst->getFormat());
+    uint32_t blockWidth = formatAlignment(dst->getFormat()).first;
+    uint32_t blockHeight = formatAlignment(dst->getFormat()).second;
 
     for (uint32_t i = 0; i < count; ++i) {
         const auto region = regions[i];
+        uint32_t level = region.texSubres.mipLevel;
 
-        CC_ASSERT(region.texOffset.x % blockSize.first == 0);
-        CC_ASSERT(region.texOffset.y % blockSize.second == 0);
+        uint32_t offsetX = region.texOffset.x;
+        uint32_t offsetY = region.texOffset.y;
+        uint32_t extentX = region.texExtent.width;
+        uint32_t extentY = region.texExtent.height;
+        uint32_t imgWidth = dst->getWidth() >> level;
+        uint32_t imgHeight = dst->getHeight() >> level;
 
-        CC_ASSERT((region.texExtent.width % blockSize.first == 0) || (region.texExtent.width % blockSize.first != 0 && region.texOffset.x + region.texExtent.width == dst->getWidth()));
-        CC_ASSERT((region.texExtent.height % blockSize.second == 0) || (region.texExtent.height % blockSize.second != 0 && region.texOffset.y + region.texExtent.height == dst->getHeight()));
+        CC_ASSERT(offsetX % blockWidth == 0);
+        CC_ASSERT(offsetY % blockHeight == 0);
+
+        CC_ASSERT((extentX % blockWidth == 0) || (extentX % blockWidth != 0 && offsetX + extentX == imgWidth));
+        CC_ASSERT((extentY % blockHeight == 0) || (extentY % blockHeight != 0 && offsetY + extentY == imgHeight));
     }
-
     /////////// execute ///////////
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);

@@ -154,6 +154,68 @@ exports.listeners = {
             console.error(error);
         }
     },
+    'preview-dump'(event) {
+        const panel = this;
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        const dump = event.target.dump;
+        if (!dump || panel.isDialoging) {
+            return;
+        }
+
+        const { method, value: assetUuid } = event.detail;
+        if (method === 'confirm') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                panel.previewTimeId = setTimeout(() => {
+                    for (let i = 0; i < panel.uuidList.length; i++) {
+                        const uuid = panel.uuidList[i];
+                        const { path, type } = dump;
+                        let value = dump.value;
+
+                        if (dump.values) {
+                            value = dump.values[i];
+                        }
+
+                        // 预览新的值
+                        value.uuid = assetUuid;
+
+                        Editor.Message.send('scene', 'preview-set-property', {
+                            uuid,
+                            path,
+                            dump: {
+                                type,
+                                value,
+                            },
+                        });
+                    }
+                }, 500);
+            } catch (error) {
+                console.error(error);
+            }
+        } else if (method === 'cancel') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                for (let i = 0; i < panel.uuidList.length; i++) {
+                    const uuid = panel.uuidList[i];
+                    const { path } = dump;
+
+                    Editor.Message.send('scene', 'cancel-preview-set-property', {
+                        uuid,
+                        path,
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    },
 };
 
 exports.template = /* html*/`
@@ -192,22 +254,18 @@ exports.template = /* html*/`
                     <ui-icon value="help"></ui-icon>
                 </ui-link>
             </div>
-            <div class="block-before"></div>
-            <div class="block-reflection" hidden>
+            <div class="before"></div>
+            <div class="reflection" hidden>
                 <ui-prop>
-                    <span slot="label">Reflection Convolution</span>
+                    <ui-label slot="label">Reflection Convolution</ui-label>
                     <div slot="content">
-                        <ui-loading style="position: relative;top: 4px;"></ui-loading>
-                        <ui-button num="2" style="display: none;">
-                            <span>Bake</span>
-                        </ui-button>
-                        <ui-button num="1" style="display: none;">
-                            <span>Remove</span>
-                        </ui-button>
+                        <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
+                        <ui-button class="blue bake" mipBakeMode="2" style="display:none;">Bake</ui-button>
+                        <ui-button class="red remove" mipBakeMode="1" style="display:none;">Remove</ui-button>
                     </div>
                 </ui-prop>
             </div>
-            <div class="block-after"></div>
+            <div class="after"></div>
         </ui-section>
         <ui-prop class="postProcess" type="dump"></ui-prop>
         <ui-prop class="fog" type="dump"></ui-prop>
@@ -273,6 +331,12 @@ exports.$ = {
     sceneFog: '.scene > .fog',
     sceneShadows: '.scene > .shadows',
     sceneSkybox: '.scene > .skybox',
+    sceneSkyboxBefore: '.scene > .skybox > .before',
+    sceneSkyboxReflection: '.scene > .skybox > .reflection',
+    sceneSkyboxReflectionLoading: '.scene > .skybox > .reflection ui-loading',
+    sceneSkyboxReflectionBake: '.scene > .skybox > .reflection .bake',
+    sceneSkyboxReflectionRemove: '.scene > .skybox > .reflection .remove',
+    sceneSkyboxAfter: '.scene > .skybox > .after',
     postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
 
@@ -599,8 +663,13 @@ const Elements = {
                 event.stopPropagation();
                 event.preventDefault();
             });
+
+            panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionChange.bind(panel));
+            panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionChange.bind(panel));
+            panel.skyboxReflectionConvolutionWatchBind = Elements.scene.skyboxReflectionConvolutionWatch.bind(panel);
+            Editor.Message.addBroadcastListener('asset-db:asset-change', panel.skyboxReflectionConvolutionWatchBind);
         },
-        update() {
+        async update() {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
@@ -627,14 +696,10 @@ const Elements = {
             panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
-            panel.$.sceneSkybox.dump = panel.dump._globals.skybox;
-            const $skyboxDIVBefore = panel.$.sceneSkybox.querySelector('.block-before');
-            const $skyboxDIVAfter = panel.$.sceneSkybox.querySelector('.block-after');
-            const $reflectionDIV = panel.$.sceneSkybox.querySelector('.block-reflection');
-            $skyboxDIVBefore.innerHTML = '';
-            $skyboxDIVAfter.innerHTML = '';
-
-            let $skyboxDIV = $skyboxDIVBefore;
+            // skyBox 逻辑 start
+            panel.$.sceneSkyboxBefore.innerHTML = '';
+            panel.$.sceneSkyboxAfter.innerHTML = '';
+            let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
             for (const key in panel.dump._globals.skybox.value) {
                 const dump = panel.dump._globals.skybox.value[key];
                 if (!dump.visible) {
@@ -643,55 +708,22 @@ const Elements = {
                 const $prop = document.createElement('ui-prop');
                 $prop.setAttribute('type', 'dump');
                 $prop.render(dump);
-                $skyboxDIV.appendChild($prop);
-                if (dump.name === 'envmap') {
-                    $skyboxDIV = $skyboxDIVAfter;
-                }
-            }
-            $reflectionDIV.setAttribute('hidden', '');
-            if (panel.dump._globals.skybox.value['envmap'].value && panel.dump._globals.skybox.value['envmap'].value.uuid) {
-                $reflectionDIV.removeAttribute('hidden');
+                $sceneSkyboxContainer.appendChild($prop);
 
-                const $skyboxBakeLoading = panel.$.sceneSkybox.querySelector('ui-loading');
-                const $skyboxBakeButtonList = panel.$.sceneSkybox.querySelectorAll('ui-button');
-                let envmapAssetMeta = null;
-                // eslint-disable-next-line no-inner-declarations
-                async function switchBake(event) {
-                    if (!envmapAssetMeta) {
-                        return;
-                    }
-                    const num = event.target.getAttribute('num') || 0;
-                    envmapAssetMeta.userData.mipBakeMode = parseInt(num);
-                    await Editor.Message.request('asset-db', 'save-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid, JSON.stringify(envmapAssetMeta));
-                    $skyboxBakeLoading.style.display = '';
-                    $skyboxBakeButtonList[0].style.display = 'none';
-                    $skyboxBakeButtonList[1].style.display = 'none';
-                    setTimeout(() => {
-                        initBake();
-                    }, 1000);
+                if (dump.name === 'envmap') {
+                    // envmap 之后的属性放在后面的容器
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
                 }
-                // eslint-disable-next-line no-inner-declarations
-                function initBake() {
-                    Editor.Message
-                        .request('asset-db', 'query-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid)
-                        .then((meta) => {
-                            envmapAssetMeta = meta;
-                            $skyboxBakeLoading.style.display = 'none';
-                            if (meta.userData.mipBakeMode && meta.userData.mipBakeMode !== 1) {
-                                $skyboxBakeButtonList[0].style.display = 'none';
-                                $skyboxBakeButtonList[1].style.display = '';
-                            } else {
-                                $skyboxBakeButtonList[0].style.display = '';
-                                $skyboxBakeButtonList[1].style.display = 'none';
-                            }
-                        });
-                }
-                $skyboxBakeButtonList[0].removeEventListener('confirm', switchBake);
-                $skyboxBakeButtonList[1].removeEventListener('confirm', switchBake);
-                $skyboxBakeButtonList[0].addEventListener('confirm', switchBake);
-                $skyboxBakeButtonList[1].addEventListener('confirm', switchBake);
-                initBake();
             }
+
+            const envMapData = panel.dump._globals.skybox.value['envmap'];
+            if (envMapData.value && envMapData.value.uuid) {
+                panel.$.sceneSkyboxReflection.removeAttribute('hidden');
+                envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
+            } else {
+                panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
+            }
+            // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
             panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
@@ -703,7 +735,7 @@ const Elements = {
                 panel.$.postProcess.render(panel.dump._globals.postProcess);
             }
 
-            const $skyProps = panel.$.sceneSkybox.querySelectorAll('section > ui-prop');
+            const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType' || $prop.dump.name === 'envmap') {
                     if (!$prop.regenerate) {
@@ -742,6 +774,53 @@ const Elements = {
                     args: [envMapUuid],
                 });
             }
+        },
+        async skyboxReflectionConvolution() {
+            const panel = this;
+
+            const meta = await Editor.Message.request('asset-db', 'query-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid);
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'none';
+
+            if (meta.userData.mipBakeMode !== 1) {
+                panel.$.sceneSkyboxReflectionBake.style.display = 'none';
+                panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
+
+            } else {
+                panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
+                panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
+            }
+
+            return meta;
+        },
+        skyboxReflectionConvolutionChange(event) {
+            const panel = this;
+
+            const envMapData = panel.dump._globals.skybox.value['envmap'];
+            if (!envMapData.meta) {
+                return;
+            }
+
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
+            panel.$.sceneSkyboxReflectionBake.style.display = 'none';
+            panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
+
+            const mipBakeMode = event.target.getAttribute('mipBakeMode') || 0;
+            envMapData.meta.userData.mipBakeMode = parseInt(mipBakeMode);
+            Editor.Message.send('asset-db', 'save-asset-meta', envMapData.value.uuid, JSON.stringify(envMapData.meta));
+        },
+        async skyboxReflectionConvolutionWatch(uuid) {
+            const panel = this;
+            if (panel.dump && panel.dump._globals && panel.dump._globals.skybox) {
+                const envMapData = panel.dump._globals.skybox.value['envmap'];
+                if (envMapData.value && envMapData.value.uuid === uuid) {
+                    envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
+                }
+            }
+        },
+        close() {
+            const panel = this;
+
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.skyboxReflectionConvolutionWatchBind);
         },
     },
     node: {
@@ -938,6 +1017,10 @@ const Elements = {
 
                         $panel.shadowRoot.addEventListener('create-dump', (event) => {
                             exports.listeners['create-dump'].call(panel, event);
+                        });
+
+                        $panel.shadowRoot.addEventListener('preview-dump', (event) => {
+                            exports.listeners['preview-dump'].call(panel, event);
                         });
 
                         $section.appendChild($panel);
@@ -1153,7 +1236,7 @@ const Elements = {
 
                     materialPanel.addEventListener('focus', () => {
                         const children = Array.from(materialPanel.parentElement.children);
-                        children.forEach(child => {
+                        children.forEach((child) => {
                             if (child === materialPanel) {
                                 child.setAttribute('focused', '');
                             } else {
@@ -1574,6 +1657,10 @@ exports.methods = {
         const panel = this;
 
         const materialUuids = panel.assets['cc.Material'];
+        if (!materialUuids) {
+            return;
+        }
+
         try {
             for (const dumpPath in materialUuids[assetUuid]) {
                 const dumpData = materialUuids[assetUuid][dumpPath];
@@ -1599,8 +1686,8 @@ exports.update = async function update(uuidList, renderMap, dropConfig, typeMana
     const panel = this;
 
     const enginePath = path.join('editor', 'inspector', 'components');
-    Object.values(renderMap).forEach(config => {
-        Object.values(config).forEach(renders => {
+    Object.values(renderMap).forEach((config) => {
+        Object.values(config).forEach((renders) => {
             renders.sort((a, b) => {
                 return b.indexOf(enginePath) - a.indexOf(enginePath);
             });

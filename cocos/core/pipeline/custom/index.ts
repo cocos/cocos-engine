@@ -23,21 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module custom-pipeline
- */
-
 import { Pipeline } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { rebuildLayoutGraph } from './effect';
-import { legacyCC } from '../../global-exports';
 
 export function createCustomPipeline (): Pipeline {
-    const ppl = new WebPipeline();
-    const director = legacyCC.director;
-    if (director.root.usesCustomPipeline) {
-        director.on(legacyCC.Director.EVENT_BEFORE_DRAW, rebuildLayoutGraph);
-    }
-    return ppl;
+    return new WebPipeline();
 }

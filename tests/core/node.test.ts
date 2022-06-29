@@ -241,8 +241,8 @@ describe(`Node`, () => {
 
         const nodeB = new Node('test b');
         game.addPersistRootNode(nodeB);
-        expect(nodeB._persistNode).toBeFalsy();
-        expect(find('test b')).toBeFalsy();
+        expect(nodeB._persistNode).toBeTruthy();
+        expect(find('test b')).toBeTruthy();
 
         const sceneC = new Scene('C');
         // @ts-expect-error access priority

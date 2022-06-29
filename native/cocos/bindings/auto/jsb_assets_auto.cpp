@@ -944,7 +944,47 @@ static bool js_assets_BufferAsset_getBuffer(se::State& s) // NOLINT(readability-
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_BufferAsset_getBuffer)
+SE_BIND_FUNC(js_assets_BufferAsset_getBuffer)
+
+static bool js_assets_BufferAsset_getNativeAssetForJS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::BufferAsset>(s);
+    // SE_PRECONDITION2(cobj, false, "js_assets_BufferAsset_getNativeAssetForJS : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::ArrayBuffer* result = cobj->getNativeAssetForJS();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_BufferAsset_getNativeAssetForJS : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_assets_BufferAsset_getNativeAssetForJS)
+
+static bool js_assets_BufferAsset_setNativeAssetForJS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::BufferAsset>(s);
+    // SE_PRECONDITION2(cobj, false, "js_assets_BufferAsset_setNativeAssetForJS : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::ArrayBuffer*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_BufferAsset_setNativeAssetForJS : Error processing arguments");
+        cobj->setNativeAssetForJS(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_assets_BufferAsset_setNativeAssetForJS)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_BufferAsset_finalize)
 
@@ -969,7 +1009,8 @@ bool js_register_assets_BufferAsset(se::Object* obj) // NOLINT(readability-ident
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("buffer", _SE(js_assets_BufferAsset_getBuffer_asGetter), nullptr);
+    cls->defineProperty("_nativeAsset", _SE(js_assets_BufferAsset_getNativeAssetForJS_asGetter), _SE(js_assets_BufferAsset_setNativeAssetForJS_asSetter));
+    cls->defineFunction("buffer", _SE(js_assets_BufferAsset_getBuffer));
     cls->defineFinalizeFunction(_SE(js_cc_BufferAsset_finalize));
     cls->install();
     JSBClassType::registerClass<cc::BufferAsset>(cls);

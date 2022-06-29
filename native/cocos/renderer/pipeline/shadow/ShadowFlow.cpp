@@ -42,7 +42,7 @@
 
 namespace cc {
 namespace pipeline {
-ccstd::unordered_map<ccstd::hash_t, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
+ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> ShadowFlow::renderPassHashMap;
 
 RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",
@@ -165,7 +165,7 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
             initShadowFrameBuffer(_pipeline, mainLight);
         }
 
-        auto *shadowFrameBuffer = shadowFramebufferMap.at(mainLight);
+        auto *shadowFrameBuffer = shadowFramebufferMap.at(mainLight).get();
         for (auto *stage : _stages) {
             auto *shadowStage = static_cast<ShadowStage *>(stage);
             shadowStage->setUsage(globalDS, mainLight, shadowFrameBuffer);
@@ -181,7 +181,7 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
             continue;
         }
 
-        auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
+        auto *shadowFrameBuffer = shadowFramebufferMap.at(light).get();
         for (auto *stage : _stages) {
             auto *shadowStage = static_cast<ShadowStage *>(stage);
             shadowStage->setUsage(globalDS, light, shadowFrameBuffer);
@@ -201,7 +201,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
 
     auto renderTargets = framebuffer->getColorTextures();
 
-    IntrusivePtr<gfx::Texture> texture = gfx::Device::getInstance()->createTexture({
+    auto *texture = gfx::Device::getInstance()->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         format,
@@ -225,12 +225,12 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
             break;
     }
     ds->forceUpdate();
-    _usedTextures.emplace_back(std::move(texture));
+    _usedTextures.emplace_back(texture);
 
     auto *uesedDetph = framebuffer->getDepthStencilTexture();
     const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), uesedDetph);
     _usedTextures.erase(iter);
-    IntrusivePtr<gfx::Texture> depth = device->createTexture({
+    auto *depth = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
         gfx::Format::DEPTH,
@@ -241,9 +241,9 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     framebuffer->initialize({
         _renderPass,
         renderTargets,
-        depth.get(),
+        depth,
     });
-    _usedTextures.emplace_back(std::move(depth));
+    _usedTextures.emplace_back(depth);
 
     // sometimes there has equivalent pointers from createTetxure function, so we need force update descriptor set binding here
     ds->forceUpdate();
@@ -258,7 +258,7 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
     const auto height = static_cast<uint32_t>(shadowMapSize.y);
     const auto format = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
-    const gfx::ColorAttachment colorAttachment = {
+    const gfx::ColorAttachment colorAttachment {
         format,
         gfx::SampleCount::ONE,
         gfx::LoadOp::CLEAR,
@@ -269,7 +269,7 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
         }),
     };
 
-    const gfx::DepthStencilAttachment depthStencilAttachment = {
+    const gfx::DepthStencilAttachment depthStencilAttachment {
         gfx::Format::DEPTH,
         gfx::SampleCount::ONE,
         gfx::LoadOp::CLEAR,
@@ -327,16 +327,8 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
 
 void ShadowFlow::destroy() {
     _renderPass = nullptr;
-    for (const auto &rpPair : renderPassHashMap) {
-        delete rpPair.second;
-    }
     renderPassHashMap.clear();
-
-    for (auto &texture : _usedTextures) {
-        texture = nullptr;
-    }
     _usedTextures.clear();
-
     _validLights.clear();
 
     RenderFlow::destroy();

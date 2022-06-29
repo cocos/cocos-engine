@@ -43,7 +43,6 @@ DescriptorSetValidator::DescriptorSetValidator(DescriptorSet *actor)
 
 DescriptorSetValidator::~DescriptorSetValidator() {
     DeviceResourceTracker<DescriptorSet>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
@@ -101,6 +100,12 @@ void DescriptorSetValidator::update() {
     if (!_isDirty) return;
 
     _actor->update();
+    _isDirty = false;
+}
+
+void DescriptorSetValidator::forceUpdate() {
+    _isDirty = true;
+    _actor->forceUpdate();
     _isDirty = false;
 }
 

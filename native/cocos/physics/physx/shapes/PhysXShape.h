@@ -42,12 +42,10 @@ inline T &getPxGeometry() {
 
 class PhysXShape : virtual public IBaseShape {
     PX_NOCOPY(PhysXShape)
-    PhysXShape() : _mCenter(physx::PxIdentity),
-                   _mRotation(physx::PxIdentity){};
+    PhysXShape();
 
 public:
-    ~PhysXShape() override = default;
-    inline uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
+    ~PhysXShape() override;
     void initialize(Node *node) override;
     void onEnable() override;
     void onDisable() override;
@@ -71,6 +69,7 @@ public:
         return getShape().getFlags().isSet(physx::PxShapeFlag::eTRIGGER_SHAPE);
     }
     void updateFilterData(const physx::PxFilterData &data);
+    uint32_t getObjectID() const override {return _mObjectID;};
 
 protected:
     PhysXSharedBody *_mSharedBody{nullptr};
@@ -79,6 +78,8 @@ protected:
     physx::PxQuat _mRotation;
     uint8_t _mFlag{0};
     bool _mEnabled{false};
+    uint32_t _mObjectID{0};
+
     virtual void updateCenter();
     virtual void onComponentSet() = 0;
     virtual void insertToShapeMap();

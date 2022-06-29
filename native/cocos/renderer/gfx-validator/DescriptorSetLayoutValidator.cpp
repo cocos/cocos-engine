@@ -41,7 +41,6 @@ DescriptorSetLayoutValidator::DescriptorSetLayoutValidator(DescriptorSetLayout *
 
 DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
     DeviceResourceTracker<DescriptorSetLayout>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {

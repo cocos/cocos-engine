@@ -24,8 +24,9 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { Renderer } from '../core/components/renderer';
 import { ModelRenderer } from '../core/components/model-renderer';
 import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
@@ -53,7 +54,7 @@ import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
-import { Renderer } from '../core';
+import { NoiseModule } from './animator/noise-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -123,6 +124,7 @@ export class ParticleSystem extends ModelRenderer {
     @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
+    @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
     public startSizeY = new CurveRange();
 
     /**
@@ -133,6 +135,7 @@ export class ParticleSystem extends ModelRenderer {
     @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
+    @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
     public startSizeZ = new CurveRange();
 
     /**
@@ -159,6 +162,7 @@ export class ParticleSystem extends ModelRenderer {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
+    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationX = new CurveRange();
 
     /**
@@ -170,6 +174,7 @@ export class ParticleSystem extends ModelRenderer {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
+    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationY = new CurveRange();
 
     /**
@@ -181,6 +186,7 @@ export class ParticleSystem extends ModelRenderer {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
+    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationZ = new CurveRange();
 
     /**
@@ -652,6 +658,27 @@ export class ParticleSystem extends ModelRenderer {
         this._textureAnimationModule = val;
     }
 
+    // noise module
+    @type(NoiseModule)
+    private _noiseModule: NoiseModule | null = null;
+
+    @type(NoiseModule)
+    @displayOrder(24)
+    public get noiseModule () {
+        if (EDITOR) {
+            if (!this._noiseModule) {
+                this._noiseModule = new NoiseModule();
+                this._noiseModule.bindTarget(this.processor);
+            }
+        }
+        return this._noiseModule;
+    }
+
+    public set noiseModule (val) {
+        if (!val) return;
+        this._noiseModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -890,6 +917,14 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @zh 停止发射粒子。
+     * @en Stop emitting particles.
+     */
+    public stopEmitting () {
+        this._isEmitting = false;
+    }
+
+    /**
      * @en stop particle system
      * @zh 停止播放粒子。
      */
@@ -902,6 +937,9 @@ export class ParticleSystem extends ModelRenderer {
         }
         if (this._isPaused) {
             this._isPaused = false;
+        }
+        if (this._isEmitting) {
+            this._isEmitting = false;
         }
 
         this._time = 0.0;
@@ -1282,13 +1320,14 @@ export class ParticleSystem extends ModelRenderer {
                 // this._emitRateDistanceCounter = 0.0;
                 if (!this.loop) {
                     this._isEmitting = false;
-                    return;
                 }
             }
 
+            if (!this._isEmitting) return;
+
             // emit by rateOverTime
             this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1)! * dt;
-            if (this._emitRateTimeCounter > 1 && this._isEmitting) {
+            if (this._emitRateTimeCounter > 1) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
                 this.emit(emitNum, dt);
@@ -1300,7 +1339,7 @@ export class ParticleSystem extends ModelRenderer {
             Vec3.copy(this._oldWPos, this._curWPos);
             this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
 
-            if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
+            if (this._emitRateDistanceCounter > 1) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;
                 this.emit(emitNum, dt);
@@ -1399,5 +1438,13 @@ export class ParticleSystem extends ModelRenderer {
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+    }
+
+    public getNoisePreview (width: number, height: number): number[] {
+        const out: number[] = [];
+        if (this.processor) {
+            this.processor.getNoisePreview(out, width, height);
+        }
+        return out;
     }
 }
