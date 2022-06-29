@@ -70,7 +70,7 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Rend
                 cmdBuffer->bindDescriptorSet(materialSet, batch.pass->getDescriptorSet());
                 boundPSO = true;
             }
-            if(ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
+            if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
             if (dynamicOffsets) {
                 cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, *dynamicOffsets);
             }else {
