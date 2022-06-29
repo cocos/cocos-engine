@@ -55,7 +55,7 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
-import { CCFloat } from '../core';
+import { CCBoolean, CCFloat } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -323,7 +323,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
      * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
      */
-    @type(Boolean)
+    @type(CCBoolean)
     @displayOrder(27)
     @tooltip('i18n:particle_system.renderCulling')
     set renderCulling (value: boolean) {
