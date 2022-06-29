@@ -562,7 +562,7 @@ export class Camera {
     private _visibility = CAMERA_DEFAULT_MASK;
     private _exposure = 0;
     private _clearStencil = 0;
-    private _geometryRenderer = legacyCC.internal.GeometryRenderer ? new GeometryRenderer() : null;
+    private _geometryRenderer: GeometryRenderer | null = null;
 
     constructor (device: Device) {
         this._device = device;
@@ -572,7 +572,6 @@ export class Camera {
 
         this._aspect = this.screenScale = 1;
         this._frustum.accurate = true;
-        this._geometryRenderer?.activate(device);
 
         if (!correctionMatrices.length) {
             const ySign = device.capabilities.clipSpaceSignY;
@@ -792,6 +791,22 @@ export class Camera {
         this.resize(this.width, this.height);
     }
 
+    /**
+     * @en create geometry renderer for this camera
+     * @zh 创建这个摄像机的几何体渲染器
+     */
+    public initGeometryRenderer() {
+        if (!this._geometryRenderer) {
+            this._geometryRenderer = legacyCC.internal.GeometryRenderer ? new legacyCC.internal.GeometryRenderer() : null;
+            this._geometryRenderer?.activate(this._device);
+        }
+    }
+
+    /**
+     * @en get geometry renderer of this camera
+     * @zh 获取这个摄像机的几何体渲染器
+     * @returns @en return the geometry renderer @zh 返回几何体渲染器
+     */
     get geometryRenderer () {
         return this._geometryRenderer;
     }

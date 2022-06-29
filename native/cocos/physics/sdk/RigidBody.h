@@ -35,8 +35,6 @@ class CC_DLL RigidBody final : public IRigidBody {
 public:
     RigidBody();
     ~RigidBody() override;
-    inline uintptr_t getImpl() override { return _impl->getImpl(); };
-    inline uintptr_t getNodeHandle() override { return _impl->getNodeHandle(); };
     void initialize(Node *node, ERigidBodyType t, uint32_t g) override;
     void onEnable() override;
     void onDisable() override;
@@ -74,6 +72,7 @@ public:
     void setGroup(uint32_t g) override;
     uint32_t getMask() override;
     void setMask(uint32_t m) override;
+    uint32_t getObjectID() const override;
 
 private:
     std::unique_ptr<IRigidBody> _impl;

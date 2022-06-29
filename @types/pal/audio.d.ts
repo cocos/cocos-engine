@@ -118,6 +118,17 @@ declare module 'pal/audio' {
         get currentTime (): number;
 
         /**
+         * Get the sample rate.
+         */
+        get sampleRate (): number;
+
+        /**
+         * Get pcm data view from specified channel.
+         * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
+         */
+        public getPCMData (channelIndex: number): import('pal/audio/type').AudioPCMDataView | undefined;
+
+        /**
          * Asynchronously seeks the player's playing time onto specified location.
          * @param time Desired playing time.
          */

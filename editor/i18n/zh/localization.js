@@ -855,6 +855,14 @@ module.exports = {
             label: "运行状态统计",
             description: "包含用于统计、显示渲染数据的组件与工具。",
         },
+        geometry_renderer: {
+            label: "几何体渲染器",
+            description: "渲染各种几何体，用于调试目的或者编辑器.",
+        },
+        debug_renderer: {
+            label: "调试文字渲染器",
+            description: "渲染屏幕文字，用于调试目的.",
+        },
         tiled_map: {
             label: "Tiled 地图",
             description: "Tiled 地图支持。",
