@@ -82,7 +82,7 @@ const matProto: any = jsb.Material.prototype;
 
 type setProperyCB = (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) => void;
 function wrapSetProperty (cb: setProperyCB, target: Material, name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
-    if (passIdx) {
+    if (passIdx != undefined) {
         cb.call(target, name, val, passIdx);
     } else {
         cb.call(target, name, val);
