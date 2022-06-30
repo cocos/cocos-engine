@@ -252,7 +252,7 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
 
     for (const auto &controller : controllerEvent.controllerInfos) {
         auto *jsController = se::Object::createPlainObject();
-        jsController->setProperty("number", se::Value(controller->napdId));
+        jsController->setProperty("id", se::Value(controller->napdId));
 
         auto *jsButtonInfoList = se::Object::createArrayObject(0);
         jsButtonInfoList->setProperty("length", se::Value(static_cast<uint32_t>(controller->buttonInfos.size())));
