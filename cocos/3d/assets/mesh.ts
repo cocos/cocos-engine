@@ -1316,7 +1316,8 @@ export class Mesh extends Asset {
 
     /**
      * @en Get whether the data of this mesh could be read or wrote
-     * @zh 获取此网格是否可被读写
+     * @zh 获取此网格的数据是否可被读写
+     * @return @en whether the data of this mesh could be read or wrote @zh 此网格是否可被读写
      */
     public get allowReadWriteData () {
         return this._allowReadWriteData;
