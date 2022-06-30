@@ -38,13 +38,11 @@ namespace gfx {
 
 DescriptorSetValidator::DescriptorSetValidator(DescriptorSet *actor)
 : Agent<DescriptorSet>(actor) {
-    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 DescriptorSetValidator::~DescriptorSetValidator() {
     DeviceResourceTracker<DescriptorSet>::erase(this);
-    CC_SAFE_RELEASE(_actor);
 }
 
 void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {

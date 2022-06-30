@@ -343,6 +343,7 @@ public:
     float _fogRange{1.2F};
     // @serializable
     bool _accurate{false};
+    // weak reference
     Fog *_resource{nullptr};
 };
 

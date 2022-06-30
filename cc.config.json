@@ -2,11 +2,7 @@
     "$schema": "./cc.config.schema.json",
 
     "features": {
-        "base": { "modules": [ "base", "native" ],  "dependentAssets": [
-            "b23391b6-52eb-46a6-8da1-6244d9d315fb", 
-            "b5475517-23b9-4873-bc1a-968d96616081", 
-            "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", 
-            "0835f102-5471-47a3-9a76-01c07ac9cdb2",
+        "base": { "modules": [ "base", "native" ], "dependentAssets": [
             "ff9be190-20a4-4e48-b68c-76e3c7cff085",
             "970b0598-bcb0-4714-91fb-2e81440dccd8",
             "bcd64cc6-2dd9-43f6-abbe-66318d332032",
@@ -77,7 +73,16 @@
         },
         "geometry-renderer": { 
             "modules": [ "geometry-renderer" ], 
-            "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
+	    "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
+        },
+	    "debug-renderer": { 
+            "modules": [ "debug-renderer" ], 
+            "dependentAssets": [
+                "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
+                "b5475517-23b9-4873-bc1a-968d96616081", 
+                "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", 
+                "b23391b6-52eb-46a6-8da1-6244d9d315fb"
+            ] 
         },
         "audio": { "modules": [ "audio" ] },
         "video": { "modules": [ "video" ] },
@@ -101,7 +106,8 @@
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
-        }
+        },
+        "custom-pipeline": { "modules": ["custom-pipeline"] }
     },
     "moduleOverrides": [
         {

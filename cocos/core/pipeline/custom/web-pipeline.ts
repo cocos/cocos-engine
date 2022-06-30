@@ -35,7 +35,6 @@ import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLi
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
-import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert } from '../../platform/debug';
 import { macro } from '../../platform/macro';
@@ -50,7 +49,7 @@ import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
-import { GeometryRenderer } from '..';
+import { GeometryRenderer } from '../geometry-renderer';
 
 export class WebSetter {
     constructor (data: RenderData) {

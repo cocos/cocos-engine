@@ -374,7 +374,7 @@ class Shape {
         v.node.updateWorldTransform();
         this._com = v;
         this._impl.initialize(v.node);
-        ptrToObj[this._impl.getImpl()] = this;
+        ptrToObj[this._impl.getObjectID()] = this;
         bookNode(v.node);
     }
     onLoad () {
@@ -386,8 +386,8 @@ class Shape {
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
         unBookNode(this._com.node);
-        ptrToObj[this._impl.getImpl()] = null;
-        delete ptrToObj[this._impl.getImpl()];
+        delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
     }
     setMaterial (v) {
@@ -521,8 +521,8 @@ class CylinderShape extends Shape {
             const primitive = cc.physics.utils.cylinder(0.5, 0.5, 2, { radialSegments: 32, heightSegments: 1 });
             const posArr = cc.physics.utils.shrinkPositions(primitive.positions);
             const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
-            const handle = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
-            jsbPhy.CACHE.convex.CYLINDER = handle;
+            const pxObjectID = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
+            jsbPhy.CACHE.convex.CYLINDER = pxObjectID;
         }
         this._com = v;
         this._impl.setCylinder(v.radius, v.height, v.direction);
@@ -542,8 +542,8 @@ class ConeShape extends Shape {
             const primitive = cc.physics.utils.cylinder(0, 0.5, 1, { radialSegments: 32, heightSegments: 1 });
             const posArr = cc.physics.utils.shrinkPositions(primitive.positions);
             const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
-            const handle = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
-            jsbPhy.CACHE.convex.CONE = handle;
+            const pxObjectID = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
+            jsbPhy.CACHE.convex.CONE = pxObjectID;
         }
         this._com = v;
         this._impl.setCone(v.radius, v.height, v.direction);
@@ -559,8 +559,8 @@ class TrimeshShape extends Shape {
         if (!v) return;
         const isConvex = this._com.convex;
         this._impl.useConvex(isConvex);
-        const handle = isConvex ? getConvexMesh(v) : getTriangleMesh(v);
-        this._impl.setMesh(handle);
+        const pxObjectID = isConvex ? getConvexMesh(v) : getTriangleMesh(v);
+        this._impl.setMesh(pxObjectID);
     }
     initialize (v) {
         this._com = v;
@@ -574,8 +574,8 @@ class TerrainShape extends Shape {
     constructor () { super(); this._impl = new jsbPhy.TerrainShape(); }
     setTerrain (v) {
         if (!v) return;
-        const handle = getHeightField(v);
-        this._impl.setTerrain(handle, v.tileSize, v.tileSize, jsbPhy.CONFIG.heightScale);
+        const pxObjectID = getHeightField(v);
+        this._impl.setTerrain(pxObjectID, v.tileSize, v.tileSize, jsbPhy.CONFIG.heightScale);
     }
     initialize (v) {
         this._com = v;
@@ -588,11 +588,11 @@ class Joint {
     get impl () { return this._impl; }
     get joint () { return this._com; }
     setEnableCollision (v) { this._impl.setEnableCollision(v); }
-    setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getNodeHandle() : 0); }
+    setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getObjectID() : 0); }
     initialize (v) {
         this._com = v;
         this._impl.initialize(v.node);
-        ptrToObj[this._impl.getImpl()] = this;
+        ptrToObj[this._impl.getObjectID()] = this;
         this.onLoad();
     }
     onLoad () {
@@ -602,8 +602,8 @@ class Joint {
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
-        ptrToObj[this._impl.getImpl()] = null;
-        delete ptrToObj[this._impl.getImpl()];
+        delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
     }
 }

@@ -38,7 +38,6 @@ import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
 import { warn, warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
-import { createCustomPipeline } from './pipeline/custom';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
 import { settings, Settings } from './settings';
@@ -380,14 +379,15 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (this.usesCustomPipeline) {
-            this._customPipeline = createCustomPipeline();
+        if (this.usesCustomPipeline && legacyCC.internal.createCustomPipeline) {
+            this._customPipeline = legacyCC.internal.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;
             this._pipelineEvent = this._classicPipeline;
+            this._usesCustomPipeline = false;
         }
 
         if (!this._pipeline.activate(this._mainWindow!.swapchain)) {

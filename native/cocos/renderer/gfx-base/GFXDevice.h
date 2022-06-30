@@ -173,9 +173,9 @@ protected:
     ccstd::array<bool, static_cast<size_t>(Feature::COUNT)> _features;
     ccstd::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
 
-    Queue *_queue{nullptr};
-    QueryPool *_queryPool{nullptr};
-    CommandBuffer *_cmdBuff{nullptr};
+    IntrusivePtr<Queue> _queue;
+    IntrusivePtr<QueryPool> _queryPool;
+    IntrusivePtr<CommandBuffer> _cmdBuff;
     Executable *_onAcquire{nullptr};
 
     uint32_t _numDrawCalls{0U};

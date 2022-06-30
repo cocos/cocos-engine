@@ -549,6 +549,7 @@ SE_DECLARE_FUNC(js_scene_Camera_destroy);
 SE_DECLARE_FUNC(js_scene_Camera_detachCamera);
 SE_DECLARE_FUNC(js_scene_Camera_detachFromScene);
 SE_DECLARE_FUNC(js_scene_Camera_getAspect);
+SE_DECLARE_FUNC(js_scene_Camera_initGeometryRenderer);
 SE_DECLARE_FUNC(js_scene_Camera_initialize);
 SE_DECLARE_FUNC(js_scene_Camera_resize);
 SE_DECLARE_FUNC(js_scene_Camera_setFixedSize);

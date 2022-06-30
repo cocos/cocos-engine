@@ -16,7 +16,7 @@ export interface MacOSParams {
     skipUpdateXcodeProject: boolean;
 }
 
-export class MacOSPackTool extends NativePackTool {
+export abstract class MacOSPackTool extends NativePackTool {
     params!: CocosParams<MacOSParams>;
 
     async create() {
@@ -24,11 +24,12 @@ export class MacOSPackTool extends NativePackTool {
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
         await this.excuteCocosTemplateTask();
-        await this.generate();
         return true;
     }
 
-    async generate() {
+    abstract generate() :Promise<boolean>;
+
+    shouldSkipGenerate() {
         const nativePrjDir = this.paths.nativePrjDir;
         const options = this.params.platformParams;
         if (options.skipUpdateXcodeProject && fs.existsSync(ps.join(nativePrjDir, 'CMakeCache.txt'))) {
@@ -40,7 +41,7 @@ export class MacOSPackTool extends NativePackTool {
         if (!fs.existsSync(cmakePath)) {
             throw new Error(`CMakeLists.txt not found in ${cmakePath}`);
         }
-        return true;
+        return false;
     }
 
     protected isAppleSilicon(): boolean {
