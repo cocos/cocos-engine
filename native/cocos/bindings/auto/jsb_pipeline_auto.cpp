@@ -6994,6 +6994,22 @@ static bool js_pipeline_GeometryRenderer_empty(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_pipeline_GeometryRenderer_empty)
 
+static bool js_pipeline_GeometryRenderer_update(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    // SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_update : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->update();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_update)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GeometryRenderer_finalize)
 
 static bool js_pipeline_GeometryRenderer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -7040,6 +7056,7 @@ bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readabilit
     cls->defineFunction("addTorus", _SE(js_pipeline_GeometryRenderer_addTorus));
     cls->defineFunction("addTriangle", _SE(js_pipeline_GeometryRenderer_addTriangle));
     cls->defineFunction("empty", _SE(js_pipeline_GeometryRenderer_empty));
+    cls->defineFunction("update", _SE(js_pipeline_GeometryRenderer_update));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_GeometryRenderer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::GeometryRenderer>(cls);
