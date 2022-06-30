@@ -449,7 +449,7 @@ private:
     void accessAttribute(index_t primitiveIndex, const char *attributeName, const AccessorType &accessor);
 
     gfx::BufferList createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *data);
-    void updateVertexFormat();
+    void tryConvertVertexData();
 
     void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;

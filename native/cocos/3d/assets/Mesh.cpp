@@ -169,6 +169,63 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
     return nullptr;
 }
 
+#if CC_OPTIMIZE_MESH_DATA
+void checkAttributesNeedConvert(const gfx::AttributeList& orignalAttributes, // in
+                                              gfx::AttributeList& attributes, // in-out
+                                              ccstd::vector<uint32_t>& attributeIndicsNeedConvert, // in-out
+                                              uint32_t& dstStride) { // in-out
+    attributeIndicsNeedConvert.clear();
+    attributeIndicsNeedConvert.reserve(orignalAttributes.size());
+
+    uint32_t attributeIndex = 0;
+    for (auto &attribute : attributes) {
+        if (attribute.name == gfx::ATTR_NAME_NORMAL) {
+            if (attribute.format == gfx::Format::RGB32F) {
+                attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                attribute.format = gfx::Format::RGB16F;
+#if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+                dstStride -= 4; // NOTE: Metal needs 4 bytes alignment
+#else
+                dstStride -= 6;
+#endif
+            }
+        } else if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
+            if (attribute.format == gfx::Format::RG32F) {
+                attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                attribute.format = gfx::Format::RG16F;
+                dstStride -= 4;
+            }
+        } else if (attribute.name == gfx::ATTR_NAME_TANGENT) {
+            if (attribute.format == gfx::Format::RGBA32F) {
+                attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                attribute.format = gfx::Format::RGBA16F;
+                dstStride -= 8;
+            }
+        }
+        ++attributeIndex;
+    }
+}
+
+void convertRGBA32FToRGBA16F(const float* src, uint16_t* dst) {
+    dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
+    dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
+    dst[2] = utils::rawHalfAsUint16(utils::floatToHalf(src[2]));
+    dst[3] = utils::rawHalfAsUint16(utils::floatToHalf(src[3]));
+}
+
+void convertRGB32FToRGB16F(const float* src, uint16_t* dst) {
+    dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
+    dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
+    dst[2] = utils::rawHalfAsUint16(utils::floatToHalf(src[2]));
+}
+
+void convertRG32FToRG16F(const float* src, uint16_t* dst) {
+    dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
+    dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
+}
+
+#endif // #if CC_OPTIMIZE_MESH_DATA
+
 } // namespace
 
 Mesh::~Mesh() = default;
@@ -1091,7 +1148,7 @@ void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, co
     }
 }
 
-void Mesh::updateVertexFormat() {
+void Mesh::tryConvertVertexData() {
 #if CC_OPTIMIZE_MESH_DATA
     uint8_t *data = _data.buffer()->getData();
     ccstd::vector<uint32_t> attributeIndicsNeedConvert;
@@ -1110,37 +1167,7 @@ void Mesh::updateVertexFormat() {
 
         CC_ASSERT(count * stride == length);
 
-        attributeIndicsNeedConvert.clear();
-        attributeIndicsNeedConvert.reserve(orignalAttributes.size());
-
-        uint32_t attributeIndex = 0;
-        for (auto &attribute : attributes) {
-            if (attribute.name == gfx::ATTR_NAME_NORMAL) {
-                if (attribute.format == gfx::Format::RGB32F) {
-                    attributeIndicsNeedConvert.emplace_back(attributeIndex);
-                    attribute.format = gfx::Format::RGB16F;
-    #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
-                    dstStride -= 4; // NOTE: Metal needs 4 bytes alignment
-    #else
-                    dstStride -= 6;
-    #endif
-                }
-            } else if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
-                if (attribute.format == gfx::Format::RG32F) {
-                    attributeIndicsNeedConvert.emplace_back(attributeIndex);
-                    attribute.format = gfx::Format::RG16F;
-                    dstStride -= 4;
-                }
-            } else if (attribute.name == gfx::ATTR_NAME_TANGENT) {
-                if (attribute.format == gfx::Format::RGBA32F) {
-                    attributeIndicsNeedConvert.emplace_back(attributeIndex);
-                    attribute.format = gfx::Format::RGBA16F;
-                    dstStride -= 8;
-                }
-            }
-            ++attributeIndex;
-        }
-
+        checkAttributesNeedConvert(orignalAttributes, attributes, attributeIndicsNeedConvert, dstStride);
         if (attributeIndicsNeedConvert.empty()) {
             return;
         }
@@ -1157,64 +1184,40 @@ void Mesh::updateVertexFormat() {
 
                 if (iter == attributeIndicsNeedConvert.end()) {
                     memcpy(dstIndex, srcIndex, formatInfo.size);
-                    float *pValue = reinterpret_cast<float *>(srcIndex);
 
                     dstIndex += formatInfo.size;
-                    wroteBytes += (formatInfo.size);
+                    wroteBytes += formatInfo.size;
                     srcIndex += formatInfo.size;
                     continue;
                 }
 
+                const float *pValue = reinterpret_cast<const float *>(srcIndex);
+                uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
+                uint32_t advance = (formatInfo.size >> 1);
+
                 switch (attribute.format) {
                     case gfx::Format::RGB32F: {
-                        float *pValue = reinterpret_cast<float *>(srcIndex);
-                        uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
-                        uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
-                        uint16_t z = utils::rawHalfAsUint16(utils::floatToHalf(pValue[2]));
-                        uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
-                        pDst[0] = x;
-                        pDst[1] = y;
-                        pDst[2] = z;
-                        uint32_t advance = (formatInfo.size >> 1);
-
+                        convertRGB32FToRGB16F(pValue, pDst);
     #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
                         // NOTE: Metal needs 4 bytes alignment
                         pDst[3] = 0;
-                        advance += (formatInfo.size >> 1) % 4;
+                        advance += (advance % 4);
     #endif
-                        dstIndex += advance;
-                        wroteBytes += advance;
+
                     } break;
                     case gfx::Format::RG32F: {
-                        float *pValue = reinterpret_cast<float *>(srcIndex);
-                        uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
-                        uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
-                        uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
-                        pDst[0] = x;
-                        pDst[1] = y;
-
-                        dstIndex += (formatInfo.size >> 1);
-                        wroteBytes += (formatInfo.size >> 1);
+                        convertRG32FToRG16F(pValue, pDst);
                     } break;
                     case gfx::Format::RGBA32F: {
-                        float *pValue = reinterpret_cast<float *>(srcIndex);
-                        uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
-                        uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
-                        uint16_t z = utils::rawHalfAsUint16(utils::floatToHalf(pValue[2]));
-                        uint16_t w = utils::rawHalfAsUint16(utils::floatToHalf(pValue[3]));
-                        uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
-                        pDst[0] = x;
-                        pDst[1] = y;
-                        pDst[2] = z;
-                        pDst[3] = w;
-
-                        dstIndex += (formatInfo.size >> 1);
-                        wroteBytes += (formatInfo.size >> 1);
+                        convertRGBA32FToRGBA16F(pValue, pDst);
                     } break;
                     default:
+                        CC_ASSERT(false);
                         break;
                 }
 
+                dstIndex += advance;
+                wroteBytes += advance;
                 srcIndex += formatInfo.size;
             }
 
@@ -1229,7 +1232,7 @@ void Mesh::updateVertexFormat() {
 }
 
 gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *data) {
-    updateVertexFormat();
+    tryConvertVertexData();
 
     gfx::BufferList buffers;
     buffers.reserve(_struct.vertexBundles.size());
