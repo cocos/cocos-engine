@@ -275,11 +275,8 @@ CC_FORCE_INLINE HalfRaw floatToHalf(float ff) {
 }
 
 CC_FORCE_INLINE float halfToFloat(HalfRaw h) {
-#if (defined(CC_HAS_CUDA_FP16) && defined(EIGEN_CUDA_ARCH) && EIGEN_CUDA_ARCH >= 300) || \
-    (defined(CC_HAS_HIP_FP16) && defined(EIGEN_HIP_DEVICE_COMPILE))
-    return __half2float(h);
-#elif defined(CC_HAS_FP16_C)
-    #if EIGEN_COMP_MSVC
+#if defined(CC_HAS_FP16_C)
+    #ifdef _MSC_VER
     // MSVC does not have scalar instructions.
     return _mm_cvtss_f32(_mm_cvtph_ps(_mm_set1_epi16(h.x)));
     #else
