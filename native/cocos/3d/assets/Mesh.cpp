@@ -170,10 +170,10 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
 }
 
 #if CC_OPTIMIZE_MESH_DATA
-void checkAttributesNeedConvert(const gfx::AttributeList& orignalAttributes, // in
-                                              gfx::AttributeList& attributes, // in-out
-                                              ccstd::vector<uint32_t>& attributeIndicsNeedConvert, // in-out
-                                              uint32_t& dstStride) { // in-out
+void checkAttributesNeedConvert(const gfx::AttributeList &orignalAttributes,         // in
+                                gfx::AttributeList &attributes,                      // in-out
+                                ccstd::vector<uint32_t> &attributeIndicsNeedConvert, // in-out
+                                uint32_t &dstStride) {                               // in-out
     attributeIndicsNeedConvert.clear();
     attributeIndicsNeedConvert.reserve(orignalAttributes.size());
 
@@ -183,11 +183,11 @@ void checkAttributesNeedConvert(const gfx::AttributeList& orignalAttributes, // 
             if (attribute.format == gfx::Format::RGB32F) {
                 attributeIndicsNeedConvert.emplace_back(attributeIndex);
                 attribute.format = gfx::Format::RGB16F;
-#if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+    #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
                 dstStride -= 4; // NOTE: Metal needs 4 bytes alignment
-#else
+    #else
                 dstStride -= 6;
-#endif
+    #endif
             }
         } else if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
             if (attribute.format == gfx::Format::RG32F) {
@@ -206,20 +206,20 @@ void checkAttributesNeedConvert(const gfx::AttributeList& orignalAttributes, // 
     }
 }
 
-void convertRGBA32FToRGBA16F(const float* src, uint16_t* dst) {
+void convertRGBA32FToRGBA16F(const float *src, uint16_t *dst) {
     dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
     dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
     dst[2] = utils::rawHalfAsUint16(utils::floatToHalf(src[2]));
     dst[3] = utils::rawHalfAsUint16(utils::floatToHalf(src[3]));
 }
 
-void convertRGB32FToRGB16F(const float* src, uint16_t* dst) {
+void convertRGB32FToRGB16F(const float *src, uint16_t *dst) {
     dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
     dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
     dst[2] = utils::rawHalfAsUint16(utils::floatToHalf(src[2]));
 }
 
-void convertRG32FToRG16F(const float* src, uint16_t* dst) {
+void convertRG32FToRG16F(const float *src, uint16_t *dst) {
     dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
     dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
 }
