@@ -150,7 +150,7 @@ CC_FORCE_INLINE Tgt bit_cast(const Src& src) {
   return tgt;
 }
 
-} // namespace numext {
+}
 
 // Following the Arm ACLE arm_neon.h should also include arm_fp16.h but not all
 // compilers seem to follow this. We therefore include it explicitly.
