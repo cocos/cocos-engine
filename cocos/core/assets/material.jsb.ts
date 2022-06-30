@@ -32,6 +32,7 @@ import { PassOverrides, MacroRecord, MaterialProperty } from '../renderer';
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../math';
 import { _assertThisInitialized, _initializerDefineProperty } from '../data/utils/decorator-jsb-utils';
 import { ccclass, serializable, type } from '../data/decorators';
+import './asset';
 
 /**
  * @en The basic infos for material initialization.
