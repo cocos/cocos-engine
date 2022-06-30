@@ -83,7 +83,7 @@ CommandBufferAgent::~CommandBufferAgent() {
         DeviceAgent::getInstance()->getMessageQueue(), CommandBufferDestruct,
         actor, _actor,
         {
-            CC_SAFE_DELETE(actor);
+            actor = nullptr;
         });
 }
 
@@ -433,9 +433,12 @@ void CommandBufferAgent::dispatch(const DispatchInfo &info) {
         });
 }
 
-void CommandBufferAgent::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
+void CommandBufferAgent::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     TextureBarrier **actorTextureBarriers = nullptr;
     Texture **actorTextures = nullptr;
+
+    BufferBarrier **actorBufferBarriers = nullptr;
+    Buffer **actorBuffers = nullptr;
 
     if (textureBarrierCount) {
         actorTextureBarriers = _messageQueue->allocate<TextureBarrier *>(textureBarrierCount);
@@ -447,15 +450,28 @@ void CommandBufferAgent::pipelineBarrier(const GeneralBarrier *barrier, const Te
         }
     }
 
-    ENQUEUE_MESSAGE_5(
+    if (bufferBarrierCount) {
+        actorBufferBarriers = _messageQueue->allocateAndZero<BufferBarrier *>(bufferBarrierCount);
+        memcpy(actorBufferBarriers, bufferBarriers, bufferBarrierCount * sizeof(uintptr_t));
+
+        actorBuffers = _messageQueue->allocate<Buffer *>(bufferBarrierCount);
+        for (uint32_t i = 0; i < bufferBarrierCount; ++i) {
+            actorBuffers[i] = buffers[i] ? static_cast<const BufferAgent *>(buffers[i])->getActor() : nullptr;
+        }
+    }
+
+    ENQUEUE_MESSAGE_8(
         _messageQueue, CommandBufferPipelineBarrier,
         actor, getActor(),
         barrier, barrier,
+        bufferBarriers, actorBufferBarriers,
+        buffers, buffers,
+        bufferBarrierCount, bufferBarrierCount,
         textureBarriers, actorTextureBarriers,
         textures, actorTextures,
         textureBarrierCount, textureBarrierCount,
         {
-            actor->pipelineBarrier(barrier, textureBarriers, textures, textureBarrierCount);
+            actor->pipelineBarrier(barrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
         });
 }
 

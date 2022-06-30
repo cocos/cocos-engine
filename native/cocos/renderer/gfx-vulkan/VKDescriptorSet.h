@@ -39,6 +39,7 @@ public:
     ~CCVKDescriptorSet() override;
 
     void update() override;
+    void forceUpdate() override;
 
     inline CCVKGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

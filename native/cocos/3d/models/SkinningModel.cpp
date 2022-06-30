@@ -34,6 +34,9 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 
+const uint32_t REALTIME_JOINT_TEXTURE_WIDTH = 256;
+const uint32_t REALTIME_JOINT_TEXTURE_HEIGHT = 3;
+
 namespace {
 void getRelevantBuffers(ccstd::vector<index_t> &outIndices, ccstd::vector<int32_t> &outBuffers, const ccstd::vector<ccstd::vector<int32_t>> &jointMaps, int32_t targetJoint) {
     for (int32_t i = 0; i < jointMaps.size(); i++) {
@@ -51,7 +54,8 @@ void getRelevantBuffers(ccstd::vector<index_t> &outIndices, ccstd::vector<int32_
     }
 }
 
-ccstd::vector<cc::scene::IMacroPatch> myPatches{{"CC_USE_SKINNING", true}};
+ccstd::vector<cc::scene::IMacroPatch> uniformPatches{{"CC_USE_SKINNING", true}, {"CC_USE_REAL_TIME_JOINT_TEXTURE", false}};
+ccstd::vector<cc::scene::IMacroPatch> texturePatches{{"CC_USE_SKINNING", true}, {"CC_USE_REAL_TIME_JOINT_TEXTURE", true}};
 
 } // namespace
 namespace cc {
@@ -60,19 +64,12 @@ SkinningModel::SkinningModel() {
     _type = Model::Type::SKINNING;
 }
 SkinningModel::~SkinningModel() {
-    for (auto *curr : _dataArray) {
-        delete curr;
-    }
+    releaseData();
 }
 
 void SkinningModel::destroy() {
     bindSkeleton(nullptr, nullptr, nullptr);
-    if (!_buffers.empty()) {
-        for (gfx::Buffer *buffer : _buffers) {
-            CC_SAFE_DESTROY(buffer);
-        }
-        _buffers.clear();
-    }
+    releaseData();
     Super::destroy();
 }
 
@@ -84,12 +81,14 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
     _joints.clear();
 
     if (!skeleton || !skinningRoot || !mesh) return;
+    auto jointCount = static_cast<uint32_t>(skeleton->getJoints().size());
+    _realTimeTextureMode = pipeline::SkinningJointCapacity::jointUniformCapacity < jointCount;
     setTransform(skinningRoot);
     auto boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
     const auto &jointMaps = mesh->getStruct().jointMaps;
-    ensureEnoughBuffers((jointMaps.has_value() && !jointMaps->empty()) ? static_cast<int32_t>(jointMaps->size()) : 1);
+    ensureEnoughBuffers((jointMaps.has_value() && !jointMaps->empty()) ? static_cast<uint32_t>(jointMaps->size()) : 1);
     _bufferIndices = mesh->getJointBufferIndices();
-
+    initRealTimeJointTexture();
     for (index_t index = 0; index < skeleton->getJoints().size(); ++index) {
         geometry::AABB *bound = boneSpaceBounds[index];
         auto *target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
@@ -129,7 +128,6 @@ void SkinningModel::updateTransform(uint32_t stamp) {
     Vec3 v31;
     Vec3 v32;
     for (JointInfo &jointInfo : _joints) {
-        const auto *bound = jointInfo.bound;
         auto &transform = jointInfo.transform;
         Mat4 worldMatrix = cc::getWorldMatrix(transform, static_cast<int32_t>(stamp));
         jointInfo.bound->transform(worldMatrix, &ab1);
@@ -151,15 +149,19 @@ void SkinningModel::updateUBOs(uint32_t stamp) {
     for (const JointInfo &jointInfo : _joints) {
         Mat4::multiply(jointInfo.transform->world, jointInfo.bindpose, &mat4);
         for (uint32_t buffer : jointInfo.buffers) {
-            uploadJointData(jointInfo.indices[bIdx] * 12, mat4, _dataArray[buffer]->data());
+            uploadJointData(jointInfo.indices[bIdx] * 12, mat4, _dataArray[buffer]);
             bIdx++;
         }
         bIdx = 0;
     }
-    bIdx = 0;
-    for (const auto &buffer : _buffers) {
-        buffer->update(_dataArray[bIdx]->data(), buffer->getSize());
-        bIdx++;
+    if (_realTimeTextureMode) {
+        updateRealTimeJointTextureBuffer();
+    } else {
+        bIdx = 0;
+        for (gfx::Buffer* buffer : _buffers) {
+            buffer->update(_dataArray[bIdx], buffer->getSize());
+            bIdx++;
+        }
     }
 }
 
@@ -173,6 +175,10 @@ void SkinningModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Mat
 
 ccstd::vector<scene::IMacroPatch> SkinningModel::getMacroPatches(index_t subModelIndex) {
     auto patches = Super::getMacroPatches(subModelIndex);
+    auto myPatches = uniformPatches;
+    if (_realTimeTextureMode) {
+        myPatches = texturePatches;
+    }
     if (!patches.empty()) {
         patches.reserve(myPatches.size() + patches.size());
         patches.insert(std::begin(patches), std::begin(myPatches), std::end(myPatches));
@@ -191,9 +197,14 @@ void SkinningModel::uploadJointData(uint32_t base, const Mat4 &mat, float *dst) 
 
 void SkinningModel::updateLocalDescriptors(index_t submodelIdx, gfx::DescriptorSet *descriptorset) {
     Super::updateLocalDescriptors(submodelIdx, descriptorset);
-    gfx::Buffer *buffer = _buffers[_bufferIndices[submodelIdx]];
-    if (buffer) {
-        descriptorset->bindBuffer(pipeline::UBOSkinning::BINDING, buffer);
+    uint32_t idx = _bufferIndices[submodelIdx];
+    if (!_realTimeTextureMode) {
+        gfx::Buffer *buffer = _buffers[idx];
+        if (buffer) {
+            descriptorset->bindBuffer(pipeline::UBOSkinning::BINDING, buffer);
+        }
+    } else {
+        bindRealTimeJointTexture(idx, descriptorset);
     }
 }
 
@@ -206,28 +217,144 @@ void SkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute
     Super::updateInstancedAttributes(attributes, pass);
 }
 
-void SkinningModel::ensureEnoughBuffers(index_t count) {
-    for (index_t i = 0; i < count; i++) {
-        if (i >= _buffers.size()) {
-            _buffers.resize(i + 1);
+void SkinningModel::ensureEnoughBuffers(uint32_t count) {
+    if (!_buffers.empty()) {
+        for (gfx::Buffer *buffer : _buffers) {
+            CC_SAFE_DESTROY(buffer);
         }
-
-        if (_buffers[i] == nullptr) {
+        _buffers.clear();
+    }
+    if (!_dataArray.empty()) {
+        for (auto *data : _dataArray) {
+            CC_SAFE_DELETE_ARRAY(data);
+        }
+        _dataArray.clear();
+    }
+    _dataArray.resize(count);
+    if (!_realTimeTextureMode) {
+        _buffers.resize(count);
+        uint32_t length = pipeline::UBOSkinning::count;
+        for (uint32_t i = 0; i < count; i++) {
             _buffers[i] = _device->createBuffer({
                 gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                 gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                pipeline::UBOSkinning::SIZE,
-                pipeline::UBOSkinning::SIZE,
+                pipeline::UBOSkinning::size,
+                pipeline::UBOSkinning::size,
             });
+            _dataArray[i] = new float[length];
+            memset(_dataArray[i], 0, sizeof(float) * length);
         }
-
-        if (i >= _dataArray.size()) {
-            _dataArray.resize(i + 1);
-        }
-
-        if (_dataArray[i] == nullptr) {
-            _dataArray[i] = ccnew ccstd::array<float, pipeline::UBOSkinning::COUNT>;
+    } else {
+        uint32_t length = 4 * REALTIME_JOINT_TEXTURE_WIDTH * REALTIME_JOINT_TEXTURE_HEIGHT;
+        for (uint32_t i = 0; i < count; i++) {
+            if (_dataArray[i] == nullptr) {
+                _dataArray[i] = new float[length];
+                memset(_dataArray[i], 0, sizeof(float) * length);
+            }
         }
     }
 }
+
+void SkinningModel::initRealTimeJointTexture() {
+    CC_SAFE_DELETE(_realTimeJointTexture);
+    if (!_realTimeTextureMode) return;
+    _realTimeJointTexture = ccnew RealTimeJointTexture;
+    auto *device = gfx::Device::getInstance();
+    uint32_t texWidth = REALTIME_JOINT_TEXTURE_WIDTH;
+    uint32_t texHeight = REALTIME_JOINT_TEXTURE_HEIGHT;
+    gfx::Format textureFormat = gfx::Format::RGBA32F;
+
+    gfx::FormatFeature formatFeature = device->getFormatFeatures(gfx::Format::RGBA32F);
+    if (!(formatFeature & gfx::FormatFeature::SAMPLED_TEXTURE)) {
+        textureFormat = gfx::Format::RGBA8;
+        texWidth = texWidth * 4;
+    }
+    uint32_t length = 4 * REALTIME_JOINT_TEXTURE_WIDTH * REALTIME_JOINT_TEXTURE_HEIGHT;
+    const size_t count = _dataArray.size();
+    for (size_t i = 0; i < count; i++) {
+        gfx::TextureInfo textureInfo;
+        textureInfo.width = texWidth;
+        textureInfo.height = texHeight;
+        textureInfo.usage = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
+        textureInfo.format = textureFormat;
+        IntrusivePtr<gfx::Texture> texture = device->createTexture(textureInfo);
+        _realTimeJointTexture->textures.push_back(texture);
+    }
+    _realTimeJointTexture->buffer = new float[length];
+}
+
+void SkinningModel::bindRealTimeJointTexture(uint32_t idx, gfx::DescriptorSet *descriptorset) {
+    if (_realTimeJointTexture->textures.size() < idx + 1) return;
+    gfx::Texture *texture = _realTimeJointTexture->textures[idx];
+    if (texture) {
+        gfx::SamplerInfo info{
+            gfx::Filter::POINT,
+            gfx::Filter::POINT,
+            gfx::Filter::NONE,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+        };
+        auto *device = gfx::Device::getInstance();
+        auto *sampler = device->getSampler(info);
+        descriptorset->bindTexture(pipeline::REALTIMEJOINTTEXTURE::BINDING, texture);
+        descriptorset->bindSampler(pipeline::REALTIMEJOINTTEXTURE::BINDING, sampler);
+    }
+}
+
+void SkinningModel::updateRealTimeJointTextureBuffer() {
+    uint32_t bIdx = 0;
+    uint32_t width = REALTIME_JOINT_TEXTURE_WIDTH;
+    uint32_t height = REALTIME_JOINT_TEXTURE_HEIGHT;
+    for (const auto &texture : _realTimeJointTexture->textures) {
+        auto *buffer = _realTimeJointTexture->buffer;
+        auto *dst = buffer;
+        auto *src = _dataArray[bIdx];
+        uint32_t count = width;
+        for (uint32_t i = 0; i < count; i++) {
+            dst = buffer + (4 * i);
+            memcpy(dst, src, 16);
+            src = src + 4;
+            dst = buffer + (4 * (i + width));
+            memcpy(dst, src, 16);
+            src = src + 4;
+            dst = buffer + 4 * (i + 2 * width);
+            memcpy(dst, src, 16);
+            src = src + 4;
+        }
+        uint32_t buffOffset = 0;
+        gfx::TextureSubresLayers layer;
+        gfx::Offset texOffset;
+        gfx::Extent extent{width, height, 1};
+        gfx::BufferTextureCopy region{
+           buffOffset,
+           width,
+           height,
+           texOffset,
+           extent,
+           layer
+        };
+        auto *device = gfx::Device::getInstance();
+
+        device->copyBuffersToTexture(reinterpret_cast<const uint8_t *const *>(&buffer), texture, &region, 1);
+        bIdx++;
+    }
+}
+
+void SkinningModel::releaseData() {
+    if (!_dataArray.empty()) {
+        for (auto* data : _dataArray) {
+            CC_SAFE_DELETE_ARRAY(data);
+        }
+    _dataArray.clear();
+    }
+    CC_SAFE_DELETE(_realTimeJointTexture);
+    if (!_buffers.empty()) {
+        for (gfx::Buffer *buffer : _buffers) {
+            CC_SAFE_DESTROY(buffer);
+        }
+        _buffers.clear();
+    }
+}
+
 } // namespace cc

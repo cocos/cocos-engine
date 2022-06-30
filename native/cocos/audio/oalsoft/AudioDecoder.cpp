@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "audio/oalsoft/AudioDecoder.h"
+#include <stdint.h>
 #include <string.h>
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
@@ -37,12 +38,7 @@
 namespace cc {
 
 AudioDecoder::AudioDecoder()
-: _isOpened(false),
-  _totalFrames(0),
-  _bytesPerFrame(0),
-  _sampleRate(0),
-  _channelCount(0) {
-}
+: _isOpened(false) {}
 
 AudioDecoder::~AudioDecoder() {
 }
@@ -55,31 +51,39 @@ uint32_t AudioDecoder::readFixedFrames(uint32_t framesToRead, char *pcmBuf) {
     uint32_t framesRead = 0;
     uint32_t framesReadOnce = 0;
     do {
-        framesReadOnce = read(framesToRead - framesRead, pcmBuf + framesRead * _bytesPerFrame);
+        framesReadOnce = read(framesToRead - framesRead, pcmBuf + framesRead * _pcmHeader.bytesPerFrame);
         framesRead += framesReadOnce;
     } while (framesReadOnce != 0 && framesRead < framesToRead);
 
     if (framesRead < framesToRead) {
-        memset(pcmBuf + framesRead * _bytesPerFrame, 0x00, (framesToRead - framesRead) * _bytesPerFrame);
+        memset(pcmBuf + framesRead * _pcmHeader.bytesPerFrame, 0x00, (framesToRead - framesRead) * _pcmHeader.bytesPerFrame);
     }
 
     return framesRead;
 }
 
 uint32_t AudioDecoder::getTotalFrames() const {
-    return _totalFrames;
+    return _pcmHeader.totalFrames;
 }
 
 uint32_t AudioDecoder::getBytesPerFrame() const {
-    return _bytesPerFrame;
+    return _pcmHeader.bytesPerFrame;
 }
 
 uint32_t AudioDecoder::getSampleRate() const {
-    return _sampleRate;
+    return _pcmHeader.sampleRate;
 }
 
 uint32_t AudioDecoder::getChannelCount() const {
-    return _channelCount;
+    return _pcmHeader.channelCount;
+}
+
+AudioDataFormat AudioDecoder::getDataFormat() const {
+    return _pcmHeader.dataFormat;
+}
+
+PCMHeader AudioDecoder::getPCMHeader() const {
+    return _pcmHeader;
 }
 
 } // namespace cc

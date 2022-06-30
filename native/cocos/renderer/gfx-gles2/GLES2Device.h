@@ -83,6 +83,16 @@ public:
         });
     }
 
+    inline uint8_t *getStagingBuffer(uint32_t size = 0) {
+        if (size > _stagingBufferSize) {
+            CC_FREE(_stagingBuffer);
+            _stagingBuffer = static_cast<uint8_t *>(CC_MALLOC(size));
+            _stagingBufferSize = size;
+        }
+
+        return _stagingBuffer;
+    }
+
     // check the specified format is texture-exclusive (no renderbuffers allowed)
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
 
@@ -134,6 +144,9 @@ protected:
     GLESBindingMapping _bindingMappings;
 
     ccstd::vector<ccstd::string> _extensions;
+
+    uint8_t *_stagingBuffer{nullptr};
+    uint32_t _stagingBufferSize{0};
 };
 
 } // namespace gfx

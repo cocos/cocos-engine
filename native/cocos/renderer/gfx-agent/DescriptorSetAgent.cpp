@@ -45,7 +45,7 @@ DescriptorSetAgent::~DescriptorSetAgent() {
         DescriptorSetDestruct,
         actor, _actor,
         {
-            CC_SAFE_DELETE(actor);
+            actor = nullptr;
         });
 }
 
@@ -85,6 +85,17 @@ void DescriptorSetAgent::update() {
         actor, getActor(),
         {
             actor->update();
+        });
+}
+
+void DescriptorSetAgent::forceUpdate() {
+    _isDirty = false;
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        DescriptorSetForceUpdate,
+        actor, getActor(),
+        {
+            actor->forceUpdate();
         });
 }
 

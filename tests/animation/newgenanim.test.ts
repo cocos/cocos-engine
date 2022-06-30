@@ -168,7 +168,58 @@ describe('NewGen Anim', () => {
         const bVar = graph.getVariable('b');
         expect(bVar.type).toBe(VariableType.FLOAT);
         expect(bVar.value).toBe(2.0);
-    })
+    });
+
+    test('Rename a variable', () => {
+        const animationGraph = new AnimationGraph();
+        animationGraph.addFloat('a', 3.14);
+        animationGraph.addBoolean('b', true);
+        animationGraph.addInteger('c', 66);
+        animationGraph.addTrigger('d', true);
+
+        const layer = animationGraph.addLayer();
+        const stateMachine = layer.stateMachine;
+        const motion = stateMachine.addMotion();
+        motion.speedMultiplier = 'a';
+
+        const expectedSnapshot: Array<[string, { type: VariableType, value: any; }]> = [
+            ['a', { type: VariableType.FLOAT, value: 3.14 }],
+            ['b', { type: VariableType.BOOLEAN, value: true }],
+            ['c', { type: VariableType.INTEGER, value: 66 }],
+            ['d', { type: VariableType.TRIGGER, value: true }],
+        ];
+        const check = () => {
+            // Type, value, order are all retained.
+            expect([...animationGraph.variables].map(([s, w]) =>
+                [s, { type: w.type, value: w.value }])).toStrictEqual(expectedSnapshot);
+        };
+
+        // Original name does not exist.
+        animationGraph.renameVariable('x', 'y');
+        check();
+
+        // New name does exist.
+        animationGraph.renameVariable('a', 'b');
+        check();
+
+        // Rename the first.
+        animationGraph.renameVariable('a', 'A');
+        expectedSnapshot[0][0] = 'A';
+        check();
+
+        // Rename the last.
+        animationGraph.renameVariable('d', 'D');
+        expectedSnapshot[3][0] = 'D';
+        check();
+
+        // The order is retained.
+        animationGraph.renameVariable('b', 'B');
+        expectedSnapshot[1][0] = 'B';
+        check();
+
+        // Renaming does not touch existing bindings.
+        expect(motion.speedMultiplier).toBe('a');
+    });
 
     test('Bugfix cocos/3d-tasks#11980: alter reset mode of trigger variable', () => {
         const animationGraph = new AnimationGraph();
@@ -279,6 +330,121 @@ describe('NewGen Anim', () => {
             expect(Array.from(layerGraph.getTransitionsBetween(n1, n3))).toBeArrayOfSize(0);
 
             layerGraph.disconnect(n1, n4);
+        });
+
+        test('Adjust the transition priority', () => {
+            const graph = new AnimationGraph();
+            const mainLayer = graph.addLayer();
+            const { stateMachine } = mainLayer;
+            
+            const m0 = stateMachine.addMotion();
+            const m1 = stateMachine.addMotion();
+            const m2 = stateMachine.addMotion();
+            const m3 = stateMachine.addMotion();
+
+            const t01_0 = stateMachine.connect(m0, m1);
+
+            // 1 transition
+            stateMachine.adjustTransitionPriority(t01_0, 0);
+
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+            ]);
+
+            // 4 transitions
+            const t01_1 = stateMachine.connect(m0, m1);
+            const t02_0 = stateMachine.connect(m0, m2);
+            const t03_0 = stateMachine.connect(m0, m3);
+            const t03_1 = stateMachine.connect(m0, m3);
+
+            // By default, later-added transitions have lower priorities.
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t01_1,
+                t02_0,
+                t03_0,
+                t03_1,
+            ]);
+
+            // Do nothing if diff is zero
+            stateMachine.adjustTransitionPriority(t01_1, 0);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t01_1,
+                t02_0,
+                t03_0,
+                t03_1,
+            ]);
+
+            // Adjust 1 -> 3
+            stateMachine.adjustTransitionPriority(t01_1, 2);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t02_0,
+                t03_0,
+                t01_1,
+                t03_1,
+            ]);
+
+            // Adjust 1 -> 3 again
+            stateMachine.adjustTransitionPriority(t02_0, 2);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t03_0,
+                t01_1,
+                t02_0,
+                t03_1,
+            ]);
+
+            // Adjust 3 -> 1
+            stateMachine.adjustTransitionPriority(t02_0, -2);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t02_0,
+                t03_0,
+                t01_1,
+                t03_1,
+            ]);
+
+            // Adjust 3 -> 0
+            stateMachine.adjustTransitionPriority(t01_1, -3);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_1,
+                t01_0,
+                t02_0,
+                t03_0,
+                t03_1,
+            ]);
+
+            // Adjust 1 -> 4
+            stateMachine.adjustTransitionPriority(t01_0, 3);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_1,
+                t02_0,
+                t03_0,
+                t03_1,
+                t01_0,
+            ]);
+
+            // Adjust 1 -> 7(overflow)
+            stateMachine.adjustTransitionPriority(t02_0, 6);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_1,
+                t03_0,
+                t03_1,
+                t01_0,
+                t02_0,
+            ]);
+
+            // Adjust 3 -> -2(underflow)
+            stateMachine.adjustTransitionPriority(t01_0, -6);
+            expect(Array.from(stateMachine.getOutgoings(m0))).toStrictEqual([
+                t01_0,
+                t01_1,
+                t03_0,
+                t03_1,
+                t02_0,
+            ]);
         });
     });
 
@@ -1114,7 +1280,7 @@ describe('NewGen Anim', () => {
         });
 
         describe(`Transition priority`, () => {
-            test('Transitions to different nodes, use the first-connected and first-matched transition', () => {
+            test('Transitions to different nodes', () => {
                 const animationGraph = new AnimationGraph();
                 const layer = animationGraph.addLayer();
                 const graph = layer.stateMachine;
@@ -1174,6 +1340,65 @@ describe('NewGen Anim', () => {
                     });
                 }
                 // #endregion
+            });
+
+            test('Non-default priority', () => {
+                const animationGraph = new AnimationGraph();
+                const layer = animationGraph.addLayer();
+                const graph = layer.stateMachine;
+                const m0 = graph.addMotion();
+                m0.motion = createEmptyClipMotion(0.5);
+                m0.name = 'm0';
+                const m1 = graph.addMotion();
+                m1.name = 'm1';
+                m1.motion = createEmptyClipMotion(0.6);
+                const m2 = graph.addMotion();
+                m2.name = 'm2';
+                m2.motion = createEmptyClipMotion(0.7);
+                const m3 = graph.addMotion();
+                m3.name = 'm3';
+                m3.motion = createEmptyClipMotion(0.8);
+
+                animationGraph.addTrigger('t');
+
+                graph.connect(graph.entryState, m0);
+                const t1 = graph.connect(m0, m1);
+                t1.exitConditionEnabled = false;
+                const [t1Condition] = t1.conditions = [new TriggerCondition()];
+                t1Condition.trigger = 't';
+                const t2 = graph.connect(m0, m2);
+                t2.exitConditionEnabled = false;
+                const [t2Condition] = t2.conditions = [new TriggerCondition()];
+                t2Condition.trigger = 't';
+                const t3 = graph.connect(m0, m3);
+                t3.exitConditionEnabled = false;
+                const [t3Condition] = t3.conditions = [new TriggerCondition()];
+                t3Condition.trigger = 't';
+
+                graph.adjustTransitionPriority(t2, -1);
+
+                const graphEval = createAnimationGraphEval(animationGraph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(0.2);
+                expectAnimationGraphEvalStatusLayer0(graphEval, {
+                    currentNode: {
+                        __DEBUG_ID__: 'm0',
+                    },
+                });
+
+                graphEval.setValue('t', true);
+                graphUpdater.step(0.1);
+                expectAnimationGraphEvalStatusLayer0(graphEval, {
+                    currentNode: {
+                        __DEBUG_ID__: 'm0',
+                    },
+                    transition: {
+                        nextNode: {
+                            __DEBUG_ID__: 'm2',
+                        },
+                    },
+                });
             });
         });
 

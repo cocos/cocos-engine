@@ -13,6 +13,7 @@ set(ENGINE_NAME cocos_engine)
 cc_set_if_undefined(USE_SE_V8                ON)
 cc_set_if_undefined(USE_SE_SM                OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
+cc_set_if_undefined(USE_V8_DEBUGGER_FORCE    OFF)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
@@ -121,6 +122,7 @@ cc_inspect_values(
     CC_USE_VULKAN
     USE_SE_V8
     USE_V8_DEBUGGER
+    USE_V8_DEBUGGER_FORCE
     USE_SE_SM
     USE_SOCKET
     USE_AUDIO
@@ -152,6 +154,7 @@ if(USE_AUDIO)
     cocos_source_files(
                      cocos/audio/AudioEngine.cpp
                      cocos/audio/include/AudioEngine.h
+                     cocos/audio/include/AudioDef.h
                      cocos/audio/include/Export.h
     )
     if(WINDOWS)
@@ -992,6 +995,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/states/GFXSampler.h
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.cpp
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
@@ -1532,6 +1537,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/states/VKSampler.h
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.h
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.h
     )
 
     if(ANDROID)
@@ -2310,7 +2317,12 @@ cocos_source_files(
             cocos/bindings/manual/jsb_pipeline_manual.h
             cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
-
+if(USE_AUDIO)
+    cocos_source_files(
+            cocos/bindings/manual/jsb_audio_manual.cpp
+            cocos/bindings/manual/jsb_audio_manual.h
+    )
+endif()
 if(USE_SOCKET)
     cocos_source_files(
                      cocos/bindings/manual/jsb_socketio.cpp
@@ -2809,7 +2821,8 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
-        $<IF:$<BOOL:${USE_V8_DEBUGGER}>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
+        # USE_V8_DEBUGGER = USE_V8_DEBUGGER && (in_debug_mode OR USE_V8_DEBUGGER_FORCEON)
+        $<IF:$<AND:$<OR:$<CONFIG:Debug>,$<BOOL:${USE_V8_DEBUGGER_FORCE}>>,$<BOOL:${USE_V8_DEBUGGER}>>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
         $<IF:$<BOOL:${USE_MIDDLEWARE}>,CC_USE_MIDDLEWARE=1,CC_USE_MIDDLEWARE=0>
         $<IF:$<BOOL:${USE_SPINE}>,CC_USE_SPINE=1,CC_USE_SPINE=0>
         $<IF:$<BOOL:${USE_DRAGONBONES}>,CC_USE_DRAGONBONES=1,CC_USE_DRAGONBONES=0>

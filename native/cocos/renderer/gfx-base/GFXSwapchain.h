@@ -27,12 +27,13 @@
 
 #include "GFXTexture.h"
 #include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Swapchain : public GFXObject {
+class CC_DLL Swapchain : public GFXObject, public RefCounted {
 public:
     Swapchain();
     ~Swapchain() override;

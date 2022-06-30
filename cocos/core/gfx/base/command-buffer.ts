@@ -41,6 +41,7 @@ import {
 } from './define';
 import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
+import { BufferBarrier } from './states/buffer-barrier';
 
 /**
  * @en GFX command buffer.
@@ -262,6 +263,9 @@ export abstract class CommandBuffer extends GFXObject {
      * @param barrier The global memory barrier to apply.
      * @param textureBarriers The texture memory barriers to apply.
      */
-    public abstract pipelineBarrier (barrier: Readonly<GeneralBarrier> | null, textureBarriers?: Readonly<TextureBarrier[]>,
+    public abstract pipelineBarrier (barrier: Readonly<GeneralBarrier> | null,
+        bufferBarriers?: Readonly<BufferBarrier[]>,
+        buffers?: Readonly<Buffer[]>,
+        textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>): void;
 }

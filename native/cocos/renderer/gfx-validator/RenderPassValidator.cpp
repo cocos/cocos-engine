@@ -39,7 +39,6 @@ RenderPassValidator::RenderPassValidator(RenderPass *actor)
 
 RenderPassValidator::~RenderPassValidator() {
     DeviceResourceTracker<RenderPass>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void RenderPassValidator::doInit(const RenderPassInfo &info) {

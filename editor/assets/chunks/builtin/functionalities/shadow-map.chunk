@@ -206,30 +206,33 @@ float CCGetLinearDepth(vec3 worldPos) {
   }
   
 
-  int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out mat4 matShadowView, vec3 worldPos) {
+  int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec4 matShadowViewLine0, out vec4 matShadowViewLine1, out vec4 matShadowViewLine2, out vec4 matShadowViewLine3, vec3 worldPos) {
+    int layer = -1;
     for (int i = 0; i < NUMCASCADES; i++) {
       vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
       vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
-      if (clipPos.x < (0.0 + cc_csmInfo.y) || clipPos.x > (1.0 - cc_csmInfo.y) ||
-          clipPos.y < (0.0 + cc_csmInfo.y) || clipPos.y > (1.0 - cc_csmInfo.y) ||
-          clipPos.z < 0.0 || clipPos.z > 1.0) {
-        continue;
+      if (clipPos.x >= (0.0 + cc_csmInfo.y) && clipPos.x <= (1.0 - cc_csmInfo.y) &&
+          clipPos.y >= (0.0 + cc_csmInfo.y) && clipPos.y <= (1.0 - cc_csmInfo.y) &&
+          clipPos.z >= 0.0 && clipPos.z <= 1.0 && layer < 0) {
+        csmPos = cc_matCSMViewProjAtlas[i] * vec4(worldPos.xyz, 1.0);
+        shadowProjDepthInfo = cc_csmProjDepthInfo[i];
+        shadowProjInfo = cc_csmProjInfo[i];
+        matShadowViewLine0 = cc_matCSMView[i][0];
+        matShadowViewLine1 = cc_matCSMView[i][1];
+        matShadowViewLine2 = cc_matCSMView[i][2];
+        matShadowViewLine3 = cc_matCSMView[i][3];
+        layer = i;
       }
-      csmPos = cc_matCSMViewProjAtlas[i] * vec4(worldPos.xyz, 1.0);
-	  shadowProjDepthInfo = cc_csmProjDepthInfo[i];
-	  shadowProjInfo = cc_csmProjInfo[i];
-	  matShadowView = cc_matCSMView[i];
-      return i;
     }
-    return -1;
+    return layer;
   }
 
   float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
   {
     vec4 csmPos = vec4(1.0);
-	vec4 shadowProjDepthInfo, shadowProjInfo;
-	mat4 matLightView;
-    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView, worldPos);
+    vec4 shadowProjDepthInfo, shadowProjInfo;
+    mat4 matLightView;
+    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView[0], matLightView[1], matLightView[2], matLightView[3], worldPos);
     if (level < 0) { return 1.0; }
     float realtimeShadow = 1.0;
 

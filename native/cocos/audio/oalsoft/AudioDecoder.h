@@ -27,6 +27,9 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
+
+#include <audio/include/AudioDef.h>
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include "vorbis/vorbisfile.h"
@@ -110,16 +113,17 @@ public:
      */
     virtual uint32_t getChannelCount() const;
 
+
+    virtual AudioDataFormat getDataFormat() const;
+
+    virtual PCMHeader getPCMHeader() const;
+
 protected:
     AudioDecoder();
     virtual ~AudioDecoder();
 
     bool _isOpened;
-    uint32_t _totalFrames;
-    uint32_t _bytesPerFrame;
-    uint32_t _sampleRate;
-    uint32_t _channelCount;
-
+    PCMHeader _pcmHeader;
     void *_fsHooks = nullptr;
 
     friend class AudioDecoderManager;

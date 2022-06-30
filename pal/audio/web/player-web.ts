@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
@@ -236,6 +236,14 @@ export class AudioPlayerWeb implements OperationQueueable {
                 resolve(oneShotAudio);
             }).catch(reject);
         });
+    }
+
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
     }
 
     private _onHide () {

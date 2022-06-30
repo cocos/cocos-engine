@@ -345,9 +345,13 @@ export class Director extends EventTarget {
             if (existNode) {
                 // scene also contains the persist node, select the old one
                 const index = existNode.getSiblingIndex();
+                // restore to the old saving flag
+                node.hideFlags &= ~CCObject.Flags.DontSave;
+                node.hideFlags |= CCObject.Flags.DontSave & existNode.hideFlags;
                 existNode._destroyImmediate();
                 scene.insertChild(node, index);
             } else {
+                node.hideFlags |= CCObject.Flags.DontSave;
                 // @ts-expect-error insert to new scene
                 node.parent = scene;
             }

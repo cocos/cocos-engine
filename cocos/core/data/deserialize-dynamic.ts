@@ -848,7 +848,9 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy(EditorExtends.serialize.asAsset);
+        details.assignAssetsBy((uuid, options) => {
+            EditorExtends.serialize.asAsset(uuid, options.type);
+        });
     }
 
     // var afterJson = JSON.stringify(data, null, 2);

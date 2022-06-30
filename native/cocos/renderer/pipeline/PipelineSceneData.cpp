@@ -41,7 +41,7 @@ namespace cc {
 namespace pipeline {
 
 PipelineSceneData::PipelineSceneData() {
-    _fog = ccnew scene::Fog(); // cjh how to delete?
+    _fog = ccnew scene::Fog();
     _ambient = ccnew scene::Ambient();
     _skybox = ccnew scene::Skybox();
     _shadow = ccnew scene::Shadows();
@@ -50,7 +50,7 @@ PipelineSceneData::PipelineSceneData() {
 }
 
 PipelineSceneData::~PipelineSceneData() {
-    CC_SAFE_DELETE(_fog); // cjh correct ?
+    CC_SAFE_DELETE(_fog);
     CC_SAFE_DELETE(_ambient);
     CC_SAFE_DELETE(_skybox);
     CC_SAFE_DELETE(_shadow);
@@ -66,23 +66,17 @@ void PipelineSceneData::activate(gfx::Device *device) {
 }
 
 void PipelineSceneData::destroy() {
-    for (const auto &pair : _shadowFrameBufferMap) {
-        pair.second->destroy();
-        delete pair.second;
-    }
-
     _shadowFrameBufferMap.clear();
     _validPunctualLights.clear();
 
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryInputAssembler);
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryVertexBuffer);
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryIndicesBuffer);
+    _occlusionQueryInputAssembler = nullptr;
+    _occlusionQueryVertexBuffer = nullptr;
+    _occlusionQueryIndicesBuffer = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
-    if (!_occlusionQueryInputAssembler) {
-        _occlusionQueryInputAssembler = createOcclusionQueryIA();
-    }
+    CC_ASSERT(!_occlusionQueryInputAssembler);
+    _occlusionQueryInputAssembler = createOcclusionQueryIA();
 
     if (!_occlusionQueryMaterial) {
         _occlusionQueryMaterial = ccnew Material();

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/Macros.h"
+#include "base/Ptr.h"
 #include "base/RefVector.h"
 #include "base/std/optional.h"
 #include "renderer/gfx-base/GFXDef-common.h"

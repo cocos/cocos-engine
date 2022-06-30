@@ -31,9 +31,13 @@
     y = (tempY + 0.5) * invSize;
   }
 #else
-  #pragma define JOINT_UNIFORM_CAPACITY 30
-  #pragma builtin(local)
-  layout(set = 2, binding = 3) uniform CCSkinning {
-    highp vec4 cc_joints[JOINT_UNIFORM_CAPACITY * 3];
-  };
+  #if CC_USE_REAL_TIME_JOINT_TEXTURE
+    #pragma builtin(local)
+    layout(set = 2, binding = 6) uniform highp sampler2D cc_realtimeJoint;
+  #else
+    #pragma builtin(local)
+    layout(set = 2, binding = 3) uniform CCSkinning {
+      highp vec4 cc_joints[CC_JOINT_UNIFORM_CAPACITY * 3];
+    };
+  #endif
 #endif

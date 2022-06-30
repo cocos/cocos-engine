@@ -113,7 +113,6 @@ private:
     uint32_t _bytesPerFrame;
     uint32_t _sampleRate;
     uint32_t _channelCount;
-
     AudioStreamBasicDescription _outputFormat;
 };
 

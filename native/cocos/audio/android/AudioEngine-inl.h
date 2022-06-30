@@ -20,7 +20,7 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
+THE SOFTWARE.
  ****************************************************************************/
 #pragma once
 
@@ -31,7 +31,7 @@
 #include "base/Utils.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-
+#include "audio/include/AudioDef.h"
 #define MAX_AUDIOINSTANCES 13
 
 #define ERRORLOG(msg) log("fun:%s,line:%d,msg:%s", __func__, __LINE__, #msg)
@@ -72,6 +72,9 @@ public:
     void onPause();
 
     void setAudioFocusForAllPlayers(bool isFocus);
+
+    PCMHeader getPCMHeader(const char* url);
+    std::vector<uint8_t> getOriginalPCMBuffer(const char* url, uint32_t channelID);
 
 private:
     // engine interfaces

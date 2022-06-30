@@ -34,7 +34,7 @@ class PhysXTerrain final : public PhysXShape, public ITerrainShape {
 public:
     PhysXTerrain();
     ~PhysXTerrain() override = default;
-    void setTerrain(uintptr_t handle, float rs, float cs, float hs) override;
+    void setTerrain(uint32_t objectID, float rs, float cs, float hs) override;
     void updateScale() override;
     void updateCenter() override;
     void setAsTrigger(bool v) override;

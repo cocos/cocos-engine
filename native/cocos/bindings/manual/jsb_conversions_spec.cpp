@@ -20,12 +20,11 @@
 ****************************************************************************/
 
 #include <sstream>
-#include "jsb_conversions.h"
-
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
+#include "cocos/editor-support/middleware-adapter.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/math/Quaternion.h"
 #include "cocos/math/Vec2.h"
@@ -35,6 +34,7 @@
 #include "core/assets/TextureCube.h"
 #include "core/geometry/AABB.h"
 #include "extensions/cocos-ext.h"
+#include "jsb_conversions.h"
 #include "network/Downloader.h"
 
 #include "bindings/auto/jsb_assets_auto.h"
@@ -1574,8 +1574,8 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerE
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::TriggerEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::TriggerEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
     }
     to.setObject(array);
@@ -1609,8 +1609,8 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::ContactEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::ContactEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
         array->setArrayElement(static_cast<uint>(t + 3), [&]() -> se::Value {
             auto obj = se::Value();
@@ -1624,7 +1624,7 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
 
 bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("shape", se::Value(static_cast<double>(from.shape)));
+    obj->setProperty("shape", se::Value(from.shape));
     obj->setProperty("distance", se::Value(from.distance));
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);

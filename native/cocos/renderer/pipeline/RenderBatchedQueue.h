@@ -52,6 +52,7 @@ public:
     bool empty() const { return _queues.empty(); }
 
 private:
+    // weak reference
     ccstd::unordered_set<BatchedBuffer *> _queues;
 };
 

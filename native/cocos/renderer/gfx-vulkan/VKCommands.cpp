@@ -1026,7 +1026,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
 
     VkPipelineRasterizationStateCreateInfo rasterizationState{VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO};
 
-    //rasterizationState.depthClampEnable;
+    // rasterizationState.depthClampEnable;
     rasterizationState.rasterizerDiscardEnable = gpuPipelineState->rs.isDiscard;
     rasterizationState.polygonMode = VK_POLYGON_MODES[toNumber(gpuPipelineState->rs.polygonMode)];
     rasterizationState.cullMode = VK_CULL_MODES[toNumber(gpuPipelineState->rs.cullMode)];
@@ -1043,10 +1043,10 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     VkPipelineMultisampleStateCreateInfo multisampleState{VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO};
     multisampleState.rasterizationSamples = gpuPipelineState->gpuRenderPass->sampleCounts[gpuPipelineState->subpass];
     multisampleState.alphaToCoverageEnable = gpuPipelineState->bs.isA2C;
-    //multisampleState.sampleShadingEnable;
-    //multisampleState.minSampleShading;
-    //multisampleState.pSampleMask;
-    //multisampleState.alphaToOneEnable;
+    // multisampleState.sampleShadingEnable;
+    // multisampleState.minSampleShading;
+    // multisampleState.pSampleMask;
+    // multisampleState.alphaToOneEnable;
     createInfo.pMultisampleState = &multisampleState;
 
     ///////////////////// Depth Stencil State /////////////////////
@@ -1075,9 +1075,9 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
         gpuPipelineState->dss.stencilWriteMaskBack,
         gpuPipelineState->dss.stencilRefBack,
     };
-    //depthStencilState.depthBoundsTestEnable;
-    //depthStencilState.minDepthBounds;
-    //depthStencilState.maxDepthBounds;
+    // depthStencilState.depthBoundsTestEnable;
+    // depthStencilState.minDepthBounds;
+    // depthStencilState.maxDepthBounds;
     createInfo.pDepthStencilState = &depthStencilState;
 
     ///////////////////// Blend State /////////////////////
@@ -1102,8 +1102,8 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     Color &blendColor = gpuPipelineState->bs.blendColor;
 
     VkPipelineColorBlendStateCreateInfo colorBlendState{VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO};
-    //colorBlendState.logicOpEnable;
-    //colorBlendState.logicOp;
+    // colorBlendState.logicOpEnable;
+    // colorBlendState.logicOp;
     colorBlendState.attachmentCount = utils::toUint(blendTargetCount);
     colorBlendState.pAttachments = blendTargets.data();
     colorBlendState.blendConstants[0] = blendColor.x;
@@ -1250,42 +1250,94 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
                              0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
     }
 
+    uint32_t optimalOffsetAlignment = device->gpuContext()->physicalDeviceProperties.limits.optimalBufferCopyOffsetAlignment;
+    uint32_t optimalRowPitchAlignment = device->gpuContext()->physicalDeviceProperties.limits.optimalBufferCopyRowPitchAlignment;
+
+    auto blockSize = formatAlignment(gpuTexture->format);
+
+    uint32_t idx = 0;
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region{regions[i]};
 
-        uint32_t regionWidth = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
-        uint32_t regionHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
-        size_t regionSize = formatSize(gpuTexture->format, regionWidth, regionHeight, region.texExtent.depth);
+        Offset offset{
+            region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first)),
+            region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second)),
+            region.texOffset.z,
+        };
+
+        Extent extent{
+            utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first)),
+            utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second)),
+            region.texExtent.depth,
+        };
+
+        Extent stride{
+            region.buffStride > 0 ? region.buffStride : extent.width,
+            region.buffTexHeight > 0 ? region.buffTexHeight : extent.height,
+            0, // useless
+        };
+
+        uint32_t layerCount = region.texSubres.layerCount;
+        uint32_t baseLayer = region.texSubres.baseArrayLayer;
+
+        uint32_t rowPitchSize = formatSize(gpuTexture->format, extent.width, 1, 1);
+        rowPitchSize = utils::alignTo(rowPitchSize, optimalRowPitchAlignment);
+        // what if the optimal alignment is smaller than a block size
+        uint32_t rowPitch = rowPitchSize / formatSize(gpuTexture->format, 1, 1, 1) * blockSize.first;
+
+        uint32_t destRowSize = formatSize(gpuTexture->format, extent.width, 1, 1);
+        uint32_t destSliceSize = formatSize(gpuTexture->format, extent.width, extent.height, 1);
+        uint32_t buffStrideSize = formatSize(gpuTexture->format, stride.width, 1, 1);
+        uint32_t buffSliceSize = formatSize(gpuTexture->format, stride.width, stride.height, 1);
 
         // calculate the max height to upload per staging buffer chunk
-        uint32_t stepHeight = regionHeight;
-        size_t stepSize = regionSize;
-        uint32_t heightAlignment = formatAlignment(gpuTexture->format).second; // for compressed textures
-        while (stepSize > CCVKGPUStagingBufferPool::CHUNK_SIZE) {
-            stepHeight = utils::alignTo((stepHeight - 1) / 2 + 1, heightAlignment);
-            stepSize = formatSize(gpuTexture->format, regionWidth, stepHeight, region.texExtent.depth);
+        uint32_t chunkHeight = extent.height;
+        size_t chunkSize = rowPitchSize * (extent.height / blockSize.second);
+        while (chunkSize > CCVKGPUStagingBufferPool::CHUNK_SIZE) {
+            chunkHeight = utils::alignTo((chunkHeight - 1) / 2 + 1, blockSize.second);
+            chunkSize = rowPitchSize * (chunkHeight / blockSize.second);
         }
 
-        // upload in chunks
-        for (size_t h = 0U, s = 0U; h < regionHeight; h += stepHeight, s += stepSize) {
-            auto heightOffset = static_cast<int32_t>(h);
-            size_t curSize = std::min(regionSize - s, stepSize);
+        uint32_t destOffset = 0;
+        uint32_t buffOffset = 0;
 
-            CCVKGPUBuffer stagingBuffer;
-            stagingBuffer.size = curSize;
-            device->gpuStagingBufferPool()->alloc(&stagingBuffer, GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].size);
-            memcpy(stagingBuffer.mappedData, buffers[i] + s, curSize);
+        uint32_t destWidth = region.texExtent.width + offset.x == gpuTexture->width ? region.texExtent.width : extent.width;
+        uint32_t destHeight = region.texExtent.height + offset.y == gpuTexture->height ? region.texExtent.height : extent.height;
 
-            VkBufferImageCopy stagingRegion;
-            stagingRegion.bufferOffset = stagingBuffer.startOffset;
-            stagingRegion.bufferRowLength = region.buffStride;
-            stagingRegion.bufferImageHeight = region.buffTexHeight;
-            stagingRegion.imageSubresource = {gpuTexture->aspectMask, region.texSubres.mipLevel, region.texSubres.baseArrayLayer, region.texSubres.layerCount};
-            stagingRegion.imageOffset = {region.texOffset.x, region.texOffset.y + heightOffset, region.texOffset.z};
-            stagingRegion.imageExtent = {region.texExtent.width, std::min(stepHeight, regionHeight - heightOffset), region.texExtent.depth};
+        int32_t heightOffset = 0;
+        uint32_t stepHeight = 0;
+        for (uint32_t l = 0; l < layerCount; l++) {
+            for (uint32_t depth = 0; depth < extent.depth; ++depth) {
+                buffOffset = region.buffOffset + depth * buffSliceSize;
+                // upload in chunks
+                for (uint32_t h = 0U; h < extent.height; h += chunkHeight) {
+                    destOffset = 0;
+                    heightOffset = static_cast<int32_t>(h);
+                    stepHeight = std::min(chunkHeight, extent.height - h);
 
-            vkCmdCopyBufferToImage(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuTexture->vkImage,
-                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &stagingRegion);
+                    CCVKGPUBuffer stagingBuffer;
+                    stagingBuffer.size = rowPitchSize * (stepHeight / blockSize.second);
+                    device->gpuStagingBufferPool()->alloc(&stagingBuffer, optimalOffsetAlignment);
+
+                    for (uint32_t j = 0; j < stepHeight; j += blockSize.second) {
+                        memcpy(stagingBuffer.mappedData + destOffset, buffers[idx] + buffOffset, destRowSize);
+                        destOffset += rowPitchSize;
+                        buffOffset += buffStrideSize;
+                    }
+
+                    VkBufferImageCopy stagingRegion;
+                    stagingRegion.bufferOffset = stagingBuffer.startOffset;
+                    stagingRegion.bufferRowLength = rowPitch;
+                    stagingRegion.bufferImageHeight = stepHeight;
+                    stagingRegion.imageSubresource = {gpuTexture->aspectMask, region.texSubres.mipLevel, l + baseLayer, 1};
+                    stagingRegion.imageOffset = {offset.x, offset.y + heightOffset, offset.z + static_cast<int>(depth)};
+                    stagingRegion.imageExtent = {destWidth, std::min(stepHeight, destHeight - heightOffset), 1};
+
+                    vkCmdCopyBufferToImage(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuTexture->vkImage,
+                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &stagingRegion);
+                }
+            }
+            idx++;
         }
     }
 

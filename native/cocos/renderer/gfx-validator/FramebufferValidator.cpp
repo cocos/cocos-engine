@@ -42,7 +42,6 @@ FramebufferValidator::FramebufferValidator(Framebuffer *actor)
 
 FramebufferValidator::~FramebufferValidator() {
     DeviceResourceTracker<Framebuffer>::erase(this);
-    CC_SAFE_DELETE(_actor);
 }
 
 void FramebufferValidator::doInit(const FramebufferInfo &info) {
