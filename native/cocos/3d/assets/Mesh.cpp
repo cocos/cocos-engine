@@ -372,7 +372,7 @@ void Mesh::initialize() {
         }
 
         _isMeshDataUploaded = true;
-        if (_allowReadWriteData) {
+        if (!_allowReadWriteData) {
             releaseData();
         }
     }
@@ -1256,7 +1256,7 @@ bool Mesh::validate() const {
 
 void Mesh::setAllowReadWriteData(bool allowReadWriteData) {
     _allowReadWriteData = allowReadWriteData;
-    if (_isMeshDataUploaded && _allowReadWriteData) {
+    if (_isMeshDataUploaded && !_allowReadWriteData) {
         releaseData();
     }
 }

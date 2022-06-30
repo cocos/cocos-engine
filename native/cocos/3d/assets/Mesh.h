@@ -455,7 +455,7 @@ private:
     Uint8Array _data;
 
     bool _initialized{false};
-    bool _allowReadWriteData{false};
+    bool _allowReadWriteData{true};
     bool _isMeshDataUploaded{false};
 
     RenderingSubMeshList _renderingSubMeshes;
