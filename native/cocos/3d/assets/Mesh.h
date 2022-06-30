@@ -411,7 +411,7 @@ public:
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
     bool copyIndices(index_t primitiveIndex, TypedArray &outputArray);
-    
+
     /**
      * @en Read the format by attributeName of submesh
      * @zh 根据属性名读取子网格的属性信息。
@@ -419,7 +419,7 @@ public:
      * @param attributeName @en Attribute name @zh 属性名称
      * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
      */
-    const gfx::FormatInfo* readAttributeFormat(index_t primitiveIndex, const char *attributeName);
+    const gfx::FormatInfo *readAttributeFormat(index_t primitiveIndex, const char *attributeName);
 
     /**
      * @en update dynamic sub mesh geometry
