@@ -429,7 +429,7 @@ public:
      */
     void updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry);
 
-    void releaseMeshDataWhenPossible();
+    void setAllowReadWriteData(bool allowReadWriteData);
 
 private:
     using AccessorType = std::function<void(const IVertexBundle &vertexBundle, int32_t iAttribute)>;
@@ -442,7 +442,7 @@ private:
     void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
-    void releaseMeshData();
+    void releaseData();
 
     static TypedArray createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count);
 
@@ -455,7 +455,7 @@ private:
     Uint8Array _data;
 
     bool _initialized{false};
-    bool _releaseMeshDataWhenPossible{false};
+    bool _allowReadWriteData{false};
     bool _isMeshDataUploaded{false};
 
     RenderingSubMeshList _renderingSubMeshes;

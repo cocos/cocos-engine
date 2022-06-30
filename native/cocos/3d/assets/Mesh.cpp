@@ -34,15 +34,11 @@
 #include "math/Quaternion.h"
 #include "renderer/gfx-base/GFXDevice.h"
 
-#define CC_OPTIMIZE_MESH_DATA 1
+#define CC_OPTIMIZE_MESH_DATA 0
 
 namespace cc {
 
 namespace {
-
-uint32_t totalReleaseDataBytes = 0;
-uint32_t totalDataBytes = 0;
-uint32_t dataBytesSendToGPU = 0;
 
 uint32_t getOffset(const gfx::AttributeList &attributes, index_t attributeIndex) {
     uint32_t result = 0;
@@ -280,9 +276,6 @@ void Mesh::initialize() {
             return;
         }
 
-        totalDataBytes += _data.byteLength();
-        CC_LOG_INFO("cjh totalDataBytes: %u", totalDataBytes);
-
         auto &buffer = _data;
         gfx::Device *gfxDevice = gfx::Device::getInstance();
         RefVector<gfx::Buffer *> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
@@ -301,9 +294,8 @@ void Mesh::initialize() {
 
                 uint32_t dstStride = idxView.stride;
                 uint32_t dstSize = idxView.length;
-                uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
-
                 if (dstStride == 4) {
+                    uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
 #if CC_OPTIMIZE_MESH_DATA
                     if (vertexCount < 65536) {
                         dstStride >>= 1; // Reduce to short.
@@ -313,7 +305,13 @@ void Mesh::initialize() {
                     }
 #else
                     if (!gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
-                        continue; // Ignore this primitive
+                        if (vertexCount >= 65536) {
+                            CC_LOG_WARNING("Device does not support UINT element index type and vertexCount (%u) is larger than ushort", vertexCount);
+                            continue;
+                        } else {
+                            dstStride >>= 1; // Reduce to short.
+                            dstSize >>= 1;
+                        }
                     }
 #endif
                 }
@@ -334,13 +332,10 @@ void Mesh::initialize() {
                     for (uint32_t j = 0, len = idxView.count; j < len; ++j) {
                         ib16Bit[j] = ib32Bit[j];
                     }
-                    dataBytesSendToGPU += ib16BitLength;
-                    CC_LOG_INFO("cjh dataBytesSendToGPU: %u", dataBytesSendToGPU);
+
                     indexBuffer->update(ib16Bit, ib16BitLength);
                     CC_FREE(ib16Bit);
                 } else {
-                    dataBytesSendToGPU += dstSize;
-                    CC_LOG_INFO("cjh dataBytesSendToGPU: %u", dataBytesSendToGPU);
                     indexBuffer->update(ib);
                 }
             }
@@ -377,8 +372,8 @@ void Mesh::initialize() {
         }
 
         _isMeshDataUploaded = true;
-        if (_releaseMeshDataWhenPossible) {
-            releaseMeshData();
+        if (_allowReadWriteData) {
+            releaseData();
         }
     }
 }
@@ -1255,8 +1250,6 @@ gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *d
                                                       vertexBundle.view.length,
                                                       vertexBundle.view.stride});
 
-        dataBytesSendToGPU += vertexBundle.view.length;
-        CC_LOG_INFO("cjh dataBytesSendToGPU: %u", dataBytesSendToGPU);
         vertexBuffer->update(data->getData() + vertexBundle.view.offset, vertexBundle.view.length);
         buffers.emplace_back(vertexBuffer);
     }
@@ -1272,16 +1265,14 @@ bool Mesh::validate() const {
     return !_renderingSubMeshes.empty() && !_data.empty();
 }
 
-void Mesh::releaseMeshDataWhenPossible() {
-    _releaseMeshDataWhenPossible = true;
-    if (_isMeshDataUploaded) {
-        releaseMeshData();
+void Mesh::setAllowReadWriteData(bool allowReadWriteData) {
+    _allowReadWriteData = allowReadWriteData;
+    if (_isMeshDataUploaded && _allowReadWriteData) {
+        releaseData();
     }
 }
 
-void Mesh::releaseMeshData() {
-    totalReleaseDataBytes += _data.byteLength();
-    CC_LOG_INFO("cjh Mesh totalReleaseDataBytes: %u", totalReleaseDataBytes);
+void Mesh::releaseData() {
 #if CC_OPTIMIZE_MESH_DATA
     _data.clear();
 #endif
