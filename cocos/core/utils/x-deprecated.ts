@@ -362,6 +362,7 @@ export function __checkObsolete__ (checkList: string[]) {
     }
 }
 
+let _cachedProxy;
 /**
  * An internal method to check whether the top level interface is deprecated in namespace.
  * DO NOT USE THIS INTERFACE.
@@ -373,12 +374,15 @@ export function __checkObsolete__ (checkList: string[]) {
  * ```
  * @engineInternal
  */
-export function __checkObsoleteInNamespace__ (namespace: object) {
-    return new Proxy(namespace, {
-        get (target, name, receiver) {
-            // @ts-expect-error name could be a symbol
-            _checkObsoleteByName(name);
-            return Reflect.get(target, name, receiver);
-        },
-    });
+export function __checkObsoleteInNamespace__ (ccNamespace: object) {
+    if (!_cachedProxy) {
+        _cachedProxy = new Proxy(ccNamespace, {
+            get (target, name, receiver) {
+                // @ts-expect-error name could be a symbol
+                _checkObsoleteByName(name);
+                return Reflect.get(target, name, receiver);
+            },
+        });
+    }
+    return _cachedProxy;
 }
