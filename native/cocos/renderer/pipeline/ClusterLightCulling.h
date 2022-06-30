@@ -40,7 +40,7 @@ struct ShaderStrings {
 
 class ClusterLightCulling {
 public:
-    explicit ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline){};
+    explicit ClusterLightCulling(RenderPipeline *pipeline);
     ~ClusterLightCulling();
 
     static constexpr uint32_t CLUSTERS_X = 16;

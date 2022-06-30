@@ -48,6 +48,9 @@ framegraph::StringHandle fgStrHandleClusterLightGridBuffer = framegraph::FrameGr
 framegraph::StringHandle fgStrHandleClusterBuildPass = framegraph::FrameGraph::stringToHandle("clusterBuildPass");
 framegraph::StringHandle fgStrHandleClusterCullingPass = framegraph::FrameGraph::stringToHandle("clusterCullingPass");
 
+ClusterLightCulling::ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline) {
+}
+
 ClusterLightCulling::~ClusterLightCulling() = default;
 
 void ClusterLightCulling::initialize(gfx::Device *dev) {
