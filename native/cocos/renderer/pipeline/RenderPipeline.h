@@ -120,16 +120,24 @@ public:
 
     inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
-    
-    inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
+
+    inline GeometryRenderer *getGeometryRenderer() const {
+#if CC_USE_GEOMETRY_RENDERER
+        return _geometryRenderer;
+#else
+        return nullptr;
+#endif
+    }
 
 protected:
     static RenderPipeline *instance;
 
     void generateConstantMacros();
     void destroyQuadInputAssembler();
-    
+
+#if CC_USE_GEOMETRY_RENDERER
     void updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras);
+#endif
 
     static void framegraphGC();
 
@@ -151,7 +159,10 @@ protected:
     PipelineUBO *_pipelineUBO{nullptr};
     IntrusivePtr<scene::Model> _profiler;
     IntrusivePtr<PipelineSceneData> _pipelineSceneData;
+
+#if CC_USE_GEOMETRY_RENDERER
     IntrusivePtr<GeometryRenderer> _geometryRenderer;
+#endif
 
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d

@@ -1109,6 +1109,7 @@ class NativeClass(object):
         self.is_abstract = self.class_name in generator.abstract_classes
         self.is_persistent = self.class_name in generator.persistent_classes
         self.is_class_owned_by_cpp = self.class_name in self.generator.classes_owned_by_cpp
+        self.module_config = self.generator.class_module_configs[self.class_name] if self.class_name in self.generator.class_module_configs else {}
         # logger.info("class_name:" + self.class_name + ", is_class_owned_by_cpp:" + str(self.is_class_owned_by_cpp))
         self._current_visibility = cindex.AccessSpecifier.PRIVATE
         if is_struct:
@@ -1323,6 +1324,9 @@ class NativeClass(object):
         register = Template(file=os.path.join(self.generator.target, "templates", "register.c"),
                             searchList=[{"current_class": self}])
         self.generator.impl_file.write(unicode(register))
+        if len(self.module_config) > 0:
+            self.generator.head_file.write('#endif //' + self.module_config[0] + '\n')
+
         self.generator.class_json_list.append(self.toJSON())
 
     def should_export_field(self, field_name):
@@ -1595,6 +1599,8 @@ class Generator(object):
         self.impl_file = None
         self.head_file = None
         self.json_file = None
+        self.class_module_configs = {}
+        self.method_module_configs = {}
         self.skip_classes = {}
         self.skip_public_fields_classes = {}
         self.bind_fields = {}
@@ -1644,6 +1650,31 @@ class Generator(object):
 
         if sys.platform == 'win32' and self.win32_clang_flags != None:
             self.clang_args.extend(self.win32_clang_flags)
+
+        if opts['class_module_configs']:
+            class_module_configs = re.split(",\n?", opts['class_module_configs'])
+            for class_module_config in class_module_configs:
+                class_name, macros = class_module_config.split("::")
+                self.class_module_configs[class_name] = []
+                match = re.match("\[([^]]+)\]", macros)
+                if match:
+                    self.class_module_configs[class_name] = match.group(1).split(" ")
+                else:
+                    raise Exception("invalid list of class_module_configs methods")
+
+        if opts['method_module_configs']:
+            method_module_configs = re.split(",\n?", opts['method_module_configs'])
+            for method_module_config in method_module_configs:
+                class_name, config_group = method_module_config.split("::")
+                self.method_module_configs[class_name] = {}
+                match = re.match("\[([^]]+)\]", config_group)
+                if match:
+                    method_config_list = match.group(1).split(" ")
+                    for method_config in method_config_list:
+                        method_name, macro = method_config.split('/')
+                        self.method_module_configs[class_name][method_name] = macro
+                else:
+                    raise Exception("invalid list of method_module_configs methods")
 
         if opts['skip']:
             list_of_skips = re.split(",\n?", opts['skip'])
@@ -1769,6 +1800,11 @@ class Generator(object):
         if class_name in self.rename_functions and method_name in self.rename_functions[class_name]:
             # logger.error("will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name]))
             return self.rename_functions[class_name][method_name]
+        return None
+
+    def get_method_module_macro(self, class_name, method_name):
+        if class_name in self.method_module_configs and method_name in self.method_module_configs[class_name]:
+            return self.method_module_configs[class_name][method_name]
         return None
 
     def get_class_or_rename_class(self, class_name):
@@ -2330,6 +2366,8 @@ def main():
                 'base_classes_to_skip': config.get(s, 'base_classes_to_skip'),
                 'getter_setter': config.get(s, 'getter_setter') if config.has_option(s, 'getter_setter') else "",
                 'abstract_classes': config.get(s, 'abstract_classes'),
+                'class_module_configs': config.get(s, 'class_module_configs') if config.has_option(s, 'class_module_configs') else {},
+                'method_module_configs': config.get(s, 'method_module_configs') if config.has_option(s, 'method_module_configs') else {},
                 'persistent_classes': config.get(s, 'persistent_classes') if config.has_option(s, 'persistent_classes') else None,
                 'classes_owned_by_cpp': config.get(s, 'classes_owned_by_cpp') if config.has_option(s, 'classes_owned_by_cpp') else None,
                 'skip': config.get(s, 'skip'),
