@@ -7,7 +7,7 @@ set(TARGET_OSX_VERSION "10.14" CACHE STRING "Target MacOSX version" FORCE)
 set(TARGET_IOS_VERSION "11.0"  CACHE STRING "Target iOS version" FORCE)
 
 set(CMAKE_CXX_STANDARD 17)
-option(CC_DEBUG_FORCE           "Force enable Debug in release mode"   OFF)
+option(CC_DEBUG_FORCE           "Force enable CC_DEBUG in release mode" OFF)
 option(USE_SE_V8                "Use V8 JavaScript Engine"              ON)
 option(USE_V8_DEBUGGER          "Compile v8 inspector ws server"        ON)
 option(USE_V8_DEBUGGER_FORCE    "Force enable debugger in release mode" OFF)
