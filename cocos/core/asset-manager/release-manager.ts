@@ -121,7 +121,7 @@ class ReleaseManager {
     private _eventListener = false;
     private _dontDestroyAssets: string[] = [];
 
-    public setDontDestroy (asset: Asset) {
+    public addIgnoredAsset (asset: Asset) {
         this._dontDestroyAssets.push(asset._uuid);
     }
 

@@ -8,12 +8,12 @@ export class Application {
     
     init (engine) {
         cc = engine;
-        cc.game.onPostSettingsInitDelegate.add(this.onPostInitSettings.bind(this));
+        cc.game.onPostBaseInitDelegate.add(this.onPostInitBase.bind(this));
         cc.game.onPostSubsystemInitDelegate.add(this.onPostSystemInit.bind(this));
     }
 
-    onPostInitSettings (settings) {
-        // settings.overrideSettings('assets', 'server', '');
+    onPostInitBase () {
+        // cc.settings.overrideSettings('assets', 'server', '');
         // do custom logic
     }
 

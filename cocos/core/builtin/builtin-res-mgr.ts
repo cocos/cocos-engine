@@ -314,7 +314,7 @@ class BuiltinResMgr {
                     } else {
                         assets.forEach((asset) => {
                             resources[asset.name] = asset;
-                            releaseManager.setDontDestroy(asset);
+                            releaseManager.addIgnoredAsset(asset);
                         });
                         resolve();
                     }

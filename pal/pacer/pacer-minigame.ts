@@ -1,6 +1,6 @@
+import { minigame } from 'pal/minigame';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 
-declare const __globalAdapter: any;
 export class Pacer {
     private _rafHandle = 0;
     private _onTick: (() => void) | null = null;
@@ -24,7 +24,7 @@ export class Pacer {
         if (this._targetFrameRate !== val) {
             assertIsTrue(val > 0);
             this._targetFrameRate = val;
-            __globalAdapter.setPreferredFramesPerSecond(this._targetFrameRate);
+            minigame.setPreferredFramesPerSecond(this._targetFrameRate);
             if (this._isPlaying) {
                 this.stop();
                 this.start();

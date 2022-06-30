@@ -148,26 +148,46 @@ export class Game extends EventTarget {
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
-     * @en Event triggered pre settings initialization, at this point you can not use any settings module API.
-     * @zh 配置模块初始化之前的事件，在这个事件点你无法使用任何配置模块的相关接口
-     */
-    public static readonly EVENT_PRE_SETTINGS_INIT = 'pre_settings_init';
-    /**
-     * @en Event triggered post settings initialization, at this point you can use any settings module API safely.
-     * @zh 配置模块初始化之后的事件，在这个事件点你可以安全地使用配置模块的相关接口
-     */
-    public static readonly EVENT_POST_SETTINGS_INIT = 'post_settings_init';
-    /**
-     * @en Event triggered pre base module initialization, at this point you can not use pal/logging/sys API.
-     * @zh 基础模块初始化之前的事件，在这个事件点你无法使用 pal/logging/sys 的相关接口
+     * @en Event triggered pre base module initialization, at this point you can not use pal/logging/sys/settings API.
+     * @zh 基础模块初始化之前的事件，在这个事件点你无法使用 pal/logging/sys/settings 的相关接口。
      */
     public static readonly EVENT_PRE_BASE_INIT = 'pre_base_init';
+    /**
+     * @en Event triggered post base module initialization, at this point you can use pal/logging/sys/settings API safely.
+     * @zh 基础模块初始化之后的事件，在这个事件点你可以安全使用 pal/logging/sys/settings 的相关接口。
+     */
     public static readonly EVENT_POST_BASE_INIT = 'post_base_init';
+    /**
+     * @en Event triggered pre infrastructure initialization, at this point you can not use assetManager/gfx/screen/builtinResMgr/macro/Layer API.
+     * @zh 基础设施初始化之前的事件，在这个事件点你无法使用 assetManager/gfx/screen/builtinResMgr/macro/Layer 的相关接口。
+     */
     public static readonly EVENT_PRE_INFRASTRUCTURE_INIT = 'pre_infrastructure_init';
+    /**
+     * @en Event triggered post infrastructure initialization, at this point you can use assetManager/gfx/screen/builtinResMgr/macro/Layer API safely.
+     * @zh 基础设施初始化之后的事件，在这个事件点你可以安全使用 assetManager/gfx/screen/builtinResMgr/macro/Layer 的相关接口。
+     */
     public static readonly EVENT_POST_INFRASTRUCTURE_INIT = 'post_infrastructure_init';
+    /**
+     * @en Event triggered pre subsystem initialization, at this point you can not use physics/animation/rendering/tween/etc API.
+     * @zh 子系统初始化之前的事件，在这个事件点你无法使用 physics/animation/rendering/tween/etc 的相关接口。
+     */
     public static readonly EVENT_PRE_SUBSYSTEM_INIT = 'pre_subsystem_init';
+    /**
+     * @en Event triggered post subsystem initialization, at this point you can use physics/animation/rendering/tween/etc API safely.
+     * @zh 子系统初始化之后的事件，在这个事件点你可以安全使用 physics/animation/rendering/tween/etc 的相关接口。
+     */
     public static readonly EVENT_POST_SUBSYSTEM_INIT = 'post_subsystem_init';
+    /**
+     * @en Event triggered pre project data initialization,
+     * at this point you can not access project data using [resources.load]/[director.loadScene] API.
+     * @zh 项目数据初始化之前的事件，在这个事件点你无法使用访问项目数据的相关接口，例如 [resources.load]/[director.loadScene] 等 API。
+     */
     public static readonly EVENT_PRE_PROJECT_INIT = 'pre_project_init';
+    /**
+     * @en Event triggered post project data initialization,
+     * at this point you can access project data using [resources.load]/[director.loadScene] API safely.
+     * @zh 项目数据初始化之后的事件，在这个事件点你可以安全使用访问项目数据的相关接口，例如 [resources.load]/[director.loadScene] 等 API。
+     */
     public static readonly EVENT_POST_PROJECT_INIT = 'post_project_init';
 
     /**
@@ -326,53 +346,49 @@ export class Game extends EventTarget {
     private _shouldLoadLaunchScene = true;
 
     /**
-     * @en The event delegate pre settings module initialization. At this point you can not use any settings module API.
-     * @zh 配置模块初始化之前的事件代理。在这个时间点你无法使用任何配置模块的 API。
-     */
-    public readonly onPreSettingsInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
-    /**
-     * @en The event delegate post settings module initialization. At this point you can use any settings module API safely.
-     * @zh 配置模块初始化之后的事件代理。在这个时间点你可以安全地使用任何配置模块的 API。
-     */
-    public readonly onPostSettingsInitDelegate: AsyncDelegate<(settings: Settings) => (Promise<void> | void)> = new AsyncDelegate();
-    /**
-     * @en The event delegate pre base module initialization.
-     * @zh 基础模块初始化之前的事件代理。
+     * @en The event delegate pre base module initialization. At this point you can not use pal/logging/sys/settings API.
+     * @zh 基础模块初始化之前的事件代理。在这个事件点你无法使用 pal/logging/sys/settings 的相关接口。
      */
     public readonly onPreBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
-     * @en The event delegate post base module initialization.
-     * @zh 基础模块初始化之后的事件代理。
+     * @en The event delegate post base module initialization. At this point you can use pal/logging/sys/settings API safely.
+     * @zh 基础模块初始化之后的事件代理。在这个事件点你可以安全使用 pal/logging/sys/settings 的相关接口。
      */
     public readonly onPostBaseInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
      * @en The event delegate pre infrastructure module initialization.
-     * @zh 基础设施模块初始化之前的事件代理。
+     * At this point you can not use assetManager/gfx/screen/builtinResMgr/macro/Layer API.
+     * @zh 基础设施模块初始化之前的事件代理。在这个事件点你无法使用 assetManager/gfx/screen/builtinResMgr/macro/Layer 的相关接口。
      */
     public readonly onPreInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
      * @en The event delegate post infrastructure module initialization.
-     * @zh 基础设施模块初始化之后的事件代理。
+     * At this point you can use assetManager/gfx/screen/builtinResMgr/macro/Layer API safely.
+     *
+     * @zh 基础设施模块初始化之后的事件代理。在这个事件点你可以安全使用 assetManager/gfx/screen/builtinResMgr/macro/Layer 的相关接口。
      */
     public readonly onPostInfrastructureInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
-     * @en The event delegate pre sub system module initialization.
-     * @zh 子系统模块初始化之前的事件代理。
+     * @en The event delegate pre sub system module initialization. At this point you can not use physics/animation/rendering/tween/etc API.
+     * @zh 子系统模块初始化之前的事件代理。在这个事件点你无法使用 physics/animation/rendering/tween/etc 的相关接口。
      */
     public readonly onPreSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
-     * @en The event delegate post sub system module initialization.
-     * @zh 子系统模块初始化之后的事件代理。
+     * @en The event delegate post sub system module initialization. At this point you can use physics/animation/rendering/tween/etc API safely.
+     * @zh 子系统模块初始化之后的事件代理。在这个事件点你可以安全使用 physics/animation/rendering/tween/etc 的相关接口。
      */
     public readonly onPostSubsystemInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
      * @en The event delegate pre project data initialization.
-     * @zh 项目数据初始化之前的事件代理。
+     * At this point you can not access project data using [resources.load]/[director.loadScene] API.
+     * @zh 项目数据初始化之前的事件代理。在这个事件点你无法使用访问项目数据的相关接口，例如 [resources.load]/[director.loadScene] 等 API。
      */
     public readonly onPreProjectInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
     /**
      * @en The event delegate post project data initialization.
+     * at this point you can access project data using [resources.load]/[director.loadScene] API safely.
      * @zh 项目数据初始化之后的事件代理。
+     * 在这个事件点你可以安全使用访问项目数据的相关接口，例如 [resources.load]/[director.loadScene] 等 API。
      */
     public readonly onPostProjectInitDelegate: AsyncDelegate<() => (Promise<void> | void)> = new AsyncDelegate();
 
@@ -518,8 +534,37 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Init game with configuration object.
-     * @zh 使用指定的配置初始化引擎。
+     * @en Init game with configuration object. Initialization process like below:
+     * -PreBaseInitEvent
+     * -BaseModuleInitialization(logging, sys, settings)
+     * -PostBaseInitEvent
+     * -PreInfrastructureInitEvent
+     * -InfrastructureModuleInitialization(assetManager, builtinResMgr, gfxDevice, screen, Layer, macro)
+     * -PostInfrastructureInitEvent
+     * -PreSubsystemInitEvent
+     * -SubsystemModuleInitialization(animation, physics, tween, ui, middleware, etc)
+     * -PostSubsystemInitEvent
+     * -EngineInitedEvent
+     * -PreProjectDataInitEvent
+     * -ProjectDataInitialization(GamePlayScripts, resources, etc)
+     * -PostProjectDataInitEvent
+     * -GameInitedEvent
+     *
+     * @zh 使用指定的配置初始化引擎。初始化流程如下：
+     * -PreBaseInitEvent
+     * -BaseModuleInitialization(logging, sys, settings)
+     * -PostBaseInitEvent
+     * -PreInfrastructureInitEvent
+     * -InfrastructureModuleInitialization(assetManager, builtinResMgr, gfxDevice, screen, Layer, macro)
+     * -PostInfrastructureInitEvent
+     * -PreSubsystemInitEvent
+     * -SubsystemModuleInitialization(animation, physics, tween, ui, middleware, etc)
+     * -PostSubsystemInitEvent
+     * -EngineInitedEvent
+     * -PreProjectDataInitEvent
+     * -ProjectDataInitialization(GamePlayScripts, resources, etc)
+     * -PostProjectDataInitEvent
+     * -GameInitedEvent
      * @param config - Pass configuration object
      */
     public init (config: IGameConfig) {
@@ -536,22 +581,12 @@ export class Game extends EventTarget {
                 sys.init();
                 this._initEvents();
             })
+            .then(() => settings.init(config.settingsPath, config.overrideSettings))
             .then(() => {
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
             // #endregion Base
-            // #region Settings
-            .then(() => {
-                this.emit(Game.EVENT_PRE_SETTINGS_INIT);
-                return this.onPreSettingsInitDelegate.dispatch();
-            })
-            .then(() => settings.init(config.settingsPath, config.overrideSettings))
-            .then(() => {
-                this.emit(Game.EVENT_POST_SETTINGS_INIT);
-                return this.onPostSettingsInitDelegate.dispatch(settings);
-            })
-            // #endregion Settings
             // #region Infrastructure
             .then(() => {
                 this.emit(Game.EVENT_PRE_INFRASTRUCTURE_INIT);
@@ -601,7 +636,7 @@ export class Game extends EventTarget {
                 return this.onPreProjectInitDelegate.dispatch();
             })
             .then(() => {
-                const jsList = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'jsList');
+                const jsList = settings.querySettings<string[]>(Settings.Category.PLUGINS, 'jsList');
                 let promise = Promise.resolve();
                 if (jsList) {
                     const projectPath = settings.querySettings<string>(Settings.Category.PATH, 'projectPath') || '';

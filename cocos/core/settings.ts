@@ -46,6 +46,7 @@ enum Category {
     SPLASH_SCREEN = 'splashScreen',
     ANIMATION = 'animation',
     PROFILING = 'profiling',
+    PLUGINS = 'plugins',
 }
 
 /**

@@ -105,7 +105,7 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                     assets.forEach((asset) => {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
-                        releaseManager.setDontDestroy(asset);
+                        releaseManager.addIgnoredAsset(asset);
                         this.addAsset(asset.name, asset);
                     });
                    resolve();

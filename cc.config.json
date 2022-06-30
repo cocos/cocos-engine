@@ -73,7 +73,7 @@
         },
         "geometry-renderer": { 
             "modules": [ "geometry-renderer" ], 
-	    "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
+	        "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
         },
 	    "debug-renderer": { 
             "modules": [ "debug-renderer" ], 
@@ -225,7 +225,7 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/runtime/env.ts",
-                "pal/pacer": "pal/pacer/pacer-runtime.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts"
             }
         },
         {
