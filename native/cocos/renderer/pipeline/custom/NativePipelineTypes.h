@@ -75,8 +75,8 @@ public:
     void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
-    void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) override;
-    void addFullscreenQuad(const ccstd::string& shader) override;
+    void addFullscreenQuad(cc::Material *material, const ccstd::string& name) override;
+    void addFullscreenQuad(cc::Material *material) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
@@ -106,14 +106,14 @@ public:
       passID(passIDIn),
       layoutID(layoutIDIn) {}
 
-    void                addRasterView(const ccstd::string& name, const RasterView& view) override;
-    void                addComputeView(const ccstd::string& name, const ComputeView& view) override;
+    void addRasterView(const ccstd::string& name, const RasterView& view) override;
+    void addComputeView(const ccstd::string& name, const ComputeView& view) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName, const ccstd::string& name) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName) override;
     RasterQueueBuilder *addQueue(QueueHint hint) override;
-    void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName, const ccstd::string& name) override;
-    void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName) override;
-    void                addFullscreenQuad(const ccstd::string& shader) override;
+    void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName, const ccstd::string& name) override;
+    void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName) override;
+    void addFullscreenQuad(cc::Material *material) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;

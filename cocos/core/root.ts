@@ -39,6 +39,7 @@ import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
+import { createCustomPipeline } from './pipeline/custom';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
 

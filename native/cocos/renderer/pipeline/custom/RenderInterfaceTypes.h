@@ -145,8 +145,8 @@ public:
     virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
-    virtual void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(const ccstd::string& shader) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material) = 0;
 };
 
 inline RasterQueueBuilder::~RasterQueueBuilder() noexcept = default;
@@ -157,14 +157,14 @@ public:
 
     ~RasterPassBuilder() noexcept override = 0;
 
-    virtual void                addRasterView(const ccstd::string& name, const RasterView& view) = 0;
-    virtual void                addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
+    virtual void addRasterView(const ccstd::string& name, const RasterView& view) = 0;
+    virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName, const ccstd::string& name) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
-    virtual void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName) = 0;
-    virtual void                addFullscreenQuad(const ccstd::string& shader) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName) = 0;
+    virtual void addFullscreenQuad(cc::Material *material) = 0;
 };
 
 inline RasterPassBuilder::~RasterPassBuilder() noexcept = default;

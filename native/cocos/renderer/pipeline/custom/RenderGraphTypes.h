@@ -672,22 +672,11 @@ struct Dispatch {
 };
 
 struct Blit {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {shader.get_allocator().resource()};
-    }
+    Blit() = default;
+    Blit(IntrusivePtr<Material> materialIn) noexcept // NOLINT
+    : material(std::move(materialIn)) {}
 
-    Blit(const allocator_type& alloc) noexcept; // NOLINT
-    Blit(ccstd::pmr::string shaderIn, const allocator_type& alloc) noexcept;
-    Blit(Blit&& rhs, const allocator_type& alloc);
-    Blit(Blit const& rhs, const allocator_type& alloc);
-
-    Blit(Blit&& rhs) noexcept = default;
-    Blit(Blit const& rhs)     = delete;
-    Blit& operator=(Blit&& rhs) = default;
-    Blit& operator=(Blit const& rhs) = default;
-
-    ccstd::pmr::string shader;
+    IntrusivePtr<Material> material;
 };
 
 struct Present {

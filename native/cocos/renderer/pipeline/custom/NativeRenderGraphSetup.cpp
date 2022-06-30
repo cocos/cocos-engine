@@ -67,21 +67,20 @@ void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sc
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addFullscreenQuad(
-    const ccstd::string &shader, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+void NativeRasterQueueBuilder::addFullscreenQuad(Material* material, const ccstd::string &name) {
     auto drawID = addVertex(
         BlitTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(shader.c_str()),
+        std::forward_as_tuple(material),
         *renderGraph, queueID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addFullscreenQuad(const ccstd::string &shader) {
-    addFullscreenQuad(shader, "FullscreenQuad");
+void NativeRasterQueueBuilder::addFullscreenQuad(Material* material) {
+    addFullscreenQuad(material, "FullscreenQuad");
 }
 
 namespace {
@@ -268,7 +267,7 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
 }
 
 void NativeRasterPassBuilder::addFullscreenQuad(
-    const ccstd::string &shader, const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+    Material* material, const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
     auto queueID = addVertex(
         QueueTag{},
         std::forward_as_tuple(name.c_str()),
@@ -284,18 +283,18 @@ void NativeRasterPassBuilder::addFullscreenQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(shader.c_str()),
+        std::forward_as_tuple(material),
         *renderGraph, queueID);
 }
 
 void NativeRasterPassBuilder::addFullscreenQuad(
-    const ccstd::string &shader, const ccstd::string &layoutName) { // NOLINT(bugprone-easily-swappable-parameters)
-    return addFullscreenQuad(shader, layoutName, "FullscreenQuad");
+    Material* material, const ccstd::string &layoutName) {
+    return addFullscreenQuad(material, layoutName, "FullscreenQuad");
 }
 
-void NativeRasterPassBuilder::addFullscreenQuad(const ccstd::string &shader) {
+void NativeRasterPassBuilder::addFullscreenQuad(Material* material) {
     const auto &layoutName = getFirstChildLayoutName(*layoutGraph, passID);
-    return addFullscreenQuad(shader, layoutName.c_str()); // NOLINT(readability-redundant-string-cstr)
+    return addFullscreenQuad(material, layoutName.c_str()); // NOLINT(readability-redundant-string-cstr)
 }
 
 void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {

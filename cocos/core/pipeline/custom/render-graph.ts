@@ -30,6 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
+import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
@@ -1094,10 +1095,10 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (shader = '') {
-        this.shader = shader;
+    constructor (material: Material | null) {
+        this.material = material;
     }
-    shader: string;
+    /*object*/ material: Material | null;
 }
 
 export class Present {

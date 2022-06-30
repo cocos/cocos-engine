@@ -362,18 +362,6 @@ Dispatch::Dispatch(Dispatch const& rhs, const allocator_type& alloc)
   threadGroupCountY(rhs.threadGroupCountY),
   threadGroupCountZ(rhs.threadGroupCountZ) {}
 
-Blit::Blit(const allocator_type& alloc) noexcept
-: shader(alloc) {}
-
-Blit::Blit(ccstd::pmr::string shaderIn, const allocator_type& alloc) noexcept
-: shader(std::move(shaderIn), alloc) {}
-
-Blit::Blit(Blit&& rhs, const allocator_type& alloc)
-: shader(std::move(rhs.shader), alloc) {}
-
-Blit::Blit(Blit const& rhs, const allocator_type& alloc)
-: shader(rhs.shader, alloc) {}
-
 PresentPass::PresentPass(const allocator_type& alloc) noexcept
 : presents(alloc) {}
 

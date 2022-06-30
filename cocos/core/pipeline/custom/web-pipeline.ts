@@ -51,6 +51,7 @@ import { EffectAsset } from '../../assets/effect-asset';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { buildDeferredPipelineLayoutGraphData } from './effect';
+import { Material } from '../../assets';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -161,9 +162,9 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
     }
-    addFullscreenQuad (shader: string, layoutName = '', name = 'Quad'): void {
+    addFullscreenQuad (material: Material, layoutName = '', name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(shader), name, '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Blit, new Blit(material), name, '', new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -204,7 +205,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         return new WebRasterQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
 
-    addFullscreenQuad (shader: string, layoutName = '', name = 'FullscreenQuad') {
+    addFullscreenQuad (material: Material, layoutName = '', name = 'FullscreenQuad') {
         if (!layoutName) {
             layoutName = getFirstChildLayoutName(this._layoutGraph, this._vertID);
         }
@@ -214,7 +215,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             false, this._vertID);
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
-            new Blit(shader),
+            new Blit(material),
             'FullscreenQuad', '', new RenderData(), false, queueId,
         );
     }
@@ -753,7 +754,7 @@ export class WebPipeline extends Pipeline {
                 new Color(1, 0, 0, 0));
             lightingPass.addRasterView(deferredLightingPassRTName, lightingPassView);
             lightingPass.addRasterView(deferredLightingPassDS, lightingPassDSView);
-            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addFullscreenQuad('', '');
+            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addFullscreenQuad(new Material(), '');
             lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT);
             // Postprocess
             const postprocessPassRTName = `postprocessPassRTName${idx}`;
@@ -780,7 +781,7 @@ export class WebPipeline extends Pipeline {
                 new Color(1, 0, 0, 0));
             postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
             postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
-            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad('', '');
+            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(new Material(), '');
         }
         return isDeferred;
     }
