@@ -54,13 +54,6 @@ interface IAdditiveLightPass {
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
-interface InstancedOrBatchedLightPass {
-    dynamicOffsets: number[];
-    lights: number[];
-}
-
-const _instancedOrBatchedLightPassPool = new Pool<InstancedOrBatchedLightPass>(() => ({ dynamicOffsets: [], lights: [] }), 16);
-
 const _vec4Array = new Float32Array(4);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
@@ -121,8 +114,8 @@ export class RenderAdditiveLightQueue {
     private _pipeline: RenderPipeline;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
-    private _lightInstancedPasses: InstancedOrBatchedLightPass[] = [];
-    private _lightBatchedPasses: InstancedOrBatchedLightPass[] = [];
+    private _lightInstancedPasses: IAdditiveLightPass[] = [];
+    private _lightBatchedPasses: IAdditiveLightPass[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -173,7 +166,7 @@ export class RenderAdditiveLightQueue {
             lightInstancedPass.dynamicOffsets.length = 0;
             lightInstancedPass.lights.length = 0;
         }
-        _instancedOrBatchedLightPassPool.freeArray(this._lightInstancedPasses);
+        _lightPassPool.freeArray(this._lightInstancedPasses);
         this._lightInstancedPasses.length = 0;
 
         for (let i = 0; i < this._lightBatchedPasses.length; i++) {
@@ -181,7 +174,7 @@ export class RenderAdditiveLightQueue {
             _lightBatchedPass.dynamicOffsets.length = 0;
             _lightBatchedPass.lights.length = 0;
         }
-        _instancedOrBatchedLightPassPool.freeArray(this._lightBatchedPasses);
+        _lightPassPool.freeArray(this._lightBatchedPasses);
         this._lightBatchedPasses.length = 0;
     }
 
@@ -320,7 +313,7 @@ export class RenderAdditiveLightQueue {
             buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
             buffer.dynamicOffsets[0] = this._lightBufferStride;
             this._instancedQueue.queue.add(buffer);
-            const instancedLightPassPool = _instancedOrBatchedLightPassPool.alloc();
+            const instancedLightPassPool = _lightPassPool.alloc();
             for (let l = 0; l < _lightIndices.length; l++) {
                 const lightIdx = _lightIndices[l];
                 instancedLightPassPool.lights.push(lightIdx);
@@ -332,7 +325,7 @@ export class RenderAdditiveLightQueue {
             buffer.merge(subModel, lightPassIdx, model);
             buffer.dynamicOffsets[0] = this._lightBufferStride;
             this._batchedQueue.queue.add(buffer);
-            const batchedLightPassPool = _instancedOrBatchedLightPassPool.alloc();
+            const batchedLightPassPool = _lightPassPool.alloc();
             for (let l = 0; l < _lightIndices.length; l++) {
                 const lightIdx = _lightIndices[l];
                 batchedLightPassPool.lights.push(lightIdx);
