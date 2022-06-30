@@ -65,7 +65,7 @@ export type { TransitionView as Transition };
 
 export type TransitionInternal = Transition;
 
-export enum TransitionInterruption {
+export enum TransitionInterruptionSource {
     NONE,
     CURRENT_STATE,
     NEXT_STATE,
@@ -109,8 +109,24 @@ class AnimationTransition extends Transition {
         this._exitCondition = value;
     }
 
+    /**
+     * @internal This field is exposed for **experimental editor only** usage.
+     */
+    get interruptible () {
+        return this.interruptionSource !== TransitionInterruptionSource.NONE;
+    }
+
+    set interruptible (value) {
+        this.interruptionSource = value
+            ? TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE
+            : TransitionInterruptionSource.NONE;
+    }
+
+    /**
+     * @internal This field is exposed for **internal** usage.
+     */
     @serializable
-    public interruptionSource = TransitionInterruption.NONE;
+    public interruptionSource = TransitionInterruptionSource.NONE;
 
     @serializable
     private _exitCondition = 1.0;

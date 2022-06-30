@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
-    SubStateMachine, EmptyState, EmptyStateTransition, TransitionInterruption,
+    SubStateMachine, EmptyState, EmptyStateTransition, TransitionInterruptionSource,
 } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
@@ -501,7 +501,7 @@ class LayerEval {
                     destinationStart: 0.0,
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
-                    interruption: TransitionInterruption.NONE,
+                    interruption: TransitionInterruptionSource.NONE,
                 };
 
                 if (isAnimationTransition(outgoing)) {
@@ -718,7 +718,7 @@ class LayerEval {
             null,
             transitionMatch,
         );
-        if (transitionMatch.hasMinimalCost()) {
+        if (transitionMatch.hasZeroCost()) {
             return transitionMatch;
         }
 
@@ -728,7 +728,7 @@ class LayerEval {
                 deltaTime,
                 transitionMatch,
             );
-            if (transitionMatch.hasMinimalCost()) {
+            if (transitionMatch.hasZeroCost()) {
                 return transitionMatch;
             }
         }
@@ -760,7 +760,7 @@ class LayerEval {
             if (updated) {
                 transitionMatchUpdated = true;
             }
-            if (result.hasMinimalCost()) {
+            if (result.hasZeroCost()) {
                 break;
             }
         }
@@ -1113,7 +1113,7 @@ class LayerEval {
         assertIsTrue(currentTransitionPath.length !== 0);
         const currentTransition = currentTransitionPath[0];
         const { interruption } = currentTransition;
-        if (interruption === TransitionInterruption.NONE) {
+        if (interruption === TransitionInterruptionSource.NONE) {
             return null;
         }
 
@@ -1133,12 +1133,12 @@ class LayerEval {
         if (transitionMatchUpdated) {
             transitionMatchSource = anyTransitionMeasureBaseState; // TODO: shall be any?
         }
-        if (transitionMatch.hasMinimalCost()) {
+        if (transitionMatch.hasZeroCost()) {
             // TODO
         }
 
-        const motion0: MotionStateEval                = interruption === TransitionInterruption.CURRENT_STATE
-                || interruption === TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE
+        const motion0: MotionStateEval                = interruption === TransitionInterruptionSource.CURRENT_STATE
+                || interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE
             ? getInterruptionSourceMotion(currentNode)
             : currentTransitionToNode;
         transitionMatchUpdated = this._matchTransition(
@@ -1151,12 +1151,12 @@ class LayerEval {
         if (transitionMatchUpdated) {
             transitionMatchSource = motion0;
         }
-        if (transitionMatch.hasMinimalCost()) {
+        if (transitionMatch.hasZeroCost()) {
             // TODO
         }
 
-        const motion1 = interruption === TransitionInterruption.NEXT_STATE_THEN_CURRENT_STATE ? getInterruptionSourceMotion(currentNode)
-            : interruption === TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE ? currentTransitionToNode
+        const motion1 = interruption === TransitionInterruptionSource.NEXT_STATE_THEN_CURRENT_STATE ? getInterruptionSourceMotion(currentNode)
+            : interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE ? currentTransitionToNode
                 : null;
         if (motion1) {
             transitionMatchUpdated = this._matchTransition(
@@ -1169,7 +1169,7 @@ class LayerEval {
             if (transitionMatchUpdated) {
                 transitionMatchSource = motion1;
             }
-            if (transitionMatch.hasMinimalCost()) {
+            if (transitionMatch.hasZeroCost()) {
                 // TODO
             }
         }
@@ -1369,7 +1369,7 @@ class TransitionMatchCache {
 
     public requires = Infinity;
 
-    public hasMinimalCost (): this is TransitionMatch {
+    public hasZeroCost (): this is TransitionMatch {
         return this.requires === 0;
     }
 
@@ -1762,7 +1762,7 @@ interface TransitionEval {
      * Bound triggers, once this transition satisfied. All triggers would be reset.
      */
     triggers: string[] | undefined;
-    interruption: TransitionInterruption;
+    interruption: TransitionInterruptionSource;
 }
 
 export type { VarInstance } from './variable';

@@ -1,7 +1,7 @@
 
 import { Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruption } from '../../cocos/core/animation/marionette/animation-graph';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
@@ -74,6 +74,8 @@ describe('NewGen Anim', () => {
         expect(animTransition.exitConditionEnabled).toBe(true);
         expect(animTransition.exitCondition).toBe(1.0);
         expect(animTransition.destinationStart).toBe(0.0);
+        expect(animTransition.interruptionSource).toBe(TransitionInterruptionSource.NONE);
+        expect(animTransition.interruptible).toBe(false);
 
         function testGraphDefaults(graph: StateMachine) {
             expect(Array.from(graph.states())).toStrictEqual(expect.arrayContaining([
@@ -2573,6 +2575,18 @@ describe('NewGen Anim', () => {
     });
 
     describe('Interruption', () => {
+        test('Interruptible', () => {
+            const animationGraph = new AnimationGraph();
+            const stateMachine = animationGraph.addLayer().stateMachine;
+            const m1 = stateMachine.addMotion();
+            const m2 = stateMachine.addMotion();
+            const t = stateMachine.connect(m1, m2);
+            t.interruptible = true;
+            expect(t.interruptionSource).toBe(TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE);
+            t.interruptible = false;
+            expect(t.interruptionSource).toBe(TransitionInterruptionSource.NONE);
+        });
+
         test.each([
             ['Interrupted by transition from current state', 'interrupted-by-source'],
             ['Interrupted by transition from destination state', 'interrupted-by-destination'],
@@ -2610,9 +2624,9 @@ describe('NewGen Anim', () => {
             const t0 = stateMachine.connect(m0, m1);
             t0.duration = ORIGINAL_TRANSITION_DURATION;
             if (kind === 'interrupted-by-source') {
-                t0.interruptionSource = TransitionInterruption.CURRENT_STATE;
+                t0.interruptionSource = TransitionInterruptionSource.CURRENT_STATE;
             } else {
-                t0.interruptionSource = TransitionInterruption.NEXT_STATE;
+                t0.interruptionSource = TransitionInterruptionSource.NEXT_STATE;
             }
             t0.exitConditionEnabled = true;
             t0.exitCondition = ORIGINAL_TRANSITION_EXIT_CONDITION;
@@ -2774,7 +2788,7 @@ describe('NewGen Anim', () => {
                     transition.duration = transitionConstants[transitionId].duration;
 
                     // All transitions can be interrupted
-                    transition.interruptionSource = TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE;
+                    transition.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
 
                     result[transitionId] = transition;
                     return result;
@@ -2955,7 +2969,7 @@ describe('NewGen Anim', () => {
 
             const t0 = stateMachine.connect(m0, m1);
             t0.duration = ORIGINAL_TRANSITION_DURATION;
-            t0.interruptionSource = TransitionInterruption.NEXT_STATE;
+            t0.interruptionSource = TransitionInterruptionSource.NEXT_STATE;
             t0.exitConditionEnabled = false;
             const [t0Condition] = t0.conditions = [new TriggerCondition()];
             t0Condition.trigger = 't0';
