@@ -848,9 +848,8 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy((uuid, options) => {
-            EditorExtends.serialize.asAsset(uuid, options.type);
-        });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        details.assignAssetsBy((uuid, options) => EditorExtends.serialize.asAsset(uuid, options.type));
     }
 
     // var afterJson = JSON.stringify(data, null, 2);
