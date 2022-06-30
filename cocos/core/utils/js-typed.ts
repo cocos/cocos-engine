@@ -579,9 +579,9 @@ function setup (tag: string, table: Record<string | number, any>, allowExist) {
             } else {
                 table[id] = constructor;
             }
-            if (id === '') {
-                console.trace('', table === _nameToClass);
-            }
+            // if (id === '') {
+            //     console.trace('', table === _nameToClass);
+            // }
         }
     };
 }
