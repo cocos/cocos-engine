@@ -54,12 +54,18 @@ public:
 private:
     int getShadowPassIndex(const scene::Model *model) const;
 
-    RenderPipeline *_pipeline = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // weak reference
     ccstd::vector<const scene::SubModel *> _subModels;
+    // weak reference
     ccstd::vector<const scene::Pass *> _passes;
+    // weak reference
     ccstd::vector<gfx::Shader *> _shaders;
-    RenderInstancedQueue *_instancedQueue = nullptr;
-    RenderBatchedQueue *_batchedQueue = nullptr;
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // manage memory manually
+    RenderBatchedQueue *_batchedQueue{nullptr};
     uint32_t _phaseID = 0;
 };
 

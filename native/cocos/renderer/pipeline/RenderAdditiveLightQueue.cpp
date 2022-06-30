@@ -72,8 +72,6 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
 RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DELETE(_batchedQueue);
-    CC_SAFE_DESTROY_AND_DELETE(_firstLightBufferView);
-    CC_SAFE_DESTROY_AND_DELETE(_lightBuffer);
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {

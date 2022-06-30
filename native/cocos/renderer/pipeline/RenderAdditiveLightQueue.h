@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Define.h"
+#include "base/Ptr.h"
 #include "base/std/container/array.h"
 
 namespace cc {
@@ -71,9 +72,10 @@ private:
     bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint32_t> *lightPassIndices) const;
     void lightCulling(const scene::Model *model);
 
-    RenderPipeline *_pipeline = nullptr;
-    ccstd::vector<ccstd::vector<scene::SubModel *>> _sortedSubModelsArray;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
     ccstd::vector<ccstd::vector<uint32_t>> _sortedPSOCIArray;
+    // weak reference
     ccstd::vector<const scene::Light *> _validPunctualLights;
     ccstd::vector<uint32_t> _lightIndices;
     ccstd::vector<AdditiveLightPass> _lightPasses;
@@ -81,10 +83,12 @@ private:
     ccstd::vector<AdditiveLightPass> _lightBatchedPasses;
     ccstd::vector<uint32_t> _dynamicOffsets;
     ccstd::vector<float> _lightBufferData;
-    RenderInstancedQueue *_instancedQueue = nullptr;
-    RenderBatchedQueue *_batchedQueue = nullptr;
-    gfx::Buffer *_lightBuffer = nullptr;
-    gfx::Buffer *_firstLightBufferView = nullptr;
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // manage memory manually
+    RenderBatchedQueue *_batchedQueue{nullptr};
+    IntrusivePtr<gfx::Buffer> _lightBuffer;
+    IntrusivePtr<gfx::Buffer> _firstLightBufferView;
 
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO{};
 
