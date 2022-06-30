@@ -12,7 +12,4 @@ include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
 
 cc_android_before_target(${CC_LIB_NAME})
 add_library(${CC_LIB_NAME} SHARED ${CC_ALL_SOURCES})
-
-set_target_properties(${CC_LIB_NAME} PROPERTIES LINK_FLAGS " -Wl,--gc-sections")
-
 cc_android_after_target(${CC_LIB_NAME})
