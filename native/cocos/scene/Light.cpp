@@ -45,7 +45,7 @@ float Light::nt2lm(float size) {
     return 4 * math::PI * math::PI * size * size;
 }
 
-void Light::colorTemperatureToRGB(Vec3 &color, float kelvin) {
+Vec3 Light::colorTemperatureToRGB(Vec3 &color, float kelvin) {
     if (kelvin < 1000.0) {
         kelvin = 1000.0;
     } else if (kelvin > 15000.0) {
@@ -66,9 +66,11 @@ void Light::colorTemperatureToRGB(Vec3 &color, float kelvin) {
     const float Z = (1.0 / y) * z;
 
     // XYZ to RGB with BT.709 primaries
-    color.x = 3.2404542 * X + -1.5371385 + -0.4985314 * Z;
-    color.y = -0.9692660 * X + 1.8760108 + 0.0415560 * Z;
-    color.z = 0.0556434 * X + -0.2040259 + 1.0572252 * Z;
+    Vec3 colorWithTemperature;
+    colorWithTemperature.x = 3.2404542 * X + -1.5371385 + -0.4985314 * Z;
+    colorWithTemperature.y = -0.9692660 * X + 1.8760108 + 0.0415560 * Z;
+    colorWithTemperature.z = 0.0556434 * X + -0.2040259 + 1.0572252 * Z;
+    return colorWithTemperature;
 }
 
 } // namespace scene
