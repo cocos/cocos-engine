@@ -16772,6 +16772,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getFrustum)
 
 static bool js_scene_Camera_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#if CC_USE_GEOMETRY_RENDERER
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getGeometryRenderer : Invalid Native Object");
     if (nullptr == cobj) return true;
@@ -16787,6 +16788,9 @@ static bool js_scene_Camera_getGeometryRenderer(se::State& s) // NOLINT(readabil
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
+#else
+    return true;
+#endif // #if CC_USE_GEOMETRY_RENDERER
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getGeometryRenderer)
 
