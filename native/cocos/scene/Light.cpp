@@ -45,7 +45,7 @@ float Light::nt2lm(float size) {
     return 4 * math::PI * math::PI * size * size;
 }
 
-Vec3 Light::colorTemperatureToRGB(Vec3 &color, float kelvin) {
+Vec3 Light::colorTemperatureToRGB(float kelvin) {
     if (kelvin < 1000.0) {
         kelvin = 1000.0;
     } else if (kelvin > 15000.0) {
