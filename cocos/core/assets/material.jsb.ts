@@ -168,7 +168,7 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
 
 matProto.getProperty = function (name: string, passIdx?: number) {
     let val: any;
-    if (passIdx) {
+    if (passIdx != undefined) {
         val = this._getProperty(name, passIdx);
     } else {
         val = this._getProperty(name);
