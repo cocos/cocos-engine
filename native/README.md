@@ -22,4 +22,3 @@ C++ related
 - use C++17, but can only use these C++17 features
   - std::string_view
   - [constexpr if](https://www.codingame.com/playgrounds/2205/7-features-of-c17-that-will-simplify-your-code/constexpr-if)
-
