@@ -2874,6 +2874,26 @@ static bool js_scene_Light_update(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_scene_Light_update)
 
+static bool js_scene_Light_colorTemperatureToRGB_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_scene_Light_colorTemperatureToRGB_static : Error processing arguments");
+        cc::Vec3 result = cc::scene::Light::colorTemperatureToRGB(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Light_colorTemperatureToRGB_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Light_colorTemperatureToRGB_static)
+
 static bool js_scene_Light_nt2lm_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -2931,6 +2951,7 @@ bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("detachFromScene", _SE(js_scene_Light_detachFromScene));
     cls->defineFunction("initialize", _SE(js_scene_Light_initialize));
     cls->defineFunction("update", _SE(js_scene_Light_update));
+    cls->defineStaticFunction("colorTemperatureToRGB", _SE(js_scene_Light_colorTemperatureToRGB_static));
     cls->defineStaticFunction("nt2lm", _SE(js_scene_Light_nt2lm_static));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Light_finalize));
     cls->install();

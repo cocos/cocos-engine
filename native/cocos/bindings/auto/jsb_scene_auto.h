@@ -189,6 +189,7 @@ SE_DECLARE_FUNC(js_scene_Light_destroy);
 SE_DECLARE_FUNC(js_scene_Light_detachFromScene);
 SE_DECLARE_FUNC(js_scene_Light_initialize);
 SE_DECLARE_FUNC(js_scene_Light_update);
+SE_DECLARE_FUNC(js_scene_Light_colorTemperatureToRGB);
 SE_DECLARE_FUNC(js_scene_Light_nt2lm);
 SE_DECLARE_FUNC(js_scene_Light_Light);
 
