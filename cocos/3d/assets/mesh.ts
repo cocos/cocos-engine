@@ -337,8 +337,8 @@ export class Mesh extends Asset {
 
     private _initialized = false;
 
-    private _allowReadWriteData: boolean = true;
-    private _isMeshDataUploaded: boolean = false;
+    private _allowReadWriteData = true;
+    private _isMeshDataUploaded = false;
 
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
@@ -1240,7 +1240,7 @@ export class Mesh extends Asset {
      * @param attributeName @en Attribute name @zh 属性名称
      * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
      */
-    public readAttributeFormat(primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
+    public readAttributeFormat (primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
         let result: FormatInfo | null = null;
 
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
