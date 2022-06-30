@@ -43,6 +43,7 @@ jobs:
             title: '[ci skip][AUTO]: Automated PR to generate code'
             body: |
               Automated PR to genbindings & built resources
+              [X] does not change any runtime related code or build configuration
             committer: cocos-robot <cocos-robot@cocos.com>
             author: cocos-robot <cocos-robot@cocos.com>
             commit-message: "[ci skip][AUTO]: Automated code generating update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
@@ -51,7 +52,6 @@ jobs:
             branch: t/bot/genbindings
             branch-suffix: short-commit-hash
             delete-branch: true
-            milestone: 1
           
       #- name: Make PR
       #  run: |

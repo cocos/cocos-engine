@@ -878,6 +878,10 @@ module.exports = {
             label: "Geometry Renderer",
             description: "Used to render various geometries for debugging or use in editor.",
         },
+        debug_renderer: {
+            label: "Debug Renderer",
+            description: "Used to render screen text for debugging.",
+        },
         tiled_map: {
             label: "Tiled Map",
             description: "Tiled map support.",

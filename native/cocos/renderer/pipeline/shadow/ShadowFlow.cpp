@@ -176,9 +176,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     for (uint32_t l = 0; l < _validLights.size(); ++l) {
         const scene::Light *light = _validLights[l];
         gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
-
         if (!shadowFramebufferMap.count(light)) {
-            continue;
+            initShadowFrameBuffer(_pipeline, light);
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light).get();
