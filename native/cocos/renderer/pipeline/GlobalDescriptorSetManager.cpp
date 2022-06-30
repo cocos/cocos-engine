@@ -117,7 +117,7 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(const scene::Light
     // The global descriptorSet is managed by the pipeline and binds the buffer
     if (_descriptorSetMap.count(light) == 0 || (_descriptorSetMap.at(light) == nullptr)) {
         auto *descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
-        _descriptorSetMap[light] =  descriptorSet;
+        _descriptorSetMap[light] = descriptorSet;
 
         const auto begin = static_cast<uint32_t>(PipelineGlobalBindings::UBO_GLOBAL);
         const auto end = static_cast<uint32_t>(PipelineGlobalBindings::COUNT);
