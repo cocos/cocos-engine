@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 
-import { deprecateTopLevelInterface, markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
+import { deprecateModuleExportedName, markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
 import { Event, EventKeyboard, EventMouse, EventTouch, SystemEventType } from './types';
 import { SystemEvent } from './system-event';
 import { macro } from '../core/platform/macro';
 
-deprecateTopLevelInterface({
+deprecateModuleExportedName({
     SystemEventType: {
         newTypeName: 'SystemEvent.EventType',
         since: '3.3.0',

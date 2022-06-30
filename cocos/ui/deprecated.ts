@@ -42,7 +42,7 @@ import { warnID } from '../core/platform/debug';
 import { ccclass } from '../core/data/class-decorator';
 import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
-import { deprecateTopLevelInterface } from '../core/utils/x-deprecated';
+import { deprecateModuleExportedName } from '../core/utils/x-deprecated';
 
 /**
  * @deprecated Since v1.2
@@ -160,7 +160,7 @@ export { BlockInputEvents as BlockInputEventsComponent };
 legacyCC.BlockInputEventsComponent = BlockInputEvents;
 js.setClassAlias(BlockInputEvents, 'cc.BlockInputEventsComponent');
 
-deprecateTopLevelInterface({
+deprecateModuleExportedName({
     ButtonComponent: {
         newTypeName: 'Button',
         since: '1.2.0',

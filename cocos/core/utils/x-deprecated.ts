@@ -304,12 +304,12 @@ const topLevelDeprecateList: TopLevelDeprecateList = {
 };
 
 /**
- * This is an internal method to register the deprecate info of top level interface.
+ * This is an internal method to register the deprecate info of module exported binding name.
  * DO NOT USE THIS INTERFACE.
  *
  * @example
  * ```ts
- * deprecateTopLevelInterface({
+ * deprecateModuleExportedName({
  *     ButtonComponent: {
  *         newTypeName: 'Button',
  *         since: '1.2.0',
@@ -319,7 +319,7 @@ const topLevelDeprecateList: TopLevelDeprecateList = {
  * ```
  * @engineInternal
  */
-export function deprecateTopLevelInterface (deprecateList: TopLevelDeprecateList) {
+export function deprecateModuleExportedName (deprecateList: TopLevelDeprecateList) {
     for (let deprecateName in deprecateList) {
         const deprecateInfo = deprecateList[deprecateName];
         topLevelDeprecateList[deprecateName] = deprecateInfo;
