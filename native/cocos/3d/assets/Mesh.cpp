@@ -1273,9 +1273,7 @@ void Mesh::setAllowReadWriteData(bool allowReadWriteData) {
 }
 
 void Mesh::releaseData() {
-#if CC_OPTIMIZE_MESH_DATA
     _data.clear();
-#endif
 }
 
 TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count) {
