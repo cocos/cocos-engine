@@ -281,7 +281,7 @@ describe('releaseManager', () => {
     test('Dont destroy', function () {
         const tex = new Texture2D();
         tex._uuid = 'TestDontDestroy';
-        releaseManager.setDontDestroy(tex);
+        releaseManager.addIgnoredAsset(tex);
         assetManager.assets.add('TestDontDestroy', tex);
         expect(isValid(tex, true)).toBeTruthy();
         // @ts-ignore

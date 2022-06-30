@@ -55,6 +55,19 @@ if ((EDITOR || PREVIEW) && !TEST) {
         });
     };
 
+    const fetchText = (url) => new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = () => {
+            if (xhr.status !== 200) {
+                reject();
+                return;
+            }
+            resolve(xhr.response);
+        };
+        xhr.send(null);
+    });
+
     const queryExtension = async (uuid: string): Promise<string> => {
         if (uuid in cache) {
             if (cache[uuid] !== null) {
@@ -79,8 +92,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
                     previewServer = settings.querySettings<string>(Settings.Category.PATH, 'previewServer') || '';
                     assert(previewServer);
                 }
-                const response = await fetch(`${previewServer}/query-extname/${uuid}`);
-                text = await response.text();
+                text = await fetchText(`${previewServer}/query-extname/${uuid}`) as string;
             }
             cache[uuid] = text;
             if (resolveMap[uuid]) {

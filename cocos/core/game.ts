@@ -28,7 +28,8 @@ import { EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'intern
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
-import assetManager from './asset-manager/asset-manager';
+import { ConfigOrientation } from 'pal/screen-adapter';
+import assetManager, { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { AsyncDelegate } from './event/async-delegate';
 import { input } from '../input';
@@ -48,6 +49,8 @@ import { Director, director } from './director';
 import { bindingMappingInfo } from './pipeline/define';
 import { assert } from './platform/debug';
 import { IBundleOptions } from './asset-manager/shared';
+import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
+import { IPhysicsConfig } from '../physics/framework/physics-config';
 
 /**
  * @zh
@@ -74,14 +77,106 @@ export interface IGameConfig {
 
     /**
      * @zh
-     * 覆盖 settings 模块中的配置项, 用于控制引擎的启动和初始化，你可以在 game.init 中传入参数，也可以在 [game.onPostSettingsInitDelegate] 事件回调中覆盖。
+     * 覆盖 settings 模块中的配置项, 用于控制引擎的启动和初始化，你可以在 game.init 中传入参数，也可以在 [game.onPostBaseInitDelegate] 事件回调中覆盖。
      * 需要注意的是你需要在 application.js 模板中指定此选项和监听此事件。
      * @en
      * Overrides the settings module's some configuration, which is used to control the startup and initialization of the engine.
-     * You can pass in parameters in game.init or override them in the [game.onPostSettingsInitDelegate] event callback.
+     * You can pass in parameters in game.init or override them in the [game.onPostBaseInitDelegate] event callback.
      * Note: you need to specify this option in the application.js template or add a delegate callback.
      */
     overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: Record<string, any> }>
+
+    /**
+     * @zh
+     * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
+     * @en
+     * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.PROFILING: { "showFPS": true }}``` to set this.
+     */
+    showFPS?: boolean;
+
+    /**
+     * @zh
+     * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
+     * @en
+     * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { "frameRate": 60 }}``` to set this.
+     */
+    frameRate?: number;
+
+    /**
+     * @zh
+     * 渲染模式。
+     * 设置渲染器类型，仅适用于 web 端：
+     * - 0 - 通过引擎自动选择。
+     * - 1 - 强制使用 canvas 渲染。
+     * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+     * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
+     * @en
+     * Sets the renderer type, only useful on web:
+     * - 0 - Automatically chosen by engine.
+     * - 1 - Forced to use canvas renderer.
+     * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+     * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderMode": 0 }}``` to set this.
+     */
+    renderMode?: 0 | 1 | 2 | 3;
+
+    /**
+     * @en
+     * Render pipeline resources
+     * @zh
+     * Render pipeline 资源
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderPipeline": '' }}``` to set this.
+     */
+    renderPipeline?: string;
+
+    /**
+     * @en
+     * Asset Manager initialization options
+     * @zh
+     * 资源管理器初始化设置
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.ASSETS: {}}``` to set this.
+     */
+    assetOptions?: IAssetManagerOptions;
+
+    /**
+     * @en
+     * GPU instancing options
+     * @zh
+     * GPU instancing 选项
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.ANIMATION: { customJointTextureLayouts: [] }}``` to set this.
+     */
+    customJointTextureLayouts?: ICustomJointTextureLayout[];
+
+    /**
+     * @en
+     * Physics system config
+     * @zh
+     * 物理系统设置
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.PHYSICS: {}}``` to set this.
+     */
+    physics?: IPhysicsConfig;
+
+    /**
+     * @en
+     * The orientation from the builder configuration.
+     * Available value can be 'auto', 'landscape', 'portrait'.
+     * @zh
+     * 屏幕旋转方向，可选 “自动”，“横屏”，“竖屏”
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'orientation': 'auto' }}``` to set this.
+     */
+    orientation?: ConfigOrientation;
+
+    /**
+     * @en
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     * @zh
+     * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
+     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'exactFitScreen': true }}``` to set this.
+     */
+    exactFitScreen: boolean,
 }
 
 /**
@@ -568,6 +663,7 @@ export class Game extends EventTarget {
      * @param config - Pass configuration object
      */
     public init (config: IGameConfig) {
+        this._compatibleWithOldParams(config);
         // DONT change the order unless you know what's you doing
         return Promise.resolve()
             // #region Base
@@ -665,6 +761,46 @@ export class Game extends EventTarget {
                 this._inited = true;
                 this._safeEmit(Game.EVENT_GAME_INITED);
             });
+    }
+
+    private _compatibleWithOldParams (config: IGameConfig) {
+        const overrideSettings = config.overrideSettings = config.overrideSettings || {};
+        if ('showFPS' in config) {
+            overrideSettings.profiling = overrideSettings.profiling || {};
+            overrideSettings.profiling.showFPS = config.showFPS;
+        }
+        if ('frameRate' in config) {
+            overrideSettings.screen = overrideSettings.screen || {};
+            overrideSettings.screen.frameRate = config.frameRate;
+        }
+        if ('renderMode' in config) {
+            overrideSettings.rendering = overrideSettings.rendering || {};
+            overrideSettings.rendering.renderMode = config.renderMode;
+        }
+        if ('renderPipeline' in config) {
+            overrideSettings.rendering = overrideSettings.rendering || {};
+            overrideSettings.rendering.renderPipeline = config.renderPipeline;
+        }
+        if ('assetOptions' in config) {
+            overrideSettings.assets = overrideSettings.assets || {};
+            Object.assign(overrideSettings.assets, config.assetOptions);
+        }
+        if ('customJointTextureLayouts' in config) {
+            overrideSettings.animation = overrideSettings.animation || {};
+            overrideSettings.animation.customJointTextureLayouts = config.customJointTextureLayouts;
+        }
+        if ('physics' in config) {
+            overrideSettings.physics = overrideSettings.physics || {};
+            Object.assign(overrideSettings.physics, config.physics);
+        }
+        if ('orientation' in config) {
+            overrideSettings.screen = overrideSettings.screen || {};
+            overrideSettings.screen.orientation = config.orientation;
+        }
+        if ('exactFitScreen' in config) {
+            overrideSettings.screen = overrideSettings.screen || {};
+            overrideSettings.screen.exactFitScreen = config.exactFitScreen;
+        }
     }
 
     private _loadPreloadAssets () {
