@@ -113,20 +113,19 @@ void ShadowFlow::render(scene::Camera *camera) {
         }
     }
 
-    for (uint32_t l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light = _validLights[l];
-        gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
+    for (const auto *light : _validLights) {
+        gfx::DescriptorSet *ds = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
 
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
         }else {
             if (shadowInfo->isShadowMapDirty()) {
-                resizeShadowMap(light, globalDS);
+                resizeShadowMap(light, ds);
             }
         }
 
         gfx::Framebuffer *shadowFrameBuffer = shadowFramebufferMap.at(light);
-        renderStage(globalDS, camera, light, shadowFrameBuffer);
+        renderStage(ds, camera, light, shadowFrameBuffer);
     }
 
     shadowInfo->setShadowMapDirty(false);
@@ -173,9 +172,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         }
     }
 
-    for (uint32_t l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light = _validLights[l];
-        gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
+    for (const auto *light : _validLights) {
+        gfx::DescriptorSet *ds = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
         }
@@ -183,7 +181,7 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light).get();
         for (auto *stage : _stages) {
             auto *shadowStage = static_cast<ShadowStage *>(stage);
-            shadowStage->setUsage(globalDS, light, shadowFrameBuffer);
+            shadowStage->setUsage(ds, light, shadowFrameBuffer);
             shadowStage->clearFramebuffer(camera);
         }
     }
