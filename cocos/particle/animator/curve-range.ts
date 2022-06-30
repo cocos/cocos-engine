@@ -59,17 +59,17 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public spline = constructLegacyCurveAndConvert();
+    public declare spline: RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    public splineMin = constructLegacyCurveAndConvert();
+    public declare splineMin: RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public splineMax = constructLegacyCurveAndConvert();
+    public declare splineMax: RealCurve;
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
@@ -131,7 +131,11 @@ export default class CurveRange  {
     public multiplier = 1;
 
     constructor () {
-
+        if (EDITOR) {
+            this.spline = constructLegacyCurveAndConvert();
+            this.splineMax = constructLegacyCurveAndConvert();
+            this.splineMin = constructLegacyCurveAndConvert();
+        }
     }
 
     public evaluate (time: number, rndRatio: number) {
