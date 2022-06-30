@@ -133,7 +133,7 @@ private:
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
             device->destroySurface(e.args->ptrVal);
         });
-        
+
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
             device->createSurface(e.args->ptrVal);
         });
