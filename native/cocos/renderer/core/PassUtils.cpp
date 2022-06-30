@@ -191,13 +191,9 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx + 1] = quat.y;
              a[idx + 2] = quat.z;
              a[idx + 3] = quat.w;
-         } else if (ccstd::holds_alternative<Vec2>(v)) {
-             const auto &vec2 = ccstd::get<Vec2>(v);
-             a[idx] = vec2.x;
-             a[idx + 1] = vec2.y;
-             a[idx + 2] = 0.f;
-             a[idx + 3] = 0.f;
          } else {
+             // Type write failed, trying to convert a non-float4 value to float4
+             CC_LOG_ERROR("Type write failed, trying to convert a non-float4 value to float4");
              CC_ASSERT(false);
          }
      }},
