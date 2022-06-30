@@ -113,8 +113,7 @@ void ShadowFlow::render(scene::Camera *camera) {
         }
     }
 
-    for (uint32_t l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light = _validLights[l];
+    for (const auto *light : _validLights) {
         gfx::DescriptorSet *ds = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
 
         if (!shadowFramebufferMap.count(light)) {
@@ -173,8 +172,7 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         }
     }
 
-    for (uint32_t l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light = _validLights[l];
+    for (const auto *light : _validLights) {
         gfx::DescriptorSet *ds = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);

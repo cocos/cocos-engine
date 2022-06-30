@@ -360,8 +360,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const float packing = hFTexture ? 0.0F : 1.0F;
     const scene::Light *mainLight = scene->getMainLight();
 
-    for (uint32_t i = 0; i < _validPunctualLights.size(); ++i) {
-        const auto *light = _validPunctualLights[i];
+    for (const auto *light : _validPunctualLights) {
         auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         if (!descriptorSet) {
             continue;
