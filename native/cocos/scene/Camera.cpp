@@ -84,6 +84,8 @@ Camera::Camera(gfx::Device *device)
     }
 }
 
+Camera::~Camera() = default;
+
 bool Camera::initialize(const ICameraInfo &info) {
     _node = info.node;
     _width = 1.F;

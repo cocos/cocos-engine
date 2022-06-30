@@ -129,7 +129,7 @@ public:
     static constexpr int32_t SKYBOX_FLAG{static_cast<int32_t>(gfx::ClearFlagBit::STENCIL) << 1};
 
     explicit Camera(gfx::Device *device);
-    ~Camera() override = default;
+    ~Camera() override;
 
     /**
      * this exposure value corresponding to default standard camera exposure parameters
