@@ -80,8 +80,8 @@ android {
 
             externalNativeBuild {
                 cmake {
-                    cFlags "-fvisibility=hidden -fomit-frame-pointer"
-                    cppFlags "-fvisibility=hidden -fomit-frame-pointer -fvisibility-inlines-hidden"
+                    cFlags "-fvisibility=hidden"
+                    cppFlags "-fvisibility=hidden -fvisibility-inlines-hidden"
                 }
             }
         }
