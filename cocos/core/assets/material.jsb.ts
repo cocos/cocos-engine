@@ -88,7 +88,8 @@ function wrapSetProperty (cb: setProperyCB, target: Material, name: string, val:
         cb.call(target, name, val);
     }
 }
-enum  MathType {
+// Note: The MathType should be synchronized with MathType in jsb_conversion_spec.cpp
+enum MathType {
     VEC2 = 0,
     VEC3,
     VEC4,
