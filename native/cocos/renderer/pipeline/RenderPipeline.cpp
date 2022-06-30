@@ -139,7 +139,8 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
 
     // Query the first camera rendering to swapchain.
     for (const auto *camera : cameras) {
-        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain()) {
+        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain() ) {
+            const_cast<scene::Camera*>(camera)->initGeometryRenderer();
             _geometryRenderer = camera->getGeometryRenderer();
             return;
         }

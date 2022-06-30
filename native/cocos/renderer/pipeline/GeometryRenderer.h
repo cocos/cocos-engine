@@ -80,6 +80,7 @@ public:
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData);
     void destroy();
     bool empty() const;
+    void update();
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
@@ -105,7 +106,6 @@ public:
     void addIndexedMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, const ccstd::vector<uint32_t> &indices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
 
 private:
-    void update();
     void reset();
 
     gfx::Device *_device{nullptr};

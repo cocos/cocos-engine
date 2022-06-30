@@ -186,8 +186,6 @@ export class GeometryRenderer {
     }
 
     public render (renderPass: RenderPass, cmdBuff: CommandBuffer, sceneData: PipelineSceneData) {
-        this.update();
-
         const passes = sceneData.geometryRendererPasses;
         const shaders = sceneData.geometryRendererShaders;
 
