@@ -429,7 +429,19 @@ public:
      */
     void updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry);
 
+    /**
+     * @en Set whether the data of this mesh could be read or wrote, it could be used only for static mesh
+     * @zh 设置此网格的数据是否可被读写，此接口只针对静态网格资源生效
+     * @param allowReadWriteData @en Indicate whether this mesh resource could be read or wrote @zh 是否允许读写网格数据
+     */
     void setAllowReadWriteData(bool allowReadWriteData);
+
+    /**
+     * @en Get whether the data of this mesh could be read or wrote
+     * @zh 获取此网格的数据是否可被读写
+     * @return @en whether the data of this mesh could be read or wrote @zh 此网格是否可被读写
+     */
+    inline bool isAllowReadWriteData() const { return _allowReadWriteData; }
 
 private:
     using AccessorType = std::function<void(const IVertexBundle &vertexBundle, int32_t iAttribute)>;
