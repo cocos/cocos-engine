@@ -30,7 +30,9 @@
 #include "math/MathUtil.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
-#include "renderer/pipeline/GeometryRenderer.h"
+#if CC_USE_GEOMETRY_RENDERER
+    #include "renderer/pipeline/GeometryRenderer.h"
+#endif
 
 namespace cc {
 namespace scene {
@@ -104,7 +106,9 @@ void Camera::destroy() {
         _window = nullptr;
     }
     _name.clear();
+#if CC_USE_GEOMETRY_RENDERER
     CC_SAFE_DESTROY_NULL(_geometryRenderer);
+#endif
     CC_SAFE_RELEASE_NULL(_frustum);
 }
 
@@ -216,10 +220,12 @@ void Camera::changeTargetWindow(RenderWindow *window) {
 }
 
 void Camera::initGeometryRenderer() {
+#if CC_USE_GEOMETRY_RENDERER
     if (!_geometryRenderer) {
         _geometryRenderer = ccnew pipeline::GeometryRenderer();
         _geometryRenderer->activate(_device);
     }
+#endif
 }
 
 void Camera::detachCamera() {

@@ -328,6 +328,7 @@ SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_destroyBatchedBuffer);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_BatchedBuffer);
 
+#if CC_USE_GEOMETRY_RENDERER
 extern se::Object *__jsb_cc_pipeline_GeometryRenderer_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 
@@ -357,4 +358,5 @@ SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTorus);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTriangle);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_empty);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
+#endif //CC_USE_GEOMETRY_RENDERER
 // clang-format on

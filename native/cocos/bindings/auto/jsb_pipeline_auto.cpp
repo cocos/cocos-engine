@@ -752,6 +752,7 @@ SE_BIND_FUNC(js_pipeline_RenderPipeline_getDevice)
 
 static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#if CC_USE_GEOMETRY_RENDERER
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     // SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Invalid Native Object");
     if (nullptr == cobj) return true;
@@ -767,6 +768,9 @@ static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLI
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
+#else
+    return true;
+#endif // #if CC_USE_GEOMETRY_RENDERER
 }
 SE_BIND_FUNC_AS_PROP_GET(js_pipeline_RenderPipeline_getGeometryRenderer)
 
@@ -4707,6 +4711,7 @@ bool js_register_pipeline_BatchedBuffer(se::Object* obj) // NOLINT(readability-i
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+#if CC_USE_GEOMETRY_RENDERER
 se::Object* __jsb_cc_pipeline_GeometryRenderer_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_pipeline_GeometryRenderer_class = nullptr;  // NOLINT
 
@@ -7046,6 +7051,7 @@ bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readabilit
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+#endif // CC_USE_GEOMETRY_RENDERER
 bool register_all_pipeline(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -7070,7 +7076,9 @@ bool register_all_pipeline(se::Object* obj)    // NOLINT
     js_register_pipeline_ForwardPipeline(ns);
     js_register_pipeline_ForwardStage(ns);
     js_register_pipeline_GbufferStage(ns);
+    #if CC_USE_GEOMETRY_RENDERER
     js_register_pipeline_GeometryRenderer(ns);
+    #endif // CC_USE_GEOMETRY_RENDERER
     js_register_pipeline_GlobalDSManager(ns);
     js_register_pipeline_InstancedBuffer(ns);
     js_register_pipeline_LightingStage(ns);

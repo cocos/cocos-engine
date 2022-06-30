@@ -25,12 +25,16 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#include "base/RefCounted.h"
-#include "gfx-base/GFXDef-common.h"
-#include "math/Vec2.h"
-#include "math/Vec3.h"
-#include "math/Vec4.h"
+// NOTE: Still need to wrap all code in CC_USE_GEOMETRY_RENDERER block
+// since auto-generated binding code will include GeometryRenderer.h
+#if CC_USE_GEOMETRY_RENDERER
+
+    #include "base/Macros.h"
+    #include "base/RefCounted.h"
+    #include "gfx-base/GFXDef-common.h"
+    #include "math/Vec2.h"
+    #include "math/Vec3.h"
+    #include "math/Vec4.h"
 
 namespace cc {
 
@@ -110,3 +114,5 @@ private:
 
 } // namespace pipeline
 } // namespace cc
+
+#endif // #if CC_USE_GEOMETRY_RENDERER
