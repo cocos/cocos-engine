@@ -30,6 +30,8 @@ cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
 cc_set_if_undefined(USE_CCACHE               OFF)
 cc_set_if_undefined(USE_PLUGINS              ON)
+cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
+cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 
 add_definitions()
 
@@ -1160,8 +1162,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/PostProcessStage.h
                  cocos/renderer/pipeline/UIPhase.cpp
                  cocos/renderer/pipeline/UIPhase.h
-                 cocos/renderer/pipeline/GeometryRenderer.h
-                 cocos/renderer/pipeline/GeometryRenderer.cpp
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
@@ -1207,6 +1207,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
 )
+
+if (USE_GEOMETRY_RENDERER)
+    cocos_source_files(
+        cocos/renderer/pipeline/GeometryRenderer.h
+        cocos/renderer/pipeline/GeometryRenderer.cpp
+    )
+endif()
 
 ##### terrain
 #
@@ -1289,9 +1296,14 @@ cocos_source_files(
 )
 
 ##### profiler
+if (USE_DEBUG_RENDERER)
 cocos_source_files(
     cocos/profiler/DebugRenderer.h
     cocos/profiler/DebugRenderer.cpp
+)
+endif()
+
+cocos_source_files(
     cocos/profiler/Profiler.h
     cocos/profiler/Profiler.cpp
     cocos/profiler/GameStats.h
@@ -1806,8 +1818,6 @@ cocos_source_files(
     cocos/core/assets/BitmapFont.cpp
     cocos/core/assets/Font.h
     cocos/core/assets/Font.cpp
-    cocos/core/assets/FreeTypeFont.h
-    cocos/core/assets/FreeTypeFont.cpp
 
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp
@@ -1905,6 +1915,14 @@ cocos_source_files(
     # cocos/core/platform/VisibleRect.cpp
 
 )
+
+# FreeTypeFont is used in DebugRenderer currently
+if (USE_DEBUG_RENDERER)
+cocos_source_files(
+    cocos/core/assets/FreeTypeFont.h
+    cocos/core/assets/FreeTypeFont.cpp
+)
+endif()
 
 cocos_source_files(MODULE ccgeometry
     cocos/core/geometry/AABB.cpp
@@ -2829,6 +2847,8 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,CC_USE_JOB_SYSTEM_TBB=1,CC_USE_JOB_SYSTEM_TBB=0>
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
+        $<IF:$<BOOL:${USE_DEBUG_RENDERER}>,CC_USE_DEBUG_RENDERER=1,CC_USE_DEBUG_RENDERER=0>
+        $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>

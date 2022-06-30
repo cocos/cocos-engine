@@ -65,7 +65,8 @@ export class RenderInstancedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, descriptorSet: DescriptorSet | null = null) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
+        descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
@@ -82,7 +83,11 @@ export class RenderInstancedQueue {
                         lastPSO = pso;
                     }
                     if (descriptorSet) cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
+                    if (dynamicOffsets) {
+                        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, dynamicOffsets);
+                    } else {
+                        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
+                    }
                     cmdBuff.bindInputAssembler(instance.ia);
                     cmdBuff.draw(instance.ia);
                 }
