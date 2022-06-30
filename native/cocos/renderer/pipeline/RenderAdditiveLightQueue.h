@@ -65,7 +65,7 @@ private:
     static bool isInstancedOrBatched(const scene::Model *model);
 
     void clear();
-    void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint32_t lightPassIdx);
+    void addRenderQueue(const scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx);
     void updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint32_t> *lightPassIndices) const;
@@ -77,8 +77,8 @@ private:
     ccstd::vector<const scene::Light *> _validPunctualLights;
     ccstd::vector<uint32_t> _lightIndices;
     ccstd::vector<AdditiveLightPass> _lightPasses;
-    ccstd::vector<uint32_t> _lightInstancedPasses;
-    ccstd::vector<uint32_t> _lightBatchedPasses;
+    ccstd::vector<AdditiveLightPass> _lightInstancedPasses;
+    ccstd::vector<AdditiveLightPass> _lightBatchedPasses;
     ccstd::vector<uint32_t> _dynamicOffsets;
     ccstd::vector<float> _lightBufferData;
     RenderInstancedQueue *_instancedQueue = nullptr;

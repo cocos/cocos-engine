@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "Define.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
 #include "base/std/container/set.h"
@@ -47,8 +48,8 @@ class CC_DLL RenderInstancedQueue final {
 public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
-
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                             gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0, const ccstd::vector<uint32_t> *dynamicOffsets = nullptr);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void sort();

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/std/container/array.h"
-
 #include "BatchedBuffer.h"
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
@@ -37,7 +35,6 @@
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
 #include "base/Utils.h"
-#include "core/geometry/Sphere.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Camera.h"
@@ -81,17 +78,29 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     const uint32_t offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    for (const auto light : _lightInstancedPasses) {
-        auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+    for (const auto &lightInstancedPass : _lightInstancedPasses) {
+        const auto lights = lightInstancedPass.lights;
+        const auto &dynamicOffsets = lightInstancedPass.dynamicOffsets;
+        for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
+            const auto lightIdx = lights[i];
+            _dynamicOffsets[0] = dynamicOffsets[i];
+            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(lightIdx);
+            _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        }
     }
 
-    for (const auto light : _lightBatchedPasses) {
-        auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+    for (const auto &lightBatchedPass : _lightBatchedPasses) {
+        const auto lights = lightBatchedPass.lights;
+        const auto &dynamicOffsets = lightBatchedPass.dynamicOffsets;
+        for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
+            const auto lightIdx = lights[i];
+            _dynamicOffsets[0] = dynamicOffsets[i];
+            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(lightIdx);
+            _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        }
     }
+
     const bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled();
-
     for (const auto &lightPass : _lightPasses) {
         const auto *const subModel = lightPass.subModel;
 
@@ -146,7 +155,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
         for (const auto &subModel : model->getSubModels()) {
             const auto lightPassIdx = lightPassIndices[i];
             if (lightPassIdx == UINT_MAX) continue;
-            const auto *pass = subModel->getPass(lightPassIdx);
+            auto *pass = subModel->getPass(lightPassIdx);
             const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
             if (isTransparent) {
                 continue;
@@ -155,7 +164,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
             descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstLightBufferView);
             descriptorSet->update();
 
-            addRenderQueue(pass, subModel, model, lightPassIdx);
+            addRenderQueue(subModel, model, pass, lightPassIdx);
 
             ++i;
         }
@@ -173,7 +182,17 @@ void RenderAdditiveLightQueue::clear() {
         lightPass.lights.clear();
     }
     _lightPasses.clear();
+
+    for (auto lightInstancedPass : _lightInstancedPasses) {
+        lightInstancedPass.dynamicOffsets.clear();
+        lightInstancedPass.lights.clear();
+    }
     _lightInstancedPasses.clear();
+
+    for (auto lightBatchedPass : _lightBatchedPasses) {
+        lightBatchedPass.dynamicOffsets.clear();
+        lightBatchedPass.lights.clear();
+    }
     _lightBatchedPasses.clear();
 }
 
@@ -205,37 +224,45 @@ bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
     return false;
 }
 
-void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint32_t lightPassIdx) {
+void RenderAdditiveLightQueue::addRenderQueue(const scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
     const auto batchingScheme = pass->getBatchingScheme();
+    const auto lightCount = _lightIndices.size();
     if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
-        for (const auto idx : _lightIndices) {
-            auto *buffer = InstancedBuffer::get(subModel->getPass(lightPassIdx), idx);
-            buffer->merge(model, subModel, lightPassIdx);
-            buffer->setDynamicOffset(0, _lightBufferStride * idx);
-            _instancedQueue->add(buffer);
-            _lightInstancedPasses.emplace_back(lightPassIdx);
+        AdditiveLightPass lightInstancedPass;
+        auto *buffer = pass->getInstancedBuffer();
+        buffer->merge(model, subModel, lightPassIdx);
+        buffer->setDynamicOffset(0, _lightBufferStride);
+        _instancedQueue->add(buffer);
+        lightInstancedPass.dynamicOffsets.resize(lightCount);
+        for (uint32_t i = 0; i < lightCount; ++i) {
+            const auto lightIdx = _lightIndices[i];
+            lightInstancedPass.lights.emplace_back(lightIdx);
+            lightInstancedPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
         }
+        _lightInstancedPasses.emplace_back(std::move(lightInstancedPass));
     } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) { // vb-merging
-        for (const auto idx : _lightIndices) {
-            auto *buffer = BatchedBuffer::get(subModel->getPass(lightPassIdx), idx);
-            buffer->merge(subModel, lightPassIdx, model);
-            buffer->setDynamicOffset(0, _lightBufferStride * idx);
-            _batchedQueue->add(buffer);
-            _lightBatchedPasses.emplace_back(lightPassIdx);
+        AdditiveLightPass lightBatchedPass;
+        auto *buffer = pass->getBatchedBuffer();
+        buffer->merge(subModel, lightPassIdx, model);
+        buffer->setDynamicOffset(0, _lightBufferStride);
+        _batchedQueue->add(buffer);
+        for (uint32_t i = 0; i < lightCount; ++i) {
+            const auto lightIdx = _lightIndices[i];
+            lightBatchedPass.lights.emplace_back(lightPassIdx);
+            lightBatchedPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
         }
+        _lightInstancedPasses.emplace_back(std::move(lightBatchedPass));
     } else { // standard draw
-        const auto count = _lightIndices.size();
         AdditiveLightPass lightPass;
         lightPass.subModel = subModel;
         lightPass.pass = pass;
         lightPass.shader = subModel->getShader(lightPassIdx);
-        lightPass.dynamicOffsets.resize(count);
-        for (unsigned idx = 0; idx < count; idx++) {
-            const auto lightIdx = _lightIndices[idx];
+        lightPass.dynamicOffsets.resize(lightCount);
+        for (uint32_t i = 0; i < lightCount; ++i) {
+            const auto lightIdx = _lightIndices[i];
             lightPass.lights.emplace_back(lightIdx);
-            lightPass.dynamicOffsets[idx] = _lightBufferStride * lightIdx;
+            lightPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
         }
-
         _lightPasses.emplace_back(std::move(lightPass));
     }
 }
@@ -304,8 +331,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->isEnabled() &&
                                                                                                  spotLight->isShadowEnabled() &&
-                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F
-                                                                                                                                                         : 0.0F;
+                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
 
                 index = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction = spotLight->getDirection();
@@ -325,7 +351,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const auto *sceneData = _pipeline->getPipelineSceneData();
     auto *shadowInfo = sceneData->getShadows();
     const auto *const scene = camera->getScene();
-    auto *device = gfx::Device::getInstance();
+    const auto *device = gfx::Device::getInstance();
     const bool hFTexture = supportsR32FloatTexture(device);
     const float linear = 0.0F;
     const float packing = hFTexture ? 0.0F : 1.0F;
