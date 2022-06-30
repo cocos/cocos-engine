@@ -80,6 +80,7 @@ gulp.task('gen-simulator', async function () {
         else {
             args.push('Xcode');
         }
+        args.push('-DCC_DEBUG_FORCE=ON','-DUSE_V8_DEBUGGER_FORCE=ON');
         args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
         const newEnv = {};
         Object.assign(newEnv, process.env);
