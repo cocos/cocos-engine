@@ -136,7 +136,7 @@ Map &mergeToMap(Map &outMap, const Map &inMap) {
 namespace numext {
 
 template <typename Tgt, typename Src>
-CC_FORCE_INLINE Tgt bit_cast(const Src &src) {
+CC_FORCE_INLINE Tgt bit_cast(const Src &src) { // NOLINT(readability-identifier-naming)
     // The behaviour of memcpy is not specified for non-trivially copyable types
     static_assert(std::is_trivially_copyable<Src>::value, "THIS_TYPE_IS_NOT_SUPPORTED");
     static_assert(std::is_trivially_copyable<Tgt>::value && std::is_default_constructible<Tgt>::value,
@@ -146,7 +146,7 @@ CC_FORCE_INLINE Tgt bit_cast(const Src &src) {
     Tgt tgt;
     // Load src into registers first. This allows the memcpy to be elided by CUDA.
     const Src staged = src;
-    std::memcpy(&tgt, &staged, sizeof(Tgt));
+    memcpy(&tgt, &staged, sizeof(Tgt));
     return tgt;
 }
 
@@ -168,7 +168,7 @@ struct HalfRaw {
     __fp16 x;
 #else
     explicit constexpr HalfRaw(uint16_t raw) : x(raw) {}
-    uint16_t x;
+    uint16_t x; // NOLINT(modernize-use-default-member-init)
 #endif
 };
 
@@ -231,10 +231,10 @@ CC_FORCE_INLINE HalfRaw floatToHalf(float ff) {
 
     const float32_bits f32infty = {255 << 23};
     const float32_bits f16max = {(127 + 16) << 23};
-    const float32_bits denorm_magic = {((127 - 15) + (23 - 10) + 1) << 23};
-    unsigned int sign_mask = 0x80000000u;
+    const float32_bits denorm_magic = {((127 - 15) + (23 - 10) + 1) << 23}; // NOLINT(readability-identifier-naming)
+    unsigned int sign_mask = 0x80000000U; // NOLINT
     HalfRaw o;
-    o.x = static_cast<uint16_t>(0x0u);
+    o.x = static_cast<uint16_t>(0x0U);
 
     unsigned int sign = f.u & sign_mask;
     f.u ^= sign;
@@ -256,7 +256,7 @@ CC_FORCE_INLINE HalfRaw floatToHalf(float ff) {
             // and one integer subtract of the bias later, we have our final float!
             o.x = static_cast<uint16_t>(f.u - denorm_magic.u);
         } else {
-            unsigned int mant_odd = (f.u >> 13) & 1; // resulting mantissa is odd
+            unsigned int mant_odd = (f.u >> 13) & 1; // NOLINT(readability-identifier-naming) // resulting mantissa is odd 
 
             // update exponent, rounding bias part 1
             // Equivalent to `f.u += ((unsigned int)(15 - 127) << 23) + 0xfff`, but
@@ -289,7 +289,7 @@ CC_FORCE_INLINE float halfToFloat(HalfRaw h) {
     return static_cast<float>(h.x);
 #else
     const float32_bits magic = {113 << 23};
-    const unsigned int shifted_exp = 0x7c00 << 13; // exponent mask after shift
+    const unsigned int shifted_exp = 0x7c00 << 13; // NOLINT(readability-identifier-naming) // exponent mask after shift
     float32_bits o;
 
     o.u = (h.x & 0x7fff) << 13;           // exponent/mantissa bits
