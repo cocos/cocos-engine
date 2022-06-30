@@ -309,7 +309,7 @@ void Mesh::initialize() {
                             CC_LOG_WARNING("Device does not support UINT element index type and vertexCount (%u) is larger than ushort", vertexCount);
                             continue;
                         }
-                        
+
                         dstStride >>= 1; // Reduce to short.
                         dstSize >>= 1;
                     }
