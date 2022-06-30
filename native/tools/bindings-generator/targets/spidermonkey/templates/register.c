@@ -110,3 +110,6 @@ bool js_register_${generator.prefix}_${current_class.nested_class_name}(se::Obje
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+#if len($current_class.module_config) > 0
+\#endif // $current_class.module_config[0]
+#end if
