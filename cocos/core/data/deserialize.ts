@@ -572,7 +572,7 @@ export class Details {
         type: Constructor<Asset>;
         owner: Record<string, unknown>;
         prop: string;
-    }) => any) => any;
+    }) => Asset) => void;
 
     /**
      * @method init
