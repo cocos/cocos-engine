@@ -51,11 +51,6 @@ struct AdditiveLightPass {
     ccstd::vector<uint32_t> lights;
 };
 
-struct InstancedOrBatchedLightPass {
-    ccstd::vector<uint32_t> dynamicOffsets;
-    ccstd::vector<uint32_t> lights;
-};
-
 class RenderAdditiveLightQueue final {
 public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
@@ -82,8 +77,8 @@ private:
     ccstd::vector<const scene::Light *> _validPunctualLights;
     ccstd::vector<uint32_t> _lightIndices;
     ccstd::vector<AdditiveLightPass> _lightPasses;
-    ccstd::vector<InstancedOrBatchedLightPass> _lightInstancedPasses;
-    ccstd::vector<InstancedOrBatchedLightPass> _lightBatchedPasses;
+    ccstd::vector<AdditiveLightPass> _lightInstancedPasses;
+    ccstd::vector<AdditiveLightPass> _lightBatchedPasses;
     ccstd::vector<uint32_t> _dynamicOffsets;
     ccstd::vector<float> _lightBufferData;
     RenderInstancedQueue *_instancedQueue = nullptr;
