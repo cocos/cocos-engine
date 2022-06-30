@@ -238,13 +238,15 @@ export class RenderAdditiveLightQueue {
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
         for (let i = 0; i < this._lightInstancedPasses.length; i++) {
             const lights = this._lightInstancedPasses[i].lights;
             const dynamicOffsets = this._lightInstancedPasses[i].dynamicOffsets;
             for (let j = 0; j < dynamicOffsets.length; ++j) {
                 const lightIdx = lights[j];
+                const light = validPunctualLights[lightIdx];
                 _dynamicOffsets[0] = dynamicOffsets[j];
-                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(lightIdx);
+                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
                 this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
             }
         }
@@ -254,8 +256,9 @@ export class RenderAdditiveLightQueue {
             const dynamicOffsets = this._lightBatchedPasses[i].dynamicOffsets;
             for (let j = 0; j < dynamicOffsets.length; ++j) {
                 const lightIdx = lights[j];
+                const light = validPunctualLights[lightIdx];
                 _dynamicOffsets[0] = dynamicOffsets[j];
-                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(lightIdx);
+                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
                 this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
             }
         }
@@ -274,7 +277,8 @@ export class RenderAdditiveLightQueue {
             cmdBuff.bindInputAssembler(ia);
 
             for (let j = 0; j < dynamicOffsets.length; ++j) {
-                const light = lights[j];
+                const lightIdx = lights[j];
+                const light = validPunctualLights[lightIdx];
                 const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light)!;
                 _dynamicOffsets[0] = dynamicOffsets[j];
                 cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
@@ -359,7 +363,7 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < validPunctualLights.length; i++) {
             const light = validPunctualLights[i];
-            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
             if (!descriptorSet) { continue; }
             let matShadowProj : Mat4;
             let matShadowInvProj : Mat4;

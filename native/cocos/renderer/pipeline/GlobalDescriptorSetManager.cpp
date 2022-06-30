@@ -28,6 +28,7 @@
 #include "Define.h"
 #include "RenderInstancedQueue.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Light.h"
 
 namespace cc {
 namespace pipeline {
@@ -111,11 +112,12 @@ void GlobalDSManager::update() {
     }
 }
 
-gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
+gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(const scene::Light *light) {
+    CC_ASSERT(light);
     // The global descriptorSet is managed by the pipeline and binds the buffer
-    if (_descriptorSetMap.count(idx) <= 0 || (_descriptorSetMap.at(idx) == nullptr)) {
+    if (_descriptorSetMap.count(light) <= 0 || (_descriptorSetMap.at(light) == nullptr)) {
         auto *descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
-        _descriptorSetMap.emplace(idx, descriptorSet);
+        _descriptorSetMap.emplace(light, descriptorSet);
 
         const auto begin = static_cast<uint32_t>(PipelineGlobalBindings::UBO_GLOBAL);
         const auto end = static_cast<uint32_t>(PipelineGlobalBindings::COUNT);
@@ -147,7 +149,7 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
         descriptorSet->update();
     }
 
-    return _descriptorSetMap.at(idx);
+    return _descriptorSetMap.at(light);
 }
 
 void GlobalDSManager::destroy() {

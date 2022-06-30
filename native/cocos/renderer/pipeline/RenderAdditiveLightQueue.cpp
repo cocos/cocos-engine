@@ -83,8 +83,9 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
         const auto &dynamicOffsets = lightInstancedPass.dynamicOffsets;
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
             const auto lightIdx = lights[i];
+            const auto *light = _validPunctualLights[lightIdx];
             _dynamicOffsets[0] = dynamicOffsets[i];
-            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(lightIdx);
+            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
             _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
         }
     }
@@ -94,8 +95,9 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
         const auto &dynamicOffsets = lightBatchedPass.dynamicOffsets;
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
             const auto lightIdx = lights[i];
+            const auto *light = _validPunctualLights[lightIdx];
             _dynamicOffsets[0] = dynamicOffsets[i];
-            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(lightIdx);
+            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
             _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
         }
     }
@@ -118,7 +120,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
             cmdBuffer->bindInputAssembler(ia);
 
             for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
-                const auto light = lights[i];
+                const auto lightIdx = lights[i];
+                const auto *light = _validPunctualLights[lightIdx];
                 auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
                 _dynamicOffsets[0] = dynamicOffsets[i];
                 cmdBuffer->bindDescriptorSet(globalSet, globalDescriptorSet, 1, &offset);
@@ -359,7 +362,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
 
     for (uint32_t i = 0; i < _validPunctualLights.size(); ++i) {
         const auto *light = _validPunctualLights[i];
-        auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(i);
+        auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         if (!descriptorSet) {
             continue;
         }
