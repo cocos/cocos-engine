@@ -1,6 +1,6 @@
 // you can write GLSL code directly in here
 
-#include <cc-global>
+#include <builtin/uniforms/cc-global>
 
 #define iResolution cc_screenSize
 #define iTime cc_time.x
