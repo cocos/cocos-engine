@@ -1096,10 +1096,10 @@ void Mesh::updateVertexFormat() {
     ccstd::vector<uint32_t> attributeIndicsNeedConvert;
 
     for (auto &vertexBundle : _struct.vertexBundles) {
-        // Copy attributes;
+        // NOTE: Don't use reference here since we need to copy attributes
         const auto orignalAttributes = vertexBundle.attributes;
-        auto &attributes = vertexBundle.attributes;
 
+        auto &attributes = vertexBundle.attributes;
         auto &view = vertexBundle.view;
         uint32_t offset = view.offset;
         uint32_t length = view.length;
@@ -1119,7 +1119,7 @@ void Mesh::updateVertexFormat() {
                     attributeIndicsNeedConvert.emplace_back(attributeIndex);
                     attribute.format = gfx::Format::RGB16F;
     #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
-                    dstStride -= 4; // metal needs 4 bytes alignment
+                    dstStride -= 4; // NOTE: Metal needs 4 bytes alignment
     #else
                     dstStride -= 6;
     #endif
@@ -1157,18 +1157,16 @@ void Mesh::updateVertexFormat() {
                 if (iter == attributeIndicsNeedConvert.end()) {
                     memcpy(dstIndex, srcIndex, formatInfo.size);
                     float *pValue = reinterpret_cast<float *>(srcIndex);
-                    //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1], pValue[2]);
+
                     dstIndex += formatInfo.size;
                     wroteBytes += (formatInfo.size);
                     srcIndex += formatInfo.size;
-
                     continue;
                 }
 
                 switch (attribute.format) {
                     case gfx::Format::RGB32F: {
                         float *pValue = reinterpret_cast<float *>(srcIndex);
-                        //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1], pValue[2]);
                         uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
                         uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
                         uint16_t z = utils::rawHalfAsUint16(utils::floatToHalf(pValue[2]));
@@ -1179,6 +1177,7 @@ void Mesh::updateVertexFormat() {
                         uint32_t advance = (formatInfo.size >> 1);
 
     #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+                        // NOTE: Metal needs 4 bytes alignment
                         pDst[3] = 0;
                         advance += (formatInfo.size >> 1) % 4;
     #endif
@@ -1187,14 +1186,6 @@ void Mesh::updateVertexFormat() {
                     } break;
                     case gfx::Format::RG32F: {
                         float *pValue = reinterpret_cast<float *>(srcIndex);
-                        //                    assert(pValue[0] <= 1.1f);
-                        //                    assert(pValue[1] <= 1.1f);
-
-                        //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1]);
-                        //
-                        //                    if (pValue[0] > 1.0f || pValue[1] > 1.0f) {
-                        //                        CC_LOG_INFO("found invalid uv[0] = %f, uv[1]= %f", pValue[0], pValue[1]);
-                        //                    }
                         uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
                         uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
                         uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
@@ -1206,9 +1197,6 @@ void Mesh::updateVertexFormat() {
                     } break;
                     case gfx::Format::RGBA32F: {
                         float *pValue = reinterpret_cast<float *>(srcIndex);
-
-                        //                    CC_LOG_INFO("name: %s, index: %d, pValue= %f, %f, %f, %f", attribute.name.c_str(), i, pValue[0], pValue[1], pValue[2], pValue[3]);
-
                         uint16_t x = utils::rawHalfAsUint16(utils::floatToHalf(pValue[0]));
                         uint16_t y = utils::rawHalfAsUint16(utils::floatToHalf(pValue[1]));
                         uint16_t z = utils::rawHalfAsUint16(utils::floatToHalf(pValue[2]));
