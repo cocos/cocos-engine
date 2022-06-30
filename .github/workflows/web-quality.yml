@@ -12,7 +12,7 @@ jobs:
     name: Run ESLint
     #if: github.actor!= 'dependabot'   # ignore the pull request which comes from user dependabot. See https://github.community/t/how-to-stop-github-actions-workflow-to-trigger-when-the-pull-request-is-from-dependabot-preview/116486/3
     if: 
-      ! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

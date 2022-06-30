@@ -19,7 +19,7 @@ jobs:
     name: ClangTidy Android
     # Set the type of machine to run on
     if: 
-      ! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration')
     runs-on: ubuntu-latest
 
     steps:
