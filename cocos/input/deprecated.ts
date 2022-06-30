@@ -23,18 +23,11 @@
  THE SOFTWARE.
  */
 
-import { deprecateModuleExportedName, markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
+import './deprecated-3.3.0';
+import { markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
 import { Event, EventKeyboard, EventMouse, EventTouch, SystemEventType } from './types';
 import { SystemEvent } from './system-event';
 import { macro } from '../core/platform/macro';
-
-deprecateModuleExportedName({
-    SystemEventType: {
-        newTypeName: 'SystemEvent.EventType',
-        since: '3.3.0',
-        removed: false,
-    },
-});
 
 replaceProperty(SystemEventType, 'Node.EventType', [
     {

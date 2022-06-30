@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import './deprecated-1.2.0';
 import { UICoordinateTracker } from './ui-coordinate-tracker';
 import { BlockInputEvents } from './block-input-events';
 import { Button } from './button';
@@ -42,7 +43,6 @@ import { warnID } from '../core/platform/debug';
 import { ccclass } from '../core/data/class-decorator';
 import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
-import { deprecateModuleExportedName } from '../core/utils/x-deprecated';
 
 /**
  * @deprecated Since v1.2
@@ -159,81 +159,3 @@ js.setClassAlias(UICoordinateTracker, 'cc.UICoordinateTrackerComponent');
 export { BlockInputEvents as BlockInputEventsComponent };
 legacyCC.BlockInputEventsComponent = BlockInputEvents;
 js.setClassAlias(BlockInputEvents, 'cc.BlockInputEventsComponent');
-
-deprecateModuleExportedName({
-    ButtonComponent: {
-        newTypeName: 'Button',
-        since: '1.2.0',
-        removed: false,
-    },
-    EditBoxComponent: {
-        newTypeName: 'EditBox',
-        since: '1.2.0',
-        removed: false,
-    },
-    LayoutComponent: {
-        newTypeName: 'Layout',
-        since: '1.2.0',
-        removed: false,
-    },
-    ProgressBarComponent: {
-        newTypeName: 'ProgressBar',
-        since: '1.2.0',
-        removed: false,
-    },
-    ScrollViewComponent: {
-        newTypeName: 'ScrollView',
-        since: '1.2.0',
-        removed: false,
-    },
-    ScrollBarComponent: {
-        newTypeName: 'ScrollBar',
-        since: '1.2.0',
-        removed: false,
-    },
-    SliderComponent: {
-        newTypeName: 'Slider',
-        since: '1.2.0',
-        removed: false,
-    },
-    ToggleComponent: {
-        newTypeName: 'Toggle',
-        since: '1.2.0',
-        removed: false,
-    },
-    ToggleContainerComponent: {
-        newTypeName: 'ToggleContainer',
-        since: '1.2.0',
-        removed: false,
-    },
-    WidgetComponent: {
-        newTypeName: 'Widget',
-        since: '1.2.0',
-        removed: false,
-    },
-    PageViewComponent: {
-        newTypeName: 'PageView',
-        since: '1.2.0',
-        removed: false,
-    },
-    PageViewIndicatorComponent: {
-        newTypeName: 'PageViewIndicator',
-        since: '1.2.0',
-        removed: false,
-    },
-    SafeAreaComponent: {
-        newTypeName: 'SafeArea',
-        since: '1.2.0',
-        removed: false,
-    },
-    UICoordinateTrackerComponent: {
-        newTypeName: 'UICoordinateTracker',
-        since: '1.2.0',
-        removed: false,
-    },
-    BlockInputEventsComponent: {
-        newTypeName: 'BlockInputEvents',
-        since: '1.2.0',
-        removed: false,
-    },
-});
