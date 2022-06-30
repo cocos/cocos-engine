@@ -166,8 +166,6 @@ void GeometryRenderer::activate(gfx::Device *device, const GeometryRendererInfo 
 }
 
 void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData) {
-    update();
-
     const auto &passes = sceneData->getGeometryRendererPasses();
     const auto &shaders = sceneData->getGeometryRendererShaders();
 
