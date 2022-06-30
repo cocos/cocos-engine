@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Define.h"
+#include "base/Ptr.h"
 #include "base/std/container/array.h"
 
 namespace cc {
