@@ -556,7 +556,7 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: Record<string | number, any>, allowExist = false) {
+function setup (tag: string, table: Record<string | number, any>, allowExist) {
     return function (id: string, constructor: Constructor) {
         // deregister old
         // eslint-disable-next-line no-prototype-builtins
@@ -565,9 +565,9 @@ function setup (tag: string, table: Record<string | number, any>, allowExist = f
         }
         value(constructor.prototype, tag, id);
         // register class
-        if (!allowExist && id) {
+        if (id) {
             const registered = table[id];
-            if (registered && registered !== constructor) {
+            if (!allowExist && registered && registered !== constructor) {
                 let err = `A Class already exists with the same ${tag} : "${id}".`;
                 if (TEST) {
                     // eslint-disable-next-line no-multi-str
@@ -596,7 +596,7 @@ function setup (tag: string, table: Record<string | number, any>, allowExist = f
  * @param constructor
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const _setClassId = setup('__cid__', _idToClass);
+export const _setClassId = setup('__cid__', _idToClass, false);
 
 const doSetClassName = setup('__classname__', _nameToClass, true);
 
