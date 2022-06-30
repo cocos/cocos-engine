@@ -19,7 +19,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <stdint.h>
 #include <sstream>
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
