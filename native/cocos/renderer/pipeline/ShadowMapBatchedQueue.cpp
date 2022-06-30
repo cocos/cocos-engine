@@ -81,11 +81,10 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                 }
             } break;
             case scene::LightType::SPOT: {
-                auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
                 if (spotLight->isShadowEnabled()) {
                     geometry::AABB ab;
-                    bool hasCastShadowObjects = false;
                     for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
                         if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
@@ -94,11 +93,9 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                         if (model->getWorldBounds()) {
                             if (model->getWorldBounds()->aabbFrustum(spotLight->getFrustum())) {
                                 add(model);
-                                hasCastShadowObjects = true;
                             }
                         }
                     }
-                    const_cast<scene::SpotLight *>(spotLight)->setHasCastShadowObjects(hasCastShadowObjects);
                 }
             } break;
 

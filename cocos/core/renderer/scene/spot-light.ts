@@ -72,7 +72,6 @@ export class SpotLight extends Light {
     protected _shadowPcf = PCFType.HARD;
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
-    protected _hasCastShadowObjects = false;
 
     /**
      * @en The world position of the light source
@@ -239,17 +238,6 @@ export class SpotLight extends Light {
     }
     set shadowNormalBias (val: number) {
         this._shadowNormalBias = val;
-    }
-
-    /**
-     * @en get or set this light has Cast Shadow Objects
-     * @zh 获取或者设置灯光有没有可以投射阴影的物体
-     */
-    get hasCastShadowObjects () {
-        return this._hasCastShadowObjects;
-    }
-    set hasCastShadowObjects (val) {
-        this._hasCastShadowObjects = val;
     }
 
     constructor () {

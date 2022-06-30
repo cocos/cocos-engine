@@ -112,7 +112,6 @@ export class RenderShadowMapBatchedQueue {
                 const spotLight = light as SpotLight;
                 if (spotLight.shadowEnabled) {
                     const castShadowObjects = sceneData.csmLayers.castShadowObjects;
-                    let hasCastShadowObjects = false;
                     for (let i = 0; i < castShadowObjects.length; i++) {
                         const ro = castShadowObjects[i];
                         const model = ro.model;
@@ -122,9 +121,7 @@ export class RenderShadowMapBatchedQueue {
                         }
 
                         this.add(model, _shadowPassIndices);
-                        hasCastShadowObjects = true;
                     }
-                    spotLight.hasCastShadowObjects = hasCastShadowObjects;
                 }
                 break;
             default:

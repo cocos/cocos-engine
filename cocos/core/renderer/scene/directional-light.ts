@@ -62,7 +62,6 @@ export class DirectionalLight extends Light {
     protected _shadowNear = 0.1;
     protected _shadowFar = 10.0;
     protected _shadowOrthoSize = 5;
-    protected _hasCastShadowObjects = false;
 
     /**
      * @en The direction vector of the light
