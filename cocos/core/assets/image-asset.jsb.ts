@@ -30,6 +30,7 @@ import { PixelFormat } from './asset-enum';
 import { sys } from '../platform/sys';
 import { macro } from '../platform/macro';
 import { warnID } from '../platform/debug';
+import './asset';
 
 export type ImageAsset = jsb.ImageAsset;
 export const ImageAsset = jsb.ImageAsset;

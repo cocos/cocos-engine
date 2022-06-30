@@ -30,6 +30,7 @@
 #include "cocos/bindings/manual/jsb_classtype.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "SimulatorApp.h"
@@ -54,6 +55,7 @@ Game::~Game() {
 }
 
 int Game::init() {
+    cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
     SimulatorApp::getInstance()->run();
     int windowWidth  = SimulatorApp::getInstance()->getWidth();
     int windowHeight = SimulatorApp::getInstance()->getHegith();

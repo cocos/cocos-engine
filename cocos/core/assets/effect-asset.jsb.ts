@@ -29,6 +29,7 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
+import './asset';
 
 export type EffectAsset = jsb.EffectAsset;
 export const EffectAsset = jsb.EffectAsset;

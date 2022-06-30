@@ -24,6 +24,7 @@
 */
 import { ccclass, override } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
+import './asset';
 
 export type BufferAsset = jsb.BufferAsset;
 export const BufferAsset = jsb.BufferAsset;
