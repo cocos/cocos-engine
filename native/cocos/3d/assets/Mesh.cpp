@@ -385,6 +385,7 @@ void Mesh::destroyRenderingMesh() {
         }
         _renderingSubMeshes.clear();
         _initialized = false;
+        _isMeshDataUploaded = false;
     }
 }
 
