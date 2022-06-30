@@ -54,7 +54,7 @@ void World::setGravity(float x, float y, float z) {
     _impl->setGravity(x, y, z);
 }
 
-uintptr_t World::createMaterial(uint16_t id, float f, float df, float r,
+bool World::createMaterial(uint16_t id, float f, float df, float r,
                                 uint8_t m0, uint8_t m1) {
     return _impl->createMaterial(id, f, df, r, m0, m1);
 }
@@ -83,15 +83,15 @@ void World::setCollisionMatrix(uint32_t i, uint32_t m) {
     _impl->setCollisionMatrix(i, m);
 }
 
-uintptr_t World::createConvex(ConvexDesc &desc) {
+uint32_t World::createConvex(ConvexDesc &desc) {
     return _impl->createConvex(desc);
 }
 
-uintptr_t World::createTrimesh(TrimeshDesc &desc) {
+uint32_t World::createTrimesh(TrimeshDesc &desc) {
     return _impl->createTrimesh(desc);
 }
 
-uintptr_t World::createHeightField(HeightFieldDesc &desc) {
+uint32_t World::createHeightField(HeightFieldDesc &desc) {
     return _impl->createHeightField(desc);
 }
 

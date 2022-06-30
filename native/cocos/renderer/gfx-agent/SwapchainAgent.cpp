@@ -43,7 +43,7 @@ SwapchainAgent::~SwapchainAgent() {
         DeviceAgent::getInstance()->getMessageQueue(), SwapchainDestruct,
         actor, _actor,
         {
-            CC_SAFE_DELETE(actor);
+            actor = nullptr;
         });
 }
 

@@ -703,6 +703,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera && camera.window && camera.window.swapchain) {
+                camera.initGeometryRenderer();
                 this._geometryRenderer = camera.geometryRenderer;
                 return;
             }

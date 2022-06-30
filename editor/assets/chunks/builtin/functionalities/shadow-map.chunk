@@ -232,12 +232,7 @@ float CCGetLinearDepth(vec3 worldPos) {
     vec4 csmPos = vec4(1.0);
     vec4 shadowProjDepthInfo, shadowProjInfo;
     mat4 matLightView;
-    vec4 line0, line1, line2, line3;
-    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, line0, line1, line2, line3, worldPos);
-    matLightView[0]= line0;
-    matLightView[1]= line1;
-    matLightView[2]= line2;
-    matLightView[3]= line3;
+    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView[0], matLightView[1], matLightView[2], matLightView[3], worldPos);
     if (level < 0) { return 1.0; }
     float realtimeShadow = 1.0;
 

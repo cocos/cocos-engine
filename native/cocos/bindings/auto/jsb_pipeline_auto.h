@@ -301,7 +301,6 @@ SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOctree);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_updatePipelineSceneData);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_PipelineSceneData);
 
@@ -329,6 +328,7 @@ SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_destroyBatchedBuffer);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_BatchedBuffer);
 
+#if CC_USE_GEOMETRY_RENDERER
 extern se::Object *__jsb_cc_pipeline_GeometryRenderer_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 
@@ -357,5 +357,7 @@ SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSpline);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTorus);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTriangle);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_empty);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_update);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
+#endif //CC_USE_GEOMETRY_RENDERER
 // clang-format on

@@ -27,6 +27,7 @@
 
 #include <memory>
 #include "Macros.h"
+#include "base/Ptr.h"
 
 namespace cc {
 
@@ -51,7 +52,7 @@ public:
     inline Actor *getActor() const noexcept { return _actor; }
 
 protected:
-    Actor *_actor{nullptr};
+    IntrusivePtr<Actor> _actor;
 };
 
 } // namespace cc

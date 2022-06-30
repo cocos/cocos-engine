@@ -129,7 +129,7 @@ public:
     static constexpr int32_t SKYBOX_FLAG{static_cast<int32_t>(gfx::ClearFlagBit::STENCIL) << 1};
 
     explicit Camera(gfx::Device *device);
-    ~Camera() override = default;
+    ~Camera() override;
 
     /**
      * this exposure value corresponding to default standard camera exposure parameters
@@ -312,7 +312,14 @@ public:
 
     inline gfx::SurfaceTransform getSurfaceTransform() const { return _curTransform; }
 
-    inline pipeline::GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer.get(); }
+    void initGeometryRenderer();
+    inline pipeline::GeometryRenderer *getGeometryRenderer() const {
+#if CC_USE_GEOMETRY_RENDERER
+        return _geometryRenderer.get();
+#else
+        return nullptr;
+#endif
+    }
 
     void detachCamera();
 
@@ -364,7 +371,9 @@ private:
     gfx::ClearFlagBit _clearFlag{gfx::ClearFlagBit::NONE};
     float _clearDepth{1.0F};
 
+#if CC_USE_GEOMETRY_RENDERER
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
+#endif
 
     static const ccstd::vector<float> FSTOPS;
     static const ccstd::vector<float> SHUTTERS;

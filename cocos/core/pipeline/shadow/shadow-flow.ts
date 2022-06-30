@@ -256,11 +256,12 @@ export class ShadowFlow extends RenderFlow {
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
-            const shadowFrameBuffer = scene.shadowFrameBufferMap.get(light);
             const globalDS = pipeline.globalDSManager.getOrCreateDescriptorSet(l)!;
+            if (!scene.shadowFrameBufferMap.has(light)) {
+                this._initShadowFrameBuffer(this._pipeline, light, camera.window.swapchain);
+            }
 
-            if (!scene.shadowFrameBufferMap.has(light)) { continue; }
-
+            const shadowFrameBuffer = scene.shadowFrameBufferMap.get(light);
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
                 shadowStage.setUsage(globalDS, light, shadowFrameBuffer!);

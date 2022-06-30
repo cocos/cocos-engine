@@ -60,7 +60,9 @@
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
-#include "profiler/DebugRenderer.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "profiler/DebugRenderer.h"
+#endif
 #include "profiler/Profiler.h"
 
 namespace {
@@ -107,7 +109,10 @@ int32_t Engine::init() {
     _programLib = ccnew ProgramLib();
     _builtinResMgr = ccnew BuiltinResMgr;
 
+#if CC_USE_DEBUG_RENDERER
     _debugRenderer = ccnew DebugRenderer();
+#endif
+
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
@@ -149,11 +154,15 @@ void Engine::destroy() {
 #endif
     // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
     // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
+#if CC_USE_DEBUG_RENDERER
     delete _debugRenderer;
+#endif
 
     //TODO(): Delete some global objects.
-
+#if CC_USE_DEBUG_RENDERER
+    // FreeTypeFontFace is only used in DebugRenderer now, so use CC_USE_DEBUG_RENDERER macro temporarily
     FreeTypeFontFace::destroyFreeType();
+#endif
 
 #if CC_USE_DRAGONBONES
     dragonBones::ArmatureCacheMgr::destroyInstance();
@@ -171,7 +180,7 @@ void Engine::destroy() {
 
     delete _builtinResMgr;
     delete _programLib;
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
+    CC_SAFE_DELETE(_gfxDevice);
     delete _fs;
     _scheduler.reset();
 
@@ -213,7 +222,6 @@ void Engine::close() { // NOLINT
     _scheduler->unscheduleAll();
 
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
-    
 
     // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
     exit(0);

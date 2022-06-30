@@ -249,6 +249,7 @@ std::string getCurAppName(void)
 
 -(void) run
 {
+    createFileUtils();
     SIMULATOR = self;
     player::PlayerMac::create();
 
@@ -419,7 +420,6 @@ std::string getCurAppName(void)
 }
 - (void) startup
 {
-    createFileUtils();
     _project.dump();
 
     const string projectDir = _project.getProjectDir();

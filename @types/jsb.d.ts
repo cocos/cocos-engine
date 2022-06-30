@@ -91,7 +91,7 @@ declare namespace jsb {
     export function openURL(url: string): void;
     export function garbageCollect(): void;
     enum AudioFormat {
-        UNKNOWN = 0,
+        UNKNOWN,
         SIGNED_8,
         UNSIGNED_8,
         SIGNED_16,
