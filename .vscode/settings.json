@@ -16,9 +16,6 @@
         "typescript"
     ],
     "editor.codeActionsOnSave": {
-        "source.fixAll": false,
-    },
-    "files.associations": {
-        "type_traits": "cpp"
+        "source.fixAll": true,
     },
 }
