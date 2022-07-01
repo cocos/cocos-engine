@@ -59,8 +59,8 @@ jobs:
           gulp gen-simulator
       - name: check result
         run: |
-          Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe
-          if(Test-Path ./simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
+          Get-ChildItem ./simulator/Release -Name SimulatorApp-Win32.exe
+          if(Test-Path ./simulator/Release/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
 
   # mac_gen_simulator:
   #   runs-on: macos-latest
@@ -99,4 +99,4 @@ jobs:
   #     - name: check result
   #       run: |
   #         find ./ -name SimulatorApp-Mac
-  #         [ -f ./simulator/Debug/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1
+  #         [ -f ./simulator/Release/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1
