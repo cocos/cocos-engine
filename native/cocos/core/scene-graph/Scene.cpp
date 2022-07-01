@@ -28,7 +28,6 @@
 // #include "core/Director.h"
 #include "core/Root.h"
 //#include "core/scene-graph/NodeActivator.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 
 namespace cc {
