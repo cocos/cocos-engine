@@ -230,7 +230,7 @@ export class UIMeshRenderer extends Component {
     }
 
     protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.STATIC);
+        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
     }
 
     protected _renderData:RenderData|null = null;

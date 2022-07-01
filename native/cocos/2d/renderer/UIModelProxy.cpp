@@ -50,24 +50,24 @@ void UIModelProxy::uploadData() {
     for (size_t i = 0; i < drawInfos.size(); i++) {
         auto drawInfo = drawInfos[i];
         auto* ia = subModelList.at(i)->getInputAssembler();
-        if (drawInfo->getVbCount() <= 0) continue;
+        if (drawInfo->getVertexOffset() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
         if (vBuffers.size() > 0) {
-            auto size = drawInfo->getVbCount() * _stride;
+            auto size = drawInfo->getVertexOffset() * _stride;
             // if (size > vBuffers[0]->getSize()) {
                 vBuffers[0]->resize(size);
             // }
             vBuffers[0]->update(drawInfo->getVDataBuffer()); // vdata
         }
-        ia->setVertexCount(drawInfo->getVbCount()); // count
+        ia->setVertexCount(drawInfo->getVertexOffset()); // count
 
         gfx::Buffer* iBuffer = ia->getIndexBuffer();
-        auto size = drawInfo->getIbCount() * sizeof(uint16_t);
+        auto size = drawInfo->getIndexOffset() * sizeof(uint16_t);
         // if (size > iBuffer->getSize()) {
             iBuffer->resize(size);
         // }
         iBuffer->update(drawInfo->getIDataBuffer()); // idata
-        ia->setIndexCount(drawInfo->getIbCount());   // indexCount
+            ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
         // drawInfo->setModel(_model); // hack, render by model
     }
     drawInfos[0]->setModel(_model);

@@ -2,6 +2,7 @@
 #include <2d/renderer/RenderDrawInfo.h>
 #include <cocos/base/TypeDef.h>
 #include <iostream>
+#include <gfx-base/GFXDevice.h>
 
 namespace cc {
 RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
@@ -144,6 +145,62 @@ void RenderDrawInfo::parseAttrLayout() {
 
 const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
     return *_attrSharedBuffer;
+}
+
+gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
+    if (_nextFreeIAHandle >= _iaPool.size()) {
+        _initIAInfo(device);
+    }
+    auto* ia = _iaPool[_nextFreeIAHandle++]; // 需要 reset
+    ia->setFirstIndex(this->getIndexOffset());
+    ia->setIndexCount(this->getIbCount());
+    return ia;
+}
+
+void RenderDrawInfo::uploadBuffers() {
+    if (_vbCount == 0 || _ibCount == 0) return;
+    auto size = _vbCount * 9;
+    gfx::Buffer* vBuffer = vbGFXBuffer;
+    vBuffer->resize(size);
+    vBuffer->update(_vDataBuffer);
+    gfx::Buffer* iBuffer = ibGFXBuffer;
+    auto isize = _ibCount * sizeof(uint16_t);
+    iBuffer->resize(isize);
+    iBuffer->update(_iDataBuffer);
+}
+
+void RenderDrawInfo::resetMeshIA() {
+    _nextFreeIAHandle = 0;
+}
+
+gfx::InputAssembler* RenderDrawInfo::_initIAInfo(gfx::Device* device) {
+    if (_iaPool.empty()) {
+        uint32_t vbStride = 9 * sizeof(float); // hack
+        uint32_t ibStride = sizeof(uint16_t);
+        auto* vertexBuffer = device->createBuffer({
+            gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE,
+            vbStride * 3,
+            vbStride,
+        });
+        auto* indexBuffer = device->createBuffer({
+            gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE,
+            ibStride * 3,
+            ibStride,
+        });
+
+        vbGFXBuffer = vertexBuffer;
+        ibGFXBuffer = indexBuffer;
+
+        _iaInfo.attributes = _attributes;
+        _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
+        _iaInfo.indexBuffer = indexBuffer;
+    }
+    auto* ia = device->createInputAssembler(_iaInfo);
+    _iaPool.emplace_back(ia);
+
+    return ia;
 }
 
 //ArrayBuffer::Ptr RenderDrawInfo::getAttrSharedBufferForJS() const {

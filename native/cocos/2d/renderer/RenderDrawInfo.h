@@ -99,6 +99,16 @@ public:
     inline uint32_t getSize() { return this->_size; }
     inline uint8_t getDrawType() { return this->_drawType; }
 
+public: // for meshRenderData
+    gfx::InputAssembler* requestIA(gfx::Device* device);
+    void uploadBuffers();
+    void resetMeshIA();
+
+
+private:
+    gfx::InputAssembler* _initIAInfo(gfx::Device* device);
+
+
 private:
     Batcher2d* _batcher;
 
@@ -144,6 +154,19 @@ private: // for merging batches
     gfx::Sampler* _sampler{nullptr};
 
     uint32_t _blendHash{0};
+
+private: // for meshRenderData
+    gfx::InputAssemblerInfo _iaInfo;
+    ccstd::vector<gfx::Attribute> _attributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    };
+
+    ccstd::vector<gfx::InputAssembler*> _iaPool{};
+    uint32_t _nextFreeIAHandle{0};
+    gfx::Buffer* vbGFXBuffer{nullptr};
+    gfx::Buffer* ibGFXBuffer{nullptr};
 };
 
 } // namespace cc

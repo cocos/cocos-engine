@@ -602,6 +602,8 @@ export class MeshRenderData extends BaseRenderData {
     public lastFilledIndex = 0;
     public lastFilledVertex = 0;
 
+    public frame;
+
     private _byteLength = 0;
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
@@ -784,11 +786,30 @@ export class MeshRenderData extends BaseRenderData {
             }
             this._renderDrawInfo.setVData(this.vData.buffer);
             this._renderDrawInfo.setIData(this.iData.buffer);
-            this._renderDrawInfo.setVBCount(this.vertexStart);
-            this._renderDrawInfo.setIBCount(this.indexStart);
+            this._renderDrawInfo.setVBCount(this._vc);
+            this._renderDrawInfo.setIBCount(this._ic);
+            this._renderDrawInfo.setVertexOffset(this.vertexStart);
+            this._renderDrawInfo.setIndexOffset(this.indexStart);
 
             this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
             this._renderDrawInfo.setMaterial(this.material!);
+            this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
+            this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
+        }
+    }
+
+    //  only for particle2d
+    public particleInitRenderDrawInfo (entity:RenderEntity) {
+        if (JSB) {
+            if (entity.renderEntityType === RenderEntityType.STATIC) {
+                if (!this._renderDrawInfo) {
+                    // initialization should be in native
+                    const drawInfo = entity.getStaticRenderDrawInfo();
+                    if (drawInfo) {
+                        this._renderDrawInfo = drawInfo;
+                    }
+                }
+            }
         }
     }
 }

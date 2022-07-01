@@ -30,6 +30,8 @@ import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-for
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
+import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { director } from '../core/director';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -461,6 +463,10 @@ export class Simulator {
             }
         }
 
+        this.renderData.material = this.sys.getRenderMaterial(0); // hack
+        this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        renderData.setRenderDrawInfoAttributes();
+
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
             this.finished = true;
             psys._finishedSimulation();
@@ -480,6 +486,32 @@ export class Simulator {
             buffer[offset++] = vId + 1;
             buffer[offset++] = vId + 3;
             buffer[offset++] = vId + 2;
+        }
+    }
+
+    protected _renderEntity : RenderEntity|null = null;
+    get renderEntity () {
+        if (!this._renderEntity) {
+            this.initRenderEntity();
+        }
+        return this._renderEntity;
+    }
+
+    protected initRenderEntity () {
+        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.STATIC);
+    }
+
+    public initDrawInfo () {
+        const renderData = this.renderData;
+        const entity = this.renderEntity;
+        if (entity) {
+            if (entity.renderDrawInfoArr.length === 0) {
+                entity.addDynamicRenderDrawInfo(renderData.renderDrawInfo);
+            } else if (entity.renderDrawInfoArr.length > 0) {
+                if (entity.renderDrawInfoArr[0] !== renderData.renderDrawInfo) {
+                    entity.setDynamicRenderDrawInfo(renderData.renderDrawInfo, 0);
+                }
+            }
         }
     }
 }
