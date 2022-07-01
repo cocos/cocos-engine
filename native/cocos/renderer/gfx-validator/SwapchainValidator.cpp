@@ -40,6 +40,7 @@ SwapchainValidator::SwapchainValidator(Swapchain *actor)
 
 SwapchainValidator::~SwapchainValidator() {
     DeviceResourceTracker<Swapchain>::erase(this);
+    CC_SAFE_DELETE(_actor);
 }
 
 void SwapchainValidator::doInit(const SwapchainInfo &info) {

@@ -61,7 +61,11 @@ bool Device::initialize(const DeviceInfo &info) {
     static_assert(sizeof(void *) == 8, "pointer size assumption broken");
 #endif
 
-    return doInit(info);
+    bool result = doInit(info);
+    _cmdBuff->addRef();
+    _queue->addRef();
+
+    return result;
 }
 
 void Device::destroy() {

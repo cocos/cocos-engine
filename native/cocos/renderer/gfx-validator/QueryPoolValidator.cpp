@@ -40,6 +40,7 @@ QueryPoolValidator::QueryPoolValidator(QueryPool *actor)
 
 QueryPoolValidator::~QueryPoolValidator() {
     DeviceResourceTracker<QueryPool>::erase(this);
+    CC_SAFE_DELETE(_actor);
 }
 
 void QueryPoolValidator::doInit(const QueryPoolInfo &info) {

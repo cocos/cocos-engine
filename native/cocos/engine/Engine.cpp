@@ -180,7 +180,7 @@ void Engine::destroy() {
 
     delete _builtinResMgr;
     delete _programLib;
-    CC_SAFE_DELETE(_gfxDevice);
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
     _scheduler.reset();
 

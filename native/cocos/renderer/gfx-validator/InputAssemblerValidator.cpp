@@ -35,11 +35,13 @@ namespace gfx {
 
 InputAssemblerValidator::InputAssemblerValidator(InputAssembler *actor)
 : Agent<InputAssembler>(actor) {
+    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 InputAssemblerValidator::~InputAssemblerValidator() {
     DeviceResourceTracker<InputAssembler>::erase(this);
+    CC_SAFE_RELEASE(_actor);
 }
 
 void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {

@@ -60,7 +60,7 @@ DeviceValidator::DeviceValidator(Device *device) : Agent(device) {
 }
 
 DeviceValidator::~DeviceValidator() {
-    destroy();
+    CC_SAFE_DELETE(_actor);
     DeviceValidator::instance = nullptr;
 }
 
@@ -89,14 +89,14 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    static_cast<QueueValidator *>(_queue.get())->_inited = true;
-    static_cast<QueryPoolValidator *>(_queryPool.get())->_inited = true;
-    static_cast<CommandBufferValidator *>(_cmdBuff.get())->_queue = _queue;
-    static_cast<CommandBufferValidator *>(_cmdBuff.get())->initValidator();
+    static_cast<QueueValidator *>(_queue)->_inited = true;
+    static_cast<QueryPoolValidator *>(_queryPool)->_inited = true;
+    static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
+    static_cast<CommandBufferValidator *>(_cmdBuff)->initValidator();
 
-    DeviceResourceTracker<CommandBuffer>::push(_cmdBuff.get());
-    DeviceResourceTracker<QueryPool>::push(_queryPool.get());
-    DeviceResourceTracker<Queue>::push(_queue.get());
+    DeviceResourceTracker<CommandBuffer>::push(_cmdBuff);
+    DeviceResourceTracker<QueryPool>::push(_queryPool);
+    DeviceResourceTracker<Queue>::push(_queue);
 
     CC_LOG_INFO("Device validator enabled.");
 
@@ -105,12 +105,21 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
 
 void DeviceValidator::doDestroy() {
     if (_cmdBuff) {
-        static_cast<CommandBufferValidator *>(_cmdBuff.get())->destroyValidator();
+        static_cast<CommandBufferValidator *>(_cmdBuff)->destroyValidator();
+        static_cast<CommandBufferValidator *>(_cmdBuff)->_actor = nullptr;
+        delete _cmdBuff;
         _cmdBuff = nullptr;
     }
-    
-    _queryPool = nullptr;
-    _queue = nullptr;
+    if (_queryPool) {
+        static_cast<QueryPoolValidator *>(_queryPool)->_actor = nullptr;
+        delete _queryPool;
+        _queryPool = nullptr;
+    }
+    if (_queue) {
+        static_cast<QueueValidator *>(_queue)->_actor = nullptr;
+        delete _queue;
+        _queue = nullptr;
+    }
 
     DeviceResourceTracker<CommandBuffer>::checkEmpty();
     DeviceResourceTracker<QueryPool>::checkEmpty();
@@ -128,9 +137,7 @@ void DeviceValidator::doDestroy() {
     DeviceResourceTracker<PipelineLayout>::checkEmpty();
     DeviceResourceTracker<PipelineState>::checkEmpty();
 
-    if (_actor) {
-        _actor->destroy();
-    }
+    _actor->destroy();
 }
 
 void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {

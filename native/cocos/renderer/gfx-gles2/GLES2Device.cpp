@@ -228,10 +228,9 @@ void GLES2Device::doDestroy() {
     CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked.
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked.
 
-    _queryPool = nullptr;
-    _queue = nullptr;
-    _cmdBuff = nullptr;
-
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
+    CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
 }
 
@@ -246,7 +245,7 @@ void GLES2Device::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void GLES2Device::present() {
     CC_PROFILE(GLES2DevicePresent);
-    auto *queue = static_cast<GLES2Queue *>(_queue.get());
+    auto *queue = static_cast<GLES2Queue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;

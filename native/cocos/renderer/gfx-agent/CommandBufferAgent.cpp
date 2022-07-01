@@ -83,7 +83,7 @@ CommandBufferAgent::~CommandBufferAgent() {
         DeviceAgent::getInstance()->getMessageQueue(), CommandBufferDestruct,
         actor, _actor,
         {
-            actor = nullptr;
+            CC_SAFE_DELETE(actor);
         });
 }
 
