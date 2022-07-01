@@ -28,6 +28,7 @@ import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { macro } from '../platform';
 import dependUtil from '../asset-manager/depend-util';
 import { fastRemoveAt } from '../utils/array';
+import './texture-base';
 
 declare const jsb: any;
 

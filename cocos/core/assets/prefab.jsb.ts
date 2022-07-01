@@ -29,6 +29,7 @@ import {
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Enum } from '../value-types';
+import './asset';
 
 export const Prefab = jsb.Prefab;
 export type Prefab = jsb.Prefab;

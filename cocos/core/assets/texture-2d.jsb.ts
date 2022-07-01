@@ -29,6 +29,7 @@ import { SimpleTexture } from './simple-texture';
 import { TextureBase } from './texture-base.jsb';
 import { js } from '../utils/js';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import './simple-texture';
 
 const texture2DProto: any = jsb.Texture2D.prototype;
 
