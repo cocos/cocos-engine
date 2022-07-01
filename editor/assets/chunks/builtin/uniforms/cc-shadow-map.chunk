@@ -2,4 +2,4 @@
 layout(set = 0, binding = 3) uniform highp sampler2D cc_shadowMap;
 
 #pragma builtin(global)
-layout(set = 0, binding = 5) uniform highp sampler2D cc_spotLightingMap;
+layout(set = 0, binding = 5) uniform highp sampler2D cc_spotShadowMap;
