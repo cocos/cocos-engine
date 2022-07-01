@@ -26,6 +26,7 @@ option(USE_JOB_SYSTEM_TBB       "Use tbb as job system backend"         OFF)
 option(USE_PHYSICS_PHYSX        "USE PhysX Physics"                     ON)
 option(USE_DEBUG_RENDERER       "USE Debug Renderer"                    ON)
 option(USE_GEOMETRY_RENDERER    "USE Geometry Renderer"                 ON)
+option(USE_WEBP                 "USE Webp"                              ON)
 
 if(NOT RES_DIR)
     message(FATAL_ERROR "RES_DIR is not set!")

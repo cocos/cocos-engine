@@ -33,6 +33,7 @@ cc_set_if_undefined(USE_CCACHE               OFF)
 cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
+cc_set_if_undefined(USE_WEBP                 ON)
 
 add_definitions()
 
@@ -2851,6 +2852,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
         $<IF:$<BOOL:${USE_DEBUG_RENDERER}>,CC_USE_DEBUG_RENDERER=1,CC_USE_DEBUG_RENDERER=0>
         $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
+        $<IF:$<BOOL:${USE_WEBP}>,CC_USE_WEBP=1,CC_USE_WEBP=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
