@@ -71,7 +71,11 @@ export class UIOpacity extends Component {
 
     private setEntityColorDirtyRecursively (dirty: boolean) {
         if (JSB) {
-            UIRenderer.setUIOpacityAttrsRecursively(this.node, this.node._uiProps.localOpacity, dirty);
+            const render = this.node._uiProps.uiComp as UIRenderer;
+            if (render) {
+                render.setEntityOpacity(this.node._uiProps.localOpacity);
+            }
+            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
         }
     }
 

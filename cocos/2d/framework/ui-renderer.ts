@@ -533,25 +533,25 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    // for uiOpacity
-    public static setUIOpacityAttrsRecursively (node:Node, localOpacity:number, dirty:boolean) {
-        const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render.renderEntity) {
-            render.renderEntity.localOpacity = localOpacity;// only for current node
-            render.renderEntity.colorDirty = dirty;
-            render.renderEntity.color = render.color;
-        }
-        for (let i = 0; i < node.children.length; i++) {
-            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
-        }
-    }
+    // // for uiOpacity
+    // public static setUIOpacityAttrsRecursively (node:Node, localOpacity:number, dirty:boolean) {
+    //     const render = node._uiProps.uiComp as UIRenderer;
+    //     if (render && render.renderEntity) {
+    //         render.renderEntity.localOpacity = localOpacity;// only for current node
+    //         render.renderEntity.colorDirty = dirty;
+    //         render.renderEntity.color = render.color;
+    //     }
+    //     for (let i = 0; i < node.children.length; i++) {
+    //         UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
+    //     }
+    // }
 
     // for common
     public static setEntityColorDirtyRecursively (node:Node, dirty:boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
         if (render && render.renderEntity) {
             render.renderEntity.colorDirty = dirty;
-            render.renderEntity.color = render.color;
+            render.renderEntity.color = render.color;// necessity to be considering
         }
         for (let i = 0; i < node.children.length; i++) {
             UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
