@@ -73,7 +73,7 @@ void GLES2Framebuffer::doDestroy() {
             GLES2Device::getInstance()->framebufferHub()->disengage(colorTexture->gpuTexture(), _gpuFBO);
         }
         if (_depthStencilTexture) {
-            auto *depthTexture = static_cast<GLES2Texture *>(_depthStencilTexture;
+            auto *depthTexture = static_cast<GLES2Texture *>(_depthStencilTexture);
             GLES2Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
         }
 
