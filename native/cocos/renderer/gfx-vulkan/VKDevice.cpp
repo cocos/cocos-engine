@@ -494,7 +494,6 @@ void CCVKDevice::doDestroy() {
     _queue = nullptr;
     _cmdBuff = nullptr;
 
-
     CC_SAFE_DELETE(_gpuBufferHub)
     CC_SAFE_DELETE(_gpuTransportHub)
     CC_SAFE_DELETE(_gpuSemaphorePool)
@@ -513,7 +512,6 @@ void CCVKDevice::doDestroy() {
             CC_SAFE_DELETE(_gpuFencePools[i])
         }
     }
-
 
     _gpuStagingBufferPools.clear();
     _gpuRecycleBins.clear();
