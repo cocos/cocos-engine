@@ -376,13 +376,17 @@ let _cachedProxy;
  */
 export function __checkObsoleteInNamespace__ (ccNamespace: object) {
     if (!_cachedProxy) {
-        _cachedProxy = new Proxy(ccNamespace, {
-            get (target, name, receiver) {
-                // @ts-expect-error name could be a symbol
-                _checkObsoleteByName(name);
-                return Reflect.get(target, name, receiver);
-            },
-        });
+        if (typeof Proxy === 'undefined') {
+            _cachedProxy = {};
+        } else {
+            _cachedProxy = new Proxy(ccNamespace, {
+                get (target, name, receiver) {
+                    // @ts-expect-error name could be a symbol
+                    _checkObsoleteByName(name);
+                    return Reflect.get(target, name, receiver);
+                },
+            });
+        }
     }
     return _cachedProxy;
 }
