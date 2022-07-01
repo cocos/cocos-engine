@@ -39,7 +39,7 @@ import { Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, Texture, AccessFlagBit, Framebuffer,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
-import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
@@ -140,8 +140,8 @@ export class DeferredPipeline extends RenderPipeline {
         const sampler = this.globalDSManager.pointSampler;
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-        this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, sampler);
-        this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this._descriptorSet.bindSampler(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, sampler);
+        this._descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
         let inputAssemblerDataOffscreen = new PipelineInputAssemblerData();
@@ -227,7 +227,7 @@ export class DeferredPipeline extends RenderPipeline {
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOCamera.BINDING).destroy();
             this._descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
-            this._descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+            this._descriptorSet.getTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING).destroy();
         }
     }
 

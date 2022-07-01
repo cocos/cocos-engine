@@ -362,18 +362,18 @@ const gfx::UniformSamplerTexture ENVIRONMENT::LAYOUT = {
     1,
 };
 
-const ccstd::string SPOTLIGHTINGMAP::NAME = "cc_spotLightingMap";
-const gfx::DescriptorSetLayoutBinding SPOTLIGHTINGMAP::DESCRIPTOR = {
-    SPOTLIGHTINGMAP::BINDING,
+const ccstd::string SPOTSHADOWMAP::NAME = "cc_spotShadowMap";
+const gfx::DescriptorSetLayoutBinding SPOTSHADOWMAP::DESCRIPTOR = {
+    SPOTSHADOWMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
     {},
 };
-const gfx::UniformSamplerTexture SPOTLIGHTINGMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SPOTSHADOWMAP::LAYOUT = {
     globalSet,
-    SPOTLIGHTINGMAP::BINDING,
-    SPOTLIGHTINGMAP::NAME,
+    SPOTSHADOWMAP::BINDING,
+    SPOTSHADOWMAP::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };

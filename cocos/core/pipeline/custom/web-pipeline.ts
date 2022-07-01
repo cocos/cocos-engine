@@ -40,7 +40,7 @@ import { assert, macro } from '../../platform';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 import { Compiler } from './compiler';
@@ -341,8 +341,8 @@ export class WebPipeline extends Pipeline {
         const shadowMapSampler = this._globalDSManager.pointSampler;
         this.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
         this.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-        this.descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
-        this.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this.descriptorSet.bindSampler(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, shadowMapSampler);
+        this.descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this.descriptorSet.update();
         return true;
     }

@@ -216,7 +216,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
             ds->bindTexture(SHADOWMAP::BINDING, texture);
         } break;
         case scene::LightType::SPOT: {
-            ds->bindTexture(SPOTLIGHTINGMAP::BINDING, texture);
+            ds->bindTexture(SPOTSHADOWMAP::BINDING, texture);
         }break;
         default:
             break;

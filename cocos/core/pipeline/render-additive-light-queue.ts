@@ -40,7 +40,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
 import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
+    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
 import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
@@ -188,7 +188,7 @@ export class RenderAdditiveLightQueue {
             if (descriptorSet) {
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
-                descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+                descriptorSet.getTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
             }
             descriptorSetMap.delete(key);
@@ -449,7 +449,7 @@ export class RenderAdditiveLightQueue {
                 if (shadowFrameBufferMap.has(light)) {
                     const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
                     if (texture) {
-                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
+                        descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, texture);
                     }
                 }
                 break;

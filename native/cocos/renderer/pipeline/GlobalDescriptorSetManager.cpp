@@ -174,8 +174,8 @@ void GlobalDSManager::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING] = SHADOWMAP::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME] = ENVIRONMENT::LAYOUT;
     globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING] = ENVIRONMENT::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SPOTLIGHTINGMAP::NAME] = SPOTLIGHTINGMAP::LAYOUT;
-    globalDescriptorSetLayout.bindings[SPOTLIGHTINGMAP::BINDING] = SPOTLIGHTINGMAP::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[SPOTSHADOWMAP::NAME] = SPOTSHADOWMAP::LAYOUT;
+    globalDescriptorSetLayout.bindings[SPOTSHADOWMAP::BINDING] = SPOTSHADOWMAP::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[DIFFUSEMAP::NAME] = DIFFUSEMAP::LAYOUT;
     globalDescriptorSetLayout.bindings[DIFFUSEMAP::BINDING] = DIFFUSEMAP::DESCRIPTOR;
 
