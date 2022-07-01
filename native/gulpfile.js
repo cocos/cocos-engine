@@ -95,6 +95,7 @@ gulp.task('gen-simulator', async function () {
         });
         cmakeProcess.on('error', err => {
             console.error(err);
+            reject();
         });
         cmakeProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
@@ -110,9 +111,10 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
+            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
+        } else {
+            makeArgs = makeArgs.concat(['--config', 'Release']);
         }
-        makeArgs = makeArgs.concat(['--config', 'Release']);
         const newEnv = {};
         Object.assign(newEnv, process.env);
         Object.keys (newEnv).filter (x => x.toLowerCase().startsWith( 'npm_')). forEach(e => delete newEnv[e]);
@@ -126,11 +128,10 @@ gulp.task('gen-simulator', async function () {
         });
         buildProcess.on('error', err => {
             console.error(err);
-            process.exit(1);
+            reject();
         });
         buildProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
-            process.exit(1);
         });
         buildProcess.stdout.on('data', data => {
             console.log(data.toString ? data.toString() : data);
