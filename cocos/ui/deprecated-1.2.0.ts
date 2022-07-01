@@ -2,77 +2,77 @@ import { deprecateModuleExportedName } from '../core/utils/x-deprecated';
 
 deprecateModuleExportedName({
     ButtonComponent: {
-        newTypeName: 'Button',
+        newName: 'Button',
         since: '1.2.0',
         removed: false,
     },
     EditBoxComponent: {
-        newTypeName: 'EditBox',
+        newName: 'EditBox',
         since: '1.2.0',
         removed: false,
     },
     LayoutComponent: {
-        newTypeName: 'Layout',
+        newName: 'Layout',
         since: '1.2.0',
         removed: false,
     },
     ProgressBarComponent: {
-        newTypeName: 'ProgressBar',
+        newName: 'ProgressBar',
         since: '1.2.0',
         removed: false,
     },
     ScrollViewComponent: {
-        newTypeName: 'ScrollView',
+        newName: 'ScrollView',
         since: '1.2.0',
         removed: false,
     },
     ScrollBarComponent: {
-        newTypeName: 'ScrollBar',
+        newName: 'ScrollBar',
         since: '1.2.0',
         removed: false,
     },
     SliderComponent: {
-        newTypeName: 'Slider',
+        newName: 'Slider',
         since: '1.2.0',
         removed: false,
     },
     ToggleComponent: {
-        newTypeName: 'Toggle',
+        newName: 'Toggle',
         since: '1.2.0',
         removed: false,
     },
     ToggleContainerComponent: {
-        newTypeName: 'ToggleContainer',
+        newName: 'ToggleContainer',
         since: '1.2.0',
         removed: false,
     },
     WidgetComponent: {
-        newTypeName: 'Widget',
+        newName: 'Widget',
         since: '1.2.0',
         removed: false,
     },
     PageViewComponent: {
-        newTypeName: 'PageView',
+        newName: 'PageView',
         since: '1.2.0',
         removed: false,
     },
     PageViewIndicatorComponent: {
-        newTypeName: 'PageViewIndicator',
+        newName: 'PageViewIndicator',
         since: '1.2.0',
         removed: false,
     },
     SafeAreaComponent: {
-        newTypeName: 'SafeArea',
+        newName: 'SafeArea',
         since: '1.2.0',
         removed: false,
     },
     UICoordinateTrackerComponent: {
-        newTypeName: 'UICoordinateTracker',
+        newName: 'UICoordinateTracker',
         since: '1.2.0',
         removed: false,
     },
     BlockInputEventsComponent: {
-        newTypeName: 'BlockInputEvents',
+        newName: 'BlockInputEvents',
         since: '1.2.0',
         removed: false,
     },

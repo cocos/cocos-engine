@@ -33,6 +33,9 @@ import { error, errorID, warn, warnID } from '../platform/debug';
 
 let defaultLogTimes = 10;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export function setDefaultLogTimes (times: number): void {
     if (times > 0) {
         defaultLogTimes = times;
@@ -78,10 +81,19 @@ interface IMarkItem {
     suggest?: string;
 }
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let replaceProperty: (owner: object, ownerName: string, properties: IReplacement[]) => void;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let removeProperty: (owner: object, ownerName: string, properties: IRemoveItem[]) => void;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let markAsWarning: (owner: object, ownerName: string, properties: IMarkItem[]) => void;
 
 let replacePropertyLog: (n: string, dp: string, n2: string, newp: string, f: Function, id: number, s: string) => void;
@@ -288,7 +300,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
  * @engineInternal
  */
 interface IDeprecateInfo {
-    newTypeName?: string;
+    newName?: string;
     since: string;
     removed: boolean,
 }
@@ -311,7 +323,7 @@ const topLevelDeprecateList: TopLevelDeprecateList = {
  * ```ts
  * deprecateModuleExportedName({
  *     ButtonComponent: {
- *         newTypeName: 'Button',
+ *         newName: 'Button',
  *         since: '1.2.0',
  *         removed: false,
  *     },
@@ -331,15 +343,15 @@ function _checkObsoleteByName (checkName: string) {
     if (!deprecateInfo) {
         return;
     }
-    const { newTypeName, since, removed } = deprecateInfo;
+    const { newName, since, removed } = deprecateInfo;
     if (removed) {
-        if (newTypeName) {
-            errorID(16003, checkName, since, newTypeName);
+        if (newName) {
+            errorID(16003, checkName, since, newName);
         } else {
             errorID(16002, checkName, since);
         }
-    } else if (newTypeName) {
-        warnID(16001, checkName, since, newTypeName);
+    } else if (newName) {
+        warnID(16001, checkName, since, newName);
     } else {
         warnID(16000, checkName, since);
     }
