@@ -1150,6 +1150,11 @@ void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, co
 
 void Mesh::tryConvertVertexData() {
 #if CC_OPTIMIZE_MESH_DATA
+    if (!hasFlag(gfx::Device::getInstance()->getFormatFeatures(gfx::Format::RG16F), gfx::FormatFeature::VERTEX_ATTRIBUTE)) {
+        CC_LOG_DEBUG("Does not support half float vertex attribute!");
+        return;
+    }
+
     uint8_t *data = _data.buffer()->getData();
     ccstd::vector<uint32_t> attributeIndicsNeedConvert;
 
