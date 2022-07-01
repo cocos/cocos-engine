@@ -429,7 +429,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 if (shadowFramebufferMap.count(light) > 0) {
                     auto *texture = shadowFramebufferMap.at(light)->getColorTextures()[0];
                     if (texture) {
-                        descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, texture);
+                        descriptorSet->bindTexture(SPOTSHADOWMAP::BINDING, texture);
                     }
                 }
             } break;

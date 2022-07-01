@@ -110,8 +110,9 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
+            makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
         }
+        makeArgs = makeArgs.concat(['--config', 'Release']);
         const newEnv = {};
         Object.assign(newEnv, process.env);
         Object.keys (newEnv).filter (x => x.toLowerCase().startsWith( 'npm_')). forEach(e => delete newEnv[e]);
@@ -155,6 +156,20 @@ gulp.task('clean-simulator', async function () {
     }
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
+    //check if target file exists
+    let ok = true;
+    if (isWin32) {
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Win32.exe'));
+    }
+    else {
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-MacOS.app'));
+    }
+    if (!ok) {
+        console.log('=====================================\n');
+        console.error('failed to find target executable file\n');
+        console.log('=====================================\n');
+        throw new Error(`Build process exit with 1`);
+    }
 });
 
 gulp.task('gen-simulator-release', gulp.series('gen-simulator', 'clean-simulator'));
