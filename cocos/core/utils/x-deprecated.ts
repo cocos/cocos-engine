@@ -33,6 +33,9 @@ import { error, errorID, warn, warnID } from '../platform/debug';
 
 let defaultLogTimes = 10;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export function setDefaultLogTimes (times: number): void {
     if (times > 0) {
         defaultLogTimes = times;
@@ -78,10 +81,19 @@ interface IMarkItem {
     suggest?: string;
 }
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let replaceProperty: (owner: object, ownerName: string, properties: IReplacement[]) => void;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let removeProperty: (owner: object, ownerName: string, properties: IRemoveItem[]) => void;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let markAsWarning: (owner: object, ownerName: string, properties: IMarkItem[]) => void;
 
 let replacePropertyLog: (n: string, dp: string, n2: string, newp: string, f: Function, id: number, s: string) => void;
