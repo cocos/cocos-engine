@@ -85,14 +85,14 @@ jobs:
           python -m pip install PyYAML Cheetah3
       - name: generate bindings glue codes
         shell: bash
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           python -V
-          cd ${{github.workspace}}/tools/travis-scripts
+          cd ./tools/tojs
           echo "Create auto-generated jsbinding glue codes."
-          pushd ${{github.workspace}}/tools/tojs
           python ./genbindings.py
           rm userconf.ini
-          popd
       - name: gen simulator
         run: |
           gulp gen-simulator-release
