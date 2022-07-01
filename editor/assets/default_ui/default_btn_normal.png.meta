@@ -34,7 +34,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.10",
+      "ver": "1.0.11",
       "importer": "sprite-frame",
       "uuid": "20835ba4-6145-4fbc-a58a-051ce700aa3e@f9941",
       "imported": true,
@@ -69,7 +69,61 @@
         "imageUuidOrDatabaseUri": "20835ba4-6145-4fbc-a58a-051ce700aa3e@6c48a",
         "atlasUuid": "",
         "mipfilter": "none",
-        "packable": true
+        "packable": true,
+        "vertices": {
+          "rawPosition": [
+            -20,
+            -20,
+            0,
+            20,
+            -20,
+            0,
+            -20,
+            20,
+            0,
+            20,
+            20,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            0,
+            40,
+            40,
+            40,
+            0,
+            0,
+            40,
+            0
+          ],
+          "nuv": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "minPos": [
+            -20,
+            -20,
+            0
+          ],
+          "maxPos": [
+            20,
+            20,
+            0
+          ]
+        }
       },
       "displayName": "default_btn_normal",
       "id": "f9941",
