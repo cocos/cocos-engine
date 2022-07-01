@@ -673,10 +673,10 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.$.componentAdd.style.display = 'inline-block';
+                panel.toggleShowAddComponentBtn(true);
                 return;
             }
-            panel.$.componentAdd.style.display = 'none';
+            panel.toggleShowAddComponentBtn(false);
 
             panel.$this.setAttribute('sub-type', 'scene');
             panel.$.container.removeAttribute('droppable');
@@ -1680,6 +1680,13 @@ exports.methods = {
             console.error(error);
         }
     },
+    toggleShowAddComponentBtn(show) {
+        this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
+    },
+    handlerSceneChangeMode() {
+        const mode = Editor.EditMode.getMode();
+        this.toggleShowAddComponentBtn(mode !== 'animation'); // 动画编辑模式下，要隐藏按钮
+    },
 };
 
 exports.update = async function update(uuidList, renderMap, dropConfig, typeManager, renderManager) {
@@ -1722,7 +1729,9 @@ exports.ready = async function ready() {
     }
 
     this.replaceAssetUuidInNodesBind = this.replaceAssetUuidInNodes.bind(this);
+    this.handlerSceneChangeModeBind = this.handlerSceneChangeMode.bind(this);
     Editor.Message.addBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
+    Editor.Message.addBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.close = async function close() {
@@ -1736,6 +1745,7 @@ exports.close = async function close() {
     }
 
     Editor.Message.removeBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
+    Editor.Message.removeBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.beforeClose = async function beforeClose() {
