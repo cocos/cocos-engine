@@ -494,7 +494,6 @@ void CCVKDevice::doDestroy() {
     _queue = nullptr;
     _cmdBuff = nullptr;
 
-
     CC_SAFE_DELETE(_gpuBufferHub)
     CC_SAFE_DELETE(_gpuTransportHub)
     CC_SAFE_DELETE(_gpuSemaphorePool)
@@ -503,14 +502,17 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
-    uint32_t backBufferCount = _gpuDevice->backBufferCount;
-    for (uint32_t i = 0U; i < backBufferCount; i++) {
-        _gpuRecycleBins[i]->clear();
+    if (_gpuDevice) {
+        uint32_t backBufferCount = _gpuDevice->backBufferCount;
+        for (uint32_t i = 0U; i < backBufferCount; i++) {
+            _gpuRecycleBins[i]->clear();
 
-        CC_SAFE_DELETE(_gpuStagingBufferPools[i])
-        CC_SAFE_DELETE(_gpuRecycleBins[i])
-        CC_SAFE_DELETE(_gpuFencePools[i])
+            CC_SAFE_DELETE(_gpuStagingBufferPools[i])
+            CC_SAFE_DELETE(_gpuRecycleBins[i])
+            CC_SAFE_DELETE(_gpuFencePools[i])
+        }
     }
+
     _gpuStagingBufferPools.clear();
     _gpuRecycleBins.clear();
     _gpuFencePools.clear();
