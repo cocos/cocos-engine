@@ -232,10 +232,9 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
         }
 
         uint32_t attributeSize = GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
-        // Metal requires 4 bytes alignment for attribute
-        uint32_t remain = attributeSize % 4;
-        if (remain != 0) {
-            attributeSize = attributeSize + remain;
+        // NOTE: Metal requires 4 bytes alignment for attribute
+        if (attributeSize > 0) {
+            attributeSize = utils::alignTo(attributeSize, 4U);
         }
 
         streamOffsets[inputAttrib.stream] += attributeSize;
