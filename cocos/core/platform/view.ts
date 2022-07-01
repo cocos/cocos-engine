@@ -501,6 +501,8 @@ export class View extends EventTarget {
      * @param width Design resolution width.
      * @param height Design resolution height.
      * @param resolutionPolicy The resolution policy desired
+     *
+     * @deprecated since v3.6.0
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         if (!JSB && !RUNTIME_BASED && !MINIGAME) {
