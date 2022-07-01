@@ -23,11 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/align/align_up.hpp>
 #include <cstring>
 #include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
-#include <boost/align/align_up.hpp>
+
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
@@ -92,14 +93,20 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 }
 
 void DeviceAgent::doDestroy() {
-    ENQUEUE_MESSAGE_1(
-        _mainMessageQueue, DeviceDestroy,
-        actor, _actor,
-        {
-            if (actor) {
-                actor->destroy();
-            }
-        });
+    if (!_mainMessageQueue) {
+        if(_actor) {
+            _actor->destroy();
+        }
+    } else {
+        ENQUEUE_MESSAGE_1(
+                _mainMessageQueue, DeviceDestroy,
+                actor, _actor,
+                {
+                    if (actor) {
+                        actor->destroy();
+                    }
+                });
+    }
 
     if (_cmdBuff) {
         static_cast<CommandBufferAgent *>(_cmdBuff.get())->destroyAgent();
@@ -111,7 +118,7 @@ void DeviceAgent::doDestroy() {
 
     if (_mainMessageQueue) {
         _mainMessageQueue->terminateConsumerThread();
-        
+
         // NOTE: C++17 required when enable alignment
         // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
         _mainMessageQueue->~MessageQueue();
@@ -280,10 +287,10 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     for (uint32_t i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    
+
     Format format = texture->getFormat();
     constexpr uint32_t alignment = 16;
-    
+
     size_t totalSize = boost::alignment::align_up(sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount, alignment);
     for (uint32_t i = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
