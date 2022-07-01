@@ -27,8 +27,6 @@ android {
             cmake {
                 targets "cocos"
                 arguments "-DRES_DIR=${RES_PATH}", "-DCOCOS_X_PATH=${COCOS_ENGINE_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_LD=gold"
-                cFlags "-fsigned-char -ffunction-sections -fdata-sections -fstrict-aliasing"
-                cppFlags "-fsigned-char -ffunction-sections -fdata-sections -fstrict-aliasing -frtti -fexceptions"
             }
             ndk { abiFilters PROP_APP_ABI.split(':') }
         }
@@ -77,13 +75,6 @@ android {
                 signingConfig signingConfigs.release
             }
             // resValue  "string", "app_name", PROP_APP_NAME
-
-            externalNativeBuild {
-                cmake {
-                    cFlags "-fvisibility=hidden"
-                    cppFlags "-fvisibility=hidden -fvisibility-inlines-hidden"
-                }
-            }
         }
 
         debug {
@@ -92,13 +83,6 @@ android {
             renderscriptDebuggable true
             // resValue  "string", "app_name", "${PROP_APP_NAME}-dbg"
             // applicationIdSuffix ".debug"
-
-            externalNativeBuild {
-                cmake {
-                    cFlags "-fvisibility=default -fno-omit-frame-pointer"
-                    cppFlags "-fvisibility=default -fno-omit-frame-pointer"
-                }
-            }
         }
     }
 }
