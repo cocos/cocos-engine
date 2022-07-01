@@ -75,7 +75,7 @@ export class Settings {
         }
         if (!path) return Promise.resolve();
         return new Promise((resolve, reject) => {
-            if (!HTML5) {
+            if (!HTML5 && !path.startsWith('http')) {
                 const result = fsUtils.readJsonSync(path);
                 if (result instanceof Error) {
                     reject(result);
@@ -137,7 +137,7 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ENGINE, 'version')); // print v3.6.0
+     * console.log(settings.querySettings(Settings.Category.ENGINE, 'debug')); // print false
      * ```
      */
     querySettings<T = any> (category: Category | string, name: string): T | null {
@@ -171,4 +171,4 @@ export declare namespace Settings {
  * Settings module singleton, through this you can access the configuration data in settings.json.
  */
 export const settings = new Settings();
-legacyCC.internal.settings = settings;
+legacyCC.settings = settings;

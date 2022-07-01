@@ -26,5 +26,5 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 
 export function loadJsFile (path: string): Promise<void> {
     // eslint-disable-next-line import/no-dynamic-require
-    return require(`./${path}`);
+    return require(`${path}`);
 }

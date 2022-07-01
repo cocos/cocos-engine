@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, PREVIEW } from 'internal:constants';
+import { EDITOR, NATIVE, PREVIEW } from 'internal:constants';
 import * as easing from './easing/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -93,7 +93,7 @@ export class SplashScreen {
         };
         this._curTime = 0;
 
-        if (EDITOR || PREVIEW || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
+        if (EDITOR || (PREVIEW && !NATIVE) || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             (this.settings as any) = null;
             this._isFinished = true;
         } else {
@@ -209,7 +209,6 @@ export class SplashScreen {
         this.frame();
         if (this._curTime > settings.totalTime) {
             this._isFinished = true;
-            this.destroy();
         }
     }
 

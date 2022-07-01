@@ -555,6 +555,33 @@ export class Director extends EventTarget {
     }
 
     /**
+     * @en Returns the delta time since last frame.
+     * @zh 获取上一帧的增量时间。
+     * @deprecated since v3.3.0, please use game.deltaTime instead
+     */
+    public getDeltaTime () {
+        return legacyCC.game.deltaTime as number;
+    }
+
+    /**
+     * @en Returns the total passed time since game start, unit: ms
+     * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     * @deprecated since v3.3.0, please use game.totalTime instead
+     */
+    public getTotalTime () {
+        return legacyCC.game.totalTime as number;
+    }
+
+    /**
+     * @en Returns the current time.
+     * @zh 获取当前帧的时间。
+     * @deprecated since v3.3.0, please use game.frameStartTime instead
+     */
+    public getCurrentTime () {
+        return legacyCC.game.frameStartTime as number;
+    }
+
+    /**
      * @en Returns how many frames were called since the director started.
      * @zh 获取 director 启动以来游戏运行的总帧数。
      */

@@ -9,7 +9,9 @@
   },
   "_techIdx": 0,
   "_defines": [
-    { "USE_TEXTURE": false }
+    {
+      "USE_TEXTURE": false
+    }
   ],
   "_states": [
     {

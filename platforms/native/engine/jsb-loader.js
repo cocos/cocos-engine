@@ -441,8 +441,8 @@ cc.assetManager.transformPipeline.append(function (task) {
 var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    const jsbDownloaderMaxTasks = cc.internal.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
-    const jsbDownloaderTimeout = cc.internal.settings.querySettings('assets', 'jsbDownloaderTimeout');
+    const jsbDownloaderMaxTasks = cc.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
+    const jsbDownloaderTimeout = cc.settings.querySettings('assets', 'jsbDownloaderTimeout');
     initJsbDownloader(jsbDownloaderMaxTasks, jsbDownloaderTimeout);
     cacheManager.init();
 };

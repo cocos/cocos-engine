@@ -32,7 +32,7 @@ System.import('<%= applicationJs %>').then(({ Application }) => {
 });
 
 function onApplicationCreated(application) {
-    return application.import('cc').then((cc) => {
+    return System.import('cc').then((cc) => {
         require('./engine-adapter');
         return application.init(cc);
     }).then(() => application.start());
