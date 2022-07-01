@@ -9,7 +9,7 @@ endmacro()
 macro(cc_android_after_target target_name)
     
     target_link_libraries(${target_name}
-        "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive"
+        "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive -Wl,--gc-sections"
         ${ENGINE_NAME}
     )
     target_include_directories(${target_name} PRIVATE
