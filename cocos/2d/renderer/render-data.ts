@@ -224,7 +224,7 @@ export class BaseRenderData {
  */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
-        const rd = new RenderData();
+        const rd = new RenderData(vertexFormat);
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
         if (!accessor) {
