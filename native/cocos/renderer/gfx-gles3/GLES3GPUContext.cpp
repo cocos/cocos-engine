@@ -138,11 +138,11 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
     int numConfig{0};
     ccstd::vector<EGLConfig> eglConfigs;
 
-    EGL_CHECK(success = eglChooseConfig(eglDisplay, defaultAttribs, nullptr, 0, &numConfig));
+    success = eglChooseConfig(eglDisplay, defaultAttribs, nullptr, 0, &numConfig);
     if (success) {
         eglConfigs.resize(numConfig);
     } else {
-        CC_LOG_ERROR("Query configuration failed.");
+        CC_LOG_ERROR("Query GLES3 configuration failed.");
         return false;
     }
 
