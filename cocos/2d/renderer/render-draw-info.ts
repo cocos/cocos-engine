@@ -29,6 +29,7 @@ export class RenderDrawInfo {
     // }
 
     protected _batcher: Batcher2D | undefined;
+    protected _accId: number | undefined;
     protected _bufferId: number | undefined;
     protected _vertexOffset: number | undefined;
     protected _indexOffset: number | undefined;
@@ -98,6 +99,13 @@ export class RenderDrawInfo {
         this._vertexOffset = 0;
         this._indexOffset = 0;
         this._vertDirty = false;
+    }
+
+    public setAccId (accId) {
+        this._accId = accId;
+        if (JSB) {
+            this._nativeObj.accId = accId;
+        }
     }
 
     public setBufferId (bufferId) {

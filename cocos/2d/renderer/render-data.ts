@@ -361,6 +361,7 @@ export class RenderData extends BaseRenderData {
             if (!this._renderDrawInfo) {
                 return;
             }
+            this._renderDrawInfo.setAccId(this._accessor.id);
             super.setRenderDrawInfoAttributes();
             this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
             this._renderDrawInfo.setTextureHash(this.textureHash);
@@ -374,6 +375,7 @@ export class RenderData extends BaseRenderData {
             if (!drawInfo) {
                 return;
             }
+            drawInfo.setAccId(this._accessor.id);
             drawInfo.setBufferId(this.chunk.bufferId);
             drawInfo.setVertexOffset(this.chunk.vertexOffset);
             drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);

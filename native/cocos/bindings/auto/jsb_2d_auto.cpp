@@ -247,6 +247,26 @@ bool js_register_2d_UIMeshBuffer(se::Object* obj) // NOLINT(readability-identifi
 se::Object* __jsb_cc_RenderDrawInfo_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_RenderDrawInfo_class = nullptr;  // NOLINT
 
+static bool js_2d_RenderDrawInfo_getAccId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getAccId : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getAccId();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_getAccId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getAccId)
+
 static bool js_2d_RenderDrawInfo_getAttrSharedBufferForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -706,6 +726,26 @@ static bool js_2d_RenderDrawInfo_getVertexOffset(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVertexOffset)
+
+static bool js_2d_RenderDrawInfo_setAccId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setAccId : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_setAccId : Error processing arguments");
+        cobj->setAccId(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setAccId)
 
 static bool js_2d_RenderDrawInfo_setBlendHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1211,25 +1251,26 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("bufferId", _SE(js_2d_RenderDrawInfo_getBufferId_asGetter), _SE(js_2d_RenderDrawInfo_setBufferId_asSetter));
-    cls->defineProperty("vertexOffset", _SE(js_2d_RenderDrawInfo_getVertexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setVertexOffset_asSetter));
-    cls->defineProperty("indexOffset", _SE(js_2d_RenderDrawInfo_getIndexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setIndexOffset_asSetter));
-    cls->defineProperty("vbBuffer", _SE(js_2d_RenderDrawInfo_getVbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setVbBuffer_asSetter));
-    cls->defineProperty("ibBuffer", _SE(js_2d_RenderDrawInfo_getIbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIbBuffer_asSetter));
-    cls->defineProperty("vDataBuffer", _SE(js_2d_RenderDrawInfo_getVDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setVDataBuffer_asSetter));
-    cls->defineProperty("iDataBuffer", _SE(js_2d_RenderDrawInfo_getIDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIDataBuffer_asSetter));
-    cls->defineProperty("vbCount", _SE(js_2d_RenderDrawInfo_getVbCount_asGetter), _SE(js_2d_RenderDrawInfo_setVbCount_asSetter));
-    cls->defineProperty("ibCount", _SE(js_2d_RenderDrawInfo_getIbCount_asGetter), _SE(js_2d_RenderDrawInfo_setIbCount_asSetter));
     cls->defineProperty("node", _SE(js_2d_RenderDrawInfo_getNode_asGetter), _SE(js_2d_RenderDrawInfo_setNode_asSetter));
+    cls->defineProperty("accId", _SE(js_2d_RenderDrawInfo_getAccId_asGetter), _SE(js_2d_RenderDrawInfo_setAccId_asSetter));
+    cls->defineProperty("indexOffset", _SE(js_2d_RenderDrawInfo_getIndexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setIndexOffset_asSetter));
+    cls->defineProperty("bufferId", _SE(js_2d_RenderDrawInfo_getBufferId_asGetter), _SE(js_2d_RenderDrawInfo_setBufferId_asSetter));
+    cls->defineProperty("vbBuffer", _SE(js_2d_RenderDrawInfo_getVbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setVbBuffer_asSetter));
+    cls->defineProperty("iDataBuffer", _SE(js_2d_RenderDrawInfo_getIDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIDataBuffer_asSetter));
+    cls->defineProperty("ibCount", _SE(js_2d_RenderDrawInfo_getIbCount_asGetter), _SE(js_2d_RenderDrawInfo_setIbCount_asSetter));
     cls->defineProperty("vertDirty", _SE(js_2d_RenderDrawInfo_getVertDirty_asGetter), _SE(js_2d_RenderDrawInfo_setVertDirty_asSetter));
+    cls->defineProperty("material", _SE(js_2d_RenderDrawInfo_getMaterial_asGetter), _SE(js_2d_RenderDrawInfo_setMaterial_asSetter));
+    cls->defineProperty("textureHash", _SE(js_2d_RenderDrawInfo_getTextureHash_asGetter), _SE(js_2d_RenderDrawInfo_setTextureHash_asSetter));
+    cls->defineProperty("vbCount", _SE(js_2d_RenderDrawInfo_getVbCount_asGetter), _SE(js_2d_RenderDrawInfo_setVbCount_asSetter));
+    cls->defineProperty("texture", _SE(js_2d_RenderDrawInfo_getTexture_asGetter), _SE(js_2d_RenderDrawInfo_setTexture_asSetter));
+    cls->defineProperty("vDataBuffer", _SE(js_2d_RenderDrawInfo_getVDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setVDataBuffer_asSetter));
     cls->defineProperty("dataHash", _SE(js_2d_RenderDrawInfo_getDataHash_asGetter), _SE(js_2d_RenderDrawInfo_setDataHash_asSetter));
     cls->defineProperty("stencilStage", _SE(js_2d_RenderDrawInfo_getStencilStage_asGetter), _SE(js_2d_RenderDrawInfo_setStencilStage_asSetter));
-    cls->defineProperty("isMeshBuffer", _SE(js_2d_RenderDrawInfo_getIsMeshBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIsMeshBuffer_asSetter));
-    cls->defineProperty("material", _SE(js_2d_RenderDrawInfo_getMaterial_asGetter), _SE(js_2d_RenderDrawInfo_setMaterial_asSetter));
-    cls->defineProperty("texture", _SE(js_2d_RenderDrawInfo_getTexture_asGetter), _SE(js_2d_RenderDrawInfo_setTexture_asSetter));
-    cls->defineProperty("textureHash", _SE(js_2d_RenderDrawInfo_getTextureHash_asGetter), _SE(js_2d_RenderDrawInfo_setTextureHash_asSetter));
+    cls->defineProperty("ibBuffer", _SE(js_2d_RenderDrawInfo_getIbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIbBuffer_asSetter));
     cls->defineProperty("sampler", _SE(js_2d_RenderDrawInfo_getSampler_asGetter), _SE(js_2d_RenderDrawInfo_setSampler_asSetter));
+    cls->defineProperty("isMeshBuffer", _SE(js_2d_RenderDrawInfo_getIsMeshBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIsMeshBuffer_asSetter));
     cls->defineProperty("blendHash", _SE(js_2d_RenderDrawInfo_getBlendHash_asGetter), _SE(js_2d_RenderDrawInfo_setBlendHash_asSetter));
+    cls->defineProperty("vertexOffset", _SE(js_2d_RenderDrawInfo_getVertexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setVertexOffset_asSetter));
     cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
     cls->defineFunction("getDrawType", _SE(js_2d_RenderDrawInfo_getDrawType));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));
@@ -1757,16 +1798,18 @@ static bool js_2d_Batcher2d_syncMeshBuffersToNative(se::State& s) // NOLINT(read
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<std::vector<cc::UIMeshBuffer *>, true> arg0 = {};
-        HolderType<unsigned int, false> arg1 = {};
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<std::vector<cc::UIMeshBuffer *>, true> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_syncMeshBuffersToNative : Error processing arguments");
-        cobj->syncMeshBuffersToNative(std::move(arg0.value()), arg1.value());
+        cobj->syncMeshBuffersToNative(arg0.value(), std::move(arg1.value()), arg2.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative)

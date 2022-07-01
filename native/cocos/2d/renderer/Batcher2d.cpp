@@ -26,13 +26,13 @@ Batcher2d::~Batcher2d() {
     _descriptorSetCache.clear();
 }
 
-void Batcher2d::syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length) {
-    _meshBuffers = std::move(buffers);
+void Batcher2d::syncMeshBuffersToNative(uint32_t accId, std::vector<UIMeshBuffer*>&& buffers, uint32_t length) {
+    _meshBuffersMap[accId] = std::move(buffers);
 }
 
-UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t bufferId) {
-    assert(this->_meshBuffers[bufferId]);
-    return this->_meshBuffers[bufferId];
+UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) {
+    auto map = _meshBuffersMap[accId];
+    return map[bufferId];
 }
 
 gfx::Device* Batcher2d::getDevice() {
@@ -128,12 +128,10 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
                 /* || stencilmanager */) { // stencilStage for Mask component
                 // Generate a batch if not batching
                 generateBatch(_currEntity);
-                if (!drawInfo->getIsMeshBuffer()) {
-                    if (_currBID != drawInfo->getBufferId()) {
-                        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-                        _currBID = drawInfo->getBufferId();
-                        _indexStart = buffer->getIndexOffset();
-                    }
+                UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+                if (_currMeshBuffer != buffer) {
+                    _currMeshBuffer = buffer;
+                    _indexStart = _currMeshBuffer->getIndexOffset();
                 }
 
                 _currHash = dataHash;
@@ -196,12 +194,10 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
                 /* || stencilmanager */) { // stencilStage for Mask component
                 // Generate a batch if not batching
                 generateBatch(_currEntity);
-                if (!drawInfo->getIsMeshBuffer()) {
-                    if (_currBID != drawInfo->getBufferId()) {
-                        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-                        _currBID = drawInfo->getBufferId();
-                        _indexStart = drawInfo->getIndexOffset();
-                    }
+                UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+                if (_currMeshBuffer != buffer) {
+                    _currMeshBuffer = buffer;
+                    _indexStart = _currMeshBuffer->getIndexOffset();
                 }
 
                 _currHash = dataHash;
@@ -222,7 +218,6 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
             }
 
             if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
-                //fillVertexBuffers(entity, drawInfo);
                 drawInfo->setVertDirty(false);
             }
             setIndexRange(drawInfo);
@@ -263,8 +258,7 @@ void Batcher2d::generateBatch(RenderDrawInfo* entity) {
     _indexStart = currMeshBuffer->getIndexOffset();
     //}
 
-    this->_currBID = -1;
-
+    _currMeshBuffer = nullptr;
     // stencilstage
 
     // Todo blendState & stencil State
@@ -345,14 +339,12 @@ void Batcher2d::update() {
 
 void Batcher2d::uploadBuffers() {
     if (_batches.size() > 0) {
-        //_meshDataArray.forEach(),uploadBuffers
-
-        for (uint32_t i = 0; i < _meshBuffers.size(); i++) {
-            UIMeshBuffer* buffer = _meshBuffers[i];
-            buffer->uploadBuffers();
-            buffer->reset();
+        for (auto& map : _meshBuffersMap) {
+            for (auto& buffer : map.second) {
+                buffer->uploadBuffers();
+                buffer->reset();
+            }
         }
-
         updateDescriptorSet();
     }
 }
@@ -365,14 +357,15 @@ void Batcher2d::reset() {
     }
 
     // meshDataArray
-    for (uint32_t i = 0; i < _meshBuffers.size(); i++) {
-        UIMeshBuffer* buffer = _meshBuffers[i];
-        if (buffer) {
-            buffer->resetIA();
+    for (auto& map : _meshBuffersMap) {
+        for (auto& buffer : map.second) {
+            if (buffer) {
+                buffer->resetIA();
+            }
         }
     }
 
-    _currBID = -1;
+    _currMeshBuffer = nullptr;
     _indexStart = 0;
     _currHash = 0;
     _currLayer = 0;

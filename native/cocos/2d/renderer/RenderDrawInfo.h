@@ -30,7 +30,9 @@ public:
     explicit RenderDrawInfo(Batcher2d* batcher);
     RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset);
     ~RenderDrawInfo();
-
+    
+    inline index_t getAccId() const { return _accId; }
+    void setAccId(index_t id);
     inline index_t getBufferId() const { return this->_bufferId; }
     void setBufferId(index_t bufferId);
     inline uint32_t getVertexOffset() const { return this->_vertexOffset; }
@@ -111,6 +113,7 @@ private:
 
 private:
     index_t _bufferId{0};
+    index_t _accId{0};
     uint32_t _vertexOffset{0};
 
     uint32_t _indexOffset{0};

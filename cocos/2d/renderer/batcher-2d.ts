@@ -742,13 +742,13 @@ export class Batcher2D implements IBatcher {
     }
 
     //sync mesh buffer to naive
-    public syncMeshBuffersToNative (buffers: MeshBuffer[]) {
+    public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
         if (JSB) {
             const nativeBuffers:NativeUIMeshBuffer[] = [];
             buffers.forEach((x) => {
                 nativeBuffers.push(x.nativeObj);
             });
-            this._nativeObj.syncMeshBuffersToNative(nativeBuffers, buffers.length);
+            this._nativeObj.syncMeshBuffersToNative(accId, nativeBuffers, buffers.length);
         }
     }
 }

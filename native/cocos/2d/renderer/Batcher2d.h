@@ -14,13 +14,15 @@
 
 namespace cc {
 class Root;
+typedef ccstd::vector<UIMeshBuffer*> UIMeshBufferArray;
+typedef ccstd::unordered_map<uint32_t, UIMeshBufferArray> UIMeshBufferMap;
 class Batcher2d final {
 public:
     Batcher2d();
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
-    void syncMeshBuffersToNative(ccstd::vector<UIMeshBuffer*>&& buffers, uint32_t length);
+    void syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers, uint32_t length);
 
     bool initialize();
     void update();
@@ -33,7 +35,7 @@ public:
 public:
     //void addVertDirtyRenderer(RenderDrawInfo* drawInfo);
 
-    UIMeshBuffer* getMeshBuffer(uint32_t bufferId);
+    UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
     gfx::Device* getDevice();
 
     void updateDescriptorSet();
@@ -61,7 +63,7 @@ private:
     gfx::Device* _device{nullptr}; //use getDevice()
 
     RenderDrawInfo* _currEntity{nullptr};
-    index_t _currBID{-1};
+    UIMeshBuffer* _currMeshBuffer{nullptr};
     uint32_t _indexStart{0};
     uint32_t _currHash{0};
     uint32_t _currLayer{0};
@@ -137,7 +139,6 @@ private:
             vbBuffer[offset++] = entity->getOpacity();
         }
     }
-
-    ccstd::vector<UIMeshBuffer*> _meshBuffers{nullptr};
+    UIMeshBufferMap _meshBuffersMap;
 };
 } // namespace cc

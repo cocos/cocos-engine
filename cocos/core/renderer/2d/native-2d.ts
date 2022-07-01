@@ -14,6 +14,9 @@ export class NativeRenderDrawInfo {
     // get batcher ():NativeBatcher2d { return new NativeBatcher2d(); }
     // set batcher (batcher: NativeBatcher2d) {}
 
+    get accId (): number { return 0; }
+    set accId (accId: number) { }
+
     get bufferId (): number { return 0; }
     set bufferId (bufferId: number) { }
 
@@ -121,7 +124,7 @@ export class NativeUIMeshBuffer {
 }
 
 export class NativeBatcher2d {
-    syncMeshBuffersToNative (buffers: NativeUIMeshBuffer[], length: number) { }
+    syncMeshBuffersToNative (accId: number, buffers: NativeUIMeshBuffer[], length: number) { }
 
     update () { }
     uploadBuffers () { }

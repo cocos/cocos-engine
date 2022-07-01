@@ -38,9 +38,13 @@ void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
     _batcher = batcher;
 }
 
+void RenderDrawInfo::setAccId(index_t id) {
+    _accId = id;
+}
+
 void RenderDrawInfo::setBufferId(index_t bufferId) {
     this->_bufferId = bufferId;
-    this->_meshBuffer = _batcher->getMeshBuffer(_bufferId);
+    this->_meshBuffer = _batcher->getMeshBuffer(_accId, _bufferId);
 }
 
 void RenderDrawInfo::setVertexOffset(uint32_t vertexOffset) {

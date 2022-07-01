@@ -79,16 +79,19 @@ export class StaticVBChunk {
 
 export class StaticVBAccessor extends BufferAccessor {
     public static IB_SCALE = 4; // ib size scale based on vertex count
+    public static ID_COUNT = 0;
 
     private _freeLists: IFreeEntry[][] = [];
     private _vCount = 0;
     private _iCount = 0;
+    private _id = 0;
+    get id () { return this._id; }
 
     public constructor (device: Device, attributes: Attribute[], vCount?: number, iCount?: number) {
         super(device, attributes);
         this._vCount = vCount || Math.floor(macro.BATCHER2D_MEM_INCREMENT * 1024 / this._vertexFormatBytes);
         this._iCount = iCount || (this._vCount * StaticVBAccessor.IB_SCALE);
-
+        this._id = StaticVBAccessor.generateID();
         // Initialize first mesh buffer
         this._allocateBuffer();
     }
@@ -298,8 +301,11 @@ export class StaticVBAccessor extends BufferAccessor {
         // temporarily batcher transports buffers
         // It is better to put accessor to native
         const batcher = director.root!.batcher2D;
-        batcher.syncMeshBuffersToNative(this._buffers);
+        batcher.syncMeshBuffersToNative(this.id, this._buffers);
 
         return this._buffers.length - 1;
+    }
+    static generateID () : number {
+        return StaticVBAccessor.ID_COUNT++;
     }
 }

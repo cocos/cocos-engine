@@ -118,7 +118,7 @@
 
         const batcher2D = director.root.batcher2D;
         CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
-        //CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
         const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
         skeletonSystem.prepareRenderData();
         const armaSystem = cc.internal.ArmatureSystem.getInstance();
