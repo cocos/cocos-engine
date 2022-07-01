@@ -77,22 +77,26 @@ jobs:
         run: |
           npm install
           npm install gulp -g
-      - name: download external libraries
-        run: |
-          node ./utils/download-deps.js
       - name: pip install
         run: |
           python -m pip install PyYAML Cheetah3
-      - name: generate bindings glue codes
+      - name: Download external libraries
         shell: bash
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
+      - name: Generate bindings
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          python -V
-          cd ./tools/tojs
-          echo "Create auto-generated jsbinding glue codes."
-          python ./genbindings.py
-          rm userconf.ini
+          python -m pip install PyYAML==5.4.1 Cheetah3
+          python ./native/tools/tojs/genbindings.py
+          rm ./native/tools/tojs/userconf.ini
       - name: gen simulator
         run: |
           gulp gen-simulator-release
