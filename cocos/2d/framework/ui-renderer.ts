@@ -269,10 +269,8 @@ export class UIRenderer extends Renderer {
     }
     set enabled (value) {
         super.enabled = value;
-        if (this.renderData) {
-            if (this.renderData.renderDrawInfo) {
-                this.renderData.renderDrawInfo.enabled = value;
-            }
+        if (this._renderEntity) {
+            this._renderEntity.enabled = value;
         }
     }
 

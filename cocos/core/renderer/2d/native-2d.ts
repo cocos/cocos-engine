@@ -101,7 +101,6 @@ export class NativeRenderEntity {
     }
 
     getEntitySharedBufferForJS (): ArrayBufferLike { return new ArrayBuffer(0); }
-    //syncSharedBufferToNative (data:TypedArray) {}
 }
 
 export class NativeUIMeshBuffer {

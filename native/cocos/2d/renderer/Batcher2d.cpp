@@ -66,13 +66,13 @@ void Batcher2d::walk(Node* node) {
     while (length > 0) {
         Node* curNode = nodeStack[--length];
         RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
-        if (entity) {
+        if (entity && entity->getEnabled()) {
             RenderEntityType entityType = entity->getRenderEntityType();
 
             // when filling buffers, we should distinguish commom components and other complex components like middlewares
             if (entityType == RenderEntityType::STATIC) {
                 std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-                for (uint32_t i = 0; i < drawInfos.size(); i++) {
+                for (uint32_t i = 0; i <entity->getStaticDrawInfoSize(); i++) {
                     handleStaticDrawInfo(entity, &(drawInfos[i]), curNode);
                 }
             } else if (entityType == RenderEntityType::DYNAMIC) {
@@ -96,7 +96,7 @@ void Batcher2d::walk(Node* node) {
 }
 
 void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode) {
-    if (drawInfo && drawInfo->getEnabled()) {
+    if (drawInfo) {
         if (drawInfo->getIsMeshBuffer()) {
             generateBatch(_currEntity);
             resetRenderStates();
@@ -164,7 +164,7 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
 }
 
 void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode) {
-    if (drawInfo && drawInfo->getEnabled()) {
+    if (drawInfo) {
         if (drawInfo->getIsMeshBuffer()) {
             generateBatch(_currEntity);
             resetRenderStates();

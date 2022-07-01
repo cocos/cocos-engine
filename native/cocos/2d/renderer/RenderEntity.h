@@ -21,6 +21,7 @@ struct EntityAttrLayout {
     float_t colorA;
     float_t colorDirtyBit;
     float_t localOpacity;
+    float_t enabledIndex;
 };
 
 class RenderEntity final : public Node::UserData {
@@ -58,6 +59,7 @@ public:
     inline float_t getOpacity() const { return _opacity; }
     inline void setOpacity(float_t opacity) { _opacity = opacity; }
     //inline float_t getAlphaAndOpacity() const { return _opacity * _entityAttrLayout.colorA; }
+    inline bool getEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
 
 private:
     uint32_t _staticDrawInfoSize{0};

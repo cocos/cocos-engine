@@ -19,6 +19,7 @@ export enum RenderEntitySharedBufferView {
     colorA,
     colorDirty,
     localOpacity,
+    enabled,
     count,
 }
 
@@ -85,6 +86,17 @@ export class RenderEntity {
         }
     }
 
+    protected _enabled = true;
+    get enabled () {
+        return this._enabled;
+    }
+    set enabled (val: boolean) {
+        this._enabled = val;
+        if (JSB) {
+            this._sharedBuffer[RenderEntitySharedBufferView.enabled] = val ? 1 : 0;
+        }
+    }
+
     constructor (batcher: Batcher2D, entityType: RenderEntityType) {
         if (JSB) {
             this._batcher = batcher;
@@ -144,6 +156,7 @@ export class RenderEntity {
     public assignExtraEntityAttrs (comp: UIRenderer) {
         if (JSB) {
             this.setNode(comp.node);
+            this.enabled = comp.enabled;
         }
     }
 

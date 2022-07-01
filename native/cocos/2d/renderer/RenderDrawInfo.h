@@ -46,8 +46,7 @@ public:
     void setVDataBuffer(float_t* vDataBuffer);
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
-    inline uint32_t getVbCount() const {
-        return this->_vbCount; }
+    inline uint32_t getVbCount() const { return this->_vbCount; }
     void setVbCount(uint32_t vbCount);
     inline uint32_t getIbCount() const { return this->_ibCount; }
     void setIbCount(uint32_t ibCount);
@@ -81,7 +80,7 @@ public:
     inline Batcher2d* getBatcher() const { return _batcher; }
     void setBatcher(Batcher2d* batcher);
 
-    inline bool getEnabled() const { return _drawInfoAttrLayout.enabledIndex != 0; }
+    //inline bool getEnabled() const { return _drawInfoAttrLayout.enabledIndex != 0; }
 
     void parseAttrLayout();
 

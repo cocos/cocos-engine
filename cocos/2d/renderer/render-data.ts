@@ -192,7 +192,7 @@ export class BaseRenderData {
                 return;
             }
             this._renderDrawInfo.setNode(comp.node);
-            this._renderDrawInfo.enabled = comp.enabled;
+            //this._renderDrawInfo.enabled = comp.enabled;
         }
     }
 

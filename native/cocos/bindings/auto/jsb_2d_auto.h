@@ -39,7 +39,6 @@ bool js_register_cc_RenderDrawInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getDrawType);
-SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getEnabled);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getMeshBuffer);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setModel);

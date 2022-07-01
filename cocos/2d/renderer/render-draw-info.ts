@@ -17,16 +17,16 @@ export enum RenderDrawInfoSharedBufferView {
 export class RenderDrawInfo {
     public stencilStage: Stage = Stage.DISABLED;
 
-    protected _enabled = true;
-    get enabled () {
-        return this._enabled;
-    }
-    set enabled (val: boolean) {
-        this._enabled = val;
-        if (JSB) {
-            this._sharedBuffer[RenderDrawInfoSharedBufferView.enabled] = val ? 1 : 0;
-        }
-    }
+    // protected _enabled = true;
+    // get enabled () {
+    //     return this._enabled;
+    // }
+    // set enabled (val: boolean) {
+    //     this._enabled = val;
+    //     if (JSB) {
+    //         this._sharedBuffer[RenderDrawInfoSharedBufferView.enabled] = val ? 1 : 0;
+    //     }
+    // }
 
     protected _batcher: Batcher2D | undefined;
     protected _bufferId: number | undefined;
