@@ -28,7 +28,11 @@
 #include "application/ApplicationManager.h"
 #import <AVFoundation/AVAudioFile.h>
 #import <AVFoundation/AVAudioBuffer.h>
-
+//static AVAudioFormat* common_audioformat = [[AVAudioFormat alloc]
+//                                            initWithCommonFormat:AVAudioPCMFormatInt16
+//                                            sampleRate:(double)44100
+//                                            channels:2
+//                                            interleaved:true];
 AudioDataFormat formatConverter(AVAudioCommonFormat originalAppleFormat){
     switch (originalAppleFormat) {
         case AVAudioPCMFormatInt16:
@@ -102,8 +106,8 @@ bool AudioCache::load() {
         frameCount = _descriptor.audioFile.length;
     }
     NSError* err = nil;
-    // TODO: should buffer be initilized?
-//    AVAudioFormat* format =;
+    // Unify audio decode format with the same samplerate and interleaved.
+
     _descriptor.buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:frameCount];
     [_descriptor.audioFile readIntoBuffer:_descriptor.buffer frameCount:frameCount error:&err];
     if (err) {
@@ -129,12 +133,7 @@ bool AudioCache::unload() {
     return ret;
 }
 bool AudioCache::resample(PCMHeader header) {
-    /**
-     fake code:
-     AVAudioFormat fromFormat, toFormat.
-     AVAudioConverter init
-     _descriptor = ....
-     */
+    // TODO: resample
 }
 void AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer) {
     _descriptor.audioFile.framePosition = pos;
@@ -148,80 +147,64 @@ void AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer) {
     pos += framesToRead;
 }
 
-//std::vector<char> AudioCache::getPCMBuffer() {
-//    std::vector<char> ret;
-//    if (loadState != State::LOADED) {
-//        return ret;
-//    }
-//    if (channelID > _pcmHeader.channelCount) {
-//        NSLog(@"ChannelID is bigger than channel count");
-//    }
-//    const uint32_t frameCount = _descriptor.buffer.frameLength;
-//    ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
-//    char *buffer = ret.data();
-//    void *dataInDescriptor;
-//    uint32_t bitLength = _pcmHeader.bytesPerFrame / _pcmHeader.channelCount * 8;
-//    switch (_pcmHeader.dataFormat) {
-//        // TODO: if float 32 and float 63 both convert to float 32 by default?
-//        case AudioDataFormat::FLOAT_32:
-//        case AudioDataFormat::FLOAT_64:
-//            dataInDescriptor = reinterpret_cast<float*>(_descriptor.buffer.floatChannelData);
-//            break;
-//        case AudioDataFormat::SIGNED_16:
-//            dataInDescriptor = reinterpret_cast<int16_t*>(_descriptor.buffer.floatChannelData);
-//            break;
-//        case AudioDataFormat::SIGNED_32:
-//            dataInDescriptor = reinterpret_cast<int32_t*>(_descriptor.buffer.floatChannelData);
-//            break;
-//    }
-//
-//    memcpy(buffer, dataInDescriptor, frameCount * bitLength);
-//    return ret;
-//}
-
 // TODO: If is streaming audio, return partial data? or whole data.
 ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
     ccstd::vector<uint8_t> ret;
-    if (loadState != State::LOADED) {
-        return ret;
-    }
-    if (channelID > _pcmHeader.channelCount) {
-        NSLog(@"ChannelID is bigger than channel count");
-    }
-    const uint32_t frameCount = _pcmHeader.totalFrames;
-    ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
-    uint8_t *buffer = ret.data();
+    do {
+        if (loadState != State::LOADED) {
+            NSLog(@"AudioCache is not ready");
+            break;
+        }
+        if (channelID > _pcmHeader.channelCount) {
+            NSLog(@"ChannelID is bigger than channel count");
+            break;
+        }
+        if (_descriptor.buffer == nil) {
+            _descriptor.buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat];
+        }
+        // Read entire buffer into _descriptor buffer.
+        [_descriptor.audioFile readIntoBuffer:_descriptor.buffer error:nil];
+        const uint32_t frameCount = _pcmHeader.totalFrames;
+        ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
+        uint8_t *buffer = ret.data();
+        
+        uint32_t bitLength = _pcmHeader.bytesPerFrame / _pcmHeader.channelCount * 8;
+        switch (_pcmHeader.dataFormat) {
+            // TODO: if float 32 and float 63 both convert to float 32 by default?
+            case AudioDataFormat::FLOAT_32:
+            case AudioDataFormat::FLOAT_64: {
+                auto datas = _descriptor.buffer.floatChannelData;
+                for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
+                    // Explaination of usage https://developer.apple.com/forums/thread/65772
+                    std::memcpy(buffer, &datas[channelID][itr], bitLength);
+                    buffer += bitLength;
+                }
+                break;
+            }
+            case AudioDataFormat::SIGNED_16: {
+                auto datas = _descriptor.buffer.int16ChannelData;
+                for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
+                    std::memcpy(buffer, &datas[channelID][itr], bitLength);
+                    buffer += bitLength;
+                }
+                break;
+            }
+            case AudioDataFormat::SIGNED_32: {
+                auto datas = _descriptor.buffer.int32ChannelData;
+                for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
+                    std::memcpy(buffer, &datas[channelID][itr], bitLength);
+                    buffer += bitLength;
+                }
+                break;
+            }
+            case default:
+                break;
+        };
+        [_descriptor.buffer release];
+    } while(false);
+
     
-    uint32_t bitLength = _pcmHeader.bytesPerFrame / _pcmHeader.channelCount * 8;
-    switch (_pcmHeader.dataFormat) {
-        // TODO: if float 32 and float 63 both convert to float 32 by default?
-        case AudioDataFormat::FLOAT_32:
-        case AudioDataFormat::FLOAT_64: {
-            auto datas = _descriptor.buffer.floatChannelData;
-            for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
-                // Explaination of usage https://developer.apple.com/forums/thread/65772
-                std::memcpy(buffer, &datas[channelID][itr], bitLength);
-                buffer += bitLength;
-            }
-            break;
-        }
-        case AudioDataFormat::SIGNED_16: {
-            auto datas = _descriptor.buffer.int16ChannelData;
-            for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
-                std::memcpy(buffer, &datas[channelID][itr], bitLength);
-                buffer += bitLength;
-            }
-            break;
-        }
-        case AudioDataFormat::SIGNED_32: {
-            auto datas = _descriptor.buffer.int32ChannelData;
-            for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
-                std::memcpy(buffer, &datas[channelID][itr], bitLength);
-                buffer += bitLength;
-            }
-            break;
-        }
-    };
+    
     
     return ret;
 }

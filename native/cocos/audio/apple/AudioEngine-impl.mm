@@ -34,7 +34,7 @@
 #include "platform/FileUtils.h"
 
 static AVAudioEngine* engine_instance = nullptr;
-
+static AVAudioFormat* uniform_format = nullptr;
 namespace cc {
 static AudioEngineImpl* s_instance = nullptr;
 class Scheduler;
@@ -162,7 +162,8 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     });
     if(!player->isAttached) {
         [engine_instance attachNode:player->getDescriptor().node];
-        [engine_instance connect:player->getDescriptor().node to:(AVAudioNode*)engine_instance.mainMixerNode format:cache->getDescriptor().buffer.format]; // TODO: err: -10878 format error
+        
+        [engine_instance connect:player->getDescriptor().node to:(AVAudioNode*)engine_instance.mainMixerNode format:nil]; // TODO: err: -10878 format
         player->isAttached = true;
     }
 
@@ -170,7 +171,7 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     
     if(_lazyInitLoop) {
         _lazyInitLoop = false;
-        [engine_instance connect:(AVAudioNode*)engine_instance.mainMixerNode to:engine_instance.outputNode format:cache->getDescriptor().buffer.format];
+        [engine_instance connect:(AVAudioNode*)engine_instance.mainMixerNode to:engine_instance.outputNode format:nil];
         NSError* err;
         if(![engine_instance startAndReturnError: &err]){
             NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
