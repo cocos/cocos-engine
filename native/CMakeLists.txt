@@ -10,6 +10,7 @@ set(ENGINE_NAME cocos_engine)
 
 ################################# options ############################################
 # default fallback options
+cc_set_if_undefined(CC_DEBUG_FORCE           OFF)
 cc_set_if_undefined(USE_SE_V8                ON)
 cc_set_if_undefined(USE_SE_SM                OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
@@ -122,6 +123,7 @@ cc_inspect_values(
     CC_USE_GLES3
     CC_USE_GLES2
     CC_USE_VULKAN
+    CC_DEBUG_FORCE
     USE_SE_V8
     USE_V8_DEBUGGER
     USE_V8_DEBUGGER_FORCE
@@ -2851,7 +2853,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
-        $<$<CONFIG:Debug>:CC_DEBUG=1>
+        $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
     )
 endfunction()
 
