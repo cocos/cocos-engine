@@ -36,13 +36,12 @@ namespace gfx {
 
 DescriptorSetLayoutValidator::DescriptorSetLayoutValidator(DescriptorSetLayout *actor)
 : Agent<DescriptorSetLayout>(actor) {
-    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
     DeviceResourceTracker<DescriptorSetLayout>::erase(this);
-    CC_SAFE_RELEASE(_actor);
+    CC_SAFE_DELETE(_actor);
 }
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {

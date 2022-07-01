@@ -34,13 +34,12 @@ namespace gfx {
 
 ShaderValidator::ShaderValidator(Shader *actor)
 : Agent<Shader>(actor) {
-    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 ShaderValidator::~ShaderValidator() {
     DeviceResourceTracker<Shader>::erase(this);
-    CC_SAFE_RELEASE(_actor);
+    CC_SAFE_DELETE(_actor);
 }
 
 void ShaderValidator::doInit(const ShaderInfo &info) {

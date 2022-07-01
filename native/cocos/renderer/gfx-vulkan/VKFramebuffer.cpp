@@ -42,7 +42,7 @@ CCVKFramebuffer::~CCVKFramebuffer() {
 
 void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO = ccnew CCVKGPUFramebuffer;
-    _gpuFBO->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass.get())->gpuRenderPass();
+    _gpuFBO->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
@@ -52,7 +52,7 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
     }
 
     if (_depthStencilTexture) {
-        auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture.get());
+        auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
         _gpuFBO->gpuDepthStencilView = depthTex->gpuTextureView();
         CCVKDevice::getInstance()->gpuFramebufferHub()->connect(depthTex->gpuTexture(), _gpuFBO);
     }
@@ -68,7 +68,7 @@ void CCVKFramebuffer::doDestroy() {
         }
 
         if (_depthStencilTexture) {
-            auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture.get());
+            auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
             CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(depthTex->gpuTexture(), _gpuFBO);
         }
 

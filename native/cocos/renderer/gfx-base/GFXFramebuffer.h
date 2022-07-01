@@ -44,17 +44,19 @@ public:
     void destroy();
 
     inline RenderPass *getRenderPass() const { return _renderPass; }
-    inline const TextureList &getColorTextures() const { return _colorTextures.get(); }
+    inline const TextureList &getColorTextures() const { return _colorTextures; }
     inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
 
 protected:
     virtual void doInit(const FramebufferInfo &info) = 0;
     virtual void doDestroy() = 0;
 
-    IntrusivePtr<RenderPass> _renderPass;
-    // To keep compatibility, so don't use IntrusivePtr.
-    RefVector<Texture *> _colorTextures;
-    IntrusivePtr<Texture> _depthStencilTexture;
+    // weak reference
+    RenderPass *_renderPass{nullptr};
+    // weak reference
+    TextureList _colorTextures;
+    // weak reference
+    Texture *_depthStencilTexture{nullptr};
 };
 
 } // namespace gfx
