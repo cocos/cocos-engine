@@ -25,7 +25,7 @@
 import { ccclass } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { macro } from '../platform';
+import { macro } from '../platform/macro';
 import dependUtil from '../asset-manager/depend-util';
 import { fastRemoveAt } from '../utils/array';
 import './texture-base';
