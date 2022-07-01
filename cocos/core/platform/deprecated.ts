@@ -82,6 +82,9 @@ markAsWarning(View.prototype, 'View.prototype', [
     {
         name: 'isRetinaEnabled',
     },
+    {
+        name: 'setRealPixelResolution',
+    },
 ]);
 markAsWarning(legacyCC, 'cc', [
     {
