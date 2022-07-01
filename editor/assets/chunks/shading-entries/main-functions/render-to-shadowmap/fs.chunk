@@ -1,4 +1,4 @@
-  in float v_clip_depth;
+  in highp float v_clip_depth;
 
   layout(location = 0) out vec4 fragColorX;
 

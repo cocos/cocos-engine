@@ -201,11 +201,12 @@ CCProgram standard-fs %{
   
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
-  #pragma define-meta DCC_APP_NAME range([0, 3])
-  #define DCC_APP_AUTODESK 0
-  #define DCC_APP_BLENDER 1
-  #define DCC_APP_CINEMA4D 2
-  #define DCC_APP_DEFAULT 3
+  #pragma define-meta DCC_APP_NAME range([0, 4])
+  #define DCC_APP_OTHERS 0
+  #define DCC_APP_AUTODESK 1
+  #define DCC_APP_BLENDER 2
+  #define DCC_APP_CINEMA4D 3
+  #define DCC_APP_GLTF 4
 
   #if USE_SHININESS_MAP
     uniform sampler2D shininessExponentMap;
@@ -250,13 +251,13 @@ CCProgram standard-fs %{
     #if DCC_APP_NAME == DCC_APP_BLENDER
       // 2-100
       float glossiness = clamp(sqrt(shininessExp) * 0.1/*/10.0*/, 0.0, 0.95); // glossiness=1 may leads to specular disappear
-    #elif DCC_APP_NAME == DCC_APP_CINEMA4D
-      // 2-1024
-      float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
-    #else // DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_AUTODESK
       // 2-1024
       float l2 = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
       float glossiness = pow(l2, 0.5);
+    #else // DCC_APP_NAME == DCC_APP_CINEMA4D / DCC_APP_GLTF / DCC_APP_OTHERS
+      // 2-1024
+      float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
     #endif
       return glossiness;
   }
@@ -268,7 +269,7 @@ CCProgram standard-fs %{
       float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
     #elif DCC_APP_NAME == DCC_APP_AUTODESK
       float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
-    #else
+    #else // DCC_APP_NAME == DCC_APP_GLTF / DCC_APP_OTHERS
       float specularIntensityMultiplier = 1.0;
     #endif
       return specularIntensityMultiplier;
