@@ -1504,7 +1504,7 @@ template <typename... ARGS>
 bool nativevalue_to_se(const ccstd::variant<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     bool ok = false;
     ccstd::visit(
-        [&](auto param) {
+        [&](auto& param) {
             ok = nativevalue_to_se(param, to, ctx);
         },
         from);
