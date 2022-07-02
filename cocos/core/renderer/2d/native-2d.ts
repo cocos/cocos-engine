@@ -143,3 +143,9 @@ export class NativeUIModelProxy {
     attachDrawInfo () { }
     attachNode (node) { }
 }
+
+export class NativeStencilManager {
+    setStencilStage (stageIndex:number) {}
+
+    getStencilSharedBufferForJS (): ArrayBufferLike { return new ArrayBuffer(0); }
+}

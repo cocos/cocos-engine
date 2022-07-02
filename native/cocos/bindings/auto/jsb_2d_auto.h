@@ -10,6 +10,7 @@
 #include "cocos/2d/renderer/Batcher2d.h"
 #include "cocos/2d/renderer/RenderEntity.h"
 #include "cocos/2d/renderer/UIModelProxy.h"
+#include "cocos/2d/renderer/StencilManager.h"
 
 bool register_all_2d(se::Object *obj);                   // NOLINT
 
@@ -18,6 +19,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::RenderDrawInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderEntity);
 JSB_REGISTER_OBJECT_TYPE(cc::Batcher2d);
 JSB_REGISTER_OBJECT_TYPE(cc::UIModelProxy);
+JSB_REGISTER_OBJECT_TYPE(cc::StencilManager);
 
 
 extern se::Object *__jsb_cc_UIMeshBuffer_proto; // NOLINT
@@ -41,9 +43,12 @@ SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getDrawType);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getMeshBuffer);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getModel);
+SE_DECLARE_FUNC(js_2d_RenderDrawInfo_requestIA);
+SE_DECLARE_FUNC(js_2d_RenderDrawInfo_resetMeshIA);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_syncSharedBufferToNative);
+SE_DECLARE_FUNC(js_2d_RenderDrawInfo_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_RenderDrawInfo);
 
 extern se::Object *__jsb_cc_RenderEntity_proto; // NOLINT
@@ -94,4 +99,19 @@ SE_DECLARE_FUNC(js_2d_UIModelProxy_initModel);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_updateModels);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_uploadData);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_UIModelProxy);
+
+extern se::Object *__jsb_cc_StencilManager_proto; // NOLINT
+extern se::Class * __jsb_cc_StencilManager_class; // NOLINT
+
+bool js_register_cc_StencilManager(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_2d_StencilManager_getDepthStencilState);
+SE_DECLARE_FUNC(js_2d_StencilManager_getExitWriteMask);
+SE_DECLARE_FUNC(js_2d_StencilManager_getStencilRef);
+SE_DECLARE_FUNC(js_2d_StencilManager_getStencilSharedBufferForJS);
+SE_DECLARE_FUNC(js_2d_StencilManager_getStencilStage);
+SE_DECLARE_FUNC(js_2d_StencilManager_getWriteMask);
+SE_DECLARE_FUNC(js_2d_StencilManager_setDepthStencilStateFromStage);
+SE_DECLARE_FUNC(js_2d_StencilManager_setStencilStage);
+SE_DECLARE_FUNC(js_2d_StencilManager_StencilManager);
 // clang-format on

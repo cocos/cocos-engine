@@ -8,6 +8,7 @@
 #include "2d/renderer/Batcher2d.h"
 #include "2d/renderer/RenderEntity.h"
 #include "2d/renderer/UIModelProxy.h"
+#include "2d/renderer/StencilManager.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
 
 #ifndef JSB_ALLOC
@@ -727,6 +728,45 @@ static bool js_2d_RenderDrawInfo_getVertexOffset(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getVertexOffset)
 
+static bool js_2d_RenderDrawInfo_requestIA(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_requestIA : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Device*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_requestIA : Error processing arguments");
+        cc::gfx::InputAssembler* result = cobj->requestIA(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_requestIA : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderDrawInfo_requestIA)
+
+static bool js_2d_RenderDrawInfo_resetMeshIA(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_resetMeshIA : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->resetMeshIA();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderDrawInfo_resetMeshIA)
+
 static bool js_2d_RenderDrawInfo_setAccId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1193,6 +1233,22 @@ static bool js_2d_RenderDrawInfo_syncSharedBufferToNative(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_2d_RenderDrawInfo_syncSharedBufferToNative)
 
+static bool js_2d_RenderDrawInfo_uploadBuffers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_uploadBuffers : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->uploadBuffers();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderDrawInfo_uploadBuffers)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_RenderDrawInfo_finalize)
 
 static bool js_2d_RenderDrawInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
@@ -1251,33 +1307,36 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("node", _SE(js_2d_RenderDrawInfo_getNode_asGetter), _SE(js_2d_RenderDrawInfo_setNode_asSetter));
-    cls->defineProperty("accId", _SE(js_2d_RenderDrawInfo_getAccId_asGetter), _SE(js_2d_RenderDrawInfo_setAccId_asSetter));
-    cls->defineProperty("indexOffset", _SE(js_2d_RenderDrawInfo_getIndexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setIndexOffset_asSetter));
     cls->defineProperty("bufferId", _SE(js_2d_RenderDrawInfo_getBufferId_asGetter), _SE(js_2d_RenderDrawInfo_setBufferId_asSetter));
+    cls->defineProperty("accId", _SE(js_2d_RenderDrawInfo_getAccId_asGetter), _SE(js_2d_RenderDrawInfo_setAccId_asSetter));
+    cls->defineProperty("vertexOffset", _SE(js_2d_RenderDrawInfo_getVertexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setVertexOffset_asSetter));
+    cls->defineProperty("indexOffset", _SE(js_2d_RenderDrawInfo_getIndexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setIndexOffset_asSetter));
     cls->defineProperty("vbBuffer", _SE(js_2d_RenderDrawInfo_getVbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setVbBuffer_asSetter));
-    cls->defineProperty("iDataBuffer", _SE(js_2d_RenderDrawInfo_getIDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIDataBuffer_asSetter));
-    cls->defineProperty("ibCount", _SE(js_2d_RenderDrawInfo_getIbCount_asGetter), _SE(js_2d_RenderDrawInfo_setIbCount_asSetter));
-    cls->defineProperty("vertDirty", _SE(js_2d_RenderDrawInfo_getVertDirty_asGetter), _SE(js_2d_RenderDrawInfo_setVertDirty_asSetter));
-    cls->defineProperty("material", _SE(js_2d_RenderDrawInfo_getMaterial_asGetter), _SE(js_2d_RenderDrawInfo_setMaterial_asSetter));
-    cls->defineProperty("textureHash", _SE(js_2d_RenderDrawInfo_getTextureHash_asGetter), _SE(js_2d_RenderDrawInfo_setTextureHash_asSetter));
-    cls->defineProperty("vbCount", _SE(js_2d_RenderDrawInfo_getVbCount_asGetter), _SE(js_2d_RenderDrawInfo_setVbCount_asSetter));
-    cls->defineProperty("texture", _SE(js_2d_RenderDrawInfo_getTexture_asGetter), _SE(js_2d_RenderDrawInfo_setTexture_asSetter));
+    cls->defineProperty("ibBuffer", _SE(js_2d_RenderDrawInfo_getIbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIbBuffer_asSetter));
     cls->defineProperty("vDataBuffer", _SE(js_2d_RenderDrawInfo_getVDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setVDataBuffer_asSetter));
+    cls->defineProperty("iDataBuffer", _SE(js_2d_RenderDrawInfo_getIDataBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIDataBuffer_asSetter));
+    cls->defineProperty("vbCount", _SE(js_2d_RenderDrawInfo_getVbCount_asGetter), _SE(js_2d_RenderDrawInfo_setVbCount_asSetter));
+    cls->defineProperty("ibCount", _SE(js_2d_RenderDrawInfo_getIbCount_asGetter), _SE(js_2d_RenderDrawInfo_setIbCount_asSetter));
+    cls->defineProperty("node", _SE(js_2d_RenderDrawInfo_getNode_asGetter), _SE(js_2d_RenderDrawInfo_setNode_asSetter));
+    cls->defineProperty("vertDirty", _SE(js_2d_RenderDrawInfo_getVertDirty_asGetter), _SE(js_2d_RenderDrawInfo_setVertDirty_asSetter));
     cls->defineProperty("dataHash", _SE(js_2d_RenderDrawInfo_getDataHash_asGetter), _SE(js_2d_RenderDrawInfo_setDataHash_asSetter));
     cls->defineProperty("stencilStage", _SE(js_2d_RenderDrawInfo_getStencilStage_asGetter), _SE(js_2d_RenderDrawInfo_setStencilStage_asSetter));
-    cls->defineProperty("ibBuffer", _SE(js_2d_RenderDrawInfo_getIbBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIbBuffer_asSetter));
-    cls->defineProperty("sampler", _SE(js_2d_RenderDrawInfo_getSampler_asGetter), _SE(js_2d_RenderDrawInfo_setSampler_asSetter));
     cls->defineProperty("isMeshBuffer", _SE(js_2d_RenderDrawInfo_getIsMeshBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIsMeshBuffer_asSetter));
+    cls->defineProperty("material", _SE(js_2d_RenderDrawInfo_getMaterial_asGetter), _SE(js_2d_RenderDrawInfo_setMaterial_asSetter));
+    cls->defineProperty("texture", _SE(js_2d_RenderDrawInfo_getTexture_asGetter), _SE(js_2d_RenderDrawInfo_setTexture_asSetter));
+    cls->defineProperty("textureHash", _SE(js_2d_RenderDrawInfo_getTextureHash_asGetter), _SE(js_2d_RenderDrawInfo_setTextureHash_asSetter));
+    cls->defineProperty("sampler", _SE(js_2d_RenderDrawInfo_getSampler_asGetter), _SE(js_2d_RenderDrawInfo_setSampler_asSetter));
     cls->defineProperty("blendHash", _SE(js_2d_RenderDrawInfo_getBlendHash_asGetter), _SE(js_2d_RenderDrawInfo_setBlendHash_asSetter));
-    cls->defineProperty("vertexOffset", _SE(js_2d_RenderDrawInfo_getVertexOffset_asGetter), _SE(js_2d_RenderDrawInfo_setVertexOffset_asSetter));
     cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
     cls->defineFunction("getDrawType", _SE(js_2d_RenderDrawInfo_getDrawType));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));
     cls->defineFunction("getModel", _SE(js_2d_RenderDrawInfo_getModel));
+    cls->defineFunction("requestIA", _SE(js_2d_RenderDrawInfo_requestIA));
+    cls->defineFunction("resetMeshIA", _SE(js_2d_RenderDrawInfo_resetMeshIA));
     cls->defineFunction("setModel", _SE(js_2d_RenderDrawInfo_setModel));
     cls->defineFunction("setRender2dBufferToNative", _SE(js_2d_RenderDrawInfo_setRender2dBufferToNative));
     cls->defineFunction("syncSharedBufferToNative", _SE(js_2d_RenderDrawInfo_syncSharedBufferToNative));
+    cls->defineFunction("uploadBuffers", _SE(js_2d_RenderDrawInfo_uploadBuffers));
     cls->defineFinalizeFunction(_SE(js_cc_RenderDrawInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::RenderDrawInfo>(cls);
@@ -2097,6 +2156,216 @@ bool js_register_2d_UIModelProxy(se::Object* obj) // NOLINT(readability-identifi
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_StencilManager_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_StencilManager_class = nullptr;  // NOLINT
+
+static bool js_2d_StencilManager_getDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getDepthStencilState : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::StencilStage, false> arg0 = {};
+        HolderType<cc::Material*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getDepthStencilState : Error processing arguments");
+        cc::gfx::DepthStencilState* result = cobj->getDepthStencilState(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getDepthStencilState : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getDepthStencilState)
+
+static bool js_2d_StencilManager_getExitWriteMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getExitWriteMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getExitWriteMask();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getExitWriteMask : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getExitWriteMask)
+
+static bool js_2d_StencilManager_getStencilRef(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getStencilRef : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getStencilRef();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getStencilRef : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getStencilRef)
+
+static bool js_2d_StencilManager_getStencilSharedBufferForJS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getStencilSharedBufferForJS : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::ArrayBuffer& result = cobj->getStencilSharedBufferForJS();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getStencilSharedBufferForJS : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getStencilSharedBufferForJS)
+
+static bool js_2d_StencilManager_getStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getStencilStage : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getStencilStage());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getStencilStage : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getStencilStage)
+
+static bool js_2d_StencilManager_getWriteMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getWriteMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getWriteMask();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getWriteMask : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getWriteMask)
+
+static bool js_2d_StencilManager_setDepthStencilStateFromStage(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_setDepthStencilStateFromStage : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::StencilStage, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_setDepthStencilStateFromStage : Error processing arguments");
+        cobj->setDepthStencilStateFromStage(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_setDepthStencilStateFromStage)
+
+static bool js_2d_StencilManager_setStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_setStencilStage : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_setStencilStage : Error processing arguments");
+        cobj->setStencilStage(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_setStencilStage)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_StencilManager_finalize)
+
+static bool js_2d_StencilManager_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::StencilManager);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_2d_StencilManager_constructor, __jsb_cc_StencilManager_class, js_cc_StencilManager_finalize)
+
+static bool js_cc_StencilManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_StencilManager_finalize)
+
+bool js_register_2d_StencilManager(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("StencilManager", obj, nullptr, _SE(js_2d_StencilManager_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("getDepthStencilState", _SE(js_2d_StencilManager_getDepthStencilState));
+    cls->defineFunction("getExitWriteMask", _SE(js_2d_StencilManager_getExitWriteMask));
+    cls->defineFunction("getStencilRef", _SE(js_2d_StencilManager_getStencilRef));
+    cls->defineFunction("getStencilSharedBufferForJS", _SE(js_2d_StencilManager_getStencilSharedBufferForJS));
+    cls->defineFunction("getStencilStage", _SE(js_2d_StencilManager_getStencilStage));
+    cls->defineFunction("getWriteMask", _SE(js_2d_StencilManager_getWriteMask));
+    cls->defineFunction("setDepthStencilStateFromStage", _SE(js_2d_StencilManager_setDepthStencilStateFromStage));
+    cls->defineFunction("setStencilStage", _SE(js_2d_StencilManager_setStencilStage));
+    cls->defineFinalizeFunction(_SE(js_cc_StencilManager_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::StencilManager>(cls);
+
+    __jsb_cc_StencilManager_proto = cls->getProto();
+    __jsb_cc_StencilManager_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_2d(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -2112,6 +2381,7 @@ bool register_all_2d(se::Object* obj)    // NOLINT
     js_register_2d_Batcher2d(ns);
     js_register_2d_RenderDrawInfo(ns);
     js_register_2d_RenderEntity(ns);
+    js_register_2d_StencilManager(ns);
     js_register_2d_UIMeshBuffer(ns);
     js_register_2d_UIModelProxy(ns);
     return true;

@@ -212,7 +212,7 @@ export class BaseRenderData {
             this._renderDrawInfo.setIBCount(this._ic);
 
             this._renderDrawInfo.setDataHash(this.dataHash);
-            this._renderDrawInfo.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
+            this._renderDrawInfo.setStencilStage(StencilManager.sharedManager!.stage);
             this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
             this._renderDrawInfo.setMaterial(this.material!);
         }
@@ -387,7 +387,7 @@ export class RenderData extends BaseRenderData {
             drawInfo.setIBCount(this._ic);
             drawInfo.setDataHash(this.dataHash);
             drawInfo.setIsMeshBuffer(this.isMeshBuffer);
-            drawInfo.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
+            drawInfo.setStencilStage(StencilManager.sharedManager!.stage);
         }
     }
 

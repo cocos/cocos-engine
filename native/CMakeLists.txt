@@ -1655,6 +1655,8 @@ cocos_source_files(
     cocos/2d/renderer/UIMeshBuffer.cpp
     cocos/2d/renderer/RenderEntity.h
     cocos/2d/renderer/RenderEntity.cpp
+    cocos/2d/renderer/StencilManager.h
+    cocos/2d/renderer/StencilManager.cpp
 )
 
 ##### 3d
