@@ -24,6 +24,7 @@
 */
 
 import { ccclass, override } from 'cc.decorator';
+import { assertIsNonNullable } from '../data/utils/asserts';
 import { legacyCC } from '../global-exports';
 import { Asset } from './asset';
 
@@ -49,10 +50,11 @@ export class BufferAsset extends Asset {
     /**
      * @zh 获取此资源中的缓冲数据。
      * @en Get the ArrayBuffer data of this asset.
-     * @returns @en The ArrayBuffer. @zh 缓冲数据
+     * @returns @en The ArrayBuffer. @zh 缓冲数据。
      */
     public buffer () {
-        return this._buffer as ArrayBuffer;
+        assertIsNonNullable(this._buffer);
+        return this._buffer;
     }
 
     public validate () {
