@@ -131,6 +131,7 @@ export class Simulator {
 
     public stop () {
         this.active = false;
+        this.renderEntity!.enabled = this.active;
         this.readyToPlay = false;
         this.elapsed = this.sys.duration;
         this.emitCounter = 0;
@@ -138,6 +139,7 @@ export class Simulator {
 
     public reset () {
         this.active = true;
+        this.renderEntity!.enabled = false;
         this.readyToPlay = true;
         this.elapsed = 0;
         this.emitCounter = 0;
@@ -466,6 +468,7 @@ export class Simulator {
         this.renderData.material = this.sys.getRenderMaterial(0); // hack
         this.renderData.frame = this.sys._renderSpriteFrame; // hack
         renderData.setRenderDrawInfoAttributes();
+        this.renderEntity!.enabled = true;
 
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
             this.finished = true;
