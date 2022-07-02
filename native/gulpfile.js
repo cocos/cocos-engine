@@ -163,7 +163,7 @@ gulp.task('clean-simulator', async function () {
         ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Win32.exe'));
     }
     else {
-        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-MacOS.app'));
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Mac.app'));
     }
     if (!ok) {
         console.log('=====================================\n');
