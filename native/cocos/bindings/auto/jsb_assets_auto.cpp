@@ -15711,7 +15711,7 @@ static bool js_assets_BuiltinResMgr_initBuiltinRes(se::State& s) // NOLINT(reada
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
 SE_BIND_FUNC(js_assets_BuiltinResMgr_initBuiltinRes)
