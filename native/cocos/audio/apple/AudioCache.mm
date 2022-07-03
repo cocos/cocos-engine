@@ -84,6 +84,7 @@ AudioCache::AudioCache(std::string &fileFullPath) {
         _descriptor.audioFile.fileFormat.channelCount,
         formatConverter( _descriptor.audioFile.fileFormat.commonFormat)
     };
+    _fileFullPath = fileFullPath;
     // When audio length is bigger than MAX_BUFFER_LENGTH, should make it as a streaming audio.
     if (_pcmHeader.totalFrames * _pcmHeader.bytesPerFrame > MAX_BUFFER_LENGTH) {
         _isStreaming = true;
@@ -135,16 +136,15 @@ bool AudioCache::unload() {
 bool AudioCache::resample(PCMHeader header) {
     // TODO: resample
 }
-void AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer) {
-    _descriptor.audioFile.framePosition = pos;
-    AVAudioFramePosition framesToRead;
-    if(_descriptor.audioFile.length - pos >MAX_BUFFER_LENGTH){
-        framesToRead = MAX_BUFFER_LENGTH;
-    } else {
-        framesToRead = _descriptor.audioFile.length - pos;
+bool AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer, uint32_t frameCount) {
+    NSError* err = nil;
+    [_descriptor.audioFile readIntoBuffer:buffer frameCount:frameCount error:&err];
+    if (err) {
+        NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
+        [err release];
+        return false;
     }
-    [_descriptor.audioFile readIntoBuffer:buffer frameCount:framesToRead error:nil];
-    pos += framesToRead;
+    return true;
 }
 
 // TODO: If is streaming audio, return partial data? or whole data.
@@ -159,11 +159,10 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
             NSLog(@"ChannelID is bigger than channel count");
             break;
         }
-        if (_descriptor.buffer == nil) {
-            _descriptor.buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat];
-        }
+        
+        AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:_descriptor.audioFile.length];
         // Read entire buffer into _descriptor buffer.
-        [_descriptor.audioFile readIntoBuffer:_descriptor.buffer error:nil];
+        [_descriptor.audioFile readIntoBuffer:tmpBuffer error:nil];
         const uint32_t frameCount = _pcmHeader.totalFrames;
         ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
         uint8_t *buffer = ret.data();
@@ -173,7 +172,7 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
             // TODO: if float 32 and float 63 both convert to float 32 by default?
             case AudioDataFormat::FLOAT_32:
             case AudioDataFormat::FLOAT_64: {
-                auto datas = _descriptor.buffer.floatChannelData;
+                auto datas = tmpBuffer.floatChannelData;
                 for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
                     // Explaination of usage https://developer.apple.com/forums/thread/65772
                     std::memcpy(buffer, &datas[channelID][itr], bitLength);
@@ -182,7 +181,7 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
                 break;
             }
             case AudioDataFormat::SIGNED_16: {
-                auto datas = _descriptor.buffer.int16ChannelData;
+                auto datas = tmpBuffer.int16ChannelData;
                 for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
                     std::memcpy(buffer, &datas[channelID][itr], bitLength);
                     buffer += bitLength;
@@ -190,17 +189,17 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
                 break;
             }
             case AudioDataFormat::SIGNED_32: {
-                auto datas = _descriptor.buffer.int32ChannelData;
+                auto datas = tmpBuffer.int32ChannelData;
                 for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
                     std::memcpy(buffer, &datas[channelID][itr], bitLength);
                     buffer += bitLength;
                 }
                 break;
             }
-            case default:
-                break;
         };
-        [_descriptor.buffer release];
+        NSLog(@"Tmp Buffer retain count is %lu", (unsigned long)[tmpBuffer retainCount]);
+        [tmpBuffer release];
+        
     } while(false);
 
     

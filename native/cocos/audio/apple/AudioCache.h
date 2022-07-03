@@ -68,12 +68,13 @@ public:
      // With a single thread to use. once load or unload end, the loadCallback will be triggered.
     bool unload();
     bool load();
+    bool isStreaming() const {return _isStreaming;}
     void addLoadCallback(const LoadCallback &callback);
     void addPlayCallback(const std::function<void()> &callback);
     void invokingPlayCallbacks();
     void invokingLoadCallbacks();
 #ifdef __OBJC__
-    void loadToBuffer(AVAudioFramePosition &pos, AVAudioPCMBuffer* buffer);
+    bool loadToBuffer(AVAudioFramePosition &pos, AVAudioPCMBuffer* buffer, uint32_t frameCount);
 #endif
     bool resample(PCMHeader header);
     

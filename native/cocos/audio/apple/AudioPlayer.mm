@@ -25,7 +25,8 @@
 ****************************************************************************/
 #include "AudioPlayer.h"
 #import <AVFoundation/AVAudioTime.h>
-
+#import <AVFoundation/AVAudioBuffer.h>
+#import <AVFoundation/AVAudioFile.h>
 namespace cc {
 // The life cycle of AudioCache does not controlled by AudioPlayer. Some part of implementation of AudioPlayer can be unified
 AudioPlayer::AudioPlayer(){
@@ -37,10 +38,44 @@ AudioPlayer::AudioPlayer(AudioCache* cache){
     _descriptor.node = [[AVAudioPlayerNode alloc] init];
 }
 AudioPlayer::~AudioPlayer(){
+    if (_isStreaming) {
+                if (_rotateBufferThread != nullptr) {
+                    while (!_isRotateThreadExited) {
+                        _sleepCondition.notify_one();
+                        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                    }
+
+                    if (_rotateBufferThread->joinable()) {
+                        _rotateBufferThread->join();
+                    }
+
+                    delete _rotateBufferThread;
+                    _rotateBufferThread = nullptr;
+                    NSLog(@"rotateBufferThread exited!");
+
+    #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+                    // some specific OpenAL implement defects existed on iOS platform
+                    // refer to: https://github.com/cocos2d/cocos2d-x/issues/18597
+                    ALint sourceState;
+                    ALint bufferProcessed = 0;
+                    alGetSourcei(_alSource, AL_SOURCE_STATE, &sourceState);
+                    if (sourceState == AL_PLAYING) {
+                        alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
+                        while (bufferProcessed < QUEUEBUFFER_NUM) {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                            alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
+                        }
+                        alSourceUnqueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds); CHECK_AL_ERROR_DEBUG();
+                    }
+                    ALOGVV("UnqueueBuffers Before alSourceStop");
+    #endif
+                }
+    }
     unload();
 }
 bool AudioPlayer::load(AudioCache* cache){
     _cache = cache;
+    _isStreaming = _cache->isStreaming();
     return true;
 }
 bool AudioPlayer::unload() {
@@ -49,34 +84,35 @@ bool AudioPlayer::unload() {
     [_descriptor.node release];
     return true;
 }
+//A method to update buffer if it's a streaming buffer
+void AudioPlayer::rotateBuffer() {
+    // The buffer loop
+    AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:_cache->getPCMHeader().totalFrames];
+    _cache->loadToBuffer(_descriptor.curFrame, tmpBuffer, _cache->getPCMHeader().totalFrames);
+    if (_isLoop) {
+        [_descriptor.node scheduleBuffer:tmpBuffer atTime:nil options:AVAudioPlayerNodeBufferLoops completionHandler:nil];
+    } else {
+        [_descriptor.node scheduleBuffer:tmpBuffer completionHandler:nil];
+    }
+    [tmpBuffer release];
+}
 bool AudioPlayer::play() {
     // Play with self define properties. Immediately
     _descriptor.curFrame = (int64_t)(_currentTime * _cache->getPCMHeader().sampleRate);
     // if bigger than max buffer length, need to read buffer and schedule
-    if(_cache->getPCMHeader().totalFrames > MAX_BUFFER_LENGTH) {
+    if (_isStreaming) {
+        // Create a new thread by runnning rotate buffer, it should handle the loop once the whole buffer is loaded.
+        _rotateBufferThread = new std::thread(&AudioPlayer::rotateBuffer, this);
         _descriptor.bufferToPlay = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:MAX_BUFFER_LENGTH];
-        _cache->loadToBuffer(_descriptor.curFrame, _descriptor.bufferToPlay);
-        
-        [_descriptor.node scheduleBuffer:_descriptor.bufferToPlay atTime:nil options: AVAudioPlayerNodeBufferLoops completionCallbackType:AVAudioPlayerNodeCompletionDataConsumed completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
-            if(_descriptor.curFrame < _cache->getPCMHeader().totalFrames) {
-                // Not all played.
-                _cache->loadToBuffer(_descriptor.curFrame, _descriptor.bufferToPlay);
-            } else if (_descriptor.curFrame == _cache->getPCMHeader().totalFrames && _isLoop) {
-                // reload buffer from beginning and replay again, because it's a loop audio
-                _descriptor.curFrame = 0; //reset to 0
-                _cache->loadToBuffer(_descriptor.curFrame, _descriptor.bufferToPlay);
-            }
-        }];
+        _cache->loadToBuffer(_descriptor.curFrame, _descriptor.bufferToPlay, MAX_BUFFER_LENGTH);
+        [_descriptor.node scheduleBuffer:_descriptor.bufferToPlay completionHandler:nil];
     } else {
-//        _cache->load();
-        if(_isLoop) {
+        if (_isLoop) {
             [_descriptor.node scheduleBuffer:_cache->getDescriptor().buffer atTime:nil options:AVAudioPlayerNodeBufferLoops completionCallbackType:AVAudioPlayerNodeCompletionDataConsumed completionHandler:nil];
         } else {
             [_descriptor.node scheduleBuffer:_cache->getDescriptor().buffer completionHandler: nil];
         }
     }
-        //TODO: Why the fucking audioFile.length is int64? when should we have -1?
-    
     _descriptor.node.volume = _volume;
     [_descriptor.node play];
     

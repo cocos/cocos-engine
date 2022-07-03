@@ -185,20 +185,6 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     cache->addPlayCallback([player](){
         player->play();
     });
-    // _lazy init loop also means if there is no audio, the update function might not running
-//    if(_lazyInitLoop) {
-//        _lazyInitLoop = false;
-//        [engine_instance prepare];
-//        NSError* err;
-//        if(![engine_instance startAndReturnError: &err]){
-//            NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
-//            [err release];
-//            return false;
-//        }
-//        if (auto sche = _scheduler.lock()) {
-//            sche->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05f, false, "AudioEngine");
-//        }
-//    }
     return audioID;
 }
 

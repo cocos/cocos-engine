@@ -25,6 +25,7 @@
 ****************************************************************************/
 #pragma once
 #include "AudioCache.h"
+#include <thread>
 #ifdef __OBJC__
 #import <AVFoundation/AVAudioPlayerNode.h>
 #else
@@ -72,7 +73,7 @@ public:
     float getCurrentTime();
     bool setCurrentTime(float curTime);
     AudioPlayerDescriptor getDescriptor();
-    void update();
+    void rotateBuffer();
     bool isForceCache {false};
     State state;
     bool isAttached {false};
@@ -83,9 +84,13 @@ private:
     AudioCache* _cache {nullptr};
     AudioPlayerDescriptor _descriptor;
     bool _isLoop {false};
+    bool _isStreaming {false};
     float _volume {0};
     float _currentTime {0};
     float _duration {0};
-    
+    std::thread* _rotateBufferThread {nullptr};
+    bool _isRotateThreadExited {false};
+    std::condition_variable _sleepCondition;
+    std::mutex              _sleepMutex;
 };
 } // namespace cc
