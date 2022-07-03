@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet } from '../../gfx/index';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
@@ -36,7 +36,8 @@ import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../renderer/core/render-window';
-import { assert, macro } from '../../platform';
+import { assert } from '../../platform/debug';
+import { macro } from '../../platform/macro';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
@@ -330,7 +331,7 @@ export class WebPipeline extends Pipeline {
     }
 
     public activate (swapchain: Swapchain): boolean {
-        this._device = legacyCC.director.root.device;
+        this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this._generateConstantMacros(false);

@@ -24,7 +24,7 @@
 */
 import { ccclass, override } from 'cc.decorator';
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-import { Format, FormatFeatureBit } from '../gfx';
+import { Format, FormatFeatureBit, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
 import { sys } from '../platform/sys';
@@ -209,7 +209,7 @@ imageAssetProto._deserialize = function (data: any) {
         this._height = data.h;
         fmtStr = data.fmt;
     }
-    const device = legacyCC.director.root.device;
+    const device = deviceManager.gfxDevice;
     const extensionIDs = fmtStr.split('_');
 
     let preferedExtensionIndex = Number.MAX_VALUE;

@@ -34,7 +34,7 @@ import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Game, Material, builtinResMgr, director, CCObject } from '../../core';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode, deviceManager } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
@@ -541,7 +541,7 @@ export class Mask extends UIRenderer {
             this._clearModel = director.root!.createModel(scene.Model);
             this._clearModel.node = this._clearModel.transform = this.node;
             const stride = getAttributeStride(vfmt);
-            const gfxDevice: Device = legacyCC.director.root.device;
+            const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,

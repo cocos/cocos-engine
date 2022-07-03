@@ -29,7 +29,7 @@ import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler } from '../../core/gfx';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager } from '../../core/gfx';
 import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
@@ -722,7 +722,7 @@ class LocalDescriptorSet  {
     }
 
     constructor () {
-        const device = legacyCC.director.root.device;
+        const device = deviceManager.gfxDevice;
         this._localData = new Float32Array(UBOLocal.COUNT);
         this._localBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -733,17 +733,17 @@ class LocalDescriptorSet  {
     }
 
     public initialize (batch) {
-        const device = legacyCC.director.root.device;
+        const device = deviceManager.gfxDevice;
         this._transform = batch.useLocalData;
         this._textureHash = batch.textureHash;
         this._samplerHash = batch.samplerHash;
         _dsInfo.layout = batch.passes[0].localSetLayout;
         this._descriptorSet = device.createDescriptorSet(_dsInfo);
-        this._descriptorSet!.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
+        this._descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
         const binding = ModelLocalBindings.SAMPLER_SPRITE;
-        this._descriptorSet!.bindTexture(binding, batch.texture!);
-        this._descriptorSet!.bindSampler(binding, batch.sampler!);
-        this._descriptorSet!.update();
+        this._descriptorSet.bindTexture(binding, batch.texture!);
+        this._descriptorSet.bindSampler(binding, batch.sampler!);
+        this._descriptorSet.update();
         this._transformUpdate = true;
     }
 
@@ -838,7 +838,7 @@ class DescriptorSetCache {
                 return this._descriptorSetCache.get(hash)!;
             } else {
                 _dsInfo.layout = batch.passes[0].localSetLayout;
-                const descriptorSet = root.device.createDescriptorSet(_dsInfo) as DescriptorSet;
+                const descriptorSet = deviceManager.gfxDevice.createDescriptorSet(_dsInfo);
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);

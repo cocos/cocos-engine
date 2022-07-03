@@ -27,7 +27,7 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { errorID } from '../../platform/debug';
 import { getPhaseID } from '../../pipeline/pass-phase';
@@ -186,7 +186,7 @@ export class SubModel {
      */
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
         const root = legacyCC.director.root as Root;
-        this._device = root.device;
+        this._device = deviceManager.gfxDevice;
         _dsInfo.layout = passes[0].localSetLayout;
 
         this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);

@@ -1825,23 +1825,23 @@ cocos_source_files(
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp
     cocos/core/builtin/BuiltinResMgr.h
-    cocos/core/builtin/ShaderSourceAssembly.cpp
-    cocos/core/builtin/ShaderSourceAssembly.h
+    # cocos/core/builtin/ShaderSourceAssembly.cpp
+    # cocos/core/builtin/ShaderSourceAssembly.h
     # cocos/core/builtin/Effects.cpp # generated
-    cocos/core/builtin/Effects.h
+    # cocos/core/builtin/Effects.h
     # cocos/core/builtin/shader-sources/glsl1.cpp # generated
-    cocos/core/builtin/shader-sources/glsl1.h
+    # cocos/core/builtin/shader-sources/glsl1.h
     # cocos/core/builtin/shader-sources/glsl3.cpp # generated
-    cocos/core/builtin/shader-sources/glsl3.h
+    # cocos/core/builtin/shader-sources/glsl3.h
     # cocos/core/builtin/shader-sources/glsl4.cpp # generated
-    cocos/core/builtin/shader-sources/glsl4.h
+    # cocos/core/builtin/shader-sources/glsl4.h
     #
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
     cocos/core/data/JSBNativeDataHolder.h
-    cocos/core/data/deserializer/EffectAssetDeserializer.cpp
-    cocos/core/data/deserializer/EffectAssetDeserializer.h
+    # cocos/core/data/deserializer/EffectAssetDeserializer.cpp
+    # cocos/core/data/deserializer/EffectAssetDeserializer.h
     # cocos/core/data/deserializer/MeshDeserializer.cpp
     # cocos/core/data/deserializer/MeshDeserializer.h
     # cocos/core/data/deserializer/MaterialDeserializer.cpp
@@ -1854,9 +1854,9 @@ cocos_source_files(
     # cocos/core/data/deserializer/Texture2DDeserializer.h
     # cocos/core/data/deserializer/TerrainAssetDeserializer.cpp
     # cocos/core/data/deserializer/TerrainAssetDeserializer.h
-    cocos/core/data/deserializer/IAssetDeserializer.h
-    cocos/core/data/deserializer/AssetDeserializerFactory.cpp
-    cocos/core/data/deserializer/AssetDeserializerFactory.h
+    # cocos/core/data/deserializer/IAssetDeserializer.h
+    # cocos/core/data/deserializer/AssetDeserializerFactory.cpp
+    # cocos/core/data/deserializer/AssetDeserializerFactory.h
 
     cocos/core/event/CallbacksInvoker.cpp
     cocos/core/event/CallbacksInvoker.h
@@ -2637,57 +2637,57 @@ function(compile_ts input_file_ts output_file)
     )
 endfunction()
 
-compile_ts(${CWD}/../cocos/core/builtin/effects.ts ${CWD}/cocos/core/builtin/effects.js)
-compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl1.ts ${CWD}/cocos/core/builtin/shader-sources/glsl1.js)
-compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl3.ts ${CWD}/cocos/core/builtin/shader-sources/glsl3.js)
-compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl4.ts ${CWD}/cocos/core/builtin/shader-sources/glsl4.js)
+# compile_ts(${CWD}/../cocos/core/builtin/effects.ts ${CWD}/cocos/core/builtin/effects.js)
+# compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl1.ts ${CWD}/cocos/core/builtin/shader-sources/glsl1.js)
+# compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl3.ts ${CWD}/cocos/core/builtin/shader-sources/glsl3.js)
+# compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl4.ts ${CWD}/cocos/core/builtin/shader-sources/glsl4.js)
 
 set(CC_GENERATED_FILES
-    ${CWD}/cocos/core/builtin/Effects.cpp
+    # ${CWD}/cocos/core/builtin/Effects.cpp
     ${CWD}/cocos/core/builtin/DebugInfos.cpp
-    ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
-    ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
-    ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
+    # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
+    # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
+    # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
 )
 
 add_custom_target(builtin-res
     COMMAND ${CMAKE_COMMAND} -E echo "Generate builtin resources ..."
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
-            glsl1
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
-            glsl3
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
-            glsl4
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/effects_gzip.js
-            ${CWD}/cocos/core/builtin/effects.js
-            effects
-            ${CWD}/cocos/core/builtin/Effects.cpp.in
-            ${CWD}/cocos/core/builtin/Effects.cpp
+    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
+            # glsl1
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
+    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
+            # glsl3
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
+    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
+            # glsl4
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
+    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/effects_gzip.js
+            # ${CWD}/cocos/core/builtin/effects.js
+            # effects
+            # ${CWD}/cocos/core/builtin/Effects.cpp.in
+            # ${CWD}/cocos/core/builtin/Effects.cpp
     COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/gen_debugInfos.js
             ${CWD}/../EngineErrorMap.md
             ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
             ${CWD}/cocos/core/builtin/DebugInfos.cpp
     DEPENDS
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
-            ${CWD}/cocos/core/builtin/effects.js
-            ${CWD}/cocos/core/builtin/Effects.cpp.in
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
+            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
+            # ${CWD}/cocos/core/builtin/effects.js
+            # ${CWD}/cocos/core/builtin/Effects.cpp.in
             ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
-            ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cmake/scripts/effects_gzip.js
+            # ${CWD}/cmake/scripts/glsl_gzip.js
+            # ${CWD}/cmake/scripts/effects_gzip.js
     VERBATIM USES_TERMINAL
 )
 set_target_properties(builtin-res PROPERTIES FOLDER Utils)

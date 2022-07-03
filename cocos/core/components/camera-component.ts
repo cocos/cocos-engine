@@ -31,7 +31,6 @@ import { Component } from './component';
 import { Ray } from '../geometry';
 import { Color, Rect, toRadian, Vec3 } from '../math';
 import { CAMERA_DEFAULT_MASK } from '../pipeline/define';
-import { view } from '../platform/view';
 import { scene } from '../renderer';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../renderer/scene/camera';
 import { Root } from '../root';
@@ -570,6 +569,7 @@ export class Camera extends Component {
      * this.convertToUINode(target.worldPosition, uiNode.parent, out);
      * uiNode.position = out;
      * ```
+     * @deprecated since v3.6, please use UITransform.convertToNodeSpaceAR instead
      */
     public convertToUINode (wpos: Vec3 | Readonly<Vec3>, uiNode: Node, out?: Vec3) {
         if (!out) {
@@ -579,7 +579,7 @@ export class Camera extends Component {
 
         this.worldToScreen(wpos, _temp_vec3_1);
         const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
-        const designSize = view.getVisibleSize();
+        const designSize = legacyCC.view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera.height * 0.5;
         _temp_vec3_1.x = xoffset / legacyCC.view.getScaleX() + designSize.width * 0.5;

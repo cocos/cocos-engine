@@ -26,7 +26,7 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp } from '../math/utils';
-import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format } from '../gfx';
+import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
@@ -148,14 +148,14 @@ export class RenderTexture extends TextureBase {
         _windowInfo.height = this._height;
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
 
-        _colorAttachment.barrier = root.device.getGeneralBarrier(new GeneralBarrierInfo(
+        _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
         ));
 
         if (this._window) {
             this._window.destroy();
-            this._window.initialize(root.device, _windowInfo);
+            this._window.initialize(deviceManager.gfxDevice, _windowInfo);
         } else {
             this._window = root.createWindow(_windowInfo);
         }

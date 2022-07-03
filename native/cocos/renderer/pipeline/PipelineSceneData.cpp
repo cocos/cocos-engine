@@ -87,7 +87,7 @@ void PipelineSceneData::initOcclusionQuery() {
         _occlusionQueryMaterial = ccnew Material();
         _occlusionQueryMaterial->setUuid("default-occlusion-query-material");
         IMaterialInfo info;
-        info.effectName = "occlusion-query";
+        info.effectName = "builtin-occlusion-query";
         _occlusionQueryMaterial->initialize(info);
         _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
         _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
@@ -107,7 +107,7 @@ void PipelineSceneData::initGeometryRenderer() {
         _geometryRendererMaterials[tech]->setUuid(ss.str());
 
         IMaterialInfo materialInfo;
-        materialInfo.effectName = "geometry-renderer";
+        materialInfo.effectName = "builtin-geometry-renderer";
         materialInfo.technique = tech;
         _geometryRendererMaterials[tech]->initialize(materialInfo);
 
@@ -124,7 +124,7 @@ void PipelineSceneData::initDebugRenderer() {
         _debugRendererMaterial = ccnew Material();
         _debugRendererMaterial->setUuid("default-debug-renderer-material");
         IMaterialInfo info;
-        info.effectName = "debug-renderer";
+        info.effectName = "builtin-debug-renderer";
         _debugRendererMaterial->initialize(info);
         _debugRendererPass = (*_debugRendererMaterial->getPasses())[0];
         _debugRendererShader = _debugRendererPass->getShaderVariant();

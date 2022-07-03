@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { DebugView } from './pipeline/debug-view';
@@ -36,11 +35,13 @@ import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
-import { warnID } from './platform/debug';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
+import { warn, warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
+import { settings, Settings } from './settings';
+import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 
 /**
  * @en Initialization information for the Root
@@ -289,7 +290,7 @@ export class Root {
      * @param info Root initialization information
      */
     public initialize (info: IRootInfo) {
-        const swapchain: Swapchain = legacyCC.game._swapchain;
+        const swapchain: Swapchain = deviceManager.swapchain;
         const colorAttachment = new ColorAttachment();
         colorAttachment.format = swapchain.colorTexture.format;
         const depthStencilAttachment = new DepthStencilAttachment();
@@ -306,6 +307,9 @@ export class Root {
             swapchain,
         });
         this._curWindow = this._mainWindow;
+        const customJointTextureLayouts = settings.querySettings(Settings.Category.ANIMATION, 'customJointTextureLayouts') || [];
+        this._dataPoolMgr?.jointTexturePool.registerCustomTextureLayouts(customJointTextureLayouts);
+        this._resizeMaxJointForDS();
     }
 
     /**
@@ -351,7 +355,7 @@ export class Root {
      * @param rppl The render pipeline
      * @returns The setup is successful or not
      */
-    public setRenderPipeline (rppl: RenderPipeline): boolean {
+    public setRenderPipeline (rppl?: RenderPipeline): boolean {
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
@@ -486,7 +490,7 @@ export class Root {
         }
 
         if (this._pipeline && cameraList.length > 0) {
-            this._device.acquire([legacyCC.game._swapchain]);
+            this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
             if (this._batcher) {
@@ -697,6 +701,12 @@ export class Root {
                 }
             }
         }
+    }
+
+    private _resizeMaxJointForDS () {
+        let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 
