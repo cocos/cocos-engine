@@ -40,7 +40,7 @@ struct ShaderStrings {
 
 class ClusterLightCulling {
 public:
-    explicit ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline){};
+    explicit ClusterLightCulling(RenderPipeline *pipeline);
     ~ClusterLightCulling();
 
     static constexpr uint32_t CLUSTERS_X = 16;
@@ -62,21 +62,6 @@ public:
     void initialize(gfx::Device *dev);
 
     void clusterLightCulling(scene::Camera *camera);
-
-    inline const gfx::DescriptorSet *getBuildingDescriptorSet() const { return _buildingDescriptorSet; }
-    inline const gfx::PipelineState *getBuildingPipelineState() const { return _buildingPipelineState; }
-    inline const gfx::DescriptorSet *getResetCounterDescriptorSet() const { return _resetCounterDescriptorSet; }
-    inline const gfx::PipelineState *getResetCounterPipelineState() const { return _resetCounterPipelineState; }
-    inline const gfx::DescriptorSet *getCullingDescriptorSet() const { return _cullingDescriptorSet; }
-    inline const gfx::PipelineState *getCullingPipelineState() const { return _cullingPipelineState; }
-
-    inline const gfx::Buffer *getConstantsBuffer() const { return _constantsBuffer; }
-
-    inline const gfx::DispatchInfo &getBuildingDispatchInfo() const { return _buildingDispatchInfo; }
-    inline const gfx::DispatchInfo &getResetCounterDispatchInfo() const { return _resetDispatchInfo; }
-    inline const gfx::DispatchInfo &getCullingDispatchInfo() const { return _cullingDispatchInfo; }
-
-    inline bool isInitialized() const { return _initialized; }
 
 private:
     ccstd::string &getShaderSource(ShaderStrings &sources);
@@ -100,27 +85,29 @@ private:
         return false;
     }
 
+    // weak reference
     gfx::Device *_device{nullptr};
-    scene::Camera *_camera{nullptr};
+    IntrusivePtr<scene::Camera> _camera;
+    // weak reference
     RenderPipeline *_pipeline{nullptr};
 
-    gfx::Shader *_buildingShader{nullptr};
-    gfx::DescriptorSetLayout *_buildingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *_buildingPipelineLayout{nullptr};
-    gfx::PipelineState *_buildingPipelineState{nullptr};
-    gfx::DescriptorSet *_buildingDescriptorSet{nullptr};
+    IntrusivePtr<gfx::Shader> _buildingShader;
+    IntrusivePtr<gfx::DescriptorSetLayout> _buildingDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> _buildingPipelineLayout;
+    IntrusivePtr<gfx::PipelineState> _buildingPipelineState;
+    IntrusivePtr<gfx::DescriptorSet> _buildingDescriptorSet;
 
-    gfx::Shader *_resetCounterShader{nullptr};
-    gfx::DescriptorSetLayout *_resetCounterDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *_resetCounterPipelineLayout{nullptr};
-    gfx::PipelineState *_resetCounterPipelineState{nullptr};
-    gfx::DescriptorSet *_resetCounterDescriptorSet{nullptr};
+    IntrusivePtr<gfx::Shader> _resetCounterShader;
+    IntrusivePtr<gfx::DescriptorSetLayout> _resetCounterDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> _resetCounterPipelineLayout;
+    IntrusivePtr<gfx::PipelineState> _resetCounterPipelineState;
+    IntrusivePtr<gfx::DescriptorSet> _resetCounterDescriptorSet;
 
-    gfx::Shader *_cullingShader{nullptr};
-    gfx::DescriptorSetLayout *_cullingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *_cullingPipelineLayout{nullptr};
-    gfx::PipelineState *_cullingPipelineState{nullptr};
-    gfx::DescriptorSet *_cullingDescriptorSet{nullptr};
+    IntrusivePtr<gfx::Shader> _cullingShader;
+    IntrusivePtr<gfx::DescriptorSetLayout> _cullingDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> _cullingPipelineLayout;
+    IntrusivePtr<gfx::PipelineState> _cullingPipelineState;
+    IntrusivePtr<gfx::DescriptorSet> _cullingDescriptorSet;
 
     static constexpr uint32_t NEAR_FAR_OFFSET = 0;
     static constexpr uint32_t VIEW_PORT_OFFSET = 4;
@@ -128,11 +115,13 @@ private:
     static constexpr uint32_t MAT_PROJ_INV_OFFSET = 24;
 
     ccstd::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
-    gfx::Buffer *_constantsBuffer{nullptr};
+    IntrusivePtr<gfx::Buffer> _constantsBuffer;
 
+    // weak reference
     ccstd::vector<scene::Light *> _validLights;
     ccstd::vector<float> _lightBufferData;
 
+    // weak reference
     gfx::GeneralBarrier *_resetBarrier{nullptr};
 
     gfx::DispatchInfo _buildingDispatchInfo;

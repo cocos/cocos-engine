@@ -70,7 +70,10 @@ public:
     inline void setUseColorTemperature(bool value) { _useColorTemperature = value; }
 
     inline float getColorTemperature() const { return _colorTemp; }
-    inline void setColorTemperature(float val) { _colorTemp = val; }
+    inline void setColorTemperature(float val) {
+        _colorTemp = val;
+        setColorTemperatureRGB(colorTemperatureToRGB(val));
+    }
 
     inline Node *getNode() const { return _node.get(); }
     void setNode(Node *node);
@@ -87,6 +90,7 @@ public:
     inline void setColorTemperatureRGB(const Vec3 &value) { _colorTemperatureRGB = value; }
 
     static float nt2lm(float size);
+    static Vec3 colorTemperatureToRGB(float kelvin);
 
 protected:
     bool _useColorTemperature{false};

@@ -25,9 +25,9 @@
 
 import { BUILD, EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
-import { js, path } from '../utils';
+import { js } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
-import { basename } from '../utils/path';
+import { basename, mainFileName } from '../utils/path';
 import Cache from './cache';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
@@ -80,7 +80,7 @@ const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: C
         }
         const cconPreface = parseCCONJson(json);
         const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise<Uint8Array>((resolve, reject) => {
-            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+            downloadArrayBuffer(`${mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
                 if (err) {
                     reject(err);
                 } else {

@@ -9,12 +9,12 @@ cameraNode.addComponent(cc.Camera);
 
 const material = new cc.Material();
 material.initialize({
-  effectName: 'unlit',
+  effectName: 'builtin-unlit',
   defines: { USE_COLOR: true },
 });
 const material2 = new cc.Material();
 material2.initialize({
-  effectName: 'unlit',
+  effectName: 'builtin-unlit',
   defines: { USE_COLOR: true },
   states: {
     depthStencilState: { depthTest: false, depthWrite: false },

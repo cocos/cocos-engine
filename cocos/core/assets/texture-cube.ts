@@ -25,7 +25,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../gfx';
+import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';

@@ -50,6 +50,7 @@ CommandBufferValidator::CommandBufferValidator(CommandBuffer *actor)
 
 CommandBufferValidator::~CommandBufferValidator() {
     DeviceResourceTracker<CommandBuffer>::erase(this);
+    CC_SAFE_DELETE(_actor);
 }
 
 void CommandBufferValidator::initValidator() {

@@ -109,7 +109,7 @@ function compileDestruct (obj, ctor) {
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
             // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-            const attrKey = `${key + legacyCC.Class.Attr.DELIMETER}default`;
+            const attrKey = `${key}`;
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
                     continue;

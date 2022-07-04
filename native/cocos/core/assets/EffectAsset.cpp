@@ -156,8 +156,8 @@ bool EffectAsset::destroy() {
 
 void EffectAsset::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    const auto *effect = EffectAsset::get("unlit");
-    _name = "unlit";
+    const auto *effect = EffectAsset::get("builtin-unlit");
+    _name = "builtin-unlit";
     _shaders = effect->_shaders;
     _combinations = effect->_combinations;
     _techniques = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE

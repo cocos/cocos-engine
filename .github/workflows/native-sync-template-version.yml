@@ -13,9 +13,16 @@ on:
     - 'templates/linux/**'
     - 'templates/ohos/**'
 
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   compile_linux:
     name: "Linux-Ubuntu"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

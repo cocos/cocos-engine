@@ -57,11 +57,7 @@ Material::Material() {
 Material::~Material() = default;
 
 void Material::initialize(const IMaterialInfo &info) {
-    // cjh FIXME: remove hacking code here
-    if (!BuiltinResMgr::getInstance()->isInitialized()) {
-        BuiltinResMgr::getInstance()->initBuiltinRes(gfx::Device::getInstance());
-    }
-    //
+
     auto &passes = *_passes;
     if (!passes.empty()) {
         debug::warnID(12005);
@@ -441,7 +437,7 @@ void Material::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     MacroRecord defines{{"USE_COLOR", true}};
     IMaterialInfo info;
-    info.effectName = ccstd::string{"unlit"};
+    info.effectName = ccstd::string{"builtin-unlit"};
     info.defines = IMaterialInfo::DefinesType{defines};
     initialize(info);
     setProperty("mainColor", Color{0xFF, 0x00, 0xFF, 0xFF});

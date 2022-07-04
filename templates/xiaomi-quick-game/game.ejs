@@ -23,11 +23,8 @@ System.warmup({
     },
 });
 
-System.import('<%= applicationJs %>').then(({ createApplication }) => {
-    return createApplication({
-        loadJsListFile: (url) => require(`./${url}`),
-        fetchWasm: (url) => url,
-    });
+System.import('<%= applicationJs %>').then(({ Application }) => {
+    return new Application();
 }).then((application) => {
     return onApplicationCreated(application);
 }).catch((err) => {
@@ -35,17 +32,8 @@ System.import('<%= applicationJs %>').then(({ createApplication }) => {
 });
 
 function onApplicationCreated(application) {
-    return application.import('cc').then((cc) => {
+    return System.import('cc').then((cc) => {
         require('./engine-adapter');
-        // Adjust devicePixelRatio
-        cc.view._maxPixelRatio = 4;
-        // Release Image objects after uploaded gl texture
-        cc.macro.CLEANUP_IMAGE_CACHE = false;
-        return application.start({
-            findCanvas: () => {
-                var container = document.createElement('div');
-                return { frame: container, canvas: window.canvas, container };
-            },
-        });
-    });
+        return application.init(cc);
+    }).then(() => application.start());
 }
