@@ -20108,6 +20108,7 @@ static bool js_assets_Skeleton_getInverseBindposes(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Skeleton_getInverseBindposes)
 SE_BIND_FUNC(js_assets_Skeleton_getInverseBindposes)
 
 static bool js_assets_Skeleton_getJoints(se::State& s) // NOLINT(readability-identifier-naming)
@@ -20218,6 +20219,7 @@ bool js_register_assets_Skeleton(se::Object* obj) // NOLINT(readability-identifi
 #endif
     cls->defineProperty({"_joints", "joints"}, _SE(js_assets_Skeleton_getJoints_asGetter), _SE(js_assets_Skeleton_setJoints_asSetter));
     cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHash_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
+    cls->defineProperty({"_invBindposes", "invBindposes"}, _SE(js_assets_Skeleton_getInverseBindposes_asGetter), nullptr);
     cls->defineFunction("_getBindposes", _SE(js_assets_Skeleton_getBindposes));
     cls->defineFunction("getHash", _SE(js_assets_Skeleton_getHash));
     cls->defineFunction("getInverseBindposes", _SE(js_assets_Skeleton_getInverseBindposes));

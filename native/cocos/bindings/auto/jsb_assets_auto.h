@@ -775,7 +775,6 @@ extern se::Class * __jsb_cc_Skeleton_class; // NOLINT
 bool js_register_cc_Skeleton(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_Skeleton_getBindposes);
-SE_DECLARE_FUNC(js_assets_Skeleton_getInverseBindposes);
 SE_DECLARE_FUNC(js_assets_Skeleton_setBindposes);
 SE_DECLARE_FUNC(js_assets_Skeleton_Skeleton);
 
