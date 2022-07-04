@@ -320,14 +320,11 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor.clear();
             this._particleSystem.processor = null!;
         }
-        if (!this._useGPU) {
-            if (this.cpuMaterial) {
-                this.particleMaterial = this.cpuMaterial;
-            }
-        } else {
-            if (this.gpuMaterial) {
-                this.particleMaterial = this.gpuMaterial;
-            }
+        if (!this._useGPU && this.cpuMaterial) {
+            this.particleMaterial = this.cpuMaterial;
+        } 
+        if (this._useGPU && this.gpuMaterial) {
+            this.particleMaterial = this.gpuMaterial;
         }
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.updateAlignSpace(this.alignSpace);
