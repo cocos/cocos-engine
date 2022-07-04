@@ -572,15 +572,15 @@ function setup (tag: string, table: Record<string | number, any>, allowExist) {
                 if (TEST) {
                     // eslint-disable-next-line no-multi-str
                     err += ' (This may be caused by error of unit test.) \
-            If you dont need serialization, you can set class id to "". You can also call \
-            js.unregisterClass to remove the id of unused class';
+If you dont need serialization, you can set class id to "". You can also call \
+js.unregisterClass to remove the id of unused class';
                 }
                 error(err);
             } else {
                 table[id] = constructor;
             }
-            // if (id === '') {
-            //     console.trace('', table === _nameToClass);
+            // if (id === "") {
+            //     console.trace("", table === _nameToClass);
             // }
         }
     };
