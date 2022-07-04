@@ -33,8 +33,8 @@ import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
-import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
-import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { getAttributeStride, vfmtPosUvColor, vfmtPosUvTwoColor } from './vertex-format';
+import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderDrawInfo } from './render-draw-info';
 import { StencilManager } from './stencil-manager';
@@ -539,6 +539,11 @@ export class RenderData extends BaseRenderData {
         if (JSB) {
             this._renderDrawInfo.clear();
         }
+    }
+    public static createStaticVBAccessor (attributes: Attribute[]) : StaticVBAccessor {
+        const device = director.root!.device;
+        const accessor = new StaticVBAccessor(device, attributes);
+        return accessor;
     }
 }
 

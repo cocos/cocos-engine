@@ -203,7 +203,7 @@ void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node
 }
 
 void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
-    if (drawInfo == nullptr) {
+    if (drawInfo == nullptr || _currMaterial == nullptr) {
         return;
     }
 
