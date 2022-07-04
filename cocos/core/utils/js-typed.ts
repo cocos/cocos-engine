@@ -556,7 +556,7 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: Record<string | number, any>, allowExist) {
+function setup (tag: string, table: Record<string | number, any>, allowExist: boolean) {
     return function (id: string, constructor: Constructor) {
         // deregister old
         // eslint-disable-next-line no-prototype-builtins
