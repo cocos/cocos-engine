@@ -36,9 +36,9 @@ class IBaseJoint : virtual public ILifecycle {
 public:
     ~IBaseJoint() override = default;
     virtual void initialize(Node *node) = 0;
-    virtual uintptr_t getImpl() = 0;
     virtual void setEnableCollision(bool v) = 0;
-    virtual void setConnectedBody(uintptr_t v) = 0;
+    virtual void setConnectedBody(uint32_t rigidBodyID) = 0;
+    virtual uint32_t getObjectID() const = 0;
 };
 
 class IDistanceJoint : virtual public IBaseJoint {

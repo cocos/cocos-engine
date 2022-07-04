@@ -37,10 +37,6 @@
         _impl.reset(nullptr);                                        \
     }                                                                \
                                                                      \
-    uintptr_t CLASS::getImpl() {                                     \
-        return _impl->getImpl();                                     \
-    }                                                                \
-                                                                     \
     void CLASS::initialize(Node *node) {                             \
         _impl->initialize(node);                                     \
     }                                                                \
@@ -96,6 +92,10 @@
                                                                      \
     geometry::Sphere &CLASS::getBoundingSphere() {                   \
         return _impl->getBoundingSphere();                           \
+    }                                                                \
+                                                                     \
+    uint32_t CLASS::getObjectID() const {                            \
+        return _impl->getObjectID();                                 \
     }
 
 namespace cc {
@@ -142,28 +142,28 @@ void PlaneShape::setNormal(float x, float y, float z) {
     _impl->setNormal(x, y, z);
 }
 
-void TrimeshShape::setMesh(uintptr_t v) {
-    _impl->setMesh(v);
+void TrimeshShape::setMesh(uint32_t objectID) {
+    _impl->setMesh(objectID);
 }
 
 void TrimeshShape::useConvex(bool v) {
     _impl->useConvex(v);
 }
 
-void TerrainShape::setTerrain(uintptr_t v, float rs, float cs, float hs) {
-    _impl->setTerrain(v, rs, cs, hs);
+void TerrainShape::setTerrain(uint32_t objectID, float rs, float cs, float hs) {
+    _impl->setTerrain(objectID, rs, cs, hs);
 }
 
-void CylinderShape::setConvex(uintptr_t v) {
-    _impl->setConvex(v);
+void CylinderShape::setConvex(uint32_t objectID) {
+    _impl->setConvex(objectID);
 }
 
 void CylinderShape::setCylinder(float r, float h, EAxisDirection d) {
     _impl->setCylinder(r, h, d);
 }
 
-void ConeShape::setConvex(uintptr_t v) {
-    _impl->setConvex(v);
+void ConeShape::setConvex(uint32_t objectID) {
+    _impl->setConvex(objectID);
 }
 
 void ConeShape::setCone(float r, float h, EAxisDirection d) {

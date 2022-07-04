@@ -56,10 +56,10 @@ public:
     bool raycastClosest(RaycastOptions &opt) override;
     ccstd::vector<RaycastResult> &raycastResult() override;
     RaycastResult &raycastClosestResult() override;
-    uintptr_t createConvex(ConvexDesc &desc) override;
-    uintptr_t createTrimesh(TrimeshDesc &desc) override;
-    uintptr_t createHeightField(HeightFieldDesc &desc) override;
-    uintptr_t createMaterial(uint16_t id, float f, float df, float r,
+    uint32_t createConvex(ConvexDesc &desc) override;
+    uint32_t createTrimesh(TrimeshDesc &desc) override;
+    uint32_t createHeightField(HeightFieldDesc &desc) override;
+    bool  createMaterial(uint16_t id, float f, float df, float r,
                              uint8_t m0, uint8_t m1) override;
     inline ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
         return _mEventMgr->getTriggerPairs();
@@ -83,6 +83,18 @@ public:
     void addActor(const PhysXSharedBody &sb);
     void removeActor(const PhysXSharedBody &sb);
 
+    //Mapping PhysX Object ID and Pointer
+    uint32_t addPXObject(uintptr_t PXObjectPtr);
+    void removePXObject(uint32_t pxObjectID);
+    uintptr_t getPXPtrWithPXObjectID(uint32_t pxObjectID);
+
+    //Mapping Wrapper PhysX Object ID and Pointer
+    uint32_t addWrapperObject(uintptr_t wrapperObjectPtr);
+    void removeWrapperObject(uint32_t wrapperObjectID);
+    uintptr_t getWrapperPtrWithObjectID(uint32_t wrapperObjectID);
+
+    uintptr_t getPXMaterialPtrWithMaterialID(uint32_t materialID);
+
 private:
     static PhysXWorld *instance;
     physx::PxFoundation *_mFoundation;
@@ -96,6 +108,11 @@ private:
     PhysXEventManager *_mEventMgr;
     uint32_t _mCollisionMatrix[31];
     ccstd::vector<PhysXSharedBody *> _mSharedBodies;
+
+    static uint32_t _msWrapperObjectID;
+    static uint32_t _msPXObjectID;
+    ccstd::unordered_map<uint32_t, uintptr_t> _mPXObjects;
+    ccstd::unordered_map<uint32_t, uintptr_t> _mWrapperObjects;
 };
 
 } // namespace physics

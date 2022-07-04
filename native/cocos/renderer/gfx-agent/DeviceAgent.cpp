@@ -116,13 +116,15 @@ void DeviceAgent::doDestroy() {
         _queue = nullptr;
     }
 
-    _mainMessageQueue->terminateConsumerThread();
-
-    // NOTE: C++17 required when enable alignment
-    // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
-    _mainMessageQueue->~MessageQueue();
-    CC_FREE_ALIGN(_mainMessageQueue);
-    _mainMessageQueue = nullptr;
+    if (_mainMessageQueue) {
+        _mainMessageQueue->terminateConsumerThread();
+        
+        // NOTE: C++17 required when enable alignment
+        // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
+        _mainMessageQueue->~MessageQueue();
+        CC_FREE_ALIGN(_mainMessageQueue);
+        _mainMessageQueue = nullptr;
+    }
 }
 
 void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {

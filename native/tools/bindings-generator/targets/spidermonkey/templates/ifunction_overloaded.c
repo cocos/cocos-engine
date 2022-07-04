@@ -2,6 +2,10 @@
 
 static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#set $module_macro = $generator.get_method_module_macro($class_name, $func_name)
+#if $module_macro
+\#if $module_macro
+#end if
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     // SE_PRECONDITION2( cobj, false, "${signature_name} : Invalid Native Object");
@@ -83,6 +87,11 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
 #end for
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
+#if $module_macro
+\#else
+    return true;
+\#endif // \#if $module_macro
+#end if
 }
 #if $current_class is not None
 #if $current_class.is_getter_attribute($func_name)

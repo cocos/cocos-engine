@@ -34,7 +34,7 @@ import { Size } from '../math/size';
 import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
-import { SceneGlobals, ShadowsInfo } from './scene-globals';
+import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
 import { NodeUIProperties } from './node-ui-properties';

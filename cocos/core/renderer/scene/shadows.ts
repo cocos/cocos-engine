@@ -343,7 +343,7 @@ export class Shadows {
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
             this._material = new Material();
-            this._material.initialize({ effectName: 'planar-shadow' });
+            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         }
 
         return this._material.passes[0].getShaderVariant(patches);
@@ -358,7 +358,7 @@ export class Shadows {
     public getPlanarInstanceShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
-            this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
+            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
 
         return this._instancingMaterial.passes[0].getShaderVariant(patches);
@@ -389,11 +389,11 @@ export class Shadows {
     protected _updatePlanarInfo () {
         if (!this._material) {
             this._material = new Material();
-            this._material.initialize({ effectName: 'planar-shadow' });
+            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
-            this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
+            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
     }
 

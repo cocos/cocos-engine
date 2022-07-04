@@ -25,12 +25,16 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#include "base/RefCounted.h"
-#include "gfx-base/GFXDef-common.h"
-#include "math/Vec2.h"
-#include "math/Vec3.h"
-#include "math/Vec4.h"
+// NOTE: Still need to wrap all code in CC_USE_GEOMETRY_RENDERER block
+// since auto-generated binding code will include GeometryRenderer.h
+#if CC_USE_GEOMETRY_RENDERER
+
+    #include "base/Macros.h"
+    #include "base/RefCounted.h"
+    #include "gfx-base/GFXDef-common.h"
+    #include "math/Vec2.h"
+    #include "math/Vec3.h"
+    #include "math/Vec4.h"
 
 namespace cc {
 
@@ -76,6 +80,7 @@ public:
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData);
     void destroy();
     bool empty() const;
+    void update();
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
@@ -101,7 +106,6 @@ public:
     void addIndexedMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, const ccstd::vector<uint32_t> &indices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
 
 private:
-    void update();
     void reset();
 
     gfx::Device *_device{nullptr};
@@ -110,3 +114,5 @@ private:
 
 } // namespace pipeline
 } // namespace cc
+
+#endif // #if CC_USE_GEOMETRY_RENDERER

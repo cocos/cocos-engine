@@ -23,11 +23,12 @@
  THE SOFTWARE.
  */
 
-import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
+import { BUILD, EDITOR, PREVIEW, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
 import { sys } from '../platform/sys';
+import { Settings, settings } from '../settings';
 import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
@@ -322,20 +323,23 @@ export class AssetManager {
      *
      */
     public init (options: IAssetManagerOptions = {}) {
+        const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
+        const bundleVers = options.bundleVers || settings.querySettings(Settings.Category.ASSETS, 'bundleVers') || {};
+        const remoteBundles = options.remoteBundles || settings.querySettings(Settings.Category.ASSETS, 'remoteBundles') || [];
         this._files.clear();
         this._parsed.clear();
         this._releaseManager.init();
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
-        this.downloader.init(options.server, options.bundleVers, options.remoteBundles);
+        this.downloader.init(server, bundleVers, remoteBundles);
         this.parser.init();
         this.dependUtil.init();
-        let importBase = options.importBase || '';
+        let importBase = options.importBase || settings.querySettings(Settings.Category.ASSETS, 'importBase') || '';
         if (importBase && importBase.endsWith('/')) {
             importBase = importBase.substr(0, importBase.length - 1);
         }
-        let nativeBase = options.nativeBase || '';
+        let nativeBase = options.nativeBase || settings.querySettings(Settings.Category.ASSETS, 'nativeBase') || '';
         if (nativeBase && nativeBase.endsWith('/')) {
             nativeBase = nativeBase.substr(0, nativeBase.length - 1);
         }

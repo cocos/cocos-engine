@@ -63,7 +63,7 @@
 - (id)init:(const cc::network::DownloaderApple *)o hints:(const cc::network::DownloaderHints &)hints;
 - (const cc::network::DownloaderHints &)getHints;
 - (NSURLSessionDataTask *)createDataTask:(std::shared_ptr<const cc::network::DownloadTask> &)task;
-- (NSURLSessionDownloadTask *)createFileTask:(std::shared_ptr<const cc::network::DownloadTask> &)task;
+- (NSURLSessionDownloadTask *)createDownloadTask:(std::shared_ptr<const cc::network::DownloadTask> &)task;
 - (void)saveResumeData:(NSData *)resumeData forTaskStoragePath:(const ccstd::string &) path;
 - (void)abort:(NSURLSessionTask *)task;
 - (void)doDestroy;
@@ -108,13 +108,13 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
 #if CC_PLATFORM == CC_PLATFORM_IOS
         if (impl.hasUnfinishedTask == YES) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
-                    coTask->downloadTask = [impl createFileTask:task];
+                    coTask->downloadTask = [impl createDownloadTask:task];
                 },this , 0, 0, 0.1F, false, "DownloaderApple");
             } else {
-                coTask->downloadTask = [impl createFileTask:task];
+                coTask->downloadTask = [impl createDownloadTask:task];
             }
 #else
-        coTask->downloadTask = [impl createFileTask:task];
+        coTask->downloadTask = [impl createDownloadTask:task];
 #endif
     } else {
         coTask->dataTask = [impl createDataTask:task];
@@ -271,9 +271,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     return ocTask;
 };
 
-- (NSURLSessionDownloadTask *)createFileTask:(std::shared_ptr<const cc::network::DownloadTask> &)task {
+- (NSURLSessionDownloadTask *)createDownloadTask:(std::shared_ptr<const cc::network::DownloadTask> &)task {
     const char *urlStr = task->requestURL.c_str();
-    DLLOG("DownloaderAppleImpl createFileTask: %s", urlStr);
+    DLLOG("DownloaderAppleImpl createDownloadTask: %s", urlStr);
     NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:urlStr]];
     NSMutableURLRequest *request = nil;
     if (_hints.timeoutInSeconds > 0) {

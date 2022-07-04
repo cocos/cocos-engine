@@ -66,16 +66,21 @@ public:
 
 protected:
     gfx::Rect _renderArea;
-    // Generate quad ia, cannot be updated inside renderpass
+    // Generate quad ia, cannot be updated inside renderpass.
+    // weak reference, it is created and recorded in RenderPipeline::_quadIA.
     gfx::InputAssembler *_inputAssembler{nullptr};
     RenderQueueDescList _renderQueueDescriptors;
+    // Manage memory manually.
     ccstd::vector<RenderQueue *> _renderQueues;
-    RenderPipeline *_pipeline = nullptr;
-    RenderFlow *_flow = nullptr;
-    gfx::Device *_device = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // weak reference
+    RenderFlow *_flow{nullptr};
+    // weak reference
+    gfx::Device *_device{nullptr};
     ccstd::string _name;
-    uint32_t _priority = 0;
-    uint32_t _tag = 0;
+    uint32_t _priority{0};
+    uint32_t _tag{0};
     gfx::ColorList _clearColors = {{0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}};
 };
 

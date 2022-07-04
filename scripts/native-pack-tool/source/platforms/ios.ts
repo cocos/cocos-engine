@@ -85,6 +85,9 @@ export class IOSPackTool extends MacOSPackTool {
     }
 
     async generate() {
+        if(this.shouldSkipGenerate()) {
+            return false;
+        }
         const nativePrjDir = this.paths.nativePrjDir;
         if (!fs.existsSync(nativePrjDir)) {
             cchelper.makeDirectoryRecursive(nativePrjDir);
@@ -98,7 +101,7 @@ export class IOSPackTool extends MacOSPackTool {
         await toolHelper.runCmake(['-S', `${this.paths.platformTemplateDirInPrj}`, '-GXcode', `-B${nativePrjDir}`, '-T', `buildsystem=${ver}`,
                                     '-DCMAKE_SYSTEM_NAME=iOS'].concat(ext));
 
-        this.skipUpdateXcodeProject();
+        await this.skipUpdateXcodeProject();
 
         return true;
     }

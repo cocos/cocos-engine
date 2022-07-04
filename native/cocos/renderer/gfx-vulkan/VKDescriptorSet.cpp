@@ -258,5 +258,10 @@ void CCVKDescriptorSet::update() {
     }
 }
 
+void CCVKDescriptorSet::forceUpdate() {
+    _isDirty = true;
+    update();
+}
+
 } // namespace gfx
 } // namespace cc

@@ -34,7 +34,7 @@ class PhysXTrimesh final : public PhysXShape, public ITrimeshShape {
 public:
     PhysXTrimesh();
     ~PhysXTrimesh() override = default;
-    void setMesh(uintptr_t handle) override;
+    void setMesh(uint32_t objectID) override;
     void useConvex(bool v) override;
     void updateScale() override;
     void setAsTrigger(bool v) override;

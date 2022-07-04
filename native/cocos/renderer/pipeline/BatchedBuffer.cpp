@@ -52,6 +52,7 @@ void BatchedBuffer::destroyBatchedBuffer() {
             BatchedBuffer *batchedBuffer = item.second;
             if (batchedBuffer) {
                 batchedBuffer->destroy();
+                delete batchedBuffer;
             }
         }
     }

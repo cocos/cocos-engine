@@ -74,11 +74,14 @@ public:
     inline const DynamicOffsetList &getDynamicOffset() const { return _dynamicOffsets; }
 
 private:
+    // uint32_t: extraKey, passed in BatchedBuffer::get();
     static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, BatchedBuffer *>> buffers;
     DynamicOffsetList _dynamicOffsets;
     BatchedItemList _batches;
-    const scene::Pass *_pass = nullptr;
-    gfx::Device *_device = nullptr;
+    // weak reference
+    const scene::Pass *_pass{nullptr};
+    // weak reference
+    gfx::Device *_device{nullptr};
 };
 
 } // namespace pipeline

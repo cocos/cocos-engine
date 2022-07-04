@@ -42,6 +42,7 @@ public:
     CCMTLDescriptorSet &operator=(CCMTLDescriptorSet &&) = delete;
 
     void update() override;
+    void forceUpdate() override;
 
     inline CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

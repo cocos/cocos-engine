@@ -1,10 +1,12 @@
 import { EDITOR } from 'internal:constants';
+import { director, System } from '../../../core';
 import { Filter } from '../../../core/assets/asset-enum';
 import { legacyCC } from '../../../core/global-exports';
+import { macro } from '../../../core/platform';
 import { js } from '../../../core/utils/js';
 import { Atlas } from './atlas';
 
-export class DynamicAtlasManager {
+export class DynamicAtlasManager extends System {
     public static instance: DynamicAtlasManager;
 
     private _atlases: Atlas[] = [];
@@ -119,6 +121,13 @@ export class DynamicAtlasManager {
 
     private beforeSceneLoad () {
         this.reset();
+    }
+
+    /**
+     * @internal
+     */
+    public init () {
+        this.enabled = !macro.CLEANUP_IMAGE_CACHE;
     }
 
     /**
@@ -243,5 +252,7 @@ export class DynamicAtlasManager {
 }
 
 export const dynamicAtlasManager: DynamicAtlasManager = DynamicAtlasManager.instance = new DynamicAtlasManager();
+
+director.registerSystem('dynamicAtlasManager', dynamicAtlasManager, 0);
 
 legacyCC.internal.dynamicAtlasManager = dynamicAtlasManager;

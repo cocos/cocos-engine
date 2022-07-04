@@ -268,7 +268,7 @@ void Skybox::activate() {
         auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
         MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
-        matInfo.effectName = ccstd::string{"skybox"};
+        matInfo.effectName = ccstd::string{"pipeline/skybox"};
         matInfo.defines = IMaterialInfo::DefinesType{defines};
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
@@ -351,8 +351,8 @@ void Skybox::updatePipeline() const {
     auto iterUseHDR = pipeline->getMacros().find("CC_USE_HDR");
     if (iterUseHDR != pipeline->getMacros().end()) {
         const MacroValue &macroHDR = iterUseHDR->second;
-        const int32_t *macroHDRPtr = ccstd::get_if<int32_t>(&macroHDR);
-        if (macroHDRPtr != nullptr && ((*macroHDRPtr != 0) != useHDRValue)) {
+        const bool *macroHDRPtr = ccstd::get_if<bool>(&macroHDR);
+        if (macroHDRPtr != nullptr && (*macroHDRPtr != useHDRValue)) {
             pipeline->setValue("CC_USE_HDR", useHDRValue);
             valueChanged = true;
         }

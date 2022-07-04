@@ -30,7 +30,9 @@
 #include "math/MathUtil.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
-#include "renderer/pipeline/GeometryRenderer.h"
+#if CC_USE_GEOMETRY_RENDERER
+    #include "renderer/pipeline/GeometryRenderer.h"
+#endif
 
 namespace cc {
 namespace scene {
@@ -72,9 +74,6 @@ Camera::Camera(gfx::Device *device)
     _frustum->addRef();
     _frustum->setAccurate(true);
 
-    _geometryRenderer = ccnew pipeline::GeometryRenderer();
-    _geometryRenderer->activate(device);
-
     if (correctionMatrices.empty()) {
         float ySign = _device->getCapabilities().clipSpaceSignY;
         assignMat4(correctionMatrices[static_cast<int>(gfx::SurfaceTransform::IDENTITY)], 1.F, 0, 0, 0, 0, ySign);
@@ -83,6 +82,8 @@ Camera::Camera(gfx::Device *device)
         assignMat4(correctionMatrices[static_cast<int>(gfx::SurfaceTransform::ROTATE_270)], 0, -1, 0, 0, ySign, 0);
     }
 }
+
+Camera::~Camera() = default;
 
 bool Camera::initialize(const ICameraInfo &info) {
     _node = info.node;
@@ -107,7 +108,9 @@ void Camera::destroy() {
         _window = nullptr;
     }
     _name.clear();
+#if CC_USE_GEOMETRY_RENDERER
     CC_SAFE_DESTROY_NULL(_geometryRenderer);
+#endif
     CC_SAFE_RELEASE_NULL(_frustum);
 }
 
@@ -218,6 +221,15 @@ void Camera::changeTargetWindow(RenderWindow *window) {
     }
 }
 
+void Camera::initGeometryRenderer() {
+#if CC_USE_GEOMETRY_RENDERER
+    if (!_geometryRenderer) {
+        _geometryRenderer = ccnew pipeline::GeometryRenderer();
+        _geometryRenderer->activate(_device);
+    }
+#endif
+}
+
 void Camera::detachCamera() {
     if (_window) {
         _window->detachCamera(this);
@@ -278,15 +290,14 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
         // transform to world
         out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
         out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
-        _matViewProjInv.transformPoint(&out);
-
+        out.transformMat4(out, _matViewProjInv);
         // lerp to depth z
         Vec3 tmpVec3;
         if (_node) {
             tmpVec3.set(_node->getWorldPosition());
         }
 
-        out = out.lerp(tmpVec3, MathUtil::lerp(_nearClip / _farClip, 1, screenPos.z));
+        out = tmpVec3.lerp(out, MathUtil::lerp(_nearClip / _farClip, 1, screenPos.z));
     } else {
         out.set(
             (screenPos.x - cx) / cw * 2 - 1,
@@ -296,7 +307,7 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
         // transform to world
         out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
         out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
-        _matViewProjInv.transformPoint(&out);
+        out.transformMat4(out, _matViewProjInv);
     }
 
     return out;

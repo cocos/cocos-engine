@@ -97,7 +97,7 @@ private:
     FinalizeFunc _finalizeCb{nullptr};
     Object *_parent{nullptr};
 
-    bool _registerWeak{false};
+    bool _registerWeakCallback{false};
 };
 
 } // namespace se

@@ -306,6 +306,7 @@
         "cc.vmath",
         "cc.warn",
         "cc.warnID",
-        "cc.winSize"
+        "cc.winSize",
+        "cc.settings"
     ]
 }

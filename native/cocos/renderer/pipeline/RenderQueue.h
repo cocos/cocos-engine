@@ -46,7 +46,8 @@ public:
     bool empty() { return _queue.empty(); }
 
 private:
-    RenderPipeline *_pipeline = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
     RenderPassList _queue;
     RenderQueueCreateInfo _passDesc;
     bool _useOcclusionQuery{false};

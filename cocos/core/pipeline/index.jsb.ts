@@ -49,7 +49,6 @@ export const LightingStage = nr.LightingStage;
 export const PostProcessStage = nr.PostProcessStage;
 export const GbufferStage = nr.GbufferStage;
 export const BloomStage = nr.BloomStage;
-export { GeometryRenderer } from './geometry-renderer';
 export { PipelineEventType } from './pipeline-event';
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;

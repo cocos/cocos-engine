@@ -16,7 +16,7 @@ export interface MacOSParams {
     skipUpdateXcodeProject: boolean;
 }
 
-export class MacOSPackTool extends NativePackTool {
+export abstract class MacOSPackTool extends NativePackTool {
     params!: CocosParams<MacOSParams>;
 
     async create() {
@@ -24,11 +24,12 @@ export class MacOSPackTool extends NativePackTool {
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
         await this.excuteCocosTemplateTask();
-        await this.generate();
         return true;
     }
 
-    async generate() {
+    abstract generate() :Promise<boolean>;
+
+    shouldSkipGenerate() {
         const nativePrjDir = this.paths.nativePrjDir;
         const options = this.params.platformParams;
         if (options.skipUpdateXcodeProject && fs.existsSync(ps.join(nativePrjDir, 'CMakeCache.txt'))) {
@@ -40,7 +41,7 @@ export class MacOSPackTool extends NativePackTool {
         if (!fs.existsSync(cmakePath)) {
             throw new Error(`CMakeLists.txt not found in ${cmakePath}`);
         }
-        return true;
+        return false;
     }
 
     protected isAppleSilicon(): boolean {
@@ -72,7 +73,7 @@ export class MacOSPackTool extends NativePackTool {
 
     async xcodeDestroyZEROCHECK() {
         const nativePrjDir = this.paths.nativePrjDir;
-        const xcode = require('../../static/xcode');
+        const xcode = require(ps.join(this.params.enginePath, 'scripts/native-pack-tool/xcode'));
         const projs = fs.readdirSync(nativePrjDir).filter((x) => x.endsWith('.xcodeproj')).map((x) => ps.join(nativePrjDir, x));
         if (projs.length === 0) {
             console.error(`can not find xcode project file in ${nativePrjDir}`);
@@ -95,7 +96,7 @@ export class MacOSPackTool extends NativePackTool {
                     console.log(`  modifiy Xcode project file ${pbxfile}`);
                     {
                         // Resources/ add references to files/folders in assets/ 
-                        const assetsDir = ps.join(this.paths.platformTemplateDirInPrj);
+                        const assetsDir = this.paths.buildDir;
                         const objects = projectFile.hash.project.objects;
                         const KeyResource = `Resources`;
                         type ResourceItem = [string, {children:{value:string, comment:string}[]}];

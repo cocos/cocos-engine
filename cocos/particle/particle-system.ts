@@ -55,6 +55,7 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
+import { CCBoolean, CCFloat } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -322,7 +323,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
      * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
      */
-    @type(Boolean)
+    @type(CCBoolean)
     @displayOrder(27)
     @tooltip('i18n:particle_system.renderCulling')
     set renderCulling (value: boolean) {
@@ -366,7 +367,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle bounding box half width.
      * @zh 粒子包围盒半宽。
      */
-    @type(Number)
+    @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfX')
     get aabbHalfX () {
@@ -389,7 +390,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle bounding box half height.
      * @zh 粒子包围盒半高。
      */
-    @type(Number)
+    @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfY')
     get aabbHalfY () {
@@ -412,7 +413,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle bounding box half depth.
      * @zh 粒子包围盒半深。
      */
-    @type(Number)
+    @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfZ')
     get aabbHalfZ () {

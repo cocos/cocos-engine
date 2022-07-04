@@ -20,12 +20,11 @@
 ****************************************************************************/
 
 #include <sstream>
-#include "jsb_conversions.h"
-
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
+#include "cocos/editor-support/middleware-adapter.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/math/Quaternion.h"
 #include "cocos/math/Vec2.h"
@@ -35,6 +34,7 @@
 #include "core/assets/TextureCube.h"
 #include "core/geometry/AABB.h"
 #include "extensions/cocos-ext.h"
+#include "jsb_conversions.h"
 #include "network/Downloader.h"
 
 #include "bindings/auto/jsb_assets_auto.h"
@@ -133,6 +133,17 @@ enum class DataType {
     INT,
     FLOAT
 };
+enum class MathType {
+    VEC2 = 0,
+    VEC3,
+    VEC4,
+    QUATERNION,
+    MAT3,
+    MAT4,
+    SIZE,
+    RECT,
+    COLOR,
+};
 bool uintptr_t_to_seval(uintptr_t v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     ret->setDouble(v);
     return true;
@@ -148,6 +159,7 @@ bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-id
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
+    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::VEC2)));
     ret->setObject(obj);
 
     return true;
@@ -159,6 +171,7 @@ bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
+    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::VEC3)));
     ret->setObject(obj);
 
     return true;
@@ -171,6 +184,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
     obj->setProperty("w", se::Value(v.w));
+    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::VEC4)));
     ret->setObject(obj);
 
     return true;
@@ -183,6 +197,7 @@ bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(re
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
     obj->setProperty("w", se::Value(v.w));
+    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
     ret->setObject(obj);
 
     return true;
@@ -196,6 +211,7 @@ bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-id
         obj->setArrayElement(i, se::Value(v.m[i]));
     }
 
+    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::MAT4)));
     ret->setObject(obj);
     return true;
 }
@@ -205,6 +221,7 @@ bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-id
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("width", se::Value(v.width));
     obj->setProperty("height", se::Value(v.height));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::SIZE)));
     ret->setObject(obj);
     return true;
 }
@@ -216,6 +233,7 @@ bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("y", se::Value(v.origin.y));
     obj->setProperty("width", se::Value(v.size.width));
     obj->setProperty("height", se::Value(v.size.height));
+    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::RECT)));
     ret->setObject(obj);
 
     return true;
@@ -1490,6 +1508,7 @@ bool nativevalue_to_se(const cc::Vec4 &from, se::Value &to, se::Object * /*unuse
     return Vec4_to_seval(from, &to);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Vec2 &from, se::Value &to, se::Object * /*unused*/) {
     return Vec2_to_seval(from, &to);
 }
@@ -1552,6 +1571,7 @@ bool nativevalue_to_se(const cc::Mat3 &from, se::Value &to, se::Object * /*ctx*/
         snprintf(keybuf, sizeof(keybuf), "m%02d", i);
         obj->setProperty(keybuf, se::Value(from.m[i]));
     }
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT3)));
     to.setObject(obj);
     return true;
 }
@@ -1564,6 +1584,7 @@ bool nativevalue_to_se(const cc::Mat4 &from, se::Value &to, se::Object * /*ctx*/
         snprintf(keybuf, sizeof(keybuf), "m%02d", i);
         obj->setProperty(keybuf, se::Value(from.m[i]));
     }
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT4)));
     to.setObject(obj);
     return true;
 }
@@ -1574,8 +1595,8 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerE
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::TriggerEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::TriggerEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
     }
     to.setObject(array);
@@ -1609,8 +1630,8 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::ContactEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::ContactEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
         array->setArrayElement(static_cast<uint>(t + 3), [&]() -> se::Value {
             auto obj = se::Value();
@@ -1624,7 +1645,7 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
 
 bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("shape", se::Value(static_cast<double>(from.shape)));
+    obj->setProperty("shape", se::Value(from.shape));
     obj->setProperty("distance", se::Value(from.distance));
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);

@@ -296,7 +296,12 @@ public:
     }
 
     /** Returns the element at position 'index' in the Vector. */
-    T at(uint32_t index) const {
+    const T &at(uint32_t index) const {
+        CC_ASSERT(index < size());
+        return _data[index];
+    }
+
+    T &at(uint32_t index) {
         CC_ASSERT(index < size());
         return _data[index];
     }

@@ -25,7 +25,9 @@
 
 #include "RenderPipeline.h"
 #include "BatchedBuffer.h"
-#include "GeometryRenderer.h"
+#if CC_USE_GEOMETRY_RENDERER
+    #include "GeometryRenderer.h"
+#endif
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
@@ -38,7 +40,9 @@
 #include "frame-graph/FrameGraph.h"
 #include "gfx-base/GFXDevice.h"
 #include "helper/Utils.h"
-#include "profiler/DebugRenderer.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "profiler/DebugRenderer.h"
+#endif
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
 
@@ -83,7 +87,9 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device);
+#if CC_USE_DEBUG_RENDERER
     CC_DEBUG_RENDERER->activate(_device);
+#endif
 
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
@@ -125,19 +131,22 @@ void RenderPipeline::destroyQuadInputAssembler() {
     _quadIA.clear();
 }
 
+#if CC_USE_GEOMETRY_RENDERER
 void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras) {
     if (_geometryRenderer) {
-        return ;
+        return;
     }
-    
+
     // Query the first camera rendering to swapchain.
     for (const auto *camera : cameras) {
         if (camera && camera->getWindow() && camera->getWindow()->getSwapchain() ) {
+            const_cast<scene::Camera*>(camera)->initGeometryRenderer();
             _geometryRenderer = camera->getGeometryRenderer();
             return;
         }
     }
 }
+#endif
 
 bool RenderPipeline::destroy() {
     for (auto *flow : _flows) {
@@ -145,12 +154,16 @@ bool RenderPipeline::destroy() {
     }
     _flows.clear();
 
+#if CC_USE_GEOMETRY_RENDERER
     _geometryRenderer = nullptr;
+#endif
     _descriptorSet = nullptr;
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
     CC_SAFE_DESTROY_NULL(_pipelineSceneData);
+#if CC_USE_DEBUG_RENDERER
     CC_DEBUG_RENDERER->destroy();
+#endif
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();
