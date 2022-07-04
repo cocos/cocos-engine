@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -372,17 +372,17 @@ void Camera::updateAspect(bool oriented) {
     _isProjDirty = true;
 }
 
-void Camera::setViewport(const Vec4 &val) {
+void Camera::setViewport(const gfx::Rect &val) {
     debug::warnID(8302);
     setViewportInOrientedSpace(val);
 }
 
-void Camera::setViewportInOrientedSpace(const Vec4 &val) {
-    const float x = val.x;
-    const float width = val.z;
-    const float height = val.w;
+void Camera::setViewportInOrientedSpace(const gfx::Rect &val) {
+    const auto x = static_cast<float>(val.x);
+    const auto width = static_cast<float>(val.width);
+    const auto height = static_cast<float>(val.height);
 
-    const float y = _device->getCapabilities().screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
+    const auto y = _device->getCapabilities().screenSpaceSignY < 0 ? 1 - static_cast<float>(val.y) - height : static_cast<float>(val.y);
 
     auto *swapchain = getWindow()->getSwapchain();
     const auto orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
