@@ -31,7 +31,13 @@
 #include "base/std/container/vector.h"
 
 #if CC_REMOTE_LOG
+
+    #include <chrono>
+    #include <sstream>
     #include <string_view>
+    #include "platform/FileUtils.h"
+    #include "rapidjson/document.h"
+
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -39,7 +45,6 @@
         #define WIN32_LEAN_AND_MEAN
     #endif
     #include <Windows.h>
-    #include <time.h>
     #if CC_REMOTE_LOG
         #include <winsock2.h>
         #include <cstdio>
@@ -55,26 +60,139 @@
     #define SET_CONSOLE_TEXT_COLOR(color) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color)
 
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
+
     #include <android/log.h>
+
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <hilog/log.h>
 #endif
 
 #if CC_REMOTE_LOG
+
+    #if CC_PLATFORM != CC_PLATFORM_WINDOWS
+
+        #include <arpa/inet.h>
+        #include <fcntl.h>
+        #include <netinet/in.h>
+        #include <sys/socket.h>
+        #include <sys/types.h>
+
+    #endif
 namespace {
+
+    #define AUTO_TEST_CONFIG_FILE "auto-test-config.json"
+
 enum class UdpStatus {
     UNINITIALIZED,
     INITIALIZED,
+    CONFIGURED,
     OK,
     FAILED,
 };
-struct UdpContext {
+
+class UdpContext {
+private:
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    SOCKET sock;
+    WSAData wsa;
+    #else
+    int sock;
+    #endif
+    struct sockaddr_in server, local;
+    UdpStatus status{UdpStatus::UNINITIALIZED};
+
+    std::string testId;
+    uint64_t bootId{0};
+
+public:
     UdpContext() {
         initSocket();
-        setRemoteAddr("127.0.0.1", 9998);
+        loadConfig();
     }
+
     ~UdpContext() {
         destroySocket();
+    }
+
+    void sendFormatLog(const std::string_view &msg) {
+        std::time_t t = std::time(nullptr);
+        char mbstr[100] = {0};
+        std::strftime(mbstr, sizeof(mbstr), "%c", std::localtime(&t));
+        std::stringstream ss;
+        ss << testId << std::endl
+           << clientName() << std::endl
+           << bootId << std::endl
+           << mbstr << std::endl
+           << msg
+           << '\0';
+        sendLog(ss.str());
+    }
+
+private:
+
+    void loadConfig() {
+        if (status != UdpStatus::INITIALIZED) {
+            return;
+        }
+
+        auto *fu = cc::FileUtils::getInstance();
+        if (!fu) {
+            // engine is not ready
+            return;
+        }
+
+        if (!fu->isFileExist(AUTO_TEST_CONFIG_FILE)) {
+            status = UdpStatus::FAILED;
+            return;
+        }
+        auto content = fu->getStringFromFile(AUTO_TEST_CONFIG_FILE);
+        rapidjson::Document doc;
+        doc.Parse(content.c_str(), content.length());
+
+        if (doc.HasParseError()) {
+            auto code = doc.GetParseError();
+            status = UdpStatus::FAILED;
+            return;
+        }
+        if (!doc.HasMember("ServerConfig")) {
+            status = UdpStatus::FAILED;
+            return;
+        }
+        if (doc.HasMember("testID")) {
+            testId = doc["testID"].GetString();
+        } else {
+            testId = doc["flagId"].GetString();
+        }
+        rapidjson::Value &cfg = doc["ServerConfig"];
+        std::string remoteIp = cfg["IP"].GetString();
+        int remotePort = cfg["PORT"].GetInt() + 1;
+        setRemoteAddr(remoteIp.c_str(), remotePort);
+
+        bootId = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::system_clock::now().time_since_epoch())
+                     .count();
+
+        status = UdpStatus::CONFIGURED;
+    }
+
+    static const char *clientName() {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        return "Windows";
+    #elif CC_PLATFORM == CC_PLATFORM_ANDROID
+        return "Android";
+    #elif CC_PLATFORM == CC_PLATFORM_MACOS
+        return "MacOS";
+    #elif CC_PLATFORM == CC_PLATFORM_IOS
+        return "iOS";
+    #elif CC_PLATFORM == CC_PLATFORM_LINUX
+        return "Linux";
+    #elif CC_PLATFORM == CC_PLATFORM_QNX
+        return "QNX";
+    #elif CC_PLATFORM == CC_PLATFORM_NX
+        return "NX";
+    #else
+        return "Unknown platform";
+    #endif
     }
 
     void initSocket() {
@@ -84,18 +202,19 @@ struct UdpContext {
             status = UdpStatus::FAILED;
             return;
         }
-        status = UdpStatus::INITIALIZED;
     #endif
+        status = UdpStatus::INITIALIZED;
     }
+
     void destroySocket() {
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         if (status == UdpStatus::OK) {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
             closesocket(sock);
             WSACleanup();
-        }
     #else
-        close(socket);
+            close(sock);
     #endif
+        }
     }
 
     void setRemoteAddr(const char *addr, int port) {
@@ -105,18 +224,53 @@ struct UdpContext {
         server.sin_port = htons(port);
     }
 
+    static auto getErrorCode() {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        return WSAGetLastError();
+    #else
+        return errno;
+    #endif
+    }
+
     void prepareSocket() {
-        if (status != UdpStatus::INITIALIZED) {
+        if (status == UdpStatus::INITIALIZED) {
+            loadConfig();
+        }
+        if (status != UdpStatus::CONFIGURED) {
             return;
         }
-        if (sock = socket(AF_INET, SOCK_DGRAM, 0) == INVALID_SOCKET) {
+        memset(&local, 0, sizeof(local));
+        local.sin_family = AF_INET;
+        local.sin_addr.s_addr = INADDR_ANY;
+        local.sin_port = 0; // bind random port
+
+        if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+            auto errorCode = getErrorCode();
+            status = UdpStatus::FAILED;
+            printf("create socket failed, code: %d\n", errorCode);
+            return;
+        }
+        if (bind(sock, reinterpret_cast<sockaddr *>(&local), sizeof(local))) {
+            status = UdpStatus::FAILED;
+            auto errorCode = getErrorCode();
+            printf("bind socket failed, code: %d\n", errorCode);
+            return;
+        }
+        if (connect(sock, reinterpret_cast<sockaddr *>(&server), sizeof(server))) {
+            auto errorCode = getErrorCode();
+            printf("connect socket failed, code: %d\n", errorCode);
             status = UdpStatus::FAILED;
             return;
         }
-        if (bind(sock, (sockaddr *)&server, sizeof(server)) == SOCKET_ERROR) {
-            status = UdpStatus::FAILED;
-            return;
-        }
+
+    #if _WIN32
+        u_long mode = 1;
+        ioctlsocket(sock, FIONBIO, &mode);
+    #else
+        int flags = fcntl(sock, F_GETFL);
+        fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    #endif
+
         status = UdpStatus::OK;
     }
 
@@ -126,27 +280,17 @@ struct UdpContext {
             send(sock, msg.data(), msg.size(), 0);
         }
     }
-
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    SOCKET sock;
-    WSAData wsa;
-    #else
-    int sock;
-    #endif
-    struct sockaddr_in server, si_other;
-    UdpStatus status{UdpStatus::UNINITIALIZED};
 };
 
-void sendRemote(const std::string_view &msg) {
+void sendLogThroughUDP(const std::string_view &msg) {
     static UdpContext remote;
-    remote.sendLog(msg);
+    remote.sendFormatLog(msg);
 }
 
 } // namespace
 #else
-
-    #define sendRemote(msg) (void)(msg)
-
+    // NOLINTNEXTLINE
+    #define sendLogThroughUDP(msg) (void)(msg)
 #endif
 
 namespace cc {
@@ -262,12 +406,23 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     android_LogPriority priority;
     switch (level) {
-        case LogLevel::LEVEL_DEBUG: priority = ANDROID_LOG_DEBUG; break;
-        case LogLevel::INFO: priority = ANDROID_LOG_INFO; break;
-        case LogLevel::WARN: priority = ANDROID_LOG_WARN; break;
-        case LogLevel::ERR: priority = ANDROID_LOG_ERROR; break;
-        case LogLevel::FATAL: priority = ANDROID_LOG_FATAL; break;
-        default: priority = ANDROID_LOG_INFO;
+        case LogLevel::LEVEL_DEBUG:
+            priority = ANDROID_LOG_DEBUG;
+            break;
+        case LogLevel::INFO:
+            priority = ANDROID_LOG_INFO;
+            break;
+        case LogLevel::WARN:
+            priority = ANDROID_LOG_WARN;
+            break;
+        case LogLevel::ERR:
+            priority = ANDROID_LOG_ERROR;
+            break;
+        case LogLevel::FATAL:
+            priority = ANDROID_LOG_FATAL;
+            break;
+        default:
+            priority = ANDROID_LOG_INFO;
     }
 
     __android_log_write(priority, (type == LogType::KERNEL ? "Cocos" : "CocosScript"), buff);
@@ -296,7 +451,11 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     fputs(buff, stdout);
 #endif
 
-    sendRemote(buff);
+    logRemote(buff);
+}
+
+void Log::logRemote(const char *msg) {
+    sendLogThroughUDP(msg);
 }
 
 } // namespace cc

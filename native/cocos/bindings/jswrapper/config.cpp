@@ -27,7 +27,9 @@
 #include <algorithm>
 #include <cstdio>
 #include "base/memory/Memory.h"
-
+#if CC_REMOTE_LOG
+    #include "base/Log.h"
+#endif
 #if defined(_WIN32) && defined(_WINDOWS)
 
     #include <windows.h>
@@ -72,6 +74,10 @@ static void _winLog(FILE *fp, const char *format, va_list args) {
         pos += MAX_LOG_LENGTH;
 
     } while (pos < len);
+
+    #if CC_REMOTE_LOG
+    cc::Log::logRemote(buf);
+    #endif
 
     fflush(stdout);
     delete[] buf;

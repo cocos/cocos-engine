@@ -54,6 +54,7 @@ public:
     static void setLogFile(const ccstd::string &filename);
     static void close();
     static void logMessage(LogType type, LogLevel level, const char *formats, ...);
+    static void logRemote(const char *msg);
 
 private:
     static FILE *slogFile;
