@@ -12,7 +12,9 @@ export class Pacer {
             if (this._onTick) {
                 this._onTick();
             }
-            this._rafHandle = requestAnimationFrame(this._updateCallback);
+            if (this._isPlaying) {
+                this._rafHandle = requestAnimationFrame(this._updateCallback);
+            }
         };
     }
 
@@ -49,6 +51,7 @@ export class Pacer {
     stop (): void {
         if (!this._isPlaying) return;
         cancelAnimationFrame(this._rafHandle);
+        this._rafHandle = 0;
         this._isPlaying = false;
     }
 }
