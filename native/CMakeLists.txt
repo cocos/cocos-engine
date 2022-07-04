@@ -35,6 +35,8 @@ cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
 cc_set_if_undefined(NET_MODE                  0) # 0 is client
+cc_set_if_undefined(USE_REMOTE_LOG           ON)
+
 
 add_definitions()
 
@@ -156,6 +158,8 @@ cc_inspect_values(
     USE_CCACHE
     CCACHE_EXECUTABLE
     NODE_EXECUTABLE
+    NET_MODE
+    USE_REMOTE_LOG
 )
 
 ################################# external source code ################################
@@ -2878,6 +2882,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
         $<IF:$<BOOL:${USE_WEBP}>,CC_USE_WEBP=1,CC_USE_WEBP=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
+        $<$<BOOL:${USE_REMOTE_LOG}>:CC_REMOTE_LOG=1>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
     )

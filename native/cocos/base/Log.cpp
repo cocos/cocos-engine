@@ -30,12 +30,21 @@
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
+#if CC_REMOTE_LOG
+    #include <string_view>
+#endif
+
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
         #define WIN32_LEAN_AND_MEAN
     #endif
     #include <Windows.h>
     #include <time.h>
+    #if CC_REMOTE_LOG
+        #include <winsock2.h>
+        #include <cstdio>
+        #pragma comment(lib, "ws2_32.lib")
+    #endif
 
     #define COLOR_FATAL                   FOREGROUND_INTENSITY | FOREGROUND_RED
     #define COLOR_ERROR                   FOREGROUND_RED
@@ -49,6 +58,95 @@
     #include <android/log.h>
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <hilog/log.h>
+#endif
+
+#if CC_REMOTE_LOG
+namespace {
+enum class UdpStatus {
+    UNINITIALIZED,
+    INITIALIZED,
+    OK,
+    FAILED,
+};
+struct UdpContext {
+    UdpContext() {
+        initSocket();
+        setRemoteAddr("127.0.0.1", 9998);
+    }
+    ~UdpContext() {
+        destroySocket();
+    }
+
+    void initSocket() {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+            printf("WSAStartup failed, code: %d\n", WSAGetLastError());
+            status = UdpStatus::FAILED;
+            return;
+        }
+        status = UdpStatus::INITIALIZED;
+    #endif
+    }
+    void destroySocket() {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        if (status == UdpStatus::OK) {
+            closesocket(sock);
+            WSACleanup();
+        }
+    #else
+        close(socket);
+    #endif
+    }
+
+    void setRemoteAddr(const char *addr, int port) {
+        memset(&server, 0, sizeof(server));
+        server.sin_family = AF_INET;
+        server.sin_addr.s_addr = inet_addr(addr);
+        server.sin_port = htons(port);
+    }
+
+    void prepareSocket() {
+        if (status != UdpStatus::INITIALIZED) {
+            return;
+        }
+        if (sock = socket(AF_INET, SOCK_DGRAM, 0) == INVALID_SOCKET) {
+            status = UdpStatus::FAILED;
+            return;
+        }
+        if (bind(sock, (sockaddr *)&server, sizeof(server)) == SOCKET_ERROR) {
+            status = UdpStatus::FAILED;
+            return;
+        }
+        status = UdpStatus::OK;
+    }
+
+    void sendLog(const std::string_view &msg) {
+        prepareSocket();
+        if (status == UdpStatus::OK) {
+            send(sock, msg.data(), msg.size(), 0);
+        }
+    }
+
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    SOCKET sock;
+    WSAData wsa;
+    #else
+    int sock;
+    #endif
+    struct sockaddr_in server, si_other;
+    UdpStatus status{UdpStatus::UNINITIALIZED};
+};
+
+void sendRemote(const std::string_view &msg) {
+    static UdpContext remote;
+    remote.sendLog(msg);
+}
+
+} // namespace
+#else
+
+    #define sendRemote(msg) (void)(msg)
+
 #endif
 
 namespace cc {
@@ -197,6 +295,8 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
 #else
     fputs(buff, stdout);
 #endif
+
+    sendRemote(buff);
 }
 
 } // namespace cc
