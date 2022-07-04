@@ -66,7 +66,7 @@ class EmbeddedParticleSystemPlayableState extends EmbeddedPlayableState {
      * Pause the particle system no matter current time.
      */
     public pause (): void {
-        this._particleSystem.pause();
+        this._particleSystem.stopEmitting();
     }
 
     /**
