@@ -38,6 +38,7 @@ QueueValidator::QueueValidator(Queue *actor)
 
 QueueValidator::~QueueValidator() {
     DeviceResourceTracker<Queue>::erase(this);
+    CC_SAFE_DELETE(_actor);
 }
 
 void QueueValidator::doInit(const QueueInfo &info) {
