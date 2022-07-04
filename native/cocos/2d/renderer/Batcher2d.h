@@ -48,7 +48,7 @@ public:
     void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
-    void generateBatch(RenderDrawInfo* entity);
+    void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
 private:
@@ -62,11 +62,13 @@ private:
 
     gfx::Device* _device{nullptr}; //use getDevice()
 
-    RenderDrawInfo* _currEntity{nullptr};
+    RenderEntity* _currEntity{nullptr};
+    RenderDrawInfo* _currDrawInfo{nullptr};
     UIMeshBuffer* _currMeshBuffer{nullptr};
     uint32_t _indexStart{0};
     uint32_t _currHash{0};
     uint32_t _currLayer{0};
+    StencilStage _currStencilStage{StencilStage::DISABLED}; 
 
     Material* _currMaterial{nullptr};
     gfx::Texture* _currTexture{nullptr};

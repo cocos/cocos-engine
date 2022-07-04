@@ -5,6 +5,7 @@
 #include <cocos/core/scene-graph/Node.h>
 #include <array>
 #include <vector>
+#include <cocos/2d/renderer/StencilManager.h>
 
 namespace cc {
 class Batcher2d;
@@ -39,6 +40,17 @@ public:
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
 
+    inline uint32_t getStencilStage() { return static_cast<uint32_t>(_stencilStage); }
+    void setStencilStage(uint32_t stage);
+    inline StencilStage getEnumStencilStage() { return _stencilStage; }
+    void setEnumStencilStage(StencilStage stage);
+
+    inline Material* getCustomMaterial() { return _customMaterial; }
+    void setCustomMaterial(Material* mat);
+
+    inline Material* getCommitModelMaterial() { return _commitModelMaterial; }
+    void setCommitModelMaterial(Material* mat);
+
     inline RenderEntityType getRenderEntityType() const { return _renderEntityType; };
     void setRenderEntityType(uint32_t type);
 
@@ -68,7 +80,9 @@ private:
 
     Batcher2d* _batcher{nullptr};
     Node* _node{nullptr};
-
+    StencilStage _stencilStage{StencilStage::DISABLED};
+    Material* _customMaterial{nullptr};
+    Material* _commitModelMaterial{nullptr};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
 
     EntityAttrLayout _entityAttrLayout{};

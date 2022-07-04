@@ -6,6 +6,8 @@ import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
 import { color, Color, Material, Node } from '../../core';
 import { EmitLocation } from '../../particle/enum';
+import { Stage } from './stencil-manager';
+import { Graphics, Mask } from '../components';
 
 export enum RenderEntityType {
     STATIC,
@@ -31,6 +33,9 @@ export class RenderEntity {
     private _batcher: Batcher2D | undefined;
 
     protected _node: Node | undefined;
+    protected _stencilStage: Stage = Stage.DISABLED;
+    protected _customMaterial: Material | null = null;
+    protected _commitModelMaterial: Material | null = null;
 
     protected declare _sharedBuffer: Float32Array;
 
@@ -50,11 +55,11 @@ export class RenderEntity {
     //     this._renderEntityType = val;
     // }
 
-    protected _color:Color = Color.WHITE;
+    protected _color: Color = Color.WHITE;
     get color () {
         return this._color;
     }
-    set color (val:Color) {
+    set color (val: Color) {
         this._color = val;
         if (JSB) {
             this._sharedBuffer[RenderEntitySharedBufferView.colorR] = val.r;
@@ -68,7 +73,7 @@ export class RenderEntity {
     get colorDirty () {
         return this._colorDirty;
     }
-    set colorDirty (val:boolean) {
+    set colorDirty (val: boolean) {
         this._colorDirty = val;
         if (JSB) {
             this._sharedBuffer[RenderEntitySharedBufferView.colorDirty] = val ? 1 : 0;
@@ -79,8 +84,8 @@ export class RenderEntity {
     get localOpacity () {
         return this._localOpacity;
     }
-    set localOpacity (val:number) {
-        this._localOpacity  = val;
+    set localOpacity (val: number) {
+        this._localOpacity = val;
         if (JSB) {
             this._sharedBuffer[RenderEntitySharedBufferView.localOpacity] = val;
         }
@@ -157,6 +162,11 @@ export class RenderEntity {
         if (JSB) {
             this.setNode(comp.node);
             this.enabled = comp.enabled;
+
+            // little hack conditions, to be optimized
+            if (comp instanceof Graphics) {
+                this.setCommitModelMaterial(comp.getMaterialInstance(0));
+            }
         }
     }
 
@@ -169,7 +179,34 @@ export class RenderEntity {
         this._node = node;
     }
 
-    setRenderEntityType (type:RenderEntityType) {
+    setStencilStage (stage: Stage) {
+        if (JSB) {
+            if (this._stencilStage !== stage) {
+                this._nativeObj.stencilStage = stage;
+            }
+        }
+        this._stencilStage = stage;
+    }
+
+    setCustomMaterial (mat: Material|null) {
+        if (JSB) {
+            if (this._customMaterial !== mat) {
+                this._nativeObj.customMaterial = mat!;
+            }
+        }
+        this._customMaterial = mat;
+    }
+
+    setCommitModelMaterial (mat:Material|null) {
+        if (JSB) {
+            if (this._commitModelMaterial !== mat) {
+                this._nativeObj.commitModelMaterial = mat!;
+            }
+        }
+        this._commitModelMaterial = mat;
+    }
+
+    setRenderEntityType (type: RenderEntityType) {
         if (JSB) {
             if (this._renderEntityType !== type) {
                 this._nativeObj.setRenderEntityType(type);

@@ -54,7 +54,7 @@ void Batcher2d::addRootNode(Node* node) {
 void Batcher2d::fillBuffersAndMergeBatches() {
     for (uint32_t i = 0; i < _rootNodeArr.size(); i++) {
         walk(_rootNodeArr[i]);
-        generateBatch(_currEntity);
+        generateBatch(_currEntity, _currDrawInfo);
     }
     _rootNodeArr.clear();
 }
@@ -72,7 +72,7 @@ void Batcher2d::walk(Node* node) {
             // when filling buffers, we should distinguish commom components and other complex components like middlewares
             if (entityType == RenderEntityType::STATIC) {
                 std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-                for (uint32_t i = 0; i <entity->getStaticDrawInfoSize(); i++) {
+                for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
                     handleStaticDrawInfo(entity, &(drawInfos[i]), curNode);
                 }
             } else if (entityType == RenderEntityType::DYNAMIC) {
@@ -102,10 +102,13 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
         if (drawInfo->getIsMeshBuffer()) {
             dataHash = 0;
         }
-        if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currTexture != drawInfo->getTexture()
-            /* || stencilmanager */) { // stencilStage for Mask component
+
+        entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
+        StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
+
+        if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currTexture != drawInfo->getTexture() || _currStencilStage != tempStage) {
             // Generate a batch if not batching
-            generateBatch(_currEntity);
+            generateBatch(_currEntity, _currDrawInfo);
             if (!drawInfo->getIsMeshBuffer()) {
                 UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
                 if (_currMeshBuffer != buffer) {
@@ -116,9 +119,10 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
 
             _currHash = dataHash;
             _currMaterial = drawInfo->getMaterial();
-            // stencil stage
+            _currStencilStage = tempStage;
             _currLayer = entity->getNode()->getLayer();
-            _currEntity = drawInfo;
+            _currEntity = entity;
+            _currDrawInfo = drawInfo;
 
             // if(frame)
             _currTexture = drawInfo->getTexture();
@@ -143,66 +147,46 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
 }
 
 void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode) {
-    if (drawInfo) {
-        // CommitModel
-        if (drawInfo->getIsMeshBuffer()) {
-            generateBatch(_currEntity);
-            resetRenderStates();
-            // stencil stage
-            auto model = drawInfo->getModel();
-            if (model == nullptr) return;
-            // need stamp
-            auto stamp = CC_CURRENT_ENGINE()->getTotalFrames();
-            model->updateTransform(stamp);
-            model->updateUBOs(stamp);
+    if (!entity || !drawInfo) {
+        return;
+    }
+    // CommitModel
+    if (drawInfo->getIsMeshBuffer()) {
+        generateBatch(_currEntity, _currDrawInfo);
+        resetRenderStates();
 
-            auto subModelList = model->getSubModels();
-            for (size_t i = 0; i < subModelList.size(); i++) {
-                auto* curdrawBatch = _drawBatchPool.alloc();
-                auto submodel = subModelList[i];
-                curdrawBatch->setVisFlags(entity->getNode()->getLayer());
-                curdrawBatch->setModel(model);
-                curdrawBatch->setInputAssembler(submodel->getInputAssembler());
-                curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
-                curdrawBatch->setUseLocalFlag(nullptr);
-
-                curdrawBatch->fillPass(drawInfo->getMaterial(), nullptr, 0, nullptr, 0, &(submodel->getPatches()));
-                _batches.push_back(curdrawBatch);
+        // stencil stage
+        Material* commitModelMat = entity->getCommitModelMaterial();
+        if (commitModelMat) {
+            StencilStage entityStage = entity->getEnumStencilStage();
+            if (entityStage == StencilStage::ENABLED || entityStage == StencilStage::DISABLED) {
+                entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
             }
-        } else {
-            // commitIA？
-            uint32_t dataHash = drawInfo->getDataHash();
-            if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currTexture != drawInfo->getTexture()
-                /* || stencilmanager */) { // stencilStage for Mask component
-                // Generate a batch if not batching
-                generateBatch(_currEntity);
-                UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-                if (_currMeshBuffer != buffer) {
-                    _currMeshBuffer = buffer;
-                    _indexStart = _currMeshBuffer->getIndexOffset();
-                }
+            gfx::DepthStencilState* depthStencil;
+            uint32_t dssHash = 0;
+            depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage, commitModelMat);
+            dssHash = StencilManager::getInstance()->getStencilHash(entityStage);
+        }
 
-                _currHash = dataHash;
-                _currMaterial = drawInfo->getMaterial();
-                // stencil stage
-                _currLayer = entity->getNode()->getLayer();
-                _currEntity = drawInfo;
+        auto model = drawInfo->getModel();
+        if (model == nullptr) return;
+        // need stamp
+        auto stamp = CC_CURRENT_ENGINE()->getTotalFrames();
+        model->updateTransform(stamp);
+        model->updateUBOs(stamp);
 
-                // if(frame)
-                _currTexture = drawInfo->getTexture();
-                _currTextureHash = drawInfo->getTextureHash();
-                _currSampler = drawInfo->getSampler();
-                if (_currSampler == nullptr) {
-                    _currSamplerHash = 0;
-                } else {
-                    _currSamplerHash = _currSampler->getHash();
-                }
-            }
+        auto subModelList = model->getSubModels();
+        for (size_t i = 0; i < subModelList.size(); i++) {
+            auto* curdrawBatch = _drawBatchPool.alloc();
+            auto submodel = subModelList[i];
+            curdrawBatch->setVisFlags(entity->getNode()->getLayer());
+            curdrawBatch->setModel(model);
+            curdrawBatch->setInputAssembler(submodel->getInputAssembler());
+            curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
+            curdrawBatch->setUseLocalFlag(nullptr);
 
-            if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
-                drawInfo->setVertDirty(false);
-            }
-            setIndexRange(drawInfo);
+            curdrawBatch->fillPass(drawInfo->getMaterial(), nullptr, 0, nullptr, 0, &(submodel->getPatches()));
+            _batches.push_back(curdrawBatch);
         }
     }
 }
@@ -218,17 +202,18 @@ void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node
     }
 }
 
-void Batcher2d::generateBatch(RenderDrawInfo* entity) {
-    if (entity == nullptr) {
+void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
+    if (drawInfo == nullptr) {
         return;
     }
+
     gfx::InputAssembler* ia = nullptr;
-    if (entity->getIsMeshBuffer()) {
+    if (drawInfo->getIsMeshBuffer()) {
         // Todo MeshBuffer RenderData
-        ia = entity->requestIA(getDevice());
-        meshRenderDrawInfo.emplace_back(entity);
+        ia = drawInfo->requestIA(getDevice());
+        meshRenderDrawInfo.emplace_back(drawInfo);
     } else {
-        UIMeshBuffer* currMeshBuffer = entity->getMeshBuffer();
+        UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
 
         currMeshBuffer->setDirty(true);
 
@@ -244,12 +229,20 @@ void Batcher2d::generateBatch(RenderDrawInfo* entity) {
     }
 
     _currMeshBuffer = nullptr;
-    // stencilstage
 
-    // Todo blendState & stencil State
+    // stencilstage
+    gfx::DepthStencilState* depthStencil;
+    uint32_t dssHash = 0;
+    StencilStage entityStage = entity->getEnumStencilStage();
+    if (entity->getCustomMaterial() != nullptr) {
+        depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage, _currMaterial);
+    } else {
+        depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage);
+    }
+    dssHash = StencilManager::getInstance()->getStencilHash(entityStage);
+
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
-    // curdrawBatch
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
@@ -267,6 +260,7 @@ void Batcher2d::resetRenderStates() {
     _currSamplerHash = 0;
     _currLayer = 0;
     _currEntity = nullptr;
+    _currDrawInfo = nullptr;
 }
 
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {

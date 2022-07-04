@@ -537,6 +537,10 @@ export class Mask extends UIRenderer {
                 owner: this,
                 subModelIdx: 0,
             });
+            //sync to native
+            if (this._renderEntity) {
+                this._renderEntity.setCommitModelMaterial(this._clearStencilMtl);
+            }
 
             this._clearModel = director.root!.createModel(scene.Model);
             this._clearModel.node = this._clearModel.transform = this.node;

@@ -172,6 +172,10 @@ export class UIRenderer extends Renderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
+
+        if (this._renderEntity) {
+            this._renderEntity.setCustomMaterial(val);
+        }
     }
 
     /**
@@ -278,7 +282,15 @@ export class UIRenderer extends Renderer {
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
-    public stencilStage: Stage = Stage.DISABLED;
+    get stencilStage (): Stage {
+        return this._stencilStage;
+    }
+    set stencilStage (val:Stage) {
+        this._stencilStage = val;
+        if (this._renderEntity) {
+            this._renderEntity.setStencilStage(val);
+        }
+    }
 
     @override
     protected _materials: (Material | null)[] = [];
@@ -291,6 +303,8 @@ export class UIRenderer extends Renderer {
     protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
     @serializable
     protected _color: Color = Color.WHITE.clone();
+
+    protected _stencilStage :Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
