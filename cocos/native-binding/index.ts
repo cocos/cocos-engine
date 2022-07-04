@@ -365,7 +365,7 @@ export declare namespace native {
     /**
      *  @en
      *  Checks whether the path is an absolute path.
-     * 
+     *
      *  @zh
      *  判断文件是否是绝对路径
      *  @note On Android, if the parameter passed in is relative to "@assets/", this method will treat it as an absolute path.
@@ -375,10 +375,10 @@ export declare namespace native {
      *  @return True if it's an absolute path, false if not.
      */
     export function isAbsolutePath (path:string):boolean;
-    /** 
+    /**
      *  @en
      *  Returns the fullpath for a given filename.
-     * 
+     *
     First it will try to get a new filename from the "filenameLookup" dictionary.
     If a new filename can't be found on the dictionary, it will use the original filename.
     Then it will try to obtain the full path of the filename using the FileUtils search rules: resolutions, and search paths.
@@ -426,22 +426,22 @@ export declare namespace native {
      */
     export function fullPathForFilename (filename:string):string;
     /**
-     *  
+     *
      *  @en
      *  Gets string from a file.
-     * 
+     *
      *  @zh
      *  读取文件里的字符串
-     * 
+     *
      */
     export function getStringFromFile (filename:string):string;
     /**
      *  @en
      *  Removes a file.
-     * 
+     *
      *  @zh
      *  删除文件
-     * 
+     *
      *  @param filepath The full path of the file, it must be an absolute path.
      *  @return True if the file have been removed successfully, false if not.
      */
@@ -449,10 +449,10 @@ export declare namespace native {
     /**
      *  @en
      *  Checks whether the path is a directory.
-     * 
+     *
      *  @zh
      *  检测目录是否存在
-     * 
+     *
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return True if the directory exists, false if not.
      */
@@ -460,20 +460,20 @@ export declare namespace native {
     /**
      *  @en
      *  Normalize: remove . and ..
-     * 
+     *
      *  @zh
      *  标准化：去除'.' 和 '..'
-     * 
+     *
      * @param filepath
      */
     export function normalizePath (filepath:string):string;
     /**
      *  @en
      *  Gets the array of search paths.
-     * 
+     *
      *  @zh
      *  获取默认资源根路径
-     * 
+     *
      */
     export function getDefaultResourceRootPath ():string;
 
@@ -481,7 +481,7 @@ export declare namespace native {
      *  @en
      *  Converts the contents of a file to a ValueVector.
      *  This method is used internally.
-     * 
+     *
      *  @zh
      *  将文件的内容转换为 ValueVector
      *  这个方法是内部使用的
@@ -490,22 +490,22 @@ export declare namespace native {
     /**
      *  @en
      *  Gets the array of search paths.
-     * 
+     *
      *  @zh
      *  获取所有的搜索路径
-     * 
+     *
      *  @return The array of search paths which may contain the prefix of default resource root path.
      *  @note In best practise, getter function should return the value of setter function passes in.
      *        But since we should not break the compatibility, we keep using the old logic.
      *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
-     *  @see fullPathForFilename(const char*).
+     *  @see fullPathForFilename (const char*).
      *  @lua NA
      */
     export function getSearchPaths ():Array<string>;
     /**
      *  @en
      *  Get the directory where the file is located by the file path.
-     * 
+     *
      *  @zh
      *  通过文件路径获取文件所在目录
      * @param filepath
@@ -514,10 +514,10 @@ export declare namespace native {
     /**
      *  @en
      *  write a ValueMap into a plist file.
-     * 
+     *
      *  @zh
      *  将 ValueMap 写入 plist 文件
-     * 
+     *
      *  @param dict the ValueMap want to save (key,value)
      *  @return bool
      */
@@ -525,20 +525,20 @@ export declare namespace native {
     /**
      *  @en
      *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
-     * 
+     *
      *  @zh
      *  获取由“setSearchPaths”或“addSearchPath”设置的原始搜索路径数组。
-     *  
+     *
      *  @return The array of the original search paths
      */
     export function getOriginalSearchPaths ():Array<string>;
     /**
      *  @en
      *  List all files in a directory
-     * 
+     *
      *  @zh
      *  在文件夹中列出所有文件
-     * 
+     *
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
@@ -546,10 +546,10 @@ export declare namespace native {
     /**
      *  @en
      *  Converts the contents of a file to a ValueMap.
-     * 
+     *
      *  @zh
      *  转换文件内容为ValueMap
-     * 
+     *
      *  @param filename The filename of the file to gets content.
      *  @return ValueMap of the file contents.
      *  @note This method is used internally.
@@ -558,7 +558,7 @@ export declare namespace native {
     /**
      *  @en
      *  Retrieve the file size.
-     * 
+     *
      *  @zh
      *  获取文件大小
      *  @note If a relative path was passed in, it will be inserted a default root path at the beginning.
@@ -567,25 +567,25 @@ export declare namespace native {
      */
     export function getFileSize (filepath:string):number;
 
-    /** 
+    /**
      *  @en
      *  Converts the contents of a file to a ValueMap.
      *  This method is used internally.
-     * 
+     *
      *  @zh
      *  转换文件内容为ValueMap
      *  这个方法是内部使用的
-     *  
+     *
      */
     export function getValueMapFromData (filedata:string, filesize:number):any;
     /**
-     *  
+     *
      *  @en
      *  Removes a directory..
-     * 
+     *
      *  @zh
      *  删除一个目录
-     * 
+     *
      *  @param dirPath  The full path of the directory, it must be an absolute path.
      *  @return True if the directory have been removed successfully, false if not.
      */
@@ -596,7 +596,7 @@ export declare namespace native {
      *
      *  You can use this array to modify the search path of the resources.
      *  If you want to use "themes" or search resources in the "cache", you can do it easily by adding new entries in this array.
-     * 
+     *
      *  @note This method could access relative path and absolute path.
      *        If the relative path was passed to the vector, FileUtils will add the default resource directory before the relative path.
      *        For instance:
@@ -608,7 +608,7 @@ export declare namespace native {
      *  通过这个数组可以修改资源的搜索路径。例如如果你想使用在cache里的主题资源，你需要尽早的添加到这个数组里
      *
      *  @param searchPaths The array contains search paths.
-     *  @see fullPathForFilename(const char*)
+     *  @see fullPathForFilename (const char*)
      *  @since v2.1
      *  In js:var setSearchPaths(var jsval);
      *  @lua NA
@@ -617,7 +617,7 @@ export declare namespace native {
     /**
      *  @en
      *  write a string into a file.
-     * 
+     *
      *  @zh
      *  写字符串到文件里
      *
@@ -630,7 +630,7 @@ export declare namespace native {
     /**
      *  @en
      *  Add search path.
-     * 
+     *
      *  @zh
      *  添加文件的搜索路径
      *
@@ -638,13 +638,13 @@ export declare namespace native {
      */
     export function addSearchPath (path:string, front:boolean):void;
     /**
-     * 
+     *
      *  @en
      *  write ValueVector into a plist file
-     * 
+     *
      *  @zh
      *  将 ValueVector 写入 plist 文件
-     * 
+     *
     *@param vecData the ValueVector want to save
     *@param fullPath The full path to the file you want to save a string
     *@return bool
@@ -653,7 +653,7 @@ export declare namespace native {
     /**
      *  @en
      *  Checks whether a file exists.
-     * 
+     *
      *  @zh
      *  检测路径是否存在
      *
@@ -663,10 +663,10 @@ export declare namespace native {
      */
     export function isFileExist (filename:string):boolean;
     /**
-     *  
+     *
      *  @en
      *  Purges full path caches.
-     * 
+     *
      *  @zh
      *  清除路径缓存
      */
@@ -674,10 +674,10 @@ export declare namespace native {
     /**
      *  @en
      *  Gets full path from a file name and the path of the relative file.
-     * 
+     *
      *  @zh
      *  通过文件名或者相对路径转换成绝对路径
-     *  
+     *
      *  @param filename The file name.
      *  @param relativeFile The path of the relative file.
      *  @return The full path.
@@ -690,7 +690,7 @@ export declare namespace native {
      *  @en
      *  Windows fopen can't support UTF-8 filename
      *  Need convert all parameters fopen and other 3rd-party libs
-     * 
+     *
      *  @zh
      *  windows的fopen函数不支持utf-8编码的文件
      *  需要转换所有的参数给fopen或者其他的第三方的库使用
@@ -699,10 +699,10 @@ export declare namespace native {
      */
     export function getSuitableFOpen (filenameUtf8:string):string;
     /**
-     * 
+     *
      *  @en
      *  write ValueMap into a plist file
-     * 
+     *
      *  @zh
      *  将 ValueMap 写入 plist 文件
      *  @param dict the ValueMap want to save
@@ -714,7 +714,7 @@ export declare namespace native {
      *  @en
      *  Gets filename extension is a suffix (separated from the base filename by a dot) in lower case.
      *  Examples of filename extensions are .png, .jpeg, .exe, .dmg and .txt.
-     * 
+     *
      *  @zh
      *  获取文件的扩展名（使用'.'做分割符），返回的都是小写
      *  例如：返回.png, .jpeg, .exe, .dmg等
@@ -725,20 +725,20 @@ export declare namespace native {
     /**
      *  @en
      *  Sets writable path.
-     * 
+     *
      *  @zh
      *  设置有可写权限的目录
-     * 
+     *
      *  @param writablePath The path of the directory.
      */
     export function setWritablePath (writablePath:string):void;
     /**
      *  @en
      *  Set default resource root path.
-     * 
+     *
      *  @zh
      *  设置默认的资源根目录
-     * 
+     *
      *  @param dirPath The path of the directory.
      */
     export function setDefaultResourceRootPath (dirPath:string):void;
@@ -746,7 +746,7 @@ export declare namespace native {
     /**
      *  @en
      *  Creates a directory.
-     * 
+     *
      *  @zh
      *  创建一个目录
      *
@@ -757,7 +757,7 @@ export declare namespace native {
     /**
      *  @en
      *  List all files recursively in a directory.
-     * 
+     *
      *  @zh
      *  在一个目录里递归搜索所有的文件
      *
@@ -774,10 +774,10 @@ export declare namespace native {
     /**
      *  @en
      *  Renames a file under the given directory.
-     * 
+     *
      *  @zh
      *  文件（包含路径）重命名
-     * 
+     *
      *  @param oldFullpath  The current fullpath of the file. Includes path and name.
      *  @param newFullPath  The new fullpath of the file. Includes path and name.
      *  @return True if the file have been renamed successfully, false if not.
@@ -787,7 +787,7 @@ export declare namespace native {
     /**
      *  @en
      *  Read binary data from a file.
-     * 
+     *
      *  @zh
      *  从文件中读取二进制数据
      *  Creates binary data from a file.
@@ -797,9 +797,9 @@ export declare namespace native {
     export function getDataFromFile(fullpath: string):ArrayBuffer;
 
     /**
-     *  @en 
+     *  @en
      *  write Data into a file
-     * 
+     *
      *  @zh
      *  把数据写入文件内
      *
