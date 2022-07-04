@@ -25,10 +25,12 @@ describe('General embedded player test', () => {
             host.play(0.32); // The time has arrived in embedded player's interval, but it has not been evaluated.
             expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(0);
 
-            host.evaluateAt(0.33); // Enter the region
+            host.evaluateAt(0.33, 0); // Enter the region
             expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-            expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(0.03);
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.03);
             embeddedPlayerMock.playMock.mockClear();
+            embeddedPlayerMock.setTimeMock.mockClear();
 
             embeddedPlayerMock.zeroCheck();
         });
@@ -41,14 +43,19 @@ describe('General embedded player test', () => {
             const node = new Node();
             const host = new AnimationClipHostEmbeddedPlayerMock(node, embeddedPlayer, 1.2);
 
-            host.evaluateAt(0.33); // Enter the region
+            host.evaluateAt(0.33, 0); // Enter the region
             expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-            expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(0.03);
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.03);
             embeddedPlayerMock.playMock.mockClear();
+            embeddedPlayerMock.setTimeMock.mockClear();
 
-            host.evaluateAt(0.6); // Evaluate at the middle, nothing happened
+            host.evaluateAt(0.6, 0); // Evaluate at the middle, nothing happened
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.3);
+            embeddedPlayerMock.setTimeMock.mockClear();
 
-            host.evaluateAt(0.75); // Evaluate outside the interval, call `stop()`
+            host.evaluateAt(0.75, 0); // Evaluate outside the interval, call `stop()`
             expect(embeddedPlayerMock.stopMock).toHaveBeenCalledTimes(1);
             embeddedPlayerMock.stopMock.mockClear();
 
@@ -63,9 +70,11 @@ describe('General embedded player test', () => {
             const node = new Node();
             const host = new AnimationClipHostEmbeddedPlayerMock(node, embeddedPlayer, 1.2);
 
-            host.evaluateAt(0.33); // Enter the region
+            host.evaluateAt(0.33, 0); // Enter the region
             expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-            expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(0.03);
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.03);
+            embeddedPlayerMock.setTimeMock.mockClear();
             embeddedPlayerMock.playMock.mockClear();
 
             host.stop(); // Evaluate outside the interval, call `stop()`
@@ -83,19 +92,23 @@ describe('General embedded player test', () => {
             const node = new Node();
             const host = new AnimationClipHostEmbeddedPlayerMock(node, embeddedPlayer, 1.2);
 
-            host.evaluateAt(0.33); // Enter the region
+            host.evaluateAt(0.33, 0); // Enter the region
             expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-            expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(0.03);
             embeddedPlayerMock.playMock.mockClear();
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.03);
+            embeddedPlayerMock.setTimeMock.mockClear();
 
-            host.evaluateAt(0.8); // Evaluate outside the interval
+            host.evaluateAt(0.8, 0); // Evaluate outside the interval
             expect(embeddedPlayerMock.stopMock).toHaveBeenCalledTimes(1);
             embeddedPlayerMock.stopMock.mockClear();
 
-            host.evaluateAt(0.42); // Again enter the region
+            host.evaluateAt(0.42, 0); // Again enter the region
             expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-            expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(0.12);
             embeddedPlayerMock.playMock.mockClear();
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.12);
+            embeddedPlayerMock.setTimeMock.mockClear();
 
             embeddedPlayerMock.zeroCheck();
         });
@@ -109,13 +122,14 @@ describe('General embedded player test', () => {
             const host = new AnimationClipHostEmbeddedPlayerMock(node, embeddedPlayer, 1.2);
 
             host.play(0.13);
-            host.evaluateAt(0.13);
+            host.evaluateAt(0.13, 0);
             host.pause(0.14); // Pause at the outside before the first time the embedded player entered.
             expect(embeddedPlayerMock.pauseMock).not.toHaveBeenCalled();
             
             host.play(0.32);
-            host.evaluateAt(0.32); // Enter the embedded player
+            host.evaluateAt(0.32, 0); // Enter the embedded player
             embeddedPlayerMock.playMock.mockClear();
+            embeddedPlayerMock.setTimeMock.mockClear();
 
             expect(embeddedPlayerMock.pauseMock).not.toHaveBeenCalled();
             host.pause(0.33);
@@ -124,7 +138,8 @@ describe('General embedded player test', () => {
 
             host.play(0.4);
             embeddedPlayerMock.playMock.mockClear();
-            host.evaluateAt(0.87); // Exit the embedded player
+            embeddedPlayerMock.setTimeMock.mockClear();
+            host.evaluateAt(0.87, 0); // Exit the embedded player
             embeddedPlayerMock.stopMock.mockClear();
 
             host.pause(0.9);  // Pause at the outside
@@ -172,10 +187,12 @@ describe('General embedded player test', () => {
                 
                 host.play(0.0);
     
-                host.evaluateAt(0.33); // Enter the region
+                host.evaluateAt(0.33, 0); // Enter the region
                 expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-                expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(0.03);
                 embeddedPlayerMock.playMock.mockClear();
+                expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+                expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.03);
+                embeddedPlayerMock.setTimeMock.mockClear();
     
                 host.pause(0.4);
                 expect(embeddedPlayerMock.pauseMock).toHaveBeenCalledTimes(1);
@@ -188,8 +205,10 @@ describe('General embedded player test', () => {
 
                 if (embeddedPlayerResumable) {
                     expect(embeddedPlayerMock.playMock).toHaveBeenCalledTimes(1);
-                    expect(embeddedPlayerMock.playMock.mock.calls[0][0]).toBeCloseTo(hostResumeTime - 0.3);
                     embeddedPlayerMock.playMock.mockClear();
+                    expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+                    expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(hostResumeTime - 0.3);
+                    embeddedPlayerMock.setTimeMock.mockClear();
                 } else {
                     expect(embeddedPlayerMock.stopMock).toHaveBeenCalledTimes(1);
                     embeddedPlayerMock.stopMock.mockClear();
@@ -231,27 +250,91 @@ describe('General embedded player test', () => {
             embeddedPlayerMock.zeroCheck();
         });
 
-        test('Broadcasting of animation state\'s speed', () => {
-            const clip = new AnimationClip();
-            clip.speed = 0.6;
+        test('Twice evaluations occur in different iterations', () => {
+            const embeddedPlayer = new EmbeddedPlayer();
+            const embeddedPlayerMock = embeddedPlayer.playable = new EmbeddedPlayerMock(false);
+            embeddedPlayer.begin = 0.3;
+            embeddedPlayer.end = 0.7;
+            embeddedPlayer.reconciledSpeed = false;
+            const node = new Node();
+            const host = new AnimationClipHostEmbeddedPlayerMock(node, embeddedPlayer, 1.2);
+            
+            host.evaluateAt(0.31, 0);
+            expect(embeddedPlayerMock.playMock).toBeCalledTimes(1);
+            embeddedPlayerMock.playMock.mockClear();
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.01);
+            embeddedPlayerMock.setTimeMock.mockClear();
+
+            // Evaluate at an outside region in different iterations. Stop.
+            host.evaluateAt(0.1, 1);
+            expect(embeddedPlayerMock.stopMock).toBeCalledTimes(1);
+            embeddedPlayerMock.stopMock.mockClear();
+
+            // Evaluate at an inside-region in different iterations. Play.
+            host.evaluateAt(0.32, 2);
+            expect(embeddedPlayerMock.playMock).toBeCalledTimes(1);
+            embeddedPlayerMock.playMock.mockClear();
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.02);
+            embeddedPlayerMock.setTimeMock.mockClear();
+
+            // Slightly tweak the time, to ensure the "last iterations" has been remembered by the evaluation.
+            // (if not, play() will be triggered!)
+            host.evaluateAt(0.33, 2);
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.03);
+            embeddedPlayerMock.setTimeMock.mockClear();
+            embeddedPlayerMock.zeroCheck();
+
+            // Evaluate at an inside-region in different iterations. Stop then play.
+            host.evaluateAt(0.4, 3);
+            expect(embeddedPlayerMock.stopMock).toBeCalledTimes(1);
+            expect(embeddedPlayerMock.playMock).toBeCalledTimes(1);
+            // Stop then play
+            expect(embeddedPlayerMock.stopMock.mock.invocationCallOrder[0]).toBeLessThan(
+                embeddedPlayerMock.playMock.mock.invocationCallOrder[0]
+            );
+            embeddedPlayerMock.stopMock.mockClear();
+            embeddedPlayerMock.playMock.mockClear();
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.1);
+            embeddedPlayerMock.setTimeMock.mockClear();
+
+            // Even the evaluations span more than one iterations,
+            // there still only one stop/play invocation.
+            host.evaluateAt(0.5, 8);
+            expect(embeddedPlayerMock.stopMock).toBeCalledTimes(1);
+            expect(embeddedPlayerMock.playMock).toBeCalledTimes(1);
+            // Stop then play
+            expect(embeddedPlayerMock.stopMock.mock.invocationCallOrder[0]).toBeLessThan(
+                embeddedPlayerMock.playMock.mock.invocationCallOrder[0]
+            );
+            embeddedPlayerMock.stopMock.mockClear();
+            embeddedPlayerMock.playMock.mockClear();
+            expect(embeddedPlayerMock.setTimeMock).toHaveBeenCalledTimes(1);
+            expect(embeddedPlayerMock.setTimeMock.mock.calls[0][0]).toBeCloseTo(0.2);
+            embeddedPlayerMock.setTimeMock.mockClear();
+
+            // The above also holds for cross-iterations stopping.
+            host.evaluateAt(0.8, 100);
+            expect(embeddedPlayerMock.stopMock).toBeCalledTimes(1);
+            embeddedPlayerMock.stopMock.mockClear();
+
+            embeddedPlayerMock.zeroCheck();
+        });
+
+        test('Speed', () => {
             const embeddedPlayer = new EmbeddedPlayer();
             embeddedPlayer.reconciledSpeed = true;
             const playerMock = embeddedPlayer.playable = new EmbeddedPlayerMock();
-            clip[addEmbeddedPlayerTag](embeddedPlayer);
 
-            const animationState = new AnimationState(clip);
             const node = new Node();
-            expect(playerMock.setSpeedMock).not.toBeCalled();
-
-            animationState.initialize(node);
+            const host = new AnimationClipHostEmbeddedPlayerMock(node, embeddedPlayer, 1.2);
+            
+            host.setSpeed(0.618);
             expect(playerMock.setSpeedMock).toBeCalledTimes(1);
-            expect(playerMock.setSpeedMock.mock.calls[0][0]).toBe(0.6);
-            playerMock.setSpeedMock.mockClear();
-
-            animationState.speed = 0.8;
-            expect(playerMock.setSpeedMock).toBeCalledTimes(1);
-            expect(playerMock.setSpeedMock.mock.calls[0][0]).toBe(0.8);
-            playerMock.setSpeedMock.mockClear();
+            expect(playerMock.setSpeedMock.mock.calls[0][0]).toBe(0.618);
         });
     });
 });
@@ -281,6 +364,10 @@ class EmbeddedPlayerMock extends EmbeddedPlayable {
         return this._setSpeedMock;
     }
 
+    get setTimeMock() {
+        return this._setTimeMock;
+    }
+
     public zeroCheck() {
         for (const mock of [
             this._destroyMock,
@@ -288,6 +375,7 @@ class EmbeddedPlayerMock extends EmbeddedPlayable {
             this._pauseMock,
             this._stopMock,
             this._setSpeedMock,
+            this._setTimeMock,
         ]) {
             expect(mock).toBeCalledTimes(0);
         }
@@ -301,6 +389,7 @@ class EmbeddedPlayerMock extends EmbeddedPlayable {
             this._pauseMock,
             this._stopMock,
             this._setSpeedMock,
+            this._setTimeMock,
         );
     }
 
@@ -309,6 +398,7 @@ class EmbeddedPlayerMock extends EmbeddedPlayable {
     private _pauseMock = jest.fn();
     private _stopMock = jest.fn();
     private _setSpeedMock = jest.fn();
+    private _setTimeMock = jest.fn();
 }
 
 class InstantiatedEmbeddedPlayerMock extends EmbeddedPlayableState {
@@ -319,6 +409,7 @@ class InstantiatedEmbeddedPlayerMock extends EmbeddedPlayableState {
         private _pauseMock: jest.Mock,
         private _stopMock: jest.Mock,
         private _setSpeedMock: jest.Mock,
+        private _setTimeMock: jest.Mock,
     ) {
         super(randomAccess);
     }
@@ -341,5 +432,9 @@ class InstantiatedEmbeddedPlayerMock extends EmbeddedPlayableState {
 
     public setSpeed(...args: Parameters<EmbeddedPlayableState['stop']>): void {
         this._setSpeedMock(...args);
+    }
+
+    public setTime(...args: Parameters<EmbeddedPlayableState['setTime']>): void {
+        this._setTimeMock(...args);
     }
 }
