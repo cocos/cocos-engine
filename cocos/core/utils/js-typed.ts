@@ -700,6 +700,19 @@ export function unregisterClass (...constructors: Function[]) {
  * 通过 id 获取已注册的类型
  * @param classId
  * @return constructor
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
+export function _getClassById (classId) {
+    return getClassById(classId);
+}
+
+/**
+ * @en
+ * Get the registered class by id
+ * @zh
+ * 通过 id 获取已注册的类型
+ * @param classId
+ * @return constructor
  */
 export function getClassById (classId) {
     return _idToClass[classId];
@@ -715,6 +728,20 @@ export function getClassById (classId) {
  */
 export function getClassByName (classname) {
     return _nameToClass[classname];
+}
+
+/**
+ * @en
+ * Get class id of the object
+ * @zh
+ * 获取对象的 class id
+ * @param obj - instance or constructor
+ * @param [allowTempId = true]   - can return temp id in editor
+ * @return
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
+export function _getClassId (obj, allowTempId?: boolean) {
+    return getClassId(obj, allowTempId);
 }
 
 /**

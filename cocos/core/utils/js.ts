@@ -30,6 +30,8 @@ import IDGenerator from './id-generator';
 import {
     _idToClass,
     _nameToClass,
+    _getClassById,
+    _getClassId,
     _setClassId,
     addon,
     clear,
@@ -142,11 +144,19 @@ export const js = {
         clear(_idToClass);
         Object.assign(_idToClass, value);
     },
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    _getClassId,
     getClassId,
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _setClassId,
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    _getClassById,
     obsolete,
     obsoletes,
     formatStr,
