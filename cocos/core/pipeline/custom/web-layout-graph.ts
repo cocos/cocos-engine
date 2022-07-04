@@ -252,8 +252,8 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                 for (let j = 0; j < blocks.length; ++j) {
                     const block = blocks[j];
                     oss += `        Block<${getDescriptorTypeOrderName(block.type)}, ${this.getName(block.visibility)}> {\n`;
-                    oss += `        capacity: ${block.capacity},\n`;
-                    oss += `        count: ${block.descriptors.length},\n`;
+                    oss += `        capacity: ${block.capacity}\n`;
+                    oss += `        count: ${block.descriptors.length}\n`;
                     if (block.descriptors.length > 0) {
                         oss += '        Descriptors{ \n';
                         const count = 0;

@@ -332,14 +332,18 @@ export class WebDescriptorHierarchy {
             ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
 
         if (hasCCGlobal) {
-            const globalDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL, UBOGlobal.BINDING, 'CCGlobal', globalUniformTarget);
+            const globalDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL,
+                UBOGlobal.BINDING, 'CCGlobal', globalUniformTarget);
             this.setUniform(globalDB, 'cc_time', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_screenSize', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_nativeSize', Type.FLOAT4, 1);
+
+            this.setDescriptor(globalUniformTarget, 'CCGlobal', Type.UNKNOWN);
         }
 
         if (hasCCCamera) {
-            const cameraDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL, UBOCamera.BINDING, 'CCCamera', globalUniformTarget);
+            const cameraDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL,
+                UBOCamera.BINDING, 'CCCamera', globalUniformTarget);
             this.setUniform(cameraDB, 'cc_matView', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matViewInv', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matProj', Type.MAT4, 1);
@@ -359,10 +363,13 @@ export class WebDescriptorHierarchy {
             this.setUniform(cameraDB, 'cc_fogAdd', Type.FLOAT4, 1);
             this.setUniform(cameraDB, 'cc_nearFar', Type.FLOAT4, 1);
             this.setUniform(cameraDB, 'cc_viewPort', Type.FLOAT4, 1);
+
+            this.setDescriptor(globalUniformTarget, 'CCCamera', Type.UNKNOWN);
         }
 
         if (hasCCShadow) {
-            const shadowDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL, UBOShadow.BINDING, 'CCShadow', globalUniformTarget);
+            const shadowDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL,
+                UBOShadow.BINDING, 'CCShadow', globalUniformTarget);
             this.setUniform(shadowDB, 'cc_matLightPlaneProj', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightView', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightViewProj', Type.MAT4, 1);
@@ -373,6 +380,8 @@ export class WebDescriptorHierarchy {
             this.setUniform(shadowDB, 'cc_shadowWHPBInfo', Type.FLOAT4, 1);
             this.setUniform(shadowDB, 'cc_shadowLPNNInfo', Type.FLOAT4, 1);
             this.setUniform(shadowDB, 'cc_shadowColor', Type.FLOAT4, 1);
+
+            this.setDescriptor(globalUniformTarget, 'CCShadow', Type.UNKNOWN);
         }
 
         if (hasShadowmap) {
