@@ -580,7 +580,7 @@ js.unregisterClass to remove the id of unused class';
                 table[id] = constructor;
             }
             // if (id === "") {
-            //     console.trace("", table === _nameToClass);
+            //    console.trace("", table === _nameToClass);
             // }
         }
     };
