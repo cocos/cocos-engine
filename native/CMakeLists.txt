@@ -859,6 +859,29 @@ cocos_source_files(MODULE ccfilesystem
     cocos/platform/FileUtils.h
 )
 
+########## module ccfilesystem
+cocos_source_files(MODULE ccfilesystem
+	cocos/core/filesystem/FilePath.h
+    cocos/core/filesystem/FilePath.cpp
+	cocos/core/filesystem/BaseFileSystem.h
+    cocos/core/filesystem/BaseFileSystem.cpp
+	cocos/core/filesystem/BaseFileHandle.h
+    cocos/core/filesystem/BaseFileHandle.cpp
+	cocos/core/filesystem/LocalFileSystem.h
+    cocos/core/filesystem/LocalFileSystem.cpp
+	cocos/core/filesystem/FileSystem.h
+    cocos/core/filesystem/FileSystem.cpp
+)
+
+if(WINDOWS)
+cocos_source_files(MODULE ccfilesystem
+	cocos/core/filesystem/windows/WindowsFileSystem.h
+    cocos/core/filesystem/windows/WindowsFileSystem.cpp
+	cocos/core/filesystem/windows/WindowsFileHandle.h
+    cocos/core/filesystem/windows/WindowsFileHandle.cpp
+)
+endif()
+
 if(WINDOWS)
     cocos_source_files(MODULE ccutils
         cocos/platform/win32/Utils-win32.cpp
@@ -871,10 +894,10 @@ if(WINDOWS)
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
     )
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/win32/FileUtils-win32.cpp
-        cocos/platform/win32/FileUtils-win32.h
-    )
+#    cocos_source_files(MODULE ccfilesystem
+#        cocos/platform/win32/FileUtils-win32.cpp
+#        cocos/platform/win32/FileUtils-win32.h
+#    )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp

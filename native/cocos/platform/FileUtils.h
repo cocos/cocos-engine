@@ -354,7 +354,7 @@ public:
      *  Gets the writable path.
      *  @return  The path that can be write/read a file in
      */
-    virtual ccstd::string getWritablePath() const = 0;
+    virtual ccstd::string getWritablePath() const;
 
     /**
      *  Sets writable path.
@@ -558,7 +558,7 @@ protected:
      *  @param filename The file (with absolute path) to look up for
      *  @return Returns true if the file found at the given absolute path, otherwise returns false
      */
-    virtual bool isFileExistInternal(const ccstd::string &filename) const = 0;
+    virtual bool isFileExistInternal(const ccstd::string &filename) const;
 
     /**
      *  Checks whether a directory exists without considering search paths and resolution orders.
