@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import './deprecated-1.2.0';
 import { UICoordinateTracker } from './ui-coordinate-tracker';
 import { BlockInputEvents } from './block-input-events';
 import { Button } from './button';

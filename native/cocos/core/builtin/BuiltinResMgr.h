@@ -46,7 +46,7 @@ public:
     BuiltinResMgr();
     ~BuiltinResMgr();
 
-    bool initBuiltinRes(gfx::Device *device);
+    bool initBuiltinRes();
     inline bool isInitialized() const { return _isInitialized; }
 
     void addAsset(const ccstd::string &uuid, Asset *asset);
@@ -57,17 +57,13 @@ public:
         return static_cast<T *>(getAsset(uuid));
     }
 
-    void tryCompileAllPasses();
-
 private:
-    void initMaterials();
     void initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
     void initTextureCubeWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
 
     static BuiltinResMgr *instance;
 
     Record<ccstd::string, IntrusivePtr<Asset>> _resources;
-    ccstd::vector<IntrusivePtr<Material>> _materialsToBeCompiled;
     bool _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);

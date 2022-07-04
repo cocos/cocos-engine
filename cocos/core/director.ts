@@ -28,22 +28,21 @@
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
-import { SceneAsset } from './assets';
+import { SceneAsset } from './assets/scene-asset';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';
 import { input } from '../input';
-import { game, Game } from './game';
-import { v2, Vec2 } from './math';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
 import { ComponentScheduler } from './scene-graph/component-scheduler';
 import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
-import { js } from './utils';
+import { js } from './utils/js';
 import { legacyCC } from './global-exports';
-import { errorID, error, assertID, warnID } from './platform/debug';
+import { errorID, error, assertID, warnID, debug } from './platform/debug';
 import { containerManager } from './memop/container-manager';
+import { deviceManager } from './gfx';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -212,6 +211,7 @@ export class Director extends EventTarget {
     private _totalFrames: number;
     private _scheduler: Scheduler;
     private _systems: System[];
+    private _persistRootNodes = {};
 
     constructor () {
         super();
@@ -238,8 +238,6 @@ export class Director extends EventTarget {
         this._nodeActivator = new NodeActivator();
 
         this._systems = [];
-
-        game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
     }
 
     /**
@@ -307,6 +305,13 @@ export class Director extends EventTarget {
     public reset () {
         this.purgeDirector();
 
+        for (const id in this._persistRootNodes) {
+            this.removePersistRootNode(this._persistRootNodes[id]);
+        }
+
+        // Clear scene
+        this.getScene()?.destroy();
+
         this.emit(Director.EVENT_RESET);
 
         this.startAnimation();
@@ -337,7 +342,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(game._persistRootNodes).map((x) => game._persistRootNodes[x] as Node);
+        const persistNodeList = Object.keys(this._persistRootNodes).map((x) => this._persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -373,7 +378,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, game._persistRootNodes);
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -555,7 +560,7 @@ export class Director extends EventTarget {
      * @deprecated since v3.3.0, please use game.deltaTime instead
      */
     public getDeltaTime () {
-        return game.deltaTime;
+        return legacyCC.game.deltaTime as number;
     }
 
     /**
@@ -564,7 +569,7 @@ export class Director extends EventTarget {
      * @deprecated since v3.3.0, please use game.totalTime instead
      */
     public getTotalTime () {
-        return game.totalTime;
+        return legacyCC.game.totalTime as number;
     }
 
     /**
@@ -573,7 +578,7 @@ export class Director extends EventTarget {
      * @deprecated since v3.3.0, please use game.frameStartTime instead
      */
     public getCurrentTime () {
-        return game.frameStartTime;
+        return legacyCC.game.frameStartTime as number;
     }
 
     /**
@@ -619,7 +624,6 @@ export class Director extends EventTarget {
     public registerSystem (name: string, sys: System, priority: number) {
         sys.id = name;
         sys.priority = priority;
-        sys.init();
         this._systems.push(sys);
         this._systems.sort(System.sortByPriority);
     }
@@ -666,15 +670,14 @@ export class Director extends EventTarget {
     /**
      * @en Run main loop of director
      * @zh 运行主循环
-     * @deprecated please use [tick] instead
+     * @deprecated Since v3.6, please use [tick] instead
      */
     public mainLoop (now: number) {
         let dt;
         if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
             dt = now;
         } else {
-            // @ts-expect-error using internal API for deprecation
-            dt = game._calculateDT(now);
+            dt = legacyCC.game._calculateDT(now);
         }
         this.tick(dt);
     }
@@ -727,21 +730,84 @@ export class Director extends EventTarget {
         }
     }
 
-    private _initOnRendererInitialized () {
+    /**
+     * @internal
+     */
+    public init () {
         this._totalFrames = 0;
         this._paused = false;
-
         // Scheduler
         // TODO: have a solid organization of priority and expose to user
         this.registerSystem(Scheduler.ID, this._scheduler, 200);
-
+        this._root = new Root(deviceManager.gfxDevice);
+        const rootInfo = {};
+        this._root.initialize(rootInfo);
+        for (let i = 0; i < this._systems.length; i++) {
+            this._systems[i].init();
+        }
         this.emit(Director.EVENT_INIT);
     }
 
-    private _init () {
-        this._root = new Root(game._gfxDevice!);
-        const rootInfo = {};
-        this._root.initialize(rootInfo);
+    //  @ Persist root node section
+    /**
+     * @en
+     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
+     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
+     * @zh
+     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
+     * 目标节点必须位于为层级的根节点，否则无效。
+     * @param node - The node to be made persistent
+     */
+    public addPersistRootNode (node: Node) {
+        if (!legacyCC.Node.isNode(node) || !node.uuid) {
+            warnID(3800);
+            return;
+        }
+        const id = node.uuid;
+        if (!this._persistRootNodes[id]) {
+            const scene = this._scene as any;
+            if (legacyCC.isValid(scene)) {
+                if (!node.parent) {
+                    node.parent = scene;
+                    node._originalSceneId = scene.uuid;
+                } else if (!(node.parent instanceof Scene)) {
+                    warnID(3801);
+                    return;
+                } else if (node.parent !== scene) {
+                    warnID(3802);
+                    return;
+                } else {
+                    node._originalSceneId = scene.uuid;
+                }
+            }
+            this._persistRootNodes[id] = node;
+            node._persistNode = true;
+            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
+        }
+    }
+
+    /**
+     * @en Remove a persistent root node.
+     * @zh 取消常驻根节点。
+     * @param node - The node to be removed from persistent node list
+     */
+    public removePersistRootNode (node: Node) {
+        const id = node.uuid || '';
+        if (node === this._persistRootNodes[id]) {
+            delete this._persistRootNodes[id];
+            node._persistNode = false;
+            node._originalSceneId = '';
+            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
+        }
+    }
+
+    /**
+     * @en Check whether the node is a persistent root node.
+     * @zh 检查节点是否是常驻根节点。
+     * @param node - The node to be checked
+     */
+    public isPersistRootNode (node: Node): boolean {
+        return !!node._persistNode;
     }
 }
 

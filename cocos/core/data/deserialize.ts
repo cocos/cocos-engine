@@ -568,7 +568,11 @@ export class Details {
     }, 5);
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public declare assignAssetsBy: Function;
+    public declare assignAssetsBy: (getter: (uuid: string, options: {
+        type: Constructor<Asset>;
+        owner: Record<string, unknown>;
+        prop: string;
+    }) => Asset) => void;
 
     /**
      * @method init

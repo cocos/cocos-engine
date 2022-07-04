@@ -1,69 +1,17 @@
 
-import { createApplication } from '<%= applicationJS %>';
+import { Application } from '<%= applicationJS %>';
 
-createApplication({
-    loadJsListFile,
-    fetchWasm,
-}).then((application) => {
-    return application.start({
-        findCanvas,
-    });
+function topLevelImport (url) {
+    return System.import(url);
+}
+
+const application = new Application();
+
+topLevelImport('cc')
+.then((engine) => {
+    return application.init(engine);
+}).then(() => {
+    return application.start();
 }).catch((err) => {
     console.error(err);
 });
-
-function loadJsListFile(url) {
-    return new Promise(function (resolve, reject) {
-        var err;
-        function windowErrorListener(evt) {
-            if (evt.filename === url) {
-                err = evt.error;
-            }
-        }
-        window.addEventListener('error', windowErrorListener);
-        var script = document.createElement('script');
-        script.charset = 'utf-8';
-        script.async = true;
-        script.crossOrigin = 'anonymous';
-        script.addEventListener('error', function () {
-            window.removeEventListener('error', windowErrorListener);
-            reject(Error('Error loading ' + url));
-        });
-        script.addEventListener('load', function () {
-            window.removeEventListener('error', windowErrorListener);
-            document.head.removeChild(script);
-            // Note that if an error occurs that isn't caught by this if statement,
-            // that getRegister will return null and a "did not instantiate" error will be thrown.
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-        script.src = url;
-        document.head.appendChild(script);
-    });
-}
-
-function fetchWasm(url) {
-    return url;
-}
-
-function findCanvas() {
-    const frame = document.querySelector('#GameDiv');
-    const container = document.querySelector('#Cocos3dGameContainer');
-    const canvas = document.querySelector('#GameCanvas');
-    canvas.setAttribute('tabindex', '99');
-
-    return { frame, container, canvas };
-}
-
-function addClass(element, name) {
-    var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
-    if (!hasClass) {
-        if (element.className) {
-            element.className += ' ';
-        }
-        element.className += name;
-    }
-}

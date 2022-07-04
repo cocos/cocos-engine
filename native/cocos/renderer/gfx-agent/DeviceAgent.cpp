@@ -59,7 +59,7 @@ DeviceAgent::DeviceAgent(Device *device) : Agent(device) {
 }
 
 DeviceAgent::~DeviceAgent() {
-    destroy();
+    CC_SAFE_DELETE(_actor);
     DeviceAgent::instance = nullptr;
 }
 
@@ -83,8 +83,8 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     // TODO(PatriceJiang): replace with: _mainMessageQueue = ccnew MessageQueue;
     _mainMessageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue; // NOLINT
 
-    static_cast<CommandBufferAgent *>(_cmdBuff.get())->_queue = _queue;
-    static_cast<CommandBufferAgent *>(_cmdBuff.get())->initAgent();
+    static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
+    static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
 
     setMultithreaded(true);
 
@@ -96,18 +96,25 @@ void DeviceAgent::doDestroy() {
         _mainMessageQueue, DeviceDestroy,
         actor, _actor,
         {
-            if (actor) {
-                actor->destroy();
-            }
+            actor->destroy();
         });
 
     if (_cmdBuff) {
-        static_cast<CommandBufferAgent *>(_cmdBuff.get())->destroyAgent();
+        static_cast<CommandBufferAgent *>(_cmdBuff)->destroyAgent();
+        static_cast<CommandBufferAgent *>(_cmdBuff)->_actor = nullptr;
+        delete _cmdBuff;
         _cmdBuff = nullptr;
     }
-
-    _queryPool = nullptr;
-    _queue = nullptr;
+    if (_queryPool) {
+        static_cast<QueryPoolAgent *>(_queryPool)->_actor = nullptr;
+        delete _queryPool;
+        _queryPool = nullptr;
+    }
+    if (_queue) {
+        static_cast<QueueAgent *>(_queue)->_actor = nullptr;
+        delete _queue;
+        _queue = nullptr;
+    }
 
     if (_mainMessageQueue) {
         _mainMessageQueue->terminateConsumerThread();
@@ -352,11 +359,11 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
 }
 
 void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
-    doBufferTextureCopy(buffers, dst, regions, count, _mainMessageQueue, _actor.get());
+    doBufferTextureCopy(buffers, dst, regions, count, _mainMessageQueue, _actor);
 }
 
 void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
-    doBufferTextureCopy(buffers, texture, regions, count, _messageQueue, _actor.get());
+    doBufferTextureCopy(buffers, texture, regions, count, _messageQueue, _actor);
 }
 
 void DeviceAgent::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {

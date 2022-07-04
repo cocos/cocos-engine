@@ -41,6 +41,7 @@ PipelineLayoutValidator::PipelineLayoutValidator(PipelineLayout *actor)
 
 PipelineLayoutValidator::~PipelineLayoutValidator() {
     DeviceResourceTracker<PipelineLayout>::erase(this);
+    CC_SAFE_DELETE(_actor);
 }
 
 void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {

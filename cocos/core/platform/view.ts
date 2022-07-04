@@ -26,9 +26,9 @@
 */
 
 import '../data/class';
-import { MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
+import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { EventTarget } from '../event';
+import { Eventify, EventTarget } from '../event';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
@@ -36,7 +36,9 @@ import { errorID } from './debug';
 import { screen } from './screen';
 import { macro } from './macro';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
-import { game } from '../game';
+import { director } from '../director';
+import { System } from '../components';
+import { Settings, settings } from '../settings';
 
 /**
  * @en View represents the game window.<br/>
@@ -63,7 +65,7 @@ const orientationMap = {
     [macro.ORIENTATION_PORTRAIT]: Orientation.PORTRAIT,
 };
 
-export class View extends EventTarget {
+export class View extends Eventify(System) {
     public static instance: View;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -130,6 +132,15 @@ export class View extends EventTarget {
         localWinSize.height = this._visibleRect.height;
         if (visibleRect) {
             visibleRect.init(this._visibleRect);
+        }
+
+        if (!EDITOR) {
+            this.resizeWithBrowserSize(true);
+            const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
+            if (designResolution) {
+                this.setDesignResolutionSize(Number(designResolution.width), Number(designResolution.height),
+                    designResolution.policy || ResolutionPolicy.FIXED_HEIGHT);
+            }
         }
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
@@ -501,6 +512,8 @@ export class View extends EventTarget {
      * @param width Design resolution width.
      * @param height Design resolution height.
      * @param resolutionPolicy The resolution policy desired
+     *
+     * @deprecated since v3.6.0
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         if (!JSB && !RUNTIME_BASED && !MINIGAME) {
@@ -645,7 +658,8 @@ class ContainerStrategy {
     }
 
     protected _setupCanvas () {
-        const locCanvas = game.canvas;
+        // TODO: need to figure out why set width and height of canvas
+        const locCanvas = legacyCC.game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
             locCanvas.width = windowSize.width;
@@ -1018,6 +1032,7 @@ legacyCC.ResolutionPolicy = ResolutionPolicy;
  * @zh view 是全局的视图单例对象。
  */
 export const view = View.instance = legacyCC.view = new View();
+director.registerSystem('view', view, 0);
 
 /**
  * @en winSize is the alias object for the size of the current game window.
