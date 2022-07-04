@@ -4,9 +4,6 @@
 #include "core/assets/Material.h"
 #include "core/assets/Texture2D.h"
 #include "core/assets/TextureCube.h"
-#include "core/builtin/Effects.h"
-#include "core/builtin/ShaderSourceAssembly.h"
-#include "core/data/deserializer/AssetDeserializerFactory.h"
 #include "math/Color.h"
 #include "platform/Image.h"
 #include "rapidjson/document.h"
@@ -143,7 +140,7 @@ Asset *BuiltinResMgr::getAsset(const ccstd::string &uuid) {
     return nullptr;
 }
 
-bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
+bool BuiltinResMgr::initBuiltinRes() {
     if (_isInitialized) {
         return true;
     }
@@ -186,241 +183,12 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
     //        resources[spriteFrame->getUuid()] = spriteFrame;
     //    }
     //
-    const char *shaderVersionKey = getDeviceShaderVersion(device);
-    if (nullptr == shaderVersionKey || 0 == strlen(shaderVersionKey)) {
-        CC_LOG_ERROR("Failed to initialize builtin shaders: unknown device.");
-        return false;
-    }
-    //
-    const ShaderSource *shaderSources = nullptr;
-    const auto iter = ShaderSourceAssembly::get().find(shaderVersionKey);
-    if (iter != ShaderSourceAssembly::get().cend()) {
-        shaderSources = iter->second;
-    }
-
-    if (nullptr == shaderSources) {
-        CC_LOG_ERROR("Current device is requiring builtin shaders of version %s, but shaders of that version are not assembled in this build.", shaderVersionKey);
-        return false;
-    }
     //
     //    return Promise.resolve().then(() => {
 
-    rapidjson::Document doc;
-    doc.Parse(BUILTIN_EFFECTS.value().c_str());
-
-    index_t effectIndex = 0;
-    rapidjson::Type type = doc.GetType();
-    auto assetDeserializer = AssetDeserializerFactory::createAssetDeserializer(DeserializeAssetType::EFFECT);
-    for (const auto &e : doc.GetArray()) {
-        IntrusivePtr<EffectAsset> effect = ccnew EffectAsset();
-        assetDeserializer->deserialize(e, effect);
-
-        index_t shaderIndex = 0;
-        for (auto &shaderInfo : effect->_shaders) {
-            const auto &shaderSource = (*shaderSources)[effectIndex][shaderIndex];
-            if (!shaderSource.empty()) {
-                if (0 == strcmp(shaderVersionKey, "glsl1")) {
-                    shaderInfo.glsl1.vert = shaderSource.at("vert").value();
-                    shaderInfo.glsl1.frag = shaderSource.at("frag").value();
-                } else if (0 == strcmp(shaderVersionKey, "glsl3")) {
-                    shaderInfo.glsl3.vert = shaderSource.at("vert").value();
-                    shaderInfo.glsl3.frag = shaderSource.at("frag").value();
-                } else if (0 == strcmp(shaderVersionKey, "glsl4")) {
-                    shaderInfo.glsl4.vert = shaderSource.at("vert").value();
-                    shaderInfo.glsl4.frag = shaderSource.at("frag").value();
-                }
-            }
-            ++shaderIndex;
-        }
-
-        effect->hideInEditor = true;
-        effect->onLoaded();
-
-        ++effectIndex;
-    }
-
-    initMaterials();
+    // initMaterials();
 
     return true;
-}
-
-void BuiltinResMgr::initMaterials() {
-    auto &resources = _resources;
-
-    // standard material
-    auto *standardMtl = ccnew Material();
-    standardMtl->setUuid("standard-material");
-    IMaterialInfo standardInfo;
-    standardInfo.effectName = ccstd::string{"standard"};
-    standardMtl->initialize(standardInfo);
-    resources[standardMtl->getUuid()] = standardMtl;
-    _materialsToBeCompiled.emplace_back(standardMtl);
-
-    // material indicating missing effect (yellow)
-    auto *missingEfxMtl = ccnew Material();
-    IMaterialInfo missingEfxInfo;
-    missingEfxInfo.effectName = ccstd::string{"unlit"};
-    missingEfxInfo.defines = IMaterialInfo::DefinesType{
-        MacroRecord{
-            {"USE_COLOR", true}}};
-    missingEfxMtl->setUuid("missing-effect-material");
-    missingEfxMtl->initialize(missingEfxInfo);
-    missingEfxMtl->setProperty("mainColor", Color{255, 255, 0, 255}); // #ffff00;
-    resources[missingEfxMtl->getUuid()] = missingEfxMtl;
-    _materialsToBeCompiled.emplace_back(missingEfxMtl);
-
-    // material indicating missing material (purple)
-    auto *missingMtl = ccnew Material();
-    IMaterialInfo missingInfo;
-    missingInfo.effectName = ccstd::string{"unlit"},
-    missingInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
-        {"USE_COLOR", true}}};
-    missingMtl->setUuid("missing-material");
-    missingMtl->initialize(missingInfo);
-    missingMtl->setProperty("mainColor", Color{255, 0, 255, 255}); // #ff00ff
-    resources[missingMtl->getUuid()] = missingMtl;
-    _materialsToBeCompiled.emplace_back(missingMtl);
-
-    auto *clearStencilMtl = ccnew Material();
-    IMaterialInfo clearStencilInfo;
-    clearStencilInfo.effectName = ccstd::string{"clear-stencil"},
-    clearStencilInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
-        {"USE_TEXTURE", false}}};
-    clearStencilMtl->setUuid("default-clear-stencil");
-    clearStencilMtl->initialize(clearStencilInfo);
-    resources[clearStencilMtl->getUuid()] = clearStencilMtl;
-    _materialsToBeCompiled.emplace_back(clearStencilMtl);
-
-    // sprite material
-    auto *spriteMtl = ccnew Material();
-    spriteMtl->setUuid("ui-base-material");
-    IMaterialInfo spriteInfo;
-    spriteInfo.effectName = ccstd::string{"sprite"},
-    spriteInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", false}}};
-    spriteMtl->initialize(spriteInfo);
-    resources[spriteMtl->getUuid()] = spriteMtl;
-    _materialsToBeCompiled.emplace_back(spriteMtl);
-
-    // sprite material
-    auto *spriteColorMtl = ccnew Material();
-    spriteColorMtl->setUuid("ui-sprite-material");
-    IMaterialInfo spriteColorInfo;
-    spriteColorInfo.effectName = ccstd::string{"sprite"},
-    spriteColorInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", false}}};
-    spriteColorMtl->initialize(spriteColorInfo);
-    resources[spriteColorMtl->getUuid()] = spriteColorMtl;
-    _materialsToBeCompiled.emplace_back(spriteColorMtl);
-
-    // sprite alpha test material
-    auto *alphaTestMaskMtl = ccnew Material();
-    IMaterialInfo alphaTestMaskInfo;
-    alphaTestMaskInfo.effectName = ccstd::string{"sprite"},
-    alphaTestMaskInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
-        {"USE_TEXTURE", true}, {"USE_ALPHA_TEST", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", false}}};
-    alphaTestMaskMtl->setUuid("ui-alpha-test-material");
-    alphaTestMaskMtl->initialize(alphaTestMaskInfo);
-    resources[alphaTestMaskMtl->getUuid()] = alphaTestMaskMtl;
-    _materialsToBeCompiled.emplace_back(alphaTestMaskMtl);
-
-    // sprite gray material
-    auto *spriteGrayMtl = ccnew Material();
-    spriteGrayMtl->setUuid("ui-sprite-gray-material");
-    IMaterialInfo spriteGrayInfo;
-    spriteGrayInfo.effectName = ccstd::string{"sprite"},
-    spriteGrayInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", true}}};
-    spriteGrayMtl->initialize(spriteGrayInfo);
-    resources[spriteGrayMtl->getUuid()] = spriteGrayMtl;
-    _materialsToBeCompiled.emplace_back(spriteGrayMtl);
-
-    // sprite alpha material
-    auto *spriteAlphaMtl = ccnew Material();
-    spriteAlphaMtl->setUuid("ui-sprite-alpha-sep-material");
-    IMaterialInfo spriteAlphaInfo;
-    spriteAlphaInfo.effectName = ccstd::string{"sprite"},
-    spriteAlphaInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", false}}};
-    spriteAlphaMtl->initialize(spriteAlphaInfo);
-    resources[spriteAlphaMtl->getUuid()] = spriteAlphaMtl;
-    _materialsToBeCompiled.emplace_back(spriteAlphaMtl);
-
-    // sprite alpha & gray material
-    auto *spriteAlphaGrayMtl = ccnew Material();
-    IMaterialInfo spriteAlphaGrayInfo;
-    spriteAlphaGrayInfo.effectName = ccstd::string{"sprite"},
-    spriteAlphaGrayInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
-        {"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", true}}};
-    spriteAlphaGrayMtl->setUuid("ui-sprite-gray-alpha-sep-material");
-    spriteAlphaGrayMtl->initialize(spriteAlphaGrayInfo);
-    resources[spriteAlphaGrayMtl->getUuid()] = spriteAlphaGrayMtl;
-    _materialsToBeCompiled.emplace_back(spriteAlphaGrayMtl);
-
-    // ui graphics material
-    auto *defaultGraphicsMtl = ccnew Material();
-    defaultGraphicsMtl->setUuid("ui-graphics-material");
-    IMaterialInfo defaultGraphicsInfo;
-    defaultGraphicsInfo.effectName = ccstd::string{"graphics"};
-    defaultGraphicsMtl->initialize(defaultGraphicsInfo);
-    resources[defaultGraphicsMtl->getUuid()] = defaultGraphicsMtl;
-    _materialsToBeCompiled.emplace_back(defaultGraphicsMtl);
-
-    // default particle material
-    auto *defaultParticleMtl = ccnew Material();
-    defaultParticleMtl->setUuid("default-particle-material");
-    IMaterialInfo defaultParticleInfo;
-    defaultParticleInfo.effectName = ccstd::string{"particle"};
-    defaultParticleMtl->initialize(defaultParticleInfo);
-    resources[defaultParticleMtl->getUuid()] = defaultParticleMtl;
-    _materialsToBeCompiled.emplace_back(defaultParticleMtl);
-
-    // default particle gpu material
-    auto *defaultParticleGPUMtl = ccnew Material();
-    defaultParticleGPUMtl->setUuid("default-particle-gpu-material");
-    IMaterialInfo defaultParticleGPUInfo;
-    defaultParticleGPUInfo.effectName = ccstd::string{"particle-gpu"};
-    defaultParticleGPUMtl->initialize(defaultParticleGPUInfo);
-    resources[defaultParticleGPUMtl->getUuid()] = defaultParticleGPUMtl;
-    _materialsToBeCompiled.emplace_back(defaultParticleGPUMtl);
-
-    // default particle material
-    auto *defaultTrailMtl = ccnew Material();
-    defaultTrailMtl->setUuid("default-trail-material");
-    IMaterialInfo defaultTrailInfo;
-    defaultTrailInfo.effectName = ccstd::string{"particle-trail"};
-    defaultTrailMtl->initialize(defaultTrailInfo);
-    resources[defaultTrailMtl->getUuid()] = defaultTrailMtl;
-    _materialsToBeCompiled.emplace_back(defaultTrailMtl);
-
-    // default particle material
-    auto *defaultBillboardMtl = ccnew Material();
-    defaultBillboardMtl->setUuid("default-billboard-material");
-    IMaterialInfo defaultBillboardInfo;
-    defaultBillboardInfo.effectName = ccstd::string{"billboard"};
-    defaultBillboardMtl->initialize(defaultBillboardInfo);
-    resources[defaultBillboardMtl->getUuid()] = defaultBillboardMtl;
-    _materialsToBeCompiled.emplace_back(defaultBillboardMtl);
-
-    // ui spine two color material
-    auto *spineTwoColorMtl = ccnew Material();
-    spineTwoColorMtl->setUuid("default-spine-material");
-    IMaterialInfo spineTwoColorInfo;
-    spineTwoColorInfo.effectName = ccstd::string{"spine"},
-    spineTwoColorInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
-        {"USE_TEXTURE", true},
-        {"CC_USE_EMBEDDED_ALPHA", false},
-        {"IS_GRAY", false},
-    }};
-    spineTwoColorMtl->initialize(spineTwoColorInfo);
-    resources[spineTwoColorMtl->getUuid()] = spineTwoColorMtl;
-    _materialsToBeCompiled.emplace_back(spineTwoColorMtl);
-}
-
-//NOTE: tryCompileAllPasses will be invoked from builtin-res-mgr.jsb.ts
-void BuiltinResMgr::tryCompileAllPasses() {
-    for (auto &mat : _materialsToBeCompiled) {
-        auto &passes = *mat->getPasses();
-        for (auto &pass : passes) {
-            pass->tryCompile();
-        }
-    }
 }
 
 void BuiltinResMgr::initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height) {

@@ -81,6 +81,7 @@ private:
     gfx::Buffer *_cameraBuffer{nullptr};
     uint32_t _currentCameraUBOOffset{0};
     uint32_t _alignedCameraUBOSize{0};
+    bool _shadowUBOUpdated{false};
 };
 
 } // namespace pipeline

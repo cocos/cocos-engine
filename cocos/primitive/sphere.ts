@@ -29,6 +29,8 @@ import { IGeometry, IGeometryOptions } from './define';
 /**
  * @zh
  * 球参数选项。
+ * @en
+ * The options of sphere
  */
 interface ISphereOptions extends IGeometryOptions {
     segments: number;

@@ -34,7 +34,7 @@ import { legacyCC } from '../../global-exports';
 import type { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
-import { Device } from '../../gfx';
+import { Device, deviceManager } from '../../gfx';
 import { Enum } from '../../value-types';
 
 let skybox_mesh: Mesh | null = null;
@@ -277,7 +277,7 @@ export class Skybox {
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: isRGBE } });
+            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
         }
 
@@ -344,7 +344,7 @@ export class Skybox {
 
     protected _updateGlobalBinding () {
         if (this._globalDSManager) {
-            const device = legacyCC.director.root.device as Device;
+            const device = deviceManager.gfxDevice;
 
             const envmap = this.envmap ? this.envmap : this._default;
             if (envmap) {

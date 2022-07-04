@@ -216,13 +216,9 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
     checkSwapchainStatus(platform->getWidth(), platform->getHeight());
-#else
-    checkSwapchainStatus();
-#endif
 
     // Android Game Frame Pacing:swappy
-#if CC_SWAPPY_ENABLED
-    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    #if CC_SWAPPY_ENABLED
     int32_t fps = cc::BasePlatform::getPlatform()->getFps();
 
     uint64_t frameRefreshIntervalNS;
@@ -234,6 +230,9 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
                                             &frameRefreshIntervalNS);
     SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
     SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(info.windowHandle));
+    #endif
+#else
+    checkSwapchainStatus();
 #endif
 }
 

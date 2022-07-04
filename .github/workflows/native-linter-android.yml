@@ -6,6 +6,11 @@ on:
     - 'templates/**'
     - 'native/**'
 
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
@@ -13,6 +18,8 @@ jobs:
     # Name the Job
     name: ClangTidy Android
     # Set the type of machine to run on
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
 
     steps:

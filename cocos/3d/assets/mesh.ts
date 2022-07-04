@@ -37,7 +37,7 @@ import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../core/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph } from './morph';
@@ -370,7 +370,7 @@ export class Mesh extends Asset {
         this._initialized = true;
 
         if (this._struct.dynamic) {
-            const device: Device = legacyCC.director.root.device;
+            const device: Device = deviceManager.gfxDevice;
             const vertexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
 
@@ -428,7 +428,7 @@ export class Mesh extends Asset {
             this._renderingSubMeshes = subMeshes;
         } else {
             const { buffer } = this._data;
-            const gfxDevice: Device = legacyCC.director.root.device;
+            const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
             const indexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];

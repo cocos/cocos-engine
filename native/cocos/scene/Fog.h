@@ -334,7 +334,7 @@ public:
     // @serializable
     float _fogStart{0.5F};
     // @serializable
-    float _fogEnd{0.5F};
+    float _fogEnd{300.F};
     // @serializable
     float _fogAtten{5.F};
     // @serializable

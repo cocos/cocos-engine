@@ -6,11 +6,17 @@ on:
     - 'templates/**'
     - 'native/**'
 
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   compile_windows:
-    runs-on: windows-2019
     name: "Windows"
-
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
       - name: Download external libraries
@@ -64,6 +70,8 @@ jobs:
 
   compile_android:
     name: "Android"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -128,6 +136,8 @@ jobs:
 
   compile_mac_x86_64:
     name: "MacOS x86_64"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -188,6 +198,8 @@ jobs:
 
   compile_mac_arm64:
     name: "MacOS arm64"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -246,6 +258,8 @@ jobs:
 
   compile_iOS:
     name: "iOS"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: macos-latest
     steps:
       - uses: maxim-lobanov/setup-xcode@v1

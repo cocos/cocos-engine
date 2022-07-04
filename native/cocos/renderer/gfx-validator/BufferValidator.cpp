@@ -39,6 +39,7 @@ BufferValidator::BufferValidator(Buffer *actor)
 
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
+    CC_SAFE_DELETE(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
     // skip those that have never been updated

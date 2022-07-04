@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { Type } from '../../gfx';
+import { deviceManager, Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
@@ -115,7 +115,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     if (!texture || !texture.width || !texture.height) { return; }
                     pass.bindTexture(binding, texture);
                     if (value instanceof TextureBase) {
-                        pass.bindSampler(binding, legacyCC.game._gfxDevice.getSampler(value.getSamplerInfo()));
+                        pass.bindSampler(binding, deviceManager.gfxDevice.getSampler(value.getSamplerInfo()));
                     }
                 },
             };

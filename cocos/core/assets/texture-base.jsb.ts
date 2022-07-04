@@ -27,8 +27,10 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
+import { deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import './asset';
 
 const textureBaseProto: any = jsb.TextureBase.prototype;
 
@@ -56,10 +58,7 @@ textureBaseProto._deserialize = function (serializedData: any, handle: any) {
 };
 
 textureBaseProto._getGFXDevice = function () {
-    if (legacyCC.director.root) {
-        return legacyCC.director.root.device;
-    }
-    return null;
+    return deviceManager.gfxDevice;
 };
 
 textureBaseProto._getGFXFormat = function () {
