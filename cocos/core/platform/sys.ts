@@ -303,7 +303,7 @@ export const sys = {
         if (WECHAT) {
             // @ts-expect-error HACK: this private property only needed on web & wechat JIT
             this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
-            && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+            && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
         } else {
             // @ts-expect-error HACK: this private property only needed on web & wechat JIT
             this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
@@ -357,35 +357,5 @@ export const sys = {
         return new Rect(x, y, width, height);
     },
 };
-
-(function initSys () {
-    try {
-        let localStorage: Storage | null = sys.localStorage = window.localStorage;
-        localStorage.setItem('storage', '');
-        localStorage.removeItem('storage');
-        localStorage = null;
-    } catch (e) {
-        const warn = function () {
-            warnID(5200);
-        };
-        sys.localStorage = {
-            // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
-            getItem: warn,
-            setItem: warn,
-            clear: warn,
-            removeItem: warn,
-        };
-    }
-
-    if (WECHAT) {
-        // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
-        && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
-    } else {
-        // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
-        && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
-    }
-}());
 
 legacyCC.sys = sys;
