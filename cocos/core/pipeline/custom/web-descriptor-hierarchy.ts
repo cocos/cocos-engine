@@ -385,7 +385,7 @@ export class WebDescriptorHierarchy {
             this.setDescriptor(globalSamplerTexTarget, 'cc_diffuseMap', Type.SAMPLER_CUBE);
         }
         if (hasSpot) {
-            this.setDescriptor(globalSamplerTexTarget, 'cc_spotLightingMap', Type.SAMPLER2D);
+            this.setDescriptor(globalSamplerTexTarget, 'cc_spotShadowMap', Type.SAMPLER2D);
         }
 
         this.merge(passDB);

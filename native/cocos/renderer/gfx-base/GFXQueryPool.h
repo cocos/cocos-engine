@@ -28,7 +28,6 @@
 #include <cstdint>
 #include <mutex>
 #include "GFXObject.h"
-#include "base/RefCounted.h"
 #include "base/std/container/unordered_map.h"
 
 namespace cc {
@@ -47,7 +46,7 @@ namespace gfx {
  *  completeQueryPool
  */
 
-class CC_DLL QueryPool : public GFXObject, public RefCounted {
+class CC_DLL QueryPool : public GFXObject {
 public:
     QueryPool();
     ~QueryPool() override;

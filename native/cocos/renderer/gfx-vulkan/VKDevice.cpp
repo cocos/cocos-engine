@@ -391,7 +391,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     }
 
     _gpuBufferHub = ccnew CCVKGPUBufferHub(_gpuDevice);
-    _gpuTransportHub = ccnew CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue.get())->gpuQueue());
+    _gpuTransportHub = ccnew CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue)->gpuQueue());
     _gpuDescriptorHub = ccnew CCVKGPUDescriptorHub(_gpuDevice);
     _gpuSemaphorePool = ccnew CCVKGPUSemaphorePool(_gpuDevice);
     _gpuBarrierManager = ccnew CCVKGPUBarrierManager(_gpuDevice);
@@ -490,11 +490,9 @@ void CCVKDevice::doDestroy() {
     }
     _depthStencilTextures.clear();
 
-    _queryPool = nullptr;
-    _queue = nullptr;
-    _cmdBuff = nullptr;
-
-
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
+    CC_SAFE_DESTROY_AND_DELETE(_queue)
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
     CC_SAFE_DELETE(_gpuBufferHub)
     CC_SAFE_DELETE(_gpuTransportHub)
     CC_SAFE_DELETE(_gpuSemaphorePool)
@@ -503,14 +501,17 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
-    uint32_t backBufferCount = _gpuDevice->backBufferCount;
-    for (uint32_t i = 0U; i < backBufferCount; i++) {
-        _gpuRecycleBins[i]->clear();
+    if (_gpuDevice) {
+        uint32_t backBufferCount = _gpuDevice->backBufferCount;
+        for (uint32_t i = 0U; i < backBufferCount; i++) {
+            _gpuRecycleBins[i]->clear();
 
-        CC_SAFE_DELETE(_gpuStagingBufferPools[i])
-        CC_SAFE_DELETE(_gpuRecycleBins[i])
-        CC_SAFE_DELETE(_gpuFencePools[i])
+            CC_SAFE_DELETE(_gpuStagingBufferPools[i])
+            CC_SAFE_DELETE(_gpuRecycleBins[i])
+            CC_SAFE_DELETE(_gpuFencePools[i])
+        }
     }
+
     _gpuStagingBufferPools.clear();
     _gpuRecycleBins.clear();
     _gpuFencePools.clear();
@@ -602,7 +603,7 @@ VkImageMemoryBarrier presentBarrier{
 void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 
-    auto *queue = static_cast<CCVKQueue *>(_queue.get());
+    auto *queue = static_cast<CCVKQueue *>(_queue);
     queue->gpuQueue()->lastSignaledSemaphores.clear();
     vkSwapchainIndices.clear();
     gpuSwapchains.clear();
@@ -652,7 +653,7 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void CCVKDevice::present() {
     CC_PROFILE(CCVKDevicePresent);
-    auto *queue = static_cast<CCVKQueue *>(_queue.get());
+    auto *queue = static_cast<CCVKQueue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;

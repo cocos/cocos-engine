@@ -57,9 +57,63 @@
         "packable": true,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "744d520a-8483-4fbc-a47b-ab57d28d6203@6c48a",
-        "atlasUuid": ""
+        "atlasUuid": "",
+        "vertices": {
+          "rawPosition": [
+            -64,
+            -64,
+            0,
+            64,
+            -64,
+            0,
+            -64,
+            64,
+            0,
+            64,
+            64,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            0,
+            128,
+            128,
+            128,
+            0,
+            0,
+            128,
+            0
+          ],
+          "nuv": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "minPos": [
+            -64,
+            -64,
+            0
+          ],
+          "maxPos": [
+            64,
+            64,
+            0
+          ]
+        }
       },
-      "ver": "1.0.10",
+      "ver": "1.0.11",
       "imported": true,
       "files": [
         ".json"

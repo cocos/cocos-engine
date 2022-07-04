@@ -127,14 +127,14 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         // builtin deferred material
         const deferredMat = new Material();
         deferredMat._uuid = 'builtin-deferred-material';
-        deferredMat.initialize({ effectName: 'deferred-lighting' });
+        deferredMat.initialize({ effectName: 'pipeline/deferred-lighting' });
         for (let i = 0; i < deferredMat.passes.length; ++i) {
             deferredMat.passes[i].tryCompile();
         }
         this._deferredLightingMaterial = deferredMat;
         const bloomMat = new Material();
         bloomMat._uuid = 'builtin-bloom-material';
-        bloomMat.initialize({ effectName: 'bloom' });
+        bloomMat.initialize({ effectName: 'pipeline/bloom' });
         for (let i = 0; i < bloomMat.passes.length; ++i) {
             bloomMat.passes[i].tryCompile();
         }
@@ -146,7 +146,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
             this._antiAliasing = AntiAliasing.FXAA;
         }
         postMat.initialize({
-            effectName: 'post-process',
+            effectName: 'pipeline/post-process',
             defines: {
                 // Anti-aliasing type, currently only fxaa, so 1 means fxaa
                 ANTIALIAS_TYPE: this._antiAliasing,

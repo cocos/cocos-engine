@@ -41,7 +41,7 @@ import { CannonPointToPointConstraint } from './constraints/cannon-point-to-poin
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
 import { Game, game } from '../../core';
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('cannon.js', {
         PhysicsWorld: CannonWorld,
         RigidBody: CannonRigidBody,

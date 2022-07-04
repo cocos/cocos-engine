@@ -589,7 +589,7 @@ class DeviceSceneTask extends WebSceneTask {
             const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
             const shader = subModel.shaders[passIdx];
-            const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device,
+            const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice,
                 pass, shader, this._renderPass, inputAssembler);
             this.visitor.bindPipelineState(pso);
             this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
@@ -613,7 +613,7 @@ class DeviceSceneTask extends WebSceneTask {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     const shader = instance.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, pass,
+                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass,
                         shader, this._renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         this.visitor.bindPipelineState(pso);
@@ -638,7 +638,7 @@ class DeviceSceneTask extends WebSceneTask {
                 if (!batch.mergeCount) { continue; }
                 if (!boundPSO) {
                     const shader = batch.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, batch.pass,
+                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, batch.pass,
                         shader, this._renderPass, batch.ia);
                     this.visitor.bindPipelineState(pso);
                     this.visitor.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
@@ -669,7 +669,7 @@ class DeviceSceneTask extends WebSceneTask {
                 if (pass.phase !== this._currentQueue.phaseID) continue;
                 const shader = batch.shaders[j];
                 const inputAssembler: any = batch.inputAssembler!;
-                const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, pass, shader, this._renderPass, inputAssembler);
+                const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader, this._renderPass, inputAssembler);
                 this.visitor.bindPipelineState(pso);
                 this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
                 const ds = batch.descriptorSet!;

@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-import { VideoClip } from '../../video/assets/video-clip';
-import {
-    ImageAsset, JsonAsset, TextAsset, Asset,
-} from '../assets';
+import { ImageAsset } from '../assets/image-asset';
+import JsonAsset from '../assets/json-asset';
+import TextAsset from '../assets/text-asset';
+import { Asset } from '../assets/asset';
 import { BufferAsset } from '../assets/buffer-asset';
 import { js } from '../utils/js';
 import Bundle, { resources } from './bundle';

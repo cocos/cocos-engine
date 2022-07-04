@@ -23,26 +23,24 @@
  THE SOFTWARE.
  */
 
-import { TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
-import { Device } from '../gfx';
-import { effects } from './effects';
 import { legacyCC } from '../global-exports';
-import { getDeviceShaderVersion } from '../renderer/core/program-lib';
-import shaderSourceAssembly from './shader-source-assembly';
-import { AssetManager } from '../asset-manager/asset-manager';
+import assetManager from '../asset-manager/asset-manager';
+import { BuiltinBundleName } from '../asset-manager/shared';
+import Bundle from '../asset-manager/bundle';
+import { Settings, settings } from '../settings';
+import releaseManager from '../asset-manager/release-manager';
 
 class BuiltinResMgr {
-    protected _device: Device | null = null;
     protected _resources: Record<string, Asset> = {};
 
     // this should be called after renderer initialized
-    public initBuiltinRes (device: Device): Promise<void> {
-        this._device = device;
+    public init () {
         const resources = this._resources;
         const len = 2;
         const numChannels = 4;
@@ -267,33 +265,30 @@ class BuiltinResMgr {
             resources[spriteFrame._uuid] = spriteFrame;
         }
 
-        const shaderVersionKey = getDeviceShaderVersion(device);
-        if (!shaderVersionKey) {
-            return Promise.reject(Error('Failed to initialize builtin shaders: unknown device.'));
-        }
-
-        const shaderSources = shaderSourceAssembly[shaderVersionKey];
-        if (!shaderSources) {
-            return Promise.reject(Error(
-                `Current device is requiring builtin shaders of version ${shaderVersionKey} `
-                + `but shaders of that version are not assembled in this build.`,
-            ));
-        }
-
-        return Promise.resolve().then(() => {
-            effects.forEach((e, effectIndex) => {
-                const effect = Object.assign(new legacyCC.EffectAsset(), e);
-                effect.shaders.forEach((shaderInfo, shaderIndex) => {
-                    const shaderSource = shaderSources[effectIndex][shaderIndex];
-                    if (shaderSource) {
-                        shaderInfo[shaderVersionKey] = shaderSource;
-                    }
-                });
-                effect.hideInEditor = true;
-                effect.onLoaded();
+        if (EDITOR) {
+            const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+            const builtinBundle = new Bundle();
+            builtinBundle.init({
+                name: BuiltinBundleName.INTERNAL,
+                uuids: builtinAssets || [],
+                deps: [],
+                importBase: '',
+                nativeBase: '',
+                base: '',
+                paths: {},
+                scenes: {},
+                packs: {},
+                versions: { import: [], native: [] },
+                redirect: [],
+                debug: false,
+                types: [],
+                extensionMap: {},
             });
-            this._initMaterials();
-        }).then(() => this._preloadAssets());
+        }
+    }
+
+    public addAsset (key: string, asset: Asset) {
+        this._resources[key] = asset;
     }
 
     public get<T extends Asset> (uuid: string) {
@@ -303,187 +298,29 @@ class BuiltinResMgr {
     /**
      * @internal
      */
-    private _initMaterials () {
+    public loadBuiltinAssets () {
+        const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+        if (TEST || !builtinAssets) return Promise.resolve();
         const resources = this._resources;
-        const materialsToBeCompiled: any[] = [];
-
-        // standard material
-        const standardMtl = new legacyCC.Material();
-        standardMtl._uuid = 'standard-material';
-        standardMtl.initialize({
-            effectName: 'standard',
-        });
-        resources[standardMtl._uuid] = standardMtl;
-        materialsToBeCompiled.push(standardMtl);
-
-        // material indicating missing effect (yellow)
-        const missingEfxMtl = new legacyCC.Material();
-        missingEfxMtl._uuid = 'missing-effect-material';
-        missingEfxMtl.initialize({
-            effectName: 'unlit',
-            defines: { USE_COLOR: true },
-        });
-        missingEfxMtl.setProperty('mainColor', legacyCC.color('#ffff00'));
-        resources[missingEfxMtl._uuid] = missingEfxMtl;
-        materialsToBeCompiled.push(missingEfxMtl);
-
-        // material indicating missing material (purple)
-        const missingMtl = new legacyCC.Material();
-        missingMtl._uuid = 'missing-material';
-        missingMtl.initialize({
-            effectName: 'unlit',
-            defines: { USE_COLOR: true },
-        });
-        missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
-        resources[missingMtl._uuid] = missingMtl;
-        materialsToBeCompiled.push(missingMtl);
-
-        const clearStencilMtl = new legacyCC.Material();
-        clearStencilMtl._uuid = 'default-clear-stencil';
-        clearStencilMtl.initialize({
-            defines: { USE_TEXTURE: false },
-            effectName: 'clear-stencil',
-        });
-        resources[clearStencilMtl._uuid] = clearStencilMtl;
-        materialsToBeCompiled.push(clearStencilMtl);
-
-        // sprite material
-        const spriteMtl = new legacyCC.Material();
-        spriteMtl._uuid = 'ui-base-material';
-        spriteMtl.initialize({
-            defines: { USE_TEXTURE: false },
-            effectName: 'sprite',
-        });
-        resources[spriteMtl._uuid] = spriteMtl;
-        materialsToBeCompiled.push(spriteMtl);
-
-        // sprite material
-        const spriteColorMtl = new legacyCC.Material();
-        spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({
-            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
-            effectName: 'sprite',
-        });
-        resources[spriteColorMtl._uuid] = spriteColorMtl;
-        materialsToBeCompiled.push(spriteColorMtl);
-
-        // sprite alpha test material
-        const alphaTestMaskMtl = new legacyCC.Material();
-        alphaTestMaskMtl._uuid = 'ui-alpha-test-material';
-        alphaTestMaskMtl.initialize({
-            defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
-            effectName: 'sprite',
-        });
-        resources[alphaTestMaskMtl._uuid] = alphaTestMaskMtl;
-        materialsToBeCompiled.push(alphaTestMaskMtl);
-
-        // sprite gray material
-        const spriteGrayMtl = new legacyCC.Material();
-        spriteGrayMtl._uuid = 'ui-sprite-gray-material';
-        spriteGrayMtl.initialize({
-            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true },
-            effectName: 'sprite',
-        });
-        resources[spriteGrayMtl._uuid] = spriteGrayMtl;
-        materialsToBeCompiled.push(spriteGrayMtl);
-
-        // sprite alpha material
-        const spriteAlphaMtl = new legacyCC.Material();
-        spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
-        spriteAlphaMtl.initialize({
-            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false },
-            effectName: 'sprite',
-        });
-        resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
-        materialsToBeCompiled.push(spriteAlphaMtl);
-
-        // sprite alpha & gray material
-        const spriteAlphaGrayMtl = new legacyCC.Material();
-        spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
-        spriteAlphaGrayMtl.initialize({
-            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true },
-            effectName: 'sprite',
-        });
-        resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
-        materialsToBeCompiled.push(spriteAlphaGrayMtl);
-
-        // ui graphics material
-        const defaultGraphicsMtl = new legacyCC.Material();
-        defaultGraphicsMtl._uuid = 'ui-graphics-material';
-        defaultGraphicsMtl.initialize({ effectName: 'graphics' });
-        resources[defaultGraphicsMtl._uuid] = defaultGraphicsMtl;
-        materialsToBeCompiled.push(defaultGraphicsMtl);
-
-        // default particle material
-        const defaultParticleMtl = new legacyCC.Material();
-        defaultParticleMtl._uuid = 'default-particle-material';
-        defaultParticleMtl.initialize({ effectName: 'particle' });
-        resources[defaultParticleMtl._uuid] = defaultParticleMtl;
-        materialsToBeCompiled.push(defaultParticleMtl);
-
-        // default particle gpu material
-        if (!TEST) {
-            const defaultParticleGPUMtl = new legacyCC.Material();
-            defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
-            defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
-            resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
-            materialsToBeCompiled.push(defaultParticleGPUMtl);
-        }
-
-        // default particle material
-        const defaultTrailMtl = new legacyCC.Material();
-        defaultTrailMtl._uuid = 'default-trail-material';
-        defaultTrailMtl.initialize({ effectName: 'particle-trail' });
-        resources[defaultTrailMtl._uuid] = defaultTrailMtl;
-        materialsToBeCompiled.push(defaultTrailMtl);
-
-        // default particle material
-        const defaultBillboardMtl = new legacyCC.Material();
-        defaultBillboardMtl._uuid = 'default-billboard-material';
-        defaultBillboardMtl.initialize({ effectName: 'billboard' });
-        resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
-        materialsToBeCompiled.push(defaultBillboardMtl);
-
-        // ui spine two color material
-        const spineTwoColorMtl = new legacyCC.Material();
-        spineTwoColorMtl._uuid = 'default-spine-material';
-        spineTwoColorMtl.initialize({
-            defines: {
-                USE_TEXTURE: true,
-                CC_USE_EMBEDDED_ALPHA: false,
-                IS_GRAY: false,
-            },
-            effectName: 'spine',
-        });
-        resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
-        materialsToBeCompiled.push(spineTwoColorMtl);
-
-        legacyCC.game.on(legacyCC.Game.EVENT_GAME_INITED, () => {
-            for (let i = 0; i < materialsToBeCompiled.length; ++i) {
-                const mat = materialsToBeCompiled[i];
-                for (let j = 0; j < mat.passes.length; ++j) {
-                    mat.passes[j].tryCompile();
-                }
-            }
-        });
-    }
-
-    /**
-     * @internal
-     */
-    private _preloadAssets () {
-        const resources = this._resources;
-        if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
-            const preloadedAssets = window._CCSettings.preloadAssets as string[];
-            return new Promise<void>((resolve, reject) => (legacyCC.assetManager as AssetManager).loadAny(preloadedAssets, { __outputAsArray__: true }, (err, assets) => {
+        return new Promise<void>((resolve, reject) => {
+            assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
                 if (err) {
                     reject(err);
-                } else {
-                    assets.forEach((asset) => resources[asset._uuid] = asset);
-                    resolve();
+                    return;
                 }
-            }));
-        }
+                assetManager.loadAny(builtinAssets, (err, assets) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        assets.forEach((asset) => {
+                            resources[asset.name] = asset;
+                            releaseManager.addIgnoredAsset(asset);
+                        });
+                        resolve();
+                    }
+                });
+            });
+        });
     }
 }
 

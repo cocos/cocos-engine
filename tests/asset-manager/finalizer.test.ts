@@ -278,4 +278,19 @@ describe('releaseManager', () => {
         expect(assetManager.assets.count).toBe(0);
     });
 
+    test('Dont destroy', function () {
+        const tex = new Texture2D();
+        tex._uuid = 'TestDontDestroy';
+        releaseManager.addIgnoredAsset(tex);
+        assetManager.assets.add('TestDontDestroy', tex);
+        expect(isValid(tex, true)).toBeTruthy();
+        // @ts-ignore
+        releaseManager._free(tex, false);
+        expect(assetManager.assets.count).toBe(1);
+        expect(isValid(tex, true)).toBeTruthy();
+        assetManager.releaseAsset(tex);
+        expect(assetManager.assets.count).toBe(1);
+        expect(isValid(tex, true)).toBeTruthy();
+    });
+
 });

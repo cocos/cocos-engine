@@ -96,7 +96,7 @@ exports.template = /* html */`
                 <option value="mirrored-repeat">mirrored-repeat</option>
             </ui-select>
         </ui-prop>
-        <ui-prop>
+        <ui-prop class="bake-reflection-convo">
             <span slot="label">
                 <ui-label
                     tooltip="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution"
@@ -123,6 +123,7 @@ exports.$ = {
     mipfilter: '#mipfilter',
     wrapModeS: '#wrapModeS',
     wrapModeT: '#wrapModeT',
+    bakeReflectionConvo: '.bake-reflection-convo',
     mipBakeMode: '#mipBakeMode',
 };
 
@@ -227,6 +228,7 @@ const Elements = {
             this.$.mipBakeMode.value = this.meta.userData.mipBakeMode === 2 ? true : false;
             this.updateInvalid(this.$.mipBakeMode, 'mipBakeMode');
             this.updateReadonly(this.$.mipBakeMode);
+            this.updateBakeReflectionVisible(this.meta.userData.mipfilter === 'linear');
         },
     },
 
@@ -246,10 +248,17 @@ exports.methods = {
             element.removeAttribute('disabled');
         }
     },
+    updateBakeReflectionVisible(show) {
+        this.$.bakeReflectionConvo.style.display = show ? 'block' : 'none';
+
+    },
     dataChange(key, event) {
         let value = event.target.value;
         if (key === 'mipBakeMode') {
             value = event.target.value ? 2 : 1;
+        }
+        if (key === 'mipfilter') {
+            this.updateBakeReflectionVisible(value === 'linear');
         }
         this.metaList.forEach((meta) => {
             meta.userData[key] = value || undefined;
