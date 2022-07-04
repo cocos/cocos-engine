@@ -25,7 +25,7 @@
 */
 
 import { ccclass, editable, serializable } from 'cc.decorator';
-import { Scene } from '../scene-graph';
+import { Scene } from '../scene-graph/scene';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 

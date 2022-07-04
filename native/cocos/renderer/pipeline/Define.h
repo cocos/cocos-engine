@@ -227,7 +227,7 @@ enum class CC_DLL PipelineGlobalBindings {
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT,
-    SAMPLER_SPOT_LIGHTING_MAP,
+    SAMPLER_SPOT_SHADOW_MAP,
     SAMPLER_DIFFUSEMAP,
 
     COUNT,
@@ -536,8 +536,8 @@ struct CC_DLL ENVIRONMENT {
     static const ccstd::string NAME;
 };
 
-struct CC_DLL SPOTLIGHTINGMAP {
-    static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_SPOT_LIGHTING_MAP);
+struct CC_DLL SPOTSHADOWMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_SPOT_SHADOW_MAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

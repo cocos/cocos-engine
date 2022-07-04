@@ -36,7 +36,9 @@
       "./@types/pal/screen-adapter",
       "./@types/pal/minigame",
       "./@types/pal/audio",
-      "./@types/pal/input"
+      "./@types/pal/input",
+      "./@types/pal/env",
+      "./@types/pal/pacer",
     ]
   },
   "include": [

@@ -431,9 +431,8 @@ export default class Bundle {
         legacyCC.assetManager.loadAny({ scene: sceneName }, opts, onProg, (err, sceneAsset) => {
             if (err) {
                 error(err.message, err.stack);
-            } else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
+            } else if (sceneAsset.scene) {
                 const scene = sceneAsset.scene;
-                // @ts-expect-error set private property
                 scene._id = sceneAsset._uuid;
                 scene.name = sceneAsset.name;
             } else {

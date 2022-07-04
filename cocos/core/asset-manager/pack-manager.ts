@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ImageAsset, Texture2D } from '../assets';
+import { ImageAsset } from '../assets/image-asset';
+import { Texture2D } from '../assets/texture-2d';
 import { packCustomObjData, unpackJSONs } from '../data/deserialize';
 import { error, errorID } from '../platform/debug';
 import { js } from '../utils/js';

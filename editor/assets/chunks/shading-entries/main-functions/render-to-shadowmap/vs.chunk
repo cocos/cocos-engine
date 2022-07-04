@@ -1,7 +1,7 @@
 #include <surfaces/default-functions/common-vs>
 #include <surfaces/module-functions/common-vs>
 
-out float v_clip_depth;
+out highp float v_clip_depth;
 
 void main()
 {

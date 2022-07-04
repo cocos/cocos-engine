@@ -95,6 +95,7 @@ gulp.task('gen-simulator', async function () {
         });
         cmakeProcess.on('error', err => {
             console.error(err);
+            reject();
         });
         cmakeProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
@@ -111,6 +112,8 @@ gulp.task('gen-simulator', async function () {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
             makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
+        } else {
+            makeArgs = makeArgs.concat(['--config', 'Release']);
         }
         const newEnv = {};
         Object.assign(newEnv, process.env);
@@ -125,11 +128,10 @@ gulp.task('gen-simulator', async function () {
         });
         buildProcess.on('error', err => {
             console.error(err);
-            process.exit(1);
+            reject();
         });
         buildProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
-            process.exit(1);
         });
         buildProcess.stdout.on('data', data => {
             console.log(data.toString ? data.toString() : data);
@@ -155,6 +157,20 @@ gulp.task('clean-simulator', async function () {
     }
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
+    //check if target file exists
+    let ok = true;
+    if (isWin32) {
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Win32.exe'));
+    }
+    else {
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Mac.app'));
+    }
+    if (!ok) {
+        console.log('=====================================\n');
+        console.error('failed to find target executable file\n');
+        console.log('=====================================\n');
+        throw new Error(`Build process exit with 1`);
+    }
 });
 
 gulp.task('gen-simulator-release', gulp.series('gen-simulator', 'clean-simulator'));

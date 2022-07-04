@@ -196,54 +196,52 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     const auto format = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
     gfx::Framebuffer *framebuffer = sceneData->getShadowFramebufferMap().at(light);
 
-    auto renderTargets = framebuffer->getColorTextures();
-
-    auto *texture = gfx::Device::getInstance()->createTexture({
+    auto *colorTexture = gfx::Device::getInstance()->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         format,
         width,
         height,
     });
+
+    const auto &renderTargets = framebuffer->getColorTextures();
     for (auto *renderTarget : renderTargets) {
         const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
         _usedTextures.erase(iter);
     }
-    renderTargets.clear();
-    renderTargets.emplace_back(texture);
+    _usedTextures.emplace_back(colorTexture);
+
     switch (light->getType()) {
-        case scene::LightType::DIRECTIONAL: {
-            ds->bindTexture(SHADOWMAP::BINDING, texture);
-        } break;
-        case scene::LightType::SPOT: {
-            ds->bindTexture(SPOTLIGHTINGMAP::BINDING, texture);
-        }break;
+        case scene::LightType::DIRECTIONAL:
+            ds->bindTexture(SHADOWMAP::BINDING, colorTexture);
+            break;
+        case scene::LightType::SPOT:
+            ds->bindTexture(SPOTSHADOWMAP::BINDING, colorTexture);
+            break;
         default:
             break;
     }
     ds->forceUpdate();
-    _usedTextures.emplace_back(texture);
 
-    auto *uesedDetph = framebuffer->getDepthStencilTexture();
-    const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), uesedDetph);
-    _usedTextures.erase(iter);
-    auto *depth = device->createTexture({
+    auto *depthStencilTexture = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
         gfx::Format::DEPTH,
         width,
         height,
     });
+    
+    auto *oldDepthStencilTexture = framebuffer->getDepthStencilTexture();
+    const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), oldDepthStencilTexture);
+    _usedTextures.erase(iter);
+    _usedTextures.emplace_back(depthStencilTexture);
+
     framebuffer->destroy();
     framebuffer->initialize({
         _renderPass,
-        renderTargets,
-        depth,
+        {colorTexture},
+        depthStencilTexture,
     });
-    _usedTextures.emplace_back(depth);
-
-    // sometimes there has equivalent pointers from createTetxure function, so we need force update descriptor set binding here
-    ds->forceUpdate();
 }
 
 void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light) {
@@ -255,7 +253,7 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
     const auto height = static_cast<uint32_t>(shadowMapSize.y);
     const auto format = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
-    const gfx::ColorAttachment colorAttachment {
+    const gfx::ColorAttachment colorAttachment{
         format,
         gfx::SampleCount::ONE,
         gfx::LoadOp::CLEAR,
@@ -266,7 +264,7 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
         }),
     };
 
-    const gfx::DepthStencilAttachment depthStencilAttachment {
+    const gfx::DepthStencilAttachment depthStencilAttachment{
         gfx::Format::DEPTH,
         gfx::SampleCount::ONE,
         gfx::LoadOp::CLEAR,
@@ -292,33 +290,29 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
         renderPassHashMap.insert({rpHash, _renderPass});
     }
 
-    ccstd::vector<gfx::Texture *> renderTargets;
-    renderTargets.emplace_back(device->createTexture({
+    auto *colorTexture = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         format,
         width,
         height,
-    }));
-    for (auto *renderTarget : renderTargets) {
-        _usedTextures.emplace_back(renderTarget);
-    }
+    });
+    _usedTextures.emplace_back(colorTexture);
 
-    gfx::Texture *depth = device->createTexture({
+    gfx::Texture *depthStencilTexture = device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         gfx::Format::DEPTH,
         width,
         height,
     });
-    _usedTextures.emplace_back(depth);
+    _usedTextures.emplace_back(depthStencilTexture);
 
     gfx::Framebuffer *framebuffer = device->createFramebuffer({
         _renderPass,
-        renderTargets,
-        depth,
+        {colorTexture},
+        depthStencilTexture,
     });
-
     pipeline->getPipelineSceneData()->setShadowFramebuffer(light, framebuffer);
 }
 

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR, NATIVE, PREVIEW } from 'internal:constants';
 import * as easing from './easing/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -33,14 +34,14 @@ import {
 } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
-import { Root } from './root';
 import { SetIndex } from './pipeline/define';
-import { error } from './platform/debug';
 import { Mat4, Vec2 } from './math';
+import { Settings, settings } from './settings';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';
 interface ISplashSetting {
+    readonly enabled: boolean;
     readonly totalTime: number;
     readonly base64src: string;
     readonly effect: SplashEffectType;
@@ -52,24 +53,9 @@ interface ISplashSetting {
 type Writable<T> = { -readonly [K in keyof T]: T[K] };
 
 export class SplashScreen {
-    private set splashFinish (v: boolean) {
-        this._splashFinish = v;
-        this._tryToStart();
-    }
-    public set loadFinish (v: boolean) {
-        this._loadFinish = v;
-        this._tryToStart();
-    }
-
-    private handle = 0;
     private settings!: ISplashSetting;
-    private callBack: (() => void) | null = null;
-    private cancelAnimate = false;
-    private startTime = -1;
-    private isPause = false;
-    private _splashFinish = false;
-    private _loadFinish = false;
-    private _directCall = false;
+    private _curTime = 0;
+    private _isFinished = false;
 
     private device!: Device;
     private swapchain!: Swapchain;
@@ -91,88 +77,45 @@ export class SplashScreen {
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
 
-    public pauseRendering () {
-        this.isPause = true;
+    public get isFinished () {
+        return this._isFinished;
     }
 
-    public resumeRendering () {
-        this.isPause = false;
-    }
+    public init (): Promise<void> | undefined {
+        this.settings = {
+            enabled: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'enabled') ?? true,
+            totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
+            base64src: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'base64src') ?? '',
+            effect: settings.querySettings<SplashEffectType>(Settings.Category.SPLASH_SCREEN, 'effect') ?? 'FADE-INOUT',
+            clearColor: settings.querySettings<Color>(Settings.Category.SPLASH_SCREEN, 'clearColor') ?? new Color(0.88, 0.88, 0.88, 1),
+            displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
+            displayWatermark: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'displayWatermark') ?? true,
+        };
+        this._curTime = 0;
 
-    public main (root: Root) {
-        if (root == null) {
-            error('RENDER ROOT IS NULL.');
-            return;
-        }
-
-        if (window._CCSettings && window._CCSettings.splashScreen) {
-            const setting: Writable<ISplashSetting> = this.settings = window._CCSettings.splashScreen;
-            setting.totalTime = this.settings.totalTime != null ? this.settings.totalTime : 3000;
-            setting.base64src = this.settings.base64src || '';
-            setting.effect = this.settings.effect || 'FADE-INOUT';
-            setting.clearColor = this.settings.clearColor || new Color(0.88, 0.88, 0.88, 1);
-            setting.displayRatio = this.settings.displayRatio != null ? this.settings.displayRatio : 0.4;
-            setting.displayWatermark = this.settings.displayWatermark != null ? this.settings.displayWatermark : true;
-        } else {
-            this.settings = {
-                totalTime: 3000,
-                base64src: '',
-                effect: 'FADE-INOUT',
-                clearColor: new Color(0.88, 0.88, 0.88, 1),
-                displayRatio: 0.4,
-                displayWatermark: true,
-            };
-        }
-
-        if (this.settings.base64src === '' || this.settings.totalTime <= 0) {
-            if (this.callBack) { this.callBack(); }
-            this.callBack = null;
+        if (EDITOR || (PREVIEW && !NATIVE) || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             (this.settings as any) = null;
-            this._directCall = true;
+            this._isFinished = true;
         } else {
-            legacyCC.view.resizeWithBrowserSize(true);
-            const designRes = window._CCSettings.designResolution;
-            if (designRes) {
-                legacyCC.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
-            } else {
-                legacyCC.view.setDesignResolutionSize(960, 640, 4);
-            }
-            this.device = root.device;
-            this.swapchain = root.mainWindow!.swapchain;
-            this.framebuffer = root.mainWindow!.framebuffer;
-            legacyCC.game.once(legacyCC.Game.EVENT_GAME_INITED, () => {
-                legacyCC.director._lateUpdate = performance.now();
-            }, legacyCC.director);
-
-            this.callBack = null;
-            this.cancelAnimate = false;
-            this.startTime = -1;
+            this.device = legacyCC.director.root!.device;
+            this.swapchain = legacyCC.director.root!.mainWindow!.swapchain;
+            this.framebuffer = legacyCC.director.root!.mainWindow!.framebuffer;
 
             this.preInit();
-            this.logoImage = new Image();
-            this.logoImage.onload = this.init.bind(this);
-            this.logoImage.src = this.settings.base64src;
+            if (this.settings.displayWatermark) this.initWarterMark();
+            return new Promise<void>((resolve, reject) => {
+                this.logoImage = new Image();
+                this.logoImage.onload = () => {
+                    this.initLogo();
+                    resolve();
+                };
+                this.logoImage.onerror = () => {
+                    reject();
+                };
+                this.logoImage.src = this.settings.base64src;
+            });
         }
-    }
-
-    public setOnFinish (cb: () => void) {
-        if (this._directCall) {
-            if (cb) {
-                SplashScreen._ins = undefined;
-                cb(); return;
-            }
-        }
-        this.callBack = cb;
-    }
-
-    private _tryToStart () {
-        if (this._splashFinish && this._loadFinish) {
-            if (this.callBack) {
-                this.callBack();
-                this.hide();
-                legacyCC.game.resume();
-            }
-        }
+        return Promise.resolve();
     }
 
     private preInit () {
@@ -217,79 +160,63 @@ export class SplashScreen {
             device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
     }
 
-    private init () {
-        this.initLogo();
-        if (this.settings.displayWatermark) this.initWarterMark();
-        const animate = (time: number) => {
-            if (this.cancelAnimate) return;
-            const settings = this.settings;
-            const { device, swapchain } = this;
-            Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-                device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
-            const dw = swapchain.width; const dh = swapchain.height;
-            const refW = dw < dh ? dw : dh;
-            // update logo uniform
-            if (this.startTime < 0) this.startTime = time;
-            const elapsedTime = time - this.startTime;
-            const percent = clamp01(elapsedTime / settings.totalTime);
-            let u_p = easing.cubicOut(percent);
-            if (settings.effect === 'NONE') u_p = 1.0;
-            const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
-            const logoW = refW * settings.displayRatio;
-            let scaleX = logoW * logoTW / logoTH;
-            let scaleY = logoW;
+    public update (deltaTime: number) {
+        const settings = this.settings;
+        const { device, swapchain } = this;
+        Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+        const dw = swapchain.width; const dh = swapchain.height;
+        const refW = dw < dh ? dw : dh;
+        // update logo uniform
+        this._curTime += deltaTime * 1000;
+        const percent = clamp01(this._curTime / settings.totalTime);
+        let u_p = easing.cubicOut(percent);
+        if (settings.effect === 'NONE') u_p = 1.0;
+        const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
+        const logoW = refW * settings.displayRatio;
+        let scaleX = logoW * logoTW / logoTH;
+        let scaleY = logoW;
+        if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
+            || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
+            scaleX = logoW * dw / dh;
+            scaleY = logoW * logoTH / logoTW * dh / dw;
+        }
+        this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
+        this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
+        this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
+        this.logoMat.setProperty('percent', u_p);
+        this.logoMat.setProperty('u_projection', this.projection);
+        this.logoMat.passes[0].update();
+
+        // update wartermark uniform
+        if (settings.displayWatermark && this.watermarkMat) {
+            const wartermarkW = refW * 0.5;
+            const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
+            let scaleX = wartermarkW;
+            let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
             if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
                 || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
-                scaleX = logoW * dw / dh;
-                scaleY = logoW * logoTH / logoTW * dh / dw;
+                scaleX = wartermarkW * 0.5;
+                scaleY = wartermarkW * dw / dh * 0.5;
             }
-            this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
-            this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
-            this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
-            this.logoMat.setProperty('percent', u_p);
-            this.logoMat.setProperty('u_projection', this.projection);
-            this.logoMat.passes[0].update();
-
-            // update wartermark uniform
-            if (settings.displayWatermark && this.watermarkMat) {
-                const wartermarkW = refW * 0.5;
-                const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
-                let scaleX = wartermarkW;
-                let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
-                if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
-                    || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
-                    scaleX = wartermarkW * 0.5;
-                    scaleY = wartermarkW * dw / dh * 0.5;
-                }
-                this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
-                this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
-                this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
-                this.watermarkMat.setProperty('percent', u_p);
-                this.watermarkMat.setProperty('u_projection', this.projection);
-                this.watermarkMat.passes[0].update();
-            }
-            if (!this.isPause) {
-                this.frame();
-                if (elapsedTime > settings.totalTime) this.splashFinish = true;
-            }
-            requestAnimationFrame(animate);
-        };
-        legacyCC.game.pause();
-        this.handle = requestAnimationFrame(animate);
-    }
-
-    private hide () {
-        cancelAnimationFrame(this.handle);
-        this.cancelAnimate = true;
-        // The reason for delay destroy here is that immediate destroy input assmebler in ios will be crash
-        setTimeout(this.destroy.bind(this));
+            this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
+            this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
+            this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
+            this.watermarkMat.setProperty('percent', u_p);
+            this.watermarkMat.setProperty('u_projection', this.projection);
+            this.watermarkMat.passes[0].update();
+        }
+        this.frame();
+        if (this._curTime > settings.totalTime) {
+            this._isFinished = true;
+        }
     }
 
     private initLogo () {
         const device = this.device;
 
         this.logoMat = new Material();
-        this.logoMat.initialize({ effectName: 'splash-screen' });
+        this.logoMat.initialize({ effectName: 'util/splash-screen' });
 
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
@@ -342,7 +269,7 @@ export class SplashScreen {
         this.device.copyTexImagesToTexture([wartemarkImg], this.watermarkTexture, [region]);
         // create material
         this.watermarkMat = new Material();
-        this.watermarkMat.initialize({ effectName: 'splash-screen' });
+        this.watermarkMat.initialize({ effectName: 'util/splash-screen' });
         const pass = this.watermarkMat.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.watermarkTexture);
@@ -389,7 +316,6 @@ export class SplashScreen {
     }
 
     private destroy () {
-        this.callBack = null;
         this.device = null!;
         this.swapchain = null!;
         this.clearColors = null!;
@@ -420,7 +346,6 @@ export class SplashScreen {
         }
 
         this.settings = null!;
-        SplashScreen._ins = undefined;
     }
 
     private static _ins?: SplashScreen;

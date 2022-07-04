@@ -45,7 +45,7 @@ DescriptorSetAgent::~DescriptorSetAgent() {
         DescriptorSetDestruct,
         actor, _actor,
         {
-            actor = nullptr;
+            CC_SAFE_DELETE(actor);
         });
 }
 
