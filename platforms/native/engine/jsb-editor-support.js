@@ -31,6 +31,7 @@
     let reference = 0;
     const director = cc.director;
     const game = cc.game;
+    const _accessors = [];
 
     const nativeXYZUVC = middleware.vfmtPosUvColor = 9;
     const nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
@@ -87,7 +88,10 @@
 
             let buffer = renderInfoLookup[nativeFormat][i];
             if (!buffer)  {
-                buffer = cc.UI.RenderData.add(jsFormat);
+                if (!_accessors[jsFormat]) {
+                    _accessors[jsFormat] = cc.UI.RenderData.createStaticVBAccessor(jsFormat);
+                }
+                buffer = cc.UI.RenderData.add(jsFormat, _accessors[jsFormat]);
                 buffer.multiOwner = true;
             }
 

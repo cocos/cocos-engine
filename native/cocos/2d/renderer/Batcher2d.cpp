@@ -219,7 +219,7 @@ void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node
 }
 
 void Batcher2d::generateBatch(RenderDrawInfo* entity) {
-    if (entity == nullptr) {
+    if (entity == nullptr || _currMaterial == nullptr) {
         return;
     }
     gfx::InputAssembler* ia = nullptr;
