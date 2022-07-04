@@ -25,7 +25,7 @@ function descriptorBlock2Flattened (block: DescriptorBlock, flattened: Descripto
     flattened.capacity = block.capacity;
 }
 
-function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGraphBuilder) {
+export function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGraphBuilder) {
     for (const v of graph.vertices()) {
         const db: DescriptorDB = graph.getDescriptors(v);
         let vid = 0;
@@ -55,7 +55,6 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGraphBuilde
     }
 
     lgData.compile();
-    console.log(lgData.print());
 }
 
 export function rebuildLayoutGraph (): void {

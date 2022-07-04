@@ -15,13 +15,6 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         this._data = dataIn;
     }
 
-    private add_vertex<T extends LayoutGraphDataValue> (g: LayoutGraphData, tag: T, object, name: string, parentID = 0xFFFFFFFF): number {
-        const layouts: PipelineLayoutData = new PipelineLayoutData();
-        // eslint-disable-next-line max-len
-        layouts.descriptorSets.set(UpdateFrequency.PER_INSTANCE, new DescriptorSetData(new DescriptorSetLayoutData(), null, null));
-        return g.addVertex(tag, object, name, UpdateFrequency.PER_INSTANCE, layouts, parentID);
-    }
-
     private getGfxType (type: DescriptorTypeOrder): DescriptorType | null {
         switch (type) {
         case DescriptorTypeOrder.UNIFORM_BUFFER:
@@ -128,11 +121,16 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     }
 
     public addRenderStage (name: string): number {
-        return this.add_vertex<LayoutGraphDataValue.RenderStage>(this._data, LayoutGraphDataValue.RenderStage, new RenderStageData(), name);
+        return this._data.addVertex(LayoutGraphDataValue.RenderStage,
+            new RenderStageData(), name,
+            UpdateFrequency.PER_PASS, new PipelineLayoutData());
     }
 
     public addRenderPhase (name: string, parentID: number): number {
-        return this.add_vertex<LayoutGraphDataValue.RenderPhase>(this._data, LayoutGraphDataValue.RenderPhase, new RenderPhaseData(), name, parentID);
+        return this._data.addVertex(LayoutGraphDataValue.RenderPhase,
+            new RenderPhaseData(), name,
+            UpdateFrequency.PER_QUEUE, new PipelineLayoutData(),
+            parentID);
     }
 
     public addShader (name: string, parentPhaseID: number): void {
@@ -154,31 +152,33 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             console.error('error uniform');
             return;
         }
-        const layout: DescriptorSetLayoutData | undefined = ppl.descriptorSets.get(index.updateFrequency)?.descriptorSetLayoutData;
-        if (layout !== undefined) {
-            const dstBlock = new DescriptorBlockData(index.descriptorType, index.visibility, block.capacity);
-            layout.descriptorBlocks.push(dstBlock);
-            dstBlock.offset = layout.capacity;
-            dstBlock.capacity = block.capacity;
-            for (let j = 0; j < block.descriptors.length; ++j) {
-                const name: string = block.descriptorNames[j];
-                const d: Descriptor = block.descriptors[j];
-                let nameID: number | undefined = g.attributeIndex.get(name);
-                if (nameID === undefined) {
-                    const id = g.valueNames.length;
-                    g.attributeIndex.set(name, id);
-                    g.valueNames.push(name);
-                }
-
-                nameID = g.attributeIndex.get(name);
-                const data: DescriptorData = new DescriptorData(nameID);
-                data.count = d.count;
-                dstBlock.descriptors.push(data);
-            }
-            layout.capacity += block.capacity;
-        } else {
-            console.error('no layout');
+        let data: DescriptorSetData | undefined = ppl.descriptorSets.get(index.updateFrequency);
+        if (!data) {
+            data = new DescriptorSetData(new DescriptorSetLayoutData(), null, null);
+            ppl.descriptorSets.set(index.updateFrequency, data);
         }
+        const layout = data.descriptorSetLayoutData;
+
+        const dstBlock = new DescriptorBlockData(index.descriptorType, index.visibility, block.capacity);
+        layout.descriptorBlocks.push(dstBlock);
+        dstBlock.offset = layout.capacity;
+        dstBlock.capacity = block.capacity;
+        for (let j = 0; j < block.descriptors.length; ++j) {
+            const name: string = block.descriptorNames[j];
+            const d: Descriptor = block.descriptors[j];
+            let nameID: number | undefined = g.attributeIndex.get(name);
+            if (nameID === undefined) {
+                const id = g.valueNames.length;
+                g.attributeIndex.set(name, id);
+                g.valueNames.push(name);
+            }
+
+            nameID = g.attributeIndex.get(name);
+            const data: DescriptorData = new DescriptorData(nameID);
+            data.count = d.count;
+            dstBlock.descriptors.push(data);
+        }
+        layout.capacity += block.capacity;
     }
 
     public addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void {
@@ -247,20 +247,20 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
 
             // eslint-disable-next-line no-loop-func
             ppl.descriptorSets.forEach((value, key) => {
-                oss += `Set<${getUpdateFrequencyName(key)}> {\n`;
+                oss += `    DescriptorSet<${getUpdateFrequencyName(key)}> {\n`;
                 const blocks = value.descriptorSetLayoutData.descriptorBlocks;
                 for (let j = 0; j < blocks.length; ++j) {
                     const block = blocks[j];
-                    oss += `Block<${getDescriptorTypeOrderName(block.type)}, ${this.getName(block.visibility)}> {\n`;
-                    oss += `capacity: ${block.capacity},\n`;
-                    oss += `count: ${block.descriptors.length},\n`;
+                    oss += `        Block<${getDescriptorTypeOrderName(block.type)}, ${this.getName(block.visibility)}> {\n`;
+                    oss += `        capacity: ${block.capacity},\n`;
+                    oss += `        count: ${block.descriptors.length},\n`;
                     if (block.descriptors.length > 0) {
-                        oss += 'Descriptors{ \n';
+                        oss += '        Descriptors{ \n';
                         const count = 0;
                         for (let k = 0; k < block.descriptors.length; ++k) {
                             const d: DescriptorData = block.descriptors[k];
                             // if (count++) {
-                            oss += '  ';
+                            oss += '            ';
                             const n: string = g.valueNames[d.descriptorID];
                             oss += `"${n}`;
                             if (d.count !== 1) {
@@ -270,12 +270,12 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                             // }
                             oss += '\n';
                         }
-                        oss += ' }\n';
                     }
-                    oss += '}\n';
+                    oss += '        }\n';
                 }
-                oss += '}\n';
+                oss += '    }\n';
             });
+            oss += `}\n`;
         }
         return oss;
     }

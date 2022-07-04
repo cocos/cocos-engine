@@ -53,6 +53,7 @@ import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { buildDeferredPipelineLayoutGraphData } from './effect';
 import { Material } from '../../assets';
+import { buildDeferredLayout, buildForwardLayout } from './web-pipeline-layout';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -356,7 +357,7 @@ export class WebPipeline extends Pipeline {
         throw new Error('Method not implemented.');
     }
     public get layoutGraphBuilder (): LayoutGraphBuilder {
-        throw new Error('Method not implemented.');
+        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
     }
     protected _generateConstantMacros (clusterEnabled: boolean) {
         let str = '';
@@ -378,7 +379,6 @@ export class WebPipeline extends Pipeline {
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
-        buildDeferredPipelineLayoutGraphData(this._device);
         const root = legacyCC.director.root;
         if (root.useDeferredPipeline) {
             // enable the deferred pipeline
@@ -390,6 +390,13 @@ export class WebPipeline extends Pipeline {
         this.descriptorSet.bindSampler(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, shadowMapSampler);
         this.descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this.descriptorSet.update();
+
+        if (root.useDeferredPipeline) {
+            buildDeferredPipelineLayoutGraphData(this._device);
+            // buildDeferredLayout(this);
+        } else {
+            buildForwardLayout(this);
+        }
         return true;
     }
     public destroy (): boolean {
