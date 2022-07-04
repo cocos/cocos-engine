@@ -338,7 +338,7 @@ export class Mesh extends Asset {
     private _initialized = false;
 
     @serializable
-    private _allowReadWriteData = true;
+    private _allowDataAccess = true;
 
     private _isMeshDataUploaded = false;
 
@@ -500,7 +500,7 @@ export class Mesh extends Asset {
             }
 
             this._isMeshDataUploaded = true;
-            if (!this._allowReadWriteData) {
+            if (!this._allowDataAccess) {
                 this.releaseData();
             }
         }
@@ -1305,24 +1305,24 @@ export class Mesh extends Asset {
     }
 
     /**
-     * @en Set whether the data of this mesh could be read or wrote, it could be used only for static mesh
-     * @zh 设置此网格的数据是否可被读写，此接口只针对静态网格资源生效
-     * @param allowReadWriteData @en Indicate whether this mesh resource could be read or wrote @zh 是否允许读写网格数据
+     * @en Set whether the data of this mesh could be accessed (read or wrote), it could be used only for static mesh
+     * @zh 设置此网格的数据是否可被存取，此接口只针对静态网格资源生效
+     * @param allowDataAccess @en Indicate whether the data of this mesh could be accessed (read or wrote) @zh 是否允许存取网格数据
      */
-    public set allowReadWriteData (allowReadWriteData: boolean) {
-        this._allowReadWriteData = allowReadWriteData;
-        if (this._isMeshDataUploaded && !this._allowReadWriteData) {
+    public set allowDataAccess (allowDataAccess: boolean) {
+        this._allowDataAccess = allowDataAccess;
+        if (this._isMeshDataUploaded && !this._allowDataAccess) {
             this.releaseData();
         }
     }
 
     /**
      * @en Get whether the data of this mesh could be read or wrote
-     * @zh 获取此网格的数据是否可被读写
-     * @return @en whether the data of this mesh could be read or wrote @zh 此网格是否可被读写
+     * @zh 获取此网格的数据是否可被存取
+     * @return @en whether the data of this mesh could be accessed (read or wrote) @zh 此网格的数据是否可被存取
      */
-    public get allowReadWriteData () {
-        return this._allowReadWriteData;
+    public get allowDataAccess () {
+        return this._allowDataAccess;
     }
 
     private releaseData () {

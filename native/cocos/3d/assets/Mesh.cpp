@@ -429,7 +429,7 @@ void Mesh::initialize() {
         }
 
         _isMeshDataUploaded = true;
-        if (!_allowReadWriteData) {
+        if (!_allowDataAccess) {
             releaseData();
         }
     }
@@ -1262,9 +1262,9 @@ bool Mesh::validate() const {
     return !_renderingSubMeshes.empty() && !_data.empty();
 }
 
-void Mesh::setAllowReadWriteData(bool allowReadWriteData) {
-    _allowReadWriteData = allowReadWriteData;
-    if (_isMeshDataUploaded && !_allowReadWriteData) {
+void Mesh::setAllowDataAccess(bool allowDataAccess) {
+    _allowDataAccess = allowDataAccess;
+    if (_isMeshDataUploaded && !_allowDataAccess) {
         releaseData();
     }
 }
