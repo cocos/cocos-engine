@@ -80,4 +80,5 @@ legacyCC.Mesh = jsb.Mesh;
 const MeshProto = Mesh.prototype;
 serializable(MeshProto, '_struct');
 serializable(MeshProto, '_hash');
+serializable(MeshProto, '_allowDataAccess');
 ccclass('cc.Mesh')(Mesh);
