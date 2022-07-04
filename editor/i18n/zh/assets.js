@@ -26,9 +26,9 @@ module.exports = {
             StartChar: 'Start Char',
             FontSize: 'Font Size',
         },
-        particle:{
-            spriteFrame:'Sprite Frame',
-            spriteFrameTip:'Sprite Frame',
+        particle: {
+            spriteFrame: 'Sprite Frame',
+            spriteFrameTip: 'Sprite Frame',
         },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
@@ -160,8 +160,8 @@ module.exports = {
             modelPreview: '模型预览',
             material: '材质',
             fbx: 'FBX',
-            no_model_tips:'没有模型可供预览',
-            drag_model_tips:'可将模型拖到这里进行预览',
+            no_model_tips: '没有模型可供预览',
+            drag_model_tips: '可将模型拖到这里进行预览',
             GlTFUserData: {
                 normals: {
                     name: '法线',
@@ -253,7 +253,7 @@ module.exports = {
                 original: '原始',
             },
             limitMaterialDumpDir: '提取的路径需要限定在项目路径范围内',
-            legacyOptions:'旧版本遗留',
+            legacyOptions: '旧版本遗留',
             legacyFbxImporter: {
                 name: '与 1.* 版本兼容',
                 title: '此导入器是否应该与其在 Cocos Creator 1.* 之前版本的导入方式兼容。',
@@ -262,12 +262,13 @@ module.exports = {
             disableMeshSplit: {
                 name: '是否禁用 Mesh 拆分',
                 title:
-                    '为了解决实时骨骼动画系统下 uniform vector 数量限制问题，<br> ' +
-                    '目前在资源导入期会根据骨骼数量做拆分，这会对其他系统也产生影响。<br>' +
-                    '如果确定不会使用实时计算模式 (对应 SkeletalAnimation 组件的 <br> ' +
-                    'useBakedAnimation 选项未勾选时)，可以勾选此项以提升性能。<br>' +
-                    '但注意改变此选项会影响生成的 prefab 内容，需要对应更新场景中的引用。<br>' +
-                    '后续重构会移除此流程。',
+                    '标识此模型中的所有网格的数据是',
+            },
+            allowDataAccess: {
+                name: '允许数据访问',
+                title:
+                    '标识此模型中的所有网格的数据是否可被读写，此接口只对静态网格资源生效，<br> ' +
+                    '若不勾选，网格数据被提交到 GPU 后会被自动释放。<br>',
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
@@ -343,7 +344,7 @@ module.exports = {
             wrapModeT: 'Wrap Mode T',
             wrapModeTTip: 'Wrap Mode T',
             modeWarn:
-            '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
+                '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
         },
         material: {
             'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',

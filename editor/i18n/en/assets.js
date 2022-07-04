@@ -252,7 +252,7 @@ module.exports = {
                 original: 'Original',
             },
             limitMaterialDumpDir: 'The extracted path needs to be scoped to the project path.',
-            legacyOptions:'Legacy Options',
+            legacyOptions: 'Legacy Options',
             legacyFbxImporter: {
                 name: 'Compatible with v1.*',
                 title: 'Whether this importer should be compatible with its behaviour prior to Cocos Creator version 1.* .',
@@ -269,6 +269,12 @@ module.exports = {
                     'component) will not be used, this option can be checked to improve performance. But note that <br> ' +
                     'toggling this would update the corresponding prefab, so all the references in the scene should be <br>' +
                     'updated as well to accompany that. To be removed in further refactors.',
+            },
+            allowDataAccess: {
+                name: 'Allow Data Access',
+                title:
+                    'Indicate whether the mesh data in this model could be read or write.<br>' +
+                    'If it is unchecked, the mesh data will be released after it is uploaded to ',
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
