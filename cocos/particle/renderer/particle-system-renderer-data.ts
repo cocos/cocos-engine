@@ -322,7 +322,7 @@ export default class ParticleSystemRenderer {
         }
         if (!this._useGPU && this.cpuMaterial) {
             this.particleMaterial = this.cpuMaterial;
-        } 
+        }
         if (this._useGPU && this.gpuMaterial) {
             this.particleMaterial = this.gpuMaterial;
         }
