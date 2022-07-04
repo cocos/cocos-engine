@@ -68,6 +68,7 @@ public:
      */
     virtual void pollEvent() = 0;
 
+
     /**
      * @brief Get target system type.
      */

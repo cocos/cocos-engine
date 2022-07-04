@@ -167,5 +167,7 @@ int32_t WindowsPlatform::loop() {
     onDestory();
     return 0;
 }
-
+void WindowsPlatform::onClose() {
+    _quit = true;
+}
 } // namespace cc
