@@ -2873,6 +2873,26 @@ static bool js_scene_Light_update(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_scene_Light_update)
 
+static bool js_scene_Light_colorTemperatureToRGB_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_scene_Light_colorTemperatureToRGB_static : Error processing arguments");
+        cc::Vec3 result = cc::scene::Light::colorTemperatureToRGB(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Light_colorTemperatureToRGB_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Light_colorTemperatureToRGB_static)
+
 static bool js_scene_Light_nt2lm_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -2930,6 +2950,7 @@ bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("detachFromScene", _SE(js_scene_Light_detachFromScene));
     cls->defineFunction("initialize", _SE(js_scene_Light_initialize));
     cls->defineFunction("update", _SE(js_scene_Light_update));
+    cls->defineStaticFunction("colorTemperatureToRGB", _SE(js_scene_Light_colorTemperatureToRGB_static));
     cls->defineStaticFunction("nt2lm", _SE(js_scene_Light_nt2lm_static));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Light_finalize));
     cls->install();
@@ -16383,6 +16404,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getFrustum)
 
 static bool js_scene_Camera_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#if CC_USE_GEOMETRY_RENDERER
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getGeometryRenderer : Invalid Native Object");
     if (nullptr == cobj) return true;
@@ -16398,6 +16420,9 @@ static bool js_scene_Camera_getGeometryRenderer(se::State& s) // NOLINT(readabil
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
+#else
+    return true;
+#endif // #if CC_USE_GEOMETRY_RENDERER
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getGeometryRenderer)
 
@@ -16780,6 +16805,22 @@ static bool js_scene_Camera_getWindow(se::State& s) // NOLINT(readability-identi
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getWindow)
+
+static bool js_scene_Camera_initGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_initGeometryRenderer : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->initGeometryRenderer();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Camera_initGeometryRenderer)
 
 static bool js_scene_Camera_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -17547,6 +17588,7 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineFunction("detachCamera", _SE(js_scene_Camera_detachCamera));
     cls->defineFunction("detachFromScene", _SE(js_scene_Camera_detachFromScene));
     cls->defineFunction("getAspect", _SE(js_scene_Camera_getAspect));
+    cls->defineFunction("initGeometryRenderer", _SE(js_scene_Camera_initGeometryRenderer));
     cls->defineFunction("initialize", _SE(js_scene_Camera_initialize));
     cls->defineFunction("resize", _SE(js_scene_Camera_resize));
     cls->defineFunction("setFixedSize", _SE(js_scene_Camera_setFixedSize));

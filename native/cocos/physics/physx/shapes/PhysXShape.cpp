@@ -32,6 +32,14 @@
 namespace cc {
 namespace physics {
 
+PhysXShape::PhysXShape() : _mCenter(physx::PxIdentity), _mRotation(physx::PxIdentity){
+    _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
+};
+
+PhysXShape::~PhysXShape() {
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
+}
+
 void PhysXShape::initialize(Node *node) {
     PhysXWorld &ins = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
@@ -60,7 +68,8 @@ void PhysXShape::onDestroy() {
 void PhysXShape::setMaterial(uint16_t id, float f, float df, float r,
                              uint8_t m0, uint8_t m1) {
     if (!_mShape) return;
-    auto *mat = reinterpret_cast<physx::PxMaterial *>(getSharedBody().getWorld().createMaterial(id, f, df, r, m0, m1));
+    PhysXWorld::getInstance().createMaterial(id, f, df, r, m0, m1);
+    auto *mat = reinterpret_cast<physx::PxMaterial *>(PhysXWorld::getInstance().getPXMaterialPtrWithMaterialID(id));
     getShape().setMaterials(&mat, 1);
 }
 
@@ -133,7 +142,7 @@ void PhysXShape::updateCenter() {
 
 void PhysXShape::insertToShapeMap() {
     if (_mShape) {
-        getPxShapeMap().insert(std::pair<uintptr_t, uintptr_t>(reinterpret_cast<uintptr_t>(&getShape()), getImpl()));
+        getPxShapeMap().insert(std::pair<uintptr_t, uint32_t>(reinterpret_cast<uintptr_t>(&getShape()), getObjectID()));
     }
 }
 

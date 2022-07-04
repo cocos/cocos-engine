@@ -34,7 +34,7 @@ class PhysXCylinder final : public PhysXShape, public ICylinderShape {
 public:
     PhysXCylinder();
     ~PhysXCylinder() override = default;
-    void setConvex(uintptr_t handle) override;
+    void setConvex(uint32_t objectID) override;
     void setCylinder(float r, float h, EAxisDirection d) override;
     void updateScale() override;
 

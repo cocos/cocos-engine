@@ -40,7 +40,6 @@
     public:                                                       \
         CLASS();                                                  \
         ~CLASS() override;                                        \
-        uintptr_t getImpl() override;                             \
         void initialize(Node *node) override;                     \
         void onEnable() override;                                 \
         void onDisable() override;                                \
@@ -55,7 +54,8 @@
         uint32_t getGroup() override;                             \
         void setGroup(uint32_t g) override;                       \
         uint32_t getMask() override;                              \
-        void setMask(uint32_t m) override;
+        void setMask(uint32_t m) override;                        \
+        uint32_t getObjectID() const override;
 
 namespace cc {
 namespace physics {
@@ -82,25 +82,25 @@ void setNormal(float x, float y, float z) override;
 ;
 
 CC_PHYSICS_SHAPE_CLASS(TrimeshShape)
-void setMesh(uintptr_t v) override;
+void setMesh(uint32_t objectID) override;
 void useConvex(bool v) override;
 }
 ;
 
 CC_PHYSICS_SHAPE_CLASS(CylinderShape)
-void setConvex(uintptr_t v) override;
+void setConvex(uint32_t objectID) override;
 void setCylinder(float r, float h, EAxisDirection d) override;
 }
 ;
 
 CC_PHYSICS_SHAPE_CLASS(ConeShape)
-void setConvex(uintptr_t v) override;
+void setConvex(uint32_t objectID) override;
 void setCone(float r, float h, EAxisDirection d) override;
 }
 ;
 
 CC_PHYSICS_SHAPE_CLASS(TerrainShape)
-void setTerrain(uintptr_t v, float rs, float cs, float hs) override;
+void setTerrain(uint32_t objectID, float rs, float cs, float hs) override;
 }
 ;
 

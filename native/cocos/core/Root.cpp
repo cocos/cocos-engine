@@ -35,6 +35,7 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
+#include "renderer/pipeline/GeometryRenderer.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -332,6 +333,12 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             return a->getPriority() < b->getPriority();
         });
 #if !defined(CC_SERVER_MODE)
+        for (auto *camera : _cameraList) {
+            if (camera->getGeometryRenderer()) {
+                camera->getGeometryRenderer()->update();
+            }
+        }
+
         _pipelineRuntime->render(_cameraList);
 #endif
         _device->present();

@@ -41,7 +41,7 @@ namespace cc {
 namespace pipeline {
 
 PipelineSceneData::PipelineSceneData() {
-    _fog = ccnew scene::Fog(); // cjh how to delete?
+    _fog = ccnew scene::Fog();
     _ambient = ccnew scene::Ambient();
     _skybox = ccnew scene::Skybox();
     _shadow = ccnew scene::Shadows();
@@ -50,7 +50,7 @@ PipelineSceneData::PipelineSceneData() {
 }
 
 PipelineSceneData::~PipelineSceneData() {
-    CC_SAFE_DELETE(_fog); // cjh correct ?
+    CC_SAFE_DELETE(_fog);
     CC_SAFE_DELETE(_ambient);
     CC_SAFE_DELETE(_skybox);
     CC_SAFE_DELETE(_shadow);
@@ -60,35 +60,34 @@ PipelineSceneData::~PipelineSceneData() {
 
 void PipelineSceneData::activate(gfx::Device *device) {
     _device = device;
+#if CC_USE_GEOMETRY_RENDERER
     initGeometryRenderer();
+#endif
+
+#if CC_USE_DEBUG_RENDERER
     initDebugRenderer();
+#endif
     initOcclusionQuery();
 }
 
 void PipelineSceneData::destroy() {
-    for (const auto &pair : _shadowFrameBufferMap) {
-        pair.second->destroy();
-        delete pair.second;
-    }
-
     _shadowFrameBufferMap.clear();
     _validPunctualLights.clear();
 
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryInputAssembler);
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryVertexBuffer);
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryIndicesBuffer);
+    _occlusionQueryInputAssembler = nullptr;
+    _occlusionQueryVertexBuffer = nullptr;
+    _occlusionQueryIndicesBuffer = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
-    if (!_occlusionQueryInputAssembler) {
-        _occlusionQueryInputAssembler = createOcclusionQueryIA();
-    }
+    CC_ASSERT(!_occlusionQueryInputAssembler);
+    _occlusionQueryInputAssembler = createOcclusionQueryIA();
 
     if (!_occlusionQueryMaterial) {
         _occlusionQueryMaterial = ccnew Material();
         _occlusionQueryMaterial->setUuid("default-occlusion-query-material");
         IMaterialInfo info;
-        info.effectName = "occlusion-query";
+        info.effectName = "builtin-occlusion-query";
         _occlusionQueryMaterial->initialize(info);
         _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
         _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
@@ -108,7 +107,7 @@ void PipelineSceneData::initGeometryRenderer() {
         _geometryRendererMaterials[tech]->setUuid(ss.str());
 
         IMaterialInfo materialInfo;
-        materialInfo.effectName = "geometry-renderer";
+        materialInfo.effectName = "builtin-geometry-renderer";
         materialInfo.technique = tech;
         _geometryRendererMaterials[tech]->initialize(materialInfo);
 
@@ -125,7 +124,7 @@ void PipelineSceneData::initDebugRenderer() {
         _debugRendererMaterial = ccnew Material();
         _debugRendererMaterial->setUuid("default-debug-renderer-material");
         IMaterialInfo info;
-        info.effectName = "debug-renderer";
+        info.effectName = "builtin-debug-renderer";
         _debugRendererMaterial->initialize(info);
         _debugRendererPass = (*_debugRendererMaterial->getPasses())[0];
         _debugRendererShader = _debugRendererPass->getShaderVariant();

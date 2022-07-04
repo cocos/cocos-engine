@@ -89,8 +89,10 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 
 void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     CC_PROFILE(ForwardPipelineRender);
+#if CC_USE_GEOMETRY_RENDERER
     updateGeometryRenderer(cameras); // for capability
-    
+#endif
+
     auto *device = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
@@ -139,7 +141,7 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
 
     // Main light sampler binding
     _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
-    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
+    _descriptorSet->bindSampler(SPOTSHADOWMAP::BINDING, sampler);
     _descriptorSet->update();
 
     // update global defines when all states initialized.

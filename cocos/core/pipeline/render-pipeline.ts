@@ -30,7 +30,7 @@ import { Asset } from '../assets/asset';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
     DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
-    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo,
+    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
 } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
@@ -405,8 +405,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * after deferred pipeline can handle multiple swapchains
      */
     public activate (swapchain: Swapchain): boolean {
-        const root = legacyCC.director.root as Root;
-        this._device = root.device;
+        this._device = deviceManager.gfxDevice;
         this._generateConstantMacros();
         this._globalDSManager = new GlobalDSManager(this._device);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
@@ -703,6 +702,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera && camera.window && camera.window.swapchain) {
+                camera.initGeometryRenderer();
                 this._geometryRenderer = camera.geometryRenderer;
                 return;
             }

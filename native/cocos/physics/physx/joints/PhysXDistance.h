@@ -32,7 +32,9 @@ namespace physics {
 
 class PhysXDistance final : public PhysXJoint, public IDistanceJoint {
 public:
-    PhysXDistance();
+    PhysXDistance() : _mPivotA(physx::PxZero),
+                      _mPivotB(physx::PxZero){};
+                      
     ~PhysXDistance() override = default;
     void setPivotA(float x, float y, float z) override;
     void setPivotB(float x, float y, float z) override;

@@ -673,10 +673,10 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.$.componentAdd.style.display = 'inline-block';
+                panel.toggleShowAddComponentBtn(true);
                 return;
             }
-            panel.$.componentAdd.style.display = 'none';
+            panel.toggleShowAddComponentBtn(false);
 
             panel.$this.setAttribute('sub-type', 'scene');
             panel.$.container.removeAttribute('droppable');
@@ -810,9 +810,11 @@ const Elements = {
         },
         async skyboxReflectionConvolutionWatch(uuid) {
             const panel = this;
-            const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (envMapData.value && envMapData.value.uuid === uuid) {
-                envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
+            if (panel.dump && panel.dump._globals && panel.dump._globals.skybox) {
+                const envMapData = panel.dump._globals.skybox.value['envmap'];
+                if (envMapData.value && envMapData.value.uuid === uuid) {
+                    envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
+                }
             }
         },
         close() {
@@ -1655,6 +1657,10 @@ exports.methods = {
         const panel = this;
 
         const materialUuids = panel.assets['cc.Material'];
+        if (!materialUuids) {
+            return;
+        }
+
         try {
             for (const dumpPath in materialUuids[assetUuid]) {
                 const dumpData = materialUuids[assetUuid][dumpPath];
@@ -1673,6 +1679,13 @@ exports.methods = {
         } catch (error) {
             console.error(error);
         }
+    },
+    toggleShowAddComponentBtn(show) {
+        this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
+    },
+    handlerSceneChangeMode() {
+        const mode = Editor.EditMode.getMode();
+        this.toggleShowAddComponentBtn(mode !== 'animation'); // 动画编辑模式下，要隐藏按钮
     },
 };
 
@@ -1716,7 +1729,9 @@ exports.ready = async function ready() {
     }
 
     this.replaceAssetUuidInNodesBind = this.replaceAssetUuidInNodes.bind(this);
+    this.handlerSceneChangeModeBind = this.handlerSceneChangeMode.bind(this);
     Editor.Message.addBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
+    Editor.Message.addBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.close = async function close() {
@@ -1730,6 +1745,7 @@ exports.close = async function close() {
     }
 
     Editor.Message.removeBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
+    Editor.Message.removeBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.beforeClose = async function beforeClose() {

@@ -114,6 +114,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDescriptorSetLayout)
 
 static bool js_render_PipelineRuntime_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#if CC_USE_GEOMETRY_RENDERER
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
     // SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_getGeometryRenderer : Invalid Native Object");
     if (nullptr == cobj) return true;
@@ -129,6 +130,9 @@ static bool js_render_PipelineRuntime_getGeometryRenderer(se::State& s) // NOLIN
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
+#else
+    return true;
+#endif // #if CC_USE_GEOMETRY_RENDERER
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getGeometryRenderer)
 

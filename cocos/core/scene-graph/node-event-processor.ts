@@ -24,7 +24,7 @@
 */
 
 import { CallbacksInvoker } from '../event/callbacks-invoker';
-import { Event, EventMouse, EventTouch } from '../../input/types';
+import { Event, EventMouse, EventTouch, Touch } from '../../input/types';
 import { Vec2 } from '../math/vec2';
 import { BaseNode } from './base-node';
 import { Node } from './node';
@@ -131,6 +131,8 @@ export class NodeEventProcessor {
      */
     public shouldHandleEventTouch = false;
 
+    // Whether dispatch cancel event when node is destroyed.
+    private _dispatchingTouch: Touch | null = null;
     private _isEnabled = false;
     private _node: Node;
 
@@ -182,6 +184,13 @@ export class NodeEventProcessor {
         if (this.capturingTarget) this.capturingTarget.clear();
         if (this.bubblingTarget) this.bubblingTarget.clear();
         NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
+        if (this._dispatchingTouch) {
+            // Dispatch touch cancel event when node is destroyed.
+            const cancelEvent = new EventTouch([this._dispatchingTouch], true, InputEventType.TOUCH_CANCEL);
+            cancelEvent.touch = this._dispatchingTouch;
+            this.dispatchEvent(cancelEvent);
+            this._dispatchingTouch = null;
+        }
     }
 
     public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
@@ -591,6 +600,7 @@ export class NodeEventProcessor {
         if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
+            this._dispatchingTouch = event.touch;
             node.dispatchEvent(event);
             return true;
         }
@@ -606,6 +616,7 @@ export class NodeEventProcessor {
 
         event.type = NodeEventType.TOUCH_MOVE;
         event.bubbles = true;
+        this._dispatchingTouch = event.touch;
         node.dispatchEvent(event);
         return true;
     }
@@ -625,6 +636,7 @@ export class NodeEventProcessor {
         }
         event.bubbles = true;
         node.dispatchEvent(event);
+        this._dispatchingTouch = null;
     }
 
     private _handleTouchCancel (event: EventTouch) {

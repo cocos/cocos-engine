@@ -6,9 +6,16 @@ on:
     - 'templates/**'
     - 'native/**'
 
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   unit-test-with-cmake:
     name: "Run on windows"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: windows-latest
     defaults:
       run:
@@ -52,6 +59,8 @@ jobs:
       #     bash run-test-windows.sh
   sebind-with-windows:
     name: "sebind tests"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: windows-latest
     defaults:
       run:

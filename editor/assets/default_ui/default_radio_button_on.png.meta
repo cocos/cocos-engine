@@ -34,7 +34,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.10",
+      "ver": "1.0.11",
       "importer": "sprite-frame",
       "uuid": "45828f25-b50d-4c52-a591-e19491a62b8c@f9941",
       "imported": true,
@@ -69,7 +69,61 @@
         "imageUuidOrDatabaseUri": "45828f25-b50d-4c52-a591-e19491a62b8c@6c48a",
         "atlasUuid": "",
         "mipfilter": "none",
-        "packable": true
+        "packable": true,
+        "vertices": {
+          "rawPosition": [
+            -15,
+            -15,
+            0,
+            15,
+            -15,
+            0,
+            -15,
+            15,
+            0,
+            15,
+            15,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            1,
+            31,
+            31,
+            31,
+            1,
+            1,
+            31,
+            1
+          ],
+          "nuv": [
+            0.03125,
+            0.03125,
+            0.96875,
+            0.03125,
+            0.03125,
+            0.96875,
+            0.96875,
+            0.96875
+          ],
+          "minPos": [
+            -15,
+            -15,
+            0
+          ],
+          "maxPos": [
+            15,
+            15,
+            0
+          ]
+        }
       },
       "displayName": "default_radio_button_on",
       "id": "f9941",

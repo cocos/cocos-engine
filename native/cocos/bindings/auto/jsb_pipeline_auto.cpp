@@ -752,6 +752,7 @@ SE_BIND_FUNC(js_pipeline_RenderPipeline_getDevice)
 
 static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#if CC_USE_GEOMETRY_RENDERER
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     // SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Invalid Native Object");
     if (nullptr == cobj) return true;
@@ -767,6 +768,9 @@ static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLI
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
+#else
+    return true;
+#endif // #if CC_USE_GEOMETRY_RENDERER
 }
 SE_BIND_FUNC_AS_PROP_GET(js_pipeline_RenderPipeline_getGeometryRenderer)
 
@@ -2602,7 +2606,7 @@ static bool js_pipeline_GlobalDSManager_getOrCreateDescriptorSet(se::State& s) /
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
+        HolderType<const cc::scene::Light*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Error processing arguments");
         cc::gfx::DescriptorSet* result = cobj->getOrCreateDescriptorSet(arg0.value());
@@ -3876,26 +3880,6 @@ static bool js_pipeline_PipelineSceneData_setShadowFramebuffer(se::State& s) // 
 }
 SE_BIND_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer)
 
-static bool js_pipeline_PipelineSceneData_setValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    // SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<const cc::scene::Light *>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Error processing arguments");
-        cobj->setValidPunctualLights(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights)
-
 static bool js_pipeline_PipelineSceneData_updatePipelineSceneData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
@@ -3958,7 +3942,6 @@ bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readabili
     cls->defineFunction("getOctree", _SE(js_pipeline_PipelineSceneData_getOctree));
     cls->defineFunction("getValidPunctualLights", _SE(js_pipeline_PipelineSceneData_getValidPunctualLights));
     cls->defineFunction("setShadowFramebuffer", _SE(js_pipeline_PipelineSceneData_setShadowFramebuffer));
-    cls->defineFunction("setValidPunctualLights", _SE(js_pipeline_PipelineSceneData_setValidPunctualLights));
     cls->defineFunction("updatePipelineSceneData", _SE(js_pipeline_PipelineSceneData_updatePipelineSceneData));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_PipelineSceneData_finalize));
     cls->install();
@@ -4728,6 +4711,7 @@ bool js_register_pipeline_BatchedBuffer(se::Object* obj) // NOLINT(readability-i
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+#if CC_USE_GEOMETRY_RENDERER
 se::Object* __jsb_cc_pipeline_GeometryRenderer_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_pipeline_GeometryRenderer_class = nullptr;  // NOLINT
 
@@ -7010,6 +6994,22 @@ static bool js_pipeline_GeometryRenderer_empty(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_pipeline_GeometryRenderer_empty)
 
+static bool js_pipeline_GeometryRenderer_update(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    // SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_update : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->update();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_update)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GeometryRenderer_finalize)
 
 static bool js_pipeline_GeometryRenderer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -7056,6 +7056,7 @@ bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readabilit
     cls->defineFunction("addTorus", _SE(js_pipeline_GeometryRenderer_addTorus));
     cls->defineFunction("addTriangle", _SE(js_pipeline_GeometryRenderer_addTriangle));
     cls->defineFunction("empty", _SE(js_pipeline_GeometryRenderer_empty));
+    cls->defineFunction("update", _SE(js_pipeline_GeometryRenderer_update));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_GeometryRenderer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::GeometryRenderer>(cls);
@@ -7067,6 +7068,7 @@ bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readabilit
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+#endif // CC_USE_GEOMETRY_RENDERER
 bool register_all_pipeline(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -7091,7 +7093,9 @@ bool register_all_pipeline(se::Object* obj)    // NOLINT
     js_register_pipeline_ForwardPipeline(ns);
     js_register_pipeline_ForwardStage(ns);
     js_register_pipeline_GbufferStage(ns);
+    #if CC_USE_GEOMETRY_RENDERER
     js_register_pipeline_GeometryRenderer(ns);
+    #endif // CC_USE_GEOMETRY_RENDERER
     js_register_pipeline_GlobalDSManager(ns);
     js_register_pipeline_InstancedBuffer(ns);
     js_register_pipeline_LightingStage(ns);

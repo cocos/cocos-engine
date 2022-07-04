@@ -142,7 +142,7 @@ bool GLES2GPUContext::initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstan
     if (success) {
         eglConfigs.resize(numConfig);
     } else {
-        CC_LOG_ERROR("Query configuration failed.");
+        CC_LOG_ERROR("Query GLES2 configuration failed.");
         return false;
     }
 

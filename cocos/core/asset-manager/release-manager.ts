@@ -119,6 +119,11 @@ class ReleaseManager {
     private _persistNodeDeps = new Cache<string[]>();
     private _toDelete = new Cache<Asset>();
     private _eventListener = false;
+    private _dontDestroyAssets: string[] = [];
+
+    public addIgnoredAsset (asset: Asset) {
+        this._dontDestroyAssets.push(asset._uuid);
+    }
 
     public init (): void {
         this._persistNodeDeps.clear();
@@ -230,7 +235,7 @@ class ReleaseManager {
         const uuid = asset._uuid;
         this._toDelete.remove(uuid);
 
-        if (!isValid(asset, true)) { return; }
+        if (!isValid(asset, true) || this._dontDestroyAssets.indexOf(uuid) !== -1) { return; }
 
         if (!force) {
             if (asset.refCount > 0) {

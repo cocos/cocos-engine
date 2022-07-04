@@ -31,8 +31,7 @@
 namespace cc {
 namespace physics {
 
-PhysXSphere::PhysXSphere() : _mRadius(0.5F),
-                             PhysXShape(){};
+PhysXSphere::PhysXSphere() : _mRadius(0.5F){}
 
 void PhysXSphere::setRadius(float r) {
     _mRadius = r;

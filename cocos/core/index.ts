@@ -59,3 +59,4 @@ export * from './scene-graph';
 export * from './components';
 export * from './builtin';
 export * from './curves';
+export * from './settings';

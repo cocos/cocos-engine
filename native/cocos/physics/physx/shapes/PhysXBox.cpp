@@ -31,8 +31,7 @@
 namespace cc {
 namespace physics {
 
-PhysXBox::PhysXBox() : _mHalfExtents(0.5),
-                       PhysXShape(){};
+PhysXBox::PhysXBox() : _mHalfExtents(0.5){};
 
 void PhysXBox::setSize(float x, float y, float z) {
     _mHalfExtents = physx::PxVec3{x / 2, y / 2, z / 2};

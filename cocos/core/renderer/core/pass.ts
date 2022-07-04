@@ -31,7 +31,7 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
 } from '../../gfx';
 import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
@@ -195,7 +195,7 @@ export class Pass {
 
     constructor (root: Root) {
         this._root = root;
-        this._device = root.device;
+        this._device = deviceManager.gfxDevice;
     }
 
     /**

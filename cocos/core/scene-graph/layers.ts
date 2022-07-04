@@ -29,6 +29,7 @@ import { log2 } from '../math/bits';
 import { js } from '../utils/js';
 import { assertIsTrue } from '../data/utils/asserts';
 import { getError } from '../platform/debug';
+import { Settings, settings } from '../settings';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -44,6 +45,11 @@ const layerList = {
     DEFAULT: (1 << 30),
     ALL: 0xffffffff,
 };
+
+export interface LayerItem {
+    name: string;
+    bit: number;
+}
 
 /**
  * @zh 节点层管理器，层数据是以掩码数据方式存储在 [[Node.layer]] 中，用于射线检测、物理碰撞和用户自定义脚本逻辑。
@@ -64,6 +70,18 @@ export class Layers {
      * @zh 包含所有层的 [[BitMask]]
      */
     public static BitMask = BitMask({ ...layerList });
+
+    /**
+     * @internal
+     */
+    public static init () {
+        const userLayers = settings.querySettings<LayerItem[]>(Settings.Category.ENGINE, 'customLayers');
+        if (!userLayers) return;
+        for (let i = 0; i < userLayers.length; i++) {
+            const layer = userLayers[i];
+            Layers.addLayer(layer.name, layer.bit);
+        }
+    }
 
     /**
      * @en

@@ -24,6 +24,7 @@
 */
 import { ccclass, serializable } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
+import '../../core/assets/asset';
 
 export declare namespace Mesh {
     export interface IBufferView {
@@ -45,6 +46,7 @@ export const Mesh = jsb.Mesh;
 const meshAssetProto: any = jsb.Mesh.prototype;
 
 meshAssetProto.createNode = null!;
+const originOnLoaded = meshAssetProto.onLoaded;
 
 meshAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -63,9 +65,13 @@ Object.defineProperty(meshAssetProto, 'struct', {
 });
 
 meshAssetProto.onLoaded = function () {
-    this.setStruct(this._struct);
+    // might be undefined
+    if (this._struct != undefined) {
+        this.setStruct(this._struct);
+    }
     // Set to null to release memory in JS
     this._struct = null;
+    originOnLoaded.apply(this);
 };
 
 legacyCC.Mesh = jsb.Mesh;

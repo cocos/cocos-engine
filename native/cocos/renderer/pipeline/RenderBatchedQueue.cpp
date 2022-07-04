@@ -57,7 +57,8 @@ void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds, uint32_t offset) {
+void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                                             gfx::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
     for (const auto *batchedBuffer : _queues) {
         bool boundPSO = false;
         const auto &batches = batchedBuffer->getBatches();
@@ -70,7 +71,12 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Rend
                 boundPSO = true;
             }
             if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
-            cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
+            if (dynamicOffsets) {
+                cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, *dynamicOffsets);
+            }else {
+                cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
+            }
+            
             cmdBuffer->bindInputAssembler(batch.ia);
             cmdBuffer->draw(batch.ia);
         }

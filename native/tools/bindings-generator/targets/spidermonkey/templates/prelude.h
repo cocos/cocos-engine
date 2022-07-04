@@ -1,5 +1,8 @@
 #set generator = $current_class.generator
 
+#if len($current_class.module_config) > 0
+\#if $current_class.module_config[0]
+#end if
 extern se::Object *__jsb_${current_class.underlined_class_name}_proto; // NOLINT
 extern se::Class * __jsb_${current_class.underlined_class_name}_class; // NOLINT
 

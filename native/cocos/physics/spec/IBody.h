@@ -41,8 +41,6 @@ enum class ERigidBodyType : uint8_t {
 class IRigidBody : public ILifecycle {
 public:
     ~IRigidBody() override = default;
-    virtual uintptr_t getImpl() = 0;
-    virtual uintptr_t getNodeHandle() = 0;
     virtual void initialize(Node *node, ERigidBodyType t, uint32_t g) = 0;
     virtual bool isAwake() = 0;
     virtual bool isSleepy() = 0;
@@ -77,6 +75,7 @@ public:
     virtual void setGroup(uint32_t g) = 0;
     virtual uint32_t getMask() = 0;
     virtual void setMask(uint32_t m) = 0;
+    virtual uint32_t getObjectID() const = 0;
 };
 
 } // namespace physics

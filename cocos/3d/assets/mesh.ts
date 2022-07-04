@@ -37,7 +37,7 @@ import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../core/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph } from './morph';
@@ -367,10 +367,10 @@ export class Mesh extends Asset {
         this._initialized = true;
 
         if (this._struct.dynamic) {
-            const device: Device = legacyCC.director.root.device;
+            const device: Device = deviceManager.gfxDevice;
             const vertexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
-    
+
             for (let i = 0; i < this._struct.vertexBundles.length; i++) {
                 const vertexBundle = this._struct.vertexBundles[i];
                 const vertexBuffer = device.createBuffer(new BufferInfo(
@@ -379,15 +379,15 @@ export class Mesh extends Asset {
                     vertexBundle.view.length,
                     vertexBundle.view.stride,
                 ));
-    
+
                 vertexBuffers.push(vertexBuffer);
             }
-    
+
             for (let i = 0; i < this._struct.primitives.length; i++) {
                 const primitive = this._struct.primitives[i];
                 const indexView = primitive.indexView;
                 let indexBuffer: Buffer | null = null;
-    
+
                 if (indexView) {
                     indexBuffer = device.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
@@ -396,13 +396,13 @@ export class Mesh extends Asset {
                         indexView.stride,
                     ));
                 }
-    
+
                 const subVBs: Buffer[] = [];
                 for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
                     const idx = primitive.vertexBundelIndices[k];
                     subVBs.push(vertexBuffers[idx]);
                 }
-    
+
                 const attributes: Attribute[] = [];
                 for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
                     const idx = primitive.vertexBundelIndices[k];
@@ -413,34 +413,34 @@ export class Mesh extends Asset {
                         attributes.push(attribute);
                     }
                 }
-    
+
                 const subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
                 subMesh.drawInfo = new DrawInfo();
                 subMesh.mesh = this;
                 subMesh.subMeshIdx = i;
-    
+
                 subMeshes.push(subMesh);
             }
-    
+
             this._renderingSubMeshes = subMeshes;
         } else {
             const { buffer } = this._data;
-            const gfxDevice: Device = legacyCC.director.root.device;
+            const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
             const indexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
-    
+
             for (let i = 0; i < this._struct.primitives.length; i++) {
                 const prim = this._struct.primitives[i];
                 if (prim.vertexBundelIndices.length === 0) {
                     continue;
                 }
-    
+
                 let indexBuffer: Buffer | null = null;
                 let ib: any = null;
                 if (prim.indexView) {
                     const idxView = prim.indexView;
-    
+
                     let dstStride = idxView.stride;
                     let dstSize = idxView.length;
                     if (dstStride === 4 && !gfxDevice.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
@@ -453,7 +453,7 @@ export class Mesh extends Asset {
                             dstSize >>= 1;
                         }
                     }
-    
+
                     indexBuffer = gfxDevice.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX,
                         MemoryUsageBit.DEVICE,
@@ -461,16 +461,16 @@ export class Mesh extends Asset {
                         dstStride,
                     ));
                     indexBuffers.push(indexBuffer);
-    
+
                     ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
                     if (idxView.stride !== dstStride) {
                         ib = getIndexStrideCtor(dstStride).from(ib);
                     }
                     indexBuffer.update(ib);
                 }
-    
+
                 const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
-    
+
                 const gfxAttributes: Attribute[] = [];
                 if (prim.vertexBundelIndices.length > 0) {
                     const idx = prim.vertexBundelIndices[0];
@@ -481,19 +481,19 @@ export class Mesh extends Asset {
                         gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
                     }
                 }
-    
+
                 const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
                 subMesh.mesh = this; subMesh.subMeshIdx = i;
-    
+
                 subMeshes.push(subMesh);
             }
-    
+
             this._renderingSubMeshes = subMeshes;
-    
+
             if (this._struct.morph) {
                 this.morphRendering = createMorphRendering(this, gfxDevice);
             }
-        } 
+        }
     }
 
     /**

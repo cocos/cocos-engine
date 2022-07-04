@@ -479,7 +479,7 @@ export class Material extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this.initialize({
-            effectName: 'unlit',
+            effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
             technique: 0,
         });

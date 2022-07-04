@@ -61,7 +61,7 @@ const GEOMETRY_NO_DEPTH_TEST_PASS_NUM = 1;
 const GEOMETRY_DEPTH_TEST_PASS_NUM    = 2;
 const GEOMETRY_VERTICES_PER_LINE      = 2;
 const GEOMETRY_VERTICES_PER_TRIANGLE  = 3;
-const GEOMETRY_MAX_LINES              = 100000;
+const GEOMETRY_MAX_LINES              = 30000;
 const GEOMETRY_MAX_DASHED_LINES       = 10000;
 const GEOMETRY_MAX_TRIANGLES          = 10000;
 
@@ -186,8 +186,6 @@ export class GeometryRenderer {
     }
 
     public render (renderPass: RenderPass, cmdBuff: CommandBuffer, sceneData: PipelineSceneData) {
-        this.update();
-
         const passes = sceneData.geometryRendererPasses;
         const shaders = sceneData.geometryRendererShaders;
 

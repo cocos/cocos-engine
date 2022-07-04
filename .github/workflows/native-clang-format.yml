@@ -53,4 +53,3 @@ jobs:
           branch: t/bot/fix-format
           branch-suffix: short-commit-hash
           delete-branch: true
-          milestone: 1

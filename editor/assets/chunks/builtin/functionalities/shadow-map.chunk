@@ -130,7 +130,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       shadowNDCPos.z = CCGetLinearDepth(worldPos);
     }
   
-    return NativePCFShadowFactorHard(shadowNDCPos, cc_spotLightingMap, cc_shadowWHPBInfo.xy);
+    return NativePCFShadowFactorHard(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPosWithDepthBias, vec3 worldPos) {
@@ -142,7 +142,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       shadowNDCPos.z = CCGetLinearDepth(worldPos);
     }
   
-    return NativePCFShadowFactorSoft(shadowNDCPos, cc_spotLightingMap, cc_shadowWHPBInfo.xy);
+    return NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetSpotLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
@@ -154,7 +154,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       shadowNDCPos.z = CCGetLinearDepth(worldPos);
     }
   
-    return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotLightingMap, cc_shadowWHPBInfo.xy);
+    return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetSpotLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
@@ -166,7 +166,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       shadowNDCPos.z = CCGetLinearDepth(worldPos);
     }
   
-    return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotLightingMap, cc_shadowWHPBInfo.xy);
+    return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
 
 
@@ -206,7 +206,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   }
   
 
-  int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out mat4 matShadowView, vec3 worldPos) {
+  int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec4 matShadowViewLine0, out vec4 matShadowViewLine1, out vec4 matShadowViewLine2, out vec4 matShadowViewLine3, vec3 worldPos) {
     int layer = -1;
     for (int i = 0; i < NUMCASCADES; i++) {
       vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
@@ -217,7 +217,10 @@ float CCGetLinearDepth(vec3 worldPos) {
         csmPos = cc_matCSMViewProjAtlas[i] * vec4(worldPos.xyz, 1.0);
         shadowProjDepthInfo = cc_csmProjDepthInfo[i];
         shadowProjInfo = cc_csmProjInfo[i];
-        matShadowView = cc_matCSMView[i];
+        matShadowViewLine0 = cc_matCSMView[i][0];
+        matShadowViewLine1 = cc_matCSMView[i][1];
+        matShadowViewLine2 = cc_matCSMView[i][2];
+        matShadowViewLine3 = cc_matCSMView[i][3];
         layer = i;
       }
     }
@@ -227,9 +230,9 @@ float CCGetLinearDepth(vec3 worldPos) {
   float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
   {
     vec4 csmPos = vec4(1.0);
-	vec4 shadowProjDepthInfo, shadowProjInfo;
-	mat4 matLightView;
-    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView, worldPos);
+    vec4 shadowProjDepthInfo, shadowProjInfo;
+    mat4 matLightView;
+    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView[0], matLightView[1], matLightView[2], matLightView[3], worldPos);
     if (level < 0) { return 1.0; }
     float realtimeShadow = 1.0;
 

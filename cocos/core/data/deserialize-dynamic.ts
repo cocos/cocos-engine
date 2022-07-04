@@ -40,6 +40,7 @@ import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
+import { Asset } from '..';
 
 function compileObjectTypeJit (
     sources: string[],
@@ -848,9 +849,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy((uuid, options) => {
-            EditorExtends.serialize.asAsset(uuid, options.type);
-        });
+        details.assignAssetsBy((uuid, options) => (EditorExtends.serialize.asAsset(uuid, options.type) as Asset));
     }
 
     // var afterJson = JSON.stringify(data, null, 2);

@@ -37,13 +37,12 @@ namespace gfx {
 
 FramebufferValidator::FramebufferValidator(Framebuffer *actor)
 : Agent<Framebuffer>(actor) {
-    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 FramebufferValidator::~FramebufferValidator() {
     DeviceResourceTracker<Framebuffer>::erase(this);
-    CC_SAFE_RELEASE(_actor);
+    CC_SAFE_DELETE(_actor);
 }
 
 void FramebufferValidator::doInit(const FramebufferInfo &info) {

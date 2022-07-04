@@ -31,10 +31,6 @@
 namespace cc {
 namespace physics {
 
-PhysXRevolute::PhysXRevolute() : _mPivotA(physx::PxZero),
-                                 _mPivotB(physx::PxZero),
-                                 _mAxis(physx::PxZero) {}
-
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
 }

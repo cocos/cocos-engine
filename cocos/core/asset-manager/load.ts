@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
-import { Asset, SceneAsset } from '../assets';
+import { Asset } from '../assets/asset';
 import { error, warn } from '../platform/debug';
 import packManager from './pack-manager';
 import parser from './parser';
@@ -227,7 +227,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                         } else {
                             // TODO: remove it.
                             // scene asset might be a json in editor or preview
-                            SceneAsset.prototype.initDefault.call(asset);
+                            legacyCC.SceneAsset.prototype.initDefault.call(asset);
                         }
                     }
                 }

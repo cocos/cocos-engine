@@ -45,13 +45,12 @@ ccstd::unordered_map<Format, Feature, EnumHasher> featureCheckMap{};
 
 TextureValidator::TextureValidator(Texture *actor)
 : Agent<Texture>(actor) {
-    CC_SAFE_ADD_REF(actor);
     _typedID = actor->getTypedID();
 }
 
 TextureValidator::~TextureValidator() {
     DeviceResourceTracker<Texture>::erase(this);
-    if (_ownTheActor) CC_SAFE_RELEASE(_actor);
+    if (_ownTheActor) CC_SAFE_DELETE(_actor);
 }
 
 void TextureValidator::doInit(const TextureInfo &info) {
