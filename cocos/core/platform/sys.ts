@@ -303,7 +303,7 @@ export const sys = {
         if (WECHAT) {
             // @ts-expect-error HACK: this private property only needed on web & wechat JIT
             this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
-            && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+            && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
         } else {
             // @ts-expect-error HACK: this private property only needed on web & wechat JIT
             this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
