@@ -304,6 +304,11 @@ export default class ParticleSystemRenderer {
         } else {
             errorID(6034);
         }
+        if (!this._useGPU) {
+            this.cpuMaterial = this.particleMaterial;
+        } else {
+            this.gpuMaterial = this.particleMaterial;
+        }
     }
 
     private _switchProcessor () {
@@ -316,9 +321,13 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor = null!;
         }
         if (!this._useGPU) {
-            this.particleMaterial = this.cpuMaterial;
+            if (this.cpuMaterial) {
+                this.particleMaterial = this.cpuMaterial;
+            }
         } else {
-            this.particleMaterial = this.gpuMaterial;
+            if (this.gpuMaterial) {
+                this.particleMaterial = this.gpuMaterial;
+            }
         }
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.updateAlignSpace(this.alignSpace);
