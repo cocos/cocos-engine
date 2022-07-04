@@ -355,8 +355,8 @@ def native_name_from_type(ntype, underlying=False):
         decl = ntype.get_declaration()
         etype = ntype.element_type
         esize = ntype.element_count
-        logger.info("probably a function const array: " +
-                    str(etype.spelling) + "[" + str(esize) + "]")
+        logger.info("found a const array: " +
+                    str(etype.spelling) + "[" + str(esize) + "], treat as std::array<,"+ str(esize)+">")
         # return  "decltype(" + str(etype.spelling) + " _[" + str(esize) + "])"
         return "std::array<%s, %s>" % (etype.spelling, esize)
     else:
