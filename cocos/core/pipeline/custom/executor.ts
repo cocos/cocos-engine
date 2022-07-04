@@ -32,7 +32,7 @@
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
 import { AABB } from '../../geometry/aabb';
 import intersect from '../../geometry/intersect';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, Device, Format, Framebuffer,
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, Device, deviceManager, Format, Framebuffer,
     FramebufferInfo, GeneralBarrierInfo, LoadOp, PipelineState, Rect, RenderPass, RenderPassInfo, Shader, StoreOp, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { legacyCC } from '../../global-exports';

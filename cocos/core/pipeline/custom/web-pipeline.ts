@@ -41,7 +41,7 @@ import { macro } from '../../platform/macro';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
+import { supportsR16HalfFloatTexture, supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 import { Compiler } from './compiler';
@@ -379,6 +379,7 @@ export class WebPipeline extends Pipeline {
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
         buildDeferredPipelineLayoutGraphData(this._device);
+        const root = legacyCC.director.root;
         if (root.useDeferredPipeline) {
             // enable the deferred pipeline
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
