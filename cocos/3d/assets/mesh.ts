@@ -337,7 +337,9 @@ export class Mesh extends Asset {
 
     private _initialized = false;
 
+    @serializable
     private _allowReadWriteData = true;
+
     private _isMeshDataUploaded = false;
 
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
