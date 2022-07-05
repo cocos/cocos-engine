@@ -38,6 +38,18 @@ void RenderEntity::setNode(Node* node) {
     _node = node;
     node->setUserData(this);
 }
+void RenderEntity::setStencilStage(uint32_t stage) {
+    _stencilStage = static_cast<StencilStage>(stage);
+}
+void RenderEntity::setEnumStencilStage(StencilStage stage) {
+    _stencilStage = stage;
+}
+void RenderEntity::setCustomMaterial(Material* mat) {
+    _customMaterial = mat;
+}
+void RenderEntity::setCommitModelMaterial(Material* mat) {
+    _commitModelMaterial = mat;
+}
 void RenderEntity::setRenderEntityType(uint32_t type) {
     _renderEntityType = static_cast<RenderEntityType>(type);
 }

@@ -93,6 +93,15 @@ export class NativeRenderEntity {
     get node (): Node { return new Node(); }
     set node (node: Node) { }
 
+    get stencilStage ():number { return 0; }
+    set stencilStage (stage:number) {}
+
+    get customMaterial ():Material { return new Material(); }
+    set customMaterial (mat:Material) {}
+
+    get commitModelMaterial ():Material { return new Material(); }
+    set commitModelMaterial (mat:Material) {}
+
     get staticDrawInfoSize (): number { return 0; }
     set staticDrawInfoSize (size: number) { }
 

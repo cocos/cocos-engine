@@ -40,6 +40,7 @@ struct StencilEntity {
 
 class StencilManager final {
 public:
+    static StencilManager* getInstance();
     StencilManager();
     ~StencilManager();
 
@@ -48,17 +49,24 @@ public:
 
     inline StencilStage getStencilStage() { return _stage; }
 
-    gfx::DepthStencilState* getDepthStencilState(StencilStage stage, Material* mat);
+    gfx::DepthStencilState* getDepthStencilState(StencilStage stage, Material* mat = nullptr);
     void setDepthStencilStateFromStage(StencilStage stage);
 
-    inline uint32_t getWriteMask() { return 1 << (_maskStackSize - 1); }
-    inline uint32_t getExitWriteMask() { return 1 << _maskStackSize; }
+    inline uint32_t getWriteMask() {
+        return 1 << (_maskStackSize - 1);
+    }
+    inline uint32_t getExitWriteMask() {
+        return 1 << _maskStackSize;
+    }
     inline uint32_t getStencilRef() {
         uint32_t result = 0;
         for (uint32_t i = 0; i < _maskStackSize; i++) {
             result += (0x00000001 << i);
         }
         return result;
+    }
+    inline uint32_t getStencilHash(StencilStage stage) {
+        return (((uint32_t)stage) << 8) | _maskStackSize;
     }
 
 public:
@@ -74,7 +82,7 @@ private:
 
     uint32_t _maskStackSize{0};
 
-    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMap{};
-    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMapWithDepth{};
+    ccstd::unordered_map<uint64_t, gfx::DepthStencilState*> _cacheStateMap{};
+    ccstd::unordered_map<uint64_t, gfx::DepthStencilState*> _cacheStateMapWithDepth{};
 };
 } // namespace cc

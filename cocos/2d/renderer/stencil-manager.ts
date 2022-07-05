@@ -99,10 +99,10 @@ export class StencilManager {
     }
 
     constructor () {
-        if (JSB) {
-            this._nativeObj = new NativeStencilManager();
-        }
-        this.initSharedBuffer();
+        // if (JSB) {
+        //     this._nativeObj = new NativeStencilManager();
+        // }
+        // this.initSharedBuffer();
     }
 
     public pushMask (mask: any) {

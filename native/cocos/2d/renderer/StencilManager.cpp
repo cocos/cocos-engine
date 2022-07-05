@@ -1,5 +1,15 @@
 #include "StencilManager.h"
 namespace cc {
+namespace {
+StencilManager* instance = nullptr;
+}
+
+StencilManager* StencilManager::getInstance() {
+    if (instance == nullptr) {
+        instance = new StencilManager();
+    }
+    return instance;
+}
 
 StencilManager::StencilManager(/* args */) {
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_stencilSharedBuffer, sizeof(StencilEntity), [](void* a, size_t b, void* c) {});
@@ -12,11 +22,11 @@ StencilManager::~StencilManager() {
 }
 
 gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage, Material* mat) {
-    uint32_t key = 0;
+    uint64_t key = 0;
     bool depthTest = false;
     bool depthWrite = false;
     gfx::ComparisonFunc depthFunc = gfx::ComparisonFunc::LESS;
-    auto& cacheMap = _cacheStateMap;
+    auto* cacheMap = &_cacheStateMap;
 
     if (mat && mat->getPasses()->at(0)) {
         IntrusivePtr<scene::Pass> pass = mat->getPasses()->at(0);
@@ -32,16 +42,16 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
         key = (depthTestValue) | (depthWriteValue << 1) | ((uint32_t)dss->depthFunc << 2) | ((uint32_t)_stage << 6) | (_maskStackSize << 9);
 
         depthTest = dss->depthTest;
-        depthWrite = (uint32_t)dss->depthWrite;
+        depthWrite = static_cast<uint32_t>(dss->depthWrite);
         depthFunc = dss->depthFunc;
-        cacheMap = _cacheStateMapWithDepth;
+        cacheMap = &_cacheStateMapWithDepth;
 
     } else {
-        key = ((uint32_t)stage << 16) | (_maskStackSize);
+        key = ((static_cast<uint32_t>(stage)) << 16) | (_maskStackSize);
     }
 
-    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*>::iterator iter = cacheMap.find(key);
-    if (iter != cacheMap.end()) {
+    auto iter = cacheMap->find(0);
+    if (iter != cacheMap->end()) {
         return iter->second;
     }
 
@@ -68,8 +78,8 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
     depthStencilState->stencilPassOpBack = _stencilPattern.passOp;
     depthStencilState->stencilRefBack = _stencilPattern.ref;
 
-    const auto& pair = std::pair<uint32_t, gfx::DepthStencilState*>(key, depthStencilState);
-    cacheMap.insert(pair);
+    const auto& pair = std::pair<uint64_t, gfx::DepthStencilState*>(key, depthStencilState);
+    cacheMap->insert(pair);
 
     return depthStencilState;
 }
@@ -83,8 +93,7 @@ void StencilManager::setDepthStencilStateFromStage(StencilStage stage) {
         pattern.failOp = gfx::StencilOp::KEEP;
         pattern.stencilMask = pattern.writeMask = 0xffff;
         pattern.ref = 1;
-    }
-    else {
+    } else {
         pattern.stencilTest = true;
         if (stage == StencilStage::ENABLED) {
             pattern.func = gfx::ComparisonFunc::EQUAL;
