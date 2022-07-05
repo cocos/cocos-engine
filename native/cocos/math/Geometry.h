@@ -78,10 +78,10 @@ public:
 /**Rectangle area.*/
 class CC_DLL Rect {
 public:
-    /**Low left point of rect.*/
-    Vec2 origin;
-    /**Width and height of the rect.*/
-    Size size;
+    float x{ 0.F };
+    float y{ 0.F };
+    float width{ 0.F };
+    float height{ 0.F };
 
     Rect();
     Rect(float x, float y, float width, float height);
