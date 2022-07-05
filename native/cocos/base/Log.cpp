@@ -82,67 +82,79 @@ namespace {
 
     #define AUTO_TEST_CONFIG_FILE "auto-test-config.json"
 
-enum class UdpStatus {
+enum class UdpLogClientState {
     UNINITIALIZED,
     INITIALIZED,
     CONFIGURED,
     OK,
-    FAILED,
+    DONE, // FAILED
 };
 
-class UdpContext {
-private:
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    SOCKET sock;
-    WSAData wsa;
-    #else
-    int sock;
-    #endif
-    struct sockaddr_in server, local;
-    UdpStatus status{UdpStatus::UNINITIALIZED};
-
-    std::string testId;
-    uint64_t bootId{0};
-
+class UdpLogClient {
 public:
-    UdpContext() {
-        initSocket();
-        loadConfig();
+    UdpLogClient() {
+        init();
+        tryParseConfig();
     }
 
-    ~UdpContext() {
-        destroySocket();
+    ~UdpLogClient() {
+        deinit();
     }
 
-    void sendFormatLog(const std::string_view &msg) {
-        std::time_t t = std::time(nullptr);
-        char mbstr[100] = {0};
-        std::strftime(mbstr, sizeof(mbstr), "%c", std::localtime(&t));
+    void sendFullLog(const std::string_view &msg) {
+        if (_status == UdpLogClientState::DONE) {
+            return;
+        }
+        std::time_t now = std::time(nullptr);
+        char dateString[100] = {0};
+        std::strftime(dateString, sizeof(dateString), "%c", std::localtime(&now));
         std::stringstream ss;
-        ss << testId << std::endl
-           << clientName() << std::endl
-           << bootId << std::endl
-           << mbstr << std::endl
+        ss << _testID << std::endl
+           << getDeviceID() << std::endl
+           << _bootID << std::endl
+           << dateString << std::endl
            << msg
            << '\0';
         sendLog(ss.str());
     }
 
 private:
-
-    void loadConfig() {
-        if (status != UdpStatus::INITIALIZED) {
+    void init() {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        WSAData wsa;
+        if (WSAStartup(MAKEWORD(1, 2), &wsa) != 0) {
+            printf("WSAStartup failed, code: %d\n", WSAGetLastError());
+            _status = UdpLogClientState::DONE;
             return;
         }
+    #endif
+        _status = UdpLogClientState::INITIALIZED;
+    }
 
+    void deinit() {
+        if (_status == UdpLogClientState::OK) {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+            closesocket(_sock);
+            WSACleanup();
+    #else
+            close(_sock);
+    #endif
+        }
+    }
+    void tryParseConfig() {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        if (_status != UdpLogClientState::INITIALIZED) {
+            return;
+        }
+    #endif
         auto *fu = cc::FileUtils::getInstance();
         if (!fu) {
-            // engine is not ready
+            // engine is not ready, retry later
             return;
         }
 
         if (!fu->isFileExist(AUTO_TEST_CONFIG_FILE)) {
-            status = UdpStatus::FAILED;
+            _status = UdpLogClientState::DONE;
             return;
         }
         auto content = fu->getStringFromFile(AUTO_TEST_CONFIG_FILE);
@@ -151,31 +163,31 @@ private:
 
         if (doc.HasParseError()) {
             auto code = doc.GetParseError();
-            status = UdpStatus::FAILED;
+            _status = UdpLogClientState::DONE;
             return;
         }
         if (!doc.HasMember("ServerConfig")) {
-            status = UdpStatus::FAILED;
+            _status = UdpLogClientState::DONE;
             return;
         }
         if (doc.HasMember("testID")) {
-            testId = doc["testID"].GetString();
+            _testID = doc["testID"].GetString();
         } else {
-            testId = doc["flagId"].GetString();
+            _testID = doc["flagId"].GetString();
         }
         rapidjson::Value &cfg = doc["ServerConfig"];
         std::string remoteIp = cfg["IP"].GetString();
         int remotePort = cfg["PORT"].GetInt() + 1;
-        setRemoteAddr(remoteIp.c_str(), remotePort);
+        setServerAddr(remoteIp.c_str(), remotePort);
 
-        bootId = std::chrono::duration_cast<std::chrono::milliseconds>(
-                     std::chrono::system_clock::now().time_since_epoch())
-                     .count();
+        _bootID = std::chrono::duration_cast<std::chrono::milliseconds>(
+                      std::chrono::system_clock::now().time_since_epoch())
+                      .count();
 
-        status = UdpStatus::CONFIGURED;
+        _status = UdpLogClientState::CONFIGURED;
     }
 
-    static const char *clientName() {
+    static const char *getDeviceID() {
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         return "Windows";
     #elif CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -195,33 +207,11 @@ private:
     #endif
     }
 
-    void initSocket() {
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-            printf("WSAStartup failed, code: %d\n", WSAGetLastError());
-            status = UdpStatus::FAILED;
-            return;
-        }
-    #endif
-        status = UdpStatus::INITIALIZED;
-    }
-
-    void destroySocket() {
-        if (status == UdpStatus::OK) {
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-            closesocket(sock);
-            WSACleanup();
-    #else
-            close(sock);
-    #endif
-        }
-    }
-
-    void setRemoteAddr(const char *addr, int port) {
-        memset(&server, 0, sizeof(server));
-        server.sin_family = AF_INET;
-        server.sin_addr.s_addr = inet_addr(addr);
-        server.sin_port = htons(port);
+    void setServerAddr(const char *addr, int port) {
+        memset(&_serverAddr, 0, sizeof(_serverAddr));
+        _serverAddr.sin_family = AF_INET;
+        _serverAddr.sin_addr.s_addr = inet_addr(addr);
+        _serverAddr.sin_port = htons(port);
     }
 
     static auto getErrorCode() {
@@ -232,59 +222,77 @@ private:
     #endif
     }
 
-    void prepareSocket() {
-        if (status == UdpStatus::INITIALIZED) {
-            loadConfig();
+    void initSocket() {
+        if (_status == UdpLogClientState::INITIALIZED) {
+            tryParseConfig();
         }
-        if (status != UdpStatus::CONFIGURED) {
+        if (_status != UdpLogClientState::CONFIGURED) {
             return;
         }
-        memset(&local, 0, sizeof(local));
-        local.sin_family = AF_INET;
-        local.sin_addr.s_addr = INADDR_ANY;
-        local.sin_port = 0; // bind random port
+        memset(&_localAddr, 0, sizeof(_localAddr));
+        _localAddr.sin_family = AF_INET;
+        _localAddr.sin_addr.s_addr = INADDR_ANY;
+        _localAddr.sin_port = 0; // bind random port
 
-        if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        if ((_sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             auto errorCode = getErrorCode();
-            status = UdpStatus::FAILED;
+            _status = UdpLogClientState::DONE;
             printf("create socket failed, code: %d\n", errorCode);
             return;
         }
-        if (bind(sock, reinterpret_cast<sockaddr *>(&local), sizeof(local))) {
-            status = UdpStatus::FAILED;
+        if (bind(_sock, reinterpret_cast<sockaddr *>(&_localAddr), sizeof(_localAddr))) {
+            _status = UdpLogClientState::DONE;
             auto errorCode = getErrorCode();
             printf("bind socket failed, code: %d\n", errorCode);
             return;
         }
-        if (connect(sock, reinterpret_cast<sockaddr *>(&server), sizeof(server))) {
+        if (connect(_sock, reinterpret_cast<sockaddr *>(&_serverAddr), sizeof(_serverAddr))) {
             auto errorCode = getErrorCode();
             printf("connect socket failed, code: %d\n", errorCode);
-            status = UdpStatus::FAILED;
+            _status = UdpLogClientState::DONE;
             return;
         }
 
-    #if _WIN32
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         u_long mode = 1;
-        ioctlsocket(sock, FIONBIO, &mode);
+        if (ioctlsocket(_sock, FIONBIO, &mode)) {
+            auto errorCode = getErrorCode();
+            printf("set nonblock failed, code: %d\n", errorCode);
+            // continue
+        }
     #else
-        int flags = fcntl(sock, F_GETFL);
-        fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+        int flags = fcntl(_sock, F_GETFL);
+        if (fcntl(_sock, F_SETFL, flags | O_NONBLOCK)) {
+            auto errorCode = getErrorCode();
+            printf("set nonblock failed, code: %d\n", errorCode);
+            // continue
+        }
     #endif
-
-        status = UdpStatus::OK;
+        _status = UdpLogClientState::OK;
     }
 
     void sendLog(const std::string_view &msg) {
-        prepareSocket();
-        if (status == UdpStatus::OK) {
-            send(sock, msg.data(), msg.size(), 0);
+        initSocket();
+        if (_status == UdpLogClientState::OK) {
+            send(_sock, msg.data(), msg.size(), 0);
         }
     }
+
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    SOCKET _sock{INVALID_SOCKET};
+    #else
+    int _sock{-1};
+    #endif
+    sockaddr_in _serverAddr;
+    sockaddr_in _localAddr;
+    UdpLogClientState _status{UdpLogClientState::UNINITIALIZED};
+    std::string _testID;
+    uint64_t _bootID{0};
 };
 
 void sendLogThroughUDP(const std::string_view &msg) {
-    static UdpContext remote;
-    remote.sendFormatLog(msg);
+    static UdpLogClient remote;
+    remote.sendFullLog(msg);
 }
 
 } // namespace
