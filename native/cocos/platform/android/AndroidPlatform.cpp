@@ -545,13 +545,9 @@ void AndroidPlatform::pollEvent() {
     //
 }
 void AndroidPlatform::onClose() {
-    uint8_t cmd = NativeAppGlueAppCmd::APP_CMD_DESTROY;
-    if (write(_app->msgwrite, &cmd, sizeof(cmd)) != sizeof(cmd)) {
-        printf("Failure writing android_app cmd: %s", strerror(errno));
-        // Activity did not quit
-    }
+    activityFinish();
 }
-void *AndroidPlatform::getActivity() {
+void *AndroidPlatform::getActivity() { // Dangerous
     return _app->activity->javaGameActivity;
 }
 
