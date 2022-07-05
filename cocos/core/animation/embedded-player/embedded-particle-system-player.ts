@@ -56,9 +56,8 @@ class EmbeddedParticleSystemPlayableState extends EmbeddedPlayableState {
 
     /**
      * Plays the particle system from the beginning no matter current time.
-     * @param _time Ignored.
      */
-    public play (_time: number): void {
+    public play (): void {
         this._particleSystem.play();
     }
 

@@ -326,6 +326,18 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Creates an embedded player evaluator for this animation.
+     * @param targetNode Target node.
+     * @internal Do not use this in your code.
+     */
+    public createEmbeddedPlayerEvaluator (targetNode: Node) {
+        return new EmbeddedPlayerEvaluation(
+            this._embeddedPlayers,
+            targetNode,
+        );
+    }
+
+    /**
      * Creates an evaluator for this animation.
      * @param context The context.
      * @returns The evaluator.
@@ -701,19 +713,10 @@ export class AnimationClip extends Asset {
             exoticAnimationEvaluator = this._exoticAnimation.createEvaluator(binder);
         }
 
-        let embeddedPlayerEvaluation: EmbeddedPlayerEvaluation | undefined;
-        if (target instanceof Node) { // Note: when this method is called from bake(), target is undefined.
-            const { _embeddedPlayers: embeddedPlayers } = this;
-            if (this._embeddedPlayers.length !== 0) {
-                embeddedPlayerEvaluation = new EmbeddedPlayerEvaluation(embeddedPlayers, target);
-            }
-        }
-
         const evaluation = new AnimationClipEvaluation(
             trackEvalStatues,
             exoticAnimationEvaluator,
             rootMotionEvaluation,
-            embeddedPlayerEvaluation,
         );
 
         return evaluation;
@@ -931,12 +934,19 @@ class EmbeddedPlayerEvaluation {
                     instantiatedPlayer,
                     entered: false,
                     hostPauseTime: 0.0,
+                    lastIterations: 0,
                 };
             },
         );
     }
 
-    public evaluate (time: number) {
+    /**
+     * Evaluates the embedded players.
+     * @param time The time([0, clipDuration]).
+     * @param iterations The iterations the evaluation occurred. Should be integral.
+     */
+    public evaluate (time: number, iterations: number) {
+        assertIsTrue(Number.isInteger(iterations));
         const {
             _embeddedPlayers: embeddedPlayers,
             _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
@@ -947,17 +957,26 @@ class EmbeddedPlayerEvaluation {
             if (!embeddedPlayerEvaluationInfo) {
                 continue;
             }
-            const { entered, instantiatedPlayer } = embeddedPlayerEvaluationInfo;
+            const { entered, instantiatedPlayer, lastIterations } = embeddedPlayerEvaluationInfo;
             const { begin, end } = embeddedPlayers[iEmbeddedPlayer];
             const withinEmbeddedPlayer = time >= begin && time <= end;
             if (withinEmbeddedPlayer) {
                 if (!entered) {
-                    instantiatedPlayer.play(time - begin);
+                    instantiatedPlayer.play();
+                    embeddedPlayerEvaluationInfo.entered = true;
+                } else if (iterations !== lastIterations) {
+                    instantiatedPlayer.stop();
+                    instantiatedPlayer.play();
                     embeddedPlayerEvaluationInfo.entered = true;
                 }
             } else if (entered) {
                 instantiatedPlayer.stop();
                 embeddedPlayerEvaluationInfo.entered = false;
+            }
+            embeddedPlayerEvaluationInfo.lastIterations = iterations;
+            if (embeddedPlayerEvaluationInfo.entered) {
+                const playerTime = time - begin;
+                embeddedPlayerEvaluationInfo.instantiatedPlayer.setTime(playerTime);
             }
         }
     }
@@ -982,6 +1001,10 @@ class EmbeddedPlayerEvaluation {
         }
     }
 
+    /**
+     * Notifies that the host has ran into **playing** state.
+     * @param time The time where host ran into playing state.
+     */
     public notifyHostPlay (time: number) {
         // Host has switched to "playing", this can be happened when:
         // - Previous state is "stopped": we must have stopped all embedded players.
@@ -1006,7 +1029,8 @@ class EmbeddedPlayerEvaluation {
                 // Otherwise we have to say goodbye to that embedded player.
                 if (instantiatedPlayer.randomAccess || approx(hostPauseTime, time, 1e-5)) {
                     const startTime = clamp(time, begin, end);
-                    instantiatedPlayer.play(startTime - begin);
+                    instantiatedPlayer.play();
+                    instantiatedPlayer.setTime(startTime - begin);
                 } else {
                     instantiatedPlayer.stop();
                 }
@@ -1014,6 +1038,9 @@ class EmbeddedPlayerEvaluation {
         }
     }
 
+    /**
+     * Notifies that the host has ran into **pause** state.
+     */
     public notifyHostPause (time: number) {
         // Host is paused, simply transmit this to embedded players.
         const {
@@ -1034,6 +1061,9 @@ class EmbeddedPlayerEvaluation {
         }
     }
 
+    /**
+     * Notifies that the host has ran into **stopped** state.
+     */
     public notifyHostStop () {
         // Now that host is stopped, we stop all embedded players' playing
         // regardless of their progresses.
@@ -1061,6 +1091,7 @@ class EmbeddedPlayerEvaluation {
         instantiatedPlayer: EmbeddedPlayableState;
         entered: boolean;
         hostPauseTime: number;
+        lastIterations: number;
     }>;
 }
 
@@ -1069,12 +1100,10 @@ class AnimationClipEvaluation {
         trackEvalStatuses: TrackEvalStatus[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
         rootMotionEvaluation: RootMotionEvaluation | undefined,
-        embeddedPlayerEvaluation: EmbeddedPlayerEvaluation | undefined,
     ) {
         this._trackEvalStatues = trackEvalStatuses;
         this._exoticAnimationEvaluator = exoticAnimationEvaluator;
         this._rootMotionEvaluation = rootMotionEvaluation;
-        this._embeddedPlayerEvaluation = embeddedPlayerEvaluation;
     }
 
     /**
@@ -1085,7 +1114,6 @@ class AnimationClipEvaluation {
         const {
             _trackEvalStatues: trackEvalStatuses,
             _exoticAnimationEvaluator: exoticAnimationEvaluator,
-            _embeddedPlayerEvaluation: embeddedPlayerEvaluation,
         } = this;
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
@@ -1098,36 +1126,6 @@ class AnimationClipEvaluation {
         if (exoticAnimationEvaluator) {
             exoticAnimationEvaluator.evaluate(time);
         }
-
-        if (embeddedPlayerEvaluation) {
-            embeddedPlayerEvaluation.evaluate(time);
-        }
-    }
-
-    public notifyHostSpeedChanged (value: number) {
-        this._embeddedPlayerEvaluation?.notifyHostSpeedChanged(value);
-    }
-
-    /**
-     * Notifies that the host has ran into **playing** state.
-     * @param time The time where host ran into playing state.
-     */
-    public notifyHostPlay (time: number) {
-        this._embeddedPlayerEvaluation?.notifyHostPlay(time);
-    }
-
-    /**
-     * Notifies that the host has ran into **pause** state.
-     */
-    public notifyHostPause (time: number) {
-        this._embeddedPlayerEvaluation?.notifyHostPause(time);
-    }
-
-    /**
-     * Notifies that the host has ran into **stopped** state.
-     */
-    public notifyHostStop () {
-        this._embeddedPlayerEvaluation?.notifyHostStop();
     }
 
     /**
@@ -1145,7 +1143,6 @@ class AnimationClipEvaluation {
     private _exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
     private _trackEvalStatues:TrackEvalStatus[] = [];
     private _rootMotionEvaluation: RootMotionEvaluation | undefined = undefined;
-    private _embeddedPlayerEvaluation: EmbeddedPlayerEvaluation | undefined = undefined;
 }
 
 class BoneTransform {
