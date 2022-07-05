@@ -229,10 +229,10 @@ bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-id
 bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.origin.x));
-    obj->setProperty("y", se::Value(v.origin.y));
-    obj->setProperty("width", se::Value(v.size.width));
-    obj->setProperty("height", se::Value(v.size.height));
+    obj->setProperty("x", se::Value(v.x));
+    obj->setProperty("y", se::Value(v.y));
+    obj->setProperty("width", se::Value(v.width));
+    obj->setProperty("height", se::Value(v.height));
     obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::RECT)));
     ret->setObject(obj);
 

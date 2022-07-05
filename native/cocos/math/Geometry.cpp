@@ -118,8 +118,8 @@ void Rect::setRect(float x, float y, float width, float height) {
 }
 
 bool Rect::equals(const Rect &rect) const {
-    return (this->equals(rect.origin) &&
-            this->equals(rect.size));
+    return (std::abs(this->x - rect.x) < FLT_EPSILON) && (std::abs(this->y - rect.y) < FLT_EPSILON)
+        && (std::abs(this->width - rect.width) < FLT_EPSILON) && (std::abs(this->height - rect.height) < FLT_EPSILON);
 }
 
 float Rect::getMaxX() const {
