@@ -516,6 +516,19 @@ bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unuse
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
+    se::Object *obj = from.toObject();
+    se::Value tmp;
+ 
+    set_member_field(obj, to, "x", &cc::gfx::Rect::x, tmp);
+    set_member_field(obj, to, "y", &cc::gfx::Rect::y, tmp);
+    set_member_field(obj, to, "width", &cc::gfx::Rect::width, tmp);
+    set_member_field(obj, to, "height", &cc::gfx::Rect::height, tmp);
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix3 failed!");
     se::Object *obj = from.toObject();

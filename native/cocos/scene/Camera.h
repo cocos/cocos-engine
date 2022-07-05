@@ -229,8 +229,8 @@ public:
      * Pre-rotated (i.e. always in identity/portrait mode) if possible.
      */
     inline const Vec4 &getViewport() const { return _viewport; }
-    void setViewport(const Vec4 &val);
-    void setViewportInOrientedSpace(const Vec4 &val);
+    void setViewport(const gfx::Rect &val);
+    void setViewportInOrientedSpace(const gfx::Rect &val);
 
     inline RenderScene *getScene() const { return _scene; }
     inline const ccstd::string &getName() const { return _name; }
