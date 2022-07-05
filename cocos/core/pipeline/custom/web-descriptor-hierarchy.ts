@@ -31,9 +31,9 @@ import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 
 export class WebDescriptorHierarchy {
-    private uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
-    private blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;
-    private dbsToMerge: Map<DescriptorDB, DescriptorDB[]>;
+    public uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
+    public blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;
+    public dbsToMerge: Map<DescriptorDB, DescriptorDB[]>;
 
     constructor () {
         this._layoutGraph = new LayoutGraph();
@@ -42,7 +42,7 @@ export class WebDescriptorHierarchy {
         this.dbsToMerge = new Map<DescriptorDB, DescriptorDB[]>();
     }
 
-    private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
+    public getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
         const blockIndex: DescriptorBlockIndex = new DescriptorBlockIndex(freq, paraType, descType, vis);
         const key = JSON.stringify(blockIndex);
         if (descriptorDB.blocks.get(key) === undefined) {
@@ -54,7 +54,7 @@ export class WebDescriptorHierarchy {
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
 
-    private getLayoutBlockByKey (key: string, descriptorDB: DescriptorDB): DescriptorBlock {
+    public getLayoutBlockByKey (key: string, descriptorDB: DescriptorDB): DescriptorBlock {
         if (descriptorDB.blocks.get(key) === undefined) {
             const uniformBlock: DescriptorBlock = new DescriptorBlock();
             descriptorDB.blocks.set(key, uniformBlock);
@@ -65,7 +65,7 @@ export class WebDescriptorHierarchy {
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
 
-    private getUniformBlock (set: number, binding: number, blockName: string, targetBlock: DescriptorBlock): UniformBlock {
+    public getUniformBlock (set: number, binding: number, blockName: string, targetBlock: DescriptorBlock): UniformBlock {
         if (targetBlock.uniformBlocks.get(blockName) === undefined) {
             const uniformDB: UniformBlock = new UniformBlock(set, binding, blockName, [], 1);
             targetBlock.uniformBlocks.set(blockName, uniformDB);
@@ -73,17 +73,17 @@ export class WebDescriptorHierarchy {
         return targetBlock.uniformBlocks.get(blockName) as UniformBlock;
     }
 
-    private setUniform (uniformDB: UniformBlock, name: string, type: Type, count: number) {
+    public setUniform (uniformDB: UniformBlock, name: string, type: Type, count: number) {
         const uniform: Uniform = new Uniform(name, type, count);
         uniformDB.members.push(uniform);
     }
 
-    private setDescriptor (targetBlock: DescriptorBlock, name: string, type: Type) {
+    public setDescriptor (targetBlock: DescriptorBlock, name: string, type: Type) {
         const descriptor: Descriptor = new Descriptor(type);
         targetBlock.descriptors.set(name, descriptor);
     }
 
-    private merge (descriptorDB: DescriptorDB) {
+    public merge (descriptorDB: DescriptorDB) {
         for (const entry of descriptorDB.blocks) {
             const block: DescriptorBlock = entry[1];
             const typeMap: Map<Type, number> = new Map<Type, number>();
@@ -115,7 +115,7 @@ export class WebDescriptorHierarchy {
         }
     }
 
-    private mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
+    public mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
         for (let i = 0; i < descriptorDBs.length; ++i) {
             const db: DescriptorDB = descriptorDBs[i];
             for (const e of db.blocks) {
@@ -158,7 +158,7 @@ export class WebDescriptorHierarchy {
         }
     }
 
-    private sort (descriptorDB: DescriptorDB) {
+    public sort (descriptorDB: DescriptorDB) {
         const sortedMap: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>(Array.from(descriptorDB.blocks).sort((a, b) => String(a[0]).localeCompare(b[0])));
         descriptorDB.blocks.clear();
         for (const e of sortedMap) {
@@ -413,7 +413,7 @@ export class WebDescriptorHierarchy {
         }
     }
 
-    private _layoutGraph: LayoutGraph;
+    public _layoutGraph: LayoutGraph;
 
     public get layoutGraph () {
         return this._layoutGraph;
