@@ -96,6 +96,7 @@ SE_DECLARE_FUNC(js_2d_Batcher2d_handleColor);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleStaticDrawInfo);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
+SE_DECLARE_FUNC(js_2d_Batcher2d_releaseDescriptorSetCache);
 SE_DECLARE_FUNC(js_2d_Batcher2d_reset);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_update);

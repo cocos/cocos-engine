@@ -140,6 +140,7 @@ export class NativeBatcher2d {
     reset () { }
 
     addRootNode (node: Node) { }
+    releaseDescriptorSetCache (texture: Texture) { }
 }
 
 export class NativeUIModelProxy {

@@ -741,6 +741,13 @@ export class Batcher2D implements IBatcher {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
     }
 
+    // JSB
+    private _releaseDescriptorSetCacheNative (texture: Texture) {
+        if (JSB) {
+            this._nativeObj.releaseDescriptorSetCache(texture);
+        }
+    }
+
     //sync mesh buffer to naive
     public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
         if (JSB) {

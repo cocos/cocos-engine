@@ -2218,6 +2218,26 @@ static bool js_2d_Batcher2d_initialize(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_2d_Batcher2d_initialize)
 
+static bool js_2d_Batcher2d_releaseDescriptorSetCache(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_releaseDescriptorSetCache : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Texture*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_releaseDescriptorSetCache : Error processing arguments");
+        cobj->releaseDescriptorSetCache(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_Batcher2d_releaseDescriptorSetCache)
+
 static bool js_2d_Batcher2d_reset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
@@ -2337,6 +2357,7 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineFunction("handleDynamicDrawInfo", _SE(js_2d_Batcher2d_handleDynamicDrawInfo));
     cls->defineFunction("handleStaticDrawInfo", _SE(js_2d_Batcher2d_handleStaticDrawInfo));
     cls->defineFunction("initialize", _SE(js_2d_Batcher2d_initialize));
+    cls->defineFunction("releaseDescriptorSetCache", _SE(js_2d_Batcher2d_releaseDescriptorSetCache));
     cls->defineFunction("reset", _SE(js_2d_Batcher2d_reset));
     cls->defineFunction("syncMeshBuffersToNative", _SE(js_2d_Batcher2d_syncMeshBuffersToNative));
     cls->defineFunction("update", _SE(js_2d_Batcher2d_update));
