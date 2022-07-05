@@ -50,9 +50,15 @@
 
     #include <android/log.h>
 
-    #define LOG_TAG      "jswrapper"
-    #define SE_LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-    #define SE_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+    #define LOG_TAG "jswrapper"
+    #if CC_REMOTE_LOG
+        #include "cocos/base/Log.h"
+        #define SE_LOGD(...) CC_LOG_DEBUG(__VA_ARGS__)
+        #define SE_LOGE(...) CC_LOG_ERROR(__VA_ARGS__)
+    #else
+        #define SE_LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+        #define SE_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+    #endif
 #elif __OHOS__
     #if 1
         #include "cocos/base/Log.h"
@@ -80,18 +86,22 @@ void seLogE(const char *format, ...);
     #define SE_LOGE(fmt, ...) seLogE("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 
 #else
-
-    #define SE_LOGD(...)                  \
-        do {                              \
-            fprintf(stdout, __VA_ARGS__); \
-            fflush(stdout);               \
-        } while (false)
-    #define SE_LOGE(...)                  \
-        do {                              \
-            fprintf(stderr, __VA_ARGS__); \
-            fflush(stderr);               \
-        } while (false)
-
+    #if CC_REMOTE_LOG
+        #include "cocos/base/Log.h"
+        #define SE_LOGD(...) CC_LOG_DEBUG(__VA_ARGS__)
+        #define SE_LOGE(...) CC_LOG_ERROR(__VA_ARGS__)
+    #else
+        #define SE_LOGD(...)                  \
+            do {                              \
+                fprintf(stdout, __VA_ARGS__); \
+                fflush(stdout);               \
+            } while (false)
+        #define SE_LOGE(...)                  \
+            do {                              \
+                fprintf(stderr, __VA_ARGS__); \
+                fflush(stderr);               \
+            } while (false)
+    #endif
 #endif
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))

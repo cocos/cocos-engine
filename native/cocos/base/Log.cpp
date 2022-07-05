@@ -110,7 +110,7 @@ public:
         std::strftime(dateString, sizeof(dateString), "%c", std::localtime(&now));
         std::stringstream ss;
         ss << _testID << std::endl
-           << getDeviceID() << std::endl
+           << _clientID << std::endl
            << _bootID << std::endl
            << dateString << std::endl
            << msg
@@ -170,11 +170,12 @@ private:
             _status = UdpLogClientState::DONE;
             return;
         }
-        if (doc.HasMember("testID")) {
-            _testID = doc["testID"].GetString();
+        if (doc.HasMember("planId")) {
+            _testID = doc["planId"].GetString();
         } else {
             _testID = doc["flagId"].GetString();
         }
+        _clientID = doc["flagId"].GetString();
         rapidjson::Value &cfg = doc["ServerConfig"];
         std::string remoteIp = cfg["IP"].GetString();
         int remotePort = cfg["PORT"].GetInt() + 1;
@@ -185,26 +186,6 @@ private:
                       .count();
 
         _status = UdpLogClientState::CONFIGURED;
-    }
-
-    static const char *getDeviceID() {
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        return "Windows";
-    #elif CC_PLATFORM == CC_PLATFORM_ANDROID
-        return "Android";
-    #elif CC_PLATFORM == CC_PLATFORM_MACOS
-        return "MacOS";
-    #elif CC_PLATFORM == CC_PLATFORM_IOS
-        return "iOS";
-    #elif CC_PLATFORM == CC_PLATFORM_LINUX
-        return "Linux";
-    #elif CC_PLATFORM == CC_PLATFORM_QNX
-        return "QNX";
-    #elif CC_PLATFORM == CC_PLATFORM_NX
-        return "NX";
-    #else
-        return "Unknown platform";
-    #endif
     }
 
     void setServerAddr(const char *addr, int port) {
@@ -222,7 +203,7 @@ private:
     #endif
     }
 
-    void initSocket() {
+    void ensureInitSocket() {
         if (_status == UdpLogClientState::INITIALIZED) {
             tryParseConfig();
         }
@@ -272,7 +253,7 @@ private:
     }
 
     void sendLog(const std::string_view &msg) {
-        initSocket();
+        ensureInitSocket();
         if (_status == UdpLogClientState::OK) {
             send(_sock, msg.data(), msg.size(), 0);
         }
@@ -287,6 +268,7 @@ private:
     sockaddr_in _localAddr;
     UdpLogClientState _status{UdpLogClientState::UNINITIALIZED};
     std::string _testID;
+    std::string _clientID;
     uint64_t _bootID{0};
 };
 
