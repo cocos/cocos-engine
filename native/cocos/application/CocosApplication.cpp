@@ -35,7 +35,7 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
-
+#include "cocos/platform/UniversalPlatform.h"
 namespace cc {
 
 CocosApplication::CocosApplication() {
@@ -105,7 +105,7 @@ void CocosApplication::restart() {
 }
 
 void CocosApplication::close() {
-    _engine->close();
+    reinterpret_cast<UniversalPlatform*>(BasePlatform::getPlatform())->quit();
 }
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
@@ -121,7 +121,7 @@ void CocosApplication::onResume() {
 }
 
 void CocosApplication::onClose() {
-    close();
+    _engine->close();
 }
 
 void CocosApplication::setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {

@@ -49,12 +49,14 @@ public:
      * @brief Implement the main logic of the base platform.
      */
     int32_t loop() override;
+    void quit() override;
     void setFps(int32_t fps) override;
     int32_t getFps() const override;
-
     void onPause() override;
     void onResume() override;
     void onClose() override;
+private:
+    void* _delegate {nullptr};
 };
 
 } // namespace cc

@@ -66,6 +66,10 @@
 #endif
 #include "profiler/Profiler.h"
 
+#if CC_PLATFORM == CC_PLATFORM_MACOS
+#include "platform/mac/MacPlatform.h"
+#endif
+
 namespace {
 
 bool setCanvasCallback(se::Object * /*global*/) {
@@ -225,8 +229,7 @@ void Engine::close() { // NOLINT
     cc::EventDispatcher::dispatchCloseEvent();
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
 
-    // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
-    reinterpret_cast<UniversalPlatform*>(BasePlatform::getPlatform())->onClose();
+
 }
 
 uint Engine::getTotalFrames() const {
