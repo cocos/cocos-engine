@@ -152,9 +152,9 @@ private:
         uint32_t offset = 0;
         for (int i = 0; i < size; i += stride) {
             offset = i + 5;
-            vbBuffer[offset++] = temp.r / 255;
-            vbBuffer[offset++] = temp.g / 255;
-            vbBuffer[offset++] = temp.b / 255;
+            vbBuffer[offset++] = temp.r / 255.0f;
+            vbBuffer[offset++] = temp.g / 255.0f;
+            vbBuffer[offset++] = temp.b / 255.0f;
             vbBuffer[offset++] = entity->getOpacity();
         }
     }

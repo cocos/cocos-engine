@@ -51,7 +51,8 @@ Batcher2d::~Batcher2d() {
     _descriptorSetCache.clear();
 }
 
-void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {    _meshBuffersMap[accId] = std::move(buffers);
+void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
+    _meshBuffersMap[accId] = std::move(buffers);
 }
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) {
@@ -99,8 +100,8 @@ void Batcher2d::walk(Node* node) {
                 }
             } else if (entityType == RenderEntityType::DYNAMIC) {
                 ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (uint32_t i = 0; i < drawInfos.size(); i++) {
-                    handleDynamicDrawInfo(entity, drawInfos[i], curNode);
+                for (auto* drawInfo : drawInfos) {
+                    handleDynamicDrawInfo(entity, drawInfo, curNode);
                 }
             }
         }
@@ -195,9 +196,8 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         model->updateUBOs(stamp);
 
         auto subModelList = model->getSubModels();
-        for (size_t i = 0; i < subModelList.size(); i++) {
+        for (auto submodel : subModelList) {
             auto* curdrawBatch = _drawBatchPool.alloc();
-            auto submodel = subModelList[i];
             curdrawBatch->setVisFlags(entity->getNode()->getLayer());
             curdrawBatch->setModel(model);
             curdrawBatch->setInputAssembler(submodel->getInputAssembler());
@@ -408,7 +408,7 @@ void Batcher2d::reset() {
             }
         }
     }
-    //meshbuffer cannot clear because it is not tranported at every frame.
+    //meshbuffer cannot clear because it is not transported at every frame.
 
     _currMeshBuffer = nullptr;
     _indexStart = 0;

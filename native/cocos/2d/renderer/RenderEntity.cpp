@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "2d/renderer/Batcher2d.h"
 #include "2d/renderer/RenderEntity.h"
+#include "2d/renderer/Batcher2d.h"
 
 namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(nullptr) {
@@ -33,8 +33,8 @@ RenderEntity::RenderEntity() : RenderEntity(nullptr) {
 RenderEntity::RenderEntity(Batcher2d* batcher) {
     _batcher = batcher;
 
-    for (uint32_t i = 0; i < RenderEntity::STATIC_DRAW_INFO_CAPACITY; i++) {
-        _staticDrawInfos[i].setBatcher(_batcher);
+    for (auto& drawInfo : _staticDrawInfos) {
+        drawInfo.setBatcher(_batcher);
     }
 
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_entityAttrLayout, sizeof(EntityAttrLayout), [](void* a, size_t b, void* c) {});
@@ -80,7 +80,7 @@ void RenderEntity::setRenderEntityType(uint32_t type) {
 }
 
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {
-    if (index < 0 || index >= _dynamicDrawInfos.size()) {
+    if (index >= _dynamicDrawInfos.size()) {
         return nullptr;
     }
     return _dynamicDrawInfos[index];
