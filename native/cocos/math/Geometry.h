@@ -39,7 +39,7 @@ public:
     float height{0.F};
 
     /**Conversion from Vec2 to Size.*/
-    operator Vec2() const {
+    operator Vec2() const { // NOLINT
         return Vec2(width, height);
     }
 
