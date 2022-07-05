@@ -793,6 +793,18 @@ static bool js_scene_Node_getForward(se::State &s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_scene_Node_getForward)
 
+static bool js_scene_Node_inverseTransformPoint(void* nativeObject) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = reinterpret_cast<cc::Node *>(nativeObject);
+    cc::Vec3 p{ tempFloatArray[0], tempFloatArray[1], tempFloatArray[2] };
+    p = cobj->inverseTransformPoint(p);
+    tempFloatArray[0] = p.x;
+    tempFloatArray[1] = p.y;
+    tempFloatArray[2] = p.z;
+    return true;
+}
+SE_BIND_FUNC_FAST(js_scene_Node_inverseTransformPoint)
+
 static bool js_scene_Pass_blocks_getter(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_registerListeners : Invalid Native Object");
@@ -1073,6 +1085,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_Node_proto->defineFunction("setScale", _SE(js_scene_Node_setScale));
     __jsb_cc_Node_proto->defineFunction("rotateForJS", _SE(js_scene_Node_rotateForJS));
     __jsb_cc_Node_proto->defineFunction("setRTS", _SE(js_scene_Node_setRTS));
+    __jsb_cc_Node_proto->defineFunction("_inverseTransformPoint", _SE(js_scene_Node_inverseTransformPoint));
 
     __jsb_cc_scene_Pass_proto->defineProperty("blocks", _SE(js_scene_Pass_blocks_getter), nullptr);
 
