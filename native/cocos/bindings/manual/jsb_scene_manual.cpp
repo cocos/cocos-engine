@@ -39,7 +39,6 @@
     #define JSB_FREE(ptr) delete ptr
 #endif
 
-
 namespace {
 
 class TempFloatArray final {
@@ -47,9 +46,9 @@ public:
     TempFloatArray() = default;
     ~TempFloatArray() = default;
 
-    inline void setData(float* data) { _data = data; }
+    inline void setData(float *data) { _data = data; }
 
-    inline void writeVec3(const cc::Vec3& p) {
+    inline void writeVec3(const cc::Vec3 &p) {
         _data[0] = p.x;
         _data[1] = p.y;
         _data[2] = p.z;
@@ -59,7 +58,7 @@ public:
         return cc::Vec3{_data[0], _data[1], _data[2]};
     }
 
-    inline void writeQuaternion(const cc::Quaternion& p) {
+    inline void writeQuaternion(const cc::Quaternion &p) {
         _data[0] = p.x;
         _data[1] = p.y;
         _data[2] = p.z;
@@ -70,7 +69,7 @@ public:
         return cc::Quaternion{_data[0], _data[1], _data[2], _data[3]};
     }
 
-    inline void writeMat4(const cc::Mat4& m) {
+    inline void writeMat4(const cc::Mat4 &m) {
         memcpy(_data, m.m, sizeof(float) * 16);
     }
 
@@ -80,7 +79,7 @@ public:
         return ret;
     }
 
-    inline void writeRay(const cc::geometry::Ray& ray) {
+    inline void writeRay(const cc::geometry::Ray &ray) {
         _data[0] = ray.o.x;
         _data[1] = ray.o.y;
         _data[2] = ray.o.z;
@@ -93,8 +92,8 @@ public:
         return cc::geometry::Ray{_data[0], _data[1], _data[2], _data[3], _data[4], _data[5]};
     }
 
-    inline const float& operator[](size_t index) const { return _data[index]; }
-    inline float& operator[](size_t index) { return _data[index]; }
+    inline const float &operator[](size_t index) const { return _data[index]; }
+    inline float &operator[](size_t index) { return _data[index]; }
 
 private:
     float *_data{nullptr};
@@ -104,7 +103,7 @@ private:
 
 TempFloatArray tempFloatArray;
 
-}
+} // namespace
 
 static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -477,23 +476,23 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Node_setTempFloatArray)
 
-#define FAST_GET_VALUE(ns, className, method, type) \
-static bool js_scene_##className##_##method(void *nativeObject) { \
-    auto *cobj = reinterpret_cast< ns::className *>(nativeObject); \
-    auto result = cobj->method(); \
-    tempFloatArray.write##type(result); \
-    return true; \
-} \
-SE_BIND_FUNC_FAST(js_scene_##className##_##method)
+#define FAST_GET_VALUE(ns, className, method, type)                   \
+    static bool js_scene_##className##_##method(void *nativeObject) { \
+        auto *cobj = reinterpret_cast<ns::className *>(nativeObject); \
+        auto result = cobj->method();                                 \
+        tempFloatArray.write##type(result);                           \
+        return true;                                                  \
+    }                                                                 \
+    SE_BIND_FUNC_FAST(js_scene_##className##_##method)
 
-#define FAST_GET_CONST_REF(ns, className, method, type) \
-static bool js_scene_##className##_##method(void *nativeObject) { \
-    auto *cobj = reinterpret_cast< ns::className *>(nativeObject); \
-    const auto& result = cobj->method(); \
-    tempFloatArray.write##type(result); \
-    return true; \
-} \
-SE_BIND_FUNC_FAST(js_scene_##className##_##method)
+#define FAST_GET_CONST_REF(ns, className, method, type)               \
+    static bool js_scene_##className##_##method(void *nativeObject) { \
+        auto *cobj = reinterpret_cast<ns::className *>(nativeObject); \
+        const auto &result = cobj->method();                          \
+        tempFloatArray.write##type(result);                           \
+        return true;                                                  \
+    }                                                                 \
+    SE_BIND_FUNC_FAST(js_scene_##className##_##method)
 
 FAST_GET_VALUE(cc, Node, getRight, Vec3)
 FAST_GET_VALUE(cc, Node, getForward, Vec3)
@@ -598,7 +597,7 @@ static bool js_scene_Node_rotateForJS(void *s) // NOLINT(readability-identifier-
 }
 SE_BIND_FUNC_FAST(js_scene_Node_rotateForJS)
 
-static bool js_scene_Node_inverseTransformPoint(void* nativeObject) // NOLINT(readability-identifier-naming)
+static bool js_scene_Node_inverseTransformPoint(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::Node *>(nativeObject);
     auto p = cobj->inverseTransformPoint(tempFloatArray.readVec3());
@@ -793,8 +792,6 @@ static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT
 }
 SE_BIND_FUNC(js_assets_MaterialInstance_registerListeners) // NOLINT(readability-identifier-naming)
 
-
-
 bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier-naming)
 {
     // Get the ns
@@ -817,7 +814,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_scene_Camera_proto->defineFunction("getMatProjInv", _SE(js_scene_Camera_getMatProjInv));
     __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProj", _SE(js_scene_Camera_getMatViewProj));
     __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProjInv", _SE(js_scene_Camera_getMatViewProjInv));
-
 
     // Node TS wrapper will invoke this function to let native object listen some events.
     __jsb_cc_Node_proto->defineFunction("_registerListeners", _SE(js_scene_Node_registerListeners));
