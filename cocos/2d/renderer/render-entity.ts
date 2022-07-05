@@ -7,7 +7,6 @@ import { RenderDrawInfo } from './render-draw-info';
 import { color, Color, Material, Node } from '../../core';
 import { EmitLocation } from '../../particle/enum';
 import { Stage } from './stencil-manager';
-import { Graphics, Mask } from '../components';
 
 export enum RenderEntityType {
     STATIC,
@@ -162,10 +161,10 @@ export class RenderEntity {
             this.setNode(comp.node);
             this.enabled = comp.enabled;
 
-            // little hack conditions, to be optimized
-            if (comp instanceof Graphics) {
-                this.setCommitModelMaterial(comp.getMaterialInstance(0));
-            }
+            // circular reference
+            // if (comp instanceof Graphics) {
+            //     this.setCommitModelMaterial(comp.getMaterialInstance(0));
+            // }
         }
     }
 
