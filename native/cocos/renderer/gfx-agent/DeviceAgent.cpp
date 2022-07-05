@@ -298,8 +298,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         totalSize += boost::alignment::align_up(size, alignment) * region.texSubres.layerCount;
     }
 
-    auto *memory = CC_MALLOC_ALIGN(sizeof(ThreadSafeLinearAllocator), alignof(ThreadSafeLinearAllocator));
-    auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize, alignment);
+    auto *allocator = ccnew ThreadSafeLinearAllocator(totalSize, alignment);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
