@@ -159,7 +159,7 @@ export class EventHandler {
         if (!legacyCC.isValid(target)) { return; }
 
         this._genCompIdIfNeeded();
-        const compType = legacyCC.js._getClassById(this._componentId);
+        const compType = legacyCC.js.getClassById(this._componentId);
 
         const comp = target!.getComponent(compType);
         if (!legacyCC.isValid(comp)) { return; }
@@ -177,11 +177,11 @@ export class EventHandler {
 
     private _compName2Id (compName) {
         const comp = legacyCC.js.getClassByName(compName);
-        return legacyCC.js._getClassId(comp);
+        return legacyCC.js.getClassId(comp);
     }
 
     private _compId2Name (compId) {
-        const comp = legacyCC.js._getClassById(compId);
+        const comp = legacyCC.js.getClassById(compId);
         return legacyCC.js.getClassName(comp);
     }
 

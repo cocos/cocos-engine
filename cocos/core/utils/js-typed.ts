@@ -556,7 +556,7 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: Record<string | number, any>) {
+function setup (tag: string, table: Record<string | number, any>, allowExist: boolean) {
     return function (id: string, constructor: Constructor) {
         // deregister old
         // eslint-disable-next-line no-prototype-builtins
@@ -567,7 +567,7 @@ function setup (tag: string, table: Record<string | number, any>) {
         // register class
         if (id) {
             const registered = table[id];
-            if (registered && registered !== constructor) {
+            if (!allowExist && registered && registered !== constructor) {
                 let err = `A Class already exists with the same ${tag} : "${id}".`;
                 if (TEST) {
                     // eslint-disable-next-line no-multi-str
@@ -596,9 +596,9 @@ js.unregisterClass to remove the id of unused class';
  * @param constructor
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const _setClassId = setup('__cid__', _idToClass);
+export const _setClassId = setup('__cid__', _idToClass, false);
 
-const doSetClassName = setup('__classname__', _nameToClass);
+const doSetClassName = setup('__classname__', _nameToClass, true);
 
 /**
  * @en
@@ -629,8 +629,8 @@ export function setClassName (className: string, constructor: Constructor) {
  * @zh 为类设置别名。
  * 当 `setClassAlias(target, alias)` 后，
  * `alias` 将作为类 `target`的“单向 ID” 和“单向名称”。
- * 因此，`_getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
- * 这种映射是单向的，意味着 `getClassName(target)` 和 `_getClassId(target)` 将不会是 `alias`。
+ * 因此，`getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
+ * 这种映射是单向的，意味着 `getClassName(target)` 和 `getClassId(target)` 将不会是 `alias`。
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
  */
@@ -703,6 +703,18 @@ export function unregisterClass (...constructors: Function[]) {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function _getClassById (classId) {
+    return getClassById(classId);
+}
+
+/**
+ * @en
+ * Get the registered class by id
+ * @zh
+ * 通过 id 获取已注册的类型
+ * @param classId
+ * @return constructor
+ */
+export function getClassById (classId) {
     return _idToClass[classId];
 }
 
@@ -729,6 +741,19 @@ export function getClassByName (classname) {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function _getClassId (obj, allowTempId?: boolean) {
+    return getClassId(obj, allowTempId);
+}
+
+/**
+ * @en
+ * Get class id of the object
+ * @zh
+ * 获取对象的 class id
+ * @param obj - instance or constructor
+ * @param [allowTempId = true]   - can return temp id in editor
+ * @return
+ */
+export function getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;

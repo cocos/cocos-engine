@@ -551,12 +551,12 @@ test('__cid__', function () {
     var Labrador = Dog.extend({
     });
 
-    ok(cc.js._getClassId(Dog).length > 0, "Dog's cid is not empty");
-    ok(cc.js._getClassId(Husky).length > 0, "Husky's cid is not empty");
-    ok(cc.js._getClassId(Labrador).length > 0, "Labrador's cid is not empty");
-    notEqual(cc.js._getClassId(Dog), cc.js._getClassId(Husky), "Dog and Husky don't have the same cid");
-    notEqual(cc.js._getClassId(Dog), cc.js._getClassId(Labrador), "Dog and Labrador don't have the same cid");
-    notEqual(cc.js._getClassId(Labrador), cc.js._getClassId(Husky), "Labrador and Husky don't have the same cid");
+    ok(cc.js.getClassId(Dog).length > 0, "Dog's cid is not empty");
+    ok(cc.js.getClassId(Husky).length > 0, "Husky's cid is not empty");
+    ok(cc.js.getClassId(Labrador).length > 0, "Labrador's cid is not empty");
+    notEqual(cc.js.getClassId(Dog), cc.js.getClassId(Husky), "Dog and Husky don't have the same cid");
+    notEqual(cc.js.getClassId(Dog), cc.js.getClassId(Labrador), "Dog and Labrador don't have the same cid");
+    notEqual(cc.js.getClassId(Labrador), cc.js.getClassId(Husky), "Labrador and Husky don't have the same cid");
 
     cc.js.unregisterClass(Dog, Husky, Labrador);
 });
