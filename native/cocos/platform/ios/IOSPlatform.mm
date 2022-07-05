@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "platform/ios/IOSPlatform.h"
+#include "bindings/event/EventDispatcher.h"
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 
@@ -121,6 +122,7 @@ int32_t IOSPlatform::run(int argc, const char **argv) {
 
 void IOSPlatform::quit() {
     // Force quit as there's no API to exit UIApplication
+    cc::EventDispatcher::dispatchCloseEvent();
     exit(0);
 }
 
