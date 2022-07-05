@@ -59,7 +59,7 @@ export class MacPackTool extends MacOSPackTool {
     private macOpen(app: string) {
         return new Promise<void>((resolve, reject) => {
             console.log(`open ${app}`);
-            const cp = spawn(`open`, [app], {
+            const cp = spawn(`open`, [`"${app}"`], {
                 shell: true,
                 env: process.env,
             });
