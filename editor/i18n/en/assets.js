@@ -270,7 +270,7 @@ module.exports = {
                     'toggling this would update the corresponding prefab, so all the references in the scene should be <br>' +
                     'updated as well to accompany that. To be removed in further refactors.',
             },
-            allowDataAccess: {
+            allowMeshDataAccess: {
                 name: 'Allow Data Access',
                 title:
                     'Indicate whether the mesh data in this model could be read or write.<br>' +

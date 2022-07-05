@@ -224,7 +224,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.allowMeshDataAccessCheckbox.value = panel.getDefault(panel.meta.userData.allowMeshDataAccess, false);
+            panel.$.allowMeshDataAccessCheckbox.value = panel.getDefault(panel.meta.userData.allowMeshDataAccess, true);
 
             panel.updateInvalid(panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
             panel.updateReadonly(panel.$.allowMeshDataAccessCheckbox);
