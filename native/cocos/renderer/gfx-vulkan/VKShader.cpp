@@ -45,10 +45,21 @@ void CCVKShader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader->name = _name;
     _gpuShader->attributes = _attributes;
     for (ShaderStage &stage : _stages) {
-        _gpuShader->gpuStages.push_back({stage.stage, stage.source});
+        _gpuShader->gpuStages.emplace_back(CCVKGPUShaderStage{stage.stage, stage.source});
     }
 
     cmdFuncCCVKCreateShader(CCVKDevice::getInstance(), _gpuShader);
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : _gpuShader->gpuStages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
+
+    for (auto &stage : _stages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
 }
 
 void CCVKShader::doDestroy() {
