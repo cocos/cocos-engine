@@ -152,13 +152,11 @@ export class OHOSPackTool extends NativePackTool {
         const hapFile = this.selectHap(projectDir, outputMode);
 
         if (!fs.existsSync(hapFile)) {
-            console.error(`File ${hapFile} does not exist!`);
-            return false;
+            throw new Error(`[ohos run] File ${hapFile} does not exist!`);
         }
         const hdc = this.hdcPath;
         if (!hdc) {
-            console.error(`Failed to locate hdc`);
-            return false;
+            throw new Error(`[ohos run] Failed to locate hdc!`);
         }
 
         const tmpdir = `/sdcard/${this.randString(32)}`;
