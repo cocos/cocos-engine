@@ -41,7 +41,7 @@
     #include "modules/SystemWindow.h"
 #endif
 #include "modules/Vibrator.h"
-#include <cocos/application/ApplicationManager.h>
+#include "cocos/application/ApplicationManager.h"
 
 namespace {
 /**

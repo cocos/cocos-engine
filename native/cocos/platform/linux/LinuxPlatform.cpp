@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include "platform/SDLHelper.h"
+#include "SDL2/SDL.h"
 
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
@@ -78,7 +79,7 @@ static long getCurrentMillSecond() {
 void LinuxPlatform::quit() {
     // This won't dispatch close event
     //_quit = true;
-    uintptr_t windowHandle = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler();
+    uintptr_t windowHandle = _window->getWindowHandler();
     
     if (windowHandle!= 0) {
         SDL_DestroyWindow(windowHandle);
