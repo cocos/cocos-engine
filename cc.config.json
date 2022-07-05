@@ -408,7 +408,7 @@
         },
         "NOT_PACK_PHYSX_LIBS": {
             "comment": "This is an internal constant to determine whether pack physx libs.",
-            "value": true,
+            "value": false,
             "internal": true
         }
     }
