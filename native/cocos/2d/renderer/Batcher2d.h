@@ -96,7 +96,7 @@ private:
     ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
     gfx::DescriptorSetInfo _dsInfo{};
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
-    ccstd::unordered_map<ccstd::hash_t, ccstd::hash_t> _dsCacheHashByTexture{};
+    ccstd::unordered_map<size_t, ccstd::hash_t> _dsCacheHashByTexture{};
 
 private:
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) {

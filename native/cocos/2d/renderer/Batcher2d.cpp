@@ -311,9 +311,9 @@ void Batcher2d::resetRenderStates() {
 
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
     ccstd::hash_t hash = 2;
-    ccstd::hash_t textureHash = 0;
+    size_t textureHash;
     if (texture != nullptr) {
-        textureHash = texture->getHash();
+        textureHash = boost::hash_value(texture);
         ccstd::hash_combine(hash, textureHash);
     }
     if (sampler != nullptr) {
@@ -335,11 +335,11 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
 
     return ds;
 }
-
+ 
 void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture) {
-    ccstd::hash_t textureHash = 0;
+    size_t textureHash = 0;
     if (texture != nullptr) {
-        textureHash = texture->getHash();
+        textureHash = boost::hash_value(texture);
     }
     auto iter = _dsCacheHashByTexture.find(textureHash);
     if (iter != _dsCacheHashByTexture.end()) {
