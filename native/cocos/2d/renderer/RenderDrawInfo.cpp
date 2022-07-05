@@ -1,15 +1,40 @@
-#include <2d/renderer/Batcher2d.h>
-#include <2d/renderer/RenderDrawInfo.h>
-#include <cocos/base/TypeDef.h>
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
+#include "2d/renderer/Batcher2d.h"
+#include "2d/renderer/RenderDrawInfo.h"
+#include "base/TypeDef.h"
+#include "renderer/gfx-base/GFXDevice.h"
 #include <iostream>
-#include <gfx-base/GFXDevice.h>
 
 namespace cc {
 RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
-    this->_batcher = batcher;
+    _batcher = batcher;
 
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
     _seArrayBufferObject->root();
@@ -18,12 +43,12 @@ RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
 }
 
 RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset) {
-    this->_bufferId = bufferId;
-    this->_vertexOffset = vertexOffset;
-    this->_indexOffset = indexOffset;
-    this->_stride = 0;
-    this->_size = 0;
-    this->_batcher = nullptr;
+    _bufferId = bufferId;
+    _vertexOffset = vertexOffset;
+    _indexOffset = indexOffset;
+    _stride = 0;
+    _size = 0;
+    _batcher = nullptr;
 
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
     _seArrayBufferObject->root();
@@ -44,82 +69,80 @@ void RenderDrawInfo::setAccId(index_t id) {
 }
 
 void RenderDrawInfo::setBufferId(index_t bufferId) {
-    this->_bufferId = bufferId;
-    this->_meshBuffer = _batcher->getMeshBuffer(_accId, _bufferId);
+    _bufferId = bufferId;
+    _meshBuffer = _batcher->getMeshBuffer(_accId, _bufferId);
 }
 
 void RenderDrawInfo::setVertexOffset(uint32_t vertexOffset) {
-    this->_vertexOffset = vertexOffset;
+    _vertexOffset = vertexOffset;
 }
 
 void RenderDrawInfo::setIndexOffset(uint32_t indexOffset) {
-    this->_indexOffset = indexOffset;
+    _indexOffset = indexOffset;
 }
 
 void RenderDrawInfo::setVbBuffer(float_t* vbBuffer) {
-    this->_vbBuffer = vbBuffer;
+    _vbBuffer = vbBuffer;
 }
 
 void RenderDrawInfo::setIbBuffer(uint16_t* ibBuffer) {
-    this->_ibBuffer = ibBuffer;
+    _ibBuffer = ibBuffer;
 }
 
 void RenderDrawInfo::setVDataBuffer(float_t* vDataBuffer) {
-    this->_vDataBuffer = vDataBuffer;
+    _vDataBuffer = vDataBuffer;
 }
 
 void RenderDrawInfo::setIDataBuffer(uint16_t* iDataBuffer) {
-    this->_iDataBuffer = iDataBuffer;
+    _iDataBuffer = iDataBuffer;
 }
 
 void RenderDrawInfo::setVbCount(uint32_t vbCount) {
-    this->_vbCount = vbCount;
+    _vbCount = vbCount;
 }
 
 void RenderDrawInfo::setIbCount(uint32_t ibCount) {
-    this->_ibCount = ibCount;
+    _ibCount = ibCount;
 }
 
 void RenderDrawInfo::setNode(Node* node) {
     _node = node;
-    //node->setUserData(this);
 }
 
 void RenderDrawInfo::setVertDirty(bool val) {
-    this->_vertDirty = val;
-    //_batcher->addVertDirtyRenderer(this);
+    _vertDirty = val;
 }
 
-void RenderDrawInfo::setDataHash(uint32_t dataHash) {
-    this->_dataHash = dataHash;
+void RenderDrawInfo::setDataHash(ccstd::hash_t dataHash) {
+    _dataHash = dataHash;
 }
 
 void RenderDrawInfo::setStencilStage(uint32_t stencilStage) {
-    this->_stencilStage = stencilStage;
+    _stencilStage = stencilStage;
 }
 
 void RenderDrawInfo::setIsMeshBuffer(bool isMeshBuffer) {
-    this->_isMeshBuffer = isMeshBuffer;
+    _isMeshBuffer = isMeshBuffer;
 }
 
 void RenderDrawInfo::setMaterial(Material* material) {
-    this->_material = material;
+    _material = material;
 }
 
 void RenderDrawInfo::setTexture(gfx::Texture* texture) {
-    this->_texture = texture;
+    _texture = texture;
 }
 
 void RenderDrawInfo::setTextureHash(uint32_t textureHash) {
-    this->_textureHash = textureHash;
+    _textureHash = textureHash;
 }
 
 void RenderDrawInfo::setSampler(gfx::Sampler* sampler) {
-    this->_sampler = sampler;
+    _sampler = sampler;
 }
 
 void RenderDrawInfo::setBlendHash(uint32_t blendHash) {
-    this->_blendHash = blendHash;
+    _blendHash = blendHash;
 }
 
 void RenderDrawInfo::setModel(scene::Model* model) {
@@ -127,20 +150,10 @@ void RenderDrawInfo::setModel(scene::Model* model) {
 }
 
 void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type) {
-    this->_stride = stride;
-    this->_size = size;
-    this->_sharedBuffer = buffer;
-    this->_drawType = type;
-}
-
-void RenderDrawInfo::syncSharedBufferToNative(uint32_t* buffer) {
-    //_attrSharedBuffer = buffer;
-    parseAttrLayout();
-}
-
-void RenderDrawInfo::parseAttrLayout() {
-    //_drawInfoAttrLayout = reinterpret_cast<DrawInfoAttrLayout*>(_attrSharedBuffer);
-    //_drawInfoAttrLayout = reinterpret_cast<DrawInfoAttrLayout*>();
+    _stride = stride;
+    _size = size;
+    _sharedBuffer = buffer;
+    _drawType = type;
 }
 
 const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
@@ -152,8 +165,8 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
         _initIAInfo(device);
     }
     auto* ia = _iaPool[_nextFreeIAHandle++]; // 需要 reset
-    ia->setFirstIndex(this->getIndexOffset());
-    ia->setIndexCount(this->getIbCount());
+    ia->setFirstIndex(getIndexOffset());
+    ia->setIndexCount(getIbCount());
     return ia;
 }
 
@@ -202,10 +215,4 @@ gfx::InputAssembler* RenderDrawInfo::_initIAInfo(gfx::Device* device) {
 
     return ia;
 }
-
-//ArrayBuffer::Ptr RenderDrawInfo::getAttrSharedBufferForJS() const {
-//    ArrayBuffer::Ptr buffer = ccnew ArrayBuffer();
-//    buffer->setJSArrayBuffer(_seArrayBufferObject);
-//    return buffer;
-//}
 } // namespace cc

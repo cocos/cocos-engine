@@ -47,7 +47,6 @@ SE_DECLARE_FUNC(js_2d_RenderDrawInfo_requestIA);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_resetMeshIA);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
-SE_DECLARE_FUNC(js_2d_RenderDrawInfo_syncSharedBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_RenderDrawInfo);
 

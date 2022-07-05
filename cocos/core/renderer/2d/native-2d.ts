@@ -133,7 +133,7 @@ export class NativeUIMeshBuffer {
 }
 
 export class NativeBatcher2d {
-    syncMeshBuffersToNative (accId: number, buffers: NativeUIMeshBuffer[], length: number) { }
+    syncMeshBuffersToNative (accId: number, buffers: NativeUIMeshBuffer[]) { }
 
     update () { }
     uploadBuffers () { }

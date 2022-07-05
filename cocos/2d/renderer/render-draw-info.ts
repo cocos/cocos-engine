@@ -91,7 +91,6 @@ export class RenderDrawInfo {
         }
 
         this.initSharedBuffer();
-        this.syncSharedBufferToNative();
     }
 
     public clear () {
@@ -316,12 +315,6 @@ export class RenderDrawInfo {
         if (JSB) {
             //this._sharedBuffer = new Int32Array(RenderDrawInfoSharedBufferView.count);
             this._sharedBuffer = new Int32Array(this._nativeObj.getAttrSharedBufferForJS());
-        }
-    }
-
-    public syncSharedBufferToNative () {
-        if (JSB) {
-            //this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
         }
     }
 }

@@ -1,11 +1,35 @@
-#include <2d/renderer/Batcher2d.h>
-#include <cocos/base/TypeDef.h>
-#include <cocos/core/Root.h>
-#include <renderer/pipeline/Define.h>
-#include <scene/Pass.h>
-#include <deque>
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
+#include "2d/renderer/Batcher2d.h"
 #include <iostream>
 #include "application/ApplicationManager.h"
+#include "base/TypeDef.h"
+#include "core/Root.h"
+#include "renderer/pipeline/Define.h"
+#include "scene/Pass.h"
 
 namespace cc {
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
@@ -20,14 +44,14 @@ Batcher2d::Batcher2d(Root* root) : _drawBatchPool([]() { return ccnew scene::Dra
 Batcher2d::~Batcher2d() {
     _drawBatchPool.destroy();
 
-    for (auto iter = _descriptorSetCache.begin(); iter != _descriptorSetCache.end(); iter++) {
-        iter->second->destroy();
+    for (auto iter : _descriptorSetCache) {
+        iter.second->destroy();
     }
+
     _descriptorSetCache.clear();
 }
 
-void Batcher2d::syncMeshBuffersToNative(uint32_t accId, std::vector<UIMeshBuffer*>&& buffers, uint32_t length) {
-    _meshBuffersMap[accId] = std::move(buffers);
+void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {    _meshBuffersMap[accId] = std::move(buffers);
 }
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) {
@@ -43,30 +67,28 @@ gfx::Device* Batcher2d::getDevice() {
 }
 
 void Batcher2d::updateDescriptorSet() {
-    // for this._descriptorSetCache.update()
 }
 
 void Batcher2d::addRootNode(Node* node) {
     _rootNodeArr.push_back(node);
 }
 
-//对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
-    for (uint32_t i = 0; i < _rootNodeArr.size(); i++) {
-        walk(_rootNodeArr[i]);
+    for (auto* rootNode : _rootNodeArr) {
+        walk(rootNode);
         generateBatch(_currEntity, _currDrawInfo);
     }
     _rootNodeArr.clear();
 }
 
 void Batcher2d::walk(Node* node) {
-    static std::vector<Node*> nodeStack{1000000};
+    static ccstd::vector<Node*> nodeStack{1000000};
     nodeStack[0] = node;
     size_t length = 1;
     while (length > 0) {
         Node* curNode = nodeStack[--length];
         RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
-        if (entity && entity->getEnabled()) {
+        if (entity && entity->isEnabled()) {
             RenderEntityType entityType = entity->getRenderEntityType();
 
             // when filling buffers, we should distinguish commom components and other complex components like middlewares
@@ -97,8 +119,7 @@ void Batcher2d::walk(Node* node) {
 
 void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode) {
     if (drawInfo) {
-        // commit Comp 的 meshBuffer 分支
-        uint32_t dataHash = drawInfo->getDataHash();
+        ccstd::hash_t dataHash = drawInfo->getDataHash();
         if (drawInfo->getIsMeshBuffer()) {
             dataHash = 0;
         }
@@ -124,7 +145,6 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
             _currEntity = entity;
             _currDrawInfo = drawInfo;
 
-            // if(frame)
             _currTexture = drawInfo->getTexture();
             _currTextureHash = drawInfo->getTextureHash();
             _currSampler = drawInfo->getSampler();
@@ -163,14 +183,13 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
                 entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
             }
             gfx::DepthStencilState* depthStencil;
-            uint32_t dssHash = 0;
+            ccstd::hash_t dssHash = 0;
             depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage, commitModelMat);
             dssHash = StencilManager::getInstance()->getStencilHash(entityStage);
         }
 
         auto model = drawInfo->getModel();
         if (model == nullptr) return;
-        // need stamp
         auto stamp = CC_CURRENT_ENGINE()->getTotalFrames();
         model->updateTransform(stamp);
         model->updateUBOs(stamp);
@@ -211,7 +230,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     if (drawInfo->getIsMeshBuffer()) {
         // Todo MeshBuffer RenderData
         ia = drawInfo->requestIA(getDevice());
-        meshRenderDrawInfo.emplace_back(drawInfo);
+        _meshRenderDrawInfo.emplace_back(drawInfo);
     } else {
         UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
 
@@ -232,7 +251,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
 
     // stencilstage
     gfx::DepthStencilState* depthStencil;
-    uint32_t dssHash = 0;
+    ccstd::hash_t dssHash = 0;
     StencilStage entityStage = entity->getEnumStencilStage();
     if (entity->getCustomMaterial() != nullptr) {
         depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage, _currMaterial);
@@ -246,7 +265,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
-    auto& _pass = curdrawBatch->getPasses().at(0);
+    const auto& _pass = curdrawBatch->getPasses().at(0);
 
     curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, _pass->getLocalSetLayout()));
     _batches.push_back(curdrawBatch);
@@ -276,10 +295,10 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
         return iter->second;
     }
     _dsInfo.layout = _dsLayout;
-    auto ds = getDevice()->createDescriptorSet(_dsInfo);
+    auto* ds = getDevice()->createDescriptorSet(_dsInfo);
 
-    ds->bindTexture(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
-    ds->bindSampler(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
+    ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
     ds->update();
 
     _descriptorSetCache.emplace(hash, ds);
@@ -287,65 +306,51 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     return ds;
 }
 
-// update vertex code
-
 bool Batcher2d::initialize() {
     return true;
 }
 
 void Batcher2d::update() {
-    // updateVertDirtyRenderer();
     fillBuffersAndMergeBatches();
     resetRenderStates();
 
     for (const auto scene : Root::getInstance()->getScenes()) {
-        for (const auto batch : _batches) {
+        for (auto* batch : _batches) {
             scene->addBatch(batch);
         }
     }
 }
 
-// void Batcher2d::updateVertDirtyRenderer() {
-//     size_t size = _vertDirtyRenderers.size();
-//     for (uint32_t i = 0; i < size; i++) {
-//         RenderDrawInfo* drawInfo = _vertDirtyRenderers[i];
-//
-//         // @zhakesi if the comp is middleware，it should fill multi times
-//         fillVertexBuffers(drawInfo);
-//     }
-//     _vertDirtyRenderers.clear();
-// }
-
 void Batcher2d::uploadBuffers() {
-    if (_batches.size() > 0) {
-        //_meshDataArray.forEach(),uploadBuffers
-        for (uint32_t i = 0; i < meshRenderDrawInfo.size(); i++) {
-            RenderDrawInfo* meshRenderData = meshRenderDrawInfo[i];
-            meshRenderData->uploadBuffers();
-        }
-
-        for (auto& map : _meshBuffersMap) {
-            for (auto& buffer : map.second) {
-                buffer->uploadBuffers();
-                buffer->reset();
-            }
-        }
-        updateDescriptorSet();
+    if (_batches.empty()) {
+        return;
     }
+
+    for (auto& meshRenderData : _meshRenderDrawInfo) {
+        meshRenderData->uploadBuffers();
+    }
+
+    for (auto& map : _meshBuffersMap) {
+        for (auto& buffer : map.second) {
+            buffer->uploadBuffers();
+            buffer->reset();
+        }
+    }
+
+    updateDescriptorSet();
 }
 
 void Batcher2d::reset() {
-    for (uint32_t i = 0; i < _batches.size(); i++) {
-        scene::DrawBatch2D* batch = _batches[i];
+    for (auto& batch : _batches) {
         batch->clear();
-        this->_drawBatchPool.free(batch);
+        _drawBatchPool.free(batch);
     }
+    _batches.clear();
 
-    for (uint32_t i = 0; i < meshRenderDrawInfo.size(); i++) {
-        RenderDrawInfo* meshRenderData = meshRenderDrawInfo[i];
+    for (auto& meshRenderData : _meshRenderDrawInfo) {
         meshRenderData->resetMeshIA();
     }
-    meshRenderDrawInfo.clear();
+    _meshRenderDrawInfo.clear();
 
     // meshDataArray
     for (auto& map : _meshBuffersMap) {
@@ -355,6 +360,7 @@ void Batcher2d::reset() {
             }
         }
     }
+    //meshbuffer cannot clear because it is not tranported at every frame.
 
     _currMeshBuffer = nullptr;
     _indexStart = 0;
@@ -364,12 +370,6 @@ void Batcher2d::reset() {
     _currTexture = nullptr;
     _currSampler = nullptr;
 
-    _batches.clear();
-
     // stencilManager
 }
-
-// void Batcher2d::addVertDirtyRenderer(RenderDrawInfo* drawInfo) {
-//     _vertDirtyRenderers.push_back(drawInfo);
-// }
 } // namespace cc

@@ -111,7 +111,6 @@ export class RenderEntity {
             this.setRenderEntityType(entityType);
 
             this.initSharedBuffer();
-            //this.syncSharedBufferToNative();
         }
     }
 
@@ -221,10 +220,4 @@ export class RenderEntity {
             this._sharedBuffer = new Float32Array(this._nativeObj.getEntitySharedBufferForJS());
         }
     }
-
-    // public syncSharedBufferToNative () {
-    //     if (JSB) {
-    //         //this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
-    //     }
-    // }
 }

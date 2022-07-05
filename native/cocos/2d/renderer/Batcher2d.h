@@ -1,14 +1,37 @@
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #pragma once
-#include <2d/renderer/UIMeshBuffer.h>
-#include <cocos/2d/renderer/RenderDrawInfo.h>
-#include <cocos/2d/renderer/UIMeshBuffer.h>
-#include <cocos/base/TypeDef.h>
-#include <cocos/core/assets/Material.h>
-#include <cocos/renderer/gfx-base/GFXTexture.h>
-#include <cocos/renderer/gfx-base/states/GFXSampler.h>
-#include <cocos/scene/DrawBatch2D.h>
-#include <unordered_map>
-#include <vector>
+#include "2d/renderer/UIMeshBuffer.h"
+#include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/UIMeshBuffer.h"
+#include "base/TypeDef.h"
+#include "core/assets/Material.h"
+#include "renderer/gfx-base/GFXTexture.h"
+#include "renderer/gfx-base/states/GFXSampler.h"
+#include "scene/DrawBatch2D.h"
 #include "2d/renderer/RenderEntity.h"
 #include "base/Ptr.h"
 
@@ -22,26 +45,19 @@ public:
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
-    void syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers, uint32_t length);
+    void syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
 
     bool initialize();
     void update();
     void uploadBuffers();
     void reset();
-    //void updateVertDirtyRenderer();
 
     void addRootNode(Node* node);
-
-public:
-    //void addVertDirtyRenderer(RenderDrawInfo* drawInfo);
 
     UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
     gfx::Device* getDevice();
 
     void updateDescriptorSet();
-
-public:
-    inline ccstd::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
@@ -55,9 +71,7 @@ private:
     Root* _root{nullptr};
     ccstd::vector<Node*> _rootNodeArr{};
 
-private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
-    //ccstd::vector<RenderDrawInfo*> _vertDirtyRenderers{};
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
     gfx::Device* _device{nullptr}; //use getDevice()
@@ -66,20 +80,18 @@ private:
     RenderDrawInfo* _currDrawInfo{nullptr};
     UIMeshBuffer* _currMeshBuffer{nullptr};
     uint32_t _indexStart{0};
-    uint32_t _currHash{0};
+    ccstd::hash_t _currHash{0};
     uint32_t _currLayer{0};
     StencilStage _currStencilStage{StencilStage::DISABLED}; 
 
     Material* _currMaterial{nullptr};
     gfx::Texture* _currTexture{nullptr};
-    uint32_t _currTextureHash{0};
+    ccstd::hash_t _currTextureHash{0};
     gfx::Sampler* _currSampler{nullptr};
-    uint32_t _currSamplerHash{0};
+    ccstd::hash_t _currSamplerHash{0};
 
-private:
-    ccstd::vector<RenderDrawInfo*> meshRenderDrawInfo{};
+    ccstd::vector<RenderDrawInfo*> _meshRenderDrawInfo{};
 
-private:
     ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
     gfx::DescriptorSetInfo _dsInfo{};
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);

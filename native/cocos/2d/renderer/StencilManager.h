@@ -1,10 +1,35 @@
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #pragma once
-#include <cocos/base/TypeDef.h>
-#include <cocos/core/ArrayBuffer.h>
-#include <cocos/core/assets/Material.h>
-#include <stack>
+#include "base/TypeDef.h"
+#include "core/ArrayBuffer.h"
+#include "core/assets/Material.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/Pass.h"
+#include <stack>
 
 namespace cc {
 enum class StencilStage {
@@ -25,10 +50,7 @@ enum class StencilStage {
 };
 
 struct StencilEntity {
-    //uint32_t depthTest{1};  // @ts-boolean
-    //uint32_t depthWrite{1}; // @ts-boolean
-    //ComparisonFunc depthFunc{ComparisonFunc::LESS};
-    uint32_t stencilTest; // @ts-boolean
+    uint32_t stencilTest;
     gfx::ComparisonFunc func;
     uint32_t stencilMask;
     uint32_t writeMask;
@@ -44,28 +66,25 @@ public:
     StencilManager();
     ~StencilManager();
 
-    //void reset();
-    //void destroy();
-
-    inline StencilStage getStencilStage() { return _stage; }
+    inline StencilStage getStencilStage() const { return _stage; }
 
     gfx::DepthStencilState* getDepthStencilState(StencilStage stage, Material* mat = nullptr);
     void setDepthStencilStateFromStage(StencilStage stage);
 
-    inline uint32_t getWriteMask() {
+    inline uint32_t getWriteMask() const {
         return 1 << (_maskStackSize - 1);
     }
-    inline uint32_t getExitWriteMask() {
+    inline uint32_t getExitWriteMask() const {
         return 1 << _maskStackSize;
     }
-    inline uint32_t getStencilRef() {
+    inline uint32_t getStencilRef() const {
         uint32_t result = 0;
         for (uint32_t i = 0; i < _maskStackSize; i++) {
             result += (0x00000001 << i);
         }
         return result;
     }
-    inline uint32_t getStencilHash(StencilStage stage) {
+    inline uint32_t getStencilHash(StencilStage stage) const {
         return (((uint32_t)stage) << 8) | _maskStackSize;
     }
 
@@ -82,7 +101,7 @@ private:
 
     uint32_t _maskStackSize{0};
 
-    ccstd::unordered_map<uint64_t, gfx::DepthStencilState*> _cacheStateMap{};
-    ccstd::unordered_map<uint64_t, gfx::DepthStencilState*> _cacheStateMapWithDepth{};
+    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMap{};
+    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMapWithDepth{};
 };
 } // namespace cc

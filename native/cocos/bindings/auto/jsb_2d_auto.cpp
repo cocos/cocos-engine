@@ -1213,26 +1213,6 @@ static bool js_2d_RenderDrawInfo_setVertexOffset(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVertexOffset)
 
-static bool js_2d_RenderDrawInfo_syncSharedBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_syncSharedBufferToNative : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_syncSharedBufferToNative : Error processing arguments");
-        cobj->syncSharedBufferToNative(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_2d_RenderDrawInfo_syncSharedBufferToNative)
-
 static bool js_2d_RenderDrawInfo_uploadBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1335,7 +1315,6 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("resetMeshIA", _SE(js_2d_RenderDrawInfo_resetMeshIA));
     cls->defineFunction("setModel", _SE(js_2d_RenderDrawInfo_setModel));
     cls->defineFunction("setRender2dBufferToNative", _SE(js_2d_RenderDrawInfo_setRender2dBufferToNative));
-    cls->defineFunction("syncSharedBufferToNative", _SE(js_2d_RenderDrawInfo_syncSharedBufferToNative));
     cls->defineFunction("uploadBuffers", _SE(js_2d_RenderDrawInfo_uploadBuffers));
     cls->defineFinalizeFunction(_SE(js_cc_RenderDrawInfo_finalize));
     cls->install();
@@ -2242,18 +2221,16 @@ static bool js_2d_Batcher2d_syncMeshBuffersToNative(se::State& s) // NOLINT(read
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
+    if (argc == 2) {
         HolderType<unsigned int, false> arg0 = {};
         HolderType<std::vector<cc::UIMeshBuffer *>, true> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_syncMeshBuffersToNative : Error processing arguments");
-        cobj->syncMeshBuffersToNative(arg0.value(), std::move(arg1.value()), arg2.value());
+        cobj->syncMeshBuffersToNative(arg0.value(), std::move(arg1.value()));
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative)

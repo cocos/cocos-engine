@@ -1,22 +1,47 @@
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #pragma once
-#include <cocos/2d/renderer/UIMeshBuffer.h>
-#include <cocos/base/TypeDef.h>
-#include <cocos/core/ArrayBuffer.h>
-#include <cocos/core/assets/Material.h>
-#include <cocos/core/scene-graph/Node.h>
-#include <cocos/renderer/gfx-base/states/GFXSampler.h>
-#include <math/Color.h>
-#include <math/Vec2.h>
-#include <math/Vec3.h>
-#include <math/Vec4.h>
+#include "2d/renderer/UIMeshBuffer.h"
+#include "base/TypeDef.h"
+#include "core/ArrayBuffer.h"
+#include "core/assets/Material.h"
+#include "core/scene-graph/Node.h"
+#include "renderer/gfx-base/states/GFXSampler.h"
+#include "scene/Model.h"
+#include "math/Color.h"
+#include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Vec4.h"
 #include <vector>
-#include <cocos/scene/Model.h>
 
 namespace cc {
 struct Render2dLayout {
-    cc::Vec3 position;
-    cc::Vec2 uv;
-    cc::Vec4 color;
+    Vec3 position;
+    Vec2 uv;
+    Vec4 color;
 };
 
 struct DrawInfoAttrLayout {
@@ -33,73 +58,62 @@ public:
     
     inline index_t getAccId() const { return _accId; }
     void setAccId(index_t id);
-    inline index_t getBufferId() const { return this->_bufferId; }
+    inline index_t getBufferId() const { return _bufferId; }
     void setBufferId(index_t bufferId);
-    inline uint32_t getVertexOffset() const { return this->_vertexOffset; }
+    inline uint32_t getVertexOffset() const { return _vertexOffset; }
     void setVertexOffset(uint32_t vertexOffset);
-    inline uint32_t getIndexOffset() const { return this->_indexOffset; }
+    inline uint32_t getIndexOffset() const { return _indexOffset; }
     void setIndexOffset(uint32_t indexOffset);
-    inline UIMeshBuffer* getMeshBuffer() const { return this->_meshBuffer; };
-    inline float_t* getVbBuffer() const { return this->_vbBuffer; }
+    inline UIMeshBuffer* getMeshBuffer() const { return _meshBuffer; };
+    inline float_t* getVbBuffer() const { return _vbBuffer; }
     void setVbBuffer(float_t* vbBuffer);
-    inline uint16_t* getIbBuffer() const { return this->_ibBuffer; }
+    inline uint16_t* getIbBuffer() const { return _ibBuffer; }
     void setIbBuffer(uint16_t* ibBuffer);
-    inline float_t* getVDataBuffer() const { return this->_vDataBuffer; }
+    inline float_t* getVDataBuffer() const { return _vDataBuffer; }
     void setVDataBuffer(float_t* vDataBuffer);
-    inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
+    inline uint16_t* getIDataBuffer() const { return _iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
-    inline uint32_t getVbCount() const { return this->_vbCount; }
+    inline uint32_t getVbCount() const { return _vbCount; }
     void setVbCount(uint32_t vbCount);
-    inline uint32_t getIbCount() const { return this->_ibCount; }
+    inline uint32_t getIbCount() const { return _ibCount; }
     void setIbCount(uint32_t ibCount);
-    inline Node* getNode() const { return this->_node; }
+    inline Node* getNode() const { return _node; }
     void setNode(Node* node);
-    inline bool getVertDirty() const { return this->_vertDirty; }
+    inline bool getVertDirty() const { return _vertDirty; }
     void setVertDirty(bool val);
-    inline uint32_t getDataHash() const { return this->_dataHash; }
-    void setDataHash(uint32_t dataHash);
-    inline uint32_t getStencilStage() const { return this->_stencilStage; }
+    inline ccstd::hash_t getDataHash() const { return _dataHash; }
+    void setDataHash(ccstd::hash_t dataHash);
+    inline uint32_t getStencilStage() const { return _stencilStage; }
     void setStencilStage(uint32_t stencilStage);
-    inline bool getIsMeshBuffer() const { return this->_isMeshBuffer; }
+    inline bool getIsMeshBuffer() const { return _isMeshBuffer; }
     void setIsMeshBuffer(bool isMeshBuffer);
-    inline Material* getMaterial() const { return this->_material; }
+    inline Material* getMaterial() const { return _material; }
     void setMaterial(Material* material);
-    inline gfx::Texture* getTexture() const { return this->_texture; }
+    inline gfx::Texture* getTexture() const { return _texture; }
     void setTexture(gfx::Texture* texture);
-    inline uint32_t getTextureHash() const { return this->_textureHash; }
+    inline uint32_t getTextureHash() const { return _textureHash; }
     void setTextureHash(uint32_t textureHash);
-    inline gfx::Sampler* getSampler() const { return this->_sampler; }
+    inline gfx::Sampler* getSampler() const { return _sampler; }
     void setSampler(gfx::Sampler* sampler);
-    inline uint32_t getBlendHash() const { return this->_blendHash; }
+    inline uint32_t getBlendHash() const { return _blendHash; }
     void setBlendHash(uint32_t blendHash);
-    inline scene::Model* getModel() const { return this->_model; }
+    inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type);
-    void syncSharedBufferToNative(uint32_t* buffer);
 
-public:
     inline Batcher2d* getBatcher() const { return _batcher; }
     void setBatcher(Batcher2d* batcher);
-
-    //inline bool getEnabled() const { return _drawInfoAttrLayout.enabledIndex != 0; }
-
-    void parseAttrLayout();
-
-    //ArrayBuffer::Ptr getAttrSharedBufferForJS() const;
-
     const ArrayBuffer& getAttrSharedBufferForJS() const;
 
-public:
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
-        return reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + dataOffset * sizeof(float_t));
+        return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float_t));
     }
 
-    inline uint8_t getStride() { return this->_stride; }
-    inline uint32_t getSize() { return this->_size; }
-    inline uint8_t getDrawType() { return this->_drawType; }
+    inline uint8_t getStride() { return _stride; }
+    inline uint32_t getSize() { return _size; }
+    inline uint8_t getDrawType() { return _drawType; }
 
-public: // for meshRenderData
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
     void resetMeshIA();
@@ -108,11 +122,8 @@ public: // for meshRenderData
 private:
     gfx::InputAssembler* _initIAInfo(gfx::Device* device);
 
+    Batcher2d* _batcher{nullptr};
 
-private:
-    Batcher2d* _batcher;
-
-private:
     uint8_t* _sharedBuffer{nullptr};
     uint8_t _stride{0};
     uint32_t _size{0};
@@ -121,7 +132,6 @@ private:
     se::Object* _seArrayBufferObject{nullptr};
     ArrayBuffer::Ptr _attrSharedBuffer{nullptr};
 
-private:
     index_t _bufferId{0};
     index_t _accId{0};
     uint32_t _vertexOffset{0};
@@ -144,8 +154,7 @@ private:
 
     scene::Model* _model{nullptr};
 
-private: // for merging batches
-    uint32_t _dataHash{0};
+    ccstd::hash_t _dataHash{0};
     uint32_t _stencilStage{0};
     bool _isMeshBuffer{false};
     Material* _material{nullptr};
@@ -155,7 +164,6 @@ private: // for merging batches
 
     uint32_t _blendHash{0};
 
-private: // for meshRenderData
     gfx::InputAssemblerInfo _iaInfo;
     ccstd::vector<gfx::Attribute> _attributes{
         gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
@@ -168,5 +176,4 @@ private: // for meshRenderData
     gfx::Buffer* vbGFXBuffer{nullptr};
     gfx::Buffer* ibGFXBuffer{nullptr};
 };
-
 } // namespace cc

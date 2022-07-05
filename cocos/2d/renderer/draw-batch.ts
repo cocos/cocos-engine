@@ -44,9 +44,6 @@ export class DrawBatch2D {
 
     public set inputAssembler (ia: InputAssembler | null) {
         this._inputAssembler = ia;
-        if (JSB) {
-            //this._nativeObj.inputAssembler = ia;
-        }
     }
 
     public get descriptorSet () {
@@ -55,9 +52,6 @@ export class DrawBatch2D {
 
     public set descriptorSet (ds: DescriptorSet | null) {
         this._descriptorSet = ds;
-        if (JSB) {
-            //this._nativeObj.descriptorSet = ds;
-        }
     }
 
     public get visFlags () {
@@ -65,14 +59,7 @@ export class DrawBatch2D {
     }
     public set visFlags (vis) {
         this._visFlags = vis;
-        if (JSB) {
-            //this._nativeObj.visFlags = vis;
-        }
     }
-
-    // public get native () {
-    //     return this._nativeObj;
-    // }
 
     get passes () {
         return this._passes;
@@ -99,19 +86,8 @@ export class DrawBatch2D {
     private _descriptorSet: DescriptorSet | null = null;
     //private declare _nativeObj: any;
 
-    constructor () {
-        if (JSB) {
-            //// @ts-expect-error jsb related codes
-            // this._nativeObj = new jsb.DrawBatch2D(); // use less
-            // this._nativeObj.visFlags = this._visFlags;
-        }
-    }
-
     public destroy (ui: IBatcher) {
         this._passes = [];
-        if (JSB) {
-            //this._nativeObj = null;
-        }
     }
 
     public clear () {
@@ -170,13 +146,6 @@ export class DrawBatch2D {
                 this._shaders[i] = passInUse.getShaderVariant(patches)!;
 
                 dirty = true;
-            }
-
-            if (JSB) {
-                if (dirty) {
-                    //this._nativeObj.passes = this._passes;
-                    //this._nativeObj.shaders = this._shaders;
-                }
             }
         }
     }
