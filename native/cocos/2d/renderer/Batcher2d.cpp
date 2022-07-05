@@ -127,7 +127,7 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
         entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
         StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
 
-        if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currTexture != drawInfo->getTexture() || _currStencilStage != tempStage) {
+        if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currStencilStage != tempStage) {
             // Generate a batch if not batching
             generateBatch(_currEntity, _currDrawInfo);
             if (!drawInfo->getIsMeshBuffer()) {
@@ -207,6 +207,33 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
             curdrawBatch->fillPass(drawInfo->getMaterial(), nullptr, 0, nullptr, 0, &(submodel->getPatches()));
             _batches.push_back(curdrawBatch);
         }
+    } else {
+        generateBatch(_currEntity, _currDrawInfo);
+        uint32_t dataHash = drawInfo->getDataHash();
+        entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
+        StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
+        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
+        if (_currMeshBuffer != buffer) {
+            _currMeshBuffer = buffer;
+            _indexStart = _currMeshBuffer->getIndexOffset();
+        }
+        _currHash = dataHash;
+        _currMaterial = drawInfo->getMaterial();
+        _currStencilStage = tempStage;
+        _currLayer = entity->getNode()->getLayer();
+        _currEntity = entity;
+        _currDrawInfo = drawInfo;
+
+        // if(frame)
+        _currTexture = drawInfo->getTexture();
+        _currTextureHash = drawInfo->getTextureHash();
+        _currSampler = drawInfo->getSampler();
+        _currSamplerHash = _currSampler->getHash();
+
+        if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
+            drawInfo->setVertDirty(false);
+        }
+        setIndexRange(drawInfo);
     }
 }
 
@@ -284,8 +311,10 @@ void Batcher2d::resetRenderStates() {
 
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
     ccstd::hash_t hash = 2;
+    ccstd::hash_t textureHash = 0;
     if (texture != nullptr) {
-        ccstd::hash_combine(hash, texture->getHash());
+        textureHash = texture->getHash();
+        ccstd::hash_combine(hash, textureHash);
     }
     if (sampler != nullptr) {
         ccstd::hash_combine(hash, sampler->getHash());
@@ -302,8 +331,27 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     ds->update();
 
     _descriptorSetCache.emplace(hash, ds);
+    _dsCacheHashByTexture.emplace(textureHash, hash);
 
     return ds;
+}
+
+void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture) {
+    ccstd::hash_t textureHash = 0;
+    if (texture != nullptr) {
+        textureHash = texture->getHash();
+    }
+    auto iter = _dsCacheHashByTexture.find(textureHash);
+    if (iter != _dsCacheHashByTexture.end()) {
+        ccstd::hash_t hash = iter->second;
+        auto ds = _descriptorSetCache.find(hash);
+        if (ds != _descriptorSetCache.end()) {
+            auto dsObj = ds->second;
+            dsObj->destroy();
+            _descriptorSetCache.erase(hash);
+        }
+        _dsCacheHashByTexture.erase(textureHash);
+    }
 }
 
 bool Batcher2d::initialize() {

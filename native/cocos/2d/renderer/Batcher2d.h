@@ -53,6 +53,7 @@ public:
     void reset();
 
     void addRootNode(Node* node);
+    void releaseDescriptorSetCache(gfx::Texture* texture);
 
     UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
     gfx::Device* getDevice();
@@ -95,6 +96,7 @@ private:
     ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
     gfx::DescriptorSetInfo _dsInfo{};
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
+    ccstd::unordered_map<ccstd::hash_t, ccstd::hash_t> _dsCacheHashByTexture{};
 
 private:
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) {
