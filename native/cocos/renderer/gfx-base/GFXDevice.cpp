@@ -62,9 +62,9 @@ bool Device::initialize(const DeviceInfo &info) {
 #endif
 
     bool result = doInit(info);
-    _cmdBuff->addRef();
-    _queue->addRef();
 
+    CC_SAFE_ADD_REF(_cmdBuff);
+    CC_SAFE_ADD_REF(_queue);
     return result;
 }
 
