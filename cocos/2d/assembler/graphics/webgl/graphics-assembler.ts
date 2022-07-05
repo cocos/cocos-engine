@@ -78,7 +78,7 @@ export const graphicsAssembler: IAssembler = {
 
     updateRenderData (graphics: Graphics) {
         if (JSB) {
-            graphics.updateRenderData();
+            graphics.updateRenderer();
         }
     },
 

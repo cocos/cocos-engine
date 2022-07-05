@@ -692,7 +692,7 @@ export class Batcher2D implements IBatcher {
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
             //render.updateAssembler(this);
-            render.updateRenderData();// for collecting data
+            render.updateRenderer();// for collecting data
             if (!JSB) {
                 render.fillBuffers(this);// for rendering
             }

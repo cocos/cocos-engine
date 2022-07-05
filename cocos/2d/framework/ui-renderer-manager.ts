@@ -5,6 +5,7 @@ import { UIRenderer } from './ui-renderer';
 export class UIRendererManager {
     private _allRenderers: UIRenderer[] = [];
     private _dirtyRenderers: (UIRenderer | UIMeshRenderer)[] = [];
+    private _dirtyVersion = 0;
     public addRenderer (uiRenderer: UIRenderer) {
         this._allRenderers.push(uiRenderer);
     }
@@ -14,16 +15,20 @@ export class UIRendererManager {
     }
 
     public markDirtyRenderer (uiRenderer: UIRenderer | UIMeshRenderer) {
-        this._dirtyRenderers.push(uiRenderer);
+        if (uiRenderer._dirtyVersion !== this._dirtyVersion) {
+            this._dirtyRenderers.push(uiRenderer);
+            uiRenderer._dirtyVersion = this._dirtyVersion;
+        }
     }
 
     public updateAllDirtyRenderers () {
         const length = this._dirtyRenderers.length;
         const dirtyRenderers = this._dirtyRenderers;
         for (let i = 0; i < length; i++) {
-            dirtyRenderers[i].updateRenderData();
+            dirtyRenderers[i].updateRenderer();
         }
         this._dirtyRenderers.length = 0;
+        this._dirtyVersion++;
     }
 }
 
