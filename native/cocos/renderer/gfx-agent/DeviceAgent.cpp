@@ -79,9 +79,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    // NOTE: C++17 is required when enable alignment
-    // TODO(PatriceJiang): replace with: _mainMessageQueue = ccnew MessageQueue;
-    _mainMessageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue; // NOLINT
+    _mainMessageQueue = ccnew MessageQueue;
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
@@ -123,10 +121,7 @@ void DeviceAgent::doDestroy() {
     if (_mainMessageQueue) {
         _mainMessageQueue->terminateConsumerThread();
 
-        // NOTE: C++17 required when enable alignment
-        // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
-        _mainMessageQueue->~MessageQueue();
-        CC_FREE_ALIGN(_mainMessageQueue);
+        delete _mainMessageQueue;
         _mainMessageQueue = nullptr;
     }
 }
@@ -303,8 +298,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         totalSize += boost::alignment::align_up(size, alignment) * region.texSubres.layerCount;
     }
 
-    auto *memory = CC_MALLOC_ALIGN(sizeof(ThreadSafeLinearAllocator), alignof(ThreadSafeLinearAllocator));
-    auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize, alignment);
+    auto *allocator = ccnew ThreadSafeLinearAllocator(totalSize, alignment);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -354,11 +348,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            // TODO(PatriceJiang): C++17 replace with:  delete allocator;
-            if (allocator) {
-                allocator->~ThreadSafeLinearAllocator();
-                CC_FREE_ALIGN(allocator);
-            }
+            delete allocator;
         });
 }
 
