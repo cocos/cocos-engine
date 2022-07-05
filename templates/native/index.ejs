@@ -28,5 +28,5 @@ System.import('<%= applicationJs %>')
         return application.start();
     });
 }).catch((err) => {
-    console.error(err.toString());
+    console.error(err.toString() + ', stack: ' + err.stack);
 });
