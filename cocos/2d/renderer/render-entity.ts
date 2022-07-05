@@ -160,11 +160,6 @@ export class RenderEntity {
         if (JSB) {
             this.setNode(comp.node);
             this.enabled = comp.enabled;
-
-            // circular reference
-            // if (comp instanceof Graphics) {
-            //     this.setCommitModelMaterial(comp.getMaterialInstance(0));
-            // }
         }
     }
 
