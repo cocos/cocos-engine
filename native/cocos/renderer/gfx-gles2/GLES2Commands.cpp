@@ -2606,8 +2606,8 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                 stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
                 stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
 
-                destWidth = region.texExtent.width + offset.x == gpuTexture->width >> mipLevel ? region.texExtent.width : extent.width;
-                destHeight = region.texExtent.height + offset.y == gpuTexture->height >> mipLevel ? region.texExtent.height : extent.height;
+                destWidth = (region.texExtent.width + offset.x == (gpuTexture->width >> mipLevel)) ? region.texExtent.width : extent.width;
+                destHeight = (region.texExtent.height + offset.y == (gpuTexture->height >> mipLevel)) ? region.texExtent.height : extent.height;
 
                 const uint8_t *buff;
                 if (stride.width == extent.width && stride.height == extent.height) {
@@ -2655,8 +2655,8 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                 stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
                 stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
 
-                destWidth = region.texExtent.width + offset.x == gpuTexture->width >> mipLevel ? region.texExtent.width : extent.width;
-                destHeight = region.texExtent.height + offset.y == gpuTexture->height >> mipLevel ? region.texExtent.height : extent.height;
+                destWidth = (region.texExtent.width + offset.x == (gpuTexture->width >> mipLevel)) ? region.texExtent.width : extent.width;
+                destHeight = (region.texExtent.height + offset.y == (gpuTexture->height >> mipLevel)) ? region.texExtent.height : extent.height;
 
                 for (uint32_t z = region.texSubres.baseArrayLayer; z < layerCount; ++z) {
                     offset.z = z;
@@ -2707,8 +2707,8 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                 stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
                 stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
 
-                destWidth = region.texExtent.width + offset.x == gpuTexture->width >> mipLevel ? region.texExtent.width : extent.width;
-                destHeight = region.texExtent.height + offset.y == gpuTexture->height >> mipLevel ? region.texExtent.height : extent.height;
+                destWidth = (region.texExtent.width + offset.x == (gpuTexture->width >> mipLevel)) ? region.texExtent.width : extent.width;
+                destHeight = (region.texExtent.height + offset.y == (gpuTexture->height >> mipLevel)) ? region.texExtent.height : extent.height;
 
                 const uint8_t *buff;
                 if (stride.width == extent.width && stride.height == extent.height) {
@@ -2752,8 +2752,8 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                 stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
                 stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
 
-                destWidth = region.texExtent.width + offset.x == gpuTexture->width >> mipLevel ? region.texExtent.width : extent.width;
-                destHeight = region.texExtent.height + offset.y == gpuTexture->height >> mipLevel ? region.texExtent.height : extent.height;
+                destWidth = (region.texExtent.width + offset.x == (gpuTexture->width >> mipLevel)) ? region.texExtent.width : extent.width;
+                destHeight = (region.texExtent.height + offset.y == (gpuTexture->height >> mipLevel)) ? region.texExtent.height : extent.height;
 
                 uint32_t faceCount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (uint32_t f = region.texSubres.baseArrayLayer; f < faceCount; ++f) {
