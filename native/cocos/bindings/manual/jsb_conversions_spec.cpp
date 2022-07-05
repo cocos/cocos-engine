@@ -235,9 +235,9 @@ bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("height", se::Value(v.height));
     obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::RECT)));
     ret->setObject(obj);
-
     return true;
 }
+
 void toVec2(void *data, DataType type, se::Value *ret) {
     auto *intptr = static_cast<int32_t *>(data);
     auto *floatptr = static_cast<float *>(data);
@@ -512,6 +512,19 @@ bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unuse
     set_member_field(obj, to, "y", &cc::Vec4::y, tmp);
     set_member_field(obj, to, "z", &cc::Vec4::z, tmp);
     set_member_field(obj, to, "w", &cc::Vec4::w, tmp);
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
+    se::Object *obj = from.toObject();
+    se::Value tmp;
+
+    set_member_field(obj, to, "x", &cc::gfx::Rect::x, tmp);
+    set_member_field(obj, to, "y", &cc::gfx::Rect::y, tmp);
+    set_member_field(obj, to, "width", &cc::gfx::Rect::width, tmp);
+    set_member_field(obj, to, "height", &cc::gfx::Rect::height, tmp);
     return true;
 }
 
@@ -1549,6 +1562,17 @@ bool nativevalue_to_se(const cc::Quaternion &from, se::Value &to, se::Object * /
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object * /*unused*/) {
     return Rect_to_seval(from, &to);
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    obj->setProperty("width", se::Value(from.width));
+    obj->setProperty("height", se::Value(from.height));
+    to.setObject(obj);
+    return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
