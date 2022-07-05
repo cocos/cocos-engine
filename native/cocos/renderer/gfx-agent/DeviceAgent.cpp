@@ -349,9 +349,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            if (allocator) {
-                delete allocator;
-            }
+            delete allocator;
         });
 }
 
