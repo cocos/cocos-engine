@@ -77,7 +77,7 @@ cc::Vec2 VisibleRect::rightTop() {
 
 cc::Vec2 VisibleRect::leftBottom() {
     lazyInit();
-    return s_visibleRect.origin;
+    return cc::Vec2{s_visibleRect.x, s_visibleRect.y};
 }
 
 cc::Vec2 VisibleRect::rightBottom() {
