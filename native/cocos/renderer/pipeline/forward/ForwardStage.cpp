@@ -134,8 +134,6 @@ void ForwardStage::dispenseRenderObject2Queues() {
         }
     }
 
-    _instancedQueue->sort();
-
     for (auto *queue : _renderQueues) {
         queue->sort();
     }
@@ -235,13 +233,13 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
-        
+
 #if CC_USE_GEOMETRY_RENDERER
         if (camera->getGeometryRenderer()) {
             camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
         }
 #endif
-        
+
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
 #if CC_USE_DEBUG_RENDERER
