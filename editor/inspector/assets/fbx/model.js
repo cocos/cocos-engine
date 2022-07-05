@@ -23,8 +23,8 @@ exports.template = `
         <ui-checkbox slot="content" class="disableMeshSplit-checkbox"></ui-checkbox>
     </ui-prop>
     <ui-prop>
-        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.allowDataAccess.name" tooltip="i18n:ENGINE.assets.fbx.allowDataAccess.title"></ui-label>
-        <ui-checkbox slot="content" class="allowDataAccess-checkbox"></ui-checkbox>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.allowMeshDataAccess.name" tooltip="i18n:ENGINE.assets.fbx.allowMeshDataAccess.title"></ui-label>
+        <ui-checkbox slot="content" class="allowMeshDataAccess-checkbox"></ui-checkbox>
     </ui-prop>
     <ui-section class="ins-object config" expand cache-expand="fbx-model-mesh-optimizer">
         <div slot="header" class="header">
@@ -99,7 +99,7 @@ exports.$ = {
     morphNormalsSelect: '.morphNormals-select',
     skipValidationCheckbox: '.skipValidation-checkbox',
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
-    allowDataAccessCheckbox: '.allowDataAccess-checkbox',
+    allowMeshDataAccessCheckbox: '.allowMeshDataAccess-checkbox',
     meshOptimizerCheckbox: '.meshOptimizer-checkbox',
     meshOptimizerSISlider: '.meshOptimizer-si-slider',
     meshOptimizerSACheckbox: '.meshOptimizer-sa-checkbox',
@@ -215,19 +215,19 @@ const Elements = {
             panel.updateReadonly(panel.$.disableMeshSplitCheckbox);
         },
     },
-    allowDataAccess: {
+    allowMeshDataAccess: {
         ready() {
             const panel = this;
 
-            panel.$.allowDataAccessCheckbox.addEventListener('change', panel.setProp.bind(panel, 'allowDataAccess'));
+            panel.$.allowMeshDataAccessCheckbox.addEventListener('change', panel.setProp.bind(panel, 'allowMeshDataAccess'));
         },
         update() {
             const panel = this;
 
-            panel.$.allowDataAccessCheckbox.value = panel.getDefault(panel.meta.userData.allowDataAccess, false);
+            panel.$.allowMeshDataAccessCheckbox.value = panel.getDefault(panel.meta.userData.allowMeshDataAccess, false);
 
-            panel.updateInvalid(panel.$.allowDataAccessCheckbox, 'allowDataAccess');
-            panel.updateReadonly(panel.$.allowDataAccessCheckbox);
+            panel.updateInvalid(panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
+            panel.updateReadonly(panel.$.allowMeshDataAccessCheckbox);
         },
     },
     meshOptimizer: {
