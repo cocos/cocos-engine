@@ -17,11 +17,11 @@ describe('asset-manager', function () {
         importBase: libPath, 
         nativeBase: libPath, 
         paths: {
-            '0000001': ['grossini/grossini', js._getClassId(ImageAsset)],
-            '123201':  ['grossini/grossini', js._getClassId(TestSprite), 1],
-            '0000000': ['grossini', js._getClassId(ImageAsset)],
-            '1232218': ['grossini', js._getClassId(TestSprite), 1],   // sprite in texture
-            '123200':  ['grossini', js._getClassId(TestSprite), 1],   // sprite in plist
+            '0000001': ['grossini/grossini', js.getClassId(ImageAsset)],
+            '123201':  ['grossini/grossini', js.getClassId(TestSprite), 1],
+            '0000000': ['grossini', js.getClassId(ImageAsset)],
+            '1232218': ['grossini', js.getClassId(TestSprite), 1],   // sprite in texture
+            '123200':  ['grossini', js.getClassId(TestSprite), 1],   // sprite in plist
         },
         uuids: [
             '0000001',

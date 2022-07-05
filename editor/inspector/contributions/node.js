@@ -1187,12 +1187,12 @@ const Elements = {
                     timestamp: rawTimestamp,
                     type: 'add-component',
                     events: {
-                        confirm(id, data) {
+                        confirm(name, data) {
                             Editor.Message.send('scene', 'snapshot');
                             panel.uuidList.forEach((uuid) => {
                                 Editor.Message.send('scene', 'create-component', {
                                     uuid,
-                                    component: data.name,
+                                    component: data.cid,
                                 });
                             });
                         },
@@ -1425,14 +1425,14 @@ exports.methods = {
                     enabled: !isMultiple,
                     async click() {
                         Editor.Clipboard.write('_dump_component_', {
-                            type: dump.type,
+                            cid: dump.cid,
                             dump: JSON.parse(JSON.stringify(dump)),
                         });
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.paste_component_values'),
-                    enabled: !!(clipboardComponentInfo && clipboardComponentInfo.type === dump.type),
+                    enabled: !!(clipboardComponentInfo && clipboardComponentInfo.cid === dump.cid),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1463,7 +1463,7 @@ exports.methods = {
                             const uuid = uuidList[index];
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
-                                component: clipboardComponentInfo.type,
+                                component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值
@@ -1586,7 +1586,7 @@ exports.methods = {
                         uuidList.forEach(async (uuid) => {
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
-                                component: clipboardComponentInfo.type,
+                                component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值

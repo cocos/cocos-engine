@@ -24,6 +24,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { CCFloat, CCInteger } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
@@ -48,7 +49,7 @@ export class NoiseModule extends ParticleModuleBase {
         this.target.enableModule(this.name, val, this);
     }
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @displayOrder(16)
     @slide
@@ -61,7 +62,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _strengthX = 10;
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @displayOrder(16)
     @slide
@@ -74,7 +75,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _strengthY = 10;
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @displayOrder(16)
     @slide
@@ -87,7 +88,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _strengthZ = 10;
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @slide
     @displayOrder(16)
@@ -100,7 +101,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _noiseSpeedX = 0;
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @displayOrder(16)
     @slide
@@ -113,7 +114,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _noiseSpeedY = 0;
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @displayOrder(16)
     @slide
@@ -126,7 +127,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _noiseSpeedZ = 0;
 
-    @type(Number)
+    @type(CCFloat)
     @range([0, 100])
     @rangeStep(0.1)
     @displayOrder(16)
@@ -141,7 +142,7 @@ export class NoiseModule extends ParticleModuleBase {
     private _noiseFrequency = 1;
 
     @visible(false)
-    @type(Number)
+    @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.1)
     @displayOrder(16)
@@ -156,7 +157,7 @@ export class NoiseModule extends ParticleModuleBase {
     private _remapX = 0;
 
     @visible(false)
-    @type(Number)
+    @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.1)
     @displayOrder(16)
@@ -171,7 +172,7 @@ export class NoiseModule extends ParticleModuleBase {
     private _remapY = 0;
 
     @visible(false)
-    @type(Number)
+    @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.1)
     @displayOrder(16)
@@ -185,7 +186,7 @@ export class NoiseModule extends ParticleModuleBase {
     @serializable
     private _remapZ = 0;
 
-    @type(Number)
+    @type(CCInteger)
     @range([1, 4])
     @rangeStep(1)
     @displayOrder(16)
@@ -201,7 +202,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
-    @type(Number)
+    @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.1)
     @displayOrder(16)
@@ -216,7 +217,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
-    @type(Number)
+    @type(CCFloat)
     @range([1, 4])
     @rangeStep(0.1)
     @displayOrder(16)

@@ -106,7 +106,6 @@ SE_DECLARE_FUNC(js_scene_Node_getScene);
 SE_DECLARE_FUNC(js_scene_Node_getSiblingIndex);
 SE_DECLARE_FUNC(js_scene_Node_insertChild);
 SE_DECLARE_FUNC(js_scene_Node_invalidateChildren);
-SE_DECLARE_FUNC(js_scene_Node_inverseTransformPoint);
 SE_DECLARE_FUNC(js_scene_Node_isChildOf);
 SE_DECLARE_FUNC(js_scene_Node_lookAt);
 SE_DECLARE_FUNC(js_scene_Node_off);

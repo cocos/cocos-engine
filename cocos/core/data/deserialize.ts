@@ -568,7 +568,11 @@ export class Details {
     }, 5);
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public declare assignAssetsBy: Function;
+    public declare assignAssetsBy: (getter: (uuid: string, options: {
+        type: Constructor<Asset>;
+        owner: Record<string, unknown>;
+        prop: string;
+    }) => Asset) => void;
 
     /**
      * @method init
@@ -639,7 +643,7 @@ if (EDITOR || TEST) {
             const prop = this.uuidPropList![i] as string;
             const uuid = this.uuidList![i];
             const type = this.uuidTypeList[i];
-            const _type = js._getClassById(type) as Constructor<Asset> || Asset;
+            const _type = js.getClassById(type) as Constructor<Asset> || Asset;
             obj[prop] = getter(uuid as string, {
                 type: _type,
                 owner: obj,
@@ -937,7 +941,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
 }
 
 function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass) {
-    const classFinder = customFinder || js._getClassById;
+    const classFinder = customFinder || js.getClassById;
     const classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
         const klassLayout = classes[i];

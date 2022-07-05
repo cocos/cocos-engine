@@ -337,6 +337,11 @@ export class Mesh extends Asset {
 
     private _initialized = false;
 
+    @serializable
+    private _allowDataAccess = true;
+
+    private _isMeshDataUploaded = false;
+
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
     private _boneSpaceBounds: Map<number, (AABB | null)[]> = new Map();
@@ -493,6 +498,11 @@ export class Mesh extends Asset {
             if (this._struct.morph) {
                 this.morphRendering = createMorphRendering(this, gfxDevice);
             }
+
+            this._isMeshDataUploaded = true;
+            if (!this._allowDataAccess) {
+                this.releaseData();
+            }
         }
     }
 
@@ -635,6 +645,7 @@ export class Mesh extends Asset {
             }
             this._renderingSubMeshes = null;
             this._initialized = false;
+            this._isMeshDataUploaded = false;
         }
     }
 
@@ -1133,7 +1144,7 @@ export class Mesh extends Asset {
      * @param primitiveIndex @en Sub mesh index @zh 子网格索引
      * @param attributeName @en Attribute name @zh 属性名称
      * @param buffer @en The target array buffer @zh 目标缓冲区
-     * @param stride @en attribute stride @zh 属性跨距 
+     * @param stride @en attribute stride @zh 属性跨距
      * @param offset @en The offset of the first attribute in the target buffer @zh 第一个属性在目标缓冲区的偏移
      * @returns @en false if failed to access attribute, true otherwise @zh 是否成功拷贝
      */
@@ -1231,7 +1242,7 @@ export class Mesh extends Asset {
      * @param attributeName @en Attribute name @zh 属性名称
      * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
      */
-    public readAttributeFormat(primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
+    public readAttributeFormat (primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
         let result: FormatInfo | null = null;
 
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
@@ -1291,6 +1302,31 @@ export class Mesh extends Asset {
             },
             data: globalEmptyMeshBuffer,
         });
+    }
+
+    /**
+     * @en Set whether the data of this mesh could be accessed (read or wrote), it could be used only for static mesh
+     * @zh 设置此网格的数据是否可被存取，此接口只针对静态网格资源生效
+     * @param allowDataAccess @en Indicate whether the data of this mesh could be accessed (read or wrote) @zh 是否允许存取网格数据
+     */
+    public set allowDataAccess (allowDataAccess: boolean) {
+        this._allowDataAccess = allowDataAccess;
+        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+            this.releaseData();
+        }
+    }
+
+    /**
+     * @en Get whether the data of this mesh could be read or wrote
+     * @zh 获取此网格的数据是否可被存取
+     * @return @en whether the data of this mesh could be accessed (read or wrote) @zh 此网格的数据是否可被存取
+     */
+    public get allowDataAccess () {
+        return this._allowDataAccess;
+    }
+
+    private releaseData () {
+        this._data = globalEmptyMeshBuffer;
     }
 }
 legacyCC.Mesh = Mesh;

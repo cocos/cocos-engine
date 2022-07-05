@@ -60,3 +60,58 @@ test('pacer', (cb) => {
     });
     
 });
+
+test('repeat pacer', (cb) => {
+    const pacer = new Pacer();
+    let calledTime = 0;
+    pacer.onTick = jest.fn(() => { calledTime++; });
+    pacer.start();
+    pacer.start();
+    pacer.start();
+    pacer.stop();
+    Promise.resolve().then(() => {
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                expect(calledTime).toBe(0);
+                resolve();
+            }, 100);
+        })
+    }).then(() => {
+        pacer.start();
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                expect(calledTime).not.toBe(0);
+                resolve();
+            }, 100);
+        })
+    }).then(() => {
+        pacer.stop();
+        cb();
+    });
+});
+
+test('stop pacer in tick', (cb) => {
+    const pacer = new Pacer();
+    let calledTime = 0;
+    pacer.onTick = jest.fn(() => { pacer.stop(); calledTime++; });
+    pacer.start();
+    Promise.resolve().then(() => {
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                expect(calledTime).toBe(1);
+                resolve();
+            }, 100);
+        })
+    }).then(() => {
+        pacer.start();
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                expect(calledTime).toBe(2);
+                resolve();
+            }, 100);
+        })
+    }).then(() => {
+        pacer.stop();
+        cb();
+    });
+});

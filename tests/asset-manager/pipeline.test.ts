@@ -217,5 +217,5 @@ describe('Pipeline', () => {
         ], onProgress: onProgress, onComplete: onComplete});
     
         pipeline.async(task);
-    }, 2);
+    });
 });

@@ -357,4 +357,456 @@ export declare namespace native {
          */
         export function setPvrEncryptionKey(keyPart1:number, keyPart2:number, keyPart3:number, keyPart4:number): void;
     }
+
+    /**
+     * FileUtils  Helper class to handle file operations.
+     */
+    export namespace fileUtils {
+        /**
+         *  @en
+         *  Checks whether the path is an absolute path.
+         *
+         *  @zh
+         *  判断文件是否是绝对路径
+         *  @note On Android, if the parameter passed in is relative to "@assets/", this method will treat it as an absolute path.
+         *        Also on Blackberry, path starts with "app/native/Resources/" is treated as an absolute path.
+         *
+         *  @param path The path that needs to be checked.
+         *  @return True if it's an absolute path, false if not.
+         */
+        export function isAbsolutePath (path:string):boolean;
+        /**
+         *  @en
+         *  Returns the fullpath for a given filename.
+         *
+        First it will try to get a new filename from the "filenameLookup" dictionary.
+        If a new filename can't be found on the dictionary, it will use the original filename.
+        Then it will try to obtain the full path of the filename using the FileUtils search rules: resolutions, and search paths.
+        The file search is based on the array element order of search paths and resolution directories.
+
+        For instance:
+
+            We set two elements("/mnt/sdcard/", "internal_dir/") to search paths vector by setSearchPaths,
+            and set three elements("resources-ipadhd/", "resources-ipad/", "resources-iphonehd")
+            to resolutions vector by setSearchResolutionsOrder. The "internal_dir" is relative to "Resources/".
+
+            If we have a file named 'sprite.png', the mapping in fileLookup dictionary contains `key: sprite.png -> value: sprite.pvr.gz`.
+            Firstly, it will replace 'sprite.png' with 'sprite.pvr.gz', then searching the file sprite.pvr.gz as follows:
+
+                /mnt/sdcard/resources-ipadhd/sprite.pvr.gz      (if not found, search next)
+                /mnt/sdcard/resources-ipad/sprite.pvr.gz        (if not found, search next)
+                /mnt/sdcard/resources-iphonehd/sprite.pvr.gz    (if not found, search next)
+                /mnt/sdcard/sprite.pvr.gz                       (if not found, search next)
+                internal_dir/resources-ipadhd/sprite.pvr.gz     (if not found, search next)
+                internal_dir/resources-ipad/sprite.pvr.gz       (if not found, search next)
+                internal_dir/resources-iphonehd/sprite.pvr.gz   (if not found, search next)
+                internal_dir/sprite.pvr.gz                      (if not found, return "sprite.png")
+
+            If the filename contains relative path like "gamescene/uilayer/sprite.png",
+            and the mapping in fileLookup dictionary contains `key: gamescene/uilayer/sprite.png -> value: gamescene/uilayer/sprite.pvr.gz`.
+            The file search order will be:
+
+                /mnt/sdcard/gamescene/uilayer/resources-ipadhd/sprite.pvr.gz      (if not found, search next)
+                /mnt/sdcard/gamescene/uilayer/resources-ipad/sprite.pvr.gz        (if not found, search next)
+                /mnt/sdcard/gamescene/uilayer/resources-iphonehd/sprite.pvr.gz    (if not found, search next)
+                /mnt/sdcard/gamescene/uilayer/sprite.pvr.gz                       (if not found, search next)
+                internal_dir/gamescene/uilayer/resources-ipadhd/sprite.pvr.gz     (if not found, search next)
+                internal_dir/gamescene/uilayer/resources-ipad/sprite.pvr.gz       (if not found, search next)
+                internal_dir/gamescene/uilayer/resources-iphonehd/sprite.pvr.gz   (if not found, search next)
+                internal_dir/gamescene/uilayer/sprite.pvr.gz                      (if not found, return "gamescene/uilayer/sprite.png")
+
+        If the new file can't be found on the file system, it will return the parameter filename directly.
+
+        This method was added to simplify multiplatform support.
+        Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
+        you might need to load different resources for a given file in the different platforms.
+        *  @zh
+        *  通过文件名获取绝对路径
+        *  @since v2.1
+        */
+        export function fullPathForFilename (filename:string):string;
+        /**
+         *
+         *  @en
+         *  Gets string from a file.
+         *
+         *  @zh
+         *  读取文件里的字符串
+         *
+         */
+        export function getStringFromFile (filename:string):string;
+        /**
+         *  @en
+         *  Removes a file.
+         *
+         *  @zh
+         *  删除文件
+         *
+         *  @param filepath The full path of the file, it must be an absolute path.
+         *  @return True if the file have been removed successfully, false if not.
+         */
+        export function removeFile (filepath:string):boolean;
+        /**
+         *  @en
+         *  Checks whether the path is a directory.
+         *
+         *  @zh
+         *  检测目录是否存在
+         *
+         *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+         *  @return True if the directory exists, false if not.
+         */
+        export function isDirectoryExist (dirPath:string):boolean;
+        /**
+         *  @en
+         *  Normalize: remove . and ..
+         *
+         *  @zh
+         *  标准化：去除'.' 和 '..'
+         *
+         * @param filepath
+         */
+        export function normalizePath (filepath:string):string;
+        /**
+         *  @en
+         *  Gets the array of search paths.
+         *
+         *  @zh
+         *  获取默认资源根路径
+         *
+         */
+        export function getDefaultResourceRootPath ():string;
+
+        /**
+         *  @en
+         *  Converts the contents of a file to a ValueVector.
+         *  This method is used internally.
+         *
+         *  @zh
+         *  将文件的内容转换为 ValueVector
+         *  这个方法是内部使用的
+         */
+        export function getValueVectorFromFile (filepath:string):Array<any>;
+        /**
+         *  @en
+         *  Gets the array of search paths.
+         *
+         *  @zh
+         *  获取所有的搜索路径
+         *
+         *  @return The array of search paths which may contain the prefix of default resource root path.
+         *  @note In best practise, getter function should return the value of setter function passes in.
+         *        But since we should not break the compatibility, we keep using the old logic.
+         *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
+         *  @see fullPathForFilename (const char*).
+         *  @lua NA
+         */
+        export function getSearchPaths ():Array<string>;
+        /**
+         *  @en
+         *  Get the directory where the file is located by the file path.
+         *
+         *  @zh
+         *  通过文件路径获取文件所在目录
+         * @param filepath
+         */
+        export function getFileDir (filepath:string):string;
+        /**
+         *  @en
+         *  write a ValueMap into a plist file.
+         *
+         *  @zh
+         *  将 ValueMap 写入 plist 文件
+         *
+         *  @param dict the ValueMap want to save (key,value)
+         *  @return bool
+         */
+        export function writeToFile (valueMap:any):boolean;
+        /**
+         *  @en
+         *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
+         *
+         *  @zh
+         *  获取由“setSearchPaths”或“addSearchPath”设置的原始搜索路径数组。
+         *
+         *  @return The array of the original search paths
+         */
+        export function getOriginalSearchPaths ():Array<string>;
+        /**
+         *  @en
+         *  List all files in a directory
+         *
+         *  @zh
+         *  在文件夹中列出所有文件
+         *
+         *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+         *  @return File paths in a string vector
+         */
+        export function listFiles (filepath:string):Array<string>;
+        /**
+         *  @en
+         *  Converts the contents of a file to a ValueMap.
+         *
+         *  @zh
+         *  转换文件内容为ValueMap
+         *
+         *  @param filename The filename of the file to gets content.
+         *  @return ValueMap of the file contents.
+         *  @note This method is used internally.
+         */
+        export function getValueMapFromFile (filepath:string):any;
+        /**
+         *  @en
+         *  Retrieve the file size.
+         *
+         *  @zh
+         *  获取文件大小
+         *  @note If a relative path was passed in, it will be inserted a default root path at the beginning.
+         *  @param filepath The path of the file, it could be a relative or absolute path.
+         *  @return The file size.
+         */
+        export function getFileSize (filepath:string):number;
+
+        /**
+         *  @en
+         *  Converts the contents of a file to a ValueMap.
+         *  This method is used internally.
+         *
+         *  @zh
+         *  转换文件内容为ValueMap
+         *  这个方法是内部使用的
+         *
+         */
+        export function getValueMapFromData (filedata:string, filesize:number):any;
+        /**
+         *
+         *  @en
+         *  Removes a directory..
+         *
+         *  @zh
+         *  删除一个目录
+         *
+         *  @param dirPath  The full path of the directory, it must be an absolute path.
+         *  @return True if the directory have been removed successfully, false if not.
+         */
+        export function removeDirectory (dirPath:string):boolean;
+        /**
+         *  @en
+         *  Sets the array of search paths.
+         *
+         *  You can use this array to modify the search path of the resources.
+         *  If you want to use "themes" or search resources in the "cache", you can do it easily by adding new entries in this array.
+         *
+         *  @note This method could access relative path and absolute path.
+         *        If the relative path was passed to the vector, FileUtils will add the default resource directory before the relative path.
+         *        For instance:
+         *            On Android, the default resource root path is "@assets/".
+         *            If "/mnt/sdcard/" and "resources-large" were set to the search paths vector,
+         *            "resources-large" will be converted to "@assets/resources-large" since it was a relative path.
+         *  @zh
+         *  设置一系列的搜索路径
+         *  通过这个数组可以修改资源的搜索路径。例如如果你想使用在cache里的主题资源，你需要尽早的添加到这个数组里
+         *
+         *  @param searchPaths The array contains search paths.
+         *  @see fullPathForFilename (const char*)
+         *  @since v2.1
+         *  In js:var setSearchPaths(var jsval);
+         *  @lua NA
+         */
+        export function setSearchPaths (searchPath:Array<string>):void;
+        /**
+         *  @en
+         *  write a string into a file.
+         *
+         *  @zh
+         *  写字符串到文件里
+         *
+         * @param dataStr the string want to save
+         * @param fullPath The full path to the file you want to save a string
+         * @return bool True if write success
+         */
+        export function writeStringToFile (dataStr:string, fullPath:string):boolean;
+
+        /**
+         *  @en
+         *  Add search path.
+         *
+         *  @zh
+         *  添加文件的搜索路径
+         *
+         * @since v2.1
+         */
+        export function addSearchPath (path:string, front:boolean):void;
+        /**
+         *
+         *  @en
+         *  write ValueVector into a plist file
+         *
+         *  @zh
+         *  将 ValueVector 写入 plist 文件
+         *
+        *@param vecData the ValueVector want to save
+        *@param fullPath The full path to the file you want to save a string
+        *@return bool
+        */
+        export function writeValueVectorToFile (vecData:Array<any>, fullPath:string):boolean;
+        /**
+         *  @en
+         *  Checks whether a file exists.
+         *
+         *  @zh
+         *  检测路径是否存在
+         *
+         *  @note If a relative path was passed in, it will be inserted a default root path at the beginning.
+         *  @param filename The path of the file, it could be a relative or absolute path.
+         *  @return True if the file exists, false if not.
+         */
+        export function isFileExist (filename:string):boolean;
+        /**
+         *
+         *  @en
+         *  Purges full path caches.
+         *
+         *  @zh
+         *  清除路径缓存
+         */
+        export function purgeCachedEntries ():void;
+        /**
+         *  @en
+         *  Gets full path from a file name and the path of the relative file.
+         *
+         *  @zh
+         *  通过文件名或者相对路径转换成绝对路径
+         *
+         *  @param filename The file name.
+         *  @param relativeFile The path of the relative file.
+         *  @return The full path.
+         *          e.g. filename: hello.png, pszRelativeFile: /User/path1/path2/hello.plist
+         *               Return: /User/path1/path2/hello.pvr (If there a a key(hello.png)-value(hello.pvr) in FilenameLookup dictionary. )
+         *
+         */
+        export function fullPathFromRelativeFile (filename:string, relativeFile:string):string;
+        /**
+         *  @en
+         *  Windows fopen can't support UTF-8 filename
+         *  Need convert all parameters fopen and other 3rd-party libs
+         *
+         *  @zh
+         *  windows的fopen函数不支持utf-8编码的文件
+         *  需要转换所有的参数给fopen或者其他的第三方的库使用
+         *  @param filenameUtf8 std::string name file for conversion from utf-8
+         *  @return std::string ansi filename in current locale
+         */
+        export function getSuitableFOpen (filenameUtf8:string):string;
+        /**
+         *
+         *  @en
+         *  write ValueMap into a plist file
+         *
+         *  @zh
+         *  将 ValueMap 写入 plist 文件
+         *  @param dict the ValueMap want to save
+         *  @param fullPath The full path to the file you want to save a string
+         *  @return bool
+         */
+        export function writeValueMapToFile (dict:any, fullPath:string):string;
+        /**
+         *  @en
+         *  Gets filename extension is a suffix (separated from the base filename by a dot) in lower case.
+         *  Examples of filename extensions are .png, .jpeg, .exe, .dmg and .txt.
+         *
+         *  @zh
+         *  获取文件的扩展名（使用'.'做分割符），返回的都是小写
+         *  例如：返回.png, .jpeg, .exe, .dmg等
+         *  @param filePath The path of the file, it could be a relative or absolute path.
+         *  @return suffix for filename in lower case or empty if a dot not found.
+         */
+        export function getFileExtension (filePath:string):string;
+        /**
+         *  @en
+         *  Sets writable path.
+         *
+         *  @zh
+         *  设置有可写权限的目录
+         *
+         *  @param writablePath The path of the directory.
+         */
+        export function setWritablePath (writablePath:string):void;
+        /**
+         *  @en
+         *  Set default resource root path.
+         *
+         *  @zh
+         *  设置默认的资源根目录
+         *
+         *  @param dirPath The path of the directory.
+         */
+        export function setDefaultResourceRootPath (dirPath:string):void;
+
+        /**
+         *  @en
+         *  Creates a directory.
+         *
+         *  @zh
+         *  创建一个目录
+         *
+         *  @param dirPath The path of the directory, it must be an absolute path.
+         *  @return True if the directory have been created successfully, false if not.
+         */
+        export function createDirectory (dirPath:string):string;
+        /**
+         *  @en
+         *  List all files recursively in a directory.
+         *
+         *  @zh
+         *  在一个目录里递归搜索所有的文件
+         *
+         *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+         *  @return File paths in a string vector
+         */
+        export function listFilesRecursively (dirPath:string, files:Array<string>):void;
+        /**
+         *  Gets the writable path.
+         *  @return  The path that can be write/read a file in
+         */
+        export function getWritablePath():string;
+
+        /**
+         *  @en
+         *  Renames a file under the given directory.
+         *
+         *  @zh
+         *  文件（包含路径）重命名
+         *
+         *  @param oldFullpath  The current fullpath of the file. Includes path and name.
+         *  @param newFullPath  The new fullpath of the file. Includes path and name.
+         *  @return True if the file have been renamed successfully, false if not.
+         */
+        export function renameFile(oldFullpath: string, newFullPath: string):boolean;
+
+        /**
+         *  @en
+         *  Read binary data from a file.
+         *
+         *  @zh
+         *  从文件中读取二进制数据
+         *  Creates binary data from a file.
+         *  @param fullpath The current fullpath of the file. Includes path and name.
+         *  @return A data object.
+         */
+        export function getDataFromFile(fullpath: string):ArrayBuffer;
+
+        /**
+         *  @en
+         *  write Data into a file
+         *
+         *  @zh
+         *  把数据写入文件内
+         *
+         *  @param data the data want to save
+         *  @param fullpath The full path to the file you want to save a string
+         *  @return bool
+         */
+        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):boolean;
+    }
 }

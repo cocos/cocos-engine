@@ -5,7 +5,7 @@ import { EmbeddedPlayer } from "../../../editor/exports/embedded-player";
 
 export class EmbeddedPlayerHostMock {
     constructor(root: Node, private _embeddedPlayer: EmbeddedPlayer, _hostDuration: number) {
-        const instantiatedPlayer = this._embeddedPlayer.playable.instantiate(root);
+        const instantiatedPlayer = this._embeddedPlayer.playable?.instantiate(root) ?? null;
         this._instantiatedPlayer = instantiatedPlayer;
     }
 
@@ -14,19 +14,19 @@ export class EmbeddedPlayerHostMock {
     }
 
     get randomAccessible() {
-        return this._instantiatedPlayer.randomAccess;
+        return this._instantiatedPlayer?.randomAccess ?? false;
     }
 
     public play(time: number) {
-        this._instantiatedPlayer.play(time);
+        this._instantiatedPlayer?.play();
     }
 
     public stop() {
-        this._instantiatedPlayer.stop();
+        this._instantiatedPlayer?.stop();
     }
 
     public setSpeed(speed: number) {
-        this._instantiatedPlayer.setSpeed(speed);
+        this._instantiatedPlayer?.setSpeed(speed);
     }
 
     private _instantiatedPlayer: EmbeddedPlayableState | null;
@@ -37,7 +37,7 @@ export class AnimationClipHostEmbeddedPlayerMock {
         const animationClip = new AnimationClip();
         animationClip.duration = hostDuration;
         animationClip[addEmbeddedPlayerTag](embeddedPlayer);
-        const evaluator = animationClip.createEvaluator({ target: _root });
+        const evaluator = animationClip.createEmbeddedPlayerEvaluator(_root);
         this._animationEvaluator = evaluator;
     }
 
@@ -57,9 +57,9 @@ export class AnimationClipHostEmbeddedPlayerMock {
         this._animationEvaluator.notifyHostSpeedChanged(speed);
     }
 
-    public evaluateAt(time: number) {
-        this._animationEvaluator.evaluate(time);
+    public evaluateAt(time: number, iterations: number) {
+        this._animationEvaluator.evaluate(time, iterations);
     }
 
-    private _animationEvaluator: ReturnType<AnimationClip['createEvaluator']>;
+    private _animationEvaluator: ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']>;
 }

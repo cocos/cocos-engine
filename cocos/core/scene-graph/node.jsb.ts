@@ -765,6 +765,17 @@ nodeProto.getRight = function (out?: Vec3): Vec3 {
     return Vec3.copy(new Vec3(), r);
 };
 
+nodeProto.inverseTransformPoint = function inverseTransformPoint (out: Vec3, p: Vec3) {
+    _tempFloatArray[0] = p.x;
+    _tempFloatArray[1] = p.y;
+    _tempFloatArray[2] = p.z;
+    this._inverseTransformPoint();
+    out.x = _tempFloatArray[0];
+    out.y = _tempFloatArray[1];
+    out.z = _tempFloatArray[2];
+    return out;
+};
+
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,

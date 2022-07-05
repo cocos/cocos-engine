@@ -427,29 +427,6 @@ static bool js_scene_Node_invalidateChildren(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_Node_invalidateChildren)
 
-static bool js_scene_Node_inverseTransformPoint(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_inverseTransformPoint : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Vec3, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_inverseTransformPoint : Error processing arguments");
-        cc::Vec3 result = cobj->inverseTransformPoint(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_inverseTransformPoint : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_inverseTransformPoint)
-
 static bool js_scene_Node_isActive(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -1909,7 +1886,6 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getSiblingIndex", _SE(js_scene_Node_getSiblingIndex));
     cls->defineFunction("insertChild", _SE(js_scene_Node_insertChild));
     cls->defineFunction("invalidateChildren", _SE(js_scene_Node_invalidateChildren));
-    cls->defineFunction("inverseTransformPoint", _SE(js_scene_Node_inverseTransformPoint));
     cls->defineFunction("isChildOf", _SE(js_scene_Node_isChildOf));
     cls->defineFunction("lookAt", _SE(js_scene_Node_lookAt));
     cls->defineFunction("off", _SE(js_scene_Node_off));
@@ -17747,7 +17723,7 @@ static bool js_scene_Camera_setViewport(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::gfx::Rect, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Camera_setViewport : Error processing arguments");
         cobj->setViewport(arg0.value());
@@ -17767,7 +17743,7 @@ static bool js_scene_Camera_setViewportInOrientedSpace(se::State& s) // NOLINT(r
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::gfx::Rect, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Camera_setViewportInOrientedSpace : Error processing arguments");
         cobj->setViewportInOrientedSpace(arg0.value());

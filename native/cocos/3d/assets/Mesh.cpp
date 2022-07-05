@@ -34,6 +34,8 @@
 #include "math/Quaternion.h"
 #include "renderer/gfx-base/GFXDevice.h"
 
+#define CC_OPTIMIZE_MESH_DATA 0
+
 namespace cc {
 
 namespace {
@@ -167,6 +169,63 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
     return nullptr;
 }
 
+#if CC_OPTIMIZE_MESH_DATA
+void checkAttributesNeedConvert(const gfx::AttributeList &orignalAttributes,         // in
+                                gfx::AttributeList &attributes,                      // in-out
+                                ccstd::vector<uint32_t> &attributeIndicsNeedConvert, // in-out
+                                uint32_t &dstStride) {                               // in-out
+    attributeIndicsNeedConvert.clear();
+    attributeIndicsNeedConvert.reserve(orignalAttributes.size());
+
+    uint32_t attributeIndex = 0;
+    for (auto &attribute : attributes) {
+        if (attribute.name == gfx::ATTR_NAME_NORMAL) {
+            if (attribute.format == gfx::Format::RGB32F) {
+                attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                attribute.format = gfx::Format::RGB16F;
+    #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+                dstStride -= 4; // NOTE: Metal needs 4 bytes alignment
+    #else
+                dstStride -= 6;
+    #endif
+            }
+        } else if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
+            if (attribute.format == gfx::Format::RG32F) {
+                attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                attribute.format = gfx::Format::RG16F;
+                dstStride -= 4;
+            }
+        } else if (attribute.name == gfx::ATTR_NAME_TANGENT) {
+            if (attribute.format == gfx::Format::RGBA32F) {
+                attributeIndicsNeedConvert.emplace_back(attributeIndex);
+                attribute.format = gfx::Format::RGBA16F;
+                dstStride -= 8;
+            }
+        }
+        ++attributeIndex;
+    }
+}
+
+void convertRGBA32FToRGBA16F(const float *src, uint16_t *dst) {
+    dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
+    dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
+    dst[2] = utils::rawHalfAsUint16(utils::floatToHalf(src[2]));
+    dst[3] = utils::rawHalfAsUint16(utils::floatToHalf(src[3]));
+}
+
+void convertRGB32FToRGB16F(const float *src, uint16_t *dst) {
+    dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
+    dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
+    dst[2] = utils::rawHalfAsUint16(utils::floatToHalf(src[2]));
+}
+
+void convertRG32FToRG16F(const float *src, uint16_t *dst) {
+    dst[0] = utils::rawHalfAsUint16(utils::floatToHalf(src[0]));
+    dst[1] = utils::rawHalfAsUint16(utils::floatToHalf(src[1]));
+}
+
+#endif // #if CC_OPTIMIZE_MESH_DATA
+
 } // namespace
 
 Mesh::~Mesh() = default;
@@ -276,8 +335,8 @@ void Mesh::initialize() {
 
         auto &buffer = _data;
         gfx::Device *gfxDevice = gfx::Device::getInstance();
-        RefVector<gfx::Buffer*> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
-        RefVector<gfx::Buffer*> indexBuffers;
+        RefVector<gfx::Buffer *> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
+        RefVector<gfx::Buffer *> indexBuffers;
         ccstd::vector<IntrusivePtr<RenderingSubMesh>> subMeshes;
 
         for (size_t i = 0; i < _struct.primitives.size(); i++) {
@@ -292,15 +351,26 @@ void Mesh::initialize() {
 
                 uint32_t dstStride = idxView.stride;
                 uint32_t dstSize = idxView.length;
-                if (dstStride == 4 && !gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
+                if (dstStride == 4) {
                     uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
-                    if (vertexCount >= 65536) {
-                        debug::warnID(10001, vertexCount, 65536);
+#if CC_OPTIMIZE_MESH_DATA
+                    if (vertexCount < 65536) {
+                        dstStride >>= 1; // Reduce to short.
+                        dstSize >>= 1;
+                    } else if (!gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
                         continue; // Ignore this primitive
                     }
+#else
+                    if (!gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
+                        if (vertexCount >= 65536) {
+                            CC_LOG_WARNING("Device does not support UINT element index type and vertexCount (%u) is larger than ushort", vertexCount);
+                            continue;
+                        }
 
-                    dstStride >>= 1; // Reduce to short.
-                    dstSize >>= 1;
+                        dstStride >>= 1; // Reduce to short.
+                        dstSize >>= 1;
+                    }
+#endif
                 }
 
                 indexBuffer = gfxDevice->createBuffer(gfx::BufferInfo{
@@ -314,11 +384,12 @@ void Mesh::initialize() {
                 const uint8_t *ib = buffer.buffer()->getData() + idxView.offset;
                 if (idxView.stride != dstStride) {
                     uint32_t ib16BitLength = idxView.length >> 1;
-                    auto *ib16Bit = static_cast<uint16_t*>(CC_MALLOC(ib16BitLength));
-                    const auto *ib32Bit = reinterpret_cast<const uint32_t*>(ib);
+                    auto *ib16Bit = static_cast<uint16_t *>(CC_MALLOC(ib16BitLength));
+                    const auto *ib32Bit = reinterpret_cast<const uint32_t *>(ib);
                     for (uint32_t j = 0, len = idxView.count; j < len; ++j) {
                         ib16Bit[j] = ib32Bit[j];
                     }
+
                     indexBuffer->update(ib16Bit, ib16BitLength);
                     CC_FREE(ib16Bit);
                 } else {
@@ -356,6 +427,11 @@ void Mesh::initialize() {
         if (_struct.morph.has_value()) {
             morphRendering = createMorphRendering(this, gfxDevice);
         }
+
+        _isMeshDataUploaded = true;
+        if (!_allowDataAccess) {
+            releaseData();
+        }
     }
 }
 
@@ -366,6 +442,7 @@ void Mesh::destroyRenderingMesh() {
         }
         _renderingSubMeshes.clear();
         _initialized = false;
+        _isMeshDataUploaded = false;
     }
 }
 
@@ -934,8 +1011,8 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
     return true;
 }
 
-const gfx::FormatInfo* Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
-    const gfx::FormatInfo* result = nullptr;
+const gfx::FormatInfo *Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
+    const gfx::FormatInfo *result = nullptr;
 
     accessAttribute(primitiveIndex, attributeName, [&](const IVertexBundle &vertexBundle, uint32_t iAttribute) {
         const gfx::Format format = vertexBundle.attributes[iAttribute].format;
@@ -1071,9 +1148,99 @@ void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, co
     }
 }
 
-/* static */
+void Mesh::tryConvertVertexData() {
+#if CC_OPTIMIZE_MESH_DATA
+    if (!hasFlag(gfx::Device::getInstance()->getFormatFeatures(gfx::Format::RG16F), gfx::FormatFeature::VERTEX_ATTRIBUTE)) {
+        CC_LOG_DEBUG("Does not support half float vertex attribute!");
+        return;
+    }
+
+    uint8_t *data = _data.buffer()->getData();
+    ccstd::vector<uint32_t> attributeIndicsNeedConvert;
+
+    for (auto &vertexBundle : _struct.vertexBundles) {
+        // NOTE: Don't use reference here since we need to copy attributes
+        const auto orignalAttributes = vertexBundle.attributes;
+
+        auto &attributes = vertexBundle.attributes;
+        auto &view = vertexBundle.view;
+        uint32_t offset = view.offset;
+        uint32_t length = view.length;
+        uint32_t count = view.count;
+        const uint32_t stride = view.stride;
+        uint32_t dstStride = stride;
+
+        CC_ASSERT(count * stride == length);
+
+        checkAttributesNeedConvert(orignalAttributes, attributes, attributeIndicsNeedConvert, dstStride);
+        if (attributeIndicsNeedConvert.empty()) {
+            return;
+        }
+
+        for (uint32_t i = 0; i < count; ++i) {
+            uint8_t *srcIndex = data + offset + i * stride;
+            uint8_t *dstIndex = data + offset + i * dstStride;
+            uint32_t wroteBytes = 0;
+
+            for (size_t attributeIndex = 0, len = orignalAttributes.size(); attributeIndex < len; ++attributeIndex) {
+                const auto &attribute = orignalAttributes[attributeIndex];
+                const auto &formatInfo = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+                const auto iter = std::find(attributeIndicsNeedConvert.cbegin(), attributeIndicsNeedConvert.cend(), attributeIndex);
+
+                if (iter == attributeIndicsNeedConvert.end()) {
+                    memcpy(dstIndex, srcIndex, formatInfo.size);
+
+                    dstIndex += formatInfo.size;
+                    wroteBytes += formatInfo.size;
+                    srcIndex += formatInfo.size;
+                    continue;
+                }
+
+                const float *pValue = reinterpret_cast<const float *>(srcIndex);
+                uint16_t *pDst = reinterpret_cast<uint16_t *>(dstIndex);
+                uint32_t advance = (formatInfo.size >> 1);
+
+                switch (attribute.format) {
+                    case gfx::Format::RGB32F: {
+                        convertRGB32FToRGB16F(pValue, pDst);
+    #if (CC_PLATFORM == CC_PLATFORM_IOS) || (CC_PLATFORM == CC_PLATFORM_MACOS)
+                        // NOTE: Metal needs 4 bytes alignment
+                        pDst[3] = 0;
+                        advance += (advance % 4);
+    #endif
+
+                    } break;
+                    case gfx::Format::RG32F: {
+                        convertRG32FToRG16F(pValue, pDst);
+                    } break;
+                    case gfx::Format::RGBA32F: {
+                        convertRGBA32FToRGBA16F(pValue, pDst);
+                    } break;
+                    default:
+                        CC_ASSERT(false);
+                        break;
+                }
+
+                dstIndex += advance;
+                wroteBytes += advance;
+                srcIndex += formatInfo.size;
+            }
+
+            CC_ASSERT(wroteBytes == dstStride);
+        }
+
+        // update stride & length
+        view.stride = dstStride;
+        view.length = view.stride * view.count;
+    }
+#endif
+}
+
 gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *data) {
+    tryConvertVertexData();
+
     gfx::BufferList buffers;
+    buffers.reserve(_struct.vertexBundles.size());
     for (const auto &vertexBundle : _struct.vertexBundles) {
         auto *vertexBuffer = gfxDevice->createBuffer({gfx::BufferUsageBit::VERTEX,
                                                       gfx::MemoryUsageBit::DEVICE,
@@ -1093,6 +1260,17 @@ void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 
 bool Mesh::validate() const {
     return !_renderingSubMeshes.empty() && !_data.empty();
+}
+
+void Mesh::setAllowDataAccess(bool allowDataAccess) {
+    _allowDataAccess = allowDataAccess;
+    if (_isMeshDataUploaded && !_allowDataAccess) {
+        releaseData();
+    }
+}
+
+void Mesh::releaseData() {
+    _data.clear();
 }
 
 TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count) {
