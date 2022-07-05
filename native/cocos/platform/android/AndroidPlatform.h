@@ -45,7 +45,7 @@ public:
 
     int32_t run(int argc, const char **argv) override;
 
-    void onClose() override;
+    void quit() override;
 
     int getSdkVersion() const override;
 

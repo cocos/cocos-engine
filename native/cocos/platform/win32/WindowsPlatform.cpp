@@ -41,6 +41,7 @@
     #include "modules/SystemWindow.h"
 #endif
 #include "modules/Vibrator.h"
+#include <cocos/application/ApplicationManager.h>
 
 namespace {
 /**
@@ -167,7 +168,11 @@ int32_t WindowsPlatform::loop() {
     onDestory();
     return 0;
 }
-void WindowsPlatform::onClose() {
-    _quit = true;
+void WindowsPlatform::quit() {
+    HWND windowHandle = reinterpret_cast<HWND>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
+    
+    if (windowHandle!= 0) {
+        ::SendMessageA(windowHandle, WM_CLOSE, 0, 0);
+    }
 }
 } // namespace cc

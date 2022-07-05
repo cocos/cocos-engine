@@ -37,7 +37,7 @@ public:
     int32_t run(int argc, const char **argv) override;
     int getSdkVersion() const override;
     int32_t loop() override;
-    void quit() override {setRunning(false)};
+    void quit() override;
 
 private:
     void waitWindowInitialized();

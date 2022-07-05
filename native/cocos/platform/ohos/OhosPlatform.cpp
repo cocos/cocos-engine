@@ -25,6 +25,7 @@
 
 #include <thread>
 
+#include "bindings/event/EventDispatcher.h"
 #include "platform/ohos/OhosPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
@@ -84,6 +85,11 @@ int32_t OhosPlatform::loop() {
         runTask();
     }
     return 0;
+}
+
+void OhosPlatform::quit() {
+    cc::EventDispatcher::dispatchCloseEvent();
+    exit(0); //TODO(cc): better exit
 }
 
 void OhosPlatform::pollEvent() {

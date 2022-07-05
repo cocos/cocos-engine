@@ -544,7 +544,7 @@ int32_t AndroidPlatform::loop() {
 void AndroidPlatform::pollEvent() {
     //
 }
-void AndroidPlatform::onClose() {
+void AndroidPlatform::quit() {
     activityFinish();
 }
 void *AndroidPlatform::getActivity() { // Dangerous
