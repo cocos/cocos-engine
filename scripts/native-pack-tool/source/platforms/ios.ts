@@ -137,7 +137,7 @@ export class IOSPackTool extends MacOSPackTool {
             }
         }
         else {
-            const projCompileParams = `--build ${nativePrjDir} --config ${this.params.debug ? 'Debug' : 'Release'} -- -allowProvisioningUpdates -quiet`;
+            const projCompileParams = `--build "${nativePrjDir}" --config ${this.params.debug ? 'Debug' : 'Release'} -- -allowProvisioningUpdates -quiet`;
             if (options.iphoneos) {
                 await toolHelper.runCmake([projCompileParams, '-sdk', 'iphoneos', `-arch arm64`]);
             }
