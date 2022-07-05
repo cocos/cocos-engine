@@ -2867,6 +2867,9 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                 destWidth = region.texExtent.width + offset.x == gpuTexture->width ? region.texExtent.width : extent.width;
                 destHeight = region.texExtent.height + offset.y == gpuTexture->height ? region.texExtent.height : extent.height;
 
+                destWidth = region.texExtent.width < static_cast<uint32_t>(blockSize.first) ? region.texExtent.width : destWidth;
+                destHeight = region.texExtent.height < static_cast<uint32_t>(blockSize.second) ? region.texExtent.height : destHeight;
+
                 const uint8_t *buff;
                 if (stride.width == extent.width && stride.height == extent.height) {
                     buff = buffers[n++] + region.buffOffset;
