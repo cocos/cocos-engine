@@ -274,7 +274,7 @@ module.exports = {
                 name: 'Allow Data Access',
                 title:
                     'Indicate whether the mesh data in this model could be read or write.<br>' +
-                    'If it is unchecked, the mesh data will be released after it is uploaded to ',
+                    'If it is unchecked, the mesh data will be released after it is uploaded to GPU',
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
