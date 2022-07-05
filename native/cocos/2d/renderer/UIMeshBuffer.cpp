@@ -75,8 +75,7 @@ void UIMeshBuffer::destroy() {
     _vData = nullptr;
     _iData = nullptr;
     // Destroy InputAssemblers
-    for (uint32_t i = 0; i < _iaPool.size();i++) {
-        gfx::InputAssembler* ia = _iaPool[i];
+    for (auto* ia : _iaPool) {
         ia->destroy();
         delete ia;
     }
