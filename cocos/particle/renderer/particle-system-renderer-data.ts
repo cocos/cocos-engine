@@ -153,6 +153,7 @@ export default class ParticleSystemRenderer {
     }
 
     /**
+     * @en particle cpu material
      * @zh 粒子使用的cpu材质。
      */
     @type(Material)
@@ -180,6 +181,7 @@ export default class ParticleSystemRenderer {
     private _cpuMaterial: Material | null = null;
 
     /**
+     * @en particle gpu material
      * @zh 粒子使用的gpu材质。
      */
     @type(Material)
@@ -207,6 +209,7 @@ export default class ParticleSystemRenderer {
     private _gpuMaterial: Material | null = null;
 
     /**
+     * @en particle trail material
      * @zh 拖尾使用的材质。
      */
     @type(Material)
