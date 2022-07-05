@@ -148,7 +148,6 @@ export class ForwardStage extends RenderStage {
             }
         }
 
-        this._instancedQueue.sort();
         this._renderQueues.forEach(renderQueueSortFunc);
 
         const cmdBuff = pipeline.commandBuffers[0];
