@@ -17747,7 +17747,7 @@ static bool js_scene_Camera_setViewport(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::gfx::Rect, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Camera_setViewport : Error processing arguments");
         cobj->setViewport(arg0.value());
@@ -17767,7 +17767,7 @@ static bool js_scene_Camera_setViewportInOrientedSpace(se::State& s) // NOLINT(r
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::gfx::Rect, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Camera_setViewportInOrientedSpace : Error processing arguments");
         cobj->setViewportInOrientedSpace(arg0.value());
