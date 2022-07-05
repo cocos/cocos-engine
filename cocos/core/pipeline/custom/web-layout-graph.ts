@@ -1,9 +1,62 @@
 // eslint-disable-next-line max-len
-import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, UniformBlock } from '../../gfx';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 // eslint-disable-next-line max-len
 import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { getUpdateFrequencyName, UpdateFrequency } from './types';
+
+function getName (type: Type): string {
+    switch (type) {
+    case Type.UNKNOWN: return 'Unknown';
+    case Type.BOOL: return 'Bool';
+    case Type.BOOL2: return 'Bool2';
+    case Type.BOOL3: return 'Bool3';
+    case Type.BOOL4: return 'Bool4';
+    case Type.INT: return 'Int';
+    case Type.INT2: return 'Int2';
+    case Type.INT3: return 'Int3';
+    case Type.INT4: return 'Int4';
+    case Type.UINT: return 'Uint';
+    case Type.UINT2: return 'Uint2';
+    case Type.UINT3: return 'Uint3';
+    case Type.UINT4: return 'Uint4';
+    case Type.FLOAT: return 'Float';
+    case Type.FLOAT2: return 'Float2';
+    case Type.FLOAT3: return 'Float3';
+    case Type.FLOAT4: return 'Float4';
+    case Type.MAT2: return 'Mat2';
+    case Type.MAT2X3: return 'Mat2x3';
+    case Type.MAT2X4: return 'Mat2x4';
+    case Type.MAT3X2: return 'Mat3x2';
+    case Type.MAT3: return 'Mat3';
+    case Type.MAT3X4: return 'Mat3x4';
+    case Type.MAT4X2: return 'Mat4x2';
+    case Type.MAT4X3: return 'Mat4x3';
+    case Type.MAT4: return 'Mat4';
+    case Type.SAMPLER1D: return 'Sampler1D';
+    case Type.SAMPLER1D_ARRAY: return 'Sampler1DArray';
+    case Type.SAMPLER2D: return 'Sampler2D';
+    case Type.SAMPLER2D_ARRAY: return 'Sampler2DArray';
+    case Type.SAMPLER3D: return 'Sampler3D';
+    case Type.SAMPLER_CUBE: return 'SamplerCube';
+    case Type.SAMPLER: return 'Sampler';
+    case Type.TEXTURE1D: return 'Texture1D';
+    case Type.TEXTURE1D_ARRAY: return 'Texture1DArray';
+    case Type.TEXTURE2D: return 'Texture2D';
+    case Type.TEXTURE2D_ARRAY: return 'Texture2DArray';
+    case Type.TEXTURE3D: return 'Texture3D';
+    case Type.TEXTURE_CUBE: return 'TextureCube';
+    case Type.IMAGE1D: return 'Image1D';
+    case Type.IMAGE1D_ARRAY: return 'Image1DArray';
+    case Type.IMAGE2D: return 'Image2D';
+    case Type.IMAGE2D_ARRAY: return 'Image2DArray';
+    case Type.IMAGE3D: return 'Image3D';
+    case Type.IMAGE_CUBE: return 'ImageCube';
+    case Type.SUBPASS_INPUT: return 'SubpassInput';
+    case Type.COUNT: return 'Count';
+    default: return 'Unknown';
+    }
+}
 
 export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     private _data: LayoutGraphData;
@@ -248,6 +301,20 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             // eslint-disable-next-line no-loop-func
             ppl.descriptorSets.forEach((value, key) => {
                 oss += `    DescriptorSet<${getUpdateFrequencyName(key)}> {\n`;
+                const uniformBlocks = value.descriptorSetLayoutData.uniformBlocks;
+                uniformBlocks.forEach((uniformBlock, attrNameID) => {
+                    const name = g.valueNames[attrNameID];
+                    oss += `        UniformBlock "${name}" {\n`;
+                    for (const u of uniformBlock.members) {
+                        if (u.count > 1) {
+                            oss += `            ${u.name}[${u.count}]: ${getName(u.type)}\n`;
+                        } else {
+                            oss += `            ${u.name}: ${getName(u.type)}\n`;
+                        }
+                    }
+                    oss += `        }\n`;
+                });
+
                 const blocks = value.descriptorSetLayoutData.descriptorBlocks;
                 for (let j = 0; j < blocks.length; ++j) {
                     const block = blocks[j];
