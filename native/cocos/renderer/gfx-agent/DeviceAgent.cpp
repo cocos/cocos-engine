@@ -79,7 +79,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    _mainMessageQueue = _mainMessageQueue = ccnew MessageQueue;
+    _mainMessageQueue = ccnew MessageQueue;
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
@@ -123,7 +123,6 @@ void DeviceAgent::doDestroy() {
 
         delete _mainMessageQueue;
         _mainMessageQueue = nullptr;
-        
     }
 }
 
