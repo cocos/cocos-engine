@@ -1316,7 +1316,7 @@ export class SpriteFrame extends Asset {
         if (!BUILD) {
             // manually load texture via _textureSetter
             if (data.texture) {
-                handle.result.push(this, '_textureSource', data.texture, js._getClassId(Texture2D));
+                handle.result.push(this, '_textureSource', data.texture, js.getClassId(Texture2D));
             }
         }
 

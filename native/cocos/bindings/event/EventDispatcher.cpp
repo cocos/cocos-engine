@@ -335,6 +335,10 @@ void EventDispatcher::dispatchRecreateWindowEvent() {
 #endif
 }
 
+void EventDispatcher::dispatchSceneLoadEvent() {
+    EventDispatcher::dispatchCustomEvent(EVENT_SCENE_LOAD, 0);
+}
+
 void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;

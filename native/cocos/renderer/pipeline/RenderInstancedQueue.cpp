@@ -38,7 +38,16 @@ void RenderInstancedQueue::clear() {
     for (auto *it : _queues) {
         it->clear();
     }
+    _renderQueues.clear();
     _queues.clear();
+}
+
+void RenderInstancedQueue::sort() {
+    std::copy(_queues.cbegin(), _queues.cend(), std::back_inserter(_renderQueues));
+    auto isOpaque = [](const InstancedBuffer *instance) {
+        return instance->getPass()->getBlendState()->targets[0].blend == 0;
+    };
+    std::stable_partition(_renderQueues.begin(), _renderQueues.end(), isOpaque);
 }
 
 void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
@@ -51,7 +60,7 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
 
 void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
                                                gfx::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
-    for (const auto *instanceBuffer : _queues) {
+    for (const auto *instanceBuffer : _renderQueues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 
         const auto &instances = instanceBuffer->getInstances();

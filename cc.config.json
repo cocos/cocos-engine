@@ -405,6 +405,11 @@
             "ccGlobal": true,
             "internal": false,
             "dynamic": true
+        },
+        "NOT_PACK_PHYSX_LIBS": {
+            "comment": "This is an internal constant to determine whether pack physx libs.",
+            "value": true,
+            "internal": true
         }
     }
 }

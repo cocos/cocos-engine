@@ -57,6 +57,12 @@ void CCMTLShader::doInit(const ShaderInfo& info) {
     setAvailableBufferBindingIndex();
 
     CC_LOG_INFO("%s compile succeed.", _name.c_str());
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : _stages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
 }
 
 void CCMTLShader::doDestroy() {

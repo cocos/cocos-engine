@@ -98,7 +98,7 @@ export class IOSPackTool extends MacOSPackTool {
         this.appendCmakeResDirArgs(ext);
 
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
-        await toolHelper.runCmake(['-S', `${this.paths.platformTemplateDirInPrj}`, '-GXcode', `-B${nativePrjDir}`, '-T', `buildsystem=${ver}`,
+        await toolHelper.runCmake(['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', `-B"${nativePrjDir}"`, '-T', `buildsystem=${ver}`,
                                     '-DCMAKE_SYSTEM_NAME=iOS'].concat(ext));
 
         await this.skipUpdateXcodeProject();
@@ -137,7 +137,7 @@ export class IOSPackTool extends MacOSPackTool {
             }
         }
         else {
-            const projCompileParams = `--build ${nativePrjDir} --config ${this.params.debug ? 'Debug' : 'Release'} -- -allowProvisioningUpdates -quiet`;
+            const projCompileParams = `--build "${nativePrjDir}" --config ${this.params.debug ? 'Debug' : 'Release'} -- -allowProvisioningUpdates -quiet`;
             if (options.iphoneos) {
                 await toolHelper.runCmake([projCompileParams, '-sdk', 'iphoneos', `-arch arm64`]);
             }
@@ -269,7 +269,7 @@ export class IOSPackTool extends MacOSPackTool {
 
     async runIosDevice(): Promise<boolean> {
         const buildDir = this.paths.nativePrjDir;
-        const foundApps = execSync(`find ${buildDir} -name "*.app"`)
+        const foundApps = execSync(`find "${buildDir}" -name "*.app"`)
             .toString('utf-8')
             .split('\n')
             .filter((x) => x.trim().length > 0);
@@ -281,7 +281,7 @@ export class IOSPackTool extends MacOSPackTool {
         if (foundApps.length > 0) {
             const cwd = fs.mkdtempSync(ps.join(os.tmpdir(), this.params.projectName));
             await cchelper.runCmd(
-               'xcrun', ['xctrace', 'record', '--template', `'App Launch'`, '--device', `'${deviceId}'`, '--launch', '--', `${foundApps[0]}`],
+               'xcrun', ['xctrace', 'record', '--template', `'App Launch'`, '--device', `'${deviceId}'`, '--launch', '--', `"${foundApps[0]}"`],
                false, cwd);
         }
         return true;
@@ -294,7 +294,7 @@ export class IOSPackTool extends MacOSPackTool {
         console.log(` - build dir ${buildDir} - simId ${simId}`);
         console.log(` - bundle id ${bundleId}`);
 
-        const foundApps = execSync(`find ${buildDir} -name "*.app"`)
+        const foundApps = execSync(`find "${buildDir}" -name "*.app"`)
             .toString('utf-8')
             .split('\n')
             .filter((x) => x.trim().length > 0);
@@ -305,7 +305,7 @@ export class IOSPackTool extends MacOSPackTool {
                 'open', ['`xcode-select -p`/Applications/Simulator.app'], true);
             await cchelper.runCmd('xcrun', ['simctl', 'boot', simId], true);
             await cchelper.runCmd(
-                'xcrun', ['simctl', 'install', simId, foundApps[0].trim()], false);
+                'xcrun', ['simctl', 'install', simId, `"${foundApps[0].trim()}"`], false);
             await cchelper.runCmd(
                 'xcrun', ['simctl', 'launch', simId, `"${bundleId}"`], false);
         }
