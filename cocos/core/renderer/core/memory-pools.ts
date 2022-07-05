@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { PolygonShape } from '@cocos/box2d';
 import { DEBUG } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
 
@@ -185,10 +186,37 @@ export enum PoolType {
     // buffers
     NODE,
     PASS,
-    AABB
+    AABB,
+    RENDER2D
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
+
+export type Render2dHandle = IHandle<PoolType.RENDER2D>;
+
+export enum Render2dView {
+    POSITION, // Vec3
+    UV = 3, // Vec2
+    COLOR = 5,  // Vec4
+    COUNT = 9
+}
+
+const Render2dViewDataType: BufferDataTypeManifest<typeof Render2dView> = {
+    [Render2dView.POSITION]: BufferDataType.FLOAT32,
+    [Render2dView.UV]: BufferDataType.FLOAT32,
+    [Render2dView.COLOR]: BufferDataType.UINT32,
+    [Render2dView.COUNT]: BufferDataType.NEVER,
+};
+
+const Render2dViewDataMembers: BufferDataMembersManifest<typeof Render2dView> = {
+    [Render2dView.POSITION]: Render2dView.UV - Render2dView.POSITION,
+    [Render2dView.UV]: Render2dView.COLOR - Render2dView.UV,
+    [Render2dView.COLOR]: Render2dView.COUNT - Render2dView.COLOR,
+    [Render2dView.COUNT]: 1,
+};
+
+export const Render2dPool = new BufferPool<PoolType.RENDER2D,
+typeof Render2dView>(PoolType.RENDER2D, Render2dViewDataType, Render2dViewDataMembers, Render2dView);
 
 export type NodeHandle = IHandle<PoolType.NODE>;
 

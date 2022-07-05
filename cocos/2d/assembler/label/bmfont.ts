@@ -57,6 +57,7 @@ export const bmfont: IAssembler = {
             return;
         }
 
+        renderData.setDrawType();
         const dataOffset = renderData.dataLength;
 
         renderData.dataLength += 4;
@@ -111,10 +112,6 @@ export const bmfont: IAssembler = {
         dataList[dataOffset + 2].y = y;
         dataList[dataOffset + 3].x = x + rectWidth * scale;
         dataList[dataOffset + 3].y = y;
-    },
-
-    updateColor (comp: Label) {
-
     },
 };
 

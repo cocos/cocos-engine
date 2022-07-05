@@ -25,12 +25,18 @@
 */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { ModelRenderer } from '../../core/components/model-renderer';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
 import { Stage } from '../renderer/stencil-manager';
 import { Component } from '../../core/components';
 import { legacyCC } from '../../core/global-exports';
+import { NativeUIModelProxy } from '../../core/renderer/2d/native-2d';
+import { uiRendererManager } from '../framework/ui-renderer-manager';
+import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { director } from '../../core/director';
+import { MeshRenderData, RenderData } from '../renderer/render-data';
 
 /**
  * @en
@@ -54,8 +60,17 @@ export class UIMeshRenderer extends Component {
 
     private _modelComponent: ModelRenderer | null = null;
 
+    //nativeObj
+    private declare _UIModelNativeProxy:NativeUIModelProxy;
+    protected _renderEntity : RenderEntity|null = null;
+    private modelCount = 0;
+
     public __preload () {
         this.node._uiProps.uiComp = this;
+        if (JSB) {
+            this._UIModelNativeProxy = new NativeUIModelProxy();
+            this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
+        }
     }
 
     public onLoad () {
@@ -66,6 +81,11 @@ export class UIMeshRenderer extends Component {
         this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
             console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            return;
+        }
+        if (JSB) {
+            this._UIModelNativeProxy.attachNode(this.node);
+            this.renderEntity!.assignExtraEntityAttrs(this);
         }
     }
 
@@ -79,6 +99,10 @@ export class UIMeshRenderer extends Component {
         }
 
         this._modelComponent._sceneGetter = null;
+
+        if (JSB) {
+            this._UIModelNativeProxy.destroy();
+        }
     }
 
     /**
@@ -105,6 +129,35 @@ export class UIMeshRenderer extends Component {
         return false;
     }
 
+    // Native updateAssembler
+    public updateRenderData () {
+        if (JSB) {
+            if (this._modelComponent) {
+                const models = this._modelComponent._collectModels();
+                // @ts-expect-error: UIMeshRenderer do not attachToScene
+                this._modelComponent._detachFromScene(); // JSB
+                if (models.length !== this.modelCount) {
+                    for (let i = this.modelCount; i < models.length; i++) {
+                        this._uploadRenderData(i);
+                        this._UIModelNativeProxy.updateModels(models[i]);
+                    }
+                }
+                this.modelCount = models.length;
+                this._UIModelNativeProxy.attachDrawInfo();
+            }
+        }
+    }
+
+    private _uploadRenderData (index) {
+        if (JSB) {
+            const renderData = MeshRenderData.add();
+            renderData.initRenderDrawInfo(this);
+            this._renderData = renderData;
+            this.renderData!.assignExtraDrawInfoAttrs(this);
+            this._renderData!.material = this._modelComponent.getMaterialInstance(index);
+        }
+    }
+
     /**
      * @en Post render data submission procedure, it's executed after assembler updated for all children.
      * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
@@ -117,6 +170,14 @@ export class UIMeshRenderer extends Component {
     }
 
     public update () {
+        if (JSB) {
+            if (this._modelComponent) {
+                const models = this._modelComponent._collectModels();
+                if (models.length !== this.modelCount) {
+                    this._markForUpdateRenderData();
+                }
+            }
+        }
         this._fitUIRenderQueue();
     }
 
@@ -154,6 +215,44 @@ export class UIMeshRenderer extends Component {
     }
 
     public setTextureDirty () {
+    }
+
+    // For Native
+    public _markForUpdateRenderData (enable = true) {
+        uiRendererManager.markDirtyRenderer(this);
+    }
+
+    get renderEntity () {
+        if (!this._renderEntity) {
+            this.initRenderEntity();
+        }
+        return this._renderEntity;
+    }
+
+    protected initRenderEntity () {
+        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
+    }
+
+    protected _renderData:RenderData|null = null;
+    get renderData () {
+        return this._renderData;
+    }
+
+    set renderData (val:RenderData|null) {
+        if (val === this._renderData) {
+            return;
+        }
+        this._renderData = val;
+        const entity = this.renderEntity;
+        if (entity) {
+            if (entity.renderDrawInfoArr.length === 0) {
+                entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
+            } else if (entity.renderDrawInfoArr.length > 0) {
+                if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
+                    entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
+                }
+            }
+        }
     }
 }
 

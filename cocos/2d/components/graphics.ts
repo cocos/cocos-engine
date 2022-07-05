@@ -25,6 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../core/director';
@@ -39,6 +40,8 @@ import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, M
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
+import { NativeUIModelProxy } from '../../core/renderer/2d/native-2d';
+import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
@@ -236,10 +239,19 @@ export class Graphics extends UIRenderer {
 
     private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
 
+    //nativeObj
+    protected declare _graphicsNativeProxy:NativeUIModelProxy;
+    get graphicsNativeProxy () {
+        return this._graphicsNativeProxy;
+    }
+
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-        this.impl = new Impl();
+        this.impl = new Impl(this);
+        if (JSB) {
+            this._graphicsNativeProxy = new NativeUIModelProxy();
+        }
     }
 
     public onRestore () {
@@ -252,6 +264,10 @@ export class Graphics extends UIRenderer {
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
         this._flushAssembler();
+        if (JSB) {
+            this._graphicsNativeProxy.initModel(this.node);
+            this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+        }
     }
 
     public onEnable () {
@@ -268,6 +284,9 @@ export class Graphics extends UIRenderer {
         if (this.model) {
             director.root!.destroyModel(this.model);
             this.model = null;
+            if (JSB) {
+                this._graphicsNativeProxy.destroy();
+            }
         }
 
         const subMeshLength = this._graphicsUseSubMeshes.length;
@@ -544,6 +563,9 @@ export class Graphics extends UIRenderer {
                 const subModel = this.model.subModels[i];
                 subModel.inputAssembler.indexCount = 0;
             }
+            if (JSB) {
+                this._graphicsNativeProxy.clear();// need native
+            }
         }
 
         this.markForUpdateRenderData();
@@ -703,6 +725,27 @@ export class Graphics extends UIRenderer {
         }
 
         return !!this.model && this._isDrawing;
+    }
+
+    public updateRenderData () {
+        if (JSB) {
+            if (this._isNeedUploadData) {
+                if (this.impl) {
+                    const renderDataList = this.impl.getRenderDataList();
+                    for (let i = 0; i < renderDataList.length; i++) {
+                        renderDataList[i].setRenderDrawInfoAttributes();
+                    }
+                    const len = this.model!.subModels.length;
+                    if (renderDataList.length > len) {
+                        for (let i = len; i < renderDataList.length; i++) {
+                            this._graphicsNativeProxy.activeSubModel(i);
+                        }
+                    }
+                }
+                this._graphicsNativeProxy.uploadData();
+                this._isNeedUploadData = false;
+            }
+        }
     }
 }
 

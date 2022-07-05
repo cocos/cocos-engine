@@ -238,6 +238,9 @@ public:
     void removeAllChildren();
     bool isChildOf(Node *parent);
 
+    inline float_t getParentOpacity() { return _parentOpacity; }
+    inline void setParentOpacity(float_t parentOpacity) { _parentOpacity = parentOpacity; }
+
     void setActive(bool isActive);
 
     void setSiblingIndex(index_t index);
@@ -257,7 +260,9 @@ public:
     inline bool isActive() const { return _active; }
 
     inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
-    inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
+    inline void setActiveInHierarchy(bool v) {
+        _activeInHierarchyArr[0] = (v ? 1 : 0);
+    }
     inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
 
     virtual void onPostActivated(bool active) {}
@@ -707,6 +712,7 @@ private:
     Vec3 _euler{0, 0, 0};
 
     //
+    float_t _parentOpacity{1.0f};
 
     IntrusivePtr<UserData> _userData;
     friend class NodeActivator;

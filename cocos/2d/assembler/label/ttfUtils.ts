@@ -116,7 +116,7 @@ export const ttfUtils =  {
             trans.setContentSize(_canvasSize);
 
             this.updateVertexData(comp);
-            this.updateUVs(comp);
+            this.updateUVs(comp); // Empty
 
             comp.markForUpdateRenderData(false);
 
@@ -325,6 +325,9 @@ export const ttfUtils =  {
             const uploadAgain = _canvas.width !== 0 && _canvas.height !== 0;
 
             if (uploadAgain) {
+                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
+                    legacyCC.director.root.batcher2D._releaseDescriptorSetCacheNative(tex.getGFXTexture());
+                }
                 tex.reset({
                     width: _canvas.width,
                     height: _canvas.height,

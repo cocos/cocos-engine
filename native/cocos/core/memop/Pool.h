@@ -84,7 +84,9 @@ public:
      * @param obj The object to be put back into the pool
      */
     void free(T *obj) {
-        _freepool[++_nextAvail] = obj;
+        _freepool.emplace_back(obj);
+        ++_nextAvail;
+        // _freepool[++_nextAvail] = obj;
     }
 
     /**
