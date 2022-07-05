@@ -516,15 +516,15 @@ bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unuse
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/) {
-    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
     se::Object *obj = from.toObject();
     se::Value tmp;
 
-    set_member_field(obj, to, "x", &cc::gfx::Rect::x, tmp);
-    set_member_field(obj, to, "y", &cc::gfx::Rect::y, tmp);
-    set_member_field(obj, to, "width", &cc::gfx::Rect::width, tmp);
-    set_member_field(obj, to, "height", &cc::gfx::Rect::height, tmp);
+    set_member_field(obj, to, "x", &cc::Rect::x, tmp);
+    set_member_field(obj, to, "y", &cc::Rect::y, tmp);
+    set_member_field(obj, to, "width", &cc::Rect::width, tmp);
+    set_member_field(obj, to, "height", &cc::Rect::height, tmp);
     return true;
 }
 
