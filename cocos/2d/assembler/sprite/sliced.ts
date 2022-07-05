@@ -194,7 +194,7 @@ export const sliced: IAssembler = {
 
         let offset = 0;
         for (let row = 0; row < 4; ++row) {
-            const rowD = dataList[row];
+            const rowD = dataList[row * 4];
             for (let col = 0; col < 4; ++col) {
                 const colD = dataList[col];
 
