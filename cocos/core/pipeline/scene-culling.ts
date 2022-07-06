@@ -185,7 +185,7 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
 
-    for (let i = csmLayerObjects.length; i >= 0; i--) {
+    for (let i = csmLayerObjects.length - 1; i >= 0; i--) {
         const csmLayerObject = csmLayerObjects.array[i];
         if (csmLayerObject) {
             const model = csmLayerObject.model;
