@@ -53,6 +53,7 @@ public:
     uintptr_t getDisplay() const;
 #endif
     void setCursorEnabled(bool value);
+    SDL_Window* getSDLWindowHandler() const;
 
 private:
     void dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);

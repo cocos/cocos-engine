@@ -77,15 +77,15 @@ static long getCurrentMillSecond() {
     return lLastTime;
 }
 void LinuxPlatform::quit() {
-    // This won't dispatch close event
-    //_quit = true;
-    uintptr_t windowHandle = _window->getWindowHandler();
+#ifndef CC_SERVER_MODE
+    auto windowHandle = _window->getSDLWindowHandler();
     
     if (windowHandle!= 0) {
         SDL_DestroyWindow(windowHandle);
         // Clean up
         SDL_Quit();
     }
+#endif
 }
 int32_t LinuxPlatform::loop() {
     long lastTime = 0L;

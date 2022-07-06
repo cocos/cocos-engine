@@ -27,8 +27,10 @@
 
 #include <iostream>
 
+#include "SDLHelper.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 
+struct SDL_Window;
 namespace cc {
 class SDLHelper;
 class CC_DLL SystemWindow : public ISystemWindow {
@@ -46,6 +48,7 @@ public:
                       int x, int y, int w,
                       int h, int flags) override;
     uintptr_t getWindowHandler() const override;
+    SDL_Window* getSDLWindowHandler() const;
     uintptr_t getDisplay() const;
     Size getViewSize() const override;
     void setViewSize(uint32_t w, uint32_t h) override {

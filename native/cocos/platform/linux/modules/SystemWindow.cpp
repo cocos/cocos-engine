@@ -79,6 +79,10 @@ uintptr_t SystemWindow::getWindowHandler() const {
     return _sdl->getWindowHandler();
 }
 
+SDL_Window* SystemWindow::getSDLWindowHandler() const {
+    return _sdl->getSDLWindowHandler();
+}
+
 uintptr_t SystemWindow::getDisplay() const {
     return _sdl->getDisplay();
 }
