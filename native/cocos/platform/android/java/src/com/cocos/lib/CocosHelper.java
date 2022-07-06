@@ -385,7 +385,7 @@ public class CocosHelper {
         }
         return new float[]{0, 0, 0, 0};
     }
-    public static void activityFinish() {
+    public static void finishActivity() {
         sActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -115,8 +115,8 @@ void setVibrateJNI(float duration) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "vibrate", duration);
 }
 
-void activityFinish() {
-    JniHelper::callStaticVoidMethod(JCLS_HELPER, "activityFinish");
+void finishActivity() {
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "finishActivity");
 }
 int getNetworkTypeJNI() {
     return JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");

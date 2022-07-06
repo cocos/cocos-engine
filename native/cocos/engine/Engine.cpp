@@ -66,10 +66,6 @@
 #endif
 #include "profiler/Profiler.h"
 
-#if CC_PLATFORM == CC_PLATFORM_MACOS
-#include "platform/mac/MacPlatform.h"
-#endif
-
 namespace {
 
 bool setCanvasCallback(se::Object * /*global*/) {

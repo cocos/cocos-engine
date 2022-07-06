@@ -27,7 +27,6 @@
 
 #include <iostream>
 
-#include "SDLHelper.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 struct SDL_Window;

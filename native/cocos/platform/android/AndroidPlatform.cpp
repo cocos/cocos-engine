@@ -545,7 +545,7 @@ void AndroidPlatform::pollEvent() {
     //
 }
 void AndroidPlatform::quit() {
-    activityFinish();
+    finishActivity();
 }
 void *AndroidPlatform::getActivity() { // Dangerous
     return _app->activity->javaGameActivity;
