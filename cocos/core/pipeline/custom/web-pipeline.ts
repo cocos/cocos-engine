@@ -392,8 +392,7 @@ export class WebPipeline extends Pipeline {
         this.descriptorSet.update();
 
         if (root.useDeferredPipeline) {
-            buildDeferredPipelineLayoutGraphData(this._device);
-            // buildDeferredLayout(this);
+            buildDeferredLayout(this);
         } else {
             buildForwardLayout(this);
         }

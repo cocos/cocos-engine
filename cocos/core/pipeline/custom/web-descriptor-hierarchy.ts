@@ -28,7 +28,7 @@ import { EffectAsset } from '../../assets';
 import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
-import { JOINT_UNIFORM_CAPACITY, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
+import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 
 export class WebDescriptorHierarchy {
     public uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
@@ -399,7 +399,9 @@ export class WebDescriptorHierarchy {
 
         this.merge(passDB);
 
-        const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, vName, passDB);
+        const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(
+            LayoutGraphValue.RenderStage, RenderPassStage.DEFAULT, vName, passDB,
+        );
 
         return vid;
     }
@@ -411,6 +413,18 @@ export class WebDescriptorHierarchy {
             this.mergeDBs(toMerge, target);
             this.sort(target);
         }
+    }
+
+    public addRenderStage (name: string, stageID: number): number {
+        const passDB: DescriptorDB = new DescriptorDB();
+        return this._layoutGraph.addVertex(LayoutGraphValue.RenderStage,
+            stageID, name, passDB);
+    }
+
+    public addRenderPhase (name: string, parentStageID: number): number {
+        const passDB: DescriptorDB = new DescriptorDB();
+        return this._layoutGraph.addVertex(LayoutGraphValue.RenderPhase,
+            new RenderPhase(), name, passDB, parentStageID);
     }
 
     public _layoutGraph: LayoutGraph;

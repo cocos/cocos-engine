@@ -120,9 +120,9 @@ export function buildForwardLayoutFromGlobal (ppl: Pipeline, lg: WebDescriptorHi
 
 export function buildForwardLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
-    const bNew = false;
+    const bFromGlobalDescriptorSet = false;
 
-    if (bNew) {
+    if (bFromGlobalDescriptorSet) {
         buildForwardLayoutFromGlobal(ppl, lg);
     } else {
         const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true);
@@ -138,6 +138,41 @@ export function buildForwardLayout (ppl: Pipeline) {
     }
 }
 
-export function buildDeferredLayout (ppl: Pipeline) {
+enum DeferredStage {
+    GEOMETRY,
+    LIGHTING,
+}
 
+export function buildDeferredLayout (ppl: Pipeline) {
+    const lg = new WebDescriptorHierarchy();
+    const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
+    const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);
+
+    const geometryQueueID = lg.addRenderStage('Queue', geometryPassID);
+    const lightingQueueID = lg.addRenderStage('Queue', lightingPassID);
+
+    const lightingDescriptors = lg.layoutGraph.getDescriptors(lightingPassID);
+
+    const lightingPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        lightingDescriptors);
+
+    lg.setDescriptor(lightingPassBlock, 'gbuffer_albedoMap', Type.FLOAT4);
+    lg.setDescriptor(lightingPassBlock, 'gbuffer_normalMap', Type.FLOAT4);
+    lg.setDescriptor(lightingPassBlock, 'gbuffer_emissiveMap', Type.FLOAT4);
+    lg.setDescriptor(lightingPassBlock, 'depth_stencil', Type.FLOAT4);
+
+    lg.merge(lightingDescriptors);
+
+    lg.mergeDescriptors(lightingPassID);
+
+    const builder = ppl.layoutGraphBuilder;
+    builder.clear();
+    buildLayoutGraphDataImpl(lg.layoutGraph, builder);
+
+    if (DEBUG) {
+        console.log(builder.print());
+    }
 }
