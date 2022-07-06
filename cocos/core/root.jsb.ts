@@ -4,7 +4,6 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { registerRebuildLayoutGraph } from './pipeline/custom/index.jsb';
 import { DebugView } from './pipeline/debug-view';
 
 declare const nr: any;
@@ -199,7 +198,6 @@ const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     if (this.usesCustomPipeline) {
         const ppl = oldSetPipeline.call(this, null);
-        registerRebuildLayoutGraph();
         return ppl;
     } else {
         if (!pipeline) {
