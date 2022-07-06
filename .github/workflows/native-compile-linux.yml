@@ -1,10 +1,6 @@
 name: <Native> Linux
 
-on:
-  pull_request:
-    paths:
-    - 'templates/**'
-    - 'native/**'
+on: [push]
 
 # github.head_ref is only defined on pull_request events
 concurrency:
