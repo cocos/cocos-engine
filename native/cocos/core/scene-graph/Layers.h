@@ -83,7 +83,7 @@ public:
      * @param excludes All excluded layers
      * @return A filter which can detect for excluded layers
      */
-    static uint32_t makeMaskExclude(const std::vector<uint32_t> &excludes) {
+    static uint32_t makeMaskExclude(const ccstd::vector<uint32_t> &excludes) {
         return ~makeMaskInclude(excludes);
     }
 

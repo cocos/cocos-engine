@@ -27,6 +27,7 @@
 
 #include "base/RefCounted.h"
 //#include "core/scene-graph/Layers.h"
+#include "base/Macros.h"
 #include "core/scene-graph/Node.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/Define.h"
@@ -40,7 +41,7 @@ namespace scene {
 class Pass;
 class Model;
 
-class DrawBatch2D : public RefCounted {
+class DrawBatch2D final : public RefCounted {
 public:
     DrawBatch2D();
     ~DrawBatch2D();
@@ -71,6 +72,8 @@ protected:
 
     Node *_useLocalData{nullptr}; // May don`t need
     Model *_model{nullptr};
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(DrawBatch2D);
 };
 
 } // namespace scene

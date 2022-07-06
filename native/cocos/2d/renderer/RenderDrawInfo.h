@@ -24,18 +24,19 @@
 ****************************************************************************/
 
 #pragma once
+#include <vector>
 #include "2d/renderer/UIMeshBuffer.h"
+#include "base/Macros.h"
 #include "base/TypeDef.h"
 #include "core/ArrayBuffer.h"
 #include "core/assets/Material.h"
 #include "core/scene-graph/Node.h"
-#include "renderer/gfx-base/states/GFXSampler.h"
-#include "scene/Model.h"
 #include "math/Color.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
-#include <vector>
+#include "renderer/gfx-base/states/GFXSampler.h"
+#include "scene/Model.h"
 
 namespace cc {
 struct Render2dLayout {
@@ -55,7 +56,7 @@ public:
     explicit RenderDrawInfo(Batcher2d* batcher);
     RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset);
     ~RenderDrawInfo();
-    
+
     inline index_t getAccId() const { return _accId; }
     void setAccId(index_t id);
     inline index_t getBufferId() const { return _bufferId; }
@@ -118,6 +119,8 @@ public:
     void uploadBuffers();
     void resetMeshIA();
 
+protected:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
 
 private:
     gfx::InputAssembler* _initIAInfo(gfx::Device* device);
@@ -173,7 +176,7 @@ private:
 
     ccstd::vector<gfx::InputAssembler*> _iaPool{};
     uint32_t _nextFreeIAHandle{0};
-    gfx::Buffer* vbGFXBuffer{nullptr};
-    gfx::Buffer* ibGFXBuffer{nullptr};
+    gfx::Buffer* _vbGFXBuffer{nullptr};
+    gfx::Buffer* _ibGFXBuffer{nullptr};
 };
 } // namespace cc

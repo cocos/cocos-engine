@@ -30,9 +30,7 @@ namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(nullptr) {
 }
 
-RenderEntity::RenderEntity(Batcher2d* batcher) {
-    _batcher = batcher;
-
+RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
     for (auto& drawInfo : _staticDrawInfos) {
         drawInfo.setBatcher(_batcher);
     }

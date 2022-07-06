@@ -24,41 +24,43 @@
 ****************************************************************************/
 
 #pragma once
-#include "scene/Model.h"
+#include "base/Macros.h"
 #include "core/Root.h"
+#include "scene/Model.h"
 
 namespace cc {
 class UIModelProxy final {
-
 public:
     UIModelProxy();
     ~UIModelProxy();
 
-public:
-	void initModel(Node* node);
-	void activeSubModel(uint8_t val);
-	void uploadData();
-	void destroy(); // clear
-	void clear();
+    void initModel(Node* node);
+    void activeSubModel(uint8_t val);
+    void uploadData();
+    void destroy();
+    void clear();
     // For UIModel
     void updateModels(scene::Model* models);
     void attachDrawInfo();
     void attachNode(Node* node);
+
+protected:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(UIModelProxy);
+
 private:
-	Node* _node{ nullptr };
-    ccstd::vector<scene::Model*> _models{}; 
-	ccstd::vector<RenderingSubMesh*> _graphicsUseSubMeshes{};
+    Node* _node{nullptr};
+    ccstd::vector<scene::Model*> _models{};
+    ccstd::vector<RenderingSubMesh*> _graphicsUseSubMeshes{};
     // For UIModel
     scene::Model* _model{nullptr};
 
-	gfx::Device* _device = Root::getInstance()->getDevice();
-	uint32_t _stride{ 32 };
-	ccstd::vector<gfx::Attribute> _attributes{
-		gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-		gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-		gfx::Attribute{"a_dist", gfx::Format::R32F},
-	};
-	gfx::PrimitiveMode _primitiveMode{ gfx::PrimitiveMode::TRIANGLE_LIST };
+    gfx::Device* _device{nullptr};
+    uint32_t _stride{32};
+    ccstd::vector<gfx::Attribute> _attributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+        gfx::Attribute{"a_dist", gfx::Format::R32F},
+    };
+    gfx::PrimitiveMode _primitiveMode{gfx::PrimitiveMode::TRIANGLE_LIST};
 };
 } // namespace cc
-

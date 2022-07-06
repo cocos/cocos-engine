@@ -29,6 +29,7 @@
 #include "core/assets/Material.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/Pass.h"
+#include "base/Macros.h"
 #include <stack>
 
 namespace cc {
@@ -50,14 +51,14 @@ enum class StencilStage {
 };
 
 struct StencilEntity {
-    uint32_t stencilTest;
-    gfx::ComparisonFunc func;
-    uint32_t stencilMask;
-    uint32_t writeMask;
-    gfx::StencilOp failOp;
-    gfx::StencilOp zFailOp;
-    gfx::StencilOp passOp;
-    uint32_t ref;
+    uint32_t stencilTest{0};
+    gfx::ComparisonFunc func{gfx::ComparisonFunc::ALWAYS};
+    uint32_t stencilMask{0};
+    uint32_t writeMask{0};
+    gfx::StencilOp failOp{gfx::StencilOp::KEEP};
+    gfx::StencilOp zFailOp{gfx::StencilOp::KEEP};
+    gfx::StencilOp passOp{gfx::StencilOp::KEEP};
+    uint32_t ref{0};
 };
 
 class StencilManager final {
@@ -80,7 +81,7 @@ public:
     inline uint32_t getStencilRef() const {
         uint32_t result = 0;
         for (uint32_t i = 0; i < _maskStackSize; i++) {
-            result += (0x00000001 << i);
+            result += (1 << i);
         }
         return result;
     }
@@ -88,9 +89,11 @@ public:
         return (((uint32_t)stage) << 8) | _maskStackSize;
     }
 
-public:
     void setStencilStage(uint32_t stageIndex);
     inline const ArrayBuffer& getStencilSharedBufferForJS() const { return *_stencilSharedBuffer; }
+
+protected:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(StencilManager);
 
 private:
     StencilEntity _stencilPattern{};

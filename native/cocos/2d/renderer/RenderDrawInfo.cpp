@@ -23,19 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "2d/renderer/Batcher2d.h"
 #include "2d/renderer/RenderDrawInfo.h"
+#include <iostream>
+#include "2d/renderer/Batcher2d.h"
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
-#include <iostream>
 
 namespace cc {
 RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
-RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) {
-    _batcher = batcher;
-
+RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
     _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
     _seArrayBufferObject->root();
     _attrSharedBuffer = new ArrayBuffer();
@@ -173,10 +171,10 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 void RenderDrawInfo::uploadBuffers() {
     if (_vbCount == 0 || _ibCount == 0) return;
     auto size = _vbCount * 9;
-    gfx::Buffer* vBuffer = vbGFXBuffer;
+    gfx::Buffer* vBuffer = _vbGFXBuffer;
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
-    gfx::Buffer* iBuffer = ibGFXBuffer;
+    gfx::Buffer* iBuffer = _ibGFXBuffer;
     auto isize = _ibCount * sizeof(uint16_t);
     iBuffer->resize(isize);
     iBuffer->update(_iDataBuffer);
@@ -203,8 +201,8 @@ gfx::InputAssembler* RenderDrawInfo::_initIAInfo(gfx::Device* device) {
             ibStride,
         });
 
-        vbGFXBuffer = vertexBuffer;
-        ibGFXBuffer = indexBuffer;
+        _vbGFXBuffer = vertexBuffer;
+        _ibGFXBuffer = indexBuffer;
 
         _iaInfo.attributes = _attributes;
         _iaInfo.vertexBuffers.emplace_back(vertexBuffer);

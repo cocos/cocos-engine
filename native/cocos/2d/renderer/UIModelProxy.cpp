@@ -29,6 +29,7 @@
 
 namespace cc {
 UIModelProxy::UIModelProxy() {
+    _device = Root::getInstance()->getDevice();
 }
 UIModelProxy::~UIModelProxy() {
 }

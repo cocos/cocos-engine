@@ -34,6 +34,7 @@
 #include "scene/DrawBatch2D.h"
 #include "2d/renderer/RenderEntity.h"
 #include "base/Ptr.h"
+#include "base/Macros.h"
 
 namespace cc {
 class Root;
@@ -67,6 +68,9 @@ public:
     void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
+
+protected:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
 
 private:
     Root* _root{nullptr};
