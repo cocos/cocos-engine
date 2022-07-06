@@ -83,38 +83,34 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 }
 
 void Batcher2d::walk(Node* node) {
-    static ccstd::vector<Node*> nodeStack{1000000};
-    nodeStack[0] = node;
-    size_t length = 1;
-    while (length > 0) {
-        Node* curNode = nodeStack[--length];
-        RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
-        if (entity && entity->isEnabled()) {
-            RenderEntityType entityType = entity->getRenderEntityType();
+    if (!node->isActiveInHierarchy()) {
+        return;
+    }
 
-            // when filling buffers, we should distinguish commom components and other complex components like middlewares
-            if (entityType == RenderEntityType::STATIC) {
-                std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-                for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
-                    handleStaticDrawInfo(entity, &(drawInfos[i]), curNode);
-                }
-            } else if (entityType == RenderEntityType::DYNAMIC) {
-                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (auto* drawInfo : drawInfos) {
-                    handleDynamicDrawInfo(entity, drawInfo, curNode);
-                }
+    RenderEntity* entity = static_cast<RenderEntity*>(node->getUserData());
+    if (entity && entity->isEnabled()) {
+        RenderEntityType entityType = entity->getRenderEntityType();
+
+        // when filling buffers, we should distinguish commom components and other complex components like middlewares
+        if (entityType == RenderEntityType::STATIC) {
+            std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
+            for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
+                handleStaticDrawInfo(entity, &(drawInfos[i]), node);
+            }
+        } else if (entityType == RenderEntityType::DYNAMIC) {
+            ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
+            for (auto* drawInfo : drawInfos) {
+                handleDynamicDrawInfo(entity, drawInfo, node);
             }
         }
+    }
 
-        auto& children = curNode->getChildren();
-        for (index_t i = children.size() - 1; i >= 0; i--) {
-            assert(length < 1000000);
-            nodeStack[length++] = children[i];
-
-            if (entity) {
-                children[i]->setParentOpacity(entity->getOpacity());
-            }
+    auto& children = node->getChildren();
+    for (auto child : children) {
+        if (entity) {
+            child->setParentOpacity(entity->getOpacity());
         }
+        walk(child);
     }
 }
 
@@ -212,28 +208,49 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         uint32_t dataHash = drawInfo->getDataHash();
         entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
         StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
-        UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
-        if (_currMeshBuffer != buffer) {
-            _currMeshBuffer = buffer;
-            _indexStart = _currMeshBuffer->getIndexOffset();
-        }
         _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
         _currLayer = entity->getNode()->getLayer();
-        _currEntity = entity;
-        _currDrawInfo = drawInfo;
+
+        // make sure next generateBatch return.
+        _currEntity = nullptr;
+        _currDrawInfo = nullptr;
+        _currMeshBuffer = nullptr;
 
         // if(frame)
         _currTexture = drawInfo->getTexture();
         _currTextureHash = drawInfo->getTextureHash();
         _currSampler = drawInfo->getSampler();
         _currSamplerHash = _currSampler->getHash();
-
-        if (curNode->getChangedFlags() || drawInfo->getVertDirty()) {
-            drawInfo->setVertDirty(false);
-        }
         setIndexRange(drawInfo);
+
+        UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
+        currMeshBuffer->setDirty(true);
+        gfx::InputAssembler* ia = currMeshBuffer->requireFreeIA(getDevice());
+        ia->setFirstIndex(drawInfo->getIndexOffset());
+        ia->setIndexCount(drawInfo->getIbCount());
+
+        // stencilstage
+        gfx::DepthStencilState* depthStencil;
+        ccstd::hash_t dssHash = 0;
+        StencilStage entityStage = entity->getEnumStencilStage();
+        if (entity->getCustomMaterial() != nullptr) {
+            depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage, _currMaterial);
+        } else {
+            depthStencil = StencilManager::getInstance()->getDepthStencilState(entityStage);
+        }
+        dssHash = StencilManager::getInstance()->getStencilHash(entityStage);
+
+        auto* curdrawBatch = _drawBatchPool.alloc();
+        curdrawBatch->setVisFlags(_currLayer);
+        curdrawBatch->setInputAssembler(ia);
+        curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
+        curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
+        const auto& _pass = curdrawBatch->getPasses().at(0);
+
+        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, _pass->getLocalSetLayout()));
+        _batches.push_back(curdrawBatch);
     }
 }
 
@@ -326,8 +343,10 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     _dsInfo.layout = _dsLayout;
     auto* ds = getDevice()->createDescriptorSet(_dsInfo);
 
-    ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
-    ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    if (texture != nullptr && sampler != nullptr) {
+        ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
+        ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    }
     ds->update();
 
     _descriptorSetCache.emplace(hash, ds);
@@ -335,7 +354,7 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
 
     return ds;
 }
- 
+
 void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture) {
     size_t textureHash = 0;
     if (texture != nullptr) {

@@ -26,7 +26,7 @@
 #pragma once
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXDef-common.h"
-#include <vector>
+#include "base/Macros.h"
 
 namespace cc {
 struct MeshBufferLayout {
@@ -47,7 +47,6 @@ public:
     inline uint16_t* getIData() const { return _iData; }
     void setIData(uint16_t* iData);
 
-public:
     void initialize(gfx::Device* device, ccstd::vector<gfx::Attribute*>&& attrs, uint32_t vFloatCount, uint32_t iCount);
     void reset();
     void destroy();
@@ -56,7 +55,6 @@ public:
 
     void syncSharedBufferToNative(uint32_t* buffer);
 
-public:
     void resetIA();
     void recycleIA(gfx::InputAssembler* ia);
     void parseLayout();
@@ -74,6 +72,9 @@ public:
     void setDirty(bool dirty) const;
     inline uint32_t getFloatsPerVertex() const { return _meshBufferLayout->floatsPerVertex; }
     void setFloatsPerVertex(uint32_t floatsPerVertex);
+
+protected:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(UIMeshBuffer);
 
 private:
     float_t* _vData{nullptr};

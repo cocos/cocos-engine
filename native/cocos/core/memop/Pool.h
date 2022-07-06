@@ -31,7 +31,6 @@
 #include "base/TypeDef.h"
 #include "base/std/container/vector.h"
 
-
 namespace cc {
 
 namespace memop {
@@ -84,9 +83,11 @@ public:
      * @param obj The object to be put back into the pool
      */
     void free(T *obj) {
-        _freepool.emplace_back(obj);
         ++_nextAvail;
-        // _freepool[++_nextAvail] = obj;
+        if (_nextAvail >= _freepool.size()) {
+            _freepool.resize(_freepool.size() + 1);
+        }
+        _freepool[_nextAvail] = obj;
     }
 
     /**
@@ -116,6 +117,7 @@ public:
     void destroy() {
         _nextAvail = -1;
         _freepool.clear();
+        _freepool.shrink_to_fit();
     }
 
 private:

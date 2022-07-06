@@ -29,6 +29,7 @@
 
 namespace cc {
 UIModelProxy::UIModelProxy() {
+    _device = Root::getInstance()->getDevice();
 }
 UIModelProxy::~UIModelProxy() {
 }
@@ -63,14 +64,16 @@ void UIModelProxy::activeSubModel(uint8_t val) {
 
         RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
         RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
-        _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
-        _graphicsUseSubMeshes.emplace_back(renderMesh);
+        if (drawInfo != nullptr) {
+            _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
+            _graphicsUseSubMeshes.emplace_back(renderMesh);
+        }
     }
 }
 
 void UIModelProxy::uploadData() {
     RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
-    auto drawInfos = entity->getDynamicRenderDrawInfos();
+    auto& drawInfos = entity->getDynamicRenderDrawInfos();
     auto subModelList = _model->getSubModels();
     for (size_t i = 0; i < drawInfos.size(); i++) {
         auto drawInfo = drawInfos[i];
@@ -95,7 +98,10 @@ void UIModelProxy::uploadData() {
             ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
         // drawInfo->setModel(_model); // hack, render by model
     }
-    drawInfos[0]->setModel(_model);
+
+    if (!drawInfos.empty()) {
+        drawInfos[0]->setModel(_model);
+    }
 }
 
 void UIModelProxy::destroy() {
@@ -111,7 +117,7 @@ void UIModelProxy::updateModels(scene::Model* model) {
 
 void UIModelProxy::attachDrawInfo() {
     RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
-    auto drawInfos = entity->getDynamicRenderDrawInfos();
+    auto& drawInfos = entity->getDynamicRenderDrawInfos();
     if (drawInfos.size() != _models.size()) return;
     for (size_t i = 0; i < drawInfos.size(); i++) {
         drawInfos[i]->setModel(_models[i]);

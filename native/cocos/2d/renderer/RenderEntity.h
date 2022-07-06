@@ -29,6 +29,7 @@
 #include "core/ArrayBuffer.h"
 #include "core/scene-graph/Node.h"
 #include "2d/renderer/StencilManager.h"
+#include "base/Macros.h"
 #include <array>
 #include <vector>
 
@@ -96,6 +97,9 @@ public:
     inline float_t getOpacity() const { return _opacity; }
     inline void setOpacity(float_t opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
+
+protected:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
 
 private:
     uint32_t _staticDrawInfoSize{0};
