@@ -479,7 +479,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     private _updateMaterial () {
-        if (PhysicsSystem.instance.physicsWorld) PhysicsSystem.instance.physicsWorld.setDefaultMaterial(PhysicsSystem.instance._material);
+        if (this.physicsWorld) this.physicsWorld.setDefaultMaterial(this._material);
     }
 
     /**
