@@ -85,24 +85,23 @@ export class RenderShadowMapBatchedQueue {
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             switch (light.type) {
             case LightType.DIRECTIONAL:
-                if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-                    const dirLight = light as DirectionalLight;
-                    if (dirLight.shadowEnabled) {
-                        const csmLayers = sceneData.csmLayers;
-                        let layer;
-                        if (dirLight.shadowFixedArea) {
-                            layer = csmLayers.specialLayer;
-                        } else {
-                            layer = csmLayers.layers[level];
-                        }
-                        shadowCulling(camera, sceneData, layer);
-                        const dirShadowObjects = layer.shadowObjects;
-                        for (let i = 0; i < dirShadowObjects.length; i++) {
-                            const ro = dirShadowObjects[i];
-                            const model = ro.model;
-                            if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                            this.add(model, _shadowPassIndices);
-                        }
+                // eslint-disable-next-line no-case-declarations
+                const dirLight = light as DirectionalLight;
+                if (dirLight.shadowEnabled) {
+                    const csmLayers = sceneData.csmLayers;
+                    let layer;
+                    if (dirLight.shadowFixedArea) {
+                        layer = csmLayers.specialLayer;
+                    } else {
+                        layer = csmLayers.layers[level];
+                    }
+                    shadowCulling(camera, sceneData, layer);
+                    const dirShadowObjects = layer.shadowObjects;
+                    for (let i = 0; i < dirShadowObjects.length; i++) {
+                        const ro = dirShadowObjects[i];
+                        const model = ro.model;
+                        if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                        this.add(model, _shadowPassIndices);
                     }
                 }
 
