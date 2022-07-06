@@ -32,7 +32,11 @@
 #include "base/std/container/string.h"
 
 #if CC_USE_JPEG
+#if CC_PLATFORM == CC_PLATFORM_LINUX
+    #include "jpeglib.h"
+#else
     #include "jpeg/jpeglib.h"
+#endif
 #endif // CC_USE_JPEG
 
 #include "base/Data.h"
