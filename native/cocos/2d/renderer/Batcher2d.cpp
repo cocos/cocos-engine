@@ -351,8 +351,10 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     _dsInfo.layout = _dsLayout;
     auto* ds = getDevice()->createDescriptorSet(_dsInfo);
 
-    ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
-    ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    if (texture != nullptr && sampler != nullptr) {
+        ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
+        ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    }
     ds->update();
 
     _descriptorSetCache.emplace(hash, ds);
