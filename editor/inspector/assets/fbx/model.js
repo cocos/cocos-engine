@@ -1,7 +1,5 @@
 'use strict';
 
-const { methods: fbxMethods } = require('./fbx.js');
-
 exports.template = `
 <div class="container">
     <ui-prop>
@@ -237,25 +235,25 @@ const Elements = {
             panel.updateReadonly(panel.$.allowMeshDataAccessCheckbox);
         },
     },
-    // this move from ./fbx.js in v3.6.0
+    // move this from ./fbx.js in v3.6.0
     promoteSingleRootNode: {
         ready() {
             const panel = this;
 
-            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', fbxMethods.setProp.bind(panel, 'fbx.promoteSingleRootNode', 'boolean'));
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'promoteSingleRootNode'));
         },
         update() {
             const panel = this;
 
             let defaultValue = false;
-            if (panel.meta.userData.fbx) {
-                defaultValue = fbxMethods.getDefault.call(panel, panel.meta.userData.fbx.promoteSingleRootNode, defaultValue);
+            if (panel.meta.userData) {
+                defaultValue = panel.getDefault(panel.meta.userData.promoteSingleRootNode, defaultValue);
             }
 
             panel.$.promoteSingleRootNodeCheckbox.value = defaultValue;
 
-            fbxMethods.updateInvalid.call(panel, panel.$.promoteSingleRootNodeCheckbox, 'fbx.promoteSingleRootNode');
-            fbxMethods.updateReadonly.call(panel, panel.$.promoteSingleRootNodeCheckbox);
+            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
+            panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
         },
     },
     meshOptimizer: {
@@ -404,6 +402,9 @@ exports.methods = {
             switch (prop) {
                 case 'normals': case 'tangents': case 'morphNormals':
                     value = Number(value);
+                    break;
+                case 'promoteSingleRootNode':
+                    value = Boolean(value);
                     break;
             }
 
