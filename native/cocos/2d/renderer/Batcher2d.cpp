@@ -350,26 +350,25 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     ds->update();
 
     _descriptorSetCache.emplace(hash, ds);
-    _dsCacheHashByTexture.emplace(textureHash, hash);
 
     return ds;
 }
 
-void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture) {
-    size_t textureHash = 0;
+void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler) {
+    ccstd::hash_t hash = 2;
+    size_t textureHash;
     if (texture != nullptr) {
         textureHash = boost::hash_value(texture);
+        ccstd::hash_combine(hash, textureHash);
     }
-    auto iter = _dsCacheHashByTexture.find(textureHash);
-    if (iter != _dsCacheHashByTexture.end()) {
-        ccstd::hash_t hash = iter->second;
-        auto ds = _descriptorSetCache.find(hash);
-        if (ds != _descriptorSetCache.end()) {
-            auto dsObj = ds->second;
-            dsObj->destroy();
-            _descriptorSetCache.erase(hash);
-        }
-        _dsCacheHashByTexture.erase(textureHash);
+    if (sampler != nullptr) {
+        ccstd::hash_combine(hash, sampler->getHash());
+    }
+    auto iter = _descriptorSetCache.find(hash);
+    if (iter != _descriptorSetCache.end()) {
+        auto dsObj = iter->second;
+        dsObj->destroy();
+        _descriptorSetCache.erase(hash);
     }
 }
 
