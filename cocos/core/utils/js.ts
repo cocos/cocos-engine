@@ -40,7 +40,9 @@ import {
     formatStr,
     get,
     getClassByName,
+    getClassById,
     getClassName,
+    getClassId,
     getPropertyDescriptor,
     getset,
     getSuper,
@@ -90,6 +92,7 @@ export const js = {
     setClassName,
     setClassAlias,
     getClassByName,
+    getClassById,
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
@@ -145,6 +148,7 @@ export const js = {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _getClassId,
+    getClassId,
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */

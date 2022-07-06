@@ -23,11 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/align/align_up.hpp>
 #include <cstring>
 #include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
-#include <boost/align/align_up.hpp>
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
@@ -79,9 +79,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    // NOTE: C++17 is required when enable alignment
-    // TODO(PatriceJiang): replace with: _mainMessageQueue = ccnew MessageQueue;
-    _mainMessageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue; // NOLINT
+    _mainMessageQueue = ccnew MessageQueue;
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
@@ -92,12 +90,16 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 }
 
 void DeviceAgent::doDestroy() {
-    ENQUEUE_MESSAGE_1(
-        _mainMessageQueue, DeviceDestroy,
-        actor, _actor,
-        {
-            actor->destroy();
-        });
+    if (!_mainMessageQueue) {
+        _actor->destroy();
+    } else {
+        ENQUEUE_MESSAGE_1(
+            _mainMessageQueue, DeviceDestroy,
+            actor, _actor,
+            {
+                actor->destroy();
+            });
+    }
 
     if (_cmdBuff) {
         static_cast<CommandBufferAgent *>(_cmdBuff)->destroyAgent();
@@ -116,13 +118,12 @@ void DeviceAgent::doDestroy() {
         _queue = nullptr;
     }
 
-    _mainMessageQueue->terminateConsumerThread();
+    if (_mainMessageQueue) {
+        _mainMessageQueue->terminateConsumerThread();
 
-    // NOTE: C++17 required when enable alignment
-    // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
-    _mainMessageQueue->~MessageQueue();
-    CC_FREE_ALIGN(_mainMessageQueue);
-    _mainMessageQueue = nullptr;
+        delete _mainMessageQueue;
+        _mainMessageQueue = nullptr;
+    }
 }
 
 void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -285,10 +286,10 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     for (uint32_t i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    
+
     Format format = texture->getFormat();
     constexpr uint32_t alignment = 16;
-    
+
     size_t totalSize = boost::alignment::align_up(sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount, alignment);
     for (uint32_t i = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
@@ -297,8 +298,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         totalSize += boost::alignment::align_up(size, alignment) * region.texSubres.layerCount;
     }
 
-    auto *memory = CC_MALLOC_ALIGN(sizeof(ThreadSafeLinearAllocator), alignof(ThreadSafeLinearAllocator));
-    auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize, alignment);
+    auto *allocator = ccnew ThreadSafeLinearAllocator(totalSize, alignment);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -348,11 +348,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            // TODO(PatriceJiang): C++17 replace with:  delete allocator;
-            if (allocator) {
-                allocator->~ThreadSafeLinearAllocator();
-                CC_FREE_ALIGN(allocator);
-            }
+            delete allocator;
         });
 }
 

@@ -25,7 +25,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../gfx';
+import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
@@ -443,7 +443,7 @@ export class TextureCube extends SimpleTexture {
                 top: new ImageAsset(),
                 bottom: new ImageAsset(),
             };
-            const imageAssetClassId = js._getClassId(ImageAsset);
+            const imageAssetClassId = js.getClassId(ImageAsset);
             handle.result.push(this._mipmapAtlas.atlas, `front`, mipmapAtlas.front, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `back`, mipmapAtlas.back, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `left`, mipmapAtlas.left, imageAssetClassId);
@@ -463,7 +463,7 @@ export class TextureCube extends SimpleTexture {
                     bottom: new ImageAsset(),
                 };
                 const mipmap = data.mipmaps[i];
-                const imageAssetClassId = js._getClassId(ImageAsset);
+                const imageAssetClassId = js.getClassId(ImageAsset);
                 handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
                 handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
                 handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);

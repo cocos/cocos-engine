@@ -20,12 +20,11 @@
 ****************************************************************************/
 
 #include <sstream>
-#include "jsb_conversions.h"
-
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
+#include "cocos/editor-support/middleware-adapter.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/math/Quaternion.h"
 #include "cocos/math/Vec2.h"
@@ -35,6 +34,7 @@
 #include "core/assets/TextureCube.h"
 #include "core/geometry/AABB.h"
 #include "extensions/cocos-ext.h"
+#include "jsb_conversions.h"
 #include "network/Downloader.h"
 
 #include "bindings/auto/jsb_assets_auto.h"
@@ -133,6 +133,17 @@ enum class DataType {
     INT,
     FLOAT
 };
+enum class MathType {
+    VEC2 = 0,
+    VEC3,
+    VEC4,
+    QUATERNION,
+    MAT3,
+    MAT4,
+    SIZE,
+    RECT,
+    COLOR,
+};
 bool uintptr_t_to_seval(uintptr_t v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     ret->setDouble(v);
     return true;
@@ -148,6 +159,7 @@ bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-id
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC2)));
     ret->setObject(obj);
 
     return true;
@@ -159,6 +171,7 @@ bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC3)));
     ret->setObject(obj);
 
     return true;
@@ -171,6 +184,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
     obj->setProperty("w", se::Value(v.w));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC4)));
     ret->setObject(obj);
 
     return true;
@@ -183,6 +197,7 @@ bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(re
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
     obj->setProperty("w", se::Value(v.w));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
     ret->setObject(obj);
 
     return true;
@@ -196,6 +211,7 @@ bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-id
         obj->setArrayElement(i, se::Value(v.m[i]));
     }
 
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT4)));
     ret->setObject(obj);
     return true;
 }
@@ -205,6 +221,7 @@ bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-id
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("width", se::Value(v.width));
     obj->setProperty("height", se::Value(v.height));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::SIZE)));
     ret->setObject(obj);
     return true;
 }
@@ -212,14 +229,15 @@ bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-id
 bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.origin.x));
-    obj->setProperty("y", se::Value(v.origin.y));
-    obj->setProperty("width", se::Value(v.size.width));
-    obj->setProperty("height", se::Value(v.size.height));
+    obj->setProperty("x", se::Value(v.x));
+    obj->setProperty("y", se::Value(v.y));
+    obj->setProperty("width", se::Value(v.width));
+    obj->setProperty("height", se::Value(v.height));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::RECT)));
     ret->setObject(obj);
-
     return true;
 }
+
 void toVec2(void *data, DataType type, se::Value *ret) {
     auto *intptr = static_cast<int32_t *>(data);
     auto *floatptr = static_cast<float *>(data);
@@ -494,6 +512,32 @@ bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unuse
     set_member_field(obj, to, "y", &cc::Vec4::y, tmp);
     set_member_field(obj, to, "z", &cc::Vec4::z, tmp);
     set_member_field(obj, to, "w", &cc::Vec4::w, tmp);
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
+    se::Object *obj = from.toObject();
+    se::Value tmp;
+
+    set_member_field(obj, to, "x", &cc::gfx::Rect::x, tmp);
+    set_member_field(obj, to, "y", &cc::gfx::Rect::y, tmp);
+    set_member_field(obj, to, "width", &cc::gfx::Rect::width, tmp);
+    set_member_field(obj, to, "height", &cc::gfx::Rect::height, tmp);
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
+    se::Object *obj = from.toObject();
+    se::Value tmp;
+
+    set_member_field(obj, to, "x", &cc::Rect::x, tmp);
+    set_member_field(obj, to, "y", &cc::Rect::y, tmp);
+    set_member_field(obj, to, "width", &cc::Rect::width, tmp);
+    set_member_field(obj, to, "height", &cc::Rect::height, tmp);
     return true;
 }
 
@@ -1490,6 +1534,7 @@ bool nativevalue_to_se(const cc::Vec4 &from, se::Value &to, se::Object * /*unuse
     return Vec4_to_seval(from, &to);
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Vec2 &from, se::Value &to, se::Object * /*unused*/) {
     return Vec2_to_seval(from, &to);
 }
@@ -1517,6 +1562,17 @@ bool nativevalue_to_se(const cc::Quaternion &from, se::Value &to, se::Object * /
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object * /*unused*/) {
     return Rect_to_seval(from, &to);
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    obj->setProperty("width", se::Value(from.width));
+    obj->setProperty("height", se::Value(from.height));
+    to.setObject(obj);
+    return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -1552,6 +1608,7 @@ bool nativevalue_to_se(const cc::Mat3 &from, se::Value &to, se::Object * /*ctx*/
         snprintf(keybuf, sizeof(keybuf), "m%02d", i);
         obj->setProperty(keybuf, se::Value(from.m[i]));
     }
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT3)));
     to.setObject(obj);
     return true;
 }
@@ -1564,6 +1621,7 @@ bool nativevalue_to_se(const cc::Mat4 &from, se::Value &to, se::Object * /*ctx*/
         snprintf(keybuf, sizeof(keybuf), "m%02d", i);
         obj->setProperty(keybuf, se::Value(from.m[i]));
     }
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT4)));
     to.setObject(obj);
     return true;
 }
@@ -1574,8 +1632,8 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerE
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::TriggerEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::TriggerEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
     }
     to.setObject(array);
@@ -1609,8 +1667,8 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::ContactEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::ContactEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
         array->setArrayElement(static_cast<uint>(t + 3), [&]() -> se::Value {
             auto obj = se::Value();
@@ -1624,7 +1682,7 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
 
 bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("shape", se::Value(static_cast<double>(from.shape)));
+    obj->setProperty("shape", se::Value(from.shape));
     obj->setProperty("distance", se::Value(from.distance));
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);

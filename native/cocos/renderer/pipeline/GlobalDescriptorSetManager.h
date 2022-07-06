@@ -31,6 +31,9 @@
 #include "base/std/container/vector.h"
 
 namespace cc {
+namespace scene {
+class Light;
+}
 namespace gfx {
 class DescriptorSet;
 class DescriptorSetLayout;
@@ -56,14 +59,14 @@ public:
     void bindTexture(uint32_t binding, gfx::Texture *texture);
     void bindSampler(uint32_t binding, gfx::Sampler *sampler);
     void update();
-    gfx::DescriptorSet *getOrCreateDescriptorSet(uint32_t idx);
+    gfx::DescriptorSet *getOrCreateDescriptorSet(const scene::Light *light);
     void destroy();
 
     static void setDescriptorSetLayout();
 
 private:
     // weak reference
-    gfx::Device *_device = nullptr;
+    gfx::Device *_device{nullptr};
 
     // Samplers are hold by device
     gfx::Sampler *_linearSampler{nullptr};
@@ -72,7 +75,8 @@ private:
     IntrusivePtr<gfx::DescriptorSetLayout> _descriptorSetLayout;
     IntrusivePtr<gfx::DescriptorSet> _globalDescriptorSet;
     ccstd::vector<IntrusivePtr<gfx::Buffer>> _shadowUBOs;
-    ccstd::unordered_map<uint32_t, IntrusivePtr<gfx::DescriptorSet>> _descriptorSetMap;
+    // light is weak reference
+    ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::DescriptorSet>> _descriptorSetMap;
 };
 
 } // namespace pipeline

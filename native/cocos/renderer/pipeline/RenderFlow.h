@@ -61,9 +61,10 @@ public:
 protected:
     RenderStageList _stages;
     ccstd::string _name;
-    RenderPipeline *_pipeline = nullptr;
-    uint32_t _priority = 0;
-    uint32_t _tag = 0;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    uint32_t _priority{0};
+    uint32_t _tag{0};
 };
 
 } // namespace pipeline

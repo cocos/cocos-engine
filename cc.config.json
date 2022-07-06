@@ -2,15 +2,60 @@
     "$schema": "./cc.config.schema.json",
 
     "features": {
-        "base": { "modules": [ "base", "native" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
+        "base": { "modules": [ "base", "native" ], "dependentAssets": [
+            "ff9be190-20a4-4e48-b68c-76e3c7cff085",
+            "970b0598-bcb0-4714-91fb-2e81440dccd8",
+            "bcd64cc6-2dd9-43f6-abbe-66318d332032",
+            "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
+            "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
+        ]},
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
-        "3d": { "modules": [ "3d" ] },
+        "3d": { 
+            "modules": [ "3d" ], 
+            "dependentAssets": [
+                "1baf0fc9-befa-459c-8bdd-af1a450a0319",
+                "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0",
+                "9361fd90-ba52-4f84-aa93-6e878fd576ca",
+                "511d2633-09a7-4bdd-ac42-f778032124b3",
+                "5d45aa00-e064-4938-b314-4265f0c2258c",
+                "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
+                "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
+                "620b6bf3-0369-4560-837f-2a2c00b73c26"
+            ] 
+        },
         "animation": { "modules": ["animation"] },
         "skeletal-animation": { "modules": ["animation", "skeletal-animation"] },
-        "2d": { "modules": [ "2d" ] },
+        "2d": { 
+            "modules": [ "2d" ], 
+            "dependentAssets": [
+                "60f7195c-ec2a-45eb-ba94-8955f60e81d0",
+                "1c02ae6f-4492-4915-b8f8-7492a3b1e4cd",
+                "810e96e4-e456-4468-9b59-f4e8f39732c0",
+                "efe8e2a3-eace-427b-b4f1-cb8a937ec77d",
+                "e9aa9a3e-5b2b-4ac7-a2c7-073de2b2b24f",
+                "8bbdbcdd-5cd4-4100-b6d5-b7c9625b6107",
+                "50f4348b-c883-4e2f-8f11-ce233b859fa1",
+                "fda095cb-831d-4601-ad94-846013963de8",
+                "f92806d7-1768-443f-afe8-12bcde84d0f0",
+                "dd3a144d-ab7f-41f0-82b8-2e43a090d496",
+                "f0416e68-0200-4b77-a926-4f9d16e494da"
+            ] 
+        },
         "ui": { "modules": [ "ui", "2d" ] },
-        "particle": { "modules": [ "particle" ] },
+        "particle": { 
+            "modules": [ "particle" ], 
+            "dependentAssets": [ 
+                "d1346436-ac96-4271-b863-1f4fdead95b0", 
+                "971bdb23-3ff6-43eb-b422-1c30165a3663", 
+                "17debcc3-0a6b-4b8a-b00b-dc58b885581e", 
+                "711ebe11-f673-4cd9-9a83-63c60ba54c5b",
+                "c0143906-9aed-447e-9436-2ae8512d1b6e",
+                "14da1725-c4c2-42b4-ab08-ee0aeb6898b3",
+                "081cab31-dccd-428e-8652-f2404cc81c47",
+                "78e0584a-4343-4727-8f37-e14e65c2a2db" 
+            ] 
+        },
         "particle-2d": { "modules": [ "particle-2d" ] },
         "physics-framework": { "modules": [ "physics-framework" ] },
         "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] },
@@ -22,22 +67,47 @@
         "physics-2d-builtin": { "modules": [ "physics-2d-builtin", "physics-2d-framework" ] },
         "intersection-2d": { "modules": [ "intersection-2d" ] },
         "primitive": { "modules": [ "primitive" ] },
-        "profiler": { "modules": [ "profiler" ] },
-        "geometry-renderer": { "modules": [ "geometry-renderer" ] },
+        "profiler": { 
+            "modules": [ "profiler" ],
+            "dependentAssets": [ "871c3b6c-7379-419d-bda3-794b239ab90d" ] 
+        },
+        "geometry-renderer": { 
+            "modules": [ "geometry-renderer" ], 
+	        "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
+        },
+	    "debug-renderer": { 
+            "modules": [ "debug-renderer" ], 
+            "dependentAssets": [
+                "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
+                "b5475517-23b9-4873-bc1a-968d96616081", 
+                "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", 
+                "b23391b6-52eb-46a6-8da1-6244d9d315fb"
+            ] 
+        },
         "audio": { "modules": [ "audio" ] },
         "video": { "modules": [ "video" ] },
-        "terrain": { "modules": [ "terrain" ] },
+        "terrain": { 
+            "modules": [ "terrain" ], 
+            "dependentAssets": [ "1d08ef62-a503-4ce2-8b9a-46c90873f7d3" ] 
+        },
         "webview": { "modules": [ "webview" ] },
         "tween": { "modules": [ "tween" ] },
         "tiled-map": { "modules": [ "tiled-map" ] },
-        "spine": { "modules": [ "spine" ] },
+        "spine": { 
+            "modules": [ "spine" ], 
+            "dependentAssets":[ 
+                "c27215d8-6835-4b68-bfbb-bdeac6100c04",
+                "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
+            ] 
+        },
         "dragon-bones": { "modules": [ "dragon-bones" ] },
         "marionette": {
             "modules": [],
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
-        }
+        },
+        "custom-pipeline": { "modules": ["custom-pipeline"] }
     },
     "moduleOverrides": [
         {
@@ -114,7 +184,9 @@
                 "pal/audio": "pal/audio/web/player.ts",
                 "pal/system-info": "pal/system-info/web/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
-                "pal/input": "pal/input/web/index.ts"
+                "pal/input": "pal/input/web/index.ts",
+                "pal/env": "pal/env/web/env.ts",
+                "pal/pacer": "pal/pacer/pacer-web.ts"
             }
         },
         {
@@ -125,7 +197,9 @@
                 "pal/audio": "pal/audio/native/player.ts",
                 "pal/system-info": "pal/system-info/native/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
-                "pal/input": "pal/input/native/index.ts"
+                "pal/input": "pal/input/native/index.ts",
+                "pal/env": "pal/env/native/env.ts",
+                "pal/pacer": "pal/pacer/pacer-native.ts"
             }
         },
         {
@@ -136,7 +210,9 @@
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
-                "pal/input": "pal/input/minigame/index.ts"
+                "pal/input": "pal/input/minigame/index.ts",
+                "pal/env": "pal/env/minigame/env.ts",
+                "pal/pacer": "pal/pacer/pacer-minigame.ts"
             }
         },
         {
@@ -147,7 +223,9 @@
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
-                "pal/input": "pal/input/minigame/index.ts"
+                "pal/input": "pal/input/minigame/index.ts",
+                "pal/env": "pal/env/runtime/env.ts",
+                "pal/pacer": "pal/pacer/pacer-minigame.ts"
             }
         },
         {
@@ -326,6 +404,11 @@
             "ccGlobal": true,
             "internal": false,
             "dynamic": true
+        },
+        "NOT_PACK_PHYSX_LIBS": {
+            "comment": "This is an internal constant to determine whether pack physx libs.",
+            "value": false,
+            "internal": true
         }
     }
 }

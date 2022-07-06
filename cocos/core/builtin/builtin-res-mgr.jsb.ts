@@ -24,10 +24,13 @@
 */
 
 import { legacyCC } from '../global-exports';
-import { Device } from '../gfx';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import type { ImageSource }  from '../assets/image-asset';
-import { AssetManager } from '../asset-manager/asset-manager';
+import assetManager from '../asset-manager/asset-manager';
+import { BuiltinBundleName } from '../asset-manager/shared';
+import { EDITOR, TEST } from 'internal:constants';
+import { Settings, settings } from '../settings';
+import releaseManager from '../asset-manager/release-manager';
 
 declare const jsb: any;
 
@@ -37,11 +40,8 @@ const ImageAsset = jsb.ImageAsset;
 const BuiltinResMgr = jsb.BuiltinResMgr;
 const builtinResMgrProto = BuiltinResMgr.prototype;
 
-const oldInitBuiltinRes = builtinResMgrProto.initBuiltinRes;
-
-builtinResMgrProto.initBuiltinRes = function (device: Device): Promise<void> {
+builtinResMgrProto.init = function (): Promise<void> {
     this._resources = {};
-    this._device = device;
     const resources = this._resources;
     const len = 2;
     const numChannels = 4;
@@ -80,41 +80,40 @@ builtinResMgrProto.initBuiltinRes = function (device: Device): Promise<void> {
         resources[spriteFrame._uuid] = spriteFrame;
     }
 
-    return Promise.resolve().then(() => {
-        oldInitBuiltinRes.call(this, device);
-
-        legacyCC.game.on(legacyCC.Game.EVENT_GAME_INITED, () => {
-            this.tryCompileAllPasses();
-        });
-    }).then(() => this._preloadAssets());
+    this.initBuiltinRes();
 };
-
-/**
- * @internal
- */
-builtinResMgrProto._preloadAssets = function () {
-    const resources = this._resources;
-    if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
-        const preloadedAssets = window._CCSettings.preloadAssets as string[];
-        return new Promise<void>((resolve, reject) => (legacyCC.assetManager as AssetManager).loadAny(preloadedAssets, { __outputAsArray__: true }, (err, assets) => {
-            if (err) {
-                reject(err);
-            } else {
-                assets.forEach((asset) => {
-                    resources[asset._uuid] = asset;
-                    const url = asset.nativeUrl; // update native url obviously.
-                    this.addAsset(asset._uuid, asset);
-                });
-                resolve();
-            }
-        }));
-    }
-}
 
 builtinResMgrProto.get = function (uuid: string) {
     const res = this._resources[uuid];
     return res || this.getAsset(uuid);
 };
+
+builtinResMgrProto.loadBuiltinAssets = function () {
+   const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+   if (TEST || !builtinAssets) return Promise.resolve();
+   const resources = this._resources;
+   return new Promise<void>((resolve, reject) => {
+       assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
+           if (err) {
+               reject(err);
+               return;
+           }
+           assetManager.loadAny(builtinAssets, (err, assets) => {
+               if (err) {
+                   reject(err);
+               } else {
+                    assets.forEach((asset) => {
+                        resources[asset.name] = asset;
+                        const url = asset.nativeUrl;
+                        releaseManager.addIgnoredAsset(asset);
+                        this.addAsset(asset.name, asset);
+                    });
+                   resolve();
+               }
+           });
+       });
+   });
+}
 
 const builtinResMgr = legacyCC.builtinResMgr = BuiltinResMgr.getInstance();
 export { builtinResMgr };

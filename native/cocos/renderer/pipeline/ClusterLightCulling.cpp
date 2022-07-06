@@ -48,27 +48,10 @@ framegraph::StringHandle fgStrHandleClusterLightGridBuffer = framegraph::FrameGr
 framegraph::StringHandle fgStrHandleClusterBuildPass = framegraph::FrameGraph::stringToHandle("clusterBuildPass");
 framegraph::StringHandle fgStrHandleClusterCullingPass = framegraph::FrameGraph::stringToHandle("clusterCullingPass");
 
-ClusterLightCulling::~ClusterLightCulling() {
-    CC_SAFE_DESTROY_AND_DELETE(_buildingShader);
-    CC_SAFE_DESTROY_AND_DELETE(_buildingDescriptorSetLayout);
-    CC_SAFE_DESTROY_AND_DELETE(_buildingPipelineLayout);
-    CC_SAFE_DESTROY_AND_DELETE(_buildingPipelineState);
-    CC_SAFE_DESTROY_AND_DELETE(_buildingDescriptorSet);
-
-    CC_SAFE_DESTROY_AND_DELETE(_resetCounterShader);
-    CC_SAFE_DESTROY_AND_DELETE(_resetCounterDescriptorSetLayout);
-    CC_SAFE_DESTROY_AND_DELETE(_resetCounterPipelineLayout);
-    CC_SAFE_DESTROY_AND_DELETE(_resetCounterPipelineState);
-    CC_SAFE_DESTROY_AND_DELETE(_resetCounterDescriptorSet);
-
-    CC_SAFE_DESTROY_AND_DELETE(_cullingShader);
-    CC_SAFE_DESTROY_AND_DELETE(_cullingDescriptorSetLayout);
-    CC_SAFE_DESTROY_AND_DELETE(_cullingPipelineLayout);
-    CC_SAFE_DESTROY_AND_DELETE(_cullingPipelineState);
-    CC_SAFE_DESTROY_AND_DELETE(_cullingDescriptorSet);
-
-    CC_SAFE_DESTROY_AND_DELETE(_constantsBuffer);
+ClusterLightCulling::ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline) {
 }
+
+ClusterLightCulling::~ClusterLightCulling() = default;
 
 void ClusterLightCulling::initialize(gfx::Device *dev) {
     _device = dev;
@@ -720,15 +703,15 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
             _buildingDescriptorSet->bindBuffer(0, _constantsBuffer);
             _buildingDescriptorSet->bindBuffer(1, table.getWrite(data.clusterBuffer));
             _buildingDescriptorSet->update();
-            cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_buildingPipelineState));
-            cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_buildingDescriptorSet));
+            cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_buildingPipelineState.get()));
+            cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_buildingDescriptorSet.get()));
             cmdBuff->dispatch(_buildingDispatchInfo);
         }
         // reset global index
         _resetCounterDescriptorSet->bindBuffer(0, table.getWrite(data.globalIndexBuffer));
         _resetCounterDescriptorSet->update();
-        cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_resetCounterPipelineState));
-        cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_resetCounterDescriptorSet));
+        cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_resetCounterPipelineState.get()));
+        cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_resetCounterDescriptorSet.get()));
         cmdBuff->dispatch(_resetDispatchInfo);
         cmdBuff->pipelineBarrier(_resetBarrier);
     };
@@ -814,8 +797,8 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
         _cullingDescriptorSet->bindBuffer(5, table.getRead(data.globalIndexBuffer));
         _cullingDescriptorSet->update();
         // light culling
-        cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_cullingPipelineState));
-        cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_cullingDescriptorSet));
+        cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_cullingPipelineState.get()));
+        cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_cullingDescriptorSet.get()));
         cmdBuff->dispatch(_cullingDispatchInfo);
     };
 

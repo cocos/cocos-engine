@@ -24,7 +24,9 @@
  ****************************************************************************/
 
 #include "Profiler.h"
-#include "DebugRenderer.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "DebugRenderer.h"
+#endif
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/Macros.h"
@@ -129,7 +131,7 @@ Profiler::Profiler() {
     _mainThreadId = std::this_thread::get_id();
     _root = ccnew ProfilerBlock(nullptr, "MainThread");
     _current = _root;
-    
+
     Profiler::instance = this;
 }
 
@@ -218,6 +220,7 @@ void Profiler::doFrameUpdate() {
 }
 
 void Profiler::printStats() {
+#if CC_USE_DEBUG_RENDERER
     auto *renderer = CC_DEBUG_RENDERER;
     const auto *window = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
     const auto viewSize = window->getViewSize() * Device::getDevicePixelRatio();
@@ -382,6 +385,7 @@ void Profiler::printStats() {
 
         lines += 0.5F;
     }
+#endif
 }
 
 void Profiler::beginBlock(const ccstd::string &name) {

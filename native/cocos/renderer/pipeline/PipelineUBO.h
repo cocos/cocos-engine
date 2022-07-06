@@ -65,18 +65,23 @@ private:
     static float getPCFRadius(const scene::Shadows *shadowInfo, const scene::DirectionalLight *dirLight);
     void initCombineSignY() const;
 
-    RenderPipeline *_pipeline = nullptr;
-    gfx::Device *_device = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // weak reference
+    gfx::Device *_device{nullptr};
 
     ccstd::array<float, UBOGlobal::COUNT> _globalUBO;
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO;
 
+    // manage memory manually
     ccstd::vector<gfx::Buffer *> _ubos;
     ccstd::vector<float> _cameraUBOs;
 
+    // weak reference, it is recorded in _ubos
     gfx::Buffer *_cameraBuffer{nullptr};
     uint32_t _currentCameraUBOOffset{0};
     uint32_t _alignedCameraUBOSize{0};
+    bool _shadowUBOUpdated{false};
 };
 
 } // namespace pipeline

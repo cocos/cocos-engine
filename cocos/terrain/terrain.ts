@@ -34,7 +34,7 @@ import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { Pass, scene } from '../core/renderer';
@@ -1217,7 +1217,7 @@ export class Terrain extends Component {
             }
 
             // Ensure device is created
-            if (legacyCC.director.root.device) {
+            if (deviceManager.gfxDevice) {
                 // rebuild
                 this._buildImp();
             }
@@ -1576,7 +1576,7 @@ export class Terrain extends Component {
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get('terrain') as EffectAsset;
+            return legacyCC.EffectAsset.get('builtin-terrain') as EffectAsset;
         }
 
         return this._effectAsset;
@@ -2094,7 +2094,7 @@ export class Terrain extends Component {
      */
     public _createSharedIndexBuffer () {
         // initialize shared index buffer
-        const gfxDevice = legacyCC.director.root.device as Device;
+        const gfxDevice = deviceManager.gfxDevice;
         const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,

@@ -27,7 +27,7 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format } from '../gfx';
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -260,7 +260,7 @@ export class EffectAsset extends Asset {
     public onLoaded () {
         programLib.register(this);
         EffectAsset.register(this);
-        if (!EDITOR || legacyCC.GAME_VIEW) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        if (!EDITOR || legacyCC.GAME_VIEW) { legacyCC.game.once(legacyCC.Game.EVENT_RENDERER_INITED, this._precompile, this); }
     }
 
     protected _precompile () {
@@ -279,7 +279,7 @@ export class EffectAsset extends Asset {
                 return acc;
             }, [] as MacroRecord[]), [{}] as MacroRecord[]);
             defines.forEach(
-                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline),
+                (defines) => programLib.getGFXShader(deviceManager.gfxDevice, shader.name, defines, root.pipeline),
             );
         }
     }
@@ -291,8 +291,8 @@ export class EffectAsset extends Asset {
 
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
-        const effect = EffectAsset.get('unlit');
-        this.name = 'unlit';
+        const effect = EffectAsset.get('builtin-unlit');
+        this.name = 'builtin-unlit';
         this.shaders = effect!.shaders;
         this.combinations = effect!.combinations;
         this.techniques = effect!.techniques;

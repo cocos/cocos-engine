@@ -20,7 +20,7 @@ CCEffect %{
         specularMap:           { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:        { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:    { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:             { value: normal }
@@ -201,15 +201,16 @@ CCProgram standard-fs %{
   
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
-  #pragma define-meta DCC_APP_NAME range([0, 3])
-  #define DCC_APP_AUTODESK 0
-  #define DCC_APP_BLENDER 1
-  #define DCC_APP_CINEMA4D 2
-  #define DCC_APP_DEFAULT 3
+  #pragma define-meta DCC_APP_NAME range([0, 4])
+  #define DCC_APP_OTHERS 0
+  #define DCC_APP_AUTODESK 1
+  #define DCC_APP_BLENDER 2
+  #define DCC_APP_CINEMA4D 3
+  #define DCC_APP_GLTF 4
 
   #if USE_SHININESS_MAP
     uniform sampler2D shininessExponentMap;
-    #pragma define-meta SHININESS_MAP_CHANNEL options([r,g,b,a])
+    #pragma define-meta SHININESS_MAP_CHANNEL options([a,r,g,b])
   #endif
   #if USE_SPECULAR_GLOSSINESS_MAP
     uniform sampler2D specularGlossinessMap;
@@ -250,13 +251,13 @@ CCProgram standard-fs %{
     #if DCC_APP_NAME == DCC_APP_BLENDER
       // 2-100
       float glossiness = clamp(sqrt(shininessExp) * 0.1/*/10.0*/, 0.0, 0.95); // glossiness=1 may leads to specular disappear
-    #elif DCC_APP_NAME == DCC_APP_CINEMA4D
-      // 2-1024
-      float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
-    #else // DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_AUTODESK
       // 2-1024
       float l2 = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
       float glossiness = pow(l2, 0.5);
+    #else // DCC_APP_NAME == DCC_APP_CINEMA4D / DCC_APP_GLTF / DCC_APP_OTHERS
+      // 2-1024
+      float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
     #endif
       return glossiness;
   }
@@ -268,7 +269,7 @@ CCProgram standard-fs %{
       float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
     #elif DCC_APP_NAME == DCC_APP_AUTODESK
       float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
-    #else
+    #else // DCC_APP_NAME == DCC_APP_GLTF / DCC_APP_OTHERS
       float specularIntensityMultiplier = 1.0;
     #endif
       return specularIntensityMultiplier;
@@ -289,7 +290,7 @@ CCProgram standard-fs %{
   }
   void surf (out StandardSurface s) {
     //diffuse
-    vec4 baseColor = diffuseColor;
+    vec4 baseColor = vec4(1.0);
     #if USE_VERTEX_COLOR
       baseColor.rgb *= SRGBToLinear(v_color.rgb);
       baseColor.a *= v_color.a;
@@ -297,7 +298,9 @@ CCProgram standard-fs %{
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor = texColor;
+      baseColor *= texColor;
+    #else
+      baseColor *= diffuseColor;
     #endif
     baseColor.rgb *= diffuseFactor;
     
@@ -325,7 +328,7 @@ CCProgram standard-fs %{
       #endif
     #else
       #if USE_SHININESS_MAP
-        #if SHININESS_MAP_CHANNEL
+        #if USE_SHININESS_MAP_CHANNEL
           inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).SHININESS_MAP_CHANNEL;
         #else
           inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);

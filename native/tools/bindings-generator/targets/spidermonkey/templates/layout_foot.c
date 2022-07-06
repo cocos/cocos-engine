@@ -17,7 +17,13 @@ bool register_all_${prefix}(se::Object* obj)    // NOLINT
 
 #for jsclass in $sorted_classes
     #if $in_listed_classes(jsclass.class_name)
+    #if len($jsclass.module_config) > 0
+    \#if $jsclass.module_config[0]
+    #end if
     js_register_${prefix}_${jsclass.nested_class_name}(ns);
+    #if len($jsclass.module_config) > 0
+    \#endif // $jsclass.module_config[0]
+    #end if
     #end if
 #end for
     return true;

@@ -28,6 +28,7 @@
 // #include "core/Director.h"
 #include "core/Root.h"
 //#include "core/scene-graph/NodeActivator.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
 namespace cc {
 
@@ -46,6 +47,7 @@ Scene::~Scene() = default;
 void Scene::setSceneGlobals(SceneGlobals *globals) { _globals = globals; }
 
 void Scene::load() {
+    EventDispatcher::dispatchSceneLoadEvent();
     if (!_inited) {
         //cjh        if (TEST) {
         //            CC_ASSERT(!_activeInHierarchy, 'Should deactivate ActionManager by default');

@@ -60,12 +60,14 @@ private:
 
     static RenderFlowInfo initInfo;
 
-    gfx::RenderPass *_renderPass = nullptr;
+    // weak reference
+    gfx::RenderPass *_renderPass{nullptr};
 
+    // weak reference
     ccstd::vector<const scene::Light *> _validLights;
     ccstd::vector<IntrusivePtr<gfx::Texture>> _usedTextures;
 
-    static ccstd::unordered_map<ccstd::hash_t, cc::gfx::RenderPass *> renderPassHashMap;
+    static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> renderPassHashMap;
 };
 } // namespace pipeline
 } // namespace cc

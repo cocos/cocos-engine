@@ -41,11 +41,11 @@ enum class ETouchState : uint8_t {
 };
 
 struct TriggerEventPair {
-    uintptr_t shapeA;
-    uintptr_t shapeB;
+    uint32_t shapeA; //wrapper object ID
+    uint32_t shapeB; //wrapper object ID
     ETouchState state;
     static constexpr uint8_t COUNT = 3;
-    TriggerEventPair(const uintptr_t a, const uintptr_t b)
+    TriggerEventPair(const uint32_t a, const uint32_t b)
     : shapeA(a),
       shapeB(b),
       state(ETouchState::ENTER) {}
@@ -62,12 +62,12 @@ struct ContactPoint {
 };
 
 struct ContactEventPair {
-    uintptr_t shapeA;
-    uintptr_t shapeB;
+    uint32_t shapeA; //wrapper object ID
+    uint32_t shapeB; //wrapper object ID
     ETouchState state;
     ccstd::vector<ContactPoint> contacts;
     static constexpr uint8_t COUNT = 4;
-    ContactEventPair(const uintptr_t a, const uintptr_t b)
+    ContactEventPair(const uint32_t a, const uint32_t b)
     : shapeA(a),
       shapeB(b),
       state(ETouchState::ENTER) {}
@@ -99,7 +99,7 @@ struct RaycastOptions {
 };
 
 struct RaycastResult {
-    uintptr_t shape{0};
+    uint32_t shape{0};
     Vec3 hitPoint;
     float distance;
     Vec3 hitNormal;
@@ -124,10 +124,10 @@ public:
     virtual bool raycastClosest(RaycastOptions &opt) = 0;
     virtual ccstd::vector<RaycastResult> &raycastResult() = 0;
     virtual RaycastResult &raycastClosestResult() = 0;
-    virtual uintptr_t createConvex(ConvexDesc &desc) = 0;
-    virtual uintptr_t createTrimesh(TrimeshDesc &desc) = 0;
-    virtual uintptr_t createHeightField(HeightFieldDesc &desc) = 0;
-    virtual uintptr_t createMaterial(uint16_t id, float f, float df, float r,
+    virtual uint32_t createConvex(ConvexDesc &desc) = 0;
+    virtual uint32_t createTrimesh(TrimeshDesc &desc) = 0;
+    virtual uint32_t createHeightField(HeightFieldDesc &desc) = 0;
+    virtual bool createMaterial(uint16_t id, float f, float df, float r,
                                      uint8_t m0, uint8_t m1) = 0;
 };
 

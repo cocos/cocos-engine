@@ -120,16 +120,24 @@ public:
 
     inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
-    
-    inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
+
+    inline GeometryRenderer *getGeometryRenderer() const {
+#if CC_USE_GEOMETRY_RENDERER
+        return _geometryRenderer;
+#else
+        return nullptr;
+#endif
+    }
 
 protected:
     static RenderPipeline *instance;
 
     void generateConstantMacros();
     void destroyQuadInputAssembler();
-    
+
+#if CC_USE_GEOMETRY_RENDERER
     void updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras);
+#endif
 
     static void framegraphGC();
 
@@ -138,23 +146,32 @@ protected:
     RenderFlowList _flows;
     ccstd::unordered_map<ccstd::string, InternalBindingInst> _globalBindings;
     MacroRecord _macros;
-    uint32_t _tag = 0;
+    uint32_t _tag{0};
     ccstd::string _constantMacros;
 
+    // weak reference
     gfx::Device *_device{nullptr};
+    // manage memory manually
     GlobalDSManager *_globalDSManager{nullptr};
+    // weak reference, get from _globalDSManager
     gfx::DescriptorSet *_descriptorSet{nullptr};
+    // manage memory manually
     PipelineUBO *_pipelineUBO{nullptr};
-    scene::Model *_profiler{nullptr};
+    IntrusivePtr<scene::Model> _profiler;
     IntrusivePtr<PipelineSceneData> _pipelineSceneData;
-    GeometryRenderer *_geometryRenderer{nullptr};
+
+#if CC_USE_GEOMETRY_RENDERER
+    IntrusivePtr<GeometryRenderer> _geometryRenderer;
+#endif
 
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     uint32_t _width{0};
     uint32_t _height{0};
     gfx::Buffer *_quadIB{nullptr};
+    // manage memory manually
     ccstd::vector<gfx::Buffer *> _quadVB;
+    // manage memory manually
     ccstd::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
 
     framegraph::FrameGraph _fg;

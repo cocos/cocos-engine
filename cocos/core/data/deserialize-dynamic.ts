@@ -40,6 +40,7 @@ import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
+import { Asset } from '..';
 
 function compileObjectTypeJit (
     sources: string[],
@@ -109,7 +110,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
     const sources = [
         'var prop;',
     ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
 
     for (let p = 0; p < props.length; p++) {
@@ -192,7 +193,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 }
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
     const shouldCopyId = js.isChildClassOf(klass, legacyCC._BaseNode) || js.isChildClassOf(klass, legacyCC.Component);
     let shouldCopyRawData = false;
 
@@ -545,7 +546,7 @@ class _Deserializer {
 
         const klass = this._classFinder(type, value, owner, propName);
         if (!klass) {
-            const notReported = this._classFinder === js._getClassById;
+            const notReported = this._classFinder === js.getClassById;
             if (notReported) {
                 this._reportMissingClass(type);
             }
@@ -830,7 +831,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     reportMissingClass?: ReportMissingClass;
 }) {
     options = options || {};
-    const classFinder = options.classFinder || js._getClassById;
+    const classFinder = options.classFinder || js.getClassById;
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
@@ -848,9 +849,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy((uuid, options) => {
-            EditorExtends.serialize.asAsset(uuid, options.type);
-        });
+        details.assignAssetsBy((uuid, options) => (EditorExtends.serialize.asAsset(uuid, options.type) as Asset));
     }
 
     // var afterJson = JSON.stringify(data, null, 2);

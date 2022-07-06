@@ -63,9 +63,8 @@ class EmbeddedAnimationClipPlayableState extends EmbeddedPlayableState {
     /**
      * Plays the animation state at specified time.
      */
-    public play (time: number): void {
-        this._animationState.play(); // Note play() rewinds the time to 0
-        this._animationState.time = time;
+    public play (): void {
+        this._animationState.play();
     }
 
     /**
@@ -87,6 +86,10 @@ class EmbeddedAnimationClipPlayableState extends EmbeddedPlayableState {
      */
     public setSpeed (speed: number): void {
         this._animationState.speed = speed;
+    }
+
+    public setTime (time: number): void {
+        this._animationState.time = time;
     }
 
     private _animationState: AnimationState;

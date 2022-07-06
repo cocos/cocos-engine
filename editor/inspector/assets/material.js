@@ -92,12 +92,7 @@ exports.methods = {
 
     async change(state) {
         this.canUpdatePreview = true;
-        this.setDirtyData();
-
-        if (this.canUpdatePreview) {
-            this.updatePreview();
-        }
-
+        await this.setDirtyData();
         this.dispatch('change', state);
     },
 
@@ -175,7 +170,7 @@ exports.methods = {
         setDisabled(this.asset.readonly, this.$.technique);
     },
 
-    updatePasses() {
+    async updatePasses() {
         const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
 
         this.technique = technique;
@@ -185,8 +180,13 @@ exports.methods = {
 
         if (this.requestInitCache) {
             this.initCache();
+
+            if (!this.canUpdatePreview) {
+                await this.updatePreview(false);
+            }
         } else {
             this.useCache();
+            await this.updatePreview(true);
         }
 
         if (technique.passes) {
@@ -280,8 +280,6 @@ exports.methods = {
         }
 
         this.updateInstancing();
-
-        this.updatePreview();
     },
 
     updateInstancing() {
@@ -312,8 +310,9 @@ exports.methods = {
         }
     },
 
-    async updatePreview() {
-        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+    async updatePreview(emit) {
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material, { emit });
+
         Editor.Message.broadcast('material-inspector:change-dump');
     },
 
@@ -388,7 +387,6 @@ exports.methods = {
 
         this.requestInitCache = false;
         this.updateInstancing();
-        this.updatePreview();
     },
 
     storeCache(dump) {
@@ -433,7 +431,11 @@ exports.methods = {
         }
     },
 
-    setDirtyData() {
+    async setDirtyData() {
+        if (this.canUpdatePreview) {
+            await this.updatePreview(true);
+        }
+
         this.dirtyData.realtime = JSON.stringify({
             effect: this.material.effect,
             technique: this.material.technique,
@@ -484,7 +486,7 @@ exports.update = async function(assetList, metaList) {
     await this.updateEffect();
 
     await this.updateInterface();
-    this.setDirtyData();
+    await this.setDirtyData();
 };
 
 /**

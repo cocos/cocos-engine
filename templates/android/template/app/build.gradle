@@ -27,7 +27,6 @@ android {
             cmake {
                 targets "cocos"
                 arguments "-DRES_DIR=${RES_PATH}", "-DCOCOS_X_PATH=${COCOS_ENGINE_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_LD=gold"
-                cppFlags "-frtti -fexceptions -fsigned-char"
             }
             ndk { abiFilters PROP_APP_ABI.split(':') }
         }

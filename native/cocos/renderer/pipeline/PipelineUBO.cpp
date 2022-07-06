@@ -441,6 +441,8 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline) {
     });
     descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
     _ubos.push_back(shadowUBO);
+
+    _shadowUBOUpdated = false;
 }
 
 void PipelineUBO::destroy() {
@@ -493,8 +495,13 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
     const auto *shadowInfo = sceneData->getShadows();
     const auto *const scene = camera->getScene();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled()) {
-        return;
+        // at least update once to avoid crash #10779
+        if(_shadowUBOUpdated) {
+            return;
+        }
     }
+
+    _shadowUBOUpdated = true;
 
     const auto &shadowFrameBufferMap = sceneData->getShadowFramebufferMap();
     const scene::DirectionalLight *mainLight = scene->getMainLight();

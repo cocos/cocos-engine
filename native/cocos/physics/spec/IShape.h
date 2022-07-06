@@ -53,7 +53,6 @@ public:
     ~IBaseShape() override = default;
     ;
     virtual void initialize(Node *node) = 0;
-    virtual uintptr_t getImpl() = 0;
     virtual void setMaterial(uint16_t id, float f, float df, float r,
                              uint8_t m0, uint8_t m1) = 0;
     virtual void setAsTrigger(bool v) = 0;
@@ -65,6 +64,7 @@ public:
     virtual void setGroup(uint32_t g) = 0;
     virtual uint32_t getMask() = 0;
     virtual void setMask(uint32_t m) = 0;
+    virtual uint32_t getObjectID() const = 0;
 };
 
 class ISphereShape : virtual public IBaseShape {
@@ -94,7 +94,7 @@ class ICylinderShape : virtual public IBaseShape {
 public:
     ~ICylinderShape() override = default;
     ;
-    virtual void setConvex(uintptr_t v) = 0;
+    virtual void setConvex(uint32_t ObjectID) = 0;
     virtual void setCylinder(float r, float h, EAxisDirection d) = 0;
 };
 
@@ -102,7 +102,7 @@ class IConeShape : virtual public IBaseShape {
 public:
     ~IConeShape() override = default;
     ;
-    virtual void setConvex(uintptr_t v) = 0;
+    virtual void setConvex(uint32_t ObjectID) = 0;
     virtual void setCone(float r, float h, EAxisDirection d) = 0;
 };
 
@@ -118,13 +118,13 @@ class ITrimeshShape : virtual public IBaseShape {
 public:
     ~ITrimeshShape() override = default;
     ;
-    virtual void setMesh(uintptr_t v) = 0;
+    virtual void setMesh(uint32_t ObjectID) = 0;
     virtual void useConvex(bool v) = 0;
 };
 
 class ITerrainShape : virtual public IBaseShape {
 public:
-    virtual void setTerrain(uintptr_t v, float rs, float cs, float hs) = 0;
+    virtual void setTerrain(uint32_t ObjectID, float rs, float cs, float hs) = 0;
 };
 
 } // namespace physics

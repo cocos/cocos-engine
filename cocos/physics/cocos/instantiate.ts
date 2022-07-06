@@ -31,7 +31,7 @@ import { BuiltinSphereShape } from './shapes/builtin-sphere-shape';
 import { BuiltinCapsuleShape } from './shapes/builtin-capsule-shape';
 import { Game, game } from '../../core';
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('builtin', {
         RigidBody: BuiltinRigidBody,
         BoxShape: BuiltinBoxShape,

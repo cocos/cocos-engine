@@ -33,17 +33,11 @@ import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType } from '../renderer/scene/light';
-import { AABB, intersect } from '../geometry';
+import { intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { RenderPipeline } from './render-pipeline';
 import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
-import { Mat4 } from '../math';
 import { shadowCulling } from './scene-culling';
-
-const _matShadowView = new Mat4();
-const _matShadowProj = new Mat4();
-const _matShadowViewProj = new Mat4();
-const _ab = new AABB();
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
@@ -91,25 +85,23 @@ export class RenderShadowMapBatchedQueue {
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             switch (light.type) {
             case LightType.DIRECTIONAL:
-                if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-                    const dirLight = light as DirectionalLight;
-                    if (dirLight.shadowEnabled) {
-                        const csmLayers = sceneData.csmLayers;
-                        let layer;
-                        if (dirLight.shadowFixedArea) {
-                            layer = csmLayers.specialLayer;
-                        } else {
-                            layer = csmLayers.layers[level];
-                        }
-                        shadowCulling(camera, sceneData, layer);
-                        const dirShadowObjects = layer.shadowObjects;
-                        if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
-                        for (let i = 0; i < dirShadowObjects.length; i++) {
-                            const ro = dirShadowObjects[i];
-                            const model = ro.model;
-                            if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                            this.add(model, _shadowPassIndices);
-                        }
+                // eslint-disable-next-line no-case-declarations
+                const dirLight = light as DirectionalLight;
+                if (dirLight.shadowEnabled) {
+                    const csmLayers = sceneData.csmLayers;
+                    let layer;
+                    if (dirLight.shadowFixedArea) {
+                        layer = csmLayers.specialLayer;
+                    } else {
+                        layer = csmLayers.layers[level];
+                    }
+                    shadowCulling(camera, sceneData, layer);
+                    const dirShadowObjects = layer.shadowObjects;
+                    for (let i = 0; i < dirShadowObjects.length; i++) {
+                        const ro = dirShadowObjects[i];
+                        const model = ro.model;
+                        if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                        this.add(model, _shadowPassIndices);
                     }
                 }
 
@@ -118,17 +110,13 @@ export class RenderShadowMapBatchedQueue {
                 // eslint-disable-next-line no-case-declarations
                 const spotLight = light as SpotLight;
                 if (spotLight.shadowEnabled) {
-                    Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-                    Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
-                    Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                     const castShadowObjects = sceneData.csmLayers.castShadowObjects;
                     for (let i = 0; i < castShadowObjects.length; i++) {
                         const ro = castShadowObjects[i];
                         const model = ro.model;
                         if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                         if (model.worldBounds) {
-                            AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
-                            if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
+                            if (!intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
                         this.add(model, _shadowPassIndices);

@@ -574,7 +574,7 @@ void AssetsManagerEx::downloadVersion() {
     if (!versionUrl.empty()) {
         _updateState = State::DOWNLOADING_VERSION;
         // Download version file asynchronously
-        _downloader->createDownloadFileTask(versionUrl, _tempVersionPath, VERSION_ID);
+        _downloader->createDownloadTask(versionUrl, _tempVersionPath, VERSION_ID);
     }
     // No version file found
     else {
@@ -617,7 +617,7 @@ void AssetsManagerEx::downloadManifest() {
     if (!manifestUrl.empty()) {
         _updateState = State::DOWNLOADING_MANIFEST;
         // Download version file asynchronously
-        _downloader->createDownloadFileTask(manifestUrl, _tempManifestPath, MANIFEST_ID);
+        _downloader->createDownloadTask(manifestUrl, _tempManifestPath, MANIFEST_ID);
     }
     // No manifest file found
     else {
@@ -1127,7 +1127,7 @@ void AssetsManagerEx::queueDowload() {
         _currConcurrentTask++;
         DownloadUnit &unit = _downloadUnits[key];
         _fileUtils->createDirectory(basename(unit.storagePath));
-        _downloader->createDownloadFileTask(unit.srcUrl, unit.storagePath, unit.customId);
+        _downloader->createDownloadTask(unit.srcUrl, unit.storagePath, unit.customId);
 
         _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::DOWNLOADING);
     }

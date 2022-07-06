@@ -44,8 +44,9 @@ public:
     void render(scene::Camera *camera, gfx::RenderPass *renderPass);
 
 protected:
-    RenderPipeline *_pipeline = nullptr;
-    uint32_t _phaseID = 0;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    uint32_t _phaseID{0};
 };
 
 } // namespace pipeline

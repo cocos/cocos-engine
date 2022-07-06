@@ -26,7 +26,9 @@
 #include "LightingStage.h"
 #include "../BatchedBuffer.h"
 #include "../Define.h"
-#include "../GeometryRenderer.h"
+#if CC_USE_GEOMETRY_RENDERER
+    #include "../GeometryRenderer.h"
+#endif
 #include "../GlobalDescriptorSetManager.h"
 #include "../InstancedBuffer.h"
 #include "../PipelineStateManager.h"
@@ -526,10 +528,19 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         }
 
         _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff);
-        camera->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff, pipeline->getPipelineSceneData());
+#if CC_USE_GEOMETRY_RENDERER
+        if (camera->getGeometryRenderer()) {
+            camera->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff, pipeline->getPipelineSceneData());
+        }
+#endif
     };
 
-    if (!_isTransparentQueueEmpty || !camera->getGeometryRenderer()->empty()) {
+    if (!_isTransparentQueueEmpty 
+#if CC_USE_GEOMETRY_RENDERER
+        || (camera->getGeometryRenderer() && !camera->getGeometryRenderer()->empty())) {
+#else
+    ) {
+#endif
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_TRANSPARENT),
                                                       DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);
     }

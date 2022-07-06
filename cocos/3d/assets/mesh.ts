@@ -37,7 +37,7 @@ import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../core/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph } from './morph';
@@ -337,6 +337,11 @@ export class Mesh extends Asset {
 
     private _initialized = false;
 
+    @serializable
+    private _allowDataAccess = true;
+
+    private _isMeshDataUploaded = false;
+
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
     private _boneSpaceBounds: Map<number, (AABB | null)[]> = new Map();
@@ -367,10 +372,10 @@ export class Mesh extends Asset {
         this._initialized = true;
 
         if (this._struct.dynamic) {
-            const device: Device = legacyCC.director.root.device;
+            const device: Device = deviceManager.gfxDevice;
             const vertexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
-    
+
             for (let i = 0; i < this._struct.vertexBundles.length; i++) {
                 const vertexBundle = this._struct.vertexBundles[i];
                 const vertexBuffer = device.createBuffer(new BufferInfo(
@@ -379,15 +384,15 @@ export class Mesh extends Asset {
                     vertexBundle.view.length,
                     vertexBundle.view.stride,
                 ));
-    
+
                 vertexBuffers.push(vertexBuffer);
             }
-    
+
             for (let i = 0; i < this._struct.primitives.length; i++) {
                 const primitive = this._struct.primitives[i];
                 const indexView = primitive.indexView;
                 let indexBuffer: Buffer | null = null;
-    
+
                 if (indexView) {
                     indexBuffer = device.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
@@ -396,13 +401,13 @@ export class Mesh extends Asset {
                         indexView.stride,
                     ));
                 }
-    
+
                 const subVBs: Buffer[] = [];
                 for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
                     const idx = primitive.vertexBundelIndices[k];
                     subVBs.push(vertexBuffers[idx]);
                 }
-    
+
                 const attributes: Attribute[] = [];
                 for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
                     const idx = primitive.vertexBundelIndices[k];
@@ -413,34 +418,34 @@ export class Mesh extends Asset {
                         attributes.push(attribute);
                     }
                 }
-    
+
                 const subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
                 subMesh.drawInfo = new DrawInfo();
                 subMesh.mesh = this;
                 subMesh.subMeshIdx = i;
-    
+
                 subMeshes.push(subMesh);
             }
-    
+
             this._renderingSubMeshes = subMeshes;
         } else {
             const { buffer } = this._data;
-            const gfxDevice: Device = legacyCC.director.root.device;
+            const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
             const indexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
-    
+
             for (let i = 0; i < this._struct.primitives.length; i++) {
                 const prim = this._struct.primitives[i];
                 if (prim.vertexBundelIndices.length === 0) {
                     continue;
                 }
-    
+
                 let indexBuffer: Buffer | null = null;
                 let ib: any = null;
                 if (prim.indexView) {
                     const idxView = prim.indexView;
-    
+
                     let dstStride = idxView.stride;
                     let dstSize = idxView.length;
                     if (dstStride === 4 && !gfxDevice.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
@@ -453,7 +458,7 @@ export class Mesh extends Asset {
                             dstSize >>= 1;
                         }
                     }
-    
+
                     indexBuffer = gfxDevice.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX,
                         MemoryUsageBit.DEVICE,
@@ -461,16 +466,16 @@ export class Mesh extends Asset {
                         dstStride,
                     ));
                     indexBuffers.push(indexBuffer);
-    
+
                     ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
                     if (idxView.stride !== dstStride) {
                         ib = getIndexStrideCtor(dstStride).from(ib);
                     }
                     indexBuffer.update(ib);
                 }
-    
+
                 const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
-    
+
                 const gfxAttributes: Attribute[] = [];
                 if (prim.vertexBundelIndices.length > 0) {
                     const idx = prim.vertexBundelIndices[0];
@@ -481,19 +486,24 @@ export class Mesh extends Asset {
                         gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
                     }
                 }
-    
+
                 const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
                 subMesh.mesh = this; subMesh.subMeshIdx = i;
-    
+
                 subMeshes.push(subMesh);
             }
-    
+
             this._renderingSubMeshes = subMeshes;
-    
+
             if (this._struct.morph) {
                 this.morphRendering = createMorphRendering(this, gfxDevice);
             }
-        } 
+
+            this._isMeshDataUploaded = true;
+            if (!this._allowDataAccess) {
+                this.releaseData();
+            }
+        }
     }
 
     /**
@@ -635,6 +645,7 @@ export class Mesh extends Asset {
             }
             this._renderingSubMeshes = null;
             this._initialized = false;
+            this._isMeshDataUploaded = false;
         }
     }
 
@@ -1133,7 +1144,7 @@ export class Mesh extends Asset {
      * @param primitiveIndex @en Sub mesh index @zh 子网格索引
      * @param attributeName @en Attribute name @zh 属性名称
      * @param buffer @en The target array buffer @zh 目标缓冲区
-     * @param stride @en attribute stride @zh 属性跨距 
+     * @param stride @en attribute stride @zh 属性跨距
      * @param offset @en The offset of the first attribute in the target buffer @zh 第一个属性在目标缓冲区的偏移
      * @returns @en false if failed to access attribute, true otherwise @zh 是否成功拷贝
      */
@@ -1231,7 +1242,7 @@ export class Mesh extends Asset {
      * @param attributeName @en Attribute name @zh 属性名称
      * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
      */
-    public readAttributeFormat(primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
+    public readAttributeFormat (primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
         let result: FormatInfo | null = null;
 
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
@@ -1291,6 +1302,31 @@ export class Mesh extends Asset {
             },
             data: globalEmptyMeshBuffer,
         });
+    }
+
+    /**
+     * @en Set whether the data of this mesh could be accessed (read or wrote), it could be used only for static mesh
+     * @zh 设置此网格的数据是否可被存取，此接口只针对静态网格资源生效
+     * @param allowDataAccess @en Indicate whether the data of this mesh could be accessed (read or wrote) @zh 是否允许存取网格数据
+     */
+    public set allowDataAccess (allowDataAccess: boolean) {
+        this._allowDataAccess = allowDataAccess;
+        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+            this.releaseData();
+        }
+    }
+
+    /**
+     * @en Get whether the data of this mesh could be read or wrote
+     * @zh 获取此网格的数据是否可被存取
+     * @return @en whether the data of this mesh could be accessed (read or wrote) @zh 此网格的数据是否可被存取
+     */
+    public get allowDataAccess () {
+        return this._allowDataAccess;
+    }
+
+    private releaseData () {
+        this._data = globalEmptyMeshBuffer;
     }
 }
 legacyCC.Mesh = Mesh;

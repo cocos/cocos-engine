@@ -34,7 +34,7 @@ class PhysXCone final : public PhysXShape, public IConeShape {
 public:
     PhysXCone();
     ~PhysXCone() override = default;
-    void setConvex(uintptr_t handle) override;
+    void setConvex(uint32_t objectID) override;
     void setCone(float r, float h, EAxisDirection d) override;
     void updateScale() override;
 

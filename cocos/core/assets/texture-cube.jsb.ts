@@ -30,6 +30,7 @@ import {
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { js } from '../utils/js';
+import './simple-texture';
 
 const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
@@ -220,7 +221,7 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
             bottom: new jsb.ImageAsset(),
         };
         if (mipmapAtlas) {
-            const imageAssetClassId = js._getClassId(jsb.ImageAsset);
+            const imageAssetClassId = js.getClassId(jsb.ImageAsset);
             handle.result.push(this._mipmapAtlas.atlas, `front`, mipmapAtlas.front, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `back`, mipmapAtlas.back, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `left`, mipmapAtlas.left, imageAssetClassId);
@@ -241,7 +242,7 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
                 bottom: new jsb.ImageAsset(),
             };
             const mipmap = data.mipmaps[i];
-            const imageAssetClassId = js._getClassId(jsb.ImageAsset);
+            const imageAssetClassId = js.getClassId(jsb.ImageAsset);
             handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
             handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
             handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);

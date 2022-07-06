@@ -56,6 +56,11 @@ exports.methods = {
         const convertData = this.convertData(this.queryData.joints.value);
         this.flatData = convertData.flatData;
         this.$.tree.tree = convertData.treeData;
+
+
+        this.updateReadonly(this.$.import);
+        this.updateReadonly(this.$.clear);
+        this.updateReadonly(this.$.tree);
     },
 
     updateReadonly(element) {
