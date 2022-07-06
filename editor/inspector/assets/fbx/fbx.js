@@ -13,10 +13,6 @@ exports.template = `
         </ui-select>
     </ui-prop>
     <ui-prop>
-        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
-        <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
-    </ui-prop>
-    <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.name" tooltip="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.title"></ui-label>
         <ui-checkbox slot="content" class="preferLocalTimeSpan-checkbox"></ui-checkbox>
     </ui-prop>
@@ -75,7 +71,6 @@ exports.$ = {
     legacyImporter: '.legacy-importer',
     legacyFbxImporterCheckbox: '.legacyFbxImporter-checkbox',
     animationBakeRateSelect: '.animationBakeRate-select',
-    promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
     preferLocalTimeSpanCheckbox: '.preferLocalTimeSpan-checkbox',
     smartMaterialEnabledCheckbox: '.smartMaterialEnabled-checkbox',
     smartMaterialEnabledProp: '.smart-material-prop',
@@ -134,26 +129,6 @@ const Elements = {
 
             panel.updateInvalid(panel.$.animationBakeRateSelect, 'fbx.animationBakeRate');
             panel.updateReadonly(panel.$.animationBakeRateSelect);
-        },
-    },
-    promoteSingleRootNode: {
-        ready() {
-            const panel = this;
-
-            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.promoteSingleRootNode', 'boolean'));
-        },
-        update() {
-            const panel = this;
-
-            let defaultValue = false;
-            if (panel.meta.userData.fbx) {
-                defaultValue = panel.getDefault(panel.meta.userData.fbx.promoteSingleRootNode, defaultValue);
-            }
-
-            panel.$.promoteSingleRootNodeCheckbox.value = defaultValue;
-
-            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'fbx.promoteSingleRootNode');
-            panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
         },
     },
     preferLocalTimeSpan: {
