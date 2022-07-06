@@ -190,6 +190,7 @@ private:
     float _fogAtten{5.F};
     float _fogTop{1.5F};
     float _fogRange{1.2F};
+    bool _activated{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Fog);
 };

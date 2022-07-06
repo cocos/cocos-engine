@@ -38,7 +38,7 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
 }
 
 
-#if CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+#if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
   vec3 EnvAnisotropicReflection(vec3 R, float roughness, float mipCount, float anisotropyShape, vec3 V, vec3 N, vec3 T, vec3 B) {
       R = normalize(R);
       float integratedBRDF = 0.0;
