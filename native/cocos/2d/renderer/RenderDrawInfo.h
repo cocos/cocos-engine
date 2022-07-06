@@ -121,6 +121,7 @@ public:
 
 protected:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
+    void destroy();
 
 private:
     gfx::InputAssembler* _initIAInfo(gfx::Device* device);

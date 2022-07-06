@@ -56,6 +56,7 @@ RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffs
 
 RenderDrawInfo::~RenderDrawInfo() {
     _seArrayBufferObject->decRef();
+    destroy();
 }
 
 void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
@@ -182,6 +183,22 @@ void RenderDrawInfo::uploadBuffers() {
 
 void RenderDrawInfo::resetMeshIA() {
     _nextFreeIAHandle = 0;
+}
+
+void RenderDrawInfo::destroy() {
+    _nextFreeIAHandle = 0;
+    _attributes.clear();
+    for (auto* vb : _iaInfo.vertexBuffers) {
+        delete vb;
+    }
+    _iaInfo.vertexBuffers.clear();
+    CC_SAFE_DELETE(_iaInfo.indexBuffer);
+
+    for (auto* ia : _iaPool) {
+        ia->destroy();
+        delete ia;
+    }
+    _iaPool.clear();
 }
 
 gfx::InputAssembler* RenderDrawInfo::_initIAInfo(gfx::Device* device) {
