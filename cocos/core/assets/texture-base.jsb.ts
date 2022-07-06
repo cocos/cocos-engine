@@ -128,8 +128,8 @@ textureBaseProto.destroy = function () {
         // legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
         legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
     }
-    let destroyed = oldDestroy.call(this);
-    return destroyed;
+    // dispatch into C++ virtual function CCObject::destroy 
+    return oldDestroy.call(this);
 };
 
 textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerInfo) {
