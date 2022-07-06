@@ -88,6 +88,10 @@ void Batcher2d::walk(Node* node) {
     size_t length = 1;
     while (length > 0) {
         Node* curNode = nodeStack[--length];
+        if (!curNode->isActiveInHierarchy()) {
+            continue;
+        }
+
         RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
         if (entity && entity->isEnabled()) {
             RenderEntityType entityType = entity->getRenderEntityType();
