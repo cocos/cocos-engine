@@ -41,7 +41,11 @@ void SystemWindow::copyTextToClipboard(const std::string& text) {
     UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
     pasteboard.string = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
 }
-
+void SystemWindow::closeWindow() {
+    // Force quit as there's no API to exit UIApplication
+    cc::EventDispatcher::dispatchCloseEvent();
+    exit(0);
+}
 uintptr_t SystemWindow::getWindowHandler() const {
     return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
 }

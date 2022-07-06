@@ -120,12 +120,6 @@ int32_t IOSPlatform::run(int argc, const char **argv) {
     return 0;
 }
 
-void IOSPlatform::quit() {
-    // Force quit as there's no API to exit UIApplication
-    cc::EventDispatcher::dispatchCloseEvent();
-    exit(0);
-}
-
 void IOSPlatform::setFps(int32_t fps) {
     [_timer changeFPS:fps];
 }

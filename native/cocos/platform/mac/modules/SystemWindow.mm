@@ -66,11 +66,10 @@ bool SystemWindow::createWindow(const char *title,
     return true;
 }
 void SystemWindow::closeWindow() {
-    auto window = [[[NSApplication sharedApplication] delegate] getWindow];
+    id window = [[[NSApplication sharedApplication] delegate] getWindow];
     if (window) {
         [window close];
     }
-}
 }
 void SystemWindow::setCursorEnabled(bool value) {
 }
