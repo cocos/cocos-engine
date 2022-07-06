@@ -206,6 +206,10 @@ int NativeLayoutGraphBuilder::compile() {
         }
     }
 
+#ifdef _DEBUG
+    CC_LOG_DEBUG(print().c_str());
+#endif // _DEBUG
+
     return 0;
 }
 

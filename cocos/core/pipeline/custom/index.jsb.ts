@@ -32,10 +32,10 @@ import { buildDeferredLayout, buildForwardLayout } from './effect';
 export function createCustomPipeline (): Pipeline {
     const root = legacyCC.director.root;
     const ppl = render.Factory.createPipeline();
-    // if (root.useDeferredPipeline) {
-    //     buildDeferredLayout(ppl);
-    // } else {
-    //     buildForwardLayout(ppl);
-    // }
+    if (root.useDeferredPipeline) {
+        buildDeferredLayout(ppl);
+    } else {
+        buildForwardLayout(ppl);
+    }
     return ppl;
 }
