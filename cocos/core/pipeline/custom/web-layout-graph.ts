@@ -1,7 +1,8 @@
+import { DEBUG } from 'internal:constants';
 // eslint-disable-next-line max-len
-import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 // eslint-disable-next-line max-len
-import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
+import { DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { getUpdateFrequencyName, UpdateFrequency } from './types';
 
@@ -283,7 +284,9 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                 level.descriptorSet = (this._device.createDescriptorSet(new DescriptorSetInfo(layout)));
             });
         }
-
+        if (DEBUG) {
+            console.log(this.print());
+        }
         return 0;
     }
 

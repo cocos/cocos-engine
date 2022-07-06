@@ -33,7 +33,7 @@ import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBu
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
-import { LayoutGraph, LayoutGraphData } from './layout-graph';
+import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert } from '../../platform/debug';
@@ -43,7 +43,6 @@ import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR16HalfFloatTexture, supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
-import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 import { Compiler } from './compiler';
 import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
@@ -51,7 +50,6 @@ import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../assets';
-import { buildDeferredLayout, buildForwardLayout } from './web-pipeline-layout';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -389,11 +387,8 @@ export class WebPipeline extends Pipeline {
         this.descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this.descriptorSet.update();
 
-        if (root.useDeferredPipeline) {
-            buildDeferredLayout(this);
-        } else {
-            buildForwardLayout(this);
-        }
+        this.layoutGraphBuilder.compile();
+
         return true;
     }
     public destroy (): boolean {
