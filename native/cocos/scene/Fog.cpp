@@ -104,7 +104,6 @@ void FogInfo::activate(Fog *resource) {
     _resource = resource;
     _resource->initialize(*this);
     _resource->activate();
-    _activated = true;
 }
 
 //

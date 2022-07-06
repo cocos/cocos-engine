@@ -78,7 +78,10 @@ public:
 
     void initialize(const FogInfo &fogInfo);
 
-    inline void activate() { updatePipeline(); }
+    inline void activate() {
+        updatePipeline();
+        _activated = true;
+    }
 
     /**
      * @zh 是否启用全局雾效
