@@ -102,7 +102,7 @@ export const bmfontUtils = {
 
             _comp.renderData!.vertDirty = false;
             // fix bmfont run updateRenderData twice bug
-            _comp.markForUpdateRenderData(false);
+            // _comp.markForUpdateRenderData(false);
 
             _comp = null;
 

@@ -117,8 +117,8 @@ export const ttfUtils =  {
 
             this.updateVertexData(comp);
             this.updateUVs(comp); // Empty
-
-            comp.markForUpdateRenderData(false);
+            comp.renderData.vertDirty = false;
+            // comp.markForUpdateRenderData(false);
 
             _context = null;
             _canvas = null;

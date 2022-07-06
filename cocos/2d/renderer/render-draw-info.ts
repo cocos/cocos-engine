@@ -175,9 +175,7 @@ export class RenderDrawInfo {
 
     public setVertDirty (val: boolean) {
         if (JSB) {
-            if (this._vertDirty !== val) {
-                this._nativeObj.vertDirty = val;
-            }
+            this._nativeObj.vertDirty = val;
         }
         this._vertDirty = val;
     }

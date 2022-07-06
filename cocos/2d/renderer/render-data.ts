@@ -280,7 +280,7 @@ export class RenderData extends BaseRenderData {
     }
     set vertDirty (val: boolean) {
         this._vertDirty = val;
-        if (this._renderDrawInfo) {
+        if (this._renderDrawInfo && val) {
             this._renderDrawInfo.setVertDirty(val);
         }
     }
