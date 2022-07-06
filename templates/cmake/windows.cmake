@@ -68,6 +68,12 @@ macro(cc_windows_after_target target_name)
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${target_name}>/${filename}
             )
         endforeach()
+        foreach(item ${V8_DLLS})
+            get_filename_component(filename ${item} NAME)
+            add_custom_command(TARGET ${target_name} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${V8_DIR}/$<IF:$<BOOL:$<CONFIG:RELEASE>>,Release,Debug>/${filename} $<TARGET_FILE_DIR:${target_name}>/${filename}
+            )
+        endforeach()
         target_link_options(${target_name} PRIVATE /SUBSYSTEM:WINDOWS)
     endif()
 

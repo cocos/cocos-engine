@@ -2873,6 +2873,13 @@ endif()
 
 
 if(MSVC)
+    set(V8_DIR
+        ${CWD}/external/win64/libs/v8
+    )
+    file(GLOB V8_DLLS
+        ${CWD}/external/win64/libs/v8/Release/*.dll
+    )
+    
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll
