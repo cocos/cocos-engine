@@ -83,42 +83,34 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 }
 
 void Batcher2d::walk(Node* node) {
-    static ccstd::vector<Node*> nodeStack{1000000};
-    nodeStack[0] = node;
-    size_t length = 1;
-    while (length > 0) {
-        Node* curNode = nodeStack[--length];
-        if (!curNode->isActiveInHierarchy()) {
-            continue;
-        }
+    if (!node->isActiveInHierarchy()) {
+        return;
+    }
 
-        RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
-        if (entity && entity->isEnabled()) {
-            RenderEntityType entityType = entity->getRenderEntityType();
+    RenderEntity* entity = static_cast<RenderEntity*>(node->getUserData());
+    if (entity && entity->isEnabled()) {
+        RenderEntityType entityType = entity->getRenderEntityType();
 
-            // when filling buffers, we should distinguish commom components and other complex components like middlewares
-            if (entityType == RenderEntityType::STATIC) {
-                std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-                for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
-                    handleStaticDrawInfo(entity, &(drawInfos[i]), curNode);
-                }
-            } else if (entityType == RenderEntityType::DYNAMIC) {
-                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (auto* drawInfo : drawInfos) {
-                    handleDynamicDrawInfo(entity, drawInfo, curNode);
-                }
+        // when filling buffers, we should distinguish commom components and other complex components like middlewares
+        if (entityType == RenderEntityType::STATIC) {
+            std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
+            for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
+                handleStaticDrawInfo(entity, &(drawInfos[i]), node);
+            }
+        } else if (entityType == RenderEntityType::DYNAMIC) {
+            ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
+            for (auto* drawInfo : drawInfos) {
+                handleDynamicDrawInfo(entity, drawInfo, node);
             }
         }
+    }
 
-        auto& children = curNode->getChildren();
-        for (index_t i = children.size() - 1; i >= 0; i--) {
-            assert(length < 1000000);
-            nodeStack[length++] = children[i];
-
-            if (entity) {
-                children[i]->setParentOpacity(entity->getOpacity());
-            }
+    auto& children = node->getChildren();
+    for (auto child : children) {
+        if (entity) {
+            child->setParentOpacity(entity->getOpacity());
         }
+        walk(child);
     }
 }
 
@@ -238,7 +230,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         gfx::InputAssembler* ia = currMeshBuffer->requireFreeIA(getDevice());
         ia->setFirstIndex(drawInfo->getIndexOffset());
         ia->setIndexCount(drawInfo->getIbCount());
-        
+
         // stencilstage
         gfx::DepthStencilState* depthStencil;
         ccstd::hash_t dssHash = 0;
@@ -362,7 +354,7 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
 
     return ds;
 }
- 
+
 void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture) {
     size_t textureHash = 0;
     if (texture != nullptr) {
