@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
 import { Texture2D } from '../../../core/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
@@ -325,9 +326,6 @@ export const ttfUtils =  {
             const uploadAgain = _canvas.width !== 0 && _canvas.height !== 0;
 
             if (uploadAgain) {
-                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
-                    legacyCC.director.root.batcher2D._releaseDescriptorSetCacheNative(tex.getGFXTexture());
-                }
                 tex.reset({
                     width: _canvas.width,
                     height: _canvas.height,
@@ -343,7 +341,11 @@ export const ttfUtils =  {
                     comp.renderData.textureDirty = true;
                 }
                 if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
-                    legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                    if (JSB) {
+                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                    } else {
+                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                    }
                 }
             }
         }

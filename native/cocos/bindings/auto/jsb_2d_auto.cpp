@@ -2205,14 +2205,16 @@ static bool js_2d_Batcher2d_releaseDescriptorSetCache(se::State& s) // NOLINT(re
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
+    if (argc == 2) {
         HolderType<cc::gfx::Texture*, false> arg0 = {};
+        HolderType<cc::gfx::Sampler*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_releaseDescriptorSetCache : Error processing arguments");
-        cobj->releaseDescriptorSetCache(arg0.value());
+        cobj->releaseDescriptorSetCache(arg0.value(), arg1.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_releaseDescriptorSetCache)

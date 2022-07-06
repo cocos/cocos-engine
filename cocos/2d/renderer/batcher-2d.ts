@@ -737,14 +737,11 @@ export class Batcher2D implements IBatcher {
     }
 
     // TODO: Not a good way to do the job
-    private _releaseDescriptorSetCache (textureHash: number) {
-        this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
-    }
-
-    // JSB
-    private _releaseDescriptorSetCacheNative (texture: Texture) {
+    private _releaseDescriptorSetCache (textureHash, sampler = null!) {
         if (JSB) {
-            this._nativeObj.releaseDescriptorSetCache(texture);
+            this._nativeObj.releaseDescriptorSetCache(textureHash, sampler);
+        } else {
+            this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
         }
     }
 
