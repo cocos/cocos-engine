@@ -372,17 +372,17 @@ void Camera::updateAspect(bool oriented) {
     _isProjDirty = true;
 }
 
-void Camera::setViewport(const gfx::Rect &val) {
+void Camera::setViewport(const Rect &val) {
     debug::warnID(8302);
     setViewportInOrientedSpace(val);
 }
 
-void Camera::setViewportInOrientedSpace(const gfx::Rect &val) {
-    const auto x = static_cast<float>(val.x);
-    const auto width = static_cast<float>(val.width);
-    const auto height = static_cast<float>(val.height);
+void Camera::setViewportInOrientedSpace(const Rect &val) {
+    const auto x = val.x;
+    const auto width = val.width;
+    const auto height = val.height;
 
-    const auto y = _device->getCapabilities().screenSpaceSignY < 0 ? 1 - static_cast<float>(val.y) - height : static_cast<float>(val.y);
+    const auto y = _device->getCapabilities().screenSpaceSignY < 0 ? 1.F - val.y - height : val.y;
 
     auto *swapchain = getWindow()->getSwapchain();
     const auto orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;

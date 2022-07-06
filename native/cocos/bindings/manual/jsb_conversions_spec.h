@@ -280,6 +280,9 @@ bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /
 
 bool sevalue_to_native(const se::Value &from, cc::Color *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+
 inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
         to->clear();
@@ -520,6 +523,8 @@ bool nativevalue_to_se(const cc::Quaternion &from, se::Value &to, se::Object *ct
 bool nativevalue_to_se(const cc::extension::ManifestAsset &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+
+bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 inline bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     return DownloadTask_to_seval(from, &to);

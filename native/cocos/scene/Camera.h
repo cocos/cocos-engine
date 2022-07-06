@@ -32,6 +32,7 @@
 #include "base/std/container/string.h"
 #include "base/std/optional.h"
 #include "cocos/math/Utils.h"
+#include "cocos/math/Geometry.h"
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Ray.h"
 #include "math/Mat4.h"
@@ -229,8 +230,8 @@ public:
      * Pre-rotated (i.e. always in identity/portrait mode) if possible.
      */
     inline const Vec4 &getViewport() const { return _viewport; }
-    void setViewport(const gfx::Rect &val);
-    void setViewportInOrientedSpace(const gfx::Rect &val);
+    void setViewport(const Rect &val);
+    void setViewportInOrientedSpace(const Rect &val);
 
     inline RenderScene *getScene() const { return _scene; }
     inline const ccstd::string &getName() const { return _name; }
