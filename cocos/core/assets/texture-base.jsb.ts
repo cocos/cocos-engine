@@ -124,11 +124,11 @@ textureBaseProto.getSamplerInfo = function () {
 
 const oldDestroy = textureBaseProto.destroy;
 textureBaseProto.destroy = function () {
-    let destroyed = oldDestroy.call(this);
-    if (destroyed && legacyCC.director.root?.batcher2D) {
+    if (legacyCC.director.root?.batcher2D) {
         // legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
         legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
     }
+    let destroyed = oldDestroy.call(this);
     return destroyed;
 };
 
