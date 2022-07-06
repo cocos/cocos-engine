@@ -100,6 +100,7 @@ import '../cocos/core/animation';
 import { effects } from './fixtures/builtin-effects';
 import { glsl4 } from './fixtures/builtin-glsl4';
 import { initBuiltinMaterial } from './fixtures/builtin-material';
+import { initBuiltinPhysicsMaterial } from './fixtures/builtin-physics-material';
 import '../cocos/2d/utils/dynamic-atlas/atlas-manager';
 
 const canvas = document.createElement('canvas');
@@ -124,6 +125,7 @@ globalThis.waitThis((async () => {
         effect.hideInEditor = true;
         effect.onLoaded();
     });
+    initBuiltinPhysicsMaterial();
     await game.init(config);
     initBuiltinMaterial();
     await game.run();

@@ -499,7 +499,11 @@ export class PhysicsSystem extends System implements IWorldInitData {
             (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
             director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
 
-            game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
+            if (!builtinResMgr.get<PhysicsMaterial>('default-physics-material')) {
+                game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
+            } else {
+                sys.initDefaultMaterial();
+            }
         }
     }
 }
