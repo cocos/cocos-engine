@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/oahcy/engine-native-external native/external
       - run: cd ${{ github.workspace }}/native/external/linux/ && conan install ${{ github.workspace }}/native/external/conan
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
