@@ -48,10 +48,8 @@ import { Compiler } from './compiler';
 import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
-import { EffectAsset } from '../../assets/effect-asset';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
-import { buildDeferredPipelineLayoutGraphData } from './effect';
 import { Material } from '../../assets';
 import { buildDeferredLayout, buildForwardLayout } from './web-pipeline-layout';
 
