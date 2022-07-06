@@ -19,11 +19,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: actions/setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+      - name: install conan
+        run: python -m pip install conan
+      - name: show conan version
+        run: conan -v
+      - run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+      - run: cd ${{ github.workspace }}/native/external/linux/ && conan install ${{ github.workspace }}/native/external/conan
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
