@@ -79,11 +79,9 @@ void SystemWindow::closeWindow() {
     #ifndef CC_SERVER_MODE
     auto windowHandle = getSDLWindowHandler();
     
-    if (windowHandle!= 0) {
-        SDL_DestroyWindow(windowHandle);
-        // Clean up
-        SDL_Quit();
-    }
+    SDL_Event et;
+    et.type = SDL_QUIT;
+    auto posted = SDL_PushEvent(&et);
 #endif
 }
 
