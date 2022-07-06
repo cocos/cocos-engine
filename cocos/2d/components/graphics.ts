@@ -727,7 +727,7 @@ export class Graphics extends UIRenderer {
         return !!this.model && this._isDrawing;
     }
 
-    public updateRenderData () {
+    public updateRenderer () {
         if (JSB) {
             if (this._isNeedUploadData) {
                 if (this.impl) {

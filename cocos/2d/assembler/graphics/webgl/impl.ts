@@ -212,6 +212,7 @@ export class Impl {
             renderData.initRenderDrawInfo(this._comp);
             this._comp._renderData = renderData; // TS 层不能用
             this._comp.renderEntity!.assignExtraEntityAttrs(this._comp); // 重复
+            this._comp.renderEntity!.setCommitModelMaterial(this._comp.getMaterialInstance(0));
             this._comp._renderData!.assignExtraDrawInfoAttrs(this._comp);
             this._comp._renderData!.material = this._comp.getMaterialInstance(0)!;// hack
         }

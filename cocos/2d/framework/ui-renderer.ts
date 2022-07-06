@@ -324,6 +324,7 @@ export class UIRenderer extends Renderer {
     protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
+    public _dirtyVersion = -1;
 
     get batcher () {
         if (!this._batcher) {
@@ -470,11 +471,10 @@ export class UIRenderer extends Renderer {
     }
 
     // test code: to replace prev part updateAssembler
-    public updateRenderData () {
-        this._assembler!.updateRenderData(this);
-        // if (JSB  && this.node.hasChangedFlags) {
-        //     this._assembler!.updateRenderData(this, render);
-        // }
+    public updateRenderer () {
+        if (this._assembler) {
+            this._assembler.updateRenderData(this);
+        }
     }
 
     // test code: to replace after part updateAssembler

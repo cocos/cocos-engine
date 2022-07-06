@@ -64,6 +64,7 @@ export class UIMeshRenderer extends Component {
     private declare _UIModelNativeProxy:NativeUIModelProxy;
     protected _renderEntity : RenderEntity|null = null;
     private modelCount = 0;
+    public _dirtyVersion = -1;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -130,7 +131,7 @@ export class UIMeshRenderer extends Component {
     }
 
     // Native updateAssembler
-    public updateRenderData () {
+    public updateRenderer () {
         if (JSB) {
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
