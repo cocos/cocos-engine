@@ -60,31 +60,39 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
 
 void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
                                                gfx::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
-    for (const auto *instanceBuffer : _renderQueues) {
-        if (!instanceBuffer->hasPendingModels()) continue;
+    auto recordCommands = [&](const auto &renderQueue) {
+        for (const auto *instanceBuffer : renderQueue) {
+            if (!instanceBuffer->hasPendingModels()) continue;
 
-        const auto &instances = instanceBuffer->getInstances();
-        const auto *pass = instanceBuffer->getPass();
-        cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        gfx::PipelineState *lastPSO = nullptr;
-        for (const auto &instance : instances) {
-            if (!instance.count) {
-                continue;
+            const auto &instances = instanceBuffer->getInstances();
+            const auto *pass = instanceBuffer->getPass();
+            cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+            gfx::PipelineState *lastPSO = nullptr;
+            for (const auto &instance : instances) {
+                if (!instance.count) {
+                    continue;
+                }
+                auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
+                if (lastPSO != pso) {
+                    cmdBuffer->bindPipelineState(pso);
+                    lastPSO = pso;
+                }
+                if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
+                if (dynamicOffsets) {
+                    cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, *dynamicOffsets);
+                } else {
+                    cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
+                }
+                cmdBuffer->bindInputAssembler(instance.ia);
+                cmdBuffer->draw(instance.ia);
             }
-            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
-            if (lastPSO != pso) {
-                cmdBuffer->bindPipelineState(pso);
-                lastPSO = pso;
-            }
-            if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
-            if (dynamicOffsets) {
-                cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, *dynamicOffsets);
-            } else {
-                cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
-            }
-            cmdBuffer->bindInputAssembler(instance.ia);
-            cmdBuffer->draw(instance.ia);
         }
+    };
+
+    if (_renderQueues.empty()) {
+        recordCommands(_queues);
+    } else {
+        recordCommands(_renderQueues);
     }
 }
 
