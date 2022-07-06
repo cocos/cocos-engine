@@ -130,7 +130,6 @@ int32_t MacPlatform::loop(void) {
 
 int32_t MacPlatform::run(int argc, const char **argv) {
     id delegate = [[AppDelegate alloc] init];
-    _delegate = delegate;
     NSApplication.sharedApplication.delegate = delegate;
     return NSApplicationMain(argc, argv);
 }
@@ -142,9 +141,7 @@ void MacPlatform::setFps(int32_t fps) {
 int32_t MacPlatform::getFps() const {
     return [_timer getFps];
 }
-void MacPlatform::quit() {
-    [[((id)_delegate) getWindow] close];
-}
+
 void MacPlatform::onPause() {
     [_timer pause];
 

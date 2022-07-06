@@ -76,17 +76,6 @@ static long getCurrentMillSecond() {
     lLastTime = stCurrentTime.tv_sec * 1000 + stCurrentTime.tv_usec * 0.001; // milliseconds
     return lLastTime;
 }
-void LinuxPlatform::quit() {
-#ifndef CC_SERVER_MODE
-    auto windowHandle = _window->getSDLWindowHandler();
-    
-    if (windowHandle!= 0) {
-        SDL_DestroyWindow(windowHandle);
-        // Clean up
-        SDL_Quit();
-    }
-#endif
-}
 int32_t LinuxPlatform::loop() {
     long lastTime = 0L;
     long curTime = 0L;

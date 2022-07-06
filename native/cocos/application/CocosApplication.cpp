@@ -103,9 +103,9 @@ void CocosApplication::resume() {
 void CocosApplication::restart() {
     _engine->restart();
 }
-
+// IMPORTANT!!The method `onClose` is a function to be listen close event, while `close` is a jsb binding method mean to close the whole application.
 void CocosApplication::close() {
-    reinterpret_cast<UniversalPlatform*>(BasePlatform::getPlatform())->quit();
+    _systemWidow->closeWindow();
 }
 
 BaseEngine::Ptr CocosApplication::getEngine() const {

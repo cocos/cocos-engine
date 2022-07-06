@@ -42,7 +42,6 @@ public:
     int32_t init() override;
 
     int32_t loop() override;
-    void quit() override;
 private:
     bool _quit{false};
     std::shared_ptr<SystemWindow> _window{nullptr};

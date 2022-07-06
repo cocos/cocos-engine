@@ -46,6 +46,7 @@ public:
     bool createWindow(const char* title,
                       int x, int y, int w,
                       int h, int flags) override;
+    void closeWindow() override;
     uintptr_t getWindowHandler() const override;
     SDL_Window* getSDLWindowHandler() const;
     uintptr_t getDisplay() const;

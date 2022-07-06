@@ -168,11 +168,4 @@ int32_t WindowsPlatform::loop() {
     onDestory();
     return 0;
 }
-void WindowsPlatform::quit() {
-    HWND windowHandle = reinterpret_cast<HWND>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
-    
-    if (windowHandle!= 0) {
-        ::SendMessageA(windowHandle, WM_CLOSE, 0, 0);
-    }
-}
 } // namespace cc

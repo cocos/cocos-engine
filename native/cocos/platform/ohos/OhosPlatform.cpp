@@ -87,11 +87,6 @@ int32_t OhosPlatform::loop() {
     return 0;
 }
 
-void OhosPlatform::quit() {
-    cc::EventDispatcher::dispatchCloseEvent();
-    exit(0); //TODO(cc): better exit
-}
-
 void OhosPlatform::pollEvent() {
     _jniNativeGlue->execCommand();
     if (!_jniNativeGlue->isPause()) {
