@@ -80,11 +80,11 @@ TEST(mathGeometryTest, test7) {
     rect = rect.unionWithRect(unionWithRect);
     cc::Vec2 equalTar(0, 0);
     size.setSize(160, 70);
-    ExpectEq(rect.origin.equals(equalTar) && rect.size.equals(size), true);
+    ExpectEq(equalTar.equals(cc::Vec2{rect.x, rect.y}) && size.equals(cc::Size{rect.width, rect.height}), true);
     // merge
     logLabel = "test the geometry_rect merge function";
     cc::Rect merge(30, 10, 200, 180);
     rect.merge(merge);
     size.setSize(230, 190);
-    ExpectEq(rect.size.equals(size), true);
+    ExpectEq(size.equals(cc::Size{rect.width, rect.height}), true);
 }
