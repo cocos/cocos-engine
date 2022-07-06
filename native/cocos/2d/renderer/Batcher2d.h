@@ -143,7 +143,9 @@ private:
         uint32_t indexOffset = drawInfo->getIndexOffset();
         uint32_t indexCount = drawInfo->getIbCount();
         indexOffset += indexCount;
-        buffer->setIndexOffset(indexOffset);
+        if (buffer->getIndexOffset() < indexOffset) {
+            buffer->setIndexOffset(indexOffset);
+        }
     }
 
     inline void fillColors(RenderEntity* entity, RenderDrawInfo* drawInfo) {

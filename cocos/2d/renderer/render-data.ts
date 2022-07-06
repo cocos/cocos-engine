@@ -536,7 +536,7 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
-        if (JSB) {
+        if (JSB && this._renderDrawInfo) {
             this._renderDrawInfo.clear();
         }
     }
