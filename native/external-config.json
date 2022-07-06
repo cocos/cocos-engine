@@ -1,8 +1,8 @@
 {
     "from": {
         "type": "github",
-        "owner": "cocos-creator",
+        "owner": "oahcy",
         "name": "engine-native-external",
-        "checkout": "v3d-gfx-124"
+        "checkout": "v3.6-conan"
     }
 }
