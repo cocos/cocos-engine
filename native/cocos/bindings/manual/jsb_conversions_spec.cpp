@@ -159,7 +159,7 @@ bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-id
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
-    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::VEC2)));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC2)));
     ret->setObject(obj);
 
     return true;
@@ -171,7 +171,7 @@ bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
-    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::VEC3)));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC3)));
     ret->setObject(obj);
 
     return true;
@@ -184,7 +184,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
     obj->setProperty("w", se::Value(v.w));
-    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::VEC4)));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC4)));
     ret->setObject(obj);
 
     return true;
@@ -197,7 +197,7 @@ bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(re
     obj->setProperty("y", se::Value(v.y));
     obj->setProperty("z", se::Value(v.z));
     obj->setProperty("w", se::Value(v.w));
-    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
     ret->setObject(obj);
 
     return true;
@@ -211,7 +211,7 @@ bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-id
         obj->setArrayElement(i, se::Value(v.m[i]));
     }
 
-    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::MAT4)));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT4)));
     ret->setObject(obj);
     return true;
 }
@@ -229,15 +229,15 @@ bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-id
 bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.origin.x));
-    obj->setProperty("y", se::Value(v.origin.y));
-    obj->setProperty("width", se::Value(v.size.width));
-    obj->setProperty("height", se::Value(v.size.height));
-    obj->setProperty("type",se::Value(static_cast<uint32_t>(MathType::RECT)));
+    obj->setProperty("x", se::Value(v.x));
+    obj->setProperty("y", se::Value(v.y));
+    obj->setProperty("width", se::Value(v.width));
+    obj->setProperty("height", se::Value(v.height));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::RECT)));
     ret->setObject(obj);
-
     return true;
 }
+
 void toVec2(void *data, DataType type, se::Value *ret) {
     auto *intptr = static_cast<int32_t *>(data);
     auto *floatptr = static_cast<float *>(data);
@@ -517,14 +517,27 @@ bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unuse
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/) {
-    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
     se::Object *obj = from.toObject();
     se::Value tmp;
- 
+
     set_member_field(obj, to, "x", &cc::gfx::Rect::x, tmp);
     set_member_field(obj, to, "y", &cc::gfx::Rect::y, tmp);
     set_member_field(obj, to, "width", &cc::gfx::Rect::width, tmp);
     set_member_field(obj, to, "height", &cc::gfx::Rect::height, tmp);
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
+    se::Object *obj = from.toObject();
+    se::Value tmp;
+
+    set_member_field(obj, to, "x", &cc::Rect::x, tmp);
+    set_member_field(obj, to, "y", &cc::Rect::y, tmp);
+    set_member_field(obj, to, "width", &cc::Rect::width, tmp);
+    set_member_field(obj, to, "height", &cc::Rect::height, tmp);
     return true;
 }
 
@@ -1549,6 +1562,17 @@ bool nativevalue_to_se(const cc::Quaternion &from, se::Value &to, se::Object * /
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object * /*unused*/) {
     return Rect_to_seval(from, &to);
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    obj->setProperty("width", se::Value(from.width));
+    obj->setProperty("height", se::Value(from.height));
+    to.setObject(obj);
+    return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)

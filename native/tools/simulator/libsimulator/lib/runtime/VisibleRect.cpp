@@ -42,45 +42,45 @@ cc::Rect VisibleRect::getVisibleRect() {
 
 cc::Vec2 VisibleRect::left() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y + s_visibleRect.size.height / 2);
+    return cc::Vec2(s_visibleRect.x, s_visibleRect.y + s_visibleRect.height / 2);
 }
 
 cc::Vec2 VisibleRect::right() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width, s_visibleRect.origin.y + s_visibleRect.size.height / 2);
+    return cc::Vec2(s_visibleRect.x + s_visibleRect.width, s_visibleRect.y + s_visibleRect.height / 2);
 }
 
 cc::Vec2 VisibleRect::top() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width / 2, s_visibleRect.origin.y + s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.x + s_visibleRect.width / 2, s_visibleRect.y + s_visibleRect.height);
 }
 
 cc::Vec2 VisibleRect::bottom() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width / 2, s_visibleRect.origin.y);
+    return cc::Vec2(s_visibleRect.x + s_visibleRect.width / 2, s_visibleRect.y);
 }
 
 cc::Vec2 VisibleRect::center() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width / 2, s_visibleRect.origin.y + s_visibleRect.size.height / 2);
+    return cc::Vec2(s_visibleRect.x + s_visibleRect.width / 2, s_visibleRect.y + s_visibleRect.height / 2);
 }
 
 cc::Vec2 VisibleRect::leftTop() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y + s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.x, s_visibleRect.y + s_visibleRect.height);
 }
 
 cc::Vec2 VisibleRect::rightTop() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width, s_visibleRect.origin.y + s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.x + s_visibleRect.width, s_visibleRect.y + s_visibleRect.height);
 }
 
 cc::Vec2 VisibleRect::leftBottom() {
     lazyInit();
-    return s_visibleRect.origin;
+    return cc::Vec2{s_visibleRect.x, s_visibleRect.y};
 }
 
 cc::Vec2 VisibleRect::rightBottom() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width, s_visibleRect.origin.y);
+    return cc::Vec2(s_visibleRect.x + s_visibleRect.width, s_visibleRect.y);
 }

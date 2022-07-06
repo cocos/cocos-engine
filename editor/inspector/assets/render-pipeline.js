@@ -46,15 +46,21 @@ exports.methods = {
     },
 
     updateInterface() {
+        this.updateReadonly(this.pipeline);
         this.$.container.render(this.pipeline);
-        this.updateReadonly(this.$.container);
     },
 
-    updateReadonly(element) {
+    updateReadonly(obj) {
         if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
+            if ('readonly' in obj && 'value' in obj) {
+                obj.readonly = true;
+
+                if (typeof obj.value === 'object') {
+                    for (const key in obj.value) {
+                        this.updateReadonly(obj.value[key]);
+                    }
+                }
+            }
         }
     },
 
