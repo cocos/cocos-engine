@@ -25,7 +25,7 @@
 */
 
 // @ts-check
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, JSB, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
@@ -235,6 +235,9 @@ export class TextureBase extends Asset {
         const destroyed = super.destroy();
         if (destroyed && legacyCC.director.root?.batcher2D) {
             legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
+            if (JSB) {
+                legacyCC.director.root.batcher2D._releaseDescriptorSetCacheNative(this.getGFXTexture());
+            }
         }
         return destroyed;
     }

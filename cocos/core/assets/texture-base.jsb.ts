@@ -127,6 +127,7 @@ textureBaseProto.destroy = function () {
     let destroyed = oldDestroy.call(this);
     if (destroyed && legacyCC.director.root?.batcher2D) {
         legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
+        legacyCC.director.root.batcher2D._releaseDescriptorSetCacheNative(this.getGFXTexture());
     }
     return destroyed;
 };
