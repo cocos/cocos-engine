@@ -234,11 +234,7 @@ export class TextureBase extends Asset {
     public destroy () {
         const destroyed = super.destroy();
         if (destroyed && legacyCC.director.root?.batcher2D) {
-            if (JSB) {
-                legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
-            } else {
-                legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
-            }
+            legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
         }
         return destroyed;
     }
