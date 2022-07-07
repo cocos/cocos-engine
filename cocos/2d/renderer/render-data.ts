@@ -372,9 +372,9 @@ export class RenderData extends BaseRenderData {
             }
             this._renderDrawInfo.setAccId(this._accessor.id);
             super.setRenderDrawInfoAttributes();
-            this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
+            this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
             this._renderDrawInfo.setTextureHash(this.textureHash);
-            this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
+            this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
             this._renderDrawInfo.setBlendHash(this.blendHash);
         }
     }

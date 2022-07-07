@@ -1,5 +1,5 @@
 import { JSB } from 'internal:constants';
-import { NativeRenderEntity } from '../../core/renderer/2d/native-2d';
+import { NativeRenderEntity } from './native-2d';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
@@ -158,6 +158,7 @@ export class RenderEntity {
         this.setCustomMaterial(null);
         this.setStencilStage(0);
         this.setCommitModelMaterial(null);
+        this._nativeObj = null;
         this._dynamicDrawInfoArr = [];
     }
 

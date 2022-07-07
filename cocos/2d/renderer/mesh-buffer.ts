@@ -29,7 +29,7 @@ import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
+import { NativeUIMeshBuffer } from './native-2d';
 
 interface IIARef {
     ia: InputAssembler;

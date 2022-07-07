@@ -49,7 +49,7 @@ import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderDrawInfo } from './render-draw-info';
-import { NativeBatcher2d, NativeRenderDrawInfo, NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
+import { NativeBatcher2d, NativeRenderDrawInfo, NativeUIMeshBuffer } from './native-2d';
 import { mapBuffer, readBuffer } from '../../3d/misc';
 import { MeshBuffer } from './mesh-buffer';
 import { propertyDefine } from '../../core/utils/misc';

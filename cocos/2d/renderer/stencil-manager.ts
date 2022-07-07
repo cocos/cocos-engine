@@ -27,7 +27,7 @@ import { JSB } from 'internal:constants';
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
 import { Mask } from '../components/mask';
 import { Material } from '../../core';
-import { NativeStencilManager } from '../../core/renderer/2d/native-2d';
+import { NativeStencilManager } from './native-2d';
 
 // Stage types
 export enum Stage {

@@ -32,7 +32,7 @@ import { IBatcher } from '../renderer/i-batcher';
 import { Stage } from '../renderer/stencil-manager';
 import { Component } from '../../core/components';
 import { legacyCC } from '../../core/global-exports';
-import { NativeUIModelProxy } from '../../core/renderer/2d/native-2d';
+import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { director } from '../../core/director';

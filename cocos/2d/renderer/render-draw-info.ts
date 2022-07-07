@@ -1,7 +1,7 @@
 import { JSB } from 'internal:constants';
 import { BaseRenderData, IRenderData } from './render-data';
 import { Stage } from './stencil-manager';
-import { NativeRenderDrawInfo } from '../../core/renderer/2d/native-2d';
+import { NativeRenderDrawInfo } from './native-2d';
 import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
 import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';

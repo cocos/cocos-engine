@@ -40,7 +40,7 @@ import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, M
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
-import { NativeUIModelProxy } from '../../core/renderer/2d/native-2d';
+import { NativeUIModelProxy } from '../renderer/native-2d';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
 const attributes = vfmtPosColor.concat([
