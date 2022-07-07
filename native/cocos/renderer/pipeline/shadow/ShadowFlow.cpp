@@ -91,6 +91,11 @@ void ShadowFlow::render(scene::Camera *camera) {
         return;
     }
 
+    if (shadowInfo->isShadowMapDirty()) {
+        _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
+        _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
+    }
+
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     const scene::DirectionalLight *mainLight = camera->getScene()->getMainLight();
     if (mainLight) {
@@ -210,9 +215,6 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         _usedTextures.erase(iter);
     }
     _usedTextures.emplace_back(colorTexture);
-
-    _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
-    _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
 
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL:
