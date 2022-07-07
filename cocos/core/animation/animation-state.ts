@@ -245,7 +245,7 @@ export class AnimationState extends Playable {
      * @zh 获取动画播放的比例时间。
      */
     get ratio () {
-        return this.current / this.duration;
+        return this.duration === 0.0 ? 0.0 : this.current / this.duration;
     }
 
     /**
@@ -494,6 +494,9 @@ export class AnimationState extends Playable {
 
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
+        if (this._playbackDuration === 0.0) {
+            return info;
+        }
         this._sampleCurves(info.time);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(info);
@@ -579,6 +582,9 @@ export class AnimationState extends Playable {
     private simpleProcess () {
         const playbackStart = this._playbackRange.min;
         const playbackDuration = this._playbackDuration;
+        if (playbackDuration === 0.0) {
+            return;
+        }
 
         let time = this.time % playbackDuration;
         if (time < 0.0) { time += playbackDuration; }
@@ -633,6 +639,15 @@ export class AnimationState extends Playable {
         const playbackStart = this._getPlaybackStart();
         const playbackEnd = this._getPlaybackEnd();
         const playbackDuration = playbackEnd - playbackStart;
+
+        if (playbackDuration === 0.0) {
+            info.time = 0.0;
+            info.ratio = 0.0;
+            info.direction = 1.0;
+            info.stopped = true;
+            info.iterations = 0.0;
+            return info;
+        }
 
         let stopped = false;
         const repeatCount = this.repeatCount;
