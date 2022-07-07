@@ -42,6 +42,8 @@ class Scheduler;
 
 AudioEngineImpl::AudioEngineImpl():_currentID(0), _lazyInitLoop(true){
     engine_instance = [[AVAudioEngine alloc] init];
+    AVAudioFormat* outputFormat = [engine_instance.outputNode outputFormatForBus:0];
+    [engine_instance connect:(AVAudioNode*)engine_instance.mainMixerNode to:engine_instance.outputNode format:outputFormat];
     s_instance = this;
 }
 
@@ -106,7 +108,6 @@ AudioCache* AudioEngineImpl::forceLoad(const ccstd::string &filePath, const Load
         cache = new AudioCache(fileFullPath);
         _caches[filePath] = cache;
         cache->load(); // force load
-        _caches[filePath] = cache;
         if(callback) {
             cache->addLoadCallback(callback);
         }
@@ -160,10 +161,11 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     cache->addLoadCallback([player, cache](bool){
         player->load(cache);
     });
-    if(!player->isAttached) {
+    if (!player->isAttached) {
+        
         [engine_instance attachNode:player->getDescriptor().node];
         
-        [engine_instance connect:player->getDescriptor().node to:(AVAudioNode*)engine_instance.mainMixerNode format:nil]; // TODO: err: -10878 format
+        [engine_instance connect:player->getDescriptor().node to:(AVAudioNode*)engine_instance.mainMixerNode format:cache->getDescriptor().audioFile.processingFormat]; // TODO: err: -10878 format
         player->isAttached = true;
     }
 
@@ -171,7 +173,6 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     
     if(_lazyInitLoop) {
         _lazyInitLoop = false;
-        [engine_instance connect:(AVAudioNode*)engine_instance.mainMixerNode to:engine_instance.outputNode format:nil];
         NSError* err;
         if(![engine_instance startAndReturnError: &err]){
             NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
@@ -183,6 +184,13 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
         }
     }
     cache->addPlayCallback([player](){
+        if (!engine_instance.running) {
+            NSError* err;
+            if(![engine_instance startAndReturnError: &err]){
+                NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
+                [err release];
+            }
+        }
         player->play();
     });
     return audioID;
@@ -280,12 +288,12 @@ void AudioEngineImpl::uncache(const std::string &filePath){
     _caches.erase(filePath);
 }
 
-void AudioEngineImpl::uncacheAll(){
+void AudioEngineImpl::uncacheAll() {
     _caches.clear();
 }
 
 // Update audio engine to uncache or cache audio
-void AudioEngineImpl::update(float dt){
+void AudioEngineImpl::update(float dt) {
     int32_t audioID;
     AudioPlayer* player;
     
@@ -293,10 +301,17 @@ void AudioEngineImpl::update(float dt){
     for (auto itr = _players.begin(); itr != _players.end();) {
         audioID = itr->first;
         player = itr->second;
-        if (!player->isForceCache && player->state == AudioPlayer::State::STOPPED) {
+        if (!player->isForceCache() && player->getState() == AudioPlayer::State::STOPPED) {
             player->unload();
             
-            _threadMutex.try_lock();
+            if (player->isAttached) {
+                NSLog(@"player node detached");
+                [engine_instance disconnectNodeOutput:player->getDescriptor().node];
+                [engine_instance detachNode:player->getDescriptor().node];
+                player->isAttached = false;
+            }
+            
+            _threadMutex.lock();
             _unusedPlayers[audioID] = player;
             itr = _players.erase(itr);
             _threadMutex.unlock();
@@ -323,6 +338,7 @@ void AudioEngineImpl::update(float dt){
             sche->unschedule("AudioEngine", this);
         }
         [engine_instance pause];
+        NSLog(@"engine_instance stopped");
     }
 }
 

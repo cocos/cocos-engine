@@ -25,6 +25,7 @@
 ****************************************************************************/
 #pragma once
 #include "AudioCache.h"
+#include <mutex>
 #include <thread>
 #ifdef __OBJC__
 #import <AVFoundation/AVAudioPlayerNode.h>
@@ -36,6 +37,7 @@ typedef struct AudioPlayerDescriptor {
     AVAudioPlayerNode* node;
     AVAudioPCMBuffer* bufferToPlay;
     AVAudioFramePosition curFrame;
+    bool isAttached {false};
 } AudioPlayerDescriptor;
 #else
 typedef struct AudioPlayerDescriptor {
@@ -53,18 +55,30 @@ public:
         PAUSED,
         STOPPED,
     };
+    /**
+     * Create an audio player without audio cache.
+     */
     AudioPlayer();
     AudioPlayer(AudioCache* cache);
     ~AudioPlayer();
     
+    /**
+     * Update _cache and if it's playing, stop itself.
+     */
     bool load(AudioCache* cache);
+    // If the audio is playing, then it will play at current time specified
     bool play();
-    bool playAtTime();
+    // Pause will update _currentTime
     bool pause();
+    // Resume or play audio
     bool resume();
+    // Stop.
     bool stop();
+    /**
+     * unload audio cache, and if it's playing, stop itself.
+     */
     bool unload();
-
+    
     bool setVolume(float volume);
     float getVolume();
     bool setLoop(bool isLoop);
@@ -72,24 +86,44 @@ public:
     float getDuration();
     float getCurrentTime();
     bool setCurrentTime(float curTime);
+    /**
+     * Get a copy of audio player descriptor.
+     */
     AudioPlayerDescriptor getDescriptor();
     void rotateBuffer();
-    bool isForceCache {false};
-    State state;
-    bool isAttached {false};
+    bool isForceCache();
+    void setForceCache();
+    State getState() const {return _state;}
+    
     std::function<void(int, const std::string&)> finishCallback {nullptr};
+    
+#ifdef __OBJC__
+    bool isAttached {false};
+#endif
+    
 private:
-    std::mutex _playMutex;
+    /**
+     * Loop control, if the streaming audio is playing and the game tries to loop audio,
+     * need to lock the mutex to change the value as _isLoop is uesd in multi-thread.
+     */
+    bool _isLoop {false};
+    std::mutex _loopSettingMutex;
+    
+    /**
+     * Rotate thread
+     */
+    std::thread* _rotateBufferThread {nullptr};
+    bool _shouldRotateThreadExited {false};
     
     AudioCache* _cache {nullptr};
     AudioPlayerDescriptor _descriptor;
-    bool _isLoop {false};
+    State _state;
     bool _isStreaming {false};
+    bool _isForceCache {false};
     float _volume {0};
-    float _currentTime {0};
+    float _startRenderTime {0};
     float _duration {0};
-    std::thread* _rotateBufferThread {nullptr};
-    bool _isRotateThreadExited {false};
+
     std::condition_variable _sleepCondition;
     std::mutex              _sleepMutex;
 };

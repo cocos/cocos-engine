@@ -111,6 +111,7 @@ bool AudioCache::load() {
 
     _descriptor.buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:frameCount];
     [_descriptor.audioFile readIntoBuffer:_descriptor.buffer frameCount:frameCount error:&err];
+    NSLog(@"audioFile read into buffer with load function");
     if (err) {
         NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
         [err release];
@@ -139,6 +140,7 @@ bool AudioCache::resample(PCMHeader header) {
 bool AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer, uint32_t frameCount) {
     NSError* err = nil;
     [_descriptor.audioFile readIntoBuffer:buffer frameCount:frameCount error:&err];
+    NSLog(@"audioFile read into buffer with loadToBufferFunc");
     if (err) {
         NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
         [err release];
@@ -163,6 +165,7 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
         AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:_descriptor.audioFile.length];
         // Read entire buffer into _descriptor buffer.
         [_descriptor.audioFile readIntoBuffer:tmpBuffer error:nil];
+        NSLog(@"get PCM buffer");
         const uint32_t frameCount = _pcmHeader.totalFrames;
         ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
         uint8_t *buffer = ret.data();

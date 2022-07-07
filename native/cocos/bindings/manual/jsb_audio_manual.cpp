@@ -61,6 +61,7 @@ static bool js_audio_AudioEngine_getOriginalPCMBuffer(se::State& s) // NOLINT
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
+        
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
