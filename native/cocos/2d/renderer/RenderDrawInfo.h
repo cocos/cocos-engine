@@ -99,7 +99,7 @@ public:
     inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
 
-    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type);
+    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
 
     inline Batcher2d* getBatcher() const { return _batcher; }
     void setBatcher(Batcher2d* batcher);
@@ -111,7 +111,6 @@ public:
 
     inline uint8_t getStride() { return _stride; }
     inline uint32_t getSize() { return _size; }
-    inline uint8_t getDrawType() { return _drawType; }
 
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
@@ -150,7 +149,6 @@ private:
     uint32_t _ibCount{0};
 
     bool _vertDirty{false};
-    uint8_t _drawType{0};
 
     scene::Model* _model{nullptr};
 

@@ -348,26 +348,6 @@ static bool js_2d_RenderDrawInfo_getDataHash(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getDataHash)
 
-static bool js_2d_RenderDrawInfo_getDrawType(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getDrawType : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        uint8_t result = cobj->getDrawType();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_getDrawType : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_RenderDrawInfo_getDrawType)
-
 static bool js_2d_RenderDrawInfo_getIDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1015,20 +995,18 @@ static bool js_2d_RenderDrawInfo_setRender2dBufferToNative(se::State& s) // NOLI
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 4) {
+    if (argc == 3) {
         HolderType<unsigned char*, false> arg0 = {};
         HolderType<uint8_t, false> arg1 = {};
         HolderType<unsigned int, false> arg2 = {};
-        HolderType<uint8_t, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_setRender2dBufferToNative : Error processing arguments");
-        cobj->setRender2dBufferToNative(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        cobj->setRender2dBufferToNative(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative)
@@ -1308,7 +1286,6 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("sampler", _SE(js_2d_RenderDrawInfo_getSampler_asGetter), _SE(js_2d_RenderDrawInfo_setSampler_asSetter));
     cls->defineProperty("blendHash", _SE(js_2d_RenderDrawInfo_getBlendHash_asGetter), _SE(js_2d_RenderDrawInfo_setBlendHash_asSetter));
     cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
-    cls->defineFunction("getDrawType", _SE(js_2d_RenderDrawInfo_getDrawType));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));
     cls->defineFunction("getModel", _SE(js_2d_RenderDrawInfo_getModel));
     cls->defineFunction("requestIA", _SE(js_2d_RenderDrawInfo_requestIA));

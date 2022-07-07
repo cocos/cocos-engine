@@ -47,7 +47,6 @@ export const sliced: IAssembler = {
     createData (sprite: Sprite) {
         const renderData: RenderData | null = sprite.requestRenderData()!;
         // 0-4 for local vertex
-        renderData.setDrawType();
         renderData.dataLength = 16;
         renderData.resize(16, 54);
         renderData.vertexRow = 4;

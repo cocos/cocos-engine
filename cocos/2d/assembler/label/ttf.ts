@@ -48,7 +48,6 @@ export const ttf: IAssembler = {
     createData (comp: Label) {
         const renderData = comp.requestRenderData()!;
 
-        renderData.setDrawType();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
 

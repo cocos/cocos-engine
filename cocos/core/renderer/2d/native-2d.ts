@@ -74,7 +74,7 @@ export class NativeRenderDrawInfo {
     get model (): Model { return new Model(); }
     set model (model: Model) { }
 
-    setRender2dBufferToNative (data: TypedArray, stride: number, size: number, type: number) { }
+    setRender2dBufferToNative (data: TypedArray, stride: number, size: number) { }
     syncSharedBufferToNative (data: TypedArray) { }
 
     getAttrSharedBufferForJS (): ArrayBufferLike { return new ArrayBuffer(0); }

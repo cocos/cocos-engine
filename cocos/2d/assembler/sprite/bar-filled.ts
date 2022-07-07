@@ -198,7 +198,6 @@ export const barFilled: IAssembler = {
     createData (sprite: Sprite) {
         const renderData: RenderData|null = sprite.requestRenderData();
         // 0-4 for local vertex
-        renderData.setDrawType();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.vertexRow = 2;

@@ -45,10 +45,12 @@ Batcher2d::~Batcher2d() {
     _drawBatchPool.destroy();
 
     for (auto iter : _descriptorSetCache) {
-        iter.second->destroy();
+        delete iter.second;
     }
 
-    _descriptorSetCache.clear();
+    for (auto* drawBatch : _batches) {
+        delete drawBatch;
+    }
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -87,7 +89,7 @@ void Batcher2d::walk(Node* node) {
         return;
     }
 
-    RenderEntity* entity = static_cast<RenderEntity*>(node->getUserData());
+    auto* entity = static_cast<RenderEntity*>(node->getUserData());
     if (entity && entity->isEnabled()) {
         RenderEntityType entityType = entity->getRenderEntityType();
 
@@ -100,13 +102,13 @@ void Batcher2d::walk(Node* node) {
         } else if (entityType == RenderEntityType::DYNAMIC) {
             ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
             for (auto* drawInfo : drawInfos) {
-                handleDynamicDrawInfo(entity, drawInfo, node);
+                handleDynamicDrawInfo(entity, drawInfo);
             }
         }
     }
 
-    auto& children = node->getChildren();
-    for (auto child : children) {
+    const auto& children = node->getChildren();
+    for (const auto child : children) {
         if (entity) {
             child->setParentOpacity(entity->getOpacity());
         }
@@ -122,7 +124,7 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
         }
 
         entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
-        StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
+        auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
 
         if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currStencilStage != tempStage) {
             // Generate a batch if not batching
@@ -163,7 +165,7 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
     }
 }
 
-void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode) {
+void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     if (!entity || !drawInfo) {
         return;
     }
@@ -185,14 +187,14 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
             dssHash = StencilManager::getInstance()->getStencilHash(entityStage);
         }
 
-        auto model = drawInfo->getModel();
+        auto* model = drawInfo->getModel();
         if (model == nullptr) return;
         auto stamp = CC_CURRENT_ENGINE()->getTotalFrames();
         model->updateTransform(stamp);
         model->updateUBOs(stamp);
 
         auto subModelList = model->getSubModels();
-        for (auto submodel : subModelList) {
+        for (const auto submodel : subModelList) {
             auto* curdrawBatch = _drawBatchPool.alloc();
             curdrawBatch->setVisFlags(entity->getNode()->getLayer());
             curdrawBatch->setModel(model);
@@ -366,8 +368,7 @@ void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* s
     }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
-        auto dsObj = iter->second;
-        dsObj->destroy();
+        delete iter->second;
         _descriptorSetCache.erase(hash);
     }
 }
