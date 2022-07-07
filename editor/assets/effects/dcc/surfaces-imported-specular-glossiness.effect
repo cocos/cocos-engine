@@ -230,8 +230,8 @@ CCProgram surface-fragment %{
     #endif
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor = texColor;
+      baseColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor.a = texColor.a;
     #else
       baseColor.rgb *= diffuseFactor;
     #endif
