@@ -65,7 +65,7 @@ public:
     void walk(Node* node);
     void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
-    void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
+    void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 

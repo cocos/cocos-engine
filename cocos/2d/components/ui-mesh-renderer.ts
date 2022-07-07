@@ -155,7 +155,7 @@ export class UIMeshRenderer extends Component {
             renderData.initRenderDrawInfo(this);
             this._renderData = renderData;
             this.renderData!.assignExtraDrawInfoAttrs(this);
-            this._renderData!.material = this._modelComponent.getMaterialInstance(index);
+            this._renderData!.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
 
