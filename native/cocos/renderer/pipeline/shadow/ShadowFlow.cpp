@@ -211,6 +211,9 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     }
     _usedTextures.emplace_back(colorTexture);
 
+    _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
+    _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
+
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL:
             ds->bindTexture(SHADOWMAP::BINDING, colorTexture);
