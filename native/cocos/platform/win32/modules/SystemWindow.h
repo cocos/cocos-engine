@@ -45,6 +45,7 @@ public:
     bool createWindow(const char* title,
                       int x, int y, int w,
                       int h, int flags) override;
+    void closeWindow() override;
     uintptr_t getWindowHandler() const override;
     Size getViewSize() const override;
     void setViewSize(uint32_t width, uint32_t height) override {

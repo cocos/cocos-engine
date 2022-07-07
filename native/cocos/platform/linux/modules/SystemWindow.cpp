@@ -75,8 +75,22 @@ bool SystemWindow::createWindow(const char *title,
     return true;
 }
 
+void SystemWindow::closeWindow() {
+    #ifndef CC_SERVER_MODE
+    auto windowHandle = getSDLWindowHandler();
+    
+    SDL_Event et;
+    et.type = SDL_QUIT;
+    auto posted = SDL_PushEvent(&et);
+#endif
+}
+
 uintptr_t SystemWindow::getWindowHandler() const {
     return _sdl->getWindowHandler();
+}
+
+SDL_Window* SystemWindow::getSDLWindowHandler() const {
+    return _sdl->getSDLWindowHandler();
 }
 
 uintptr_t SystemWindow::getDisplay() const {
