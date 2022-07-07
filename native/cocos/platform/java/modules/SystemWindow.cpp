@@ -74,5 +74,12 @@ SystemWindow::Size SystemWindow::getViewSize() const {
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};
 #endif
 }
-
+void SystemWindow::closeWindow() {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    finishActivity();
+#else
+    cc::EventDispatcher::dispatchCloseEvent();
+    exit(0); //TODO(cc): better exit for ohos
+#endif
+}
 } // namespace cc

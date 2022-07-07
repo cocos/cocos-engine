@@ -60,6 +60,7 @@
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/UniversalPlatform.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -209,6 +210,7 @@ int Engine::restart() {
 }
 
 void Engine::close() { // NOLINT
+    
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
@@ -220,11 +222,10 @@ void Engine::close() { // NOLINT
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
-
+    cc::EventDispatcher::dispatchCloseEvent();
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
 
-    // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
-    exit(0);
+
 }
 
 uint Engine::getTotalFrames() const {

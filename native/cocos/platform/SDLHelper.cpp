@@ -398,4 +398,8 @@ uintptr_t SDLHelper::getWindowHandler() const {
     return 0;
 }
 
+SDL_Window* SDLHelper::getSDLWindowHandler() const {
+    return _handle;
+}
+
 } // namespace cc

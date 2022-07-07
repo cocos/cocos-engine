@@ -40,8 +40,8 @@ namespace cc {
 
 CocosApplication::CocosApplication() {
     _engine = BaseEngine::createEngine();
-    _systemWidow = _engine->getInterface<ISystemWindow>();
-    CC_ASSERT(_systemWidow != nullptr);
+    _systemWindow = _engine->getInterface<ISystemWindow>();
+    CC_ASSERT(_systemWindow != nullptr);
 }
 
 CocosApplication::~CocosApplication() {
@@ -78,7 +78,7 @@ int CocosApplication::init() {
     se->start();
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS)
-    auto logicSize = _systemWidow->getViewSize();
+    auto logicSize = _systemWindow->getViewSize();
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
     cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
@@ -103,9 +103,9 @@ void CocosApplication::resume() {
 void CocosApplication::restart() {
     _engine->restart();
 }
-
+// IMPORTANT!!The method `onClose` is a function to be listen close event, while `close` is a jsb binding method mean to close the whole application.
 void CocosApplication::close() {
-    _engine->close();
+    _systemWindow->closeWindow();
 }
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
@@ -121,7 +121,7 @@ void CocosApplication::onResume() {
 }
 
 void CocosApplication::onClose() {
-    close();
+    _engine->close();
 }
 
 void CocosApplication::setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {
@@ -144,13 +144,13 @@ void CocosApplication::setXXTeaKey(const ccstd::string &key) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
 void CocosApplication::createWindow(const char *title, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title, w, h, flags);
+    _systemWindow->createWindow(title, w, h, flags);
 }
 
 void CocosApplication::createWindow(const char *title,
                                     int32_t x, int32_t y, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title, x, y, w, h, flags);
+    _systemWindow->createWindow(title, x, y, w, h, flags);
 }
 #endif
 
