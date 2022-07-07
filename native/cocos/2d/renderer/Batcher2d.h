@@ -24,22 +24,22 @@
 ****************************************************************************/
 
 #pragma once
-#include "2d/renderer/UIMeshBuffer.h"
 #include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/RenderEntity.h"
 #include "2d/renderer/UIMeshBuffer.h"
+#include "base/Macros.h"
+#include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "core/assets/Material.h"
 #include "renderer/gfx-base/GFXTexture.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
 #include "scene/DrawBatch2D.h"
-#include "2d/renderer/RenderEntity.h"
-#include "base/Ptr.h"
-#include "base/Macros.h"
 
 namespace cc {
 class Root;
-typedef ccstd::vector<UIMeshBuffer*> UIMeshBufferArray;
-typedef ccstd::unordered_map<uint32_t, UIMeshBufferArray> UIMeshBufferMap;
+using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
+using UIMeshBufferMap = ccstd::unordered_map<uint32_t, UIMeshBufferArray>;
+
 class Batcher2d final {
 public:
     Batcher2d();
@@ -68,38 +68,6 @@ public:
     void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
-
-protected:
-    CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
-
-private:
-    Root* _root{nullptr};
-    ccstd::vector<Node*> _rootNodeArr{};
-
-    ccstd::vector<scene::DrawBatch2D*> _batches{};
-    memop::Pool<scene::DrawBatch2D> _drawBatchPool;
-
-    gfx::Device* _device{nullptr}; //use getDevice()
-
-    RenderEntity* _currEntity{nullptr};
-    RenderDrawInfo* _currDrawInfo{nullptr};
-    UIMeshBuffer* _currMeshBuffer{nullptr};
-    uint32_t _indexStart{0};
-    ccstd::hash_t _currHash{0};
-    uint32_t _currLayer{0};
-    StencilStage _currStencilStage{StencilStage::DISABLED}; 
-
-    Material* _currMaterial{nullptr};
-    gfx::Texture* _currTexture{nullptr};
-    ccstd::hash_t _currTextureHash{0};
-    gfx::Sampler* _currSampler{nullptr};
-    ccstd::hash_t _currSamplerHash{0};
-
-    ccstd::vector<RenderDrawInfo*> _meshRenderDrawInfo{};
-
-    ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
-    gfx::DescriptorSetInfo _dsInfo{};
-    gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
 private:
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) {
@@ -163,6 +131,50 @@ private:
             vbBuffer[offset++] = entity->getOpacity();
         }
     }
+
+    gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
+
+    // weak reference
+    Root* _root{nullptr};
+    // weak reference
+    ccstd::vector<Node*> _rootNodeArr;
+
+    // manage memory manually
+    ccstd::vector<scene::DrawBatch2D*> _batches;
+    memop::Pool<scene::DrawBatch2D> _drawBatchPool;
+
+    // weak reference
+    gfx::Device* _device{nullptr}; //use getDevice()
+
+    // weak reference
+    RenderEntity* _currEntity{nullptr};
+    // weak reference
+    RenderDrawInfo* _currDrawInfo{nullptr};
+    // weak reference
+    UIMeshBuffer* _currMeshBuffer{nullptr};
+    uint32_t _indexStart{0};
+    ccstd::hash_t _currHash{0};
+    uint32_t _currLayer{0};
+    StencilStage _currStencilStage{StencilStage::DISABLED};
+
+    // weak reference
+    Material* _currMaterial{nullptr};
+    // weak reference
+    gfx::Texture* _currTexture{nullptr};
+    ccstd::hash_t _currTextureHash{0};
+    // weak reference
+    gfx::Sampler* _currSampler{nullptr};
+    ccstd::hash_t _currSamplerHash{0};
+
+    // weak reference
+    ccstd::vector<RenderDrawInfo*> _meshRenderDrawInfo;
+
+    // manage memory manually
+    ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache;
+    gfx::DescriptorSetInfo _dsInfo;
+
     UIMeshBufferMap _meshBuffersMap;
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
 };
 } // namespace cc

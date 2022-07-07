@@ -45,10 +45,12 @@ Batcher2d::~Batcher2d() {
     _drawBatchPool.destroy();
 
     for (auto iter : _descriptorSetCache) {
-        iter.second->destroy();
+        delete iter.second;
     }
 
-    _descriptorSetCache.clear();
+    for (auto* drawBatch : _batches) {
+        delete drawBatch;
+    }
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
