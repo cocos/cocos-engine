@@ -358,7 +358,7 @@ export class PhysXSharedBody {
     }
 
     setMask (v: number): void {
-        if (v === -1) v = 0xffffffff;
+        //if (v === -1) v = 0xffffffff;
         this._filterData.word1 = v;
         this.updateFilterData();
     }
