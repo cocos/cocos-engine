@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #pragma once
+
+#include <stack>
+#include "base/Macros.h"
 #include "base/TypeDef.h"
 #include "core/ArrayBuffer.h"
 #include "core/assets/Material.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/Pass.h"
-#include "base/Macros.h"
-#include <stack>
 
 namespace cc {
 enum class StencilStage {
@@ -92,19 +93,17 @@ public:
     void setStencilStage(uint32_t stageIndex);
     inline const ArrayBuffer& getStencilSharedBufferForJS() const { return *_stencilSharedBuffer; }
 
-protected:
+private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(StencilManager);
 
-private:
-    StencilEntity _stencilPattern{};
-    se::Object* _seArrayBufferObject{nullptr};
-    ArrayBuffer::Ptr _stencilSharedBuffer{nullptr};
+    StencilEntity _stencilPattern;
+    ArrayBuffer::Ptr _stencilSharedBuffer;
 
     StencilStage _stage{StencilStage::DISABLED};
 
     uint32_t _maskStackSize{0};
 
-    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMap{};
-    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMapWithDepth{};
+    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMap;
+    ccstd::unordered_map<uint32_t, gfx::DepthStencilState*> _cacheStateMapWithDepth;
 };
 } // namespace cc

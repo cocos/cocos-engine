@@ -35,15 +35,12 @@ RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
         drawInfo.setBatcher(_batcher);
     }
 
-    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_entityAttrLayout, sizeof(EntityAttrLayout), [](void* a, size_t b, void* c) {});
-    _seArrayBufferObject->root();
-    _entitySharedBuffer = new ArrayBuffer();
-    _entitySharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
+    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_entityAttrLayout, sizeof(EntityAttrLayout), [](void* a, size_t b, void* c) {});
+    _entitySharedBuffer = ccnew ArrayBuffer();
+    _entitySharedBuffer->setJSArrayBuffer(seArrayBufferObject);
 }
 
-RenderEntity::~RenderEntity() {
-    _dynamicDrawInfos.clear();
-}
+RenderEntity::~RenderEntity() = default;
 
 void RenderEntity::addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo) {
     _dynamicDrawInfos.push_back(drawInfo);
