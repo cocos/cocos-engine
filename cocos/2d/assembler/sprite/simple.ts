@@ -54,7 +54,6 @@ const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.setDrawType();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.vertexRow = 2;

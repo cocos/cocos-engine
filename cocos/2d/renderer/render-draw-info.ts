@@ -62,7 +62,6 @@ export class RenderDrawInfo {
 
     protected _vertexCount = 0;
     protected _stride = 0;
-    protected _drawType = 0;
 
     constructor (batcher: Batcher2D, nativeDrawInfo?: NativeRenderDrawInfo) {
         this.init(batcher, nativeDrawInfo);
@@ -268,12 +267,6 @@ export class RenderDrawInfo {
         }
     }
 
-    public initDrawType (drawType: number) {
-        if (JSB) {
-            this._drawType = drawType;
-        }
-    }
-
     public fillRender2dBuffer (vertexDataArr: IRenderData[]) {
         if (JSB) {
             const fillLength = Math.min(this._vertexCount, vertexDataArr.length);
@@ -305,7 +298,7 @@ export class RenderDrawInfo {
 
     public setRender2dBufferToNative () {
         if (JSB) {
-            this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride, this._drawType);
+            this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride);
         }
     }
 

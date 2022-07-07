@@ -398,7 +398,6 @@ export class RenderData extends BaseRenderData {
                 return;
             }
             this.renderDrawInfo.initRender2dBuffer(this.dataLength, this.floatStride);
-            this.renderDrawInfo.initDrawType(this.drawType);
             this.renderDrawInfo.setRender2dBufferToNative();
         }
     }

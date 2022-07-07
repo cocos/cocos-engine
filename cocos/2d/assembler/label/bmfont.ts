@@ -57,7 +57,6 @@ export const bmfont: IAssembler = {
             return;
         }
 
-        renderData.setDrawType();
         const dataOffset = renderData.dataLength;
 
         renderData.dataLength += 4;

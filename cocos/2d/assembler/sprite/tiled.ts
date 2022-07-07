@@ -79,7 +79,6 @@ export const tiled: IAssembler = {
         if (!renderData.vertDirty) {
             return;
         }
-        renderData.setDrawType();
 
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const contentWidth = Math.abs(uiTrans.width);
