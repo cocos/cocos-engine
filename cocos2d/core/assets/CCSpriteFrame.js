@@ -259,8 +259,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setRotated: function (bRotated) {
         this._rotated = bRotated;
-        if (this._texture)
+        if (this._texture) {
             this._calculateUV();
+        }
     },
 
     /**
@@ -327,10 +328,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setRect: function (rect) {
         this._rect = rect;
-        if (this._texture)
+        if (this._texture) {
             this._calculateUV();
+        }
     },
-    
+
     /**
      * !#en Returns the original size of the trimmed image.
      * !#zh 获取修剪前的原始大小
@@ -383,11 +385,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         if (!self._originalSize) {
-            self.setOriginalSize(cc.size(w, h));
+            self._originalSize = cc.size(w, h);
         }
 
         if (!self._offset) {
-            self.setOffset(cc.v2(0, 0));
+            self._offset = cc.v2(0, 0));
         }
 
         self._calculateUV();
@@ -546,7 +548,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _flipXY (uvs) {
+    _flipXY: function (uvs) {
         if (this._flipX) {
             let tempVal = uvs[0];
             uvs[0] = uvs[1];
@@ -568,7 +570,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _calculateSlicedUV () {
+    _calculateSlicedUV: function () {
         let rect = this._rect;
         let atlasWidth = this._texture.width;
         let atlasHeight = this._texture.height;
@@ -629,7 +631,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _setDynamicAtlasFrame (frame) {
+    _setDynamicAtlasFrame: function (frame) {
         if (!frame) return;
 
         this._original = {
@@ -637,14 +639,14 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             _x : this._rect.x,
             _y : this._rect.y
         }
-        
+
         this._texture = frame.texture;
         this._rect.x = frame.x;
         this._rect.y = frame.y;
         this._calculateUV();
     },
 
-    _resetDynamicAtlasFrame () {
+    _resetDynamicAtlasFrame: function () {
         if (!this._original) return;
         this._rect.x = this._original._x;
         this._rect.y = this._original._y;
@@ -657,7 +659,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _calculateUV () {
+    _calculateUV: function () {
         let rect = this._rect,
             texture = this._texture,
             uv = this.uv,
@@ -744,7 +746,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     // SERIALIZATION
 
-    _serialize: (CC_EDITOR || CC_TEST) && function (exporting, ctx) {
+    _serialize: function(CC_EDITOR || CC_TEST) && function (exporting, ctx) {
         let rect = this._rect;
         let offset = this._offset;
         let size = this._originalSize;
