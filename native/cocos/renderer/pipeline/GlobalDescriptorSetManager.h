@@ -72,6 +72,8 @@ private:
     gfx::Sampler *_linearSampler{nullptr};
     gfx::Sampler *_pointSampler{nullptr};
 
+    IntrusivePtr<gfx::Texture> _defaultTexture;
+
     IntrusivePtr<gfx::DescriptorSetLayout> _descriptorSetLayout;
     IntrusivePtr<gfx::DescriptorSet> _globalDescriptorSet;
     ccstd::vector<IntrusivePtr<gfx::Buffer>> _shadowUBOs;

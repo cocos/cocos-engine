@@ -26,13 +26,13 @@
 #include "ShadowFlow.h"
 
 #include "CSMLayers.h"
+#include "ShadowStage.h"
+#include "gfx-base/GFXDevice.h"
 #include "pipeline//Define.h"
 #include "pipeline/GlobalDescriptorSetManager.h"
 #include "pipeline/PipelineSceneData.h"
 #include "pipeline/RenderPipeline.h"
 #include "pipeline/SceneCulling.h"
-#include "ShadowStage.h"
-#include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
@@ -118,7 +118,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
-        }else {
+        } else {
             if (shadowInfo->isShadowMapDirty()) {
                 resizeShadowMap(light, ds);
             }
@@ -230,7 +230,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         width,
         height,
     });
-    
+
     auto *oldDepthStencilTexture = framebuffer->getDepthStencilTexture();
     const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), oldDepthStencilTexture);
     _usedTextures.erase(iter);
@@ -244,7 +244,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     });
 }
 
-void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light) {
+void ShadowFlow::initShadowFrameBuffer(const RenderPipeline *pipeline, const scene::Light *light) {
     auto *device = gfx::Device::getInstance();
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
@@ -317,6 +317,9 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
 }
 
 void ShadowFlow::destroy() {
+    _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
+    _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
+
     _renderPass = nullptr;
     renderPassHashMap.clear();
     _usedTextures.clear();
