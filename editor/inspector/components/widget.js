@@ -286,7 +286,7 @@ exports.template = `
 }
 
 .widget-component .button-group {
-    border: 1px solid var(--color-normal-border);
+    border: 1px solid var(--color-default-border-important);
     border-radius: 3px;
     overflow: hidden;
     display: flex;
@@ -299,7 +299,7 @@ exports.template = `
     padding: 0 5px;
     text-align: center;
     font-size: 11px;
-    border-right: 1px solid var(--color-normal-border);
+    border-right: 1px solid var(--color-default-border-important);
     cursor: pointer;
 }
 
@@ -341,14 +341,14 @@ exports.template = `
     position: absolute;
     width: 12px;
     height: 4px;
-    background-color: var(--color-normal-border-weakest);
+    background-color: var(--color-default-contrast-emphasis);
 }
 
 .widget-component .button-group .button .icon .short {
     position: absolute;
     width: 7px;
     height: 4px;
-    background-color: var(--color-normal-border-weakest);
+    background-color: var(--color-default-contrast-emphasis);
 }
 
 .widget-component .button-group .button .left.bottom {
