@@ -389,7 +389,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         if (!self._offset) {
-            self._offset = cc.v2(0, 0));
+            self._offset = cc.v2(0, 0);
         }
 
         self._calculateUV();
