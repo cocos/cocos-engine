@@ -45,6 +45,15 @@ StencilManager::StencilManager(/* args */) {
 }
 
 StencilManager::~StencilManager() {
+    for (auto pair : _cacheStateMap) {
+        CC_SAFE_DELETE(pair.second);
+    }
+    _cacheStateMap.clear();
+
+    for (auto pair : _cacheStateMapWithDepth) {
+        CC_SAFE_DELETE(pair.second);
+    }
+    _cacheStateMapWithDepth.clear();
 }
 
 gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage, Material* mat) {
