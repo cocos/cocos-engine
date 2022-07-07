@@ -45,10 +45,12 @@ Batcher2d::~Batcher2d() {
     _drawBatchPool.destroy();
 
     for (auto iter : _descriptorSetCache) {
-        iter.second->destroy();
+        delete iter.second;
     }
 
-    _descriptorSetCache.clear();
+    for (auto* drawBatch : _batches) {
+        delete drawBatch;
+    }
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -366,8 +368,7 @@ void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* s
     }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
-        auto dsObj = iter->second;
-        dsObj->destroy();
+        delete iter->second;
         _descriptorSetCache.erase(hash);
     }
 }
