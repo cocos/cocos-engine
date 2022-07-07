@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <stdint.h>
 #include <boost/functional/hash.hpp>
 #include <thread>
 #include "VKStd.h"
@@ -33,6 +34,8 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKGPUObjects.h"
+#include "gfx-base/GFXDef-common.h"
+#include "gfx-base/GFXDef.h"
 #include "states/VKGeneralBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
@@ -1252,6 +1255,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 
     uint32_t optimalOffsetAlignment = device->gpuContext()->physicalDeviceProperties.limits.optimalBufferCopyOffsetAlignment;
     uint32_t optimalRowPitchAlignment = device->gpuContext()->physicalDeviceProperties.limits.optimalBufferCopyRowPitchAlignment;
+    uint32_t offsetAlignment = lcm(GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].size, optimalRowPitchAlignment);
 
     auto blockSize = formatAlignment(gpuTexture->format);
 
@@ -1318,7 +1322,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 
                     CCVKGPUBuffer stagingBuffer;
                     stagingBuffer.size = rowPitchSize * (stepHeight / blockSize.second);
-                    device->gpuStagingBufferPool()->alloc(&stagingBuffer, optimalOffsetAlignment);
+                    device->gpuStagingBufferPool()->alloc(&stagingBuffer, offsetAlignment);
 
                     for (uint32_t j = 0; j < stepHeight; j += blockSize.second) {
                         memcpy(stagingBuffer.mappedData + destOffset, buffers[idx] + buffOffset, destRowSize);
