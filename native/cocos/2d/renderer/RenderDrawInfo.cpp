@@ -148,11 +148,10 @@ void RenderDrawInfo::setModel(scene::Model* model) {
     _model = model;
 }
 
-void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size, uint8_t type) {
+void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) {
     _stride = stride;
     _size = size;
     _sharedBuffer = buffer;
-    _drawType = type;
 }
 
 const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {

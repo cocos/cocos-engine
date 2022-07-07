@@ -66,7 +66,6 @@ function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
 export const MotionStreakAssembler: IAssembler = {
     createData (comp: MotionStreak) {
         const renderData = comp.requestRenderData();
-        renderData.setDrawType();
         renderData.dataLength = 4;
         renderData.resize(16, (16 - 2) * 3);
         return renderData;

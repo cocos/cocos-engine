@@ -252,7 +252,6 @@ export const radialFilled: IAssembler = {
             if (!renderData.vertDirty) {
                 return;
             }
-            renderData.setDrawType();
             const dataList = renderData.data;
 
             let fillStart = sprite.fillStart;
@@ -343,7 +342,10 @@ export const radialFilled: IAssembler = {
                     endAngle += PI_2;
                 }
             }
-
+            // hack for native when offset is 0
+            if (offset === 0) {
+                renderData.dataLength = 0;
+            }
             renderData.resize(offset, offset);
             if (JSB) {
                 const indexCount = renderData.indexCount;

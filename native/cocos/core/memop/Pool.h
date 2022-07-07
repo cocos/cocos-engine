@@ -111,10 +111,15 @@ public:
         for (int i = 0; i < _nextAvail; ++i) {
             dtor(_freepool[i]);
         }
-        destroy();
+        _nextAvail = -1;
+        _freepool.clear();
+        _freepool.shrink_to_fit();
     }
 
     void destroy() {
+        for (int i = 0; i < _nextAvail; ++i) {
+            delete _freepool[i];
+        }
         _nextAvail = -1;
         _freepool.clear();
         _freepool.shrink_to_fit();
