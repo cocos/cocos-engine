@@ -37,7 +37,6 @@ export class RenderDrawInfo {
     protected _ib: Uint16Array | undefined;
     protected _vData: Float32Array | undefined;
     protected _iData: Uint16Array | undefined;
-    protected _node: Node | undefined;
     protected _vertDirty: boolean | undefined;
     protected _vbCount: number | undefined;
     protected _ibCount: number | undefined;
@@ -161,15 +160,6 @@ export class RenderDrawInfo {
         if (JSB) {
             this._nativeObj.ibCount = ibCount;
         }
-    }
-
-    public setNode (node: Node) {
-        if (JSB) {
-            if (this._node !== node) {
-                this._nativeObj.node = node;
-            }
-        }
-        this._node = node;
     }
 
     public setVertDirty (val: boolean) {

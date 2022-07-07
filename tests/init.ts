@@ -92,7 +92,7 @@ jest.mock('serialization-test-helper/run-test', () => {
 
 import '../exports/base';
 import { DebugMode } from "../cocos/core/platform/debug";
-import { EffectAsset, game, IGameConfig } from '../exports/base';
+import { EffectAsset, Game, game, IGameConfig } from '../exports/base';
 import './asset-manager/init';
 import '../cocos/core/gfx/empty/empty-device';
 import '../cocos/3d/skeletal-animation/data-pool-manager';
@@ -113,18 +113,20 @@ const config: IGameConfig = {
     }
 }
 globalThis.waitThis((async () => {
-    effects.forEach((e, effectIndex) => {
-        const effect = Object.assign(new EffectAsset(), e);
-        effect.shaders.forEach((shaderInfo, shaderIndex) => {
-            const shaderSource = glsl4[effectIndex][shaderIndex];
-            if (shaderSource) {
-                shaderInfo['glsl4'] = shaderSource;
-            }
+    game.on(Game.EVENT_POST_SUBSYSTEM_INIT, () => {
+        effects.forEach((e, effectIndex) => {
+            const effect = Object.assign(new EffectAsset(), e);
+            effect.shaders.forEach((shaderInfo, shaderIndex) => {
+                const shaderSource = glsl4[effectIndex][shaderIndex];
+                if (shaderSource) {
+                    shaderInfo['glsl4'] = shaderSource;
+                }
+            });
+            effect.hideInEditor = true;
+            effect.onLoaded();
         });
-        effect.hideInEditor = true;
-        effect.onLoaded();
-    });
+        initBuiltinMaterial()
+   });
     await game.init(config);
-    initBuiltinMaterial();
     await game.run();
 })());

@@ -78,8 +78,6 @@ public:
     void setVbCount(uint32_t vbCount);
     inline uint32_t getIbCount() const { return _ibCount; }
     void setIbCount(uint32_t ibCount);
-    inline Node* getNode() const { return _node; }
-    void setNode(Node* node);
     inline bool getVertDirty() const { return _vertDirty; }
     void setVertDirty(bool val);
     inline ccstd::hash_t getDataHash() const { return _dataHash; }
@@ -149,8 +147,6 @@ private:
 
     uint32_t _vbCount{0};
     uint32_t _ibCount{0};
-
-    Node* _node{nullptr};
 
     bool _vertDirty{false};
 

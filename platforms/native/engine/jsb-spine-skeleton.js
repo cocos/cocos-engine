@@ -899,8 +899,6 @@ const cacheManager = require('./jsb-cache-manager');
             entity.setDynamicRenderDrawInfo(drawInfo, index);
 
             entity.assignExtraEntityAttrs(this);
-            drawInfo.setNode(this.node);
-            drawInfo.enabled = true;
             this.material = mat;
         }
     };

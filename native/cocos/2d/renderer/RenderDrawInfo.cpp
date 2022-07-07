@@ -104,10 +104,6 @@ void RenderDrawInfo::setIbCount(uint32_t ibCount) {
     _ibCount = ibCount;
 }
 
-void RenderDrawInfo::setNode(Node* node) {
-    _node = node;
-}
-
 void RenderDrawInfo::setVertDirty(bool val) {
     _vertDirty = val;
 }

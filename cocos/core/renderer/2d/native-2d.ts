@@ -44,9 +44,6 @@ export class NativeRenderDrawInfo {
     get ibCount (): number { return 0; }
     set ibCount (ibCount: number) { }
 
-    get node (): Node { return new Node(); }
-    set node (node: Node) { }
-
     get vertDirty (): boolean { return false; }
     set vertDirty (val: boolean) { }
 

@@ -121,7 +121,7 @@ SpriteFrame *SpriteFrame::createWithTexture(Texture2D *texture, const cc::Rect &
 }
 
 bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect) {
-    return initWithTexture(texture, rect, false, cc::Vec2::ZERO, rect.size);
+    return initWithTexture(texture, rect, false, cc::Vec2::ZERO, cc::Size{rect.width, rect.height});
 }
 
 bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect, bool rotated, const cc::Vec2 &offset, const cc::Size &originalSize) {
