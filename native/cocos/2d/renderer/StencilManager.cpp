@@ -38,22 +38,19 @@ StencilManager* StencilManager::getInstance() {
 }
 
 StencilManager::StencilManager(/* args */) {
-    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_stencilSharedBuffer, sizeof(StencilEntity), [](void* a, size_t b, void* c) {});
-    _seArrayBufferObject->root();
-    _stencilSharedBuffer = new ArrayBuffer();
-    _stencilSharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
+    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_stencilSharedBuffer, sizeof(StencilEntity), [](void* a, size_t b, void* c) {});
+    _stencilSharedBuffer = ccnew ArrayBuffer();
+    _stencilSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
 }
 
 StencilManager::~StencilManager() {
     for (auto pair : _cacheStateMap) {
         CC_SAFE_DELETE(pair.second);
     }
-    _cacheStateMap.clear();
 
     for (auto pair : _cacheStateMapWithDepth) {
         CC_SAFE_DELETE(pair.second);
     }
-    _cacheStateMapWithDepth.clear();
 }
 
 gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage, Material* mat) {
@@ -64,7 +61,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
     auto* cacheMap = &_cacheStateMap;
 
     if (mat && mat->getPasses()->at(0)) {
-        IntrusivePtr<scene::Pass> pass = mat->getPasses()->at(0);
+        IntrusivePtr<scene::Pass>& pass = mat->getPasses()->at(0);
         const gfx::DepthStencilState* dss = pass->getDepthStencilState();
         uint32_t depthTestValue = 0;
         uint32_t depthWriteValue = 0;
@@ -92,7 +89,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
 
     setDepthStencilStateFromStage(stage);
 
-    gfx::DepthStencilState* depthStencilState = new gfx::DepthStencilState();
+    gfx::DepthStencilState* depthStencilState = ccnew gfx::DepthStencilState();
     depthStencilState->depthTest = depthTest;
     depthStencilState->depthWrite = depthWrite;
     depthStencilState->depthFunc = depthFunc;

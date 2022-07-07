@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #pragma once
+#include <array>
+#include <vector>
 #include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/StencilManager.h"
+#include "base/Macros.h"
 #include "base/TypeDef.h"
 #include "core/ArrayBuffer.h"
 #include "core/scene-graph/Node.h"
-#include "2d/renderer/StencilManager.h"
-#include "base/Macros.h"
-#include <array>
-#include <vector>
 
 namespace cc {
 class Batcher2d;
@@ -98,24 +98,26 @@ public:
     inline void setOpacity(float_t opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
 
-protected:
+private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
 
-private:
     uint32_t _staticDrawInfoSize{0};
-    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos{};
-    ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos{};
+    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
+    ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
 
+    // weak reference
     Batcher2d* _batcher{nullptr};
+    // weak reference
     Node* _node{nullptr};
     StencilStage _stencilStage{StencilStage::DISABLED};
+    // weak reference
     Material* _customMaterial{nullptr};
+    // weak reference
     Material* _commitModelMaterial{nullptr};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
 
-    EntityAttrLayout _entityAttrLayout{};
-    se::Object* _seArrayBufferObject{nullptr};
-    ArrayBuffer::Ptr _entitySharedBuffer{nullptr};
+    EntityAttrLayout _entityAttrLayout;
+    ArrayBuffer::Ptr _entitySharedBuffer;
     float_t _opacity{1.0f};
 };
 } // namespace cc
