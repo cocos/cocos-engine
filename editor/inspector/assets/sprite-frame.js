@@ -522,6 +522,7 @@ const Elements = {
             panel.$.pivotXInput.value = panel.meta.userData.pivotX;
 
             panel.updateInvalid(panel.$.pivotXInput, 'pivotX');
+            panel.updateReadonly(panel.$.pivotXInput);
         },
     },
     pivotY: {
@@ -541,6 +542,7 @@ const Elements = {
             panel.$.pivotYInput.value = panel.meta.userData.pivotY;
 
             panel.updateInvalid(panel.$.pivotYInput, 'pivotY');
+            panel.updateReadonly(panel.$.pivotYInput);
         },
     },
     meshType: {

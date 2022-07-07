@@ -593,9 +593,9 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         uint32_t totalFrames = decoder->getTotalFrames();
         uint32_t remainingFrames = totalFrames;
         uint32_t framesRead = 0;
-        uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(decoder->getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
+        uint32_t framesToReadOnce = std::min(remainingFrames, static_cast<uint32_t>(decoder->getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
         AudioDataFormat type = audioInfo.dataFormat;
-        auto tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerChannelInFrame));
+        char *tmpBuf = static_cast<char *>(malloc(framesToReadOnce * audioInfo.bytesPerFrame));
         pcmData.resize(bytesPerChannelInFrame * audioInfo.totalFrames);
         uint8_t *p = pcmData.data();
         while (remainingFrames > 0) {
@@ -610,23 +610,6 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
             
         };
         free(tmpBuf);
-        // Adjust total frames by setting position to the end of frames and try to read more data.
-        // This is a workaround for https://github.com/cocos2d/cocos2d-x/issues/16938
-        if (decoder->seek(totalFrames)) {
-            tmpBuf = static_cast<char *>(malloc(audioInfo.bytesPerFrame * framesToReadOnce));
-            do {
-                framesRead = decoder->read(framesToReadOnce, tmpBuf); //read one by one to easy divide
-                pcmData.reserve(totalFrames + framesRead);
-                if (framesRead > 0) { // Adjust frames exist
-                    for (int itr = 0; itr < framesRead; itr++) {
-                        memcpy(p, tmpBuf + itr * audioInfo.bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
-                        p += bytesPerChannelInFrame;
-                    }
-                }
-            } while (framesRead > 0);
-            free(tmpBuf);
-        }
-        BREAK_IF_ERR_LOG(!decoder->seek(0), "AudioDecoder::seek(0) failed!");
     } while (false);
     AudioDecoderManager::destroyDecoder(decoder);
     return pcmData;

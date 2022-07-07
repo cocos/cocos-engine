@@ -89,7 +89,9 @@ export class RenderInstancedQueue {
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
         descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>) {
-        const it = this._renderQueue.values(); let res = it.next();
+        const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue.values();
+        let res = it.next();
+
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {

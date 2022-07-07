@@ -196,8 +196,8 @@ void PlayerEditBoxServiceMac::showSingleLineEditBox(const cc::Rect &rect)
     [[_sysEdit.textField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
     [[_sysEdit.textField cell] setTruncatesLastVisibleLine:YES];
     
-    [_sysEdit setPosition:NSMakePoint(rect.origin.x, rect.origin.y)];
-    [_sysEdit setContentSize:NSMakeSize(rect.size.width, rect.size.height)];
+    [_sysEdit setPosition:NSMakePoint(rect.x, rect.y)];
+    [_sysEdit setContentSize:NSMakeSize(rect.width, rect.height)];
     
     show();
 }
@@ -207,8 +207,8 @@ void PlayerEditBoxServiceMac::showMultiLineEditBox(const cc::Rect &rect)
     [[_sysEdit.textField cell] setLineBreakMode:NSLineBreakByCharWrapping];
     [[_sysEdit.textField cell] setTruncatesLastVisibleLine:NO];
     
-    [_sysEdit setPosition:NSMakePoint(rect.origin.x, rect.origin.y)];
-    [_sysEdit setContentSize:NSMakeSize(rect.size.width, rect.size.height)];
+    [_sysEdit setPosition:NSMakePoint(rect.x, rect.y)];
+    [_sysEdit setContentSize:NSMakeSize(rect.width, rect.height)];
     
     show();
 }
