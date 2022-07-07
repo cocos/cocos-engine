@@ -43,7 +43,15 @@ StencilManager::StencilManager(/* args */) {
     _stencilSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
 }
 
-StencilManager::~StencilManager() = default;
+StencilManager::~StencilManager() {
+    for (auto pair : _cacheStateMap) {
+        CC_SAFE_DELETE(pair.second);
+    }
+
+    for (auto pair : _cacheStateMapWithDepth) {
+        CC_SAFE_DELETE(pair.second);
+    }
+}
 
 gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage, Material* mat) {
     uint32_t key = 0;

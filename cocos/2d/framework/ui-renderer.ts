@@ -285,11 +285,12 @@ export class UIRenderer extends Renderer {
     get stencilStage (): Stage {
         return this._stencilStage;
     }
-    set stencilStage (val:Stage) {
+    set stencilStage (val: Stage) {
         this._stencilStage = val;
         if (this._renderEntity) {
             this._renderEntity.setStencilStage(val);
         }
+        this._updateStencilStage();
     }
 
     @override
@@ -304,7 +305,7 @@ export class UIRenderer extends Renderer {
     @serializable
     protected _color: Color = Color.WHITE.clone();
 
-    protected _stencilStage :Stage = Stage.DISABLED;
+    protected _stencilStage: Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
@@ -558,11 +559,11 @@ export class UIRenderer extends Renderer {
     // }
 
     // for common
-    public static setEntityColorDirtyRecursively (node:Node, dirty:boolean) {
+    public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render.renderEntity) {
-            render.renderEntity.colorDirty = dirty;
-            render.renderEntity.color = render.color;// necessity to be considering
+        if (render && render._renderEntity) {
+            render._renderEntity.colorDirty = dirty;
+            render._renderEntity.color = render.color;// necessity to be considering
         }
         for (let i = 0; i < node.children.length; i++) {
             UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
@@ -583,7 +584,7 @@ export class UIRenderer extends Renderer {
     //     }
     // }
 
-    public setEntityColor (color:Color) {
+    public setEntityColor (color: Color) {
         if (JSB) {
             if (this._renderEntity) {
                 this._renderEntity.color = color;
@@ -591,11 +592,31 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    public setEntityOpacity (opacity:number) {
+    public setEntityOpacity (opacity: number) {
         if (JSB) {
             if (this._renderEntity) {
                 this._renderEntity.localOpacity = opacity;
             }
+        }
+    }
+
+    protected _updateStencilStage () {
+        this.setEntityStencilStage(this._stencilStage);
+    }
+
+    protected setEntityStencilStage (stage: Stage) {
+        if (JSB) {
+            UIRenderer.setEntityStencilStageRecursively(this.node);
+        }
+    }
+
+    public static setEntityStencilStageRecursively (node: Node) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        if (render && render._renderEntity) {
+            render._renderEntity.setStencilStage(render._stencilStage);
+        }
+        for (let i = 0; i < node.children.length; i++) {
+            UIRenderer.setEntityStencilStageRecursively(node.children[i]);
         }
     }
 
