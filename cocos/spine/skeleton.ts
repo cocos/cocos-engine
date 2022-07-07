@@ -1388,7 +1388,6 @@ export class Skeleton extends UIRenderer {
     // call markForUpdateRenderData to make sure renderData will be re-built.
     public onRestore () {
         this.updateMaterial();
-        this._renderFlag = this._canRender();
         this.markForUpdateRenderData();
     }
 

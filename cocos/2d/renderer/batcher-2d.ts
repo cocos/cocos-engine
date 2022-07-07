@@ -126,7 +126,6 @@ export class Batcher2D implements IBatcher {
 
         if (JSB) {
             this._nativeObj = new NativeBatcher2d();
-
             //this.initAttrBuffer();
         }
     }
@@ -691,8 +690,8 @@ export class Batcher2D implements IBatcher {
 
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
-            //render.updateAssembler(this);
-            render.updateRenderer();// for collecting data
+            // render.updateAssembler(this);
+            // render.updateRenderer();// for collecting data
             if (!JSB) {
                 render.fillBuffers(this);// for rendering
             }

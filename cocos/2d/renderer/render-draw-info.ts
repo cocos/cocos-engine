@@ -41,12 +41,11 @@ export class RenderDrawInfo {
     protected _vbCount: number | undefined;
     protected _ibCount: number | undefined;
     protected _dataHash: number | undefined;
-    protected _stencilStage: number | undefined;
     protected _isMeshBuffer: boolean | undefined;
     protected _material: Material | undefined;
-    protected _texture: Texture | undefined;
+    protected _texture: Texture | null = null;
     protected _textureHash: number | undefined;
-    protected _sampler: Sampler | undefined;
+    protected _sampler: Sampler | null = null;
     protected _blendHash: number | undefined;
 
     protected _model: Model | undefined;
@@ -178,15 +177,6 @@ export class RenderDrawInfo {
         this._dataHash = dataHash;
     }
 
-    public setStencilStage (stencilStage: number) {
-        if (JSB) {
-            if (this._stencilStage !== stencilStage) {
-                this._nativeObj.stencilStage = stencilStage;
-            }
-        }
-        this._stencilStage = stencilStage;
-    }
-
     public setIsMeshBuffer (isMeshBuffer: boolean) {
         if (JSB) {
             if (this._isMeshBuffer !== isMeshBuffer) {
@@ -205,7 +195,7 @@ export class RenderDrawInfo {
         this._material = material;
     }
 
-    public setTexture (texture: Texture) {
+    public setTexture (texture: Texture | null) {
         if (JSB) {
             if (this._texture !== texture) {
                 this._nativeObj.texture = texture;
@@ -223,7 +213,7 @@ export class RenderDrawInfo {
         this._textureHash = textureHash;
     }
 
-    public setSampler (sampler: Sampler) {
+    public setSampler (sampler: Sampler | null) {
         if (JSB) {
             if (this._sampler !== sampler) {
                 this._nativeObj.sampler = sampler;

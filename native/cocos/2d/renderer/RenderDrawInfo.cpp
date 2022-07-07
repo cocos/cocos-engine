@@ -109,10 +109,6 @@ void RenderDrawInfo::setDataHash(ccstd::hash_t dataHash) {
     _dataHash = dataHash;
 }
 
-void RenderDrawInfo::setStencilStage(uint32_t stencilStage) {
-    _stencilStage = stencilStage;
-}
-
 void RenderDrawInfo::setIsMeshBuffer(bool isMeshBuffer) {
     _isMeshBuffer = isMeshBuffer;
 }

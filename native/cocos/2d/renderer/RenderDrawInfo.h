@@ -81,8 +81,6 @@ public:
     void setVertDirty(bool val);
     inline ccstd::hash_t getDataHash() const { return _dataHash; }
     void setDataHash(ccstd::hash_t dataHash);
-    inline uint32_t getStencilStage() const { return _stencilStage; }
-    void setStencilStage(uint32_t stencilStage);
     inline bool getIsMeshBuffer() const { return _isMeshBuffer; }
     void setIsMeshBuffer(bool isMeshBuffer);
     inline Material* getMaterial() const { return _material; }

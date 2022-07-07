@@ -202,7 +202,6 @@ export class BaseRenderData {
             this._renderDrawInfo.setIBCount(this._ic);
 
             this._renderDrawInfo.setDataHash(this.dataHash);
-            this._renderDrawInfo.setStencilStage(StencilManager.sharedManager!.stage);
             this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
             this._renderDrawInfo.setMaterial(this.material!);
         }
@@ -282,9 +281,6 @@ export class RenderData extends BaseRenderData {
     set textureHash (val:number) {
         this._textureHash = val;
         if (this._renderDrawInfo) {
-            if (this.frame) {
-                this._renderDrawInfo.setTexture(this.frame.getGFXTexture());
-            }
             this._renderDrawInfo.setTextureHash(val);
         }
     }
@@ -302,7 +298,21 @@ export class RenderData extends BaseRenderData {
 
     public indices: Uint16Array | null = null;
 
-    public frame;
+    public set frame (val: SpriteFrame | TextureBase | null) {
+        this._frame = val;
+        if (this._renderDrawInfo) {
+            if (this._frame) {
+                this._renderDrawInfo.setTexture(this._frame.getGFXTexture());
+                this._renderDrawInfo.setSampler(this._frame.getGFXSampler());
+            } else {
+                this._renderDrawInfo.setTexture(null);
+                this._renderDrawInfo.setSampler(null);
+            }
+        }
+    }
+    public get frame () {
+        return this._frame;
+    }
     public layer = 0;
 
     public nodeDirty = true;
@@ -315,6 +325,7 @@ export class RenderData extends BaseRenderData {
     private _pivotY = 0;
     private _width = 0;
     private _height = 0;
+    private _frame: SpriteFrame | TextureBase | null = null;
     protected _accessor: StaticVBAccessor = null!;
 
     public vertexRow = 1;
@@ -340,9 +351,17 @@ export class RenderData extends BaseRenderData {
         this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
         this.updateHash();
 
-        if (JSB && this.multiOwner === false) {
+        if (JSB && this.multiOwner === false && this._renderDrawInfo) {
             // for sync vData and iData address to native
-            this.setRenderDrawInfoAttributes();
+            this._renderDrawInfo.setBufferId(this.chunk.bufferId);
+            this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
+            this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+            this._renderDrawInfo.setVB(this.chunk.vb);
+            this._renderDrawInfo.setIB(this.chunk.ib);
+            this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+            this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            this._renderDrawInfo.setVBCount(this._vc);
+            this._renderDrawInfo.setIBCount(this._ic);
         }
     }
 
@@ -377,7 +396,6 @@ export class RenderData extends BaseRenderData {
             drawInfo.setIBCount(this._ic);
             drawInfo.setDataHash(this.dataHash);
             drawInfo.setIsMeshBuffer(this.isMeshBuffer);
-            drawInfo.setStencilStage(StencilManager.sharedManager!.stage);
         }
     }
 

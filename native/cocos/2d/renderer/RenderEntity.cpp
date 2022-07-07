@@ -55,8 +55,13 @@ void RenderEntity::removeDynamicRenderDrawInfo() {
     _dynamicDrawInfos.pop_back(); // warning: memory leaking & crash
 }
 void RenderEntity::setNode(Node* node) {
+    if (_node) {
+        _node->setUserData(nullptr);
+    }
     _node = node;
-    node->setUserData(this);
+    if (_node) {
+        _node->setUserData(this);
+    }
 }
 void RenderEntity::setStencilStage(uint32_t stage) {
     _stencilStage = static_cast<StencilStage>(stage);

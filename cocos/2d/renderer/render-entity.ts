@@ -31,7 +31,7 @@ export class RenderEntity {
 
     private _batcher: Batcher2D | undefined;
 
-    protected _node: Node | undefined;
+    protected _node: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
     protected _customMaterial: Material | null = null;
     protected _commitModelMaterial: Material | null = null;
@@ -153,6 +153,11 @@ export class RenderEntity {
     }
 
     public destroy () {
+        this.setNode(null);
+        this.enabled = false;
+        this.setCustomMaterial(null);
+        this.setStencilStage(0);
+        this.setCommitModelMaterial(null);
         this._dynamicDrawInfoArr = [];
     }
 
@@ -163,7 +168,7 @@ export class RenderEntity {
         }
     }
 
-    setNode (node: Node) {
+    setNode (node: Node | null) {
         if (JSB) {
             if (this._node !== node) {
                 this._nativeObj.node = node;
@@ -181,7 +186,7 @@ export class RenderEntity {
         this._stencilStage = stage;
     }
 
-    setCustomMaterial (mat: Material|null) {
+    setCustomMaterial (mat: Material | null) {
         if (JSB) {
             if (this._customMaterial !== mat) {
                 this._nativeObj.customMaterial = mat!;
