@@ -60,7 +60,7 @@ void GlobalDSManager::activate(gfx::Device *device) {
     UBOSkinning::initLayout(maxJoints);
 
     _defaultTexture = _device->createTexture({gfx::TextureType::TEX2D,
-                                              gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+                                              gfx::TextureUsageBit::SAMPLED,
                                               gfx::Format::RGBA8,
                                               2,
                                               2});
@@ -95,7 +95,9 @@ void GlobalDSManager::bindSampler(uint32_t binding, gfx::Sampler *sampler) {
 }
 
 void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
-    if (!texture) texture = _defaultTexture.get();
+    if (!texture) {
+        texture = _defaultTexture.get();
+    }
     if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->bindTexture(binding, texture);
     }
