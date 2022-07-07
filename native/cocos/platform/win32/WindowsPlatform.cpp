@@ -41,7 +41,6 @@
     #include "modules/SystemWindow.h"
 #endif
 #include "modules/Vibrator.h"
-#include "application/ApplicationManager.h"
 
 namespace {
 /**
@@ -168,4 +167,5 @@ int32_t WindowsPlatform::loop() {
     onDestory();
     return 0;
 }
+
 } // namespace cc

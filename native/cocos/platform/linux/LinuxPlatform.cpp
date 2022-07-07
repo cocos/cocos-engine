@@ -29,7 +29,6 @@
 #include <unistd.h>
 
 #include "platform/SDLHelper.h"
-#include "SDL2/SDL.h"
 
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
@@ -76,6 +75,7 @@ static long getCurrentMillSecond() {
     lLastTime = stCurrentTime.tv_sec * 1000 + stCurrentTime.tv_usec * 0.001; // milliseconds
     return lLastTime;
 }
+
 int32_t LinuxPlatform::loop() {
     long lastTime = 0L;
     long curTime = 0L;

@@ -25,7 +25,6 @@
 
 #include <thread>
 
-#include "bindings/event/EventDispatcher.h"
 #include "platform/ohos/OhosPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"

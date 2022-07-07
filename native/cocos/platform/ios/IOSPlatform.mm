@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "platform/ios/IOSPlatform.h"
-#include "bindings/event/EventDispatcher.h"
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 

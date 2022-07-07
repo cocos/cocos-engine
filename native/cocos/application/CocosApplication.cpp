@@ -35,7 +35,7 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
-#include "cocos/platform/UniversalPlatform.h"
+
 namespace cc {
 
 CocosApplication::CocosApplication() {
