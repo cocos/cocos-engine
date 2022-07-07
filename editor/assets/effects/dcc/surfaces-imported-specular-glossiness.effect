@@ -173,6 +173,7 @@ CCProgram surface-fragment %{
 
   #if USE_OCCLUSION_MAP
     uniform sampler2D occlusionMap;
+    #pragma define-meta OCCLUSION_UV options([v_uv, v_uv1])
     #pragma define-meta  OCCLUSION_CHANNEL options([r,g,b,a])
   #endif
 
@@ -318,7 +319,7 @@ CCProgram surface-fragment %{
     calculateBaseColorAndPBRParams(outParams);
     pbr.x = 1.0;
     #if USE_OCCLUSION_MAP
-      pbr.x = texture(occlusionMap, TEXTURE_UV).OCCLUSION_CHANNEL;
+      pbr.x = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
     #endif
     pbr.y = outParams.x;
     pbr.z = outParams.y;
