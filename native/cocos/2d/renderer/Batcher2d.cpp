@@ -368,8 +368,7 @@ void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* s
     }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
-        auto dsObj = iter->second;
-        dsObj->destroy();
+        delete iter->second;
         _descriptorSetCache.erase(hash);
     }
 }
