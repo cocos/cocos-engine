@@ -228,7 +228,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture && this._texture.loaded;
     },
 
-    onTextureLoaded (callback, target) {
+    onTextureLoaded: function (callback, target) {
         if (this.textureLoaded()) {
             callback.call(target);
         }
@@ -368,7 +368,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
-    _textureLoadedCallback () {
+    _textureLoadedCallback: function () {
         let self = this;
         let texture = this._texture;
         if (!texture) {
