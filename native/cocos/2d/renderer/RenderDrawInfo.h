@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #pragma once
-#include <vector>
 #include "2d/renderer/UIMeshBuffer.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"

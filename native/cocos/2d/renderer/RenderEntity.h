@@ -25,7 +25,6 @@
 
 #pragma once
 #include <array>
-#include <vector>
 #include "2d/renderer/RenderDrawInfo.h"
 #include "2d/renderer/StencilManager.h"
 #include "base/Macros.h"

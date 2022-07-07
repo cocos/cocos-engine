@@ -25,7 +25,6 @@
 
 #include "2d/renderer/UIMeshBuffer.h"
 #include "renderer/gfx-base/GFXDevice.h"
-#include <vector>
 
 namespace cc {
 
