@@ -436,7 +436,6 @@ export class UIRenderer extends Renderer {
         data.initRenderDrawInfo(this);
         this.renderEntity!.assignExtraEntityAttrs(this);
         this._renderData = data;
-        this._renderData.assignExtraDrawInfoAttrs(this);
         return data;
     }
 

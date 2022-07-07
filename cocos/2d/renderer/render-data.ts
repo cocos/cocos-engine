@@ -186,16 +186,6 @@ export class BaseRenderData {
         }
     }
 
-    public assignExtraDrawInfoAttrs (comp: UIRenderer) {
-        if (JSB) {
-            if (!this._renderDrawInfo || !comp) {
-                return;
-            }
-            this._renderDrawInfo.setNode(comp.node);
-            //this._renderDrawInfo.enabled = comp.enabled;
-        }
-    }
-
     protected setRenderDrawInfoAttributes () {
         if (JSB) {
             if (!this._renderDrawInfo) {
