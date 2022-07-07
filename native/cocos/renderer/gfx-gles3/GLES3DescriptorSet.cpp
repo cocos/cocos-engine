@@ -72,19 +72,13 @@ void GLES3DescriptorSet::update() {
             if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
                 if (_buffers[i]) {
                     descriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i])->gpuBuffer();
-                } else {
-                    descriptors[i].gpuBuffer = nullptr;
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i])->gpuTextureView();
-                } else {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = nullptr;
                 }
                 if (_samplers[i]) {
                     descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i])->gpuSampler();
-                } else {
-                    descriptors[i].gpuSampler = nullptr;
                 }
             }
         }

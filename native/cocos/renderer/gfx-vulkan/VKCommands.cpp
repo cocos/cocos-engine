@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <stdint.h>
 #include <boost/functional/hash.hpp>
 #include <thread>
 #include "VKStd.h"
@@ -34,7 +33,6 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKGPUObjects.h"
-#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "states/VKGeneralBarrier.h"
 
