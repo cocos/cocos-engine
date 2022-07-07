@@ -34,10 +34,9 @@ RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
-    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _seArrayBufferObject->root();
-    _attrSharedBuffer = new ArrayBuffer();
-    _attrSharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
+    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _attrSharedBuffer = ccnew ArrayBuffer();
+    _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
 }
 
 RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset) {
@@ -48,14 +47,12 @@ RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffs
     _size = 0;
     _batcher = nullptr;
 
-    _seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _seArrayBufferObject->root();
-    _attrSharedBuffer = new ArrayBuffer();
-    _attrSharedBuffer->setJSArrayBuffer(_seArrayBufferObject);
+    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
+    _attrSharedBuffer = ccnew ArrayBuffer();
+    _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
-    _seArrayBufferObject->decRef();
     destroy();
 }
 
@@ -187,14 +184,20 @@ void RenderDrawInfo::resetMeshIA() {
 void RenderDrawInfo::destroy() {
     _nextFreeIAHandle = 0;
     _attributes.clear();
-    for (auto* vb : _iaInfo.vertexBuffers) {
-        delete vb;
+
+    //TODO(): Should use _iaPool to delete vb, ib.
+    delete _iaInfo.indexBuffer;
+    if (!_iaInfo.vertexBuffers.empty()) {
+        // only one vb
+        delete _iaInfo.vertexBuffers[0];
+        _iaInfo.vertexBuffers.clear();
     }
-    _iaInfo.vertexBuffers.clear();
-    CC_SAFE_DELETE(_iaInfo.indexBuffer);
 
     for (auto* ia : _iaPool) {
-        ia->destroy();
+        //TODO(): should use these codes to delete all ib, vb.
+        //        delete ia->getIndexBuffer();
+        //        // only one vertex buffer
+        //        delete ia->getVertexBuffers()[0];
         delete ia;
     }
     _iaPool.clear();

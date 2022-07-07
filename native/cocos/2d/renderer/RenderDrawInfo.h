@@ -118,22 +118,22 @@ public:
     void uploadBuffers();
     void resetMeshIA();
 
-protected:
+private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
     void destroy();
 
-private:
     gfx::InputAssembler* _initIAInfo(gfx::Device* device);
 
+    // weak reference
     Batcher2d* _batcher{nullptr};
 
+    // weak reference
     uint8_t* _sharedBuffer{nullptr};
     uint8_t _stride{0};
     uint32_t _size{0};
 
-    DrawInfoAttrLayout _drawInfoAttrLayout{};
-    se::Object* _seArrayBufferObject{nullptr};
-    ArrayBuffer::Ptr _attrSharedBuffer{nullptr};
+    DrawInfoAttrLayout _drawInfoAttrLayout;
+    ArrayBuffer::Ptr _attrSharedBuffer;
 
     index_t _bufferId{0};
     index_t _accId{0};
@@ -141,10 +141,15 @@ private:
 
     uint32_t _indexOffset{0};
 
+    // weak reference
     float_t* _vbBuffer{nullptr};
+    // weak reference
     uint16_t* _ibBuffer{nullptr};
+    // weak reference
     float_t* _vDataBuffer{nullptr};
+    // weak reference
     uint16_t* _iDataBuffer{nullptr};
+    // weak reference
     UIMeshBuffer* _meshBuffer{nullptr};
 
     uint32_t _vbCount{0};
@@ -154,14 +159,18 @@ private:
 
     bool _vertDirty{false};
 
+    // weak reference
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
     uint32_t _stencilStage{0};
     bool _isMeshBuffer{false};
+    // weak reference
     Material* _material{nullptr};
+    // weak reference
     gfx::Texture* _texture{nullptr};
     uint32_t _textureHash{0};
+    // weak reference
     gfx::Sampler* _sampler{nullptr};
 
     uint32_t _blendHash{0};
@@ -173,9 +182,13 @@ private:
         gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
     };
 
-    ccstd::vector<gfx::InputAssembler*> _iaPool{};
+    //TODO(): it is not a good way to cache IA here.
+    // manage memory manually
+    ccstd::vector<gfx::InputAssembler*> _iaPool;
     uint32_t _nextFreeIAHandle{0};
+    // weak reference
     gfx::Buffer* _vbGFXBuffer{nullptr};
+    // weak reference
     gfx::Buffer* _ibGFXBuffer{nullptr};
 };
 } // namespace cc
