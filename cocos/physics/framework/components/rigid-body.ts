@@ -616,6 +616,7 @@ export class RigidBody extends Component {
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public setGroup (v: number): void {
+        if (v < 0 || v > 0xFFFFFFFF) return;
         if (this._isInitialized) this._body!.setGroup(v);
     }
 
@@ -627,6 +628,7 @@ export class RigidBody extends Component {
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public addGroup (v: number) {
+        if (v < 0 || v > 0xFFFFFFFF) return;
         if (this._isInitialized) this._body!.addGroup(v);
     }
 
@@ -638,6 +640,7 @@ export class RigidBody extends Component {
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public removeGroup (v: number) {
+        if (v < 0 || v > 0xFFFFFFFF) return;
         if (this._isInitialized) this._body!.removeGroup(v);
     }
 
@@ -661,6 +664,7 @@ export class RigidBody extends Component {
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public setMask (v: number) {
+        if (v < 0 || v > 0xFFFFFFFF) return;
         if (this._isInitialized) this._body!.setMask(v);
     }
 
@@ -672,6 +676,7 @@ export class RigidBody extends Component {
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public addMask (v: number) {
+        if (v < 0 || v > 0xFFFFFFFF) return;
         if (this._isInitialized) this._body!.addMask(v);
     }
 
@@ -683,6 +688,7 @@ export class RigidBody extends Component {
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public removeMask (v: number) {
+        if (v < 0 || v > 0xFFFFFFFF) return;
         if (this._isInitialized) this._body!.removeMask(v);
     }
 }
