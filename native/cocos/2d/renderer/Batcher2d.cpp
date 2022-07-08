@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "2d/renderer/Batcher2d.h"
-#include <iostream>
 #include "application/ApplicationManager.h"
 #include "base/TypeDef.h"
 #include "core/Root.h"
@@ -378,8 +377,8 @@ void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* s
 }
 
 bool Batcher2d::initialize() {
-    isInit = true;
-    return isInit;
+    _isInit = true;
+    return _isInit;
 }
 
 void Batcher2d::update() {
