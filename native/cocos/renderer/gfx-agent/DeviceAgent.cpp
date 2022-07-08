@@ -145,9 +145,6 @@ void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void DeviceAgent::present() {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
     ENQUEUE_MESSAGE_2(
         _mainMessageQueue, DevicePresent,
         actor, _actor,
