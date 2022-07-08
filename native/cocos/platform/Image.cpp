@@ -32,7 +32,7 @@
 #include "base/std/container/string.h"
 
 #if CC_USE_JPEG
-#if CC_PLATFORM == CC_PLATFORM_LINUX
+#if (CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "jpeglib.h"
 #else
     #include "jpeg/jpeglib.h"
@@ -46,7 +46,7 @@
 
 extern "C" {
 #if CC_USE_PNG
-    #if __OHOS__ || __LINUX__ || __QNX__
+    #if __OHOS__ || __LINUX__ || __QNX__ || _WIN32
         #include "png.h"
     #else
         #include "png/png.h"

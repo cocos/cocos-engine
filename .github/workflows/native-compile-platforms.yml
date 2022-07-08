@@ -29,7 +29,7 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-      - run: cd ${{ github.workspace }}/native/external/win64/ && conan install ${{ github.workspace }}/native/external/conan
+      - run: cd ${{ github.workspace }}/native/external/win64/ && conan install ${{ github.workspace }}/native/external/conan/win64 --settings build_type=Release
       - run: ls ${{ github.workspace }}/native/external/win64/
       - name: Install deps
         run: |

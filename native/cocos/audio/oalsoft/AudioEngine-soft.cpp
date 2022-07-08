@@ -40,8 +40,8 @@
     #include "alc.h"
     #include "alext.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "OpenalSoft/alc.h"
-    #include "OpenalSoft/alext.h"
+    #include "alc.h"
+    #include "alext.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include "AL/alc.h"
     #include "AL/alext.h"

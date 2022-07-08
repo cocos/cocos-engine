@@ -58,11 +58,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include <sqlite3/sqlite3.h>
-#else
-    #include <sqlite3.h>
-#endif
+#include <sqlite3.h>
 
 #include "base/Macros.h"
 
