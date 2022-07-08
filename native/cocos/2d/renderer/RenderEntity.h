@@ -62,13 +62,13 @@ public:
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
     void removeDynamicRenderDrawInfo();
 
-    inline bool getIsMask() { return _isMask; }
+    inline bool getIsMask() const { return _isMask; }
     void setIsMask(bool isMask);
 
-    inline bool getIsSubMask() { return _isSubMask; }
+    inline bool getIsSubMask() const { return _isSubMask; }
     void setIsSubMask(bool isSubMask);
 
-    inline bool getIsMaskInverted() { return _isMaskInverted; }
+    inline bool getIsMaskInverted() const { return _isMaskInverted; }
     void setIsMaskInverted(bool isMaskInverted);
 
     inline Node* getNode() const { return _node; }

@@ -376,10 +376,13 @@ export class Mask extends UIRenderer {
         }
 
         if (JSB) {
-            if (this.renderEntity && this.renderData && this._graphics) {
-                this.renderEntity.setIsMask(true);
+            if (!this._renderEntity) {
+                this.initRenderEntity();
+            }
+            if (this._renderEntity && this.renderData && this._graphics) {
+                this._renderEntity.setIsMask(true);
                 this._graphics.renderEntity!.setIsSubMask(true);
-                this.renderEntity.setIsMaskInverted(this._inverted);
+                this._renderEntity.setIsMaskInverted(this._inverted);
                 this.renderData.renderDrawInfo.setIsMeshBuffer(true);
             }
         }

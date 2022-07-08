@@ -78,7 +78,7 @@ public:
     inline void setMaskStackSize(uint32_t size) { _maskStackSize = size; } 
 
     inline void pushMask() {
-        _maskStackSize++;
+        ++_maskStackSize;
     }
 
     void clear(RenderEntity* entity);
@@ -93,7 +93,7 @@ public:
             return;
         }
 
-        _maskStackSize--;
+        --_maskStackSize;
         if (_maskStackSize == 0) {
             _stage = StencilStage::DISABLED;
         } else {
