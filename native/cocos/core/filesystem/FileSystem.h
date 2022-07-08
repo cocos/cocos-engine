@@ -46,11 +46,11 @@ public:
     ccstd::string getWritablePath() const override;
     bool removeDirectory(const FilePath& dirPath) override;
     ccstd::string fullPathForFilename(const ccstd::string& dirPath) const override;
-
+    bool isAbsolutePath(const ccstd::string& path) const override;
 private:
 
     static FileSystem* _instance;
-    std::vector<BaseFileSystem> _subFileSystems;
+    std::vector<BaseFileSystem*> _subFileSystems;
     std::unique_ptr<LocalFileSystem> _localFileSystem;
 };
 }

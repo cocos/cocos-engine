@@ -25,23 +25,28 @@
  ****************************************************************************/
 
 #pragma once
+
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
+#include "cocos/core/filesystem/LocalFileSystem.h"
 
 namespace cc {
 
-class CC_DLL LocalFileSystem : public BaseFileSystem {
+class CC_DLL AndroidFileSystem : public LocalFileSystem {
 public:
-    LocalFileSystem();
-    ~LocalFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
-    static LocalFileSystem* createLocalFileSystem();
-    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
+    AndroidFileSystem();
+    ~AndroidFileSystem() override;
+
+    bool createDirectory(const FilePath& path) override;
+    int64_t getFileSize(const FilePath& Filename) override;
+    bool removeFile(const FilePath& Filename) override;
+    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
+    BaseFileHandle* open(const FilePath& Filename) override;
+    bool isAbsolutePath(const ccstd::string& strPath) const override;
+    bool removeDirectory(const FilePath& dirPath) override;
+    ccstd::string getWritablePath() const override;
+
 private:
-    virtual bool existInternal(const FilePath& filepath) const = 0;
-    
+    bool existInternal(const FilePath& filepath) const override;
 };
 
 }

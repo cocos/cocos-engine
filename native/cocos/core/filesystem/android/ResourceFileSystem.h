@@ -25,23 +25,43 @@
  ****************************************************************************/
 
 #pragma once
+
+
 #include "base/Macros.h"
 #include "cocos/core/filesystem/BaseFileSystem.h"
+#include "android/asset_manager.h"
 
 namespace cc {
 
-class CC_DLL LocalFileSystem : public BaseFileSystem {
+class CC_DLL ResourceFileSystem : public BaseFileSystem {
 public:
-    LocalFileSystem();
-    ~LocalFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
-    static LocalFileSystem* createLocalFileSystem();
-    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
-private:
-    virtual bool existInternal(const FilePath& filepath) const = 0;
+    ResourceFileSystem();
+    static void setassetmanager(AAssetManager *a);
+    static AAssetManager *getAssetManager() { return assetmanager; }
+    bool exist(const FilePath& path) const override;
+    bool isAbsolutePath(const std::string &strPath) const override;
+    BaseFileHandle* open(const FilePath& Filename) override;
     
+    virtual bool createDirectory(const FilePath& path) {
+        return false;
+    };
+    virtual int64_t getFileSize(const FilePath& filepath) {
+        return 0;
+    };
+    virtual bool removeFile(const FilePath& filepath) {
+        return false;
+    };
+    virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) {
+        return false;
+    }
+    virtual bool removeDirectory(const FilePath& dirPath) {
+        return false;
+    } 
+    virtual ccstd::string getWritablePath() const {
+        return "";
+    }
+private:
+    static AAssetManager *assetmanager;
 };
 
 }

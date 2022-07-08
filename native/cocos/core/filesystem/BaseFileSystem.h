@@ -41,9 +41,10 @@ public:
     virtual BaseFileHandle* open(const FilePath& filepath) = 0;
     virtual bool exist(const FilePath& filepath) const = 0;
     virtual bool removeDirectory(const FilePath& dirPath) = 0; 
+    virtual ccstd::string getWritablePath() const = 0;
+    
     virtual bool isAbsolutePath(const ccstd::string& path) const;
     void addSearchPath(const ccstd::string& searchpath, bool front);
-    virtual ccstd::string getWritablePath() const = 0;
     virtual ccstd::string fullPathForFilename(const ccstd::string& filename) const;
     ccstd::string getPathForFilename(const ccstd::string& filename, const ccstd::string& searchPath) const;
     virtual ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const;

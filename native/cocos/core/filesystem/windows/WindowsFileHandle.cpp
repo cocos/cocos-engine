@@ -36,6 +36,7 @@ WindowsFileHandle::WindowsFileHandle(HANDLE handle)
 WindowsFileHandle::~WindowsFileHandle() {
     if (_handle != nullptr) {
         CloseHandle(_handle);
+        _handle = nullptr;
     }
 }
 

@@ -25,11 +25,17 @@
  ****************************************************************************/
 #include "cocos/core/filesystem/FileSystem.h"
 #include "cocos/core/filesystem/LocalFileSystem.h"
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include "cocos/core/filesystem/android/ResourceFileSystem.h"
+#include "cocos/core/filesystem/zipfilesystem/ZipFileSystem.h"
+#include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/JniImp.h"
+#endif
 
 namespace cc {
 FileSystem* FileSystem::_instance = nullptr;
 
-// static 
+// static
 FileSystem* FileSystem::getInstance() {
     return _instance;
 }
@@ -37,6 +43,13 @@ FileSystem* FileSystem::getInstance() {
 FileSystem::FileSystem() {
     _instance = this;
     _localFileSystem.reset(LocalFileSystem::createLocalFileSystem());
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    _subFileSystems.push_back(new ResourceFileSystem);
+    std::string assetsPath(getObbFilePathJNI());
+    if (assetsPath.find("/obb/") != std::string::npos) {
+        _subFileSystems.push_back(new ZipFileSystem(assetsPath));
+    }
+#endif
 }
 
 bool FileSystem::createDirectory(const FilePath& path) {
@@ -44,6 +57,12 @@ bool FileSystem::createDirectory(const FilePath& path) {
 }
 
 int64_t FileSystem::getFileSize(const FilePath& filepath) {
+    for (auto& filesystem : _subFileSystems) {
+        size_t fileSize = filesystem->getFileSize(filepath);
+        if(fileSize > 0) {
+            return fileSize;
+        }
+    }
     return _localFileSystem->getFileSize(filepath);
 }
 
@@ -56,10 +75,21 @@ bool FileSystem::renameFile(const FilePath& oldFilepath, const FilePath& newFile
 }
 
 BaseFileHandle* FileSystem::open(const FilePath& filepath) {
+    for (auto& filesystem : _subFileSystems) {
+        BaseFileHandle* fileHandle = filesystem->open(filepath);
+        if(fileHandle != nullptr) {
+            return fileHandle;
+        }
+    }
     return _localFileSystem->open(filepath);
 }
 
 bool FileSystem::exist(const FilePath& filepath) const {
+    for (auto& filesystem : _subFileSystems) {
+        if (filesystem->exist(filepath)) {
+            return true;
+        }
+    }
     return _localFileSystem->exist(filepath);
 }
 ccstd::string FileSystem::getWritablePath() const {
@@ -71,7 +101,22 @@ bool FileSystem::removeDirectory(const FilePath& dirPath) {
 }
 
 ccstd::string FileSystem::fullPathForFilename(const ccstd::string& dirPath) const {
+    for (auto& filesystem : _subFileSystems) {
+        std::string fullpath = filesystem->fullPathForFilename(dirPath);
+        if (!fullpath.empty()) {
+            return fullpath;
+        }
+    }
     return _localFileSystem->fullPathForFilename(dirPath);
+}
+
+bool FileSystem::isAbsolutePath(const ccstd::string& filepath) const {
+    for (auto& filesystem : _subFileSystems) {
+        if (filesystem->isAbsolutePath(filepath)) {
+            return true;
+        }
+    }
+    return _localFileSystem->isAbsolutePath(filepath);
 }
 
 }

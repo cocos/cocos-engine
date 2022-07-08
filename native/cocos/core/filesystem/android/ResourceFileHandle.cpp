@@ -24,24 +24,52 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-#include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
+#include "cocos/core/filesystem/android/ResourceFileHandle.h"
+#include "base/Log.h"
 
 namespace cc {
 
-class CC_DLL LocalFileSystem : public BaseFileSystem {
-public:
-    LocalFileSystem();
-    ~LocalFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
-    static LocalFileSystem* createLocalFileSystem();
-    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
-private:
-    virtual bool existInternal(const FilePath& filepath) const = 0;
-    
-};
+ResourceFileHandle::ResourceFileHandle(const FilePath& path, AAsset* asset)
+: _asset(asset) {
+}
+
+ResourceFileHandle::~ResourceFileHandle() {
+    if (_asset != nullptr) {
+        AAsset_close(_asset);
+        _asset = nullptr;
+    }
+}
+
+bool ResourceFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    return true;
+}
+
+int64_t ResourceFileHandle::tell() {
+    return 0;
+}
+
+bool ResourceFileHandle::read(char* buffer, int64_t bufferSize) {
+    auto size = AAsset_getLength(_asset);
+    if(size > bufferSize) {
+        size = bufferSize;
+    }
+    int readSize = AAsset_read(_asset, buffer, size);
+    if(readSize < size) {
+        return false;
+    }
+    return true;
+}
+
+bool ResourceFileHandle::write(char* buffer, int64_t buffersize) {
+    assert(false);
+}
+
+int64_t ResourceFileHandle::fileSize() {
+    return AAsset_getLength(_asset);
+}
+
+bool ResourceFileHandle::flush() {
+    return true;
+}
 
 }

@@ -25,23 +25,29 @@
  ****************************************************************************/
 
 #pragma once
+
+#include "cocos/core/filesystem/zipfilesystem/ZipFileSystem.h"
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
+#include "base/memory/Memory.h"
+#include "base/ZipUtils.h"
+#include "cocos/core/filesystem/zipfilesystem/ZipFileHandle.h"
 
 namespace cc {
 
-class CC_DLL LocalFileSystem : public BaseFileSystem {
-public:
-    LocalFileSystem();
-    ~LocalFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
-    static LocalFileSystem* createLocalFileSystem();
-    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
-private:
-    virtual bool existInternal(const FilePath& filepath) const = 0;
-    
-};
-
+ZipFileSystem::ZipFileSystem(const FilePath& assetsPath) {
+    _zipFile = ccnew ZipFile(assetsPath.value());
 }
+
+ZipFileSystem::~ZipFileSystem() {
+    delete _zipFile;
+}
+
+bool ZipFileSystem::exist(const FilePath& filepath) const {
+    return _zipFile->fileExists(filepath.value());
+}
+
+BaseFileHandle* ZipFileSystem::open(const FilePath& filepath) {
+    return new ZipFileHandle(_zipFile, filepath.value());
+}
+
+} // namespace cc

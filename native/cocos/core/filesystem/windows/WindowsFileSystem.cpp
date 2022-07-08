@@ -56,7 +56,6 @@ static void _checkPath() {
 WindowsFileSystem::WindowsFileSystem() {
     _checkPath();
     _defaultResRootPath = s_resourcePath;
-
     addSearchPath("Resources", true);
     addSearchPath("data", true);
 }

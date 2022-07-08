@@ -26,22 +26,23 @@
 
 #pragma once
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
-
+#include "cocos/core/filesystem/BaseFileHandle.h"
+#include <stdlib.h>
+#include <iostream>
 namespace cc {
 
-class CC_DLL LocalFileSystem : public BaseFileSystem {
+class CC_DLL LocalFileHandle : public BaseFileHandle {
 public:
-    LocalFileSystem();
-    ~LocalFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
-    static LocalFileSystem* createLocalFileSystem();
-    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
+    LocalFileHandle(FILE* path);
+    ~LocalFileHandle() override{};
+    bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
+    int64_t tell() override;
+    int64_t fileSize() override;
+    bool read(char* buffer, int64_t buffersize) override;
+    bool write(char* buffer, int64_t buffersize)  override;
+    bool flush();
 private:
-    virtual bool existInternal(const FilePath& filepath) const = 0;
-    
+    FILE *_fp = {nullptr};
 };
 
 }

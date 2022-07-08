@@ -24,12 +24,40 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "cocos/core/filesystem/LocalFileSystem.h"
+#include "cocos/core/filesystem/LocalFileHandle.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "cocos/core/filesystem/windows/WindowsFileSystem.h"
+#else
+    #include "cocos/core/filesystem/android/AndroidFileSystem.h"
+    #include <sys/stat.h>
 #endif
-
 namespace cc {
+
+LocalFileSystem::LocalFileSystem() {
+    _searchPathArray.push_back(_defaultResRootPath);
+}
+
+LocalFileSystem::~LocalFileSystem() {
+
+}
+
+BaseFileHandle* LocalFileSystem::open(const FilePath& path) {
+    FILE *fp = fopen(path.value().c_str(), "wb");
+    if(!fp) {
+        return nullptr;
+    }
+    return new LocalFileHandle(fp);
+}
+
+bool LocalFileSystem::isAbsolutePath(const std::string &strPath) const {
+    // On Android, there are two situations for full path.
+    // 1) Files in APK, e.g. assets/path/path/file.png
+    // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
+    // So these two situations need to be checked on Android.
+    return strPath[0] == '/';
+}
+
 ccstd::string LocalFileSystem::getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const {
     // get directory+filename, safely adding '/' as necessary
     ccstd::string ret = directory;
@@ -53,10 +81,30 @@ bool LocalFileSystem::exist(const FilePath& filepath) const {
     }
     ccstd::string fullpath = fullPathForFilename(filepath.value());
     return !fullpath.empty();
+    struct stat st;
+    if (stat(fullpath.c_str(), &st) == 0) {
+        #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+            #if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+                #define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
+            #endif
+            #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+                #define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+            #endif
+            return S_ISDIR(st.st_mode) || S_ISREG(st.st_mode);
+        #else
+            return S_ISDIR(st.st_mode) || S_ISREG(st.st_mode);
+        #endif
+    }
+    return false;
 }
 
 LocalFileSystem* LocalFileSystem::createLocalFileSystem() {
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     return new WindowsFileSystem;
+#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    return new AndroidFileSystem;
+#endif
+    return nullptr;
 }
 
 }

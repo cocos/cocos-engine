@@ -25,23 +25,44 @@
  ****************************************************************************/
 
 #pragma once
+
+#include "cocos/core/filesystem/zipfilesystem/ZipFileHandle.h"
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
-class CC_DLL LocalFileSystem : public BaseFileSystem {
-public:
-    LocalFileSystem();
-    ~LocalFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
-    static LocalFileSystem* createLocalFileSystem();
-    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
-private:
-    virtual bool existInternal(const FilePath& filepath) const = 0;
-    
-};
+ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const std::string& filepath)
+:_zipfile(zipFile), _filepath(filepath) {
 
 }
+
+ZipFileHandle::~ZipFileHandle() {
+
+}
+
+bool ZipFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    return false;
+}
+
+int64_t ZipFileHandle::tell() {
+    return false;
+}
+
+int64_t ZipFileHandle::fileSize() {
+    return 0;
+}
+
+bool ZipFileHandle::read(char* buffer, int64_t buffersize) {
+    return _zipfile->getFileData(_filepath, buffer, buffersize);
+}
+
+bool ZipFileHandle::write(char* buffer, int64_t buffersize) {
+    return false;
+}
+
+bool ZipFileHandle::flush() {
+    return false;
+}
+
+} // namespace cc
