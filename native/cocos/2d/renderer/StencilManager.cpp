@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "StencilManager.h"
+#include "2d/renderer/RenderEntity.h"
 
 namespace cc {
 namespace {
@@ -53,6 +54,16 @@ StencilManager::~StencilManager() {
     }
 }
 
+void StencilManager::clear(RenderEntity* entity) {
+    bool inverted = entity->getIsMaskInverted();
+    entity->setEnumStencilStage(inverted ? StencilStage::CLEAR_INVERTED : StencilStage::CLEAR);
+}
+
+void StencilManager::enterLevel(RenderEntity* entity) {
+    bool inverted = entity->getIsMaskInverted();
+    entity->setEnumStencilStage(inverted ? StencilStage::ENTER_LEVEL_INVERTED : StencilStage::ENTER_LEVEL);
+}
+
 gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage, Material* mat) {
     uint32_t key = 0;
     bool depthTest = false;
@@ -71,7 +82,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
         if (dss->depthWrite) {
             depthWriteValue = 1;
         }
-        key = (depthTestValue) | (depthWriteValue << 1) | (static_cast<uint32_t>(dss->depthFunc) << 2) | (static_cast<uint32_t>(_stage) << 6) | (_maskStackSize << 9);
+        key = (depthTestValue) | (depthWriteValue << 1) | (static_cast<uint32_t>(dss->depthFunc) << 2) | (static_cast<uint32_t>(stage) << 6) | (_maskStackSize << 9);
 
         depthTest = dss->depthTest;
         depthWrite = static_cast<uint32_t>(dss->depthWrite);
@@ -82,7 +93,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
         key = ((static_cast<uint32_t>(stage)) << 16) | (_maskStackSize);
     }
 
-    auto iter = cacheMap->find(0);
+    auto iter = cacheMap->find(key);
     if (iter != cacheMap->end()) {
         return iter->second;
     }
@@ -119,7 +130,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
 void StencilManager::setDepthStencilStateFromStage(StencilStage stage) {
     StencilEntity& pattern = _stencilPattern;
 
-    if (_stage == StencilStage::DISABLED) {
+    if (stage == StencilStage::DISABLED) {
         pattern.stencilTest = false;
         pattern.func = gfx::ComparisonFunc::ALWAYS;
         pattern.failOp = gfx::StencilOp::KEEP;
@@ -135,7 +146,9 @@ void StencilManager::setDepthStencilStateFromStage(StencilStage stage) {
         } else if (stage == StencilStage::CLEAR) {
             pattern.func = gfx::ComparisonFunc::NEVER;
             pattern.failOp = gfx::StencilOp::ZERO;
-            pattern.writeMask = pattern.stencilMask = pattern.ref = getWriteMask();
+            pattern.writeMask = getWriteMask();
+            pattern.stencilMask = getWriteMask();
+            pattern.ref = getWriteMask();
         } else if (stage == StencilStage::CLEAR_INVERTED) {
             pattern.func = gfx::ComparisonFunc::NEVER;
             pattern.failOp = gfx::StencilOp::REPLACE;

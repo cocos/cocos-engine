@@ -41,10 +41,8 @@ bool js_register_cc_RenderDrawInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getMeshBuffer);
-SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_requestIA);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_resetMeshIA);
-SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_RenderDrawInfo);
@@ -54,14 +52,21 @@ extern se::Class * __jsb_cc_StencilManager_class; // NOLINT
 
 bool js_register_cc_StencilManager(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_2d_StencilManager_clear);
+SE_DECLARE_FUNC(js_2d_StencilManager_enableMask);
+SE_DECLARE_FUNC(js_2d_StencilManager_enterLevel);
+SE_DECLARE_FUNC(js_2d_StencilManager_exitMask);
 SE_DECLARE_FUNC(js_2d_StencilManager_getDepthStencilState);
 SE_DECLARE_FUNC(js_2d_StencilManager_getExitWriteMask);
+SE_DECLARE_FUNC(js_2d_StencilManager_getMaskStackSize);
 SE_DECLARE_FUNC(js_2d_StencilManager_getStencilHash);
 SE_DECLARE_FUNC(js_2d_StencilManager_getStencilRef);
 SE_DECLARE_FUNC(js_2d_StencilManager_getStencilSharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_StencilManager_getStencilStage);
 SE_DECLARE_FUNC(js_2d_StencilManager_getWriteMask);
+SE_DECLARE_FUNC(js_2d_StencilManager_pushMask);
 SE_DECLARE_FUNC(js_2d_StencilManager_setDepthStencilStateFromStage);
+SE_DECLARE_FUNC(js_2d_StencilManager_setMaskStackSize);
 SE_DECLARE_FUNC(js_2d_StencilManager_setStencilStage);
 SE_DECLARE_FUNC(js_2d_StencilManager_getInstance);
 SE_DECLARE_FUNC(js_2d_StencilManager_StencilManager);
@@ -92,6 +97,7 @@ bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_2d_Batcher2d_addRootNode);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleColor);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo);
+SE_DECLARE_FUNC(js_2d_Batcher2d_handlePostRender);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleStaticDrawInfo);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
 SE_DECLARE_FUNC(js_2d_Batcher2d_releaseDescriptorSetCache);

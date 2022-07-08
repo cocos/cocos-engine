@@ -36,6 +36,13 @@ export class RenderEntity {
     protected _customMaterial: Material | null = null;
     protected _commitModelMaterial: Material | null = null;
 
+    // is it entity a mask node
+    protected _isMask = false;
+    // is it entity a sub mask node
+    protected _isSubMask = false;
+    // is mask inverted
+    protected _isMaskInverted = false;
+
     protected declare _sharedBuffer: Float32Array;
 
     private declare _nativeObj: NativeRenderEntity;
@@ -168,6 +175,33 @@ export class RenderEntity {
             this.setNode(comp.node);
             this.enabled = comp.enabled;
         }
+    }
+
+    setIsMask (val:boolean) {
+        if (JSB) {
+            if (this._isMask !== val) {
+                this._nativeObj.isMask = val;
+            }
+        }
+        this._isMask = val;
+    }
+
+    setIsSubMask (val:boolean) {
+        if (JSB) {
+            if (this._isSubMask !== val) {
+                this._nativeObj.isSubMask = val;
+            }
+        }
+        this._isSubMask = val;
+    }
+
+    setIsMaskInverted (val:boolean) {
+        if (JSB) {
+            if (this._isMaskInverted !== val) {
+                this._nativeObj.isMaskInverted = val;
+            }
+        }
+        this._isMaskInverted = val;
     }
 
     setNode (node: Node | null) {
