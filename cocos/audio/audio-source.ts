@@ -208,7 +208,7 @@ export class AudioSource extends Component {
 
     public onEnable () {
         // audio source component may be played before
-        if (this._playOnAwake && !this.playing) {
+        if (this._playOnAwake && this.state === AudioState.INIT) {
             this.play();
         }
     }
