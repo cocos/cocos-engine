@@ -20,17 +20,29 @@ jobs:
         with:
           python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+      - name: Set up Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: 11
+          platform: x64
       - name: install conan
         run: python -m pip install conan
       - name: show conan version
         run: conan -v
-      - run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
+      - name: config clang profile
+        run: |
+          conan profile update settings.os=Linux clang 
+          conan profile update settings.compiler=clang clang
+          conan profile update settings.compiler.version=11 clang
+          conan profile update settings.arch=x86_64 clang
+          conan profile show clang
+      #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/oahcy/engine-native-external native/external
-      - run: cd ${{ github.workspace }}/native/external/linux/ && conan install ${{ github.workspace }}/native/external/conan
+      - run: cd ${{ github.workspace }}/native/external/linux/ && conan install ${{ github.workspace }}/native/external/conan -pr clang --build=missing
       - run: ls ${{ github.workspace }}/native/external/linux/
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
