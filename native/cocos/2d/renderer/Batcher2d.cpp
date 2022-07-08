@@ -191,6 +191,11 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         resetRenderStates();
 
         // stencil stage
+        gfx::DepthStencilState* depthStencil = nullptr;
+        ccstd::hash_t dssHash = 0;
+        Material* commitModelMat = entity->getCommitModelMaterial();
+        Material* finalMat = drawInfo->getMaterial();
+
         bool isMask = entity->getIsMask();
         bool isSubMask = entity->getIsSubMask();
         bool isMaskInverted = entity->getIsMaskInverted();
@@ -198,6 +203,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
             //Mask node
             _stencilManager->pushMask();
             _stencilManager->clear(entity);
+            finalMat = commitModelMat;
 
         } else if (isSubMask) {
             //Mask graphics
@@ -208,9 +214,6 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         }
         _currStencilStage = _stencilManager->getStencilStage();
 
-        gfx::DepthStencilState* depthStencil = nullptr;
-        ccstd::hash_t dssHash = 0;
-        Material* commitModelMat = entity->getCommitModelMaterial();
         if (commitModelMat) {
             StencilStage entityStage = entity->getEnumStencilStage();
             if (entityStage == StencilStage::ENABLED || entityStage == StencilStage::DISABLED) {
@@ -236,7 +239,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
             curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
             curdrawBatch->setUseLocalFlag(nullptr);
 
-            curdrawBatch->fillPass(drawInfo->getMaterial(), depthStencil, dssHash, nullptr, 0, &(submodel->getPatches()));
+            curdrawBatch->fillPass(finalMat, depthStencil, dssHash, nullptr, 0, &(submodel->getPatches()));
             _batches.push_back(curdrawBatch);
         }
     } else {
