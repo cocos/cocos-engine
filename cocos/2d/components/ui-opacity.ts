@@ -24,8 +24,10 @@
  */
 
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
+import { UIRenderer } from '../framework/ui-renderer';
 
 /**
  * @en
@@ -63,6 +65,18 @@ export class UIOpacity extends Component {
         value = clampf(value, 0, 255);
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
+
+        this.setEntityColorDirtyRecursively(true);
+    }
+
+    private setEntityColorDirtyRecursively (dirty: boolean) {
+        if (JSB) {
+            const render = this.node._uiProps.uiComp as UIRenderer;
+            if (render) {
+                render.setEntityOpacity(this.node._uiProps.localOpacity);
+            }
+            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+        }
     }
 
     @serializable
@@ -70,9 +84,11 @@ export class UIOpacity extends Component {
 
     public onEnable () {
         this.node._uiProps.localOpacity = this._opacity / 255;
+        this.setEntityColorDirtyRecursively(true);
     }
 
     public onDisable () {
         this.node._uiProps.localOpacity = 1;
+        this.setEntityColorDirtyRecursively(true);
     }
 }
