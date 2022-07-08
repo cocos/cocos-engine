@@ -191,13 +191,17 @@ export class BaseRenderData {
             if (!this._renderDrawInfo) {
                 return;
             }
-            this._renderDrawInfo.setBufferId(this.chunk.bufferId);
-            this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
-            this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-            this._renderDrawInfo.setVB(this.chunk.vb);
-            this._renderDrawInfo.setIB(this.chunk.ib);
-            this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
-            this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            if (this.chunk) {
+                this._renderDrawInfo.setBufferId(this.chunk.bufferId);
+                this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
+                this._renderDrawInfo.setVB(this.chunk.vb);
+                this._renderDrawInfo.setIB(this.chunk.ib);
+                if (this.chunk.meshBuffer) {
+                    this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+                    this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+                    this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+                }
+            }
             this._renderDrawInfo.setVBCount(this._vc);
             this._renderDrawInfo.setIBCount(this._ic);
 
@@ -376,26 +380,6 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setTextureHash(this.textureHash);
             this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
             this._renderDrawInfo.setBlendHash(this.blendHash);
-        }
-    }
-
-    public fillDrawInfoAttributes (drawInfo : RenderDrawInfo) {
-        if (JSB) {
-            if (!drawInfo) {
-                return;
-            }
-            drawInfo.setAccId(this._accessor.id);
-            drawInfo.setBufferId(this.chunk.bufferId);
-            drawInfo.setVertexOffset(this.chunk.vertexOffset);
-            drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-            drawInfo.setVB(this.chunk.vb);
-            drawInfo.setIB(this.chunk.ib);
-            drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
-            drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
-            drawInfo.setVBCount(this._vc);
-            drawInfo.setIBCount(this._ic);
-            drawInfo.setDataHash(this.dataHash);
-            drawInfo.setIsMeshBuffer(this.isMeshBuffer);
         }
     }
 

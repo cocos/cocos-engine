@@ -189,7 +189,7 @@ export class RenderEntity {
     setIsSubMask (val:boolean) {
         if (JSB) {
             if (this._isSubMask !== val) {
-                this._isSubMask = val;
+                this._nativeObj.isSubMask = val;
             }
         }
         this._isSubMask = val;
@@ -198,7 +198,7 @@ export class RenderEntity {
     setIsMaskInverted (val:boolean) {
         if (JSB) {
             if (this._isMaskInverted !== val) {
-                this._isMaskInverted = val;
+                this._nativeObj.isMaskInverted = val;
             }
         }
         this._isMaskInverted = val;
