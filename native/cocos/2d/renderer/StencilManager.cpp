@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "StencilManager.h"
+#include "2d/renderer/RenderEntity.h"
 
 namespace cc {
 namespace {
@@ -51,6 +52,16 @@ StencilManager::~StencilManager() {
     for (auto pair : _cacheStateMapWithDepth) {
         CC_SAFE_DELETE(pair.second);
     }
+}
+
+void StencilManager::clear(RenderEntity* entity) {
+    bool inverted = entity->getIsMaskInverted();
+    entity->setEnumStencilStage(inverted ? StencilStage::CLEAR_INVERTED : StencilStage::CLEAR);
+}
+
+void StencilManager::enterLevel(RenderEntity* entity) {
+    bool inverted = entity->getIsMaskInverted();
+    entity->setEnumStencilStage(inverted ? StencilStage::ENTER_LEVEL_INVERTED : StencilStage::ENTER_LEVEL);
 }
 
 gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage, Material* mat) {

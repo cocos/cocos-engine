@@ -63,6 +63,7 @@ public:
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
+    void handlePostRender(RenderEntity* entity);
     void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo);
@@ -136,6 +137,8 @@ private:
     }
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
+
+    StencilManager* _stencilManager{nullptr};
 
     // weak reference
     Root* _root{nullptr};

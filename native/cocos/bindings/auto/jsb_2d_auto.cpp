@@ -1225,6 +1225,78 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
 se::Object* __jsb_cc_StencilManager_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_StencilManager_class = nullptr;  // NOLINT
 
+static bool js_2d_StencilManager_clear(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_clear : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_clear : Error processing arguments");
+        cobj->clear(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_clear)
+
+static bool js_2d_StencilManager_enableMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_enableMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->enableMask();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_enableMask)
+
+static bool js_2d_StencilManager_enterLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_enterLevel : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_enterLevel : Error processing arguments");
+        cobj->enterLevel(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_enterLevel)
+
+static bool js_2d_StencilManager_exitMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_exitMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->exitMask();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_exitMask)
+
 static bool js_2d_StencilManager_getDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
@@ -1279,6 +1351,26 @@ static bool js_2d_StencilManager_getExitWriteMask(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_2d_StencilManager_getExitWriteMask)
+
+static bool js_2d_StencilManager_getMaskStackSize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_getMaskStackSize : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getMaskStackSize();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_getMaskStackSize : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_getMaskStackSize)
 
 static bool js_2d_StencilManager_getStencilHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1383,6 +1475,22 @@ static bool js_2d_StencilManager_getWriteMask(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_2d_StencilManager_getWriteMask)
 
+static bool js_2d_StencilManager_pushMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_pushMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->pushMask();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_pushMask)
+
 static bool js_2d_StencilManager_setDepthStencilStateFromStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
@@ -1402,6 +1510,26 @@ static bool js_2d_StencilManager_setDepthStencilStateFromStage(se::State& s) // 
     return false;
 }
 SE_BIND_FUNC(js_2d_StencilManager_setDepthStencilStateFromStage)
+
+static bool js_2d_StencilManager_setMaskStackSize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::StencilManager>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_StencilManager_setMaskStackSize : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_StencilManager_setMaskStackSize : Error processing arguments");
+        cobj->setMaskStackSize(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_StencilManager_setMaskStackSize)
 
 static bool js_2d_StencilManager_setStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1463,14 +1591,21 @@ bool js_register_2d_StencilManager(se::Object* obj) // NOLINT(readability-identi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
+    cls->defineFunction("clear", _SE(js_2d_StencilManager_clear));
+    cls->defineFunction("enableMask", _SE(js_2d_StencilManager_enableMask));
+    cls->defineFunction("enterLevel", _SE(js_2d_StencilManager_enterLevel));
+    cls->defineFunction("exitMask", _SE(js_2d_StencilManager_exitMask));
     cls->defineFunction("getDepthStencilState", _SE(js_2d_StencilManager_getDepthStencilState));
     cls->defineFunction("getExitWriteMask", _SE(js_2d_StencilManager_getExitWriteMask));
+    cls->defineFunction("getMaskStackSize", _SE(js_2d_StencilManager_getMaskStackSize));
     cls->defineFunction("getStencilHash", _SE(js_2d_StencilManager_getStencilHash));
     cls->defineFunction("getStencilRef", _SE(js_2d_StencilManager_getStencilRef));
     cls->defineFunction("getStencilSharedBufferForJS", _SE(js_2d_StencilManager_getStencilSharedBufferForJS));
     cls->defineFunction("getStencilStage", _SE(js_2d_StencilManager_getStencilStage));
     cls->defineFunction("getWriteMask", _SE(js_2d_StencilManager_getWriteMask));
+    cls->defineFunction("pushMask", _SE(js_2d_StencilManager_pushMask));
     cls->defineFunction("setDepthStencilStateFromStage", _SE(js_2d_StencilManager_setDepthStencilStateFromStage));
+    cls->defineFunction("setMaskStackSize", _SE(js_2d_StencilManager_setMaskStackSize));
     cls->defineFunction("setStencilStage", _SE(js_2d_StencilManager_setStencilStage));
     cls->defineStaticFunction("getInstance", _SE(js_2d_StencilManager_getInstance_static));
     cls->defineFinalizeFunction(_SE(js_cc_StencilManager_finalize));
@@ -1566,6 +1701,66 @@ static bool js_2d_RenderEntity_getEntitySharedBufferForJS(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_2d_RenderEntity_getEntitySharedBufferForJS)
+
+static bool js_2d_RenderEntity_getIsMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getIsMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getIsMask();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getIsMask : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getIsMask)
+
+static bool js_2d_RenderEntity_getIsMaskInverted(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getIsMaskInverted : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getIsMaskInverted();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getIsMaskInverted : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getIsMaskInverted)
+
+static bool js_2d_RenderEntity_getIsSubMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getIsSubMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getIsSubMask();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getIsSubMask : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getIsSubMask)
 
 static bool js_2d_RenderEntity_getLocalOpacity(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1808,6 +2003,66 @@ static bool js_2d_RenderEntity_setDynamicRenderDrawInfo(se::State& s) // NOLINT(
 }
 SE_BIND_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo)
 
+static bool js_2d_RenderEntity_setIsMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setIsMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_setIsMask : Error processing arguments");
+        cobj->setIsMask(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setIsMask)
+
+static bool js_2d_RenderEntity_setIsMaskInverted(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setIsMaskInverted : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_setIsMaskInverted : Error processing arguments");
+        cobj->setIsMaskInverted(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setIsMaskInverted)
+
+static bool js_2d_RenderEntity_setIsSubMask(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setIsSubMask : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_setIsSubMask : Error processing arguments");
+        cobj->setIsSubMask(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setIsSubMask)
+
 static bool js_2d_RenderEntity_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -1955,6 +2210,9 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("stencilStage", _SE(js_2d_RenderEntity_getStencilStage_asGetter), _SE(js_2d_RenderEntity_setStencilStage_asSetter));
     cls->defineProperty("customMaterial", _SE(js_2d_RenderEntity_getCustomMaterial_asGetter), _SE(js_2d_RenderEntity_setCustomMaterial_asSetter));
     cls->defineProperty("commitModelMaterial", _SE(js_2d_RenderEntity_getCommitModelMaterial_asGetter), _SE(js_2d_RenderEntity_setCommitModelMaterial_asSetter));
+    cls->defineProperty("isMask", _SE(js_2d_RenderEntity_getIsMask_asGetter), _SE(js_2d_RenderEntity_setIsMask_asSetter));
+    cls->defineProperty("isSubMask", _SE(js_2d_RenderEntity_getIsSubMask_asGetter), _SE(js_2d_RenderEntity_setIsSubMask_asSetter));
+    cls->defineProperty("isMaskInverted", _SE(js_2d_RenderEntity_getIsMaskInverted_asGetter), _SE(js_2d_RenderEntity_setIsMaskInverted_asSetter));
     cls->defineFunction("addDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_addDynamicRenderDrawInfo));
     cls->defineFunction("getEntitySharedBufferForJS", _SE(js_2d_RenderEntity_getEntitySharedBufferForJS));
     cls->defineFunction("getLocalOpacity", _SE(js_2d_RenderEntity_getLocalOpacity));
@@ -2045,6 +2303,26 @@ static bool js_2d_Batcher2d_handleDynamicDrawInfo(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo)
+
+static bool js_2d_Batcher2d_handlePostRender(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
+    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_handlePostRender : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handlePostRender : Error processing arguments");
+        cobj->handlePostRender(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_Batcher2d_handlePostRender)
 
 static bool js_2d_Batcher2d_handleStaticDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2227,6 +2505,7 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineFunction("addRootNode", _SE(js_2d_Batcher2d_addRootNode));
     cls->defineFunction("handleColor", _SE(js_2d_Batcher2d_handleColor));
     cls->defineFunction("handleDynamicDrawInfo", _SE(js_2d_Batcher2d_handleDynamicDrawInfo));
+    cls->defineFunction("handlePostRender", _SE(js_2d_Batcher2d_handlePostRender));
     cls->defineFunction("handleStaticDrawInfo", _SE(js_2d_Batcher2d_handleStaticDrawInfo));
     cls->defineFunction("initialize", _SE(js_2d_Batcher2d_initialize));
     cls->defineFunction("releaseDescriptorSetCache", _SE(js_2d_Batcher2d_releaseDescriptorSetCache));

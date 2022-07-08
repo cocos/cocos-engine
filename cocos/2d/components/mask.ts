@@ -25,6 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
@@ -43,6 +44,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { IAssemblerManager } from '../renderer/base';
+import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -176,6 +178,12 @@ export class Mask extends UIRenderer {
         this.stencilStage = Stage.DISABLED;
         if (this._graphics) {
             this._graphics.stencilStage = Stage.DISABLED;
+        }
+
+        if (JSB) {
+            if (this._renderEntity) {
+                this._renderEntity.setIsMaskInverted(this._inverted);
+            }
         }
     }
 
@@ -365,6 +373,14 @@ export class Mask extends UIRenderer {
         if (this._graphics) {
             this._graphics.onLoad();
         }
+
+        if (JSB) {
+            if (this.renderEntity && this._graphics) {
+                this.renderEntity.setIsMask(true);
+                this._graphics.renderEntity?.setIsSubMask(true);
+                this.renderEntity.setIsMaskInverted(this._inverted);
+            }
+        }
     }
 
     public onEnable () {
@@ -552,8 +568,8 @@ export class Mask extends UIRenderer {
                 subModelIdx: 0,
             });
             //sync to native
-            if (this._renderEntity) {
-                this._renderEntity.setCommitModelMaterial(this._clearStencilMtl);
+            if (this.renderEntity) {
+                this.renderEntity.setCommitModelMaterial(this._clearStencilMtl);
             }
 
             this._clearModel = director.root!.createModel(scene.Model);
@@ -582,6 +598,14 @@ export class Mask extends UIRenderer {
             this._clearModelMesh.subMeshIdx = 0;
 
             this._clearModel.initSubModel(0, this._clearModelMesh, this._clearStencilMtl);
+
+            // sync to native
+            if (JSB) {
+                if (this._renderEntity && this._renderData) {
+                    const drawInfo = this._renderData.renderDrawInfo;
+                    drawInfo.setModel(this._clearModel);
+                }
+            }
         }
     }
 
@@ -631,6 +655,12 @@ export class Mask extends UIRenderer {
                 this.markForUpdateRenderData();
             }
         }
+    }
+
+    // RenderEntity
+    // it should be overwritten by inherited classes
+    protected initRenderEntity () {
+        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
     }
 }
 
