@@ -43,8 +43,8 @@ class Model;
 
 class DrawBatch2D final : public RefCounted {
 public:
-    DrawBatch2D();
-    ~DrawBatch2D();
+    DrawBatch2D() = default;
+    ~DrawBatch2D() override = default;
 
     void clear();
     void fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, const ccstd::vector<IMacroPatch> *patches = nullptr);

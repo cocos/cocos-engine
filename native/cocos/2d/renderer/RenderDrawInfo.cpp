@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "2d/renderer/RenderDrawInfo.h"
-#include <iostream>
 #include "2d/renderer/Batcher2d.h"
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -137,7 +136,7 @@ void RenderDrawInfo::setModel(scene::Model* model) {
     _model = model;
 }
 
-void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) {
+void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) { // NOLINT(bugprone-easily-swappable-parameters)
     _stride = stride;
     _size = size;
     _sharedBuffer = buffer;
@@ -164,8 +163,8 @@ void RenderDrawInfo::uploadBuffers() {
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
     gfx::Buffer* iBuffer = _ibGFXBuffer;
-    auto isize = _ibCount * 2;
-    iBuffer->resize(isize);
+    auto iSize = _ibCount * 2;
+    iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
 
