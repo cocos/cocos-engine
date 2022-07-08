@@ -31,6 +31,7 @@ jobs:
         run: conan -v
       - name: config clang profile
         run: |
+          conan profile new clang
           conan profile update settings.os=Linux clang 
           conan profile update settings.compiler=clang clang
           conan profile update settings.compiler.version=11 clang
