@@ -173,6 +173,7 @@ CCProgram surface-fragment %{
 
   #if USE_OCCLUSION_MAP
     uniform sampler2D occlusionMap;
+    #pragma define-meta OCCLUSION_UV options([v_uv, v_uv1])
     #pragma define-meta  OCCLUSION_CHANNEL options([r,g,b,a])
   #endif
 
@@ -230,6 +231,7 @@ CCProgram surface-fragment %{
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       baseColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor.a = texColor.a;
     #else
       baseColor.rgb *= diffuseFactor;
     #endif
@@ -278,7 +280,7 @@ CCProgram surface-fragment %{
     vec4 baseColor = calculateBaseColorAndPBRParams(pbrParams);
 
     #if USE_TRANSPARENCY_MAP
-      baseColor.a =texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
     #endif
 
     #if USE_ALPHA_TEST
@@ -318,7 +320,7 @@ CCProgram surface-fragment %{
     calculateBaseColorAndPBRParams(outParams);
     pbr.x = 1.0;
     #if USE_OCCLUSION_MAP
-      pbr.x = texture(occlusionMap, TEXTURE_UV).OCCLUSION_CHANNEL;
+      pbr.x = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
     #endif
     pbr.y = outParams.x;
     pbr.z = outParams.y;
