@@ -55,6 +55,7 @@ struct TextureTag;
 
 enum class TaskType;
 enum class SceneFlags : uint32_t;
+enum class LightingMode : uint32_t;
 
 } // namespace render
 

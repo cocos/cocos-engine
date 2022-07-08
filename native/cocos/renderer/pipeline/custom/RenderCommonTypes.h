@@ -158,6 +158,12 @@ constexpr bool any(SceneFlags e) noexcept {
     return !!e;
 }
 
+enum class LightingMode : uint32_t {
+    NONE,
+    DEFAULT,
+    CLUSTERED,
+};
+
 } // namespace render
 
 } // namespace cc

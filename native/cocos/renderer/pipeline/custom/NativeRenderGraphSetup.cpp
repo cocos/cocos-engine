@@ -83,6 +83,10 @@ void NativeRasterQueueBuilder::addFullscreenQuad(Material* material) {
     addFullscreenQuad(material, "FullscreenQuad");
 }
 
+void NativeRasterQueueBuilder::addCameraQuad(scene::Camera* camera, cc::Material *material) {
+
+}
+
 namespace {
 
 render::NameLocalID getNameID(
@@ -295,6 +299,10 @@ void NativeRasterPassBuilder::addFullscreenQuad(
 void NativeRasterPassBuilder::addFullscreenQuad(Material* material) {
     const auto &layoutName = getFirstChildLayoutName(*layoutGraph, passID);
     return addFullscreenQuad(material, layoutName.c_str()); // NOLINT(readability-redundant-string-cstr)
+}
+
+void NativeRasterPassBuilder::addCameraQuad(scene::Camera* camera, cc::Material *material) {
+
 }
 
 void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {

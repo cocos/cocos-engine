@@ -99,6 +99,14 @@ inline const char* getName(TaskType e) noexcept {
     }
     return "";
 }
+inline const char* getName(LightingMode e) noexcept {
+    switch (e) {
+        case LightingMode::NONE: return "NONE";
+        case LightingMode::DEFAULT: return "DEFAULT";
+        case LightingMode::CLUSTERED: return "CLUSTERED";
+    }
+    return "";
+}
 
 } // namespace render
 

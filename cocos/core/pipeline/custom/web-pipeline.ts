@@ -27,7 +27,7 @@
 import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { LightingMode, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -165,6 +165,9 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Blit, new Blit(material), name, '', new RenderData(), false, this._vertID,
         );
     }
+    addCameraQuad (camera: Camera, material: Material) {
+
+    }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
     private readonly _queue: RenderQueue;
@@ -216,6 +219,9 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             new Blit(material),
             'FullscreenQuad', '', new RenderData(), false, queueId,
         );
+    }
+    addCameraQuad (camera: Camera, material: Material) {
+        
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
@@ -348,6 +354,12 @@ export class WebPipeline extends Pipeline {
     }
     public presentAll (): void {
         throw new Error('Method not implemented.');
+    }
+    public get lightingMode(): LightingMode {
+        return this._lightingMode;
+    }
+    public set lightingMode(mode: LightingMode) {
+        this._lightingMode = mode;
     }
     public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         throw new Error('Method not implemented.');
@@ -861,6 +873,7 @@ export class WebPipeline extends Pipeline {
     private readonly _macros: MacroRecord = {};
     private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
     private _constantMacros = '';
+    private _lightingMode = LightingMode.DEFAULT;
     private _profiler: Model | null = null;
     private _pipelineUBO: PipelineUBO = new PipelineUBO();
     private _cameras: Camera[] = [];

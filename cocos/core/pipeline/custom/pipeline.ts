@@ -38,7 +38,7 @@ import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
+import { LightingMode, QueueHint, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
@@ -88,6 +88,7 @@ export abstract class RasterQueueBuilder extends Setter {
     public abstract addScene(name: string, sceneFlags: SceneFlags): void;
     public abstract addFullscreenQuad(material: Material, name: string): void;
     public abstract addFullscreenQuad(material: Material): void;
+    public abstract addCameraQuad(camera: Camera, material: Material): void;
 }
 
 export abstract class RasterPassBuilder extends Setter {
@@ -99,6 +100,7 @@ export abstract class RasterPassBuilder extends Setter {
     public abstract addFullscreenQuad(material: Material, layoutName: string, name: string): void;
     public abstract addFullscreenQuad(material: Material, layoutName: string): void;
     public abstract addFullscreenQuad(material: Material): void;
+    public abstract addCameraQuad(camera: Camera, material: Material): void;
 }
 
 export abstract class ComputeQueueBuilder extends Setter {
@@ -173,6 +175,8 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract presentAll(): void;
+    public abstract get lightingMode(): LightingMode;
+    public abstract set lightingMode(mode: LightingMode);
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
     public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
     public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;

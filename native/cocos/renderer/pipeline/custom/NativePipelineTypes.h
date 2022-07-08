@@ -77,6 +77,7 @@ public:
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
     void addFullscreenQuad(cc::Material *material, const ccstd::string& name) override;
     void addFullscreenQuad(cc::Material *material) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
@@ -114,6 +115,7 @@ public:
     void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName, const ccstd::string& name) override;
     void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName) override;
     void addFullscreenQuad(cc::Material *material) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
@@ -265,6 +267,9 @@ public:
     CopyPassBuilder    *addCopyPass(const ccstd::string& name) override;
     void                presentAll() override;
 
+    LightingMode getLightingMode() const override;
+    void setLightingMode(LightingMode mode) override;
+
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     LayoutGraphBuilder *getLayoutGraphBuilder() override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) override;
@@ -306,6 +311,7 @@ public:
     ccstd::string                              constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
     scene::Model*                              profiler{nullptr};
+    LightingMode                               lightingMode{LightingMode::DEFAULT};
     IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
     LayoutGraphData                            layoutGraph;
     framegraph::FrameGraph                     frameGraph;
