@@ -82,7 +82,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
         if (dss->depthWrite) {
             depthWriteValue = 1;
         }
-        key = (depthTestValue) | (depthWriteValue << 1) | (static_cast<uint32_t>(dss->depthFunc) << 2) | (static_cast<uint32_t>(_stage) << 6) | (_maskStackSize << 9);
+        key = (depthTestValue) | (depthWriteValue << 1) | (static_cast<uint32_t>(dss->depthFunc) << 2) | (static_cast<uint32_t>(stage) << 6) | (_maskStackSize << 9);
 
         depthTest = dss->depthTest;
         depthWrite = static_cast<uint32_t>(dss->depthWrite);
@@ -93,7 +93,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
         key = ((static_cast<uint32_t>(stage)) << 16) | (_maskStackSize);
     }
 
-    auto iter = cacheMap->find(0);
+    auto iter = cacheMap->find(key);
     if (iter != cacheMap->end()) {
         return iter->second;
     }
@@ -130,7 +130,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
 void StencilManager::setDepthStencilStateFromStage(StencilStage stage) {
     StencilEntity& pattern = _stencilPattern;
 
-    if (_stage == StencilStage::DISABLED) {
+    if (stage == StencilStage::DISABLED) {
         pattern.stencilTest = false;
         pattern.func = gfx::ComparisonFunc::ALWAYS;
         pattern.failOp = gfx::StencilOp::KEEP;
