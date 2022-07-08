@@ -65,6 +65,7 @@ export class UIMeshRenderer extends Component {
     protected _renderEntity : RenderEntity|null = null;
     private modelCount = 0;
     public _dirtyVersion = -1;
+    public _internalId = -1;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -72,6 +73,16 @@ export class UIMeshRenderer extends Component {
             this._UIModelNativeProxy = new NativeUIModelProxy();
             this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
         }
+    }
+
+    onEnable () {
+        uiRendererManager.addRenderer(this);
+        this.markForUpdateRenderData();
+    }
+
+    onDisable () {
+        uiRendererManager.removeRenderer(this);
+        if (this.renderEntity) this.renderEntity.enabled = false;
     }
 
     public onLoad () {
@@ -115,7 +126,7 @@ export class UIMeshRenderer extends Component {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: IBatcher) {
+    public _render (render: IBatcher) {
         if (this._modelComponent) {
             const models = this._modelComponent._collectModels();
             // @ts-expect-error: UIMeshRenderer do not attachToScene
@@ -129,6 +140,12 @@ export class UIMeshRenderer extends Component {
         }
 
         return false;
+    }
+
+    public fillBuffers (render: IBatcher) {
+        if (this.enabled) {
+            this._render(render);
+        }
     }
 
     // Native updateAssembler
@@ -177,7 +194,7 @@ export class UIMeshRenderer extends Component {
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
                 if (models.length !== this.modelCount) {
-                    this._markForUpdateRenderData();
+                    this.markForUpdateRenderData();
                 }
             }
         }
@@ -210,6 +227,7 @@ export class UIMeshRenderer extends Component {
 
     // interface
     public markForUpdateRenderData (enable = true) {
+        uiRendererManager.markDirtyRenderer(this);
     }
 
     public stencilStage : Stage = Stage.DISABLED;
@@ -218,11 +236,6 @@ export class UIMeshRenderer extends Component {
     }
 
     public setTextureDirty () {
-    }
-
-    // For Native
-    public _markForUpdateRenderData (enable = true) {
-        uiRendererManager.markDirtyRenderer(this);
     }
 
     get renderEntity () {

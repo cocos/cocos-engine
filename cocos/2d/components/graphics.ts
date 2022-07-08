@@ -284,10 +284,6 @@ export class Graphics extends UIRenderer {
         this._updateMtlForGraphics();
     }
 
-    public onDisable () {
-        super.onDisable();
-    }
-
     public onDestroy () {
         this._sceneGetter = null;
         if (this.model) {

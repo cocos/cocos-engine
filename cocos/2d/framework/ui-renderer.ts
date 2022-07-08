@@ -258,27 +258,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @en Indicates whether this component is enabled or not.
-     * @zh 表示该组件自身是否启用。
-     * @default true
-     * @example
-     * ```ts
-     * import { log } from 'cc';
-     * comp.enabled = true;
-     * log(comp.enabled);
-     * ```
-     */
-    get enabled () {
-        return this._enabled;
-    }
-    set enabled (value) {
-        super.enabled = value;
-        if (this._renderEntity) {
-            this._renderEntity.enabled = value;
-        }
-    }
-
-    /**
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -325,7 +304,14 @@ export class UIRenderer extends Renderer {
     protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
+    /**
+     * @internal
+     */
     public _dirtyVersion = -1;
+    /**
+     * @internal
+     */
+    public _internalId = -1;
 
     get batcher () {
         if (!this._batcher) {
@@ -366,6 +352,7 @@ export class UIRenderer extends Renderer {
         this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this.updateMaterial();
         this._colorDirty();
+        uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
     }
 
@@ -380,7 +367,9 @@ export class UIRenderer extends Renderer {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        uiRendererManager.removeRenderer(this);
         this._renderFlag = false;
+        if (this._renderEntity) this._renderEntity.enabled = false;
     }
 
     public onDestroy () {

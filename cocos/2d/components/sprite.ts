@@ -488,6 +488,7 @@ export class Sprite extends UIRenderer {
     }
 
     public onDisable () {
+        super.onDisable();
         if (this._spriteFrame && this._type === SpriteType.SLICED) {
             this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }

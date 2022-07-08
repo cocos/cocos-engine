@@ -340,6 +340,11 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
+        if (texture != nullptr && sampler != nullptr) {
+            iter->second->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
+            iter->second->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+        }
+        iter->second->forceUpdate();
         return iter->second;
     }
     _dsInfo.layout = dsLayout;
@@ -350,9 +355,6 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
         ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
     }
     ds->update();
-    if (texture) {
-        texture->addRef();
-    }
     _descriptorSetCache.emplace(hash, ds);
 
     return ds;
@@ -370,9 +372,6 @@ void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* s
     }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
-        if (texture) {
-            texture->release();
-        }
         delete iter->second;
         _descriptorSetCache.erase(hash);
     }
