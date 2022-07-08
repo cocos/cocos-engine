@@ -53,9 +53,9 @@ static bool js_audio_AudioEngine_getOriginalPCMBuffer(se::State& s) // NOLINT
 
         uint32_t arg1{0};
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-        ccstd::vector<uint8_t> buffer = cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1);
+        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
+        
+        ccstd::vector<uint8_t> buffer = std::move(cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1));
         se::HandleObject obj(se::Object::createArrayBufferObject(buffer.data(), buffer.size()));
         s.rval().setObject(obj);
         SE_PRECONDITION2(ok, false, "Error processing arguments");

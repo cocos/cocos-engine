@@ -79,10 +79,10 @@ AudioCache::AudioCache(std::string &fileFullPath) {
     loadState = State::READY;
     _pcmHeader = {
         static_cast<uint32_t>(_descriptor.audioFile.length),
-        _descriptor.audioFile.fileFormat.channelCount * formatConvertToLength( _descriptor.audioFile.fileFormat.commonFormat),
-        static_cast<uint32_t>(_descriptor.audioFile.fileFormat.sampleRate),
-        _descriptor.audioFile.fileFormat.channelCount,
-        formatConverter( _descriptor.audioFile.fileFormat.commonFormat)
+        _descriptor.audioFile.processingFormat.channelCount * formatConvertToLength( _descriptor.audioFile.processingFormat.commonFormat),
+        static_cast<uint32_t>(_descriptor.audioFile.processingFormat.sampleRate),
+        _descriptor.audioFile.processingFormat.channelCount,
+        formatConverter( _descriptor.audioFile.processingFormat.commonFormat)
     };
     _fileFullPath = fileFullPath;
     // When audio length is bigger than MAX_BUFFER_LENGTH, should make it as a streaming audio.
@@ -99,7 +99,7 @@ AudioCache::~AudioCache(){
 
 bool AudioCache::load() {
     bool ret{true};
-    _readDataMutex.try_lock();
+    _readDataMutex.lock();
     AVAudioFrameCount frameCount;
     if (_isStreaming) {
         frameCount = MAX_BUFFER_LENGTH / _pcmHeader.bytesPerFrame;
@@ -111,6 +111,7 @@ bool AudioCache::load() {
 
     _descriptor.buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:frameCount];
     [_descriptor.audioFile readIntoBuffer:_descriptor.buffer frameCount:frameCount error:&err];
+    _descriptor.audioFile.framePosition = 0;
     NSLog(@"audioFile read into buffer with load function");
     if (err) {
         NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
@@ -126,7 +127,7 @@ bool AudioCache::load() {
 }
 bool AudioCache::unload() {
     bool ret{true};
-    _readDataMutex.try_lock();
+    _readDataMutex.lock();
     if (loadState == State::LOADED) {
         [_descriptor.buffer release];
     }
@@ -137,12 +138,16 @@ bool AudioCache::unload() {
 bool AudioCache::resample(PCMHeader header) {
     // TODO: resample
 }
-bool AudioCache::loadToBuffer(int64_t &pos, AVAudioPCMBuffer *buffer, uint32_t frameCount) {
+bool AudioCache::loadToBuffer(int64_t &startFramePosition, AVAudioPCMBuffer *buffer, uint32_t frameCount) {
+    _readDataMutex.lock();
     NSError* err = nil;
+    _descriptor.audioFile.framePosition = startFramePosition;
     [_descriptor.audioFile readIntoBuffer:buffer frameCount:frameCount error:&err];
-    NSLog(@"audioFile read into buffer with loadToBufferFunc");
+    _descriptor.audioFile.framePosition = 0;//seek to 0
+    _readDataMutex.unlock();
+    NSLog(@"[AUDIOCACHE] Load audio to buffer");
     if (err) {
-        NSLog(@"%@AVAudioFile read failed:", [err localizedDescription]);
+        NSLog(@"[AUDIOCACHE] AVAudioFile read failed: %s", [err localizedDescription]);
         [err release];
         return false;
     }
@@ -154,53 +159,52 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID){
     ccstd::vector<uint8_t> ret;
     do {
         if (loadState != State::LOADED) {
-            NSLog(@"AudioCache is not ready");
+            NSLog(@"[AUDIOCACHE] AudioCache is not ready");
             break;
         }
         if (channelID > _pcmHeader.channelCount) {
-            NSLog(@"ChannelID is bigger than channel count");
+            NSLog(@"[AUDIOCACHE] ChannelID is bigger than channel count");
             break;
         }
         
         AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat frameCapacity:_descriptor.audioFile.length];
         // Read entire buffer into _descriptor buffer.
-        [_descriptor.audioFile readIntoBuffer:tmpBuffer error:nil];
-        NSLog(@"get PCM buffer");
         const uint32_t frameCount = _pcmHeader.totalFrames;
+        AVAudioFramePosition startPos = 0;
+        loadToBuffer(startPos, tmpBuffer, frameCount);
+        NSLog(@"[AUDIOCACHE] Get PCM buffer");
         ret.resize(_pcmHeader.bytesPerFrame * _pcmHeader.totalFrames / _pcmHeader.channelCount);
         uint8_t *buffer = ret.data();
-        
-        uint32_t bitLength = _pcmHeader.bytesPerFrame / _pcmHeader.channelCount * 8;
+        auto stride = tmpBuffer.stride;
         switch (_pcmHeader.dataFormat) {
             // TODO: if float 32 and float 63 both convert to float 32 by default?
-            case AudioDataFormat::FLOAT_32:
-            case AudioDataFormat::FLOAT_64: {
+            case AudioDataFormat::FLOAT_32: {
                 auto datas = tmpBuffer.floatChannelData;
-                for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
+                for (int itr = 0; itr < _pcmHeader.totalFrames; itr ++) {
                     // Explaination of usage https://developer.apple.com/forums/thread/65772
-                    std::memcpy(buffer, &datas[channelID][itr], bitLength);
-                    buffer += bitLength;
+                    std::memcpy(buffer, &datas[channelID][itr * stride], 4);
+                    //printf("buffer copied from datas is %f", *reinterpret_cast<float*>(buffer));
+                    buffer += 4;
                 }
                 break;
             }
             case AudioDataFormat::SIGNED_16: {
                 auto datas = tmpBuffer.int16ChannelData;
-                for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
-                    std::memcpy(buffer, &datas[channelID][itr], bitLength);
-                    buffer += bitLength;
+                for (int itr = 0; itr < _pcmHeader.totalFrames; itr++) {
+                    std::memcpy(buffer, &datas[channelID][itr * stride], 2);
+                    buffer += 2;
                 }
                 break;
             }
             case AudioDataFormat::SIGNED_32: {
                 auto datas = tmpBuffer.int32ChannelData;
-                for (int itr = 0; itr< _pcmHeader.totalFrames; itr++) {
-                    std::memcpy(buffer, &datas[channelID][itr], bitLength);
-                    buffer += bitLength;
+                for (int itr = 0; itr < _pcmHeader.totalFrames; itr++) {
+                    std::memcpy(buffer, &datas[channelID][itr * stride], 4);
+                    buffer += 4;
                 }
                 break;
             }
         };
-        NSLog(@"Tmp Buffer retain count is %lu", (unsigned long)[tmpBuffer retainCount]);
         [tmpBuffer release];
         
     } while(false);

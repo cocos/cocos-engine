@@ -74,7 +74,7 @@ public:
     void invokingPlayCallbacks();
     void invokingLoadCallbacks();
 #ifdef __OBJC__
-    bool loadToBuffer(AVAudioFramePosition &pos, AVAudioPCMBuffer* buffer, uint32_t frameCount);
+    bool loadToBuffer(AVAudioFramePosition &startFramePosition, AVAudioPCMBuffer* buffer, uint32_t frameCount);
 #endif
     bool resample(PCMHeader header);
     

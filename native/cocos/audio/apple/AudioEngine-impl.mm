@@ -73,7 +73,7 @@ int32_t AudioEngineImpl::getUsablePlayer() {
     return _unusedPlayers.begin()->first;
 }
 AudioCache* AudioEngineImpl::preload(const ccstd::string &filePath, const LoadCallback &callback) {
-    AudioCache* cache;
+    AudioCache* cache = nullptr;
     auto itr = _caches.find(filePath);
     
     if(itr != _caches.end()){
@@ -124,10 +124,9 @@ int32_t AudioEngineImpl::registerAudio() {
         _currentID++;
     } else {
         player = _unusedPlayers[audioID];
+        _unusedPlayers.erase(audioID);
     }
-    
-    _threadMutex.try_lock();
-    _unusedPlayers.erase(audioID);
+    _threadMutex.lock();
     _players[audioID] = player;
     _threadMutex.unlock();
     return audioID;
@@ -158,6 +157,11 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     player->setLoop(loop);
     player->setVolume(volume);
     AudioCache* cache = preload(filePath, nullptr);
+    if (cache == nullptr) {
+        _players.erase(audioID);//ptr will be removed
+        _unusedPlayers[audioID] = player;
+        return AudioEngine::INVALID_AUDIO_ID;
+    }
     cache->addLoadCallback([player, cache](bool){
         player->load(cache);
     });
@@ -169,8 +173,6 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
         player->isAttached = true;
     }
 
-
-    
     if(_lazyInitLoop) {
         _lazyInitLoop = false;
         NSError* err;
@@ -179,19 +181,22 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
             [err release];
             return false;
         }
-        if (auto sche = _scheduler.lock()) {
-            sche->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05f, false, "AudioEngine");
-        }
+        
     }
-    cache->addPlayCallback([player](){
+    cache->addPlayCallback([player, audioID, this](){
         if (!engine_instance.running) {
             NSError* err;
             if(![engine_instance startAndReturnError: &err]){
                 NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
                 [err release];
             }
+            
         }
         player->play();
+        CC_LOG_DEBUG("[AudioEngine impl] audio player played, with audio id %d", audioID);
+        if (auto sche = _scheduler.lock()) {
+            sche->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05f, false, "AudioEngine");
+        }
     });
     return audioID;
 }
@@ -227,18 +232,18 @@ bool AudioEngineImpl::resume(int audioID) {
 
 void AudioEngineImpl::stop(int audioID) {
     if(!checkAudioIdValid(audioID)){
+        NSLog(@"audio id is not valid");
         return;
     }
-    AudioEngine::addTask([this, audioID](){
-        _players[audioID]->stop();
-        _unusedPlayers[audioID] = _players[audioID];
-        _players.erase(audioID);
-    });
+    NSLog(@"[Engine Impl] player stop called %d", audioID);
+    _players[audioID]->stop();
     update(0.0f);
     return;
 }
 void AudioEngineImpl::stopAll() {
+    NSLog(@"[Engine Impl] player stop all called");
     for (auto itr : _players) {
+        NSLog(@"[Engine Impl] player stop called %d in stop all", itr.first);
         itr.second->stop();
         _unusedPlayers[itr.first] = itr.second;
         _players.erase(itr.first);
@@ -277,6 +282,7 @@ void AudioEngineImpl::setFinishCallback(int audioID, const FinishCallback &callb
     if(!checkAudioIdValid(audioID)){
         return;
     }
+    CC_LOG_DEBUG("[Audioengine impl] set finish callback for audio id %d", audioID);
     _players[audioID]->finishCallback = callback;
 }
 
@@ -301,7 +307,14 @@ void AudioEngineImpl::update(float dt) {
     for (auto itr = _players.begin(); itr != _players.end();) {
         audioID = itr->first;
         player = itr->second;
-        if (!player->isForceCache() && player->getState() == AudioPlayer::State::STOPPED) {
+        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
+        if (!player->isForceCache() && (player->getState() == AudioPlayer::State::INTERRUPTED||player->getState() == AudioPlayer::State::FINISHED)) {
+            std::string filePath;
+            if (player->finishCallback) {
+                auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
+                filePath = *audioInfo.filePath;
+                
+            }
             player->unload();
             
             if (player->isAttached) {
@@ -310,22 +323,22 @@ void AudioEngineImpl::update(float dt) {
                 [engine_instance detachNode:player->getDescriptor().node];
                 player->isAttached = false;
             }
-            
+            AudioEngine::remove(audioID);
             _threadMutex.lock();
-            _unusedPlayers[audioID] = player;
             itr = _players.erase(itr);
             _threadMutex.unlock();
-            auto sche = _scheduler.lock();
-            if(player->finishCallback)
-            {
-                std::string filePath;
+            
+            _unusedPlayers[audioID] = player;
+            if (auto sche = _scheduler.lock()) {
                 if (player->finishCallback) {
-                    auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
-                    filePath = *audioInfo.filePath;
+                    // When the function performs, the state of audio player might be different.
+                    
+                    CC_LOG_DEBUG("Trying to trigger finish callback");
+                    if (player->getState() == AudioPlayer::State::FINISHED) {
+                        player->finishCallback(audioID, filePath); //IDEA: callback will delay 50ms
+                    }
                 }
-                sche->performFunctionInCocosThread([audioID, player, filePath](){
-                    player->finishCallback(audioID, filePath);
-                });
+                
             }
         } else {
             ++itr;

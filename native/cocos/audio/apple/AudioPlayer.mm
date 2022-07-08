@@ -46,7 +46,7 @@ AudioPlayer::~AudioPlayer(){
             }
             delete _rotateBufferThread;
             _rotateBufferThread = nullptr;
-            NSLog(@"rotateBufferThread exited!");
+            NSLog(@"[AUDIO PLAYER] desctruction: rotateBufferThread exited!");
         }
     }
     unload();
@@ -71,19 +71,19 @@ void AudioPlayer::rotateBuffer() {
     __block bool shouldTmpBufferBeDeleted = false;
     __block bool isRendered = false;
     // reset _cache audio file's frame position to current frame
-    _cache->getDescriptor().audioFile.framePosition = currentFrame;
-    // load AVAudioPCMBuffer from _cache audio file
-    [_cache->getDescriptor().audioFile readIntoBuffer:tmpBuffer frameCount:sizeOfFrameToLoad];
-    NSLog(@"read into buffer, rotate buffer");
+    _cache->loadToBuffer(currentFrame, tmpBuffer, sizeOfFrameToLoad);
+    NSLog(@"[AUDIO PLAYER] Read into buffer, rotate buffer");
     // play AVAudioPCMBuffer to _descriptor.node
-    [_descriptor.node scheduleBuffer:tmpBuffer atTime:nil completionHandler:^{
+    [_descriptor.node scheduleBuffer:tmpBuffer completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType type){
         isRendered = true;
     }];
     AVAudioPCMBuffer* buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:_cache->getPCMHeader().totalFrames];
         // Load all buffer to AVAudioPCMBuffer
-        [_cache->getDescriptor().audioFile readIntoBuffer:buffer frameCount:_cache->getPCMHeader().totalFrames];
-    NSLog(@"read into buffer, rotate buffer, twice");
-    
+    AVAudioFramePosition pos = 0;
+    _cache->loadToBuffer(pos, buffer, _cache->getPCMHeader().totalFrames);
+    NSLog(@"[AUDIO PLAYER] Read into buffer, rotate buffer, twice");
+    [_descriptor.node play];
+    NSLog(@"[AUDIO PLAYER] Rotate buffer play");
     while (!_shouldRotateThreadExited) {
         _loopSettingMutex.lock();
         // Create a AVAudioPCMBuffer to play
@@ -93,30 +93,42 @@ void AudioPlayer::rotateBuffer() {
                 // reset start render time to calculate current time directly from last render time of player node
                 _startRenderTime = 0;
                 // If it's looping, play the buffer again
-                [_descriptor.node scheduleBuffer:buffer atTime:nil completionHandler:^{
+                [_descriptor.node scheduleBuffer:buffer completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType type){
                     isRendered = true;
                 }];
             }
         } else {
-            _shouldRotateThreadExited = true;
-            _state = State::STOPPED;
-            // [_descriptor.node scheduleBuffer:buffer atTime:nil completionHandler:^{
-            //     _shouldRotateThreadExited = true;
-            // }];
+            if (isRendered) {
+                _shouldRotateThreadExited = true;
+                NSLog(@"is rendered, state to stopped");
+                _state = State::FINISHED;
+                [_descriptor.node stop];
+            }
         }
         _loopSettingMutex.unlock();
     }
+    
     // Release buffers at the end of thread
     [tmpBuffer release];
     [buffer release];
+    NSLog(@"Rotate buffer thread exit");
 }
 
 bool AudioPlayer::play() {
     _state = State::PLAYING;
     if (_isStreaming) {
-        if (_rotateBufferThread == nullptr) {
-            _rotateBufferThread = new std::thread(&AudioPlayer::rotateBuffer, this);
+        _descriptor.node.volume = _volume;
+        if (_rotateBufferThread != nullptr) {
+            _shouldRotateThreadExited = true;
+            if (_rotateBufferThread->joinable()) {
+                _rotateBufferThread->join();
+            }
+            delete _rotateBufferThread;
+            _rotateBufferThread = nullptr;
+            NSLog(@"rotateBufferThread exited!");
         }
+        _shouldRotateThreadExited = false;
+        _rotateBufferThread = new std::thread(&AudioPlayer::rotateBuffer, this);
     } else {
         if (_isLoop) {
             [_descriptor.node scheduleBuffer:_cache->getDescriptor().buffer atTime:nil options:AVAudioPlayerNodeBufferLoops completionHandler:nil];
@@ -124,14 +136,16 @@ bool AudioPlayer::play() {
             __block AudioPlayer* thiz = this;
             [_descriptor.node scheduleBuffer:_cache->getDescriptor().buffer completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType type){
                 if (type == AVAudioPlayerNodeCompletionDataPlayedBack) {
-                    thiz->_state = State::STOPPED;
+                    thiz->_state = State::FINISHED;
                     NSLog(@"player node stopped by played back");
+                    [thiz->_descriptor.node stop];
                 }
             }];
         }
+        _descriptor.node.volume = _volume;
+        [_descriptor.node play];
     }
-    _descriptor.node.volume = _volume;
-    [_descriptor.node play];
+    
 }
 bool AudioPlayer::pause() {
     [_descriptor.node pause];
@@ -144,8 +158,6 @@ bool AudioPlayer::resume(){
     _state = State::PLAYING;
 }
 bool AudioPlayer::stop() {
-    [_descriptor.node stop];
-    _state = State::STOPPED;
     if (_isStreaming) {
         if (_rotateBufferThread != nullptr) {
             _shouldRotateThreadExited = true;
@@ -157,6 +169,8 @@ bool AudioPlayer::stop() {
             NSLog(@"rotateBufferThread exited!");
         }
     }
+    _state = State::INTERRUPTED;
+    [_descriptor.node stop];
 }
 float AudioPlayer::getDuration() {
     return (float)_cache->getDescriptor().audioFile.length / (float)_cache->getPCMHeader().sampleRate;
@@ -209,7 +223,6 @@ AudioPlayerDescriptor AudioPlayer::getDescriptor()
 {
     return _descriptor;
 }
-
 
 } // namespace cc
 

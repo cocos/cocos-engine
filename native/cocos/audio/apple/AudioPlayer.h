@@ -53,7 +53,8 @@ public:
         READY,
         PLAYING,
         PAUSED,
-        STOPPED,
+        INTERRUPTED,
+        FINISHED,
     };
     /**
      * Create an audio player without audio cache.

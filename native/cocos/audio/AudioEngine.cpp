@@ -241,12 +241,14 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
         ret = sAudioEngineImpl->play2d(filePath, loop, volume);
         if (ret != INVALID_AUDIO_ID) {
             sAudioPathIDMap[filePath].push_back(ret);
+            CC_LOG_DEBUG("push audio id %d to file path vector %s", ret, filePath.c_str());
             auto it = sAudioPathIDMap.find(filePath);
 
             auto &audioRef = sAudioIDInfoMap[ret];
             audioRef.volume = volume;
             audioRef.loop = loop;
             audioRef.filePath = &it->first;
+            CC_LOG_DEBUG("audio info for id %d 's file path is %s", ret, audioRef.filePath->c_str());
             audioRef.state = AudioState::PLAYING;
 
             if (profileHelper) {
@@ -383,6 +385,7 @@ void AudioEngine::remove(int audioID) {
         if (it->second.profileHelper) {
             it->second.profileHelper->audioIDs.remove(audioID);
         }
+        CC_LOG_DEBUG("Trying to remove audio id %d for audio path %s", audioID, (*it->second.filePath).c_str());
         sAudioPathIDMap[*it->second.filePath].remove(audioID);
         sAudioIDInfoMap.erase(audioID);
     }
@@ -392,6 +395,7 @@ void AudioEngine::stopAll() {
     if (!sAudioEngineImpl) {
         return;
     }
+    CC_LOG_DEBUG("[Audio engine] Stop all");
     sAudioEngineImpl->stopAll();
     auto itEnd = sAudioIDInfoMap.end();
     for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
@@ -400,6 +404,7 @@ void AudioEngine::stopAll() {
         }
     }
     sAudioPathIDMap.clear();
+    CC_LOG_DEBUG("[Audio engine] ID info map clear all");
     sAudioIDInfoMap.clear();
 }
 
@@ -420,6 +425,7 @@ void AudioEngine::uncache(const ccstd::string &filePath) {
                     itInfo->second.profileHelper->audioIDs.remove(audioID);
                 }
                 sAudioIDInfoMap.erase(audioID);
+                CC_LOG_DEBUG("[Audio engine] audio id info map erase audio id %d", audioID);
             }
         }
         sAudioPathIDMap.erase(filePath);
