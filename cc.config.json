@@ -124,6 +124,13 @@
             }
         },
         {
+            "test": "context.platform !== 'NATIVE'",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d-empty.ts"
+            }
+        },
+        {
             "test": "context.platform === 'NATIVE'",
             "isVirtualModule": false,
             "overrides": {
