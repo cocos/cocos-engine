@@ -28,6 +28,7 @@
 #include <cassert>
 #include <cstdint>
 #include <type_traits>
+#include "base/TypeDef.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
 #include "cocos/base/Map.h"

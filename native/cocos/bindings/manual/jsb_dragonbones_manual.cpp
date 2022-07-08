@@ -434,6 +434,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
     __jsb_dragonBones_BaseFactory_proto->defineFunction("parseTextureAtlasData", _SE(js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData));
 
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
         se::Object* seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(obj);
         if (iter != se::NativePtrToObjectMap::end()) {
@@ -475,6 +476,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
         {
             CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
+#endif
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {
