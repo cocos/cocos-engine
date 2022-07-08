@@ -164,7 +164,7 @@ void RenderDrawInfo::uploadBuffers() {
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
     gfx::Buffer* iBuffer = _ibGFXBuffer;
-    auto isize = _ibCount * sizeof(uint16_t);
+    auto isize = _ibCount * 2;
     iBuffer->resize(isize);
     iBuffer->update(_iDataBuffer);
 }
