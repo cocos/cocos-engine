@@ -264,14 +264,6 @@ void NativePipeline::presentAll() {
         renderGraph);
 }
 
-LightingMode NativePipeline::getLightingMode() const {
-    return lightingMode;
-}
-
-void NativePipeline::setLightingMode(LightingMode mode) {
-    lightingMode = mode;
-}
-
 // NOLINTNEXTLINE
 SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
     return ccnew NativeSceneTransversal(camera, scene);

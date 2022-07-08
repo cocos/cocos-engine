@@ -131,6 +131,7 @@ enum class SceneFlags : uint32_t {
     TRANSPARENT_OBJECT = 0x4,
     SHADOW_CASTER = 0x8,
     UI = 0x10,
+    DEFAULT_LIGHTING = 0x20,
     ALL = 0xFFFFFFFF,
 };
 

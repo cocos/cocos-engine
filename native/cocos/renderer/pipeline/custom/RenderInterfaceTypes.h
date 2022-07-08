@@ -145,9 +145,9 @@ public:
     virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(cc::Material *material) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) = 0;
 };
 
 inline RasterQueueBuilder::~RasterQueueBuilder() noexcept = default;
@@ -163,10 +163,9 @@ public:
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName, const ccstd::string& name) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, const ccstd::string& layoutName) = 0;
-    virtual void addFullscreenQuad(cc::Material *material) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) = 0;
 };
 
 inline RasterPassBuilder::~RasterPassBuilder() noexcept = default;
@@ -331,9 +330,6 @@ public:
     virtual MovePassBuilder    *addMovePass(const ccstd::string& name) = 0;
     virtual CopyPassBuilder    *addCopyPass(const ccstd::string& name) = 0;
     virtual void                presentAll() = 0;
-
-    virtual LightingMode getLightingMode() const = 0;
-    virtual void setLightingMode(LightingMode mode) = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;

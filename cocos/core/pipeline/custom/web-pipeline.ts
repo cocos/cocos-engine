@@ -160,12 +160,12 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
     }
-    addFullscreenQuad (material: Material, layoutName = '', name = 'Quad'): void {
+    addFullscreenQuad (material: Material, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material), name, '', new RenderData(), false, this._vertID,
         );
     }
-    addCameraQuad (camera: Camera, material: Material) {
+    addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags) {
 
     }
     private readonly _renderGraph: RenderGraph;
@@ -206,13 +206,10 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         return new WebRasterQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
 
-    addFullscreenQuad (material: Material, layoutName = '', name = 'FullscreenQuad') {
-        if (!layoutName) {
-            layoutName = getFirstChildLayoutName(this._layoutGraph, this._vertID);
-        }
+    addFullscreenQuad (material: Material, sceneFlags = SceneFlags.NONE, name = 'FullscreenQuad') {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue,
-            queue, name, layoutName, new RenderData(),
+            queue, name, '', new RenderData(),
             false, this._vertID);
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
@@ -221,7 +218,6 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
     }
     addCameraQuad (camera: Camera, material: Material) {
-        
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
@@ -354,12 +350,6 @@ export class WebPipeline extends Pipeline {
     }
     public presentAll (): void {
         throw new Error('Method not implemented.');
-    }
-    public get lightingMode(): LightingMode {
-        return this._lightingMode;
-    }
-    public set lightingMode(mode: LightingMode) {
-        this._lightingMode = mode;
     }
     public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         throw new Error('Method not implemented.');
@@ -766,7 +756,7 @@ export class WebPipeline extends Pipeline {
                 new Color(1, 0, 0, 0));
             lightingPass.addRasterView(deferredLightingPassRTName, lightingPassView);
             lightingPass.addRasterView(deferredLightingPassDS, lightingPassDSView);
-            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addFullscreenQuad(new Material(), '');
+            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addFullscreenQuad(new Material(), SceneFlags.NONE);
             lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT);
             // Postprocess
             const postprocessPassRTName = `postprocessPassRTName${idx}`;
@@ -793,7 +783,7 @@ export class WebPipeline extends Pipeline {
                 new Color(1, 0, 0, 0));
             postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
             postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
-            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(new Material(), '');
+            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(new Material(), SceneFlags.NONE);
         }
         return isDeferred;
     }
