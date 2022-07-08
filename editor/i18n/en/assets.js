@@ -324,11 +324,11 @@ module.exports = {
                 auto: 'Auto',
             },
             promoteSingleRootNode: {
-                name: 'Promote single root node',
+                name: 'Promote Single Root Node',
                 title:
-                    'If enabled and there is only one single root node in a FBX scene, <br>' +
-                    'the single root node is used as the root of prefab when converting the FBX scene to Cocos Creator prefab. <br>' +
-                    "Otherwise, the FBX scene become prefab's root.",
+                    'If enabled and there is only one root node in model scene, <br>' +
+                    'the single node becomes prefab\'s root after importing.  <br>' +
+                    "Otherwise, each root node of the scene becomes prefab's child node.",
             },
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
