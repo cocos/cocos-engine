@@ -186,6 +186,8 @@ export const enum SceneFlags {
     SHADOW_CASTER = 0x8,
     UI = 0x10,
     DEFAULT_LIGHTING = 0x20,
+    VOLUMETRIC_LIGHTING = 0x40,
+    CLUSTERED_LIGHTING = 0x80,
     ALL = 0xFFFFFFFF,
 }
 
