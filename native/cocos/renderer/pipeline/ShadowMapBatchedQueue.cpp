@@ -134,7 +134,7 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
         const auto batchingScheme = pass->getBatchingScheme();
 
         if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
-            auto *instancedBuffer = InstancedBuffer::get(subModel->getPass(shadowPassIdx));
+            auto *instancedBuffer = subModel->getPass(shadowPassIdx)->getInstancedBuffer();
             instancedBuffer->merge(model, subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
         } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
