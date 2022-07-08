@@ -56,7 +56,7 @@ public:
 
     RenderEntity();
     explicit RenderEntity(Batcher2d* batcher);
-    ~RenderEntity();
+    ~RenderEntity() override;
 
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
@@ -90,7 +90,7 @@ public:
     inline const ArrayBuffer& getEntitySharedBufferForJS() const { return *_entitySharedBuffer; }
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
-    inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
+    inline Color getColor() const { return Color(static_cast<uint8_t>(_entityAttrLayout.colorR), static_cast<uint8_t>(_entityAttrLayout.colorG), static_cast<uint8_t>(_entityAttrLayout.colorB), static_cast<uint8_t>(_entityAttrLayout.colorA)); }
     inline float getColorAlpha() const { return _entityAttrLayout.colorA / 255; }
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
@@ -117,6 +117,6 @@ private:
 
     EntityAttrLayout _entityAttrLayout;
     ArrayBuffer::Ptr _entitySharedBuffer;
-    float _opacity{1.0f};
+    float _opacity{1.0F};
 };
 } // namespace cc

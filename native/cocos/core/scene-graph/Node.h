@@ -238,7 +238,7 @@ public:
     void removeAllChildren();
     bool isChildOf(Node *parent);
 
-    inline float_t getParentOpacity() { return _parentOpacity; }
+    inline float_t getParentOpacity() const { return _parentOpacity; }
     inline void setParentOpacity(float_t parentOpacity) { _parentOpacity = parentOpacity; }
 
     void setActive(bool isActive);

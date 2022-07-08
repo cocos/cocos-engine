@@ -39,7 +39,7 @@ RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
     _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
 }
 
-RenderDrawInfo::RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset) {
+RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
     _bufferId = bufferId;
     _vertexOffset = vertexOffset;
     _indexOffset = indexOffset;

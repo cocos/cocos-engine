@@ -31,8 +31,6 @@ namespace cc {
 UIModelProxy::UIModelProxy() {
     _device = Root::getInstance()->getDevice();
 }
-UIModelProxy::~UIModelProxy() {
-}
 
 void UIModelProxy::initModel(Node* node) {
     _model = Root::getInstance()->createModel<scene::Model>();
@@ -62,7 +60,7 @@ void UIModelProxy::activeSubModel(uint8_t val) {
         auto* renderMesh = ccnew RenderingSubMesh(vbReference, _attributes, _primitiveMode, indexBuffer);
         renderMesh->setSubMeshIdx(0);
 
-        RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
+        auto* entity = static_cast<RenderEntity*>(_node->getUserData());
         RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
         if (drawInfo != nullptr) {
             _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
@@ -72,15 +70,15 @@ void UIModelProxy::activeSubModel(uint8_t val) {
 }
 
 void UIModelProxy::uploadData() {
-    RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
-    auto& drawInfos = entity->getDynamicRenderDrawInfos();
-    auto& subModelList = _model->getSubModels();
+    auto* entity = static_cast<RenderEntity*>(_node->getUserData());
+    const auto& drawInfos = entity->getDynamicRenderDrawInfos();
+    const auto& subModelList = _model->getSubModels();
     for (size_t i = 0; i < drawInfos.size(); i++) {
-        auto drawInfo = drawInfos[i];
+        auto *drawInfo = drawInfos[i];
         auto* ia = subModelList.at(i)->getInputAssembler();
         if (drawInfo->getVertexOffset() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
-        if (vBuffers.size() > 0) {
+        if (!vBuffers.empty()) {
             auto size = drawInfo->getVertexOffset() * _stride;
             // if (size > vBuffers[0]->getSize()) {
                 vBuffers[0]->resize(size);
@@ -116,7 +114,7 @@ void UIModelProxy::updateModels(scene::Model* model) {
 }
 
 void UIModelProxy::attachDrawInfo() {
-    RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
+    auto* entity = static_cast<RenderEntity*>(_node->getUserData());
     auto& drawInfos = entity->getDynamicRenderDrawInfos();
     if (drawInfos.size() != _models.size()) return;
     for (size_t i = 0; i < drawInfos.size(); i++) {
