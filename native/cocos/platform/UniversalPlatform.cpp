@@ -76,11 +76,9 @@ void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
 }
 
 int32_t UniversalPlatform::run(int argc, const char** argv) {
-#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
     if (cocos_main(argc, argv) != 0) {
         return -1;
     }
-#endif
     return loop();
 }
 
@@ -119,9 +117,7 @@ void UniversalPlatform::onClose() {
 }
 
 void UniversalPlatform::onDestory() {
-#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
     cocos_destory();
-#endif
 }
 
 } // namespace cc

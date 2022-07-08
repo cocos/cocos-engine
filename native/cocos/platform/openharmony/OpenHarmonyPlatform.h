@@ -103,7 +103,7 @@ public:
     int32_t run(int argc, const char** argv) override;
     int     getSdkVersion() const override;
     int32_t loop() override;
-
+    void onDestory() override;
 private:
     int StartApplication(int argc, const char** argv);
     static void TimerCb(uv_timer_t* handle);

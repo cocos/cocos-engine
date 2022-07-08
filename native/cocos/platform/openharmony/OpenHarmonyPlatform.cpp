@@ -53,6 +53,10 @@ enum ContextType {
     UV_ASYNC_SEND
 };
 
+int cocos_main(int argc, const char** argv) {
+    return 0;
+}
+
 namespace cc {
 
 int32_t OpenHarmonyPlatform::init() {
@@ -374,6 +378,13 @@ void OpenHarmonyPlatform::WorkerInit(napi_env env, uv_loop_t* loop) {
 int32_t OpenHarmonyPlatform::loop() {
     return 0;
 }
+
+void OpenHarmonyPlatform::onDestory() {
+
+}
+
+
+
 #endif
 
 }; // namespace cc

@@ -82,13 +82,14 @@ if(NOT ANDROID AND NOT IOS AND NOT OHOS)
     set(USE_WEBVIEW OFF)
 endif()
 
-if(OPENHARMONY)
+if(OPENHARMONY) # TODO:May be removed later
     set(USE_SE_V8 OFF)
     set(USE_SE_NAPI ON)
     set(USE_VIDEO OFF)
     set(USE_AUDIO ON)
     set(USE_SOCKET OFF)
     set(USE_WEBVIEW OFF)
+    set(CC_USE_EDITBOX OFF)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
@@ -258,7 +259,7 @@ if(USE_AUDIO)
                          cocos/audio/android/utils/Utils.cpp
                          cocos/audio/android/utils/Utils.h
         )
-     elseif(OPENHARMONY)
+     elseif(OPENHARMONY) # TODO:May be removed later
         # Because there will be a definition of OHOS in harmonyos, it is necessary to define the macro of OPENHARMONY.
         cocos_source_files(
             cocos/audio/openharmony/AssetFd.cpp
@@ -523,9 +524,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystemWindow.h
     cocos/platform/interfaces/modules/IVibrator.h
 )
-endif()
-
-if(OPENHARMONY)
+elif(OPENHARMONY)
     cocos_source_files(
         cocos/platform/interfaces/modules/ISystem.h
         cocos/platform/interfaces/modules/ISystem.cpp
@@ -830,7 +829,7 @@ cocos_source_files(MODULE ccmath
 )
 
 ##### network
-if(NOT OPENHARMONY)
+if(NOT OPENHARMONY)# TODO:May be removed later
 cocos_source_files(
                  cocos/network/Downloader.cpp
                  cocos/network/Downloader.h
@@ -878,7 +877,7 @@ if(APPLE)
     endif()
 endif()
 
-if(NOT OPENHARMONY AND (ANDROID OR OHOS))
+if(NOT OPENHARMONY AND (ANDROID OR OHOS))# TODO:May be removed later
     cocos_source_files(
         cocos/network/Downloader-java.cpp
         cocos/network/Downloader-java.h
@@ -1624,7 +1623,7 @@ cocos_source_files(
 )
 
 ######## auto
-if(NOT OPENHARMONY)
+if(NOT OPENHARMONY)# TODO:May be removed later
 cocos_source_files(
     NO_WERROR    cocos/bindings/auto/jsb_cocos_auto.cpp
                  cocos/bindings/auto/jsb_cocos_auto.h
@@ -1639,8 +1638,7 @@ cocos_source_files(
     NO_WERROR    cocos/bindings/auto/jsb_scene_auto.cpp
                  cocos/bindings/auto/jsb_scene_auto.h
 )
-endif()
-if(OPENHARMONY)
+elif(OPENHARMONY)# TODO:May be removed later
     cocos_source_files(
         NO_WERROR    cocos/bindings/auto/jsb_gfx_auto.cpp
                      cocos/bindings/auto/jsb_gfx_auto.h
@@ -1962,7 +1960,7 @@ endif()
 
 ######## manual
 
-if(NOT OPENHARMONY)
+if(NOT OPENHARMONY)# TODO:May be removed later
     cocos_source_files(
 	    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
 	                 cocos/bindings/manual/jsb_network_manual.h
@@ -2179,7 +2177,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))
+if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))# TODO:May be removed later
     if(USE_VIDEO)
         cocos_source_files(
                          cocos/ui/videoplayer/VideoPlayer.h
@@ -2381,9 +2379,9 @@ if(QNX)
 endif()
 
 if(NOT OPENHARMONY)
-	add_library(cocos2d ${COCOS2D_SOURCE_LIST})
+    add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 elseif(OPENHARMONY)
-	add_library(cocos2d SHARED ${COCOS2D_SOURCE_LIST})
+    add_library(cocos2d SHARED ${COCOS2D_SOURCE_LIST})
 endif()
 
 if(USE_MODULES)

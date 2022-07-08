@@ -155,7 +155,7 @@ void Engine::close() { // NOLINT
     //#if USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
-#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY) // TODO:May be removed later
     cc::network::HttpClient::destroyInstance();
 #endif
 
@@ -248,7 +248,7 @@ int32_t Engine::restartVM() {
     //#if USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
-#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY) // TODO:May be removed later
     cc::network::HttpClient::destroyInstance();
 #endif
 
