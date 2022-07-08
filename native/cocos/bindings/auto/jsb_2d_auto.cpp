@@ -528,26 +528,6 @@ static bool js_2d_RenderDrawInfo_getSampler(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getSampler)
 
-static bool js_2d_RenderDrawInfo_getStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_getStencilStage : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getStencilStage();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_getStencilStage : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getStencilStage)
-
 static bool js_2d_RenderDrawInfo_getTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -991,26 +971,6 @@ static bool js_2d_RenderDrawInfo_setSampler(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setSampler)
 
-static bool js_2d_RenderDrawInfo_setStencilStage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_2d_RenderDrawInfo_setStencilStage : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_setStencilStage : Error processing arguments");
-        cobj->setStencilStage(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setStencilStage)
-
 static bool js_2d_RenderDrawInfo_setTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1237,7 +1197,6 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("ibCount", _SE(js_2d_RenderDrawInfo_getIbCount_asGetter), _SE(js_2d_RenderDrawInfo_setIbCount_asSetter));
     cls->defineProperty("vertDirty", _SE(js_2d_RenderDrawInfo_getVertDirty_asGetter), _SE(js_2d_RenderDrawInfo_setVertDirty_asSetter));
     cls->defineProperty("dataHash", _SE(js_2d_RenderDrawInfo_getDataHash_asGetter), _SE(js_2d_RenderDrawInfo_setDataHash_asSetter));
-    cls->defineProperty("stencilStage", _SE(js_2d_RenderDrawInfo_getStencilStage_asGetter), _SE(js_2d_RenderDrawInfo_setStencilStage_asSetter));
     cls->defineProperty("isMeshBuffer", _SE(js_2d_RenderDrawInfo_getIsMeshBuffer_asGetter), _SE(js_2d_RenderDrawInfo_setIsMeshBuffer_asSetter));
     cls->defineProperty("material", _SE(js_2d_RenderDrawInfo_getMaterial_asGetter), _SE(js_2d_RenderDrawInfo_setMaterial_asSetter));
     cls->defineProperty("texture", _SE(js_2d_RenderDrawInfo_getTexture_asGetter), _SE(js_2d_RenderDrawInfo_setTexture_asSetter));
