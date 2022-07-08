@@ -57,7 +57,9 @@ public:
         uint32_t result = 0;
         if (_refCounts > 0) {
             _refCounts--;
-            napi_reference_unref(env, _ref, &result);
+            if (_refCounts == 0) {
+               napi_reference_unref(env, _ref, &result);
+            }
         }
     }
     void deleteRef() {

@@ -27,8 +27,8 @@ bool Object::setProperty(const char* name, const Value& data) {
     napi_status status;
     napi_value  jsVal;
     internal::seToJsValue(data, &jsVal);
-    status = napi_set_named_property(_env, _objRef.getValue(_env), name, jsVal);
-    return true;
+    NODE_API_CALL(status, _env, napi_set_named_property(_env, _objRef.getValue(_env), name, jsVal));
+    return status == napi_ok;
 }
 
 bool Object::getProperty(const char* name, Value* d) {
@@ -36,12 +36,15 @@ bool Object::getProperty(const char* name, Value* d) {
     napi_value  jsVal;
     Value       data;
     NODE_API_CALL(status, _env, napi_get_named_property(_env, _objRef.getValue(_env), name, &jsVal));
-    internal::jsToSeValue(jsVal, &data);
-    *d = data;
-    if (data.isUndefined()) {
-        return false;
+    if (status == napi_ok) {
+        internal::jsToSeValue(jsVal, &data);
+        *d = data;
+        if (data.isUndefined()) {
+            return false;
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool Object::isArray() const {

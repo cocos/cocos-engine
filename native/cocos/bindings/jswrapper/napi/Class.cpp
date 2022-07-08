@@ -8,12 +8,9 @@ namespace se {
 napi_value *Class::_exports = nullptr;
 std::vector<Class *> __allClasses;
 
-Class::Class() : _parent(nullptr),
-                 _proto(nullptr),
-                 _parentProto(nullptr),
-                 _ctorFunc(Class::_defaultCtor){
+Class::Class() {
     __allClasses.push_back(this);
-                 };
+};
 
 Class::~Class() {
 }
@@ -45,6 +42,7 @@ bool Class::init(const std::string &clsName, Object *parent, Object *parentProto
 }
 
 napi_value Class::_defaultCtor(napi_env env, napi_callback_info info) {
+    LOGE("check default ctor called");
     return nullptr;
 }
 

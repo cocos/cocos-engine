@@ -19,7 +19,7 @@ public:
     napi_status   inherit(napi_env env, napi_value subclass, napi_value superclass);
     napi_ref      _getCtorRef() const;
     napi_value    _getCtorFunc() const;
-    const char *  getName() const { return ""; }
+    const char *  getName() const { return _name.c_str(); }
     static void   setExports(napi_value *expPtr) { _exports = expPtr; }
     static void cleanup();
 
@@ -33,11 +33,11 @@ private:
 private:
     static napi_value *                   _exports;
     std::string                           _name;
-    Object *                              _parent;
-    Object *                              _proto;
-    Object *                              _parentProto;
-    napi_callback                         _ctorFunc;
-    napi_ref                              _constructor;
+    Object *                              _parent = nullptr;
+    Object *                              _proto = nullptr;
+    Object *                              _parentProto = nullptr;
+    napi_callback                         _ctorFunc = Class::_defaultCtor;
+    napi_ref                              _constructor = nullptr;
     std::vector<napi_property_descriptor> _properties;
     napi_finalize                         _finalizeFunc = nullptr;
 };
