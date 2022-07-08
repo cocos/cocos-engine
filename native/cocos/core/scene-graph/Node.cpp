@@ -67,6 +67,9 @@ CC_FORCE_INLINE void setDirtyNode(const index_t idx, Node *node) {
 }
 
 CC_FORCE_INLINE Node *getDirtyNode(const index_t idx) {
+    if (idx < 0 || idx >= dirtyNodes.size()) {
+        return nullptr;
+    }
     return dirtyNodes[idx];
 }
 
