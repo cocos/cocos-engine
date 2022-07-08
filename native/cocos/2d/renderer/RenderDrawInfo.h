@@ -65,12 +65,12 @@ public:
     inline uint32_t getIndexOffset() const { return _indexOffset; }
     void setIndexOffset(uint32_t indexOffset);
     inline UIMeshBuffer* getMeshBuffer() const { return _meshBuffer; };
-    inline float_t* getVbBuffer() const { return _vbBuffer; }
-    void setVbBuffer(float_t* vbBuffer);
+    inline float* getVbBuffer() const { return _vbBuffer; }
+    void setVbBuffer(float* vbBuffer);
     inline uint16_t* getIbBuffer() const { return _ibBuffer; }
     void setIbBuffer(uint16_t* ibBuffer);
-    inline float_t* getVDataBuffer() const { return _vDataBuffer; }
-    void setVDataBuffer(float_t* vDataBuffer);
+    inline float* getVDataBuffer() const { return _vDataBuffer; }
+    void setVDataBuffer(float* vDataBuffer);
     inline uint16_t* getIDataBuffer() const { return _iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
     inline uint32_t getVbCount() const { return _vbCount; }
@@ -103,7 +103,7 @@ public:
     const ArrayBuffer& getAttrSharedBufferForJS() const;
 
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
-        return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float_t));
+        return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
     }
 
     inline uint8_t getStride() { return _stride; }
@@ -117,7 +117,7 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
     void destroy();
 
-    gfx::InputAssembler* _initIAInfo(gfx::Device* device);
+    gfx::InputAssembler* initIAInfo(gfx::Device* device);
 
     // weak reference
     Batcher2d* _batcher{nullptr};
@@ -137,11 +137,11 @@ private:
     uint32_t _indexOffset{0};
 
     // weak reference
-    float_t* _vbBuffer{nullptr};
+    float* _vbBuffer{nullptr};
     // weak reference
     uint16_t* _ibBuffer{nullptr};
     // weak reference
-    float_t* _vDataBuffer{nullptr};
+    float* _vDataBuffer{nullptr};
     // weak reference
     uint16_t* _iDataBuffer{nullptr};
     // weak reference

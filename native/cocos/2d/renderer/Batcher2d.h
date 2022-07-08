@@ -70,6 +70,7 @@ public:
     void resetRenderStates();
 
 private:
+    bool isInit = false;
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) {
         uint32_t vertexOffset = drawInfo->getVertexOffset();
         uint16_t* ib = drawInfo->getIDataBuffer();
@@ -91,7 +92,7 @@ private:
         const Mat4& matrix = node->getWorldMatrix();
         uint8_t stride = drawInfo->getStride();
         uint32_t size = drawInfo->getVbCount() * stride;
-        float_t* vbBuffer = drawInfo->getVbBuffer();
+        float* vbBuffer = drawInfo->getVbBuffer();
 
         Vec3 temp;
         uint32_t offset = 0;
@@ -120,7 +121,7 @@ private:
 
         uint8_t stride = drawInfo->getStride();
         uint32_t size = drawInfo->getVbCount() * stride;
-        float_t* vbBuffer = drawInfo->getVbBuffer();
+        float* vbBuffer = drawInfo->getVbBuffer();
 
         uint32_t offset = 0;
         for (int i = 0; i < size; i += stride) {

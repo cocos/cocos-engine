@@ -41,13 +41,13 @@ enum class RenderEntityType {
 };
 
 struct EntityAttrLayout {
-    float_t colorR;
-    float_t colorG;
-    float_t colorB;
-    float_t colorA;
-    float_t colorDirtyBit;
-    float_t localOpacity;
-    float_t enabledIndex;
+    float colorR;
+    float colorG;
+    float colorB;
+    float colorA;
+    float colorDirtyBit;
+    float localOpacity;
+    float enabledIndex;
 };
 
 class RenderEntity final : public Node::UserData {
@@ -91,10 +91,10 @@ public:
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
     inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
-    inline float_t getColorAlpha() const { return _entityAttrLayout.colorA / 255; }
-    inline float_t getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
-    inline float_t getOpacity() const { return _opacity; }
-    inline void setOpacity(float_t opacity) { _opacity = opacity; }
+    inline float getColorAlpha() const { return _entityAttrLayout.colorA / 255; }
+    inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
+    inline float getOpacity() const { return _opacity; }
+    inline void setOpacity(float opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
 
 private:
@@ -117,6 +117,6 @@ private:
 
     EntityAttrLayout _entityAttrLayout;
     ArrayBuffer::Ptr _entitySharedBuffer;
-    float_t _opacity{1.0f};
+    float _opacity{1.0f};
 };
 } // namespace cc

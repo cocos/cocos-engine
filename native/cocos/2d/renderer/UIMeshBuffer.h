@@ -42,8 +42,8 @@ public:
     UIMeshBuffer() = default;
     ~UIMeshBuffer();
 
-    inline float_t* getVData() const { return _vData; }
-    void setVData(float_t* vData);
+    inline float* getVData() const { return _vData; }
+    void setVData(float* vData);
     inline uint16_t* getIData() const { return _iData; }
     void setIData(uint16_t* iData);
 
@@ -77,7 +77,7 @@ protected:
     CC_DISALLOW_COPY_MOVE_ASSIGN(UIMeshBuffer);
 
 private:
-    float_t* _vData{nullptr};
+    float* _vData{nullptr};
     uint16_t* _iData{nullptr};
 
     MeshBufferLayout* _meshBufferLayout{nullptr};

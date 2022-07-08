@@ -71,7 +71,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
         if (dss->depthWrite) {
             depthWriteValue = 1;
         }
-        key = (depthTestValue) | (depthWriteValue << 1) | ((uint32_t)dss->depthFunc << 2) | ((uint32_t)_stage << 6) | (_maskStackSize << 9);
+        key = (depthTestValue) | (depthWriteValue << 1) | (static_cast<uint32_t>(dss->depthFunc) << 2) | (static_cast<uint32_t>(_stage) << 6) | (_maskStackSize << 9);
 
         depthTest = dss->depthTest;
         depthWrite = static_cast<uint32_t>(dss->depthWrite);
@@ -89,7 +89,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
 
     setDepthStencilStateFromStage(stage);
 
-    gfx::DepthStencilState* depthStencilState = ccnew gfx::DepthStencilState();
+    auto* depthStencilState = ccnew gfx::DepthStencilState();
     depthStencilState->depthTest = depthTest;
     depthStencilState->depthWrite = depthWrite;
     depthStencilState->depthFunc = depthFunc;

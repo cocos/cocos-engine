@@ -108,7 +108,7 @@ void Batcher2d::walk(Node* node) {
     }
 
     const auto& children = node->getChildren();
-    for (const auto child : children) {
+    for (const auto& child : children) {
         if (entity) {
             child->setParentOpacity(entity->getOpacity());
         }
@@ -209,7 +209,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         generateBatch(_currEntity, _currDrawInfo);
         uint32_t dataHash = drawInfo->getDataHash();
         entity->setEnumStencilStage(StencilManager::getInstance()->getStencilStage());
-        StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
+        auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
         _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
@@ -249,18 +249,18 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         curdrawBatch->setInputAssembler(ia);
         curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
         curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
-        const auto& _pass = curdrawBatch->getPasses().at(0);
+        const auto& pass = curdrawBatch->getPasses().at(0);
 
-        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, _pass->getLocalSetLayout()));
+        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
         _batches.push_back(curdrawBatch);
     }
 }
 
 void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
     if (entity->getColorDirty()) {
-        float_t parentOpacity = node->getParentOpacity();
-        float_t localOpacity = entity->getLocalOpacity();
-        float_t localColorAlpha = entity->getColorAlpha();
+        float parentOpacity = node->getParentOpacity();
+        float localOpacity = entity->getLocalOpacity();
+        float localColorAlpha = entity->getColorAlpha();
         entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
         fillColors(entity, drawInfo);
         entity->setColorDirty(false);
@@ -311,9 +311,9 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
-    const auto& _pass = curdrawBatch->getPasses().at(0);
+    const auto& pass = curdrawBatch->getPasses().at(0);
 
-    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, _pass->getLocalSetLayout()));
+    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
     _batches.push_back(curdrawBatch);
 }
 
@@ -328,7 +328,7 @@ void Batcher2d::resetRenderStates() {
     _currDrawInfo = nullptr;
 }
 
-gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
+gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout) {
     ccstd::hash_t hash = 2;
     size_t textureHash;
     if (texture != nullptr) {
@@ -342,7 +342,7 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     if (iter != _descriptorSetCache.end()) {
         return iter->second;
     }
-    _dsInfo.layout = _dsLayout;
+    _dsInfo.layout = dsLayout;
     auto* ds = getDevice()->createDescriptorSet(_dsInfo);
 
     if (texture != nullptr && sampler != nullptr) {
@@ -379,14 +379,15 @@ void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* s
 }
 
 bool Batcher2d::initialize() {
-    return true;
+    isInit = true;
+    return isInit;
 }
 
 void Batcher2d::update() {
     fillBuffersAndMergeBatches();
     resetRenderStates();
 
-    for (const auto scene : Root::getInstance()->getScenes()) {
+    for (const auto& scene : Root::getInstance()->getScenes()) {
         for (auto* batch : _batches) {
             scene->addBatch(batch);
         }

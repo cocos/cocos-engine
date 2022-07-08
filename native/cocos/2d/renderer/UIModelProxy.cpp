@@ -90,7 +90,7 @@ void UIModelProxy::uploadData() {
         ia->setVertexCount(drawInfo->getVertexOffset()); // count
 
         gfx::Buffer* iBuffer = ia->getIndexBuffer();
-        auto size = drawInfo->getIndexOffset() * sizeof(uint16_t);
+        auto size = drawInfo->getIndexOffset() * 2;
         // if (size > iBuffer->getSize()) {
             iBuffer->resize(size);
         // }

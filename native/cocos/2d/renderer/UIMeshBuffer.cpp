@@ -32,7 +32,7 @@ UIMeshBuffer::~UIMeshBuffer() {
     destroy();
 }
 
-void UIMeshBuffer::setVData(float_t* vData) {
+void UIMeshBuffer::setVData(float* vData) {
     _vData = vData;
 }
 

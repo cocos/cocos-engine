@@ -209,9 +209,11 @@ export class Impl {
         this._renderDataList.push(renderData);
         if (JSB) {
             renderData.initRenderDrawInfo(this._comp);
+            // @ts-expect-error temporary no care
             this._comp._renderData = renderData;
             this._comp.renderEntity!.assignExtraEntityAttrs(this._comp);
             this._comp.renderEntity!.setCommitModelMaterial(this._comp.getMaterialInstance(0));
+            // @ts-expect-error temporary no care
             this._comp._renderData!.material = this._comp.getMaterialInstance(0)!;// hack
         }
 

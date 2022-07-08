@@ -77,7 +77,7 @@ void RenderDrawInfo::setIndexOffset(uint32_t indexOffset) {
     _indexOffset = indexOffset;
 }
 
-void RenderDrawInfo::setVbBuffer(float_t* vbBuffer) {
+void RenderDrawInfo::setVbBuffer(float* vbBuffer) {
     _vbBuffer = vbBuffer;
 }
 
@@ -85,7 +85,7 @@ void RenderDrawInfo::setIbBuffer(uint16_t* ibBuffer) {
     _ibBuffer = ibBuffer;
 }
 
-void RenderDrawInfo::setVDataBuffer(float_t* vDataBuffer) {
+void RenderDrawInfo::setVDataBuffer(float* vDataBuffer) {
     _vDataBuffer = vDataBuffer;
 }
 
@@ -149,7 +149,7 @@ const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
     if (_nextFreeIAHandle >= _iaPool.size()) {
-        _initIAInfo(device);
+        initIAInfo(device);
     }
     auto* ia = _iaPool[_nextFreeIAHandle++]; // 需要 reset
     ia->setFirstIndex(getIndexOffset());
@@ -195,7 +195,7 @@ void RenderDrawInfo::destroy() {
     _iaPool.clear();
 }
 
-gfx::InputAssembler* RenderDrawInfo::_initIAInfo(gfx::Device* device) {
+gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     if (_iaPool.empty()) {
         uint32_t vbStride = 9 * sizeof(float); // hack
         uint32_t ibStride = sizeof(uint16_t);
