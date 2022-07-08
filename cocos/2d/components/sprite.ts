@@ -268,8 +268,8 @@ export class Sprite extends UIRenderer {
         if (this._fillType !== value) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
-                this._renderData = null;
-            } else if (this._renderData) {
+                this.renderData = null;
+            } else if (this.renderData) {
                 this.markForUpdateRenderData(true);
             }
         }
@@ -299,7 +299,7 @@ export class Sprite extends UIRenderer {
     set fillCenter (value) {
         this._fillCenter.x = value.x;
         this._fillCenter.y = value.y;
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
         }
     }
@@ -326,7 +326,7 @@ export class Sprite extends UIRenderer {
 
     set fillStart (value) {
         this._fillStart = clamp(value, 0, 1);
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
             this._updateUVs();
         }
@@ -354,7 +354,7 @@ export class Sprite extends UIRenderer {
     set fillRange (value) {
         // positive: counterclockwise, negative: clockwise
         this._fillRange = clamp(value, -1, 1);
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
             this._updateUVs();
         }
@@ -387,7 +387,7 @@ export class Sprite extends UIRenderer {
 
         this._isTrimmedMode = value;
         if ((this._type === SpriteType.SIMPLE /* || this._type === SpriteType.MESH */)
-            && this._renderData) {
+            && this.renderData) {
             this.markForUpdateRenderData(true);
         }
     }
@@ -488,6 +488,7 @@ export class Sprite extends UIRenderer {
     }
 
     public onDisable () {
+        super.onDisable();
         if (this._spriteFrame && this._type === SpriteType.SLICED) {
             this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
@@ -584,10 +585,10 @@ export class Sprite extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this._renderData) {
+        if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.getRenderMaterial(0);
+                this.renderData = this._assembler.createData(this);
+                this.renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
                     this._assembler.updateUVs(this);
@@ -656,8 +657,8 @@ export class Sprite extends UIRenderer {
             }
         }
 
-        if (this._renderData) {
-            this._renderData.material = material;
+        if (this.renderData) {
+            this.renderData.material = material;
         }
     }
 
@@ -681,7 +682,7 @@ export class Sprite extends UIRenderer {
                 textureChanged = true;
             }
             if (textureChanged) {
-                if (this._renderData) this._renderData.textureDirty = true;
+                if (this.renderData) this.renderData.textureDirty = true;
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();

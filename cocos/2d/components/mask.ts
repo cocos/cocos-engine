@@ -33,7 +33,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, CCObject } from '../../core';
+import { Game, Material, builtinResMgr, director, CCObject, Node } from '../../core';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode, deviceManager } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
@@ -42,6 +42,7 @@ import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
+import { IAssemblerManager } from '../renderer/base';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -114,6 +115,7 @@ const SEGMENTS_MAX = 10000;
 @executionOrder(110)
 @menu('2D/Mask')
 export class Mask extends UIRenderer {
+    public static ChildPostAssembler: IAssemblerManager | null = null;
     /**
      * @en
      * The mask type.
@@ -143,9 +145,9 @@ export class Mask extends UIRenderer {
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._spriteFrame = null;
             this._updateGraphics();
-            if (this._renderData) {
+            if (this.renderData) {
                 this.destroyRenderData();
-                this._renderData = null;
+                this.renderData = null;
             }
         } else {
             this._useRenderData();
@@ -347,6 +349,7 @@ export class Mask extends UIRenderer {
     protected _alphaThreshold = 0.1;
 
     protected _graphics: Graphics | null = null;
+    protected _maskNode: Node | null = null;
 
     private _clearModelMesh: RenderingSubMesh| null = null;
 
@@ -378,7 +381,7 @@ export class Mask extends UIRenderer {
         this._createGraphics();
         super.updateMaterial();
         this._updateGraphics();
-        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
     }
 
     public onDisable () {
@@ -479,16 +482,27 @@ export class Mask extends UIRenderer {
         this._useRenderData();
     }
 
+    private _initGraphicsNode () {
+        const node = new Node('MASK_CHILD');
+        node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+        node.addComponent(Graphics);
+        node.setPosition(0, 0, 0);
+        this._maskNode = node;
+        this.node.insertChild(node, 0);
+    }
+
     protected _createGraphics () {
         if (!this._graphics) {
-            const graphics = this._graphics = new Graphics();
+            this._initGraphicsNode();
+            const graphics = this._graphics = this._maskNode!.getComponent(Graphics)!;
             graphics._objFlags |= CCObject.Flags.IsOnLoadCalled;// hack for destroy
-            graphics.node = this.node;
             graphics.node.getWorldMatrix();
             graphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;
             graphics.fillColor = color;
+            // @ts-ignore
+            graphics._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
         }
 
         this._updateMaterial();
@@ -537,6 +551,10 @@ export class Mask extends UIRenderer {
                 owner: this,
                 subModelIdx: 0,
             });
+            //sync to native
+            if (this._renderEntity) {
+                this._renderEntity.setCommitModelMaterial(this._clearStencilMtl);
+            }
 
             this._clearModel = director.root!.createModel(scene.Model);
             this._clearModel.node = this._clearModel.transform = this.node;
@@ -600,16 +618,16 @@ export class Mask extends UIRenderer {
 
     protected _removeGraphics () {
         if (this._graphics) {
-            this._graphics.destroy();
-            this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
+            // this._graphics.destroy();
+            // this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
             this._graphics = null;
         }
     }
 
     protected _useRenderData () {
-        if (this._type === MaskType.IMAGE_STENCIL && !this._renderData) {
+        if (this._type === MaskType.IMAGE_STENCIL && !this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
+                this.renderData = this._assembler.createData(this);
                 this.markForUpdateRenderData();
             }
         }

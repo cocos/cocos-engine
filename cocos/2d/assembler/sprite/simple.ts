@@ -23,18 +23,29 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../../../core/math';
+/**
+ * @packageDocumentation
+ * @module ui-assembler
+ */
+
+import { JSB } from 'internal:constants';
+import { Vec3, Vec2, Color } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import { RenderDrawInfo } from '../../renderer/render-draw-info';
+import { Batcher2D } from '../../renderer/batcher-2d';
+import { director } from '../../../core';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
 /**
  * simple 组装器
@@ -45,24 +56,18 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
+        renderData.vertexRow = 2;
+        renderData.vertexCol = 2;
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
     updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        // if (frame) {
-        //     if (!frame._original && dynamicAtlasManager) {
-        //         dynamicAtlasManager.insertSpriteFrame(frame);
-        //     }
-        //     if (sprite._material._texture !== frame._texture) {
-        //         sprite._activateMaterial();
-        //     }
-        // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
-        this.updateUVs(sprite);
+        this.updateUVs(sprite);// dirty need
+        //this.updateColor(sprite);// dirty need
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
@@ -100,6 +105,7 @@ export const simple: IAssembler = {
         if (sprite === null) {
             return;
         }
+
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
         if (sprite.node.hasChangedFlags || renderData.vertDirty) {
@@ -110,18 +116,35 @@ export const simple: IAssembler = {
 
         // quick version
         const bid = chunk.bufferId;
-        const vid = chunk.vertexOffset;
+        const vidOrigin = chunk.vertexOffset;
         const meshBuffer = chunk.meshBuffer;
         const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
-        ib[indexOffset++] = vid;
-        ib[indexOffset++] = vid + 1;
-        ib[indexOffset++] = vid + 2;
-        ib[indexOffset++] = vid + 2;
-        ib[indexOffset++] = vid + 1;
-        ib[indexOffset++] = vid + 3;
-        meshBuffer.indexOffset += 6;
 
+        // rect count = vertex count - 1
+        for (let curRow = 0; curRow < renderData.vertexRow - 1; curRow++) {
+            for (let curCol = 0; curCol < renderData.vertexCol - 1; curCol++) {
+                // vid is the index of the left bottom vertex in each rect.
+                const vid = vidOrigin + curRow * renderData.vertexCol + curCol;
+
+                // left bottom
+                ib[indexOffset++] = vid;
+                // right bottom
+                ib[indexOffset++] = vid + 1;
+                // left top
+                ib[indexOffset++] = vid + renderData.vertexCol;
+
+                // right bottom
+                ib[indexOffset++] = vid + 1;
+                // right top
+                ib[indexOffset++] = vid + 1 + renderData.vertexCol;
+                // left top
+                ib[indexOffset++] = vid + renderData.vertexCol;
+
+                // IndexOffset should add 6 when vertices of a rect are visited.
+                meshBuffer.indexOffset += 6;
+            }
+        }
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);
     },

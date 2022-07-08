@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 
-import { IUV } from '../../assets';
+import { JSB } from 'internal:constants';
+import { IUV, SpriteFrame } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
@@ -36,7 +37,32 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+
 const matrix = new Mat4();
+const vec3_temp = new Vec3();
+
+let origin:IUV;
+let leftInner:IUV;
+let rightInner:IUV;
+let rightOuter:IUV;
+let bottomInner:IUV;
+let topInner:IUV;
+let topOuter:IUV;
+let tempRenderDataLength = 0;
+const tempRenderData: IRenderData[] = [];
+let QUAD_INDICES;
+
+function has9SlicedOffsetVertexCount (spriteFrame: SpriteFrame) {
+    if (spriteFrame) {
+        if (spriteFrame.insetTop > 0
+        || spriteFrame.insetBottom > 0
+        || spriteFrame.insetLeft > 0
+        || spriteFrame.insetRight > 0) {
+            return 2; // left + right
+        }
+    }
+    return 0;
+}
 
 export const tiled: IAssembler = {
     createData (sprite: UIRenderer) {
@@ -49,8 +75,6 @@ export const tiled: IAssembler = {
         if (!frame || !renderData) {
             return;
         }
-
-        renderData.updateRenderData(sprite, frame);
 
         if (!renderData.vertDirty) {
             return;
@@ -75,17 +99,51 @@ export const tiled: IAssembler = {
 
         const hRepeat = centerWidth === 0 ? sizableWidth : sizableWidth / centerWidth;
         const vRepeat = centerHeight === 0 ? sizableHeight : sizableHeight / centerHeight;
-        const row = Math.ceil(vRepeat + 2);
-        const col = Math.ceil(hRepeat + 2);
+        const offsetVertexCount = has9SlicedOffsetVertexCount(frame);
+        const row = Math.ceil(vRepeat + offsetVertexCount);
+        const col = Math.ceil(hRepeat + offsetVertexCount);
 
-        renderData.dataLength = Math.max(8, row + 1, col + 1);
+        renderData.dataLength = (row * 2) * (col * 2);
 
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
         // update data property
         renderData.resize(row * col * 4, row * col * 6);
+        // update index here
+        if (JSB) {
+            const indexCount = renderData.indexCount;
+            this.createQuadIndices(indexCount);
+            renderData.chunk.setIndexBuffer(QUAD_INDICES);
+            // may can update color & uv here
+            // need dirty
+            this.updateWorldUVData(sprite);
+            //this.updateColorLate(sprite);
+        }
+
+        renderData.updateRenderData(sprite, frame);
     },
 
+    createQuadIndices (indexCount) {
+        if (indexCount % 6 !== 0) {
+            console.error('illegal index count!');
+            return;
+        }
+        const quadCount = indexCount / 6;
+        QUAD_INDICES = null;
+        QUAD_INDICES = new Uint16Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < quadCount; i++) {
+            QUAD_INDICES[offset++] = 0 + i * 4;
+            QUAD_INDICES[offset++] = 1 + i * 4;
+            QUAD_INDICES[offset++] = 2 + i * 4;
+            QUAD_INDICES[offset++] = 1 + i * 4;
+            QUAD_INDICES[offset++] = 3 + i * 4;
+            QUAD_INDICES[offset++] = 2 + i * 4;
+        }
+    },
+
+    // dirty Mark
+    // the real update uv is on updateWorldUVData
     updateUVs (sprite: Sprite) {
         const renderData = sprite.renderData!;
         renderData.vertDirty = true;
@@ -102,7 +160,7 @@ export const tiled: IAssembler = {
         }
 
         // forColor
-        this.updataColorLate(sprite);
+        this.updateColorLate(sprite);
 
         // update indices
         const bid = chunk.bufferId;
@@ -123,6 +181,19 @@ export const tiled: IAssembler = {
         meshBuffer.setDirty();
     },
 
+    updateWorldUVData (sprite: Sprite) {
+        const renderData = sprite.renderData!;
+        const stride = renderData.floatStride;
+        const dataList: IRenderData[] = renderData.data;
+        const vData = renderData.chunk.vb;
+        for (let i  = 0; i < dataList.length; i++) {
+            const offset = i * stride;
+            vData[offset + 3] = dataList[i].u;
+            vData[offset + 4] = dataList[i].v;
+        }
+    },
+
+    // only for TS
     updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
         node.getWorldMatrix(matrix);
@@ -154,8 +225,10 @@ export const tiled: IAssembler = {
         sizableHeight = sizableHeight > 0 ? sizableHeight : 0;
         const hRepeat = centerWidth === 0 ? sizableWidth : sizableWidth / centerWidth;
         const vRepeat = centerHeight === 0 ? sizableHeight : sizableHeight / centerHeight;
-        const row = Math.ceil(vRepeat + 2);
-        const col = Math.ceil(hRepeat + 2);
+        // 9 sliced Frames have two more vertices in a row or in a column than common frames.
+        const offsetVertexCount = has9SlicedOffsetVertexCount(frame);
+        const row = Math.ceil(vRepeat + offsetVertexCount);
+        const col = Math.ceil(hRepeat + offsetVertexCount);
 
         // update Vertex
         let vertexOffset = 0;
@@ -191,9 +264,24 @@ export const tiled: IAssembler = {
         let coefU = 0; let coefV = 0;
         const tempXVerts :any = [];
         const tempYVerts :any = [];
+
+        // origin at left bottom
+        origin = uvSliced[0];
+        // on bottom edge
+        leftInner = uvSliced[1];
+        rightInner = uvSliced[2];
+        rightOuter = uvSliced[3];
+        // on left edge
+        bottomInner = uvSliced[4];
+        topInner = uvSliced[8];
+        topOuter = uvSliced[12];
+
         for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
             if (sizableHeight > centerHeight) {
-                if (sizableHeight >= yIndex * centerHeight) {
+                //if 9 sliced, we should exclude bottom border vertex (yIndex-1)
+                const curYRectCount = offsetVertexCount > 0 ? yIndex : yIndex + 1;
+                // The height of the rect which contains the left bottom vertex in current loop should be calculated in total height.
+                if (sizableHeight >= curYRectCount * centerHeight) {
                     coefV = 1;
                 } else {
                     coefV = vRepeat % 1;
@@ -202,7 +290,12 @@ export const tiled: IAssembler = {
                 coefV = vRepeat;
             }
             for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
-                if (sizableWidth > centerWidth) {
+                //if 9 sliced, we should exclude left border vertex (xIndex-1)
+                const curXRectCount = offsetVertexCount > 0 ? xIndex : xIndex + 1;
+                // The width of the rect which contains the left bottom vertex in current loop should be calculated in total width.
+                // Example: xIndex = 2 means that these is the third vertex, we should take the rect whose left bottom vertex is this
+                // vertex into account, so the following condition should be comparing the values of content size and (2+1)*centerWidth.
+                if (sizableWidth >= curXRectCount * centerWidth) {
                     if (sizableWidth >= xIndex * centerWidth) {
                         coefU = 1;
                     } else {
@@ -216,60 +309,80 @@ export const tiled: IAssembler = {
                 const vertexOffsetV = vertexOffsetU + 1;
                 // UV
                 if (rotated) {
-                    if (yIndex === 0) {
-                        tempXVerts[0] = uvSliced[0].u;
-                        tempXVerts[1] = uvSliced[0].u;
-                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefV;
-                    } else if (yIndex < (row - 1)) {
-                        tempXVerts[0] = uvSliced[4].u;
-                        tempXVerts[1] = uvSliced[4].u;
-                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefV;
-                    } else if (yIndex === (row - 1)) {
-                        tempXVerts[0] = uvSliced[8].u;
-                        tempXVerts[1] = uvSliced[8].u;
-                        tempXVerts[2] = uvSliced[12].u;
-                    }
-                    if (xIndex === 0) {
-                        tempYVerts[0] = uvSliced[0].v;
-                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefU;
-                        tempYVerts[2] = uvSliced[0].v;
-                    } else if (xIndex < (col - 1)) {
-                        tempYVerts[0] = uvSliced[1].v;
-                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefU;
-                        tempYVerts[2] = uvSliced[1].v;
-                    } else if (xIndex === (col - 1)) {
-                        tempYVerts[0] = uvSliced[2].v;
-                        tempYVerts[1] = uvSliced[3].v;
-                        tempYVerts[2] = uvSliced[2].v;
+                    if (offsetVertexCount === 0) { //no sliced
+                        tempXVerts[0] = bottomInner.u;
+                        tempXVerts[1] = bottomInner.u;
+                        tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
+
+                        tempYVerts[0] = leftInner.v;
+                        tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
+                        tempYVerts[2] = leftInner.v;
+                    } else { //sliced
+                        if (yIndex === 0) {
+                            tempXVerts[0] = origin.u;
+                            tempXVerts[1] = origin.u;
+                            tempXVerts[2] = bottomInner.u;
+                        } else if (yIndex < (row - 1)) {
+                            tempXVerts[0] = bottomInner.u;
+                            tempXVerts[1] = bottomInner.u;
+                            tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
+                        } else if (yIndex === (row - 1)) {
+                            tempXVerts[0] = topInner.u;
+                            tempXVerts[1] = topInner.u;
+                            tempXVerts[2] = topOuter.u;
+                        }
+                        if (xIndex === 0) {
+                            tempYVerts[0] = origin.v;
+                            tempYVerts[1] = leftInner.v;
+                            tempYVerts[2] = origin.v;
+                        } else if (xIndex < (col - 1)) {
+                            tempYVerts[0] = leftInner.v;
+                            tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
+                            tempYVerts[2] = leftInner.v;
+                        } else if (xIndex === (col - 1)) {
+                            tempYVerts[0] = rightInner.v;
+                            tempYVerts[1] = rightOuter.v;
+                            tempYVerts[2] = rightInner.v;
+                        }
                     }
                     tempXVerts[3] = tempXVerts[2];
                     tempYVerts[3] = tempYVerts[1];
                 } else {
-                    if (xIndex === 0) {
-                        tempXVerts[0] = uvSliced[0].u;
-                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
-                        tempXVerts[2] = uv[0];
-                    } else if (xIndex < (col - 1)) {
-                        tempXVerts[0] = uvSliced[1].u;
-                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
-                        tempXVerts[2] = uvSliced[1].u;
-                    } else if (xIndex === (col - 1)) {
-                        tempXVerts[0] = uvSliced[2].u;
-                        tempXVerts[1] = uvSliced[3].u;
-                        tempXVerts[2] = uvSliced[2].u;
-                    }
-                    if (yIndex === 0) {
-                        tempYVerts[0] = uvSliced[0].v;
-                        tempYVerts[1] = uvSliced[0].v;
-                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
-                    } else if (yIndex < (row - 1)) {
-                        tempYVerts[0] = uvSliced[4].v;
-                        tempYVerts[1] = uvSliced[4].v;
-                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
-                    } else if (yIndex === (row - 1)) {
-                        tempYVerts[0] = uvSliced[8].v;
-                        tempYVerts[1] = uvSliced[8].v;
-                        tempYVerts[2] = uvSliced[12].v;
+                    if (offsetVertexCount === 0) { //no sliced
+                        tempXVerts[0] = leftInner.u;
+                        tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
+                        tempXVerts[2] = leftInner.u;
+
+                        tempYVerts[0] = bottomInner.v;
+                        tempYVerts[1] = bottomInner.v;
+                        tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
+                    } else { //sliced
+                        if (xIndex === 0) {
+                            tempXVerts[0] = origin.u;
+                            tempXVerts[1] = leftInner.u;
+                            tempXVerts[2] = origin.u;
+                        } else if (xIndex < (col - 1)) {
+                            tempXVerts[0] = leftInner.u;
+                            tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
+                            tempXVerts[2] = leftInner.u;
+                        } else if (xIndex === (col - 1)) {
+                            tempXVerts[0] = rightInner.u;
+                            tempXVerts[1] = rightOuter.u;
+                            tempXVerts[2] = rightInner.u;
+                        }
+                        if (yIndex === 0) {
+                            tempYVerts[0] = origin.v;
+                            tempYVerts[1] = origin.v;
+                            tempYVerts[2] = bottomInner.v;
+                        } else if (yIndex < (row - 1)) {
+                            tempYVerts[0] = bottomInner.v;
+                            tempYVerts[1] = bottomInner.v;
+                            tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
+                        } else if (yIndex === (row - 1)) {
+                            tempYVerts[0] = topInner.v;
+                            tempYVerts[1] = topInner.v;
+                            tempYVerts[2] = topOuter.v;
+                        }
                     }
                     tempXVerts[3] = tempXVerts[1];
                     tempYVerts[3] = tempYVerts[2];
@@ -294,8 +407,8 @@ export const tiled: IAssembler = {
 
     updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number) {
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const renderData: RenderData | null = sprite.renderData;
-        const data: IRenderData[] = renderData!.data;
+        const renderData: RenderData = sprite.renderData!;
+        const dataList: IRenderData[] = renderData.data;
         const frame = sprite.spriteFrame!;
 
         const rect = frame.rect;
@@ -309,12 +422,10 @@ export const tiled: IAssembler = {
         const topHeight = frame.insetTop;
         const bottomHeight = frame.insetBottom;
         const centerHeight = rect.height - topHeight - bottomHeight;
-
         const xScale = (uiTrans.width / (leftWidth + rightWidth)) > 1 ? 1 : (uiTrans.width / (leftWidth + rightWidth));
         const yScale = (uiTrans.height / (topHeight + bottomHeight)) > 1 ? 1 : (uiTrans.height / (topHeight + bottomHeight));
         let offsetWidth = 0;
         let offsetHeight = 0;
-
         if (centerWidth > 0) {
             /*
              * Because the float numerical calculation in javascript is not accurate enough,
@@ -330,48 +441,243 @@ export const tiled: IAssembler = {
             offsetHeight = sizableHeight;
         }
 
-        for (let i = 0; i <= col; i++) {
-            if (i === 0) {
-                data[i].x = -appx;
-            } else if (i > 0 && i < col) {
-                if (i === 1) {
-                    data[i].x = leftWidth * xScale + Math.min(centerWidth, sizableWidth) - appx;
-                } else if (centerWidth > 0) {
-                    if (i === (col - 1)) {
-                        data[i].x = leftWidth + offsetWidth + centerWidth * (i - 2) - appx;
-                    } else {
-                        data[i].x = leftWidth + Math.min(centerWidth, sizableWidth) + centerWidth * (i - 2) - appx;
-                    }
+        // 临时变量存前置数据
+        tempRenderDataLength = Math.max(row + 1, col + 1);
+        for (let i = 0; i < tempRenderDataLength; i++) {
+            tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
+        }
+
+        const offsetVertexCount = has9SlicedOffsetVertexCount(frame);
+        if (offsetVertexCount === 0) {
+            for (let i = 0; i < tempRenderDataLength; i++) {
+                // for x
+                if (i >= col) {
+                    tempRenderData[i].x = contentWidth - appx;
                 } else {
-                    data[i].x = leftWidth + sizableWidth - appx;
+                    tempRenderData[i].x = -appx + i * centerWidth;
                 }
-            } else if (i === col) {
-                data[i].x = Math.min(leftWidth + sizableWidth + rightWidth, contentWidth) - appx;
+
+                // for y
+                if (i >= row) {
+                    tempRenderData[i].y = contentHeight - appy;
+                } else {
+                    tempRenderData[i].y = -appy + i * centerHeight;
+                }
+            }
+        } else {
+            for (let i = 0; i < tempRenderDataLength; i++) {
+                // for x
+                if (i === 0) {
+                    tempRenderData[i].x = -appx;
+                } else if (i === 1) {
+                    tempRenderData[i].x = -appx + leftWidth * xScale;
+                } else if (i > 1 && i < col - 1) {
+                    if (centerWidth > 0) {
+                        tempRenderData[i].x =  -appx + leftWidth * xScale + centerWidth * (i - 1);
+                    } else  {
+                        tempRenderData[i].x = leftWidth + sizableWidth - appx;
+                    }
+                } else if (i === col - 1) {
+                    tempRenderData[i].x = -appx + leftWidth * xScale + offsetWidth + centerWidth * (i - 2);
+                } else if (i >= col) {
+                    tempRenderData[i].x = Math.min(leftWidth + sizableWidth + rightWidth, contentWidth) - appx;
+                }
+
+                // for y
+                if (i === 0) {
+                    tempRenderData[i].y = -appy;
+                } else if (i === 1) {
+                    tempRenderData[i].y = -appy + bottomHeight * yScale;
+                } else if (i > 1 && i < row - 1) {
+                    if (centerHeight > 0) {
+                        tempRenderData[i].y =  -appy + bottomHeight * yScale + centerHeight * (i - 1);
+                    } else {
+                        tempRenderData[i].y = bottomHeight + sizableHeight - appy;
+                    }
+                } else if (i === row - 1) {
+                    tempRenderData[i].y =  -appy + bottomHeight * yScale + offsetHeight + centerHeight * (i - 2);
+                } else if (i >= row) {
+                    tempRenderData[i].y = Math.min(bottomHeight + sizableHeight + topHeight, contentHeight) - appy;
+                }
             }
         }
-        for (let i = 0; i <= row; i++) {
-            if (i === 0) {
-                data[i].y = -appy;
-            } else if (i > 0 && i < row) {
-                if (i === 1) {
-                    data[i].y = bottomHeight * yScale + Math.min(centerHeight, sizableHeight) - appy;
-                } else if (centerHeight > 0) {
-                    if (i === (row - 1)) {
-                        data[i].y = bottomHeight + offsetHeight + (i - 2) * centerHeight - appy;
+
+        // 填datalist
+        let x = 0; let x1 = 0; let y = 0; let y1 = 0;
+        for (let yIndex = 0; yIndex < row; ++yIndex) {
+            y = tempRenderData[yIndex].y;
+            y1 = tempRenderData[yIndex + 1].y;
+            for (let xIndex = 0; xIndex < col; ++xIndex) {
+                x = tempRenderData[xIndex].x;
+                x1 = tempRenderData[xIndex + 1].x;
+
+                // 4 vertices in a rect
+                const curIndex = 4 * (yIndex * col + xIndex);
+                //left bottom
+                dataList[curIndex].x = x;
+                dataList[curIndex].y = y;
+                //right bottom
+                dataList[curIndex + 1].x = x1;
+                dataList[curIndex + 1].y = y;
+                //left top
+                dataList[curIndex + 2].x = x;
+                dataList[curIndex + 2].y = y1;
+                //right top
+                dataList[curIndex + 3].x = x1;
+                dataList[curIndex + 3].y = y1;
+            }
+        }
+
+        const rotated = frame.rotated;
+        const uv = frame.uv;
+        const uvSliced: IUV[] = frame.uvSliced;
+        // origin at left bottom
+        origin = uvSliced[0];
+        // on bottom edge
+        leftInner = uvSliced[1];
+        rightInner = uvSliced[2];
+        rightOuter = uvSliced[3];
+        // on left edge
+        bottomInner = uvSliced[4];
+        topInner = uvSliced[8];
+        topOuter = uvSliced[12];
+
+        let coefU = 0;
+        let coefV = 0;
+        const hRepeat = centerWidth === 0 ? sizableWidth : sizableWidth / centerWidth;
+        const vRepeat = centerHeight === 0 ? sizableHeight : sizableHeight / centerHeight;
+        const tempXVerts :any = [];
+        const tempYVerts :any = [];
+
+        for (let yIndexUV = 0; yIndexUV < row; ++yIndexUV) {
+            if (sizableHeight > centerHeight) {
+                //if 9 sliced, we should exclude bottom border vertex (yIndex-1)
+                const curYRectCount = offsetVertexCount > 0 ? yIndexUV : yIndexUV + 1;
+                // The height of the rect which contains the left bottom vertex in current loop should be calculated in total height.
+                if (sizableHeight >= curYRectCount * centerHeight) {
+                    coefV = 1;
+                } else {
+                    coefV = vRepeat % 1;
+                }
+            } else {
+                coefV = vRepeat;
+            }
+            for (let xIndexUV = 0; xIndexUV < col; ++xIndexUV) {
+                if (sizableWidth > centerWidth) {
+                //if 9 sliced, we should exclude left border vertex (xIndex-1)
+                    const curXRectCount = offsetVertexCount > 0 ? xIndexUV : xIndexUV + 1;
+                    // The width of the rect which contains the left bottom vertex in current loop should be calculated in total width.
+                    // Example: xIndex = 2 means that these is the third vertex, we should take the rect whose left bottom vertex is this
+                    // vertex into account, so the following condition should be comparing the values of content size and (2+1)*centerWidth.
+                    if (sizableWidth >= curXRectCount * centerWidth) {
+                        coefU = 1;
                     } else {
-                        data[i].y = bottomHeight + Math.min(centerHeight, sizableHeight) + (i - 2) * centerHeight - appy;
+                        coefU = hRepeat % 1;
                     }
                 } else {
-                    data[i].y = bottomHeight + sizableHeight - appy;
+                    coefU = hRepeat;
                 }
-            } else if (i === row) {
-                data[i].y = Math.min(bottomHeight + sizableHeight + topHeight, contentHeight) - appy;
+
+                if (rotated) {
+                    if (offsetVertexCount === 0) { //无九宫
+                        tempXVerts[0] = bottomInner.u;
+                        tempXVerts[1] = bottomInner.u;
+                        tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
+
+                        tempYVerts[0] = leftInner.v;
+                        tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
+                        tempYVerts[2] = leftInner.v;
+                    } else { //有九宫
+                        if (yIndexUV === 0) {
+                            tempXVerts[0] = origin.u;
+                            tempXVerts[1] = origin.u;
+                            tempXVerts[2] = bottomInner.u;
+                        } else if (yIndexUV < (row - 1)) {
+                            tempXVerts[0] = bottomInner.u;
+                            tempXVerts[1] = bottomInner.u;
+                            tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
+                        } else if (yIndexUV === (row - 1)) {
+                            tempXVerts[0] = topInner.u;
+                            tempXVerts[1] = topInner.u;
+                            tempXVerts[2] = topOuter.u;
+                        }
+                        if (xIndexUV === 0) {
+                            tempYVerts[0] = origin.v;
+                            tempYVerts[1] = leftInner.v;
+                            tempYVerts[2] = origin.v;
+                        } else if (xIndexUV < (col - 1)) {
+                            tempYVerts[0] = leftInner.v;
+                            tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
+                            tempYVerts[2] = leftInner.v;
+                        } else if (xIndexUV === (col - 1)) {
+                            tempYVerts[0] = rightInner.v;
+                            tempYVerts[1] = rightOuter.v;
+                            tempYVerts[2] = rightInner.v;
+                        }
+                    }
+                    tempXVerts[3] = tempXVerts[2];
+                    tempYVerts[3] = tempYVerts[1];
+                } else {
+                    if (offsetVertexCount === 0) { //无九宫
+                        tempXVerts[0] = leftInner.u;
+                        tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
+                        tempXVerts[2] = leftInner.u;
+
+                        tempYVerts[0] = bottomInner.v;
+                        tempYVerts[1] = bottomInner.v;
+                        tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
+                    } else { //有九宫
+                        if (xIndexUV === 0) {
+                            tempXVerts[0] = origin.u;
+                            tempXVerts[1] = leftInner.u;
+                            tempXVerts[2] = origin.u;
+                        } else if (xIndexUV < (col - 1)) {
+                            tempXVerts[0] = leftInner.u;
+                            tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
+                            tempXVerts[2] = leftInner.u;
+                        } else if (xIndexUV === (col - 1)) {
+                            tempXVerts[0] = rightInner.u;
+                            tempXVerts[1] = rightOuter.u;
+                            tempXVerts[2] = rightInner.u;
+                        }
+                        if (yIndexUV === 0) {
+                            tempYVerts[0] = origin.v;
+                            tempYVerts[1] = origin.v;
+                            tempYVerts[2] = bottomInner.v;
+                        } else if (yIndexUV < (row - 1)) {
+                            tempYVerts[0] = bottomInner.v;
+                            tempYVerts[1] = bottomInner.v;
+                            tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
+                        } else if (yIndexUV === (row - 1)) {
+                            tempYVerts[0] = topInner.v;
+                            tempYVerts[1] = topInner.v;
+                            tempYVerts[2] = topOuter.v;
+                        }
+                    }
+                    tempXVerts[3] = tempXVerts[1];
+                    tempYVerts[3] = tempYVerts[2];
+                }
+
+                // it represents the left bottom corner vertex of a rect
+                const curIndex = 4 * (yIndexUV * col + xIndexUV);
+                // lb
+                dataList[curIndex].u = tempXVerts[0];
+                dataList[curIndex].v = tempYVerts[0];
+                // rb
+                dataList[curIndex + 1].u = tempXVerts[1];
+                dataList[curIndex + 1].v = tempYVerts[1];
+                // lt
+                dataList[curIndex + 2].u = tempXVerts[2];
+                dataList[curIndex + 2].v = tempYVerts[2];
+                // rt
+                dataList[curIndex + 3].u = tempXVerts[3];
+                dataList[curIndex + 3].v = tempYVerts[3];
             }
         }
     },
 
     // fill color here
-    updataColorLate (sprite: Sprite) {
+    updateColorLate (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;

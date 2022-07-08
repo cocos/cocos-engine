@@ -25,7 +25,7 @@
 */
 
 // @ts-check
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, JSB, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';

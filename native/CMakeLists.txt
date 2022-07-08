@@ -1243,6 +1243,7 @@ cocos_source_files(
                  cocos/scene/DirectionalLight.h
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
+                 cocos/scene/DrawBatch2D.cpp
                  cocos/scene/Fog.h
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
@@ -1660,10 +1661,20 @@ if(USE_PHYSICS_PHYSX)
 endif()
 
 ##### 2d
-# cocos_source_files(
-#     cocos/2d/framework/UITransform.h
-#     cocos/2d/framework/UITransform.cpp
-# )
+cocos_source_files(
+    cocos/2d/renderer/Batcher2d.h
+    cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/UIModelProxy.h
+    cocos/2d/renderer/UIModelProxy.cpp
+    cocos/2d/renderer/RenderDrawInfo.h
+    cocos/2d/renderer/RenderDrawInfo.cpp
+    cocos/2d/renderer/UIMeshBuffer.h
+    cocos/2d/renderer/UIMeshBuffer.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
+    cocos/2d/renderer/StencilManager.h
+    cocos/2d/renderer/StencilManager.cpp
+)
 
 ##### 3d
 cocos_source_files(
@@ -1991,6 +2002,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_geometry_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
                             cocos/bindings/auto/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
+                            cocos/bindings/auto/jsb_2d_auto.h
 )
 
 if(USE_AUDIO)
