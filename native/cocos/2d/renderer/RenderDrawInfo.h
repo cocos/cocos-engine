@@ -53,7 +53,7 @@ class RenderDrawInfo final {
 public:
     RenderDrawInfo();
     explicit RenderDrawInfo(Batcher2d* batcher);
-    RenderDrawInfo(const index_t bufferId, const uint32_t vertexOffset, const uint32_t indexOffset);
+    RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
     ~RenderDrawInfo();
 
     inline index_t getAccId() const { return _accId; }
@@ -106,8 +106,8 @@ public:
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
     }
 
-    inline uint8_t getStride() { return _stride; }
-    inline uint32_t getSize() { return _size; }
+    inline uint8_t getStride() const { return _stride; }
+    inline uint32_t getSize() const { return _size; }
 
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();

@@ -57,7 +57,7 @@ void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuff
     _meshBuffersMap[accId] = std::move(buffers);
 }
 
-UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) {
+UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) { // NOLINT(bugprone-easily-swappable-parameters)
     auto map = _meshBuffersMap[accId];
     return map[bufferId];
 }
@@ -84,7 +84,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     _rootNodeArr.clear();
 }
 
-void Batcher2d::walk(Node* node) {
+void Batcher2d::walk(Node* node) { // NOLINT(misc-no-recursion)
     if (!node->isActiveInHierarchy()) {
         return;
     }
@@ -93,7 +93,7 @@ void Batcher2d::walk(Node* node) {
     if (entity && entity->isEnabled()) {
         RenderEntityType entityType = entity->getRenderEntityType();
 
-        // when filling buffers, we should distinguish commom components and other complex components like middlewares
+        // when filling buffers, we should distinguish common components and other complex components like middleware
         if (entityType == RenderEntityType::STATIC) {
             std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
             for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
@@ -295,7 +295,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
 
     _currMeshBuffer = nullptr;
 
-    // stencilstage
+    // stencilStage
     gfx::DepthStencilState* depthStencil;
     ccstd::hash_t dssHash = 0;
     StencilStage entityStage = entity->getEnumStencilStage();
@@ -432,7 +432,7 @@ void Batcher2d::reset() {
             }
         }
     }
-    //meshbuffer cannot clear because it is not transported at every frame.
+    //meshBuffer cannot clear because it is not transported at every frame.
 
     _currMeshBuffer = nullptr;
     _indexStart = 0;
