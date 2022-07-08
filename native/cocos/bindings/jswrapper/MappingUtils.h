@@ -56,7 +56,7 @@ public:
 private:
     static void emplace(void *nativeObj, Object *seObj);
     static Map *__nativePtrToObjectMap; // NOLINT
-    static bool __isValid; // NOLINT
+    static bool __isValid;              // NOLINT
 
     friend class Object;
 };

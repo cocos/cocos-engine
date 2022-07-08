@@ -31,7 +31,7 @@ namespace se {
 
 // NativePtrToObjectMap
 NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr; // NOLINT
-bool NativePtrToObjectMap::__isValid = false; // NOLINT
+bool NativePtrToObjectMap::__isValid = false;                                      // NOLINT
 
 bool NativePtrToObjectMap::init() {
     if (__nativePtrToObjectMap == nullptr) {
