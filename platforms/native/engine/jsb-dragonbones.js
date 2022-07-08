@@ -767,15 +767,28 @@ const cacheManager = require('./jsb-cache-manager');
             this.material = this.getMaterialForBlend(
                 renderInfo[renderInfoOffset + materialIdx++],
                 renderInfo[renderInfoOffset + materialIdx++],
-);
+            );
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, this.node);
-            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
+            const drawInfo = this.requestDrawInfo(index);
+            drawInfo.setTexture(realTexture.getGFXTexture());
+            drawInfo.setTextureHash(realTexture.getHash());
+            drawInfo.setSampler(realTexture.getGFXSampler());
+            drawInfo.setBlendHash(this.blendHash);
+            drawInfo.setMaterial(this.material);
+            renderData.fillDrawInfoAttributes(drawInfo);
+
+            drawInfo.setIndexOffset(_tempIndicesOffset);
+            drawInfo.setIBCount(_tempIndicesCount);
+
+            const entity = this.renderEntity;
+            entity.setDynamicRenderDrawInfo(drawInfo, index);
+
+            entity.assignExtraEntityAttrs(this);
             this.material = mat;
         }
     };
@@ -788,7 +801,8 @@ const cacheManager = require('./jsb-cache-manager');
     assembler.createData = function (comp) {
     };
 
-    assembler.updateRenderData = function () {
+    assembler.updateRenderData = function (comp) {
+        comp._render();
     };
 
     // eslint-disable-next-line no-unused-vars

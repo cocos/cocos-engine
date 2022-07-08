@@ -23,9 +23,11 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
 import { Mask } from '../components/mask';
 import { Material } from '../../core';
+import { NativeStencilManager } from './native-2d';
 
 // Stage types
 export enum Stage {
@@ -45,9 +47,20 @@ export enum Stage {
     ENTER_LEVEL_INVERTED = 6,
 }
 
+export enum StencilSharedBufferView {
+    stencilTest,
+    func,
+    stencilMask,
+    writeMask,
+    failOp,
+    zFailOp,
+    passOp,
+    ref,
+    count,
+}
+
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
-    public stage = Stage.DISABLED;
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
@@ -60,8 +73,36 @@ export class StencilManager {
         ref: 1,
     };
 
+    private declare _nativeObj: NativeStencilManager;
+    get nativeObj () {
+        return this._nativeObj;
+    }
+
+    // shared buffer
+    protected declare _sharedBuffer: Uint32Array;
+
+    private _stage:Stage = Stage.DISABLED;
+    get stage () {
+        return this._stage;
+    }
+    set stage (val:Stage) {
+        if (JSB) {
+            if (this.stage !== val) {
+                this._nativeObj.setStencilStage(val);
+            }
+        }
+        this._stage = val;
+    }
+
     get pattern () {
         return this._stencilPattern;
+    }
+
+    constructor () {
+        // if (JSB) {
+        //     this._nativeObj = new NativeStencilManager();
+        // }
+        // this.initSharedBuffer();
     }
 
     public pushMask (mask: any) {
@@ -214,6 +255,22 @@ export class StencilManager {
                 pattern.failOp = StencilOp.ZERO;
                 pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
             }
+        }
+    }
+
+    private initSharedBuffer () {
+        if (JSB) {
+            //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
+            this._sharedBuffer = new Uint32Array(this._nativeObj.getStencilSharedBufferForJS());
+
+            this._sharedBuffer[StencilSharedBufferView.stencilTest] = this._stencilPattern.stencilTest ? 1 : 0;
+            this._sharedBuffer[StencilSharedBufferView.func] = this._stencilPattern.func;
+            this._sharedBuffer[StencilSharedBufferView.stencilMask] = this._stencilPattern.stencilMask;
+            this._sharedBuffer[StencilSharedBufferView.writeMask] = this._stencilPattern.writeMask;
+            this._sharedBuffer[StencilSharedBufferView.failOp] = this._stencilPattern.failOp;
+            this._sharedBuffer[StencilSharedBufferView.zFailOp] = this._stencilPattern.zFailOp;
+            this._sharedBuffer[StencilSharedBufferView.passOp] = this._stencilPattern.passOp;
+            this._sharedBuffer[StencilSharedBufferView.ref] = this._stencilPattern.ref;
         }
     }
 }
