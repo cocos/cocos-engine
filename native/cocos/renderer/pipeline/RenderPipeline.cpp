@@ -176,7 +176,6 @@ bool RenderPipeline::destroy() {
     _commandBuffers.clear();
 
     PipelineStateManager::destroyAll();
-    BatchedBuffer::destroyBatchedBuffer();
     framegraph::FrameGraph::gc(0);
 
     return Super::destroy();

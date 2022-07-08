@@ -57,10 +57,6 @@ using DynamicOffsetList = ccstd::vector<uint32_t>;
 
 class CC_DLL BatchedBuffer : public RefCounted {
 public:
-    static BatchedBuffer *get(scene::Pass *pass);
-    static BatchedBuffer *get(scene::Pass *pass, uint32_t extraKey);
-    static void destroyBatchedBuffer();
-
     explicit BatchedBuffer(const scene::Pass *pass);
     ~BatchedBuffer() override;
 
@@ -74,8 +70,6 @@ public:
     inline const DynamicOffsetList &getDynamicOffset() const { return _dynamicOffsets; }
 
 private:
-    // uint32_t: extraKey, passed in BatchedBuffer::get();
-    static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, BatchedBuffer *>> buffers;
     DynamicOffsetList _dynamicOffsets;
     BatchedItemList _batches;
     // weak reference

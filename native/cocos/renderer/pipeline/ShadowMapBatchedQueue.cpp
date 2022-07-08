@@ -138,7 +138,7 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
             instancedBuffer->merge(model, subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
         } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = BatchedBuffer::get(subModel->getPass(shadowPassIdx));
+            auto *batchedBuffer = subModel->getPass(shadowPassIdx)->getBatchedBuffer();
             batchedBuffer->merge(subModel, shadowPassIdx, model);
             _batchedQueue->add(batchedBuffer);
         } else { // standard draw
