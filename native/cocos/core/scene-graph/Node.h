@@ -712,7 +712,7 @@ private:
     Vec3 _euler{0, 0, 0};
 
     //
-    float_t _parentOpacity{1.0f};
+    float _parentOpacity{1.0F};
 
     IntrusivePtr<UserData> _userData;
     friend class NodeActivator;
