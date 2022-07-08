@@ -217,7 +217,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             'FullscreenQuad', '', new RenderData(), false, queueId,
         );
     }
-    addCameraQuad (camera: Camera, material: Material) {
+    addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags) {
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
