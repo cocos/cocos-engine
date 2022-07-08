@@ -40,7 +40,7 @@ void SendToWorker(const cc::MessageType& type, OH_NativeXComponent* component, v
     cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
     CCASSERT(platform != nullptr, "Only supports openharmony platform");
     cc::WorkerMessageData data{type, static_cast<void*>(component), window};
-    platform->workerMessageQ_.EnQueue(data);
+    platform->workerMessageQ_.enQueue(data);
     if(type != cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED)
         uv_async_send(&(cc::OpenHarmonyPlatform::getInstance()->workerOnMessageSignal_));
 }

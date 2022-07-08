@@ -269,38 +269,4 @@ std::string FileUtilsOpenHarmony::expandPath(const std::string &input, bool *isR
     return "";
 }
 
-std::pair<int, std::function<void()>> FileUtilsOpenHarmony::getFd(const std::string &path) const {
-//    bool       isRawFile = false;
-//    const auto fullpath  = expandPath(path, &isRawFile);
-//    if (isRawFile) {
-//        RawFile *rf = OpenRawFile(ohosResourceMgr, fullpath.c_str());
-//        // FIXME: try reuse file
-//        const auto bufSize   = GetRawFileSize(rf);
-//        auto       fileCache = std::vector<char>(bufSize);
-//        auto *     buf       = fileCache.data();
-//        // Fill buffer
-//        const auto readBytes = ReadRawFile(rf, buf, bufSize);
-//        assert(readBytes == bufSize); // read failure ?
-//        auto fd = syscall(__NR_memfd_create, fullpath.c_str(), 0);
-//        {
-//            auto writeBytes = ::write(fd, buf, bufSize); // Write can fail?
-//            assert(writeBytes == bufSize);
-//            ::lseek(fd, 0, SEEK_SET);
-//        }
-//        if (errno != 0) {
-//            const auto *errMsg = strerror(errno);
-//            CC_LOG_ERROR("failed to open buffer fd %s", errMsg);
-//        }
-//        return std::make_pair(fd, [fd]() {
-//            close(fd);
-//        });
-//    }
-//
-//    FILE *fp = fopen(fullpath.c_str(), "rb");
-//    return std::make_pair(fileno(fp), [fp]() {
-//        fclose(fp);
-//    });
-    return std::make_pair(0, []() {});
-}
-
 } // namespace cc

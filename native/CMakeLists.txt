@@ -89,7 +89,7 @@ if(OPENHARMONY) # TODO:May be removed later
     set(USE_AUDIO ON)
     set(USE_SOCKET OFF)
     set(USE_WEBVIEW OFF)
-    set(CC_USE_EDITBOX OFF)
+    set(USE_EDIT_BOX OFF)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
@@ -524,7 +524,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystemWindow.h
     cocos/platform/interfaces/modules/IVibrator.h
 )
-elif(OPENHARMONY)
+elseif(OPENHARMONY)
     cocos_source_files(
         cocos/platform/interfaces/modules/ISystem.h
         cocos/platform/interfaces/modules/ISystem.cpp
@@ -1638,7 +1638,7 @@ cocos_source_files(
     NO_WERROR    cocos/bindings/auto/jsb_scene_auto.cpp
                  cocos/bindings/auto/jsb_scene_auto.h
 )
-elif(OPENHARMONY)# TODO:May be removed later
+elseif(OPENHARMONY)# TODO:May be removed later
     cocos_source_files(
         NO_WERROR    cocos/bindings/auto/jsb_gfx_auto.cpp
                      cocos/bindings/auto/jsb_gfx_auto.h

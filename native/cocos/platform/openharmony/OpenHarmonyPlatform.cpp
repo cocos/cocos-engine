@@ -217,7 +217,7 @@ napi_value OpenHarmonyPlatform::NapiNativeEngineInit(napi_env env, napi_callback
     LOGE("kee cocos NapiNativeEngineInit Triggered");
     void*             window          = nullptr;
     WorkerMessageData msgData;
-    OpenHarmonyPlatform::getInstance()->workerMessageQ_.DeQueue(reinterpret_cast<WorkerMessageData*>(&msgData));
+    OpenHarmonyPlatform::getInstance()->workerMessageQ_.deQueue(reinterpret_cast<WorkerMessageData*>(&msgData));
     OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
     LOGE("kee cocos NapiNativeEngineInit nativexcomponent = %p", nativexcomponet);
     SystemWindow* systemWindowIntf = getPlatform()->getInterface<SystemWindow>();
@@ -272,7 +272,7 @@ void OpenHarmonyPlatform::MainOnMessage(const uv_async_t* req) {
 void OpenHarmonyPlatform::WorkerOnMessage(const uv_async_t* /* req */) {
     void*             window          = nullptr;
     WorkerMessageData msgData;
-    OpenHarmonyPlatform::getInstance()->workerMessageQ_.DeQueue(reinterpret_cast<WorkerMessageData*>(&msgData));
+    OpenHarmonyPlatform::getInstance()->workerMessageQ_.deQueue(reinterpret_cast<WorkerMessageData*>(&msgData));
 
     OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
     CCASSERT(nativexcomponet != nullptr, "nativexcomponent cannot be empty");

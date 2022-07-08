@@ -28,8 +28,6 @@ public:
     std::string getWritablePath() const override;
 
     std::string expandPath(const std::string &input, bool *isRawFile) const;
-
-    std::pair<int, std::function<void()>> getFd(const std::string &path) const;
     
     long getFileSize(const std::string &filepath) override;
 

@@ -47,10 +47,10 @@ struct WorkerMessageData {
 
 class WorkerMessageQueue final {
 public:
-    void   EnQueue(const WorkerMessageData& data);
-    bool   DeQueue(WorkerMessageData *data);
-    bool   IsEmpty() const;
-    size_t GetSize() const {
+    void   enQueue(const WorkerMessageData& data);
+    bool   deQueue(WorkerMessageData *data);
+    bool   isEmpty() const;
+    size_t getSize() const {
         return queue_.size();
     }
 

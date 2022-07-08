@@ -27,12 +27,12 @@
 
 namespace cc {
     
-void WorkerMessageQueue::EnQueue(const WorkerMessageData& data) {
+void WorkerMessageQueue::enQueue(const WorkerMessageData& data) {
     queue_.push(data);
 }
 
-bool WorkerMessageQueue::DeQueue(WorkerMessageData *data) {
-    if (IsEmpty()) {
+bool WorkerMessageQueue::deQueue(WorkerMessageData *data) {
+    if (isEmpty()) {
         return false;
     }
     *data = queue_.front();
@@ -40,7 +40,7 @@ bool WorkerMessageQueue::DeQueue(WorkerMessageData *data) {
     return true;
 }
 
-bool WorkerMessageQueue::IsEmpty() const {
+bool WorkerMessageQueue::isEmpty() const {
     return queue_.empty();
 }
 
