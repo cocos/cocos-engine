@@ -162,11 +162,15 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     }
     addFullscreenQuad (material: Material, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material), name, '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Blit, new Blit(material, sceneFlags, null),
+            name, '', new RenderData(), false, this._vertID,
         );
     }
     addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags) {
-
+        this._renderGraph.addVertex<RenderGraphValue.Blit>(
+            RenderGraphValue.Blit, new Blit(material, sceneFlags, camera),
+            'CameraQuad', '', new RenderData(), false, this._vertID,
+        );
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
@@ -208,16 +212,27 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
 
     addFullscreenQuad (material: Material, sceneFlags = SceneFlags.NONE, name = 'FullscreenQuad') {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
-        const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue,
-            queue, name, '', new RenderData(),
-            false, this._vertID);
+        const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+            RenderGraphValue.Queue, queue,
+            'Queue', '', new RenderData(),
+            false, this._vertID,
+        );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit,
-            new Blit(material),
-            'FullscreenQuad', '', new RenderData(), false, queueId,
+            RenderGraphValue.Blit, new Blit(material, sceneFlags, null),
+            name, '', new RenderData(), false, queueId,
         );
     }
+
     addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags) {
+        const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
+        const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+            RenderGraphValue.Queue, queue,
+            'Queue', '', new RenderData(), false, this._vertID,
+        );
+        this._renderGraph.addVertex<RenderGraphValue.Blit>(
+            RenderGraphValue.Blit, new Blit(material, sceneFlags, camera),
+            'CameraQuad', '', new RenderData(), false, queueId,
+        );
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;

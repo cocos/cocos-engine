@@ -1095,10 +1095,14 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (material: Material | null) {
+    constructor (material: Material | null, sceneFlags: SceneFlags, camera: Camera | null) {
         this.material = material;
+        this.sceneFlags = sceneFlags;
+        this.camera = camera;
     }
     /*object*/ material: Material | null;
+    sceneFlags: SceneFlags;
+    camera: Camera | null;
 }
 
 export class Present {

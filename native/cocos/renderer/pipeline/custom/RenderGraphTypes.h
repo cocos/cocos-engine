@@ -673,10 +673,14 @@ struct Dispatch {
 
 struct Blit {
     Blit() = default;
-    Blit(IntrusivePtr<Material> materialIn) noexcept // NOLINT
-    : material(std::move(materialIn)) {}
+    Blit(IntrusivePtr<Material> materialIn, SceneFlags sceneFlagsIn, scene::Camera* cameraIn) noexcept
+    : material(std::move(materialIn)),
+      sceneFlags(sceneFlagsIn),
+      camera(cameraIn) {}
 
     IntrusivePtr<Material> material;
+    SceneFlags             sceneFlags{SceneFlags::NONE};
+    scene::Camera*         camera{nullptr};
 };
 
 struct Present {
