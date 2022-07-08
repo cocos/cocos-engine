@@ -36,6 +36,7 @@ jobs:
           conan profile update settings.compiler=clang clang
           conan profile update settings.compiler.version=11 clang
           conan profile update settings.arch=x86_64 clang
+          conan profile update settings.build_type=Release clang
           conan profile show clang
       #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
