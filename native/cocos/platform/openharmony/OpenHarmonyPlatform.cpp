@@ -181,6 +181,7 @@ int OpenHarmonyPlatform::getSdkVersion() const {
 
 int32_t OpenHarmonyPlatform::run(int argc, const char** argv) {
     if (workerLoop_) {
+        // Todo: Starting the timer in this way is inaccurate and will be fixed later.
         uv_timer_init(workerLoop_, &timerHandle_);
         // 1s = 1000ms = 60fps;
         // 1000ms / 60fps = 16 ms/fps

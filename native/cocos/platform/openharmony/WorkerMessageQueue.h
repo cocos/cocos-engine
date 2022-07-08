@@ -25,9 +25,10 @@
 
 #pragma once
 
-//#include <mutex>
 #include <queue>
 
+#include <thread>
+#include <mutex>
 
 
 namespace cc {
@@ -51,11 +52,12 @@ public:
     bool   deQueue(WorkerMessageData *data);
     bool   isEmpty() const;
     size_t getSize() const {
-        return queue_.size();
+        return _queue.size();
     }
 
 private:
-    std::queue<WorkerMessageData> queue_;
+    std::mutex                    _mutex;
+    std::queue<WorkerMessageData> _queue;
 };
 
 } // namespace cc
