@@ -193,8 +193,8 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         model->updateTransform(stamp);
         model->updateUBOs(stamp);
 
-        auto subModelList = model->getSubModels();
-        for (const auto submodel : subModelList) {
+        const auto& subModelList = model->getSubModels();
+        for (const auto& submodel : subModelList) {
             auto* curdrawBatch = _drawBatchPool.alloc();
             curdrawBatch->setVisFlags(entity->getNode()->getLayer());
             curdrawBatch->setModel(model);

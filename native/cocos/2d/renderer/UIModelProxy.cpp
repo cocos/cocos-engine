@@ -74,7 +74,7 @@ void UIModelProxy::activeSubModel(uint8_t val) {
 void UIModelProxy::uploadData() {
     RenderEntity* entity = static_cast<RenderEntity*>(_node->getUserData());
     auto& drawInfos = entity->getDynamicRenderDrawInfos();
-    auto subModelList = _model->getSubModels();
+    auto& subModelList = _model->getSubModels();
     for (size_t i = 0; i < drawInfos.size(); i++) {
         auto drawInfo = drawInfos[i];
         auto* ia = subModelList.at(i)->getInputAssembler();
