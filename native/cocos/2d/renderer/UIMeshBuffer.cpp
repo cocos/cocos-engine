@@ -95,7 +95,7 @@ gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
 void UIMeshBuffer::uploadBuffers() {
     uint32_t byteOffset = getByteOffset();
     bool dirty = getDirty();
-    if (_meshBufferLayout == nullptr || byteOffset == 0 || !dirty || _iaPool.size() == 0) {
+    if (_meshBufferLayout == nullptr || byteOffset == 0 || !dirty || _iaPool.empty()) {
         return;
     }
 
@@ -105,7 +105,7 @@ void UIMeshBuffer::uploadBuffers() {
 
     gfx::InputAssembler* ia = _iaPool[0];
     gfx::BufferList vBuffers = ia->getVertexBuffers();
-    if (vBuffers.size() > 0) {
+    if (!vBuffers.empty()) {
         gfx::Buffer* vBuffer = vBuffers[0];
         if (byteCount > vBuffer->getSize()) {
             vBuffer->resize(byteCount);
