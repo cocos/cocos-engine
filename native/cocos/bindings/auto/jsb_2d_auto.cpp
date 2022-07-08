@@ -506,7 +506,7 @@ static bool js_2d_RenderDrawInfo_getModel(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_2d_RenderDrawInfo_getModel)
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getModel)
 
 static bool js_2d_RenderDrawInfo_getSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -925,7 +925,7 @@ static bool js_2d_RenderDrawInfo_setModel(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_2d_RenderDrawInfo_setModel)
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setModel)
 
 static bool js_2d_RenderDrawInfo_setRender2dBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1203,12 +1203,11 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("textureHash", _SE(js_2d_RenderDrawInfo_getTextureHash_asGetter), _SE(js_2d_RenderDrawInfo_setTextureHash_asSetter));
     cls->defineProperty("sampler", _SE(js_2d_RenderDrawInfo_getSampler_asGetter), _SE(js_2d_RenderDrawInfo_setSampler_asSetter));
     cls->defineProperty("blendHash", _SE(js_2d_RenderDrawInfo_getBlendHash_asGetter), _SE(js_2d_RenderDrawInfo_setBlendHash_asSetter));
+    cls->defineProperty("model", _SE(js_2d_RenderDrawInfo_getModel_asGetter), _SE(js_2d_RenderDrawInfo_setModel_asSetter));
     cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));
-    cls->defineFunction("getModel", _SE(js_2d_RenderDrawInfo_getModel));
     cls->defineFunction("requestIA", _SE(js_2d_RenderDrawInfo_requestIA));
     cls->defineFunction("resetMeshIA", _SE(js_2d_RenderDrawInfo_resetMeshIA));
-    cls->defineFunction("setModel", _SE(js_2d_RenderDrawInfo_setModel));
     cls->defineFunction("setRender2dBufferToNative", _SE(js_2d_RenderDrawInfo_setRender2dBufferToNative));
     cls->defineFunction("uploadBuffers", _SE(js_2d_RenderDrawInfo_uploadBuffers));
     cls->defineFinalizeFunction(_SE(js_cc_RenderDrawInfo_finalize));
