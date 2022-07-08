@@ -126,6 +126,10 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
     bool isMask = entity->getIsMask();
     bool isSubMask = entity->getIsSubMask();
     if (isMask) {
+        //generate batch
+        generateBatch(_currEntity, _currDrawInfo);
+        resetRenderStates();
+
         _stencilManager->exitMask();
     } else if (isSubMask) {
         _stencilManager->enableMask();

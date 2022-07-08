@@ -146,7 +146,9 @@ void StencilManager::setDepthStencilStateFromStage(StencilStage stage) {
         } else if (stage == StencilStage::CLEAR) {
             pattern.func = gfx::ComparisonFunc::NEVER;
             pattern.failOp = gfx::StencilOp::ZERO;
-            pattern.writeMask = pattern.stencilMask = pattern.ref = getWriteMask();
+            pattern.writeMask = getWriteMask();
+            pattern.stencilMask = getWriteMask();
+            pattern.ref = getWriteMask();
         } else if (stage == StencilStage::CLEAR_INVERTED) {
             pattern.func = gfx::ComparisonFunc::NEVER;
             pattern.failOp = gfx::StencilOp::REPLACE;

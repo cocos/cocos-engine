@@ -75,7 +75,9 @@ public:
     void setDepthStencilStateFromStage(StencilStage stage);
 
     inline uint32_t getMaskStackSize() const { return _maskStackSize; }
-    inline void setMaskStackSize(uint32_t size) { _maskStackSize = size; } 
+    inline void setMaskStackSize(uint32_t size) {
+        _maskStackSize = size;
+    } 
 
     inline void pushMask() {
         ++_maskStackSize;
