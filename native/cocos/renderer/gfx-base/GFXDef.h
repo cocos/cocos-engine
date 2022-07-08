@@ -143,5 +143,9 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
  */
 uint32_t getTypeSize(gfx::Type type);
 
+uint32_t gcd(uint32_t a, uint32_t b);
+
+uint32_t lcm(uint32_t a, uint32_t b);
+
 } // namespace gfx
 } // namespace cc
