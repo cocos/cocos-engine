@@ -32,6 +32,10 @@ UIModelProxy::UIModelProxy() {
     _device = Root::getInstance()->getDevice();
 }
 
+UIModelProxy::~UIModelProxy() {
+    destroy();
+}
+
 void UIModelProxy::initModel(Node* node) {
     _model = Root::getInstance()->createModel<scene::Model>();
     _model->setNode(node);
