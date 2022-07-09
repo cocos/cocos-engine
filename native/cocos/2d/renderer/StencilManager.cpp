@@ -54,12 +54,12 @@ StencilManager::~StencilManager() {
     }
 }
 
-void StencilManager::clear(RenderEntity* entity) {
+void StencilManager::clear(RenderEntity* entity) { // NOLINT(readability-convert-member-functions-to-static)
     bool inverted = entity->getIsMaskInverted();
     entity->setEnumStencilStage(inverted ? StencilStage::CLEAR_INVERTED : StencilStage::CLEAR);
 }
 
-void StencilManager::enterLevel(RenderEntity* entity) {
+void StencilManager::enterLevel(RenderEntity* entity) { // NOLINT(readability-convert-member-functions-to-static)
     bool inverted = entity->getIsMaskInverted();
     entity->setEnumStencilStage(inverted ? StencilStage::ENTER_LEVEL_INVERTED : StencilStage::ENTER_LEVEL);
 }

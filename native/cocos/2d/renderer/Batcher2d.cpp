@@ -252,7 +252,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         generateBatch(_currEntity, _currDrawInfo);
         uint32_t dataHash = drawInfo->getDataHash();
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
-        StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
+        auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
         _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;

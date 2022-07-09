@@ -526,7 +526,7 @@ export class Mask extends UIRenderer {
             const color = Color.WHITE.clone();
             color.a = 0;
             graphics.fillColor = color;
-            // @ts-ignore
+            // @ts-expect-error
             graphics._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
         }
 
