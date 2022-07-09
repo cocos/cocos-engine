@@ -42,6 +42,12 @@ void UIModelProxy::initModel(Node* node) {
 void UIModelProxy::activeSubModel(uint8_t val) {
     if (_model == nullptr) return;
     if (_model->getSubModels().size() <= val) {
+        auto* entity = static_cast<RenderEntity*>(_node->getUserData());
+        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
+        if (drawInfo == nullptr) {
+            return;
+        }
+
         auto* vertexBuffer = _device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
@@ -60,12 +66,8 @@ void UIModelProxy::activeSubModel(uint8_t val) {
         auto* renderMesh = ccnew RenderingSubMesh(vbReference, _attributes, _primitiveMode, indexBuffer);
         renderMesh->setSubMeshIdx(0);
 
-        auto* entity = static_cast<RenderEntity*>(_node->getUserData());
-        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
-        if (drawInfo != nullptr) {
-            _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
-            _graphicsUseSubMeshes.emplace_back(renderMesh);
-        }
+        _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
+        _graphicsUseSubMeshes.emplace_back(renderMesh);
     }
 }
 
@@ -103,6 +105,10 @@ void UIModelProxy::uploadData() {
 }
 
 void UIModelProxy::destroy() {
+    if (_model != nullptr) {
+        Root::getInstance()->destroyModel(_model);
+        _model = nullptr;
+    }
 }
 
 void UIModelProxy::clear() {
