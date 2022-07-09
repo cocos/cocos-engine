@@ -38,7 +38,6 @@ namespace cc {
 
 uint32_t Node::clearFrame{0};
 uint32_t Node::clearRound{1000};
-bool Node::isStatic{false};
 const uint32_t Node::TRANSFORM_ON{1 << 0};
 const uint32_t Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
 const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
@@ -449,6 +448,7 @@ void Node::updateScene() {
     emit(EventTypesToJS::NODE_SCENE_UPDATED, _scene);
 }
 
+/* static */
 index_t Node::getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &child, Node *target) {
     auto iteChild = std::find(child.begin(), child.end(), target);
     if (iteChild != child.end()) {
@@ -470,8 +470,8 @@ Node *Node::getChildByUuid(const ccstd::string &uuid) const {
     return nullptr;
 }
 
-bool Node::isChildOf(Node *parent) {
-    Node *child = this;
+bool Node::isChildOf(Node *parent) const {
+    const Node *child = this;
     do {
         if (child == parent) {
             return true;
