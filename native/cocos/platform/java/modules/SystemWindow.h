@@ -31,25 +31,25 @@
 
 namespace cc {
 
-    class SystemWindow : public ISystemWindow {
-    public:
-        /**
-         @brief enable/disable(lock) the cursor, default is enabled
-         */
-        void setCursorEnabled(bool value) override;
+class SystemWindow : public ISystemWindow {
+public:
+    /**
+     @brief enable/disable(lock) the cursor, default is enabled
+     */
+    void setCursorEnabled(bool value) override;
 
-        void copyTextToClipboard(const std::string &text) override;
+    void copyTextToClipboard(const std::string &text) override;
 
-        uintptr_t getWindowHandle() const override;
+    uintptr_t getWindowHandle() const override;
 
-        void setWindowHandle(void *handle);
+    void setWindowHandle(void *handle);
 
-        Size getViewSize() const override;
+    Size getViewSize() const override;
 
-        void closeWindow() override;
+    void closeWindow() override;
 
-    private:
-        void *_windowHandle{nullptr};
-    };
+private:
+    void *_windowHandle{nullptr};
+};
 
 } // namespace cc
