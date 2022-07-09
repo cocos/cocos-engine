@@ -173,8 +173,8 @@ export class UIRenderer extends Renderer {
         this._customMaterial = val;
         this.updateMaterial();
 
-        if (this._renderEntity) {
-            this._renderEntity.setCustomMaterial(val);
+        if (this.renderEntity) {
+            this.renderEntity.setCustomMaterial(val);
         }
     }
 
@@ -705,6 +705,7 @@ export class UIRenderer extends Renderer {
     // it should be overwritten by inherited classes
     protected initRenderEntity () {
         this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.STATIC);
+        this._renderEntity.setCustomMaterial(this.customMaterial);
     }
 
     private disposeRenderEntity () {

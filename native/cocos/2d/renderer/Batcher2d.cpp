@@ -281,7 +281,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         ccstd::hash_t dssHash = 0;
         StencilStage entityStage = entity->getEnumStencilStage();
         if (entity->getCustomMaterial() != nullptr) {
-            depthStencil = _stencilManager->getDepthStencilState(entityStage, _currMaterial);
+            depthStencil = _stencilManager->getDepthStencilState(entityStage, drawInfo->getMaterial());
         } else {
             depthStencil = _stencilManager->getDepthStencilState(entityStage);
         }
