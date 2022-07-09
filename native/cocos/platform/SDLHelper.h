@@ -48,12 +48,12 @@ public:
                       int h, int flags);
 
     void pollEvent(bool* quit);
-    uintptr_t getWindowHandler() const;
+    uintptr_t getWindowHandle() const;
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
     uintptr_t getDisplay() const;
 #endif
     void setCursorEnabled(bool value);
-    SDL_Window* getSDLWindowHandler() const;
+    SDL_Window* getSDLWindowHandle() const;
 
 private:
     void dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);

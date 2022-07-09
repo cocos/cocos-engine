@@ -88,7 +88,7 @@ public:
         return true;
     }
     virtual void closeWindow() {}
-    virtual uintptr_t getWindowHandler() const = 0;
+    virtual uintptr_t getWindowHandle() const = 0;
     virtual Size getViewSize() const = 0;
     virtual void setViewSize(uint32_t width, uint32_t height) {}
     /**

@@ -59,7 +59,7 @@ int32_t OhosPlatform::run(int argc, const char **argv) {
     std::thread mainLogicThread([this, argc, argv]() {
         waitWindowInitialized();
         UniversalPlatform::run(argc, argv);
-        onDestory();
+        onDestroy();
     });
     mainLogicThread.detach();
     _jniNativeGlue->waitRunning();
@@ -70,7 +70,7 @@ void OhosPlatform::waitWindowInitialized() {
     _jniNativeGlue->setRunning(true);
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        NativeWindowType *wndHandle = _jniNativeGlue->getWindowHandler();
+        NativeWindowType *wndHandle = _jniNativeGlue->getWindowHandle();
         if (wndHandle != nullptr) {
             break;
         }

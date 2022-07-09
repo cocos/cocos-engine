@@ -85,11 +85,11 @@ Java_com_cocos_lib_CocosAbilitySlice_onSurfaceCreatedNative(JNIEnv *env, jobject
 JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosAbilitySlice_onSurfaceChangedNative(JNIEnv *env, jobject obj, jobject surface, jint width, //NOLINT JNI function name
                                                             jint height) {                                         //NOLINT JNI function name
-    JNI_NATIVE_GLUE()->setWindowHandler(GetNativeLayer(env, surface));
+    JNI_NATIVE_GLUE()->setWindowHandle(GetNativeLayer(env, surface));
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onSurfaceDestroyNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name
-    JNI_NATIVE_GLUE()->setWindowHandler(nullptr);
+    JNI_NATIVE_GLUE()->setWindowHandle(nullptr);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onStartNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name
