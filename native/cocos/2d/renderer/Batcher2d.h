@@ -31,10 +31,10 @@
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "core/assets/Material.h"
+#include "core/memop/Pool.h"
 #include "renderer/gfx-base/GFXTexture.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
 #include "scene/DrawBatch2D.h"
-#include "core/memop/Pool.h"
 
 namespace cc {
 class Root;

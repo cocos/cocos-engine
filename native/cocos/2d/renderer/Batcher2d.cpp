@@ -35,7 +35,7 @@ Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
 
 Batcher2d::Batcher2d(Root* root)
-: _drawBatchPool([]() { return ccnew scene::DrawBatch2D(); }, [](auto *obj){ delete obj; }, 10U) {
+: _drawBatchPool([]() { return ccnew scene::DrawBatch2D(); }, [](auto* obj) { delete obj; }, 10U) {
     if (root == nullptr) {
         root = Root::getInstance();
     }
