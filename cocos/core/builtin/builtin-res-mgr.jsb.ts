@@ -28,7 +28,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import type { ImageSource }  from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
-import { EDITOR, TEST } from 'internal:constants';
+import { TEST } from 'internal:constants';
 import { Settings, settings } from '../settings';
 import releaseManager from '../asset-manager/release-manager';
 

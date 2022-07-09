@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import {
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
@@ -128,7 +124,7 @@ textureBaseProto.destroy = function () {
         // legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
         legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
     }
-    // dispatch into C++ virtual function CCObject::destroy 
+    // dispatch into C++ virtual function CCObject::destroy
     return oldDestroy.call(this);
 };
 
