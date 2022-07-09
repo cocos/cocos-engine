@@ -124,6 +124,7 @@ private:
     float _volume {0};
     float _startRenderTime {0};
     float _duration {0};
+    bool _shouldRescheduleBuffer {false};
 
     std::condition_variable _sleepCondition;
     std::mutex              _sleepMutex;
