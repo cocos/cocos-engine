@@ -30,6 +30,7 @@
 #include <sstream>
 #include <type_traits>
 #include "Object.h"
+#include <cassert>
 
 namespace se {
 

@@ -44,6 +44,8 @@
     #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_QNX)
     #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #include "platform/openharmony/modules/CanvasRenderingContext2DDelegate.h"
 #endif
 
 using Vec2    = std::array<float, 2>;
