@@ -76,14 +76,14 @@ void UIModelProxy::uploadData() {
     const auto& drawInfos = entity->getDynamicRenderDrawInfos();
     const auto& subModelList = _model->getSubModels();
     for (size_t i = 0; i < drawInfos.size(); i++) {
-        auto *drawInfo = drawInfos[i];
+        auto* drawInfo = drawInfos[i];
         auto* ia = subModelList.at(i)->getInputAssembler();
         if (drawInfo->getVertexOffset() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
         if (!vBuffers.empty()) {
             auto size = drawInfo->getVertexOffset() * _stride;
             // if (size > vBuffers[0]->getSize()) {
-                vBuffers[0]->resize(size);
+            vBuffers[0]->resize(size);
             // }
             vBuffers[0]->update(drawInfo->getVDataBuffer()); // vdata
         }
@@ -92,10 +92,10 @@ void UIModelProxy::uploadData() {
         gfx::Buffer* iBuffer = ia->getIndexBuffer();
         auto size = drawInfo->getIndexOffset() * 2;
         // if (size > iBuffer->getSize()) {
-            iBuffer->resize(size);
+        iBuffer->resize(size);
         // }
-        iBuffer->update(drawInfo->getIDataBuffer()); // idata
-            ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
+        iBuffer->update(drawInfo->getIDataBuffer());   // idata
+        ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
         // drawInfo->setModel(_model); // hack, render by model
     }
 
