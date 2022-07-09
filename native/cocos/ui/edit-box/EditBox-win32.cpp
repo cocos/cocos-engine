@@ -58,11 +58,11 @@ HWND getCurrentWindowHwnd() {
     if (!systemWindowIntf) {
         return nullptr;
     }
-    return reinterpret_cast<HWND>(systemWindowIntf->getWindowHandler());
+    return reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
 }
 
 int getCocosWindowHeight() {
-    // HWND parent = cc_get_application_view()->getWindowHandler();
+    // HWND parent = cc_get_application_view()->getWindowHandle();
     HWND parent = getCurrentWindowHwnd();
     RECT rect;
     GetClientRect(parent, &rect);

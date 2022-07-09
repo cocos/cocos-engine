@@ -47,8 +47,8 @@ public:
                       int x, int y, int w,
                       int h, int flags) override;
     void closeWindow() override;
-    uintptr_t getWindowHandler() const override;
-    SDL_Window* getSDLWindowHandler() const;
+    uintptr_t getWindowHandle() const override;
+    SDL_Window* getSDLWindowHandle() const;
     uintptr_t getDisplay() const;
     Size getViewSize() const override;
     void setViewSize(uint32_t w, uint32_t h) override {

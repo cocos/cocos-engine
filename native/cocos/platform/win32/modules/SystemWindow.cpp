@@ -70,13 +70,13 @@ bool SystemWindow::createWindow(const char *title,
     return true;
 }
 void SystemWindow::closeWindow() {
-    HWND windowHandle = reinterpret_cast<HWND>(getWindowHandler());
+    HWND windowHandle = reinterpret_cast<HWND>(getWindowHandle());
     if (windowHandle != 0) {
         ::SendMessageA(windowHandle, WM_CLOSE, 0, 0);
     }
 }
-uintptr_t SystemWindow::getWindowHandler() const {
-    return _sdl->getWindowHandler();
+uintptr_t SystemWindow::getWindowHandle() const {
+    return _sdl->getWindowHandle();
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

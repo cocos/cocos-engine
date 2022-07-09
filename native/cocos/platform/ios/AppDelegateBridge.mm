@@ -45,7 +45,7 @@ cc::IOSPlatform *_platform = nullptr;
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     _platform->onClose();
-    _platform->onDestory();
+    _platform->onDestroy();
     _platform = nullptr;
 }
 

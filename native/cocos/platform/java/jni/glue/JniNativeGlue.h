@@ -71,8 +71,8 @@ public:
 
     virtual void start(int argc, const char** argv);
 
-    void setWindowHandler(NativeWindowType* window);
-    NativeWindowType* getWindowHandler();
+    void setWindowHandle(NativeWindowType* window);
+    NativeWindowType* getWindowHandle();
 
     void setActivityGetter(std::function<NativeActivity(void)>);
     void* getActivity();
