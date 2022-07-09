@@ -6,16 +6,24 @@ It is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). I
 Coding format and coding style
 ---------------------------------
 
-The coding format file is `.clang-format`, and the coding style fomat file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before commiting codes. See the [linter auto-fix guide](docs/LINTER_AUTOFIX_GUIDE.md) for more information.
+The coding format file is `.clang-format`, and the coding style format file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before committing codes. See the [linter auto-fix guide](docs/LINTER_AUTOFIX_GUIDE.md) for more information.
 
 
 Build Requirements
 --------------------------------
-- macOS 10.14+, Xcode 11.5+ to build mac games
-- with iOS 11.0+ to build iOS games
-- or Windows 7+, Visual Studio 2017 15.7+ / Visual Studio 2019 to build win64 games
+- Xcode 11.5+ to build mac games
+- or Visual Studio 2017 15.7+ / Visual Studio 2019 to build win64 games
 - NDK 18-21 is required to build Android games (22+ is not supported)
 - Cmake 3.8+ is required
+
+System Requirements
+--------------------------------
+- macOS 10.14+
+- iOS 11.0+
+- 64-bit Windows 7+ 
+  - with vulkan 1.0 to 1.2 if want to run with vulkan
+- Android 4.4+
+  - Android 7+ if want to run with vulkan
 
 C++ related
 --------------------------------
