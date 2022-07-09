@@ -34,7 +34,6 @@
 #include "base/Macros.h"
 #include "base/Utils.h"
 #include "core/data/Object.h"
-#include "core/memop/Pool.h"
 
 namespace cc {
 

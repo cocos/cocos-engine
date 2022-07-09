@@ -38,7 +38,7 @@ namespace memop {
 template <typename T>
 class Pool final {
 public:
-    using CtorFunc = std::function<T*()>;
+    using CtorFunc = std::function<T *()>;
     using DtorFunc = std::function<void(T *)>;
     /**
      * @en Constructor with the allocator of elements and initial pool size

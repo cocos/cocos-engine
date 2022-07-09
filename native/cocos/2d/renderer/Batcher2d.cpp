@@ -32,13 +32,15 @@
 
 namespace cc {
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
-    _device = Root::getInstance()->getDevice();
-    _stencilManager = StencilManager::getInstance();
 }
 
-Batcher2d::Batcher2d(Root* root) : _drawBatchPool([]() { return ccnew scene::DrawBatch2D(); }, 10U) {
+Batcher2d::Batcher2d(Root* root)
+: _drawBatchPool([]() { return ccnew scene::DrawBatch2D(); }, [](auto *obj){ delete obj; }, 10U) {
+    if (root == nullptr) {
+        root = Root::getInstance();
+    }
     _root = root;
-    _device = Root::getInstance()->getDevice();
+    _device = _root->getDevice();
     _stencilManager = StencilManager::getInstance();
 }
 
