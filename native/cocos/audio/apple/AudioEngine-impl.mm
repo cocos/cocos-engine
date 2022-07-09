@@ -335,7 +335,14 @@ void AudioEngineImpl::update(float dt) {
                     
                     CC_LOG_DEBUG("Trying to trigger finish callback");
                     if (player->getState() == AudioPlayer::State::FINISHED) {
-                        player->finishCallback(audioID, filePath); //IDEA: callback will delay 50ms
+                        CC_LOG_DEBUG("Triggered finish callback");
+//                        player->finishCallback(audioID, filePath); //IDEA: callback will delay 50ms
+                        if (auto sche = _scheduler.lock()) {
+                            auto cb = player->finishCallback;
+                            sche->performFunctionInCocosThread([audioID, cb, filePath]{
+                                cb(audioID, filePath);
+                            });
+                        }
                     }
                 }
                 

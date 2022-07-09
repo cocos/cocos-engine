@@ -123,6 +123,7 @@ private:
     bool _isForceCache {false};
     float _volume {0};
     float _startRenderTime {0};
+    float _currentTime {0};
     float _duration {0};
     bool _shouldRescheduleBuffer {false};
 

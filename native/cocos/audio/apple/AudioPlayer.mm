@@ -80,20 +80,13 @@ void AudioPlayer::rotateBuffer() {
     AVAudioFramePosition currentFrame = _startRenderTime * _cache->getPCMHeader().sampleRate;
     // Calculate the number of frames to load
     if (currentFrame > _cache->getPCMHeader().totalFrames) {
-        if(!_isLoop){
-            _state = State::FINISHED;
-            [_descriptor.node stop];
-            _startRenderTime = 0;
-            return;
-        } else {
-            currentFrame = 0;
-        }
+        currentFrame = _cache->getPCMHeader().totalFrames - 1;
     }
     AVAudioFrameCount sizeOfFrameToLoad = (uint32_t)_cache->getPCMHeader().totalFrames - (uint32_t)currentFrame;
     AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:sizeOfFrameToLoad];
     __block bool shouldTmpBufferBeDeleted = false;
     __block bool isRendered = false;
-    NSLog(@"[ROTATE THREAD] Start load to buffer");
+    NSLog(@"[ROTATE THREAD] Start load to buffer with currentFrame %d, and sizeOfFrameToLoad %d", currentFrame, sizeOfFrameToLoad);
     // reset _cache audio file's frame position to current frame
     _cache->loadToBuffer(currentFrame, tmpBuffer, sizeOfFrameToLoad);
     NSLog(@"[ROTATE THREAD] Read into buffer, rotate buffer");
@@ -107,7 +100,7 @@ void AudioPlayer::rotateBuffer() {
     _cache->loadToBuffer(pos, buffer, _cache->getPCMHeader().totalFrames);
     NSLog(@"[AUDIO PLAYER] Read into buffer, rotate buffer, twice");
     [_descriptor.node play];
-    NSLog(@"[AUDIO PLAYER] Rotate buffer play");
+    NSLog(@"[AUDIO PLAYER] Rotate buffer play withe _rotateThread should exit %d", _shouldRotateThreadExited);
     while (!_shouldRotateThreadExited) {
         _loopSettingMutex.lock();
         // Create a AVAudioPCMBuffer to play
@@ -116,10 +109,12 @@ void AudioPlayer::rotateBuffer() {
                 isRendered = false;
                 // reset start render time to calculate current time directly from last render time of player node
                 _startRenderTime = 0;
+                [_descriptor.node stop];
                 // If it's looping, play the buffer again
                 [_descriptor.node scheduleBuffer:buffer completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType type){
                     isRendered = true;
                 }];
+                [_descriptor.node play];
             }
         } else {
             if (isRendered) {
@@ -178,6 +173,7 @@ bool AudioPlayer::play() {
     
 }
 bool AudioPlayer::pause() {
+    //update current time
     [_descriptor.node pause];
     _state = State::PAUSED;
     showPlayerNodeCurrentStatus(_descriptor.node, _cache->getDescriptor().audioFile);
@@ -232,6 +228,7 @@ float AudioPlayer::getVolume() {
 bool AudioPlayer::setCurrentTime(float curTime) {
     //TODO: node set currentTime
     if (_state == State::PLAYING) {
+        NSLog(@"Setting currentTime while old is %f, and new one is %f and _currentTime is %f", _startRenderTime, curTime, _currentTime);
         _startRenderTime = curTime;
         stop();
         play();
@@ -240,11 +237,10 @@ bool AudioPlayer::setCurrentTime(float curTime) {
 float AudioPlayer::getCurrentTime() {
     if(_state == State::PLAYING) {
         showPlayerNodeCurrentStatus(_descriptor.node, _cache->getDescriptor().audioFile);
-        float lastRenderTime = (float)[_descriptor.node playerTimeForNodeTime:_descriptor.node.lastRenderTime].sampleTime / (float)_cache->getPCMHeader().sampleRate;
-        return _startRenderTime + lastRenderTime;
+        _currentTime = (float)[_descriptor.node playerTimeForNodeTime:_descriptor.node.lastRenderTime].sampleTime / (float)_cache->getPCMHeader().sampleRate;
     }
     // update current time
-    return _startRenderTime;
+    return _startRenderTime + _currentTime;
 }
 bool AudioPlayer::isForceCache() {
     return _isForceCache;
