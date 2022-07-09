@@ -34,6 +34,7 @@ cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
+cc_set_if_undefined(NET_MODE                  0) # 0 is client
 
 add_definitions()
 
