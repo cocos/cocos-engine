@@ -32,6 +32,10 @@ UIModelProxy::UIModelProxy() {
     _device = Root::getInstance()->getDevice();
 }
 
+UIModelProxy::~UIModelProxy() {
+    destroy();
+}
+
 void UIModelProxy::initModel(Node* node) {
     _model = Root::getInstance()->createModel<scene::Model>();
     _model->setNode(node);
@@ -42,6 +46,12 @@ void UIModelProxy::initModel(Node* node) {
 void UIModelProxy::activeSubModel(uint8_t val) {
     if (_model == nullptr) return;
     if (_model->getSubModels().size() <= val) {
+        auto* entity = static_cast<RenderEntity*>(_node->getUserData());
+        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
+        if (drawInfo == nullptr) {
+            return;
+        }
+
         auto* vertexBuffer = _device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
@@ -60,12 +70,8 @@ void UIModelProxy::activeSubModel(uint8_t val) {
         auto* renderMesh = ccnew RenderingSubMesh(vbReference, _attributes, _primitiveMode, indexBuffer);
         renderMesh->setSubMeshIdx(0);
 
-        auto* entity = static_cast<RenderEntity*>(_node->getUserData());
-        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
-        if (drawInfo != nullptr) {
-            _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
-            _graphicsUseSubMeshes.emplace_back(renderMesh);
-        }
+        _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
+        _graphicsUseSubMeshes.emplace_back(renderMesh);
     }
 }
 
@@ -74,14 +80,14 @@ void UIModelProxy::uploadData() {
     const auto& drawInfos = entity->getDynamicRenderDrawInfos();
     const auto& subModelList = _model->getSubModels();
     for (size_t i = 0; i < drawInfos.size(); i++) {
-        auto *drawInfo = drawInfos[i];
+        auto* drawInfo = drawInfos[i];
         auto* ia = subModelList.at(i)->getInputAssembler();
         if (drawInfo->getVertexOffset() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
         if (!vBuffers.empty()) {
             auto size = drawInfo->getVertexOffset() * _stride;
             // if (size > vBuffers[0]->getSize()) {
-                vBuffers[0]->resize(size);
+            vBuffers[0]->resize(size);
             // }
             vBuffers[0]->update(drawInfo->getVDataBuffer()); // vdata
         }
@@ -90,10 +96,10 @@ void UIModelProxy::uploadData() {
         gfx::Buffer* iBuffer = ia->getIndexBuffer();
         auto size = drawInfo->getIndexOffset() * 2;
         // if (size > iBuffer->getSize()) {
-            iBuffer->resize(size);
+        iBuffer->resize(size);
         // }
-        iBuffer->update(drawInfo->getIDataBuffer()); // idata
-            ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
+        iBuffer->update(drawInfo->getIDataBuffer());   // idata
+        ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
         // drawInfo->setModel(_model); // hack, render by model
     }
 
@@ -103,6 +109,10 @@ void UIModelProxy::uploadData() {
 }
 
 void UIModelProxy::destroy() {
+    if (_model != nullptr) {
+        Root::getInstance()->destroyModel(_model);
+        _model = nullptr;
+    }
 }
 
 void UIModelProxy::clear() {
