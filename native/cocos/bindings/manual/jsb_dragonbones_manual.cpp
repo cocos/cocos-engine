@@ -446,6 +446,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
             // the same address.
             se::NativePtrToObjectMap::erase(iter);
         }
+#endif
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {

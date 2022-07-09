@@ -225,6 +225,9 @@ void Engine::close() { // NOLINT
     //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY) // TODO:May be removed later
+    cc::network::HttpClient::destroyInstance();
+#endif
 
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();

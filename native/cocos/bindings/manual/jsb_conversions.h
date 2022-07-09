@@ -32,6 +32,7 @@
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/TypeDef.h"
 #include "base/std/any.h"
 #include "base/std/container/map.h"
 #include "base/std/container/vector.h"
