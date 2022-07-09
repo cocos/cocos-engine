@@ -34,7 +34,6 @@
 #include "base/Macros.h"
 #include "base/Utils.h"
 #include "core/data/Object.h"
-#include "core/memop/Pool.h"
 
 namespace cc {
 
@@ -262,7 +261,7 @@ public:
      * @param args - The  arguments to be passed to the callback
      */
     template <typename... Args>
-    void emit(const KeyType &key, Args &&... args);
+    void emit(const KeyType &key, Args &&...args);
 
     template <typename T>
     struct FunctionTraits
@@ -375,7 +374,7 @@ void CallbacksInvoker::off(const KeyType &key, void (Target::*memberFn)(Args...)
 }
 
 template <typename... Args>
-void CallbacksInvoker::emit(const KeyType &key, Args &&... args) {
+void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
 #if CC_DEBUG
     ccstd::vector<ccstd::string> argTypes{(typeid(Args).name())...};
 #endif
