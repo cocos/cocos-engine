@@ -113,7 +113,7 @@ void Batcher2d::walk(Node* node) { // NOLINT(misc-no-recursion)
     const auto& children = node->getChildren();
     for (const auto& child : children) {
         if (entity) {
-            child->setParentOpacity(entity->getOpacity());
+            entity->setParentOpacity(entity->getOpacity());
         }
         walk(child);
     }
@@ -301,7 +301,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
 
 void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
     if (entity->getColorDirty()) {
-        float parentOpacity = node->getParentOpacity();
+        float parentOpacity = entity->getParentOpacity();
         float localOpacity = entity->getLocalOpacity();
         float localColorAlpha = entity->getColorAlpha();
         entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
