@@ -7,12 +7,14 @@
 #pragma define-meta CC_PIPELINE_TYPE range([0, 1])
 #pragma define-meta CC_FORCE_FORWARD_SHADING
 
+#define CC_USE_SURFACE_SHADER 1
 
 // Surface
 #include <shading-entries/data-structures/fs-input>
 
 // Uniforms--UBO
 #include <builtin/uniforms/cc-global>
+#include <common/debug/debug-view-define>
 #if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
   #if CC_FORWARD_ADD
     #include <builtin/uniforms/cc-forward-light>
@@ -50,7 +52,3 @@
   #include <builtin/uniforms/cc-light-map>
   #include <common/lighting/light-map>
 #endif
-
-
-// Debug view
-#include <common/debug/debug-view-define>

@@ -1,3 +1,5 @@
+#define CC_USE_SURFACE_SHADER 1
+
 // Surface
 #include <shading-entries/data-structures/vs-input>
 #include <shading-entries/data-structures/vs-output>
