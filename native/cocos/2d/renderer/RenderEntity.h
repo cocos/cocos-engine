@@ -128,7 +128,7 @@ private:
     EntityAttrLayout _entityAttrLayout;
     ArrayBuffer::Ptr _entitySharedBuffer;
 
-    float _opacity{1.0f};
+    float _opacity{1.0F};
 
     bool _isMask{false};
     bool _isSubMask{false};
