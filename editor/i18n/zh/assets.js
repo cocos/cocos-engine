@@ -99,7 +99,7 @@ module.exports = {
         },
         spriteFrame: {
             packable: 'Packable',
-            packableTip: '是否参与动态合图',
+            packableTip: '是否参与动态合图或者自动图集的构建处理',
             rotated: 'Rotated',
             rotatedTip: 'TexturePacker 中的子资源是否被旋转',
             offsetX: 'Offset X',
