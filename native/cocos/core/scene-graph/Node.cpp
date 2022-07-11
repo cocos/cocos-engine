@@ -31,6 +31,7 @@
 #include "core/scene-graph/NodeEnum.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
+#include "bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
@@ -78,6 +79,10 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
 Node::Node(const ccstd::string &name) {
+    static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == 20, "Shared memory should be 20 bytes");
+    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(&_eventMask, 20, [](void *, size_t, void *){});
+    _sharedArrayBufferObject->root();
+
     _id = idGenerator.getNewId();
     if (name.empty()) {
         _name.append("New Node");
@@ -89,6 +94,8 @@ Node::Node(const ccstd::string &name) {
 
 Node::~Node() {
     CC_SAFE_DELETE(_eventProcessor);
+    _sharedArrayBufferObject->unroot();
+    _sharedArrayBufferObject->decRef();
 }
 
 void Node::onBatchCreated(bool dontChildPrefab) {
@@ -148,7 +155,7 @@ void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-param
     // _Scene.DetectConflict.afterAddChild(this);
 #endif
 
-    bool shouldActiveNow = _active && !!(newParent && newParent->isActiveInHierarchy());
+    bool shouldActiveNow = isActive() && !!(newParent && newParent->isActiveInHierarchy());
     if (isActiveInHierarchy() != shouldActiveNow) {
         // Director::getInstance()->getNodeActivator()->activateNode(this, shouldActiveNow); // TODO(xwx): use TS temporarily
         emit(EventTypesToJS::NODE_ACTIVE_NODE, shouldActiveNow);
@@ -211,8 +218,9 @@ void Node::targetOff(const CallbacksInvoker::KeyType &type) {
 }
 
 void Node::setActive(bool isActive) {
-    if (_active != isActive) {
-        _active = isActive;
+    uint8_t isActiveU8 = isActive ? 1 : 0;
+    if (_active != isActiveU8) {
+        _active = isActiveU8;
         Node *parent = _parent;
         if (parent) {
             bool couldActiveInScene = parent->isActiveInHierarchy();
@@ -267,7 +275,7 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
         }
 #endif
         newParent->_children.emplace_back(this);
-        _siblingIndex = static_cast<int32_t>(newParent->_children.size() - 1);
+        _siblingIndex = static_cast<index_t>(newParent->_children.size() - 1);
         newParent->emit(NodeEventType::CHILD_ADDED, this);
     }
     onHierarchyChanged(oldParent);

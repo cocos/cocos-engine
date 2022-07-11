@@ -220,9 +220,7 @@ const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
-
-            // this._eventMask |= TRANSFORM_ON;
-            this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
+            this._eventMask |= TRANSFORM_ON;
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_TRANSFORM_CHANGED)) {
                 this._registerOnTransformChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
@@ -272,8 +270,7 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
-                // this._eventMask &= ~TRANSFORM_ON;
-                this.setEventMask(this.getEventMask() & ~TRANSFORM_ON);
+                this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
                 break;
@@ -299,10 +296,8 @@ nodeProto.hasEventListener = function (type: string, callback?, target?: unknown
 
 nodeProto.targetOff = function (target: string | unknown) {
     // Check for event mask reset
-    const eventMask = this.getEventMask();
-    if ((eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
-        // this._eventMask &= ~TRANSFORM_ON;
-        this.setEventMask(eventMask & ~TRANSFORM_ON);
+    if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
+        this._eventMask &= ~TRANSFORM_ON;
     }
 };
 
@@ -928,6 +923,76 @@ Object.defineProperty(nodeProto, '_layer', {
     },
 });
 
+Object.defineProperty(nodeProto, '_eventMask', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._eventMaskArr[0];
+    },
+    set (v) {
+        this._eventMaskArr[0] = v;
+    },
+});
+
+Object.defineProperty(nodeProto, '_siblingIndex', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._siblingIndexArr[0];
+    },
+    set (v) {
+        this._siblingIndexArr[0] = v;
+    },
+});
+
+nodeProto.getSiblingIndex = function getSiblingIndex() {
+    return this._siblingIndexArr[0];
+};
+
+Object.defineProperty(nodeProto, '_dirtyFlags', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._dirtyFlagsArr[0];
+    },
+    set (v) {
+        this._dirtyFlagsArr[0] = v;
+    },
+});
+
+Object.defineProperty(nodeProto, '_active', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._activeArr[0] != 0;
+    },
+    set (v) {
+        this._activeArr[0] = (v ? 1 : 0);
+    },
+});
+
+Object.defineProperty(nodeProto, 'active', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._activeArr[0] != 0;
+    },
+    set (v) {
+        this.setActive(!!v);
+    },
+});
+
+Object.defineProperty(nodeProto, '_static', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._isStaticArr[0] != 0;
+    },
+    set (v) {
+        this._isStaticArr[0] = (v ? 1 : 0);
+    },
+});
+
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
@@ -1182,8 +1247,16 @@ nodeProto._ctor = function (name?: string) {
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
-    this._activeInHierarchyArr = new Uint8Array(jsb.createExternalArrayBuffer(1));
-    this._layerArr = new Uint32Array(jsb.createExternalArrayBuffer(4));
+
+    this._sharedArrayBuffer = this._getSharedArrayBuffer();
+    this._eventMaskArr = new Uint32Array(this._sharedArrayBuffer, 0, 1);
+    this._layerArr = new Uint32Array(this._sharedArrayBuffer, 4, 1);
+    this._siblingIndexArr = new Int32Array(this._sharedArrayBuffer, 8, 1);
+    this._dirtyFlagsArr = new Uint32Array(this._sharedArrayBuffer, 12, 1);
+    this._activeInHierarchyArr = new Uint8Array(this._sharedArrayBuffer, 16, 1);
+    this._activeArr = new Uint8Array(this._sharedArrayBuffer, 17, 1);
+    this._isStaticArr = new Uint8Array(this._sharedArrayBuffer, 18, 1);
+
     this._layerArr[0] = Layers.Enum.DEFAULT;
     this._scene = null;
     this._prefab = null;

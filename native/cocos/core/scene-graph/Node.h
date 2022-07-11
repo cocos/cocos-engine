@@ -42,11 +42,14 @@
 #include "math/Vec3.h"
 #include "math/Vec4.h"
 
+namespace se {
+class Object;
+}
+
 namespace cc {
 
 class Scene;
 class NodeEventProcessor;
-//class NodeUiProperties;
 
 /**
  * Event types emitted by Node
@@ -254,13 +257,12 @@ public:
         return _id;
     }
 
-    inline bool isActive() const { return _active; }
+    inline bool isActive() const { return _active != 0; }
 
-    inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
+    inline bool isActiveInHierarchy() const { return _activeInHierarchy != 0; }
     inline void setActiveInHierarchy(bool v) {
-        _activeInHierarchyArr[0] = (v ? 1 : 0);
+        _activeInHierarchy = (v ? 1 : 0);
     }
-    inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
 
     virtual void onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
@@ -500,11 +502,11 @@ public:
     }
 
     inline bool isStatic() const {
-        return _isStatic;
+        return _isStatic != 0;
     }
 
     inline void setStatic(bool v) {
-        _isStatic = v;
+        _isStatic = v ? 1 : 0;
     }
 
     /**
@@ -522,11 +524,10 @@ public:
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
     inline void setLayer(uint32_t layer) {
-        _layerArr[0] = layer;
+        _layer = layer;
         emit(NodeEventType::LAYER_CHANGED, layer);
     }
-    inline uint32_t getLayer() const { return _layerArr[0]; }
-    inline void setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
+    inline uint32_t getLayer() const { return _layer; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
 
@@ -624,9 +625,8 @@ public:
     //    void     _setChildrenSize(uint32_t size);
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
-    // For JS wrapper.
-    inline uint32_t getEventMask() const { return _eventMask; }
-    inline void setEventMask(uint32_t mask) { _eventMask = mask; }
+
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedArrayBufferObject; } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
@@ -679,8 +679,6 @@ protected:
     Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
 
-    uint32_t _eventMask{0};
-
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
     /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
@@ -688,22 +686,14 @@ protected:
     */
     uint32_t _hasChangedFlagsVersion{0};
     uint32_t _hasChangedFlags{0};
-    uint32_t _dirtyFlag{0};
 
     bool _eulerDirty{false};
-    //    IntrusivePtr<NodeUiProperties> _uiProps;
-    //    bool _activeInHierarchy{false};
-    // Shared memory with JS.
-    uint8_t *_activeInHierarchyArr{nullptr};
-    uint32_t *_layerArr{nullptr};
 
 public:
     std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    index_t _siblingIndex{0};
     // For deserialization
     ccstd::string _id;
     Node *_parent{nullptr};
-    bool _active{true};
 
 private:
     ccstd::vector<IntrusivePtr<Node>> _children;
@@ -723,8 +713,19 @@ private:
 
     IntrusivePtr<UserData> _userData;
 
-    bool _isStatic{false};
+    // Shared memory with JS.
+    uint32_t _eventMask{0};
+    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)};
+    index_t _siblingIndex{0};
+    uint32_t _dirtyFlag{0};
+    uint8_t _activeInHierarchy{0};
+    uint8_t _active{1};
+    uint8_t _isStatic{0};
+    uint8_t _padding{0};
 
+    se::Object *_sharedArrayBufferObject{nullptr};
+
+    //
     friend class NodeActivator;
     friend class Scene;
 

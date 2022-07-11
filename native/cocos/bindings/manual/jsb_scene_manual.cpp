@@ -221,28 +221,6 @@ static void registerOnBatchCreated(cc::Node *node, se::Object *jsObject) {
         skip);
 }
 
-static void registerActiveInHierarchyArr(cc::Node *node, se::Object *jsObject) {
-    se::Value activeInHierarchyArrVal;
-    bool ok = jsObject->getProperty("_activeInHierarchyArr", &activeInHierarchyArrVal);
-    CC_ASSERT(ok && activeInHierarchyArrVal.isObject() && activeInHierarchyArrVal.toObject()->isTypedArray() && activeInHierarchyArrVal.toObject()->getTypedArrayType() == se::Object::TypedArrayType::UINT8);
-
-    uint8_t *pActiveInHierarchyArrData = nullptr;
-    ok = activeInHierarchyArrVal.toObject()->getTypedArrayData(&pActiveInHierarchyArrData, nullptr);
-    CC_ASSERT(ok);
-    node->setActiveInHierarchyPtr(pActiveInHierarchyArrData);
-}
-
-static void registerLayerArr(cc::Node *node, se::Object *jsObject) {
-    se::Value layerArrVal;
-    bool ok = jsObject->getProperty("_layerArr", &layerArrVal);
-    CC_ASSERT(ok && layerArrVal.isObject() && layerArrVal.toObject()->isTypedArray() && layerArrVal.toObject()->getTypedArrayType() == se::Object::TypedArrayType::UINT32);
-
-    uint8_t *pLayerArrValData = nullptr;
-    ok = layerArrVal.toObject()->getTypedArrayData(&pLayerArrValData, nullptr);
-    CC_ASSERT(ok);
-    node->setLayerPtr(reinterpret_cast<uint32_t *>(pLayerArrValData));
-}
-
 static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object *jsObject) {
     node->on(cc::EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, [jsObject](float x, float y, float z) {
         se::AutoHandleScope hs;
@@ -298,8 +276,6 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
     SE_PRECONDITION2(cobj, false, "js_scene_Node_registerListeners : Invalid Native Object");
 
     auto *jsObject = s.thisObject();
-    registerActiveInHierarchyArr(cobj, jsObject);
-    registerLayerArr(cobj, jsObject);
 
 #define NODE_DISPATCH_EVENT_TO_JS(eventType, jsFuncName)                                      \
     cobj->on(                                                                                 \
@@ -475,6 +451,15 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC(js_scene_Node_setTempFloatArray)
+
+static bool js_scene_Node_getSharedArrayBuffer(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_getSharedArrayBuffer : Invalid Native Object");
+    s.rval().setObject(cobj->_getSharedArrayBufferObject());
+    return true;
+}
+SE_BIND_FUNC(js_scene_Node_getSharedArrayBuffer)
 
 #define FAST_GET_VALUE(ns, className, method, type)                   \
     static bool js_scene_##className##_##method(void *nativeObject) { \
@@ -832,6 +817,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
 
     nodeVal.toObject()->defineFunction("_setTempFloatArray", _SE(js_scene_Node_setTempFloatArray));
 
+    __jsb_cc_Node_proto->defineFunction("_getSharedArrayBuffer", _SE(js_scene_Node_getSharedArrayBuffer));
     __jsb_cc_Node_proto->defineFunction("_setPosition", _SE(js_scene_Node_setPosition));
     __jsb_cc_Node_proto->defineFunction("_setScale", _SE(js_scene_Node_setScale));
     __jsb_cc_Node_proto->defineFunction("_setRotation", _SE(js_scene_Node_setRotation));
