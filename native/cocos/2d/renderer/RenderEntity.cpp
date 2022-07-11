@@ -54,6 +54,11 @@ void RenderEntity::removeDynamicRenderDrawInfo() {
     if (_dynamicDrawInfos.empty()) return;
     _dynamicDrawInfos.pop_back(); // warning: memory leaking & crash
 }
+
+void RenderEntity::clearDynamicRenderDrawInfos() {
+    _dynamicDrawInfos.clear();
+}
+
 void RenderEntity::setIsMask(bool isMask) {
     _isMask = isMask;
 }

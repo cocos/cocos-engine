@@ -1743,6 +1743,7 @@ export class Skeleton extends UIRenderer {
 
     protected initRenderEntity () {
         this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+        this._renderEntity.setCustomMaterial(this.customMaterial);
     }
 }
 

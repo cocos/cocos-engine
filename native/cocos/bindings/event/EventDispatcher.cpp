@@ -89,6 +89,12 @@ void EventDispatcher::destroy() {
         jsResizeEventObj->decRef();
         jsResizeEventObj = nullptr;
     }
+
+    if (jsOrientationEventObj != nullptr) {
+        jsOrientationEventObj->unroot();
+        jsOrientationEventObj->decRef();
+        jsOrientationEventObj = nullptr;
+    }
     inited = false;
     tickVal.setUndefined();
 }

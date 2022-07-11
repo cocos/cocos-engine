@@ -360,7 +360,7 @@ export class Mask extends UIRenderer {
     protected _graphics: Graphics | null = null;
     protected _maskNode: Node | null = null;
 
-    private _clearModelMesh: RenderingSubMesh| null = null;
+    private _clearModelMesh: RenderingSubMesh | null = null;
 
     constructor () {
         super();
@@ -379,10 +379,14 @@ export class Mask extends UIRenderer {
             if (!this._renderEntity) {
                 this.initRenderEntity();
             }
-            if (this._renderEntity && this.renderData && this._graphics) {
+            if (this._renderEntity && this.renderData
+                && this._graphics && this._graphics.renderEntity) {
                 this._renderEntity.setIsMask(true);
-                this._graphics.renderEntity!.setIsSubMask(true);
+                this._graphics.renderEntity.setIsSubMask(true);
                 this._renderEntity.setIsMaskInverted(this._inverted);
+                // subMask and mask should have the same inverted flag
+                this._graphics.renderEntity.setIsMaskInverted(this._inverted);
+                // hack for isMeshBuffer flag
                 this.renderData.renderDrawInfo.setIsMeshBuffer(true);
             }
         }
@@ -522,7 +526,7 @@ export class Mask extends UIRenderer {
             const color = Color.WHITE.clone();
             color.a = 0;
             graphics.fillColor = color;
-            // @ts-ignore
+            // @ts-expect-error hack for graphics protected attributes
             graphics._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
         }
 
