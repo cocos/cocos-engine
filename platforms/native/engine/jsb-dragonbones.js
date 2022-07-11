@@ -702,6 +702,9 @@ const cacheManager = require('./jsb-cache-manager');
         const node = this.node;
         if (!node) return;
 
+        const entity = this.renderEntity;
+        entity.clearDynamicRenderDrawInfos();
+
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
 
@@ -785,7 +788,6 @@ const cacheManager = require('./jsb-cache-manager');
             drawInfo.setIndexOffset(_tempIndicesOffset);
             drawInfo.setIBCount(_tempIndicesCount);
 
-            const entity = this.renderEntity;
             entity.setDynamicRenderDrawInfo(drawInfo, index);
 
             entity.assignExtraEntityAttrs(this);
