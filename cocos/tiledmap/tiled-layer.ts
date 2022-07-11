@@ -34,15 +34,17 @@ import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
 import { TiledTile } from './tiled-tile';
-import { MeshRenderData } from '../2d/renderer/render-data';
+import { RenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher.js';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
-    GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
+    GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
 } from './tiled-types';
 import { fillTextureGrids } from './tiled-utils';
 import { NodeEventType } from '../core/scene-graph/node-event';
 import { legacyCC } from '../core/global-exports';
+import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { RenderDrawInfo, RenderDrawInfoType } from '../2d/renderer/render-draw-info';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -61,8 +63,8 @@ export class TiledUserNodeData extends Component {
     }
 }
 
-export interface TiledMeshData {
-    renderData: MeshRenderData;
+export interface TiledRenderData {
+    renderData: RenderData;
     texture: Texture2D | null;
 }
 
@@ -70,7 +72,7 @@ interface TiledSubNodeData {
     subNodes: (null | TiledUserNodeData)[];
 }
 
-type TiledMeshDataArray = (TiledMeshData | TiledSubNodeData)[];
+type TiledDataArray = (TiledRenderData | TiledSubNodeData)[];
 
 /**
  * @en Render the TMX layer.
@@ -166,11 +168,20 @@ export class TiledLayer extends UIRenderer {
     protected _vertexZvalue?: number;
     protected _offset?: Vec2;
 
-    protected _meshRenderDataArray: TiledMeshDataArray | null = null;
+    protected _tiledDataArray: TiledDataArray = [];
 
-    get meshRenderDataArray () { return this._meshRenderDataArray; }
+    get tiledDataArray () { return this._tiledDataArray; }
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
+
+    private _drawInfoList : RenderDrawInfo[] = [];
+    private requestDrawInfo (idx: number) {
+        if (!this._drawInfoList[idx]) {
+            this._drawInfoList[idx] = new RenderDrawInfo();
+            this._drawInfoList[idx].setDrawInfoType(RenderDrawInfoType.IA);
+        }
+        return this._drawInfoList[idx];
+    }
 
     constructor () {
         super();
@@ -1368,37 +1379,28 @@ export class TiledLayer extends UIRenderer {
         this._updateAllUserNode();
     }
 
-    public requestMeshRenderData () {
-        if (!this._meshRenderDataArray) {
-            this._meshRenderDataArray = [];
-        }
-        const arr = this._meshRenderDataArray as any[];
+    public requestTiledRenderData () {
+        const arr = this._tiledDataArray as any[];
         while (arr.length > 0 && arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
             arr.pop();
         }
         if (arr.length > 0) {
             const last = arr[arr.length - 1];
             if (last.renderData && last.renderData.vertexCount === 0) {
-                return last as TiledMeshData;
+                return last as TiledRenderData;
             }
         }
 
-        const renderData = MeshRenderData.add();
+        const renderData = RenderData.add();
+        renderData.drawInfoType = RenderDrawInfoType.IA;
         const comb = { renderData, texture: null };
         renderData.material = this.getRenderMaterial(0);
-        this._meshRenderDataArray.push(comb);
+        this._tiledDataArray.push(comb);
         return comb;
     }
 
     public requestSubNodesData () {
-        if (!this._meshRenderDataArray) {
-            this._meshRenderDataArray = [];
-        }
-        const arr = this._meshRenderDataArray as any[];
-        // TODO temporary fix for shield node test case
-        // while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.vertexCount === 0) {
-        // arr.pop();
-        // }
+        const arr = this._tiledDataArray as any[];
         if (arr.length > 0) {
             if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
                 return arr[arr.length - 1] as TiledSubNodeData;
@@ -1407,18 +1409,16 @@ export class TiledLayer extends UIRenderer {
 
         const renderData: (TiledUserNodeData | null)[] = [];
         const comb = { subNodes: renderData };
-        this._meshRenderDataArray.push(comb);
+        this._tiledDataArray.push(comb);
         return comb;
     }
 
     public destroyRenderData () {
-        if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => {
-                const renderData = (rd as TiledMeshData).renderData;
-                if (renderData) MeshRenderData.remove(renderData);
-            });
-            this._meshRenderDataArray.length = 0;
-        }
+        this._tiledDataArray.forEach((rd) => {
+            const renderData = (rd as TiledRenderData).renderData;
+            if (renderData) RenderData.remove(renderData);
+        });
+        this._tiledDataArray.length = 0;
         super.destroyRenderData();
     }
 
@@ -1427,7 +1427,7 @@ export class TiledLayer extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (!this._meshRenderDataArray) {
+        if (this._tiledDataArray.length === 0) {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
@@ -1443,23 +1443,83 @@ export class TiledLayer extends UIRenderer {
      * 网格渲染数据数组的索引
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _meshRenderDataArrayIdx = 0;
+    public _tiledDataArrayIdx = 0;
     protected _render (ui: IBatcher) {
-        if (this._meshRenderDataArray) {
-            for (let i = 0; i < this._meshRenderDataArray.length; i++) {
-                this._meshRenderDataArrayIdx = i;
-                const m = this._meshRenderDataArray[i];
-                if ((m as TiledSubNodeData).subNodes) {
-                    // 提前处理 User Nodes
-                    (m as TiledSubNodeData).subNodes.forEach((c) => {
-                        if (c) ui.walk(c.node);
-                    });
-                } else if ((m as TiledMeshData).texture) {
+        for (let i = 0; i < this._tiledDataArray.length; i++) {
+            this._tiledDataArrayIdx = i;
+            const m = this._tiledDataArray[i];
+            if ((m as TiledSubNodeData).subNodes) {
+                // 提前处理 User Nodes
+                (m as TiledSubNodeData).subNodes.forEach((c) => {
+                    if (c) ui.walk(c.node);
+                });
+            } else {
+                const td = m as TiledRenderData;
+                if (td.texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, (m as TiledMeshData).renderData, (m as TiledMeshData).texture, this._assembler, null);
+                    ui.commitComp(this, td.renderData, td.texture, this._assembler, null);
                 }
             }
-            this.node._static = true;
+        }
+        this.node._static = true;
+    }
+
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
+    }
+
+    private fillIndicesBuffer () {
+        if (this._tiledDataArray.length === 0) return;
+
+        const dataArray = this._tiledDataArray;
+
+        for (let i = 0; i < dataArray.length; i++) {
+            const m = dataArray[i];
+            if ((m as TiledSubNodeData).subNodes) continue;
+            const renderData = (m as TiledRenderData).renderData;
+            const iBuf = renderData.chunk.meshBuffer.iData;
+
+            let indexOffset = renderData.chunk.meshBuffer.indexOffset;
+            let vertexId = renderData.chunk.vertexOffset;
+            const quadCount = renderData.vertexCount / 4;
+            for (let i = 0; i < quadCount; i += 1) {
+                iBuf[indexOffset] = vertexId;
+                iBuf[indexOffset + 1] = vertexId + 1;
+                iBuf[indexOffset + 2] = vertexId + 2;
+                iBuf[indexOffset + 3] = vertexId + 2;
+                iBuf[indexOffset + 4] = vertexId + 1;
+                iBuf[indexOffset + 5] = vertexId + 3;
+                indexOffset += 6;
+                vertexId += 4;
+            }
+        }
+    }
+
+    public prepareDrawData (ui: IBatcher) {
+        this.fillIndicesBuffer();
+        const entity = this.renderEntity;
+        entity.clearDynamicRenderDrawInfos();
+        for (let i = 0; i < this._tiledDataArray.length; i++) {
+            this._tiledDataArrayIdx = i;
+            const m = this._tiledDataArray[i];
+            if ((m as TiledSubNodeData).subNodes) {
+                // 提前处理 User Nodes
+                // (m as TiledSubNodeData).subNodes.forEach((c) => {
+                //     if (c) ui.walk(c.node);
+                // });
+            } else {
+                const td = m as TiledRenderData;
+                if (td.texture) {
+                    const drawInfo = this.requestDrawInfo(i);
+                    drawInfo.setTexture(td.texture.getGFXTexture());
+                    drawInfo.setTextureHash(td.texture.getHash());
+                    drawInfo.setSampler(td.texture.getGFXSampler());
+                    drawInfo.setBlendHash(this.blendHash);
+                    drawInfo.setMaterial(this.getRenderMaterial(0)!);
+                    td.renderData.fillDrawInfoAttributes(drawInfo);
+                    entity.setDynamicRenderDrawInfo(drawInfo, i);
+                }
+            }
         }
     }
 }
