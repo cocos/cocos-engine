@@ -798,7 +798,7 @@ static bool js_engine_FileUtils_getFileDir_static(se::State& s) // NOLINT(readab
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir_static : Error processing arguments");
-        std::string result = cc::FileUtils::getFileDir(arg0.value());
+        std::string result = cc::FileUtils::getInstance()->getFileDir(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -835,7 +835,7 @@ static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(rea
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath_static : Error processing arguments");
-        std::string result = cc::FileUtils::normalizePath(arg0.value());
+        std::string result = cc::FileUtils::getInstance()->normalizePath(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
