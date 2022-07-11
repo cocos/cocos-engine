@@ -44,7 +44,7 @@ Batcher2d::Batcher2d(Root* root)
     _stencilManager = StencilManager::getInstance();
 }
 
-Batcher2d::~Batcher2d() {
+Batcher2d::~Batcher2d() { // NOLINT
     _drawBatchPool.destroy();
 
     for (auto iter : _descriptorSetCache) {
@@ -252,7 +252,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         generateBatch(_currEntity, _currDrawInfo);
         uint32_t dataHash = drawInfo->getDataHash();
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
-        StencilStage tempStage = static_cast<StencilStage>(entity->getStencilStage());
+        auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
         _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
@@ -281,7 +281,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
         ccstd::hash_t dssHash = 0;
         StencilStage entityStage = entity->getEnumStencilStage();
         if (entity->getCustomMaterial() != nullptr) {
-            depthStencil = _stencilManager->getDepthStencilState(entityStage, _currMaterial);
+            depthStencil = _stencilManager->getDepthStencilState(entityStage, drawInfo->getMaterial());
         } else {
             depthStencil = _stencilManager->getDepthStencilState(entityStage);
         }
