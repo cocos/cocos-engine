@@ -44,7 +44,7 @@
 #include "platform/java/modules/Vibrator.h"
 
 #include "bindings/event/EventDispatcher.h"
-
+#include "cocos/core/filesystem/android/ResourceFileSystem.h"
 #include "paddleboat.h"
 
 #define ABORT_GAME                          \
@@ -454,7 +454,8 @@ void gameControllerStatusCallback(const int32_t controllerIndex,
 AndroidPlatform::~AndroidPlatform() = default;
 
 int AndroidPlatform::init() {
-    cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
+    //cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
+    cc::ResourceFileSystem::setassetmanager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {
         if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {

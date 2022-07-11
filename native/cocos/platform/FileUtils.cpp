@@ -584,9 +584,11 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
     }
 
     buffer->resize(size);
-    DWORD sizeRead = 0;
+    size_t sizeRead = 0;
     if (!fileHandle->read((char *)buffer->buffer(), size)) {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
         CC_LOG_DEBUG("Get data from file(%s) failed, error code is %s", filename.data(), std::to_string(::GetLastError()).data());
+#endif
         buffer->resize(sizeRead);
         return FileUtils::Status::READ_FAILED;
     }
@@ -863,7 +865,7 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 // windows os implement should override in platform specific FileUtiles class
 bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
     // FileUtils not support isDirectoryExistInternal.
-    
+
     return FileSystem::getInstance()->exist(dirPath);
 }
 

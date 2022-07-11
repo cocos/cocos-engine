@@ -87,11 +87,11 @@ endif()
 
 ## disable middleware when dragonbones and spine are disabled
 if(NOT USE_DRAGONBONES AND NOT USE_SPINE)
-	set(USE_MIDDLEWARE OFF)
+    set(USE_MIDDLEWARE OFF)
 endif()
 
 if(USE_DRAGONBONES OR USE_SPINE)
-	set(USE_MIDDLEWARE ON)
+    set(USE_MIDDLEWARE ON)
 endif()
 
 if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
@@ -861,25 +861,46 @@ cocos_source_files(MODULE ccfilesystem
 
 ########## module ccfilesystem
 cocos_source_files(MODULE ccfilesystem
-	cocos/core/filesystem/FilePath.h
+    cocos/core/filesystem/FilePath.h
     cocos/core/filesystem/FilePath.cpp
-	cocos/core/filesystem/BaseFileSystem.h
+    cocos/core/filesystem/BaseFileSystem.h
     cocos/core/filesystem/BaseFileSystem.cpp
-	cocos/core/filesystem/BaseFileHandle.h
+    cocos/core/filesystem/BaseFileHandle.h
     cocos/core/filesystem/BaseFileHandle.cpp
-	cocos/core/filesystem/LocalFileSystem.h
+    
+    cocos/core/filesystem/LocalFileHandle.h
+    cocos/core/filesystem/LocalFileHandle.cpp
+    cocos/core/filesystem/LocalFileSystem.h
     cocos/core/filesystem/LocalFileSystem.cpp
-	cocos/core/filesystem/FileSystem.h
+    cocos/core/filesystem/FileSystem.h
     cocos/core/filesystem/FileSystem.cpp
 )
 
 if(WINDOWS)
-cocos_source_files(MODULE ccfilesystem
-	cocos/core/filesystem/windows/WindowsFileSystem.h
-    cocos/core/filesystem/windows/WindowsFileSystem.cpp
-	cocos/core/filesystem/windows/WindowsFileHandle.h
-    cocos/core/filesystem/windows/WindowsFileHandle.cpp
-)
+    cocos_source_files(MODULE ccfilesystem
+        cocos/core/filesystem/windows/WindowsFileSystem.h
+        cocos/core/filesystem/windows/WindowsFileSystem.cpp
+        cocos/core/filesystem/windows/WindowsFileHandle.h
+        cocos/core/filesystem/windows/WindowsFileHandle.cpp
+    )
+elseif(ANDROID)
+    cocos_source_files(MODULE ccfilesystem
+        cocos/core/filesystem/android/AndroidFileSystem.h
+        cocos/core/filesystem/android/AndroidFileSystem.cpp
+        #cocos/core/filesystem/android/AndroidFileHandle.h
+        #cocos/core/filesystem/android/AndroidFileHandle.cpp
+        cocos/core/filesystem/android/ResourceFileSystem.h
+        cocos/core/filesystem/android/ResourceFileSystem.cpp
+        cocos/core/filesystem/android/ResourceFileHandle.h
+        cocos/core/filesystem/android/ResourceFileHandle.cpp
+
+        cocos/core/filesystem/zipfilesystem/ZipFileSystem.h
+        cocos/core/filesystem/zipfilesystem/ZipFileSystem.cpp
+        cocos/core/filesystem/zipfilesystem/ZipFileHandle.h
+        cocos/core/filesystem/zipfilesystem/ZipFileHandle.cpp
+
+
+    )
 endif()
 
 if(WINDOWS)

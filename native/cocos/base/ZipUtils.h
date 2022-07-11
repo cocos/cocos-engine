@@ -258,6 +258,7 @@ public:
         * @return True if successful.
         */
     bool getFileData(const ccstd::string &fileName, ResizableBuffer *buffer);
+    bool getFileData(const ccstd::string &fileName, const char *buffer, size_t bufferSize);
 
     ccstd::string getFirstFilename();
     ccstd::string getNextFilename();

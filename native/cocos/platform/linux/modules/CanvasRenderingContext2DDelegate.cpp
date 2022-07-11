@@ -45,8 +45,10 @@ CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
 }
 
 CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
-    XFreePixmap(_dis, _pixmap);
-    XFreeGC(_dis, _gc);
+    if(_pixmap)
+        XFreePixmap(_dis, _pixmap);
+    if(_gc)
+        XFreeGC(_dis, _gc);
 }
 
 void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
