@@ -580,7 +580,7 @@ export interface GraphVisitor {
     finishVertex (v: vertex_descriptor, g: IncidenceGraph): void;
 }
 
-export enum Color {
+export enum GraphColor {
     WHITE,
     GRAY,
     GREEN,
@@ -607,14 +607,14 @@ function depthFirstVisitImpl (
     g: IncidenceGraph,
     u: vertex_descriptor,
     visitor: GraphVisitor,
-    color: MutableVertexPropertyMap<Color>,
+    color: MutableVertexPropertyMap<GraphColor>,
     func: TerminatorFunc,
 ): void {
     let srcE: edge_descriptor | null = null;
     let ei: out_edge_iterator | null = null;
     const stack = new Array<VertexInfo>();
 
-    color.put(u, Color.GRAY);
+    color.put(u, GraphColor.GRAY);
     visitor.discoverVertex(u, g);
 
     ei = g.outEdges(u);
@@ -640,19 +640,19 @@ function depthFirstVisitImpl (
                 const v = e.target;
                 visitor.examineEdge(e, g);
                 const vColor = color.get(v);
-                if (vColor === Color.WHITE) {
+                if (vColor === GraphColor.WHITE) {
                     visitor.treeEdge(e, g);
                     srcE = e;
                     stack.push(new VertexInfo(u, srcE, ei));
                     u = v;
-                    color.put(u, Color.GRAY);
+                    color.put(u, GraphColor.GRAY);
                     visitor.discoverVertex(u, g);
                     ei = g.outEdges(u);
                     if (func.terminate(u, g)) {
                         break;
                     }
                 } else {
-                    if (vColor === Color.GRAY) {
+                    if (vColor === GraphColor.GRAY) {
                         visitor.backEdge(e, g);
                     } else {
                         visitor.forwardOrCrossEdge(e, g);
@@ -661,7 +661,7 @@ function depthFirstVisitImpl (
                 }
             }
         }
-        color.put(u, Color.BLACK);
+        color.put(u, GraphColor.BLACK);
         visitor.finishVertex(u, g);
     }
 }
@@ -669,7 +669,7 @@ function depthFirstVisitImpl (
 export function depthFirstSearch (
     g: IncidenceGraph & VertexListGraph,
     visitor: GraphVisitor,
-    color: MutableVertexPropertyMap<Color>,
+    color: MutableVertexPropertyMap<GraphColor>,
     startVertex: vertex_descriptor | null = null,
 ): void {
     // get start vertex
@@ -680,7 +680,7 @@ export function depthFirstSearch (
     }
     // initialize vertex and color map
     for (const u of g.vertices()) {
-        color.put(u, Color.WHITE);
+        color.put(u, GraphColor.WHITE);
         visitor.initializeVertex(u, g);
     }
     // start DFS
@@ -693,7 +693,7 @@ export function depthFirstSearch (
     // try starting from each vertex
     for (const u of g.vertices()) {
         // if vertex is not visited, start DFS
-        if (color.get(u) === Color.WHITE) {
+        if (color.get(u) === GraphColor.WHITE) {
             visitor.startVertex(u, g);
             depthFirstVisitImpl(g, u, visitor, color, terminator);
         }
@@ -704,7 +704,7 @@ export function depthFirstVisit (
     g: IncidenceGraph,
     u: vertex_descriptor,
     visitor: GraphVisitor,
-    color: MutableVertexPropertyMap<Color>,
+    color: MutableVertexPropertyMap<GraphColor>,
     func: TerminatorFunc = new NoTermination(),
 ): void {
     visitor.startVertex(u, g);

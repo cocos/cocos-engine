@@ -1,11 +1,12 @@
 import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
-import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
+import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
 import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphData, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { LayoutGraphBuilder, Pipeline } from './pipeline';
 import { DescriptorType, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
+import { depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 
 function descriptorBlock2Flattened (block: DescriptorBlock, flattened: DescriptorBlockFlattened): void {
     block.descriptors.forEach((value, key) => {
@@ -216,15 +217,28 @@ enum DeferredStage {
     LIGHTING,
 }
 
+export class LayoutGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
+    constructor (sz: number) {
+        this.colors = new Array<GraphColor>(sz);
+    }
+    get (u: number): GraphColor {
+        return this.colors[u];
+    }
+    put (u: number, value: GraphColor): void {
+        this.colors[u] = value;
+    }
+    readonly colors: Array<GraphColor>;
+}
+
 export function buildDeferredLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
     const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
     const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);
 
-    const geometryQueueID = lg.addRenderStage('Queue', geometryPassID);
-    const lightingQueueID = lg.addRenderStage('Queue', lightingPassID);
+    const geometryQueueID = lg.addRenderPhase('Queue', geometryPassID);
+    const lightingQueueID = lg.addRenderPhase('Queue', lightingPassID);
 
-    const lightingDescriptors = lg.layoutGraph.getDescriptors(lightingPassID);
+    const lightingDescriptors = lg.layoutGraph.getDescriptors(lightingQueueID);
 
     const lightingPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
         ParameterType.TABLE,
@@ -237,9 +251,13 @@ export function buildDeferredLayout (ppl: Pipeline) {
     lg.setDescriptor(lightingPassBlock, 'gbuffer_emissiveMap', Type.FLOAT4);
     lg.setDescriptor(lightingPassBlock, 'depth_stencil', Type.FLOAT4);
 
-    lg.merge(lightingDescriptors);
+    const visitor = new CollectVisitor();
+    const colorMap = new LayoutGraphColorMap(lg.layoutGraph.numVertices());
+    depthFirstSearch(lg.layoutGraph, visitor, colorMap);
 
-    lg.mergeDescriptors(lightingPassID);
+    if (visitor.error) {
+        console.log(visitor.error);
+    }
 
     const builder = ppl.layoutGraphBuilder;
     builder.clear();

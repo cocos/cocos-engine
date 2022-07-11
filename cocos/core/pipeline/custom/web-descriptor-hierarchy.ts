@@ -25,10 +25,12 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../assets';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, LayoutGraphVisitor, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
+import { DefaultVisitor, edge_descriptor, IncidenceGraph, vertex_descriptor } from './graph';
+import { assert } from '../../platform';
 
 export class WebDescriptorHierarchy {
     public uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
@@ -432,4 +434,107 @@ export class WebDescriptorHierarchy {
     public get layoutGraph () {
         return this._layoutGraph;
     }
+}
+
+function getNumDescriptors (block: DescriptorBlock): number {
+    let count = 0;
+    for (const [, d] of block.descriptors) {
+        count += d.count;
+    }
+    return count;
+}
+
+function checkDescriptorConsistency (lhs: Descriptor, rhs: Descriptor): boolean {
+    if (lhs.type !== rhs.type) {
+        return false;
+    }
+    if (lhs.count !== rhs.count) {
+        return false;
+    }
+    return true;
+}
+
+export class CollectVisitor extends DefaultVisitor {
+    getFrequency (g: LayoutGraph, v: number): UpdateFrequency {
+        let freq: UpdateFrequency;
+        if (g.holds(LayoutGraphValue.RenderStage, v)) {
+            freq = UpdateFrequency.PER_PASS;
+        } else {
+            assert(g.holds(LayoutGraphValue.RenderPhase, v));
+            freq = UpdateFrequency.PER_QUEUE;
+        }
+        return freq;
+    }
+
+    mergeDescriptors (srcBlock: DescriptorBlock, dstBlock: DescriptorBlock): string {
+        for (const [name, src] of srcBlock.descriptors) {
+            const dst = dstBlock.descriptors.get(name);
+            if (dst !== undefined) {
+                if (!checkDescriptorConsistency(src, dst)) {
+                    return `Descriptor ${name} is inconsistent`;
+                }
+            } else {
+                dstBlock.descriptors.set(name, src);
+            }
+        }
+        return '';
+    }
+
+    mergeParent (freq: UpdateFrequency, src: DescriptorDB, dst: DescriptorDB): string {
+        for (const [key, srcBlock] of src.blocks) {
+            let dstBlock = dst.blocks.get(key);
+            if (dstBlock === undefined) {
+                dstBlock = new DescriptorBlock();
+                dst.blocks.set(key, dstBlock);
+            }
+            const index = JSON.parse(key) as DescriptorBlockIndex;
+            if (index.updateFrequency > freq) {
+                const error = this.mergeDescriptors(srcBlock, dstBlock);
+                if (error) {
+                    return error;
+                }
+            }
+        }
+        return '';
+    }
+
+    updateInfo (freq: UpdateFrequency, db: DescriptorDB) {
+        db.blocks.forEach((block: DescriptorBlock, key: string) => {
+            const index = JSON.parse(key) as DescriptorBlockIndex;
+            if (index.updateFrequency >= freq) {
+                block.count = getNumDescriptors(block);
+                block.capacity = block.count;
+            }
+        });
+    }
+
+    backEdge (e: edge_descriptor, g: LayoutGraph): void {
+        this._error = 'Cycle detected in graph';
+    }
+
+    finishEdge (e: edge_descriptor, g: LayoutGraph): void {
+        if (this._error !== '') {
+            return;
+        }
+        const parentID = g.source(e);
+        const v = g.target(e);
+        const dst = g.getDescriptors(parentID);
+        const src = g.getDescriptors(v);
+        const freq = this.getFrequency(g, v);
+        this.mergeParent(freq, src, dst);
+    }
+
+    finishVertex (v: number, g: LayoutGraph): void {
+        if (this._error !== '') {
+            return;
+        }
+        const freq = this.getFrequency(g, v);
+        const db = g.getDescriptors(v);
+        this.updateInfo(freq, db);
+    }
+
+    get error (): string {
+        return this._error;
+    }
+    private _error = '';
 }

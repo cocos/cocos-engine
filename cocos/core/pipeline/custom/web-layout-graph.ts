@@ -1,6 +1,8 @@
 import { DEBUG } from 'internal:constants';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { LayoutGraphColorMap } from './effect';
+import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 // eslint-disable-next-line max-len
 import { DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
@@ -59,6 +61,128 @@ function getName (type: Type): string {
     }
 }
 
+function hasFlag (flags: ShaderStageFlagBit, flagToTest: ShaderStageFlagBit): boolean {
+    return (flags & flagToTest) !== 0;
+}
+
+function getVisibilityName (stage: ShaderStageFlagBit): string {
+    let count = 0;
+    let str = '';
+    if (hasFlag(stage, ShaderStageFlagBit.VERTEX)) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'Vertex';
+    }
+    if (hasFlag(stage, ShaderStageFlagBit.CONTROL)) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'Control';
+    }
+    if (hasFlag(stage, ShaderStageFlagBit.EVALUATION)) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'Evaluation';
+    }
+    if (hasFlag(stage, ShaderStageFlagBit.GEOMETRY)) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'Geometry';
+    }
+    if (hasFlag(stage, ShaderStageFlagBit.FRAGMENT)) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'Fragment';
+    }
+    if (hasFlag(stage, ShaderStageFlagBit.COMPUTE)) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'Compute';
+    }
+    if (stage === ShaderStageFlagBit.ALL) {
+        if (count++) {
+            str += ' | ';
+        }
+        str += 'All';
+    }
+    return str;
+}
+
+class PrintVisitor extends DefaultVisitor {
+    discoverVertex (u: number, g: LayoutGraphData) {
+        const ppl: PipelineLayoutData = g.getLayout(u);
+        const name: string = g._names[u];
+        const freq: UpdateFrequency = g._updateFrequencies[u];
+        this.oss += `${this.space}"${name}": `;
+        if (g.holds(LayoutGraphDataValue.RenderStage, u)) {
+            this.oss += `RenderStage {\n`;
+        } else {
+            this.oss += `RenderPhase {\n`;
+        }
+        this.space += '    ';
+
+        // eslint-disable-next-line no-loop-func
+        ppl.descriptorSets.forEach((value, key) => {
+            this.oss += `${this.space}DescriptorSet<${getUpdateFrequencyName(key)}> {\n`;
+            this.space += '    ';
+            const uniformBlocks = value.descriptorSetLayoutData.uniformBlocks;
+            uniformBlocks.forEach((uniformBlock, attrNameID) => {
+                const name = g.valueNames[attrNameID];
+                this.oss += `${this.space}UniformBlock "${name}" {\n`;
+                for (const u of uniformBlock.members) {
+                    if (u.count > 1) {
+                        this.oss += `${this.space}    ${u.name}[${u.count}]: ${getName(u.type)}\n`;
+                    } else {
+                        this.oss += `${this.space}    ${u.name}: ${getName(u.type)}\n`;
+                    }
+                }
+                this.oss += `${this.space}}\n`;
+            });
+
+            const blocks = value.descriptorSetLayoutData.descriptorBlocks;
+            for (let j = 0; j < blocks.length; ++j) {
+                const block = blocks[j];
+                this.oss += `${this.space}Block<${getDescriptorTypeOrderName(block.type)}, ${getVisibilityName(block.visibility)}> {\n`;
+                this.oss += `${this.space}    capacity: ${block.capacity}\n`;
+                this.oss += `${this.space}    count: ${block.descriptors.length}\n`;
+                if (block.descriptors.length > 0) {
+                    this.oss += `${this.space}    Descriptors{ \n`;
+                    const count = 0;
+                    for (let k = 0; k < block.descriptors.length; ++k) {
+                        const d: DescriptorData = block.descriptors[k];
+                        // if (count++) {
+                        this.oss += this.space;
+                        this.oss += '        ';
+                        const n: string = g.valueNames[d.descriptorID];
+                        this.oss += `"${n}`;
+                        if (d.count !== 1) {
+                            this.oss += `[${d.count}]`;
+                        }
+                        this.oss += '"';
+                        // }
+                        this.oss += '\n';
+                    }
+                    this.oss += `${this.space}    }\n`;
+                }
+                this.oss += `${this.space}}\n`;
+            }
+            this.space = this.space.substring(0, this.space.length - 4);
+            this.oss += `${this.space}}\n`;
+        });
+    }
+    finishVertex (v: number, g: LayoutGraphData) {
+        this.space = this.space.substring(0, this.space.length - 4);
+        this.oss += `${this.space}}\n`;
+    }
+    space = '';
+    oss = '';
+}
+
 export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     private _data: LayoutGraphData;
     private _device: Device;
@@ -93,58 +217,6 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             console.error('DescriptorType not found');
             return null;
         }
-    }
-
-    private hasFlag (flags, flagToTest): boolean {
-        return (flags & flagToTest) !== 0;
-    }
-
-    private getName (stage: ShaderStageFlagBit): string {
-        let count = 0;
-        let str = '';
-        if (this.hasFlag(stage, ShaderStageFlagBit.VERTEX)) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'Vertex';
-        }
-        if (this.hasFlag(stage, ShaderStageFlagBit.CONTROL)) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'Control';
-        }
-        if (this.hasFlag(stage, ShaderStageFlagBit.EVALUATION)) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'Evaluation';
-        }
-        if (this.hasFlag(stage, ShaderStageFlagBit.GEOMETRY)) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'Geometry';
-        }
-        if (this.hasFlag(stage, ShaderStageFlagBit.FRAGMENT)) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'Fragment';
-        }
-        if (this.hasFlag(stage, ShaderStageFlagBit.COMPUTE)) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'Compute';
-        }
-        if (stage === ShaderStageFlagBit.ALL) {
-            if (count++) {
-                str += ' | ';
-            }
-            str += 'All';
-        }
-        return str;
     }
 
     private createDescriptorSetLayout (layoutData: DescriptorSetLayoutData) {
@@ -291,63 +363,11 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     }
 
     public print (): string {
-        let oss = '';
         const g: LayoutGraphData = this._data;
-        for (let i = 0; i < g._layouts.length; ++i) {
-            const ppl: PipelineLayoutData = g.getLayout(i);
-            const name: string = g._names[i];
-            const freq: UpdateFrequency = g._updateFrequencies[i];
-
-            oss += `"${name}": `;
-            oss += `<${getUpdateFrequencyName(freq)}> {\n`;
-
-            // eslint-disable-next-line no-loop-func
-            ppl.descriptorSets.forEach((value, key) => {
-                oss += `    DescriptorSet<${getUpdateFrequencyName(key)}> {\n`;
-                const uniformBlocks = value.descriptorSetLayoutData.uniformBlocks;
-                uniformBlocks.forEach((uniformBlock, attrNameID) => {
-                    const name = g.valueNames[attrNameID];
-                    oss += `        UniformBlock "${name}" {\n`;
-                    for (const u of uniformBlock.members) {
-                        if (u.count > 1) {
-                            oss += `            ${u.name}[${u.count}]: ${getName(u.type)}\n`;
-                        } else {
-                            oss += `            ${u.name}: ${getName(u.type)}\n`;
-                        }
-                    }
-                    oss += `        }\n`;
-                });
-
-                const blocks = value.descriptorSetLayoutData.descriptorBlocks;
-                for (let j = 0; j < blocks.length; ++j) {
-                    const block = blocks[j];
-                    oss += `        Block<${getDescriptorTypeOrderName(block.type)}, ${this.getName(block.visibility)}> {\n`;
-                    oss += `        capacity: ${block.capacity}\n`;
-                    oss += `        count: ${block.descriptors.length}\n`;
-                    if (block.descriptors.length > 0) {
-                        oss += '        Descriptors{ \n';
-                        const count = 0;
-                        for (let k = 0; k < block.descriptors.length; ++k) {
-                            const d: DescriptorData = block.descriptors[k];
-                            // if (count++) {
-                            oss += '            ';
-                            const n: string = g.valueNames[d.descriptorID];
-                            oss += `"${n}`;
-                            if (d.count !== 1) {
-                                oss += `[${d.count}]`;
-                            }
-                            oss += '"';
-                            // }
-                            oss += '\n';
-                        }
-                    }
-                    oss += '        }\n';
-                }
-                oss += '    }\n';
-            });
-            oss += `}\n`;
-        }
-        return oss;
+        const visitor = new PrintVisitor();
+        const colorMap = new LayoutGraphColorMap(g.numVertices());
+        depthFirstSearch(g, visitor, colorMap);
+        return visitor.oss;
     }
 
     public get data () {
