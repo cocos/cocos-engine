@@ -82,9 +82,8 @@ export abstract class EmbeddedPlayableState {
      * 该方法在此播放器开始播放时触发。
      * @en
      * This method is called when this player gets to play.
-     * @param time Current time on the embedded player, relative to embedded player's start。
      */
-    public abstract play(time: number): void;
+    public abstract play(): void;
 
     /**
      * @zh
@@ -110,6 +109,9 @@ export abstract class EmbeddedPlayableState {
      * @param speed The speed.
      */
     public abstract setSpeed(speed: number): void;
+
+    public setTime (_time: number) {
+    }
 
     private declare _randomAccess: boolean;
 }

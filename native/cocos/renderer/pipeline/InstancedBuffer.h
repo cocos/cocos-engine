@@ -60,9 +60,6 @@ class InstancedBuffer : public RefCounted {
 public:
     static constexpr uint32_t INITIAL_CAPACITY = 32;
     static constexpr uint32_t MAX_CAPACITY = 1024;
-    static InstancedBuffer *get(scene::Pass *pass);
-    static InstancedBuffer *get(scene::Pass *, uint32_t extraKey);
-    static void destroyInstancedBuffer();
 
     explicit InstancedBuffer(const scene::Pass *pass);
     ~InstancedBuffer() override;
@@ -80,7 +77,6 @@ public:
     inline const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
-    static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, InstancedBuffer *>> buffers;
     InstancedItemList _instances;
     // weak reference
     const scene::Pass *_pass{nullptr};

@@ -137,42 +137,12 @@ export class Profiler extends System {
     }
 
     init () {
-        this.reset();
         const showFPS = !!settings.querySettings(Settings.Category.PROFILING, 'showFPS');
         if (showFPS) {
             this.showStats();
         } else {
             this.hideStats();
         }
-    }
-
-    public reset () {
-        this._stats = null;
-
-        this._showFPS = false;
-
-        this._rootNode = null;
-        this._device = null;
-        this._swapchain = null;
-        this._pipeline = null!;
-        if (this._meshRenderer) {
-            this._meshRenderer.destroy();
-        }
-        this._meshRenderer = null!;
-        this.digitsData = null!;
-        this.offsetData = null!;
-        this.pass = null!;
-
-        this._canvasDone = false;
-        this._statsDone = false;
-        this._inited = false;
-
-        this._lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
-        this._wordHeight = 0;
-        this._eachNumWidth = 0;
-        this._totalLines = 0; // total lines to display
-
-        this.lastTime = 0;   // update use time
     }
 
     public isShowingStats () {
@@ -211,6 +181,7 @@ export class Profiler extends System {
             this.generateStats();
             if (!EDITOR || legacyCC.GAME_VIEW) {
                 legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+                legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             } else {
                 this._inited = true;
             }
@@ -437,7 +408,11 @@ export class Profiler extends System {
             this.pass._rootBufferDirty = true;
         }
 
-        if (this._meshRenderer.model) director.root!.pipeline.profiler = this._meshRenderer.model;
+        if (this._meshRenderer.model) {
+            director.root!.pipeline.profiler = this._meshRenderer.model;
+        } else {
+            director.root!.pipeline.profiler = null;
+        }
 
         const now = performance.now();
         (this._stats.render.counter as PerfCounter).start(now);

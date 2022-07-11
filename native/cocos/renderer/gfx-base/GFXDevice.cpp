@@ -62,9 +62,9 @@ bool Device::initialize(const DeviceInfo &info) {
 #endif
 
     bool result = doInit(info);
-    _cmdBuff->addRef();
-    _queue->addRef();
 
+    CC_SAFE_ADD_REF(_cmdBuff);
+    CC_SAFE_ADD_REF(_queue);
     return result;
 }
 
@@ -95,7 +95,6 @@ void Device::destroy() {
 }
 
 void Device::destroySurface(void *windowHandle) {
-    setRendererAvailable(false);
     for (const auto &swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
@@ -111,7 +110,6 @@ void Device::createSurface(void *windowHandle) {
             break;
         }
     }
-    setRendererAvailable(true);
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {

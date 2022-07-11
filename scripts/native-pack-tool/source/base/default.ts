@@ -133,7 +133,7 @@ export abstract class NativePackTool {
     protected tryReadProjectTemplateVersion(): { version: string, skipCheck: boolean | undefined } | null {
         const versionJsonPath = this.projEngineVersionPath;
         if (!fs.existsSync(versionJsonPath)) {
-            console.warn(`${versionJsonPath} not exists`);
+            console.log(`warning: ${versionJsonPath} not exists`);
             return null;
         }
         try {
@@ -255,7 +255,7 @@ export abstract class NativePackTool {
 
             const newerThanEngineVersion = this.versionParser.parse(`>${engineVersion}`);
             if (newerThanEngineVersion.match(projEngineVersion)) {
-                console.warn(`warning: ${projEngineVersion} is newer than engine version ${engineVersion}`);
+                console.log(`warning: ${projEngineVersion} is newer than engine version ${engineVersion}`);
             }
             return true;
         }

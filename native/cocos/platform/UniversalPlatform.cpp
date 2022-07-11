@@ -116,7 +116,7 @@ void UniversalPlatform::onResume() {
 void UniversalPlatform::onClose() {
 }
 
-void UniversalPlatform::onDestory() {
+void UniversalPlatform::onDestroy() {
     cocos_destory();
 }
 

@@ -139,8 +139,8 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
 
     // Query the first camera rendering to swapchain.
     for (const auto *camera : cameras) {
-        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain() ) {
-            const_cast<scene::Camera*>(camera)->initGeometryRenderer();
+        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain()) {
+            const_cast<scene::Camera *>(camera)->initGeometryRenderer();
             _geometryRenderer = camera->getGeometryRenderer();
             return;
         }
@@ -176,8 +176,6 @@ bool RenderPipeline::destroy() {
     _commandBuffers.clear();
 
     PipelineStateManager::destroyAll();
-    BatchedBuffer::destroyBatchedBuffer();
-    InstancedBuffer::destroyInstancedBuffer();
     framegraph::FrameGraph::gc(0);
 
     return Super::destroy();

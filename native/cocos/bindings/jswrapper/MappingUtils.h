@@ -40,6 +40,8 @@ public:
     static bool init();
     static void destroy();
 
+    static bool isValid();
+
     static Map::iterator find(void *nativeObj);
     static Map::iterator erase(Map::iterator iter);
     static void erase(void *nativeObj);
@@ -53,7 +55,8 @@ public:
 
 private:
     static void emplace(void *nativeObj, Object *seObj);
-    static Map *__nativePtrToObjectMap;
+    static Map *__nativePtrToObjectMap; // NOLINT
+    static bool __isValid;              // NOLINT
 
     friend class Object;
 };

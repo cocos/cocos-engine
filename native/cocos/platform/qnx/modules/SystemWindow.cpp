@@ -115,7 +115,7 @@ bool SystemWindow::createWindow(const char *title,
     return true;
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
+uintptr_t SystemWindow::getWindowHandle() const {
     return reinterpret_cast<uintptr_t>(_screenWin);
 }
 

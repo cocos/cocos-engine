@@ -628,5 +628,18 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
     return size;
 }
 
+uint32_t gcd(uint32_t a, uint32_t b) {
+    while (b) {
+        uint32_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+uint32_t lcm(uint32_t a, uint32_t b) {
+    return a * b / gcd(a, b);
+}
+
 } // namespace gfx
 } // namespace cc

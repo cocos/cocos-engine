@@ -594,9 +594,11 @@ bool AudioEngine::isEnabled() {
 }
 
 PCMHeader AudioEngine::getPCMHeader(const char *url) {
+    lazyInit();
     return sAudioEngineImpl->getPCMHeader(url);
 }
 ccstd::vector<uint8_t> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    lazyInit();
     return sAudioEngineImpl->getOriginalPCMBuffer(url, channelID);
 }
 } // namespace cc

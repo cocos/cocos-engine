@@ -431,9 +431,10 @@ bool register_all_dragonbones_manual(se::Object *obj) {
 
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
         //ccstd::string typeName = typeid(*obj).name();
-
+        if (!se::NativePtrToObjectMap::isValid()) {
+            return;
+        }
         se::Object *seObj = nullptr;
-
         auto iter = se::NativePtrToObjectMap::find(obj);
         if (iter != se::NativePtrToObjectMap::end()) {
             // Save se::Object pointer for being used in cleanup method.

@@ -123,7 +123,7 @@ public:
     virtual void setXXTeaKey(const ccstd::string &key);
 
 private:
-    ISystemWindow *_systemWidow{nullptr};
+    ISystemWindow *_systemWindow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };
 } // namespace cc

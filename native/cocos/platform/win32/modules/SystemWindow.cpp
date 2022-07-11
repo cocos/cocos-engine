@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "platform/win32/modules/SystemWindow.h"
+#include <Windows.h>
 #include <functional>
 #include "base/Log.h"
 #include "bindings/event/EventDispatcher.h"
@@ -68,9 +69,14 @@ bool SystemWindow::createWindow(const char *title,
     _height = h;
     return true;
 }
-
-uintptr_t SystemWindow::getWindowHandler() const {
-    return _sdl->getWindowHandler();
+void SystemWindow::closeWindow() {
+    HWND windowHandle = reinterpret_cast<HWND>(getWindowHandle());
+    if (windowHandle != 0) {
+        ::SendMessageA(windowHandle, WM_CLOSE, 0, 0);
+    }
+}
+uintptr_t SystemWindow::getWindowHandle() const {
+    return _sdl->getWindowHandle();
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

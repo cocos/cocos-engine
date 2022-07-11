@@ -33,8 +33,8 @@ export class MacPackTool extends MacOSPackTool {
         }
 
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
-        const cmakeArgs = ['-S', `${this.paths.platformTemplateDirInPrj}`, '-GXcode', '-T', `buildsystem=${ver}`,
-                           `-B${nativePrjDir}`, '-DCMAKE_SYSTEM_NAME=Darwin'];
+        const cmakeArgs = ['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', '-T', `buildsystem=${ver}`,
+                           `-B"${nativePrjDir}"`, '-DCMAKE_SYSTEM_NAME=Darwin'];
         this.appendCmakeResDirArgs(cmakeArgs);
 
         await toolHelper.runCmake(cmakeArgs);
@@ -47,7 +47,7 @@ export class MacPackTool extends MacOSPackTool {
         const nativePrjDir = this.paths.nativePrjDir;
 
         const platform = this.isAppleSilicon() ? `-arch arm64` : `-arch x86_64`;
-        await toolHelper.runCmake(["--build", `${nativePrjDir}`, "--config", this.params.debug ? 'Debug' : 'Release', "--", "-quiet", platform]);
+        await toolHelper.runCmake(["--build", `"${nativePrjDir}"`, "--config", this.params.debug ? 'Debug' : 'Release', "--", "-quiet", platform]);
         return true;
     }
 
@@ -59,7 +59,7 @@ export class MacPackTool extends MacOSPackTool {
     private macOpen(app: string) {
         return new Promise<void>((resolve, reject) => {
             console.log(`open ${app}`);
-            const cp = spawn(`open`, [app], {
+            const cp = spawn(`open`, [`"${app}"`], {
                 shell: true,
                 env: process.env,
             });

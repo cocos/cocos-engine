@@ -43,15 +43,19 @@ function applyAreaMask (mask: Mask, renderer: IBatcher) {
         const mat = mask.graphics!.getMaterialInstance(0)!;
         renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
     } else {
-        mask.graphics!.updateAssembler(renderer);
+        // mask.graphics!.updateAssembler(renderer);
     }
 }
 
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
+        renderData.vertexRow = 2;
+        renderData.vertexCol = 2;
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
@@ -70,7 +74,7 @@ export const maskAssembler: IAssembler = {
             applyClearMask(mask, renderer);
             applyAreaMask(mask, renderer);
 
-            _stencilManager.enableMask();
+            // _stencilManager.enableMask();
         }
     },
 };
@@ -93,5 +97,18 @@ const PostAssembler: IAssemblerManager = {
     },
 };
 
+const childPostAssembler: IAssemblerManager = {
+    getAssembler () {
+        return childEndAssembler;
+    },
+};
+
+export const childEndAssembler: IAssembler = {
+    fillBuffers (graphics: any, ui: IBatcher) {
+        _stencilManager.enableMask();
+    },
+};
+
 Mask.Assembler = StartAssembler;
 Mask.PostAssembler = PostAssembler;
+Mask.ChildPostAssembler = childPostAssembler;

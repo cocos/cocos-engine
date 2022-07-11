@@ -35,8 +35,8 @@ class SystemWindow : public ISystemWindow {
 public:
     SystemWindow() = default;
     ~SystemWindow() override;
-
-    uintptr_t getWindowHandler() const override;
+    void closeWindow() override;
+    uintptr_t getWindowHandle() const override;
 
     Size getViewSize() const override;
     /*

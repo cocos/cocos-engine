@@ -61,7 +61,9 @@ export class Pacer {
                 if (this._onTick) {
                     this._onTick();
                 }
-                this._rafHandle = this._rAF.call(window, updateCallback);
+                if (this._isPlaying) {
+                    this._rafHandle = this._rAF.call(window, updateCallback);
+                }
             };
             this._rafHandle = this._rAF.call(window, updateCallback);
         } else {
@@ -70,7 +72,9 @@ export class Pacer {
                 if (this._onTick) {
                     this._onTick();
                 }
-                this._stHandle = this._stTime(updateCallback);
+                if (this._isPlaying) {
+                    this._stHandle = this._stTime(updateCallback);
+                }
             };
             this._startTime = performance.now();
             this._stHandle = this._stTime(updateCallback);
@@ -82,6 +86,7 @@ export class Pacer {
         if (!this._isPlaying) return;
         this._cAF.call(window, this._rafHandle);
         this._ctTime(this._stHandle);
+        this._rafHandle = this._stHandle = 0;
         this._isPlaying = false;
     }
 

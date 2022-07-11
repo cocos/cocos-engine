@@ -96,7 +96,7 @@ int32_t LinuxPlatform::loop() {
         }
     }
 
-    onDestory();
+    onDestroy();
     return 0;
 }
 

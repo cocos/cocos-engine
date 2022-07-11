@@ -99,7 +99,7 @@
     //    delete _game;
     //FIXME: will crash if relase it here.
     // [_window release];
-    _platform->onDestory();
+    _platform->onDestroy();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication {

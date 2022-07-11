@@ -39,10 +39,71 @@
     #define JSB_FREE(ptr) delete ptr
 #endif
 
-static se::Object *nodeVec3CacheObj{nullptr};
-static se::Object *nodeQuatCacheObj{nullptr};
-static se::Object *nodeMat4CacheObj{nullptr};
-static float *tempFloatArray{nullptr};
+namespace {
+
+class TempFloatArray final {
+public:
+    TempFloatArray() = default;
+    ~TempFloatArray() = default;
+
+    inline void setData(float *data) { _data = data; }
+
+    inline void writeVec3(const cc::Vec3 &p) {
+        _data[0] = p.x;
+        _data[1] = p.y;
+        _data[2] = p.z;
+    }
+
+    inline cc::Vec3 readVec3() const {
+        return cc::Vec3{_data[0], _data[1], _data[2]};
+    }
+
+    inline void writeQuaternion(const cc::Quaternion &p) {
+        _data[0] = p.x;
+        _data[1] = p.y;
+        _data[2] = p.z;
+        _data[3] = p.w;
+    }
+
+    inline cc::Quaternion readQuaternion() const {
+        return cc::Quaternion{_data[0], _data[1], _data[2], _data[3]};
+    }
+
+    inline void writeMat4(const cc::Mat4 &m) {
+        memcpy(_data, m.m, sizeof(float) * 16);
+    }
+
+    inline cc::Mat4 readMat4() const {
+        cc::Mat4 ret;
+        memcpy(ret.m, _data, sizeof(float) * 16);
+        return ret;
+    }
+
+    inline void writeRay(const cc::geometry::Ray &ray) {
+        _data[0] = ray.o.x;
+        _data[1] = ray.o.y;
+        _data[2] = ray.o.z;
+        _data[3] = ray.d.x;
+        _data[4] = ray.d.y;
+        _data[5] = ray.d.z;
+    }
+
+    inline cc::geometry::Ray readRay() const {
+        return cc::geometry::Ray{_data[0], _data[1], _data[2], _data[3], _data[4], _data[5]};
+    }
+
+    inline const float &operator[](size_t index) const { return _data[index]; }
+    inline float &operator[](size_t index) { return _data[index]; }
+
+private:
+    float *_data{nullptr};
+
+    CC_DISALLOW_ASSIGN(TempFloatArray)
+};
+
+TempFloatArray tempFloatArray;
+
+} // namespace
 
 static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -362,65 +423,11 @@ static bool js_scene_Node_registerOnSiblingOrderChanged(se::State &s) // NOLINT(
 }
 SE_BIND_FUNC(js_scene_Node_registerOnSiblingOrderChanged) // NOLINT(readability-identifier-naming)
 
-static bool scene_Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
-    if (!nodeVec3CacheObj) {
-        nodeVec3CacheObj = se::Object::createPlainObject();
-        nodeVec3CacheObj->root();
-    }
-    se::Object *obj(nodeVec3CacheObj);
-    obj->setProperty("x", se::Value(v.x));
-    obj->setProperty("y", se::Value(v.y));
-    obj->setProperty("z", se::Value(v.z));
-    ret->setObject(obj);
-
-    return true;
-}
-
-static bool scene_Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
-    if (!nodeQuatCacheObj) {
-        nodeQuatCacheObj = se::Object::createPlainObject();
-        nodeQuatCacheObj->root();
-    }
-    se::Object *obj(nodeQuatCacheObj);
-    obj->setProperty("x", se::Value(v.x));
-    obj->setProperty("y", se::Value(v.y));
-    obj->setProperty("z", se::Value(v.z));
-    obj->setProperty("w", se::Value(v.w));
-    ret->setObject(obj);
-
-    return true;
-}
-
-static bool scene_Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
-    if (!nodeMat4CacheObj) {
-        nodeMat4CacheObj = se::Object::createPlainObject();
-        nodeMat4CacheObj->root();
-    }
-    se::Object *obj(nodeMat4CacheObj);
-
-    char keybuf[8] = {0};
-    for (auto i = 0; i < 16; i++) {
-        snprintf(keybuf, sizeof(keybuf), "m%02d", i);
-        obj->setProperty(keybuf, se::Value(v.m[i]));
-    }
-    ret->setObject(obj);
-
-    return true;
-}
-
 static bool js_scene_Camera_screenPointToRay(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
     cc::geometry::Ray ray = cobj->screenPointToRay(tempFloatArray[0], tempFloatArray[1]);
-    tempFloatArray[0] = ray.o.x;
-    tempFloatArray[1] = ray.o.y;
-    tempFloatArray[2] = ray.o.z;
-    tempFloatArray[3] = ray.d.x;
-    tempFloatArray[4] = ray.d.y;
-    tempFloatArray[5] = ray.d.z;
+    tempFloatArray.writeRay(ray);
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Camera_screenPointToRay)
@@ -428,10 +435,8 @@ SE_BIND_FUNC_FAST(js_scene_Camera_screenPointToRay)
 static bool js_scene_Camera_screenToWorld(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
-    cc::Vec3 ret = cobj->screenToWorld(cc::Vec3{tempFloatArray[0], tempFloatArray[1], tempFloatArray[2]});
-    tempFloatArray[0] = ret.x;
-    tempFloatArray[1] = ret.y;
-    tempFloatArray[2] = ret.z;
+    cc::Vec3 ret = cobj->screenToWorld(tempFloatArray.readVec3());
+    tempFloatArray.writeVec3(ret);
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Camera_screenToWorld)
@@ -439,10 +444,8 @@ SE_BIND_FUNC_FAST(js_scene_Camera_screenToWorld)
 static bool js_scene_Camera_worldToScreen(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
-    cc::Vec3 ret = cobj->worldToScreen(cc::Vec3{tempFloatArray[0], tempFloatArray[1], tempFloatArray[2]});
-    tempFloatArray[0] = ret.x;
-    tempFloatArray[1] = ret.y;
-    tempFloatArray[2] = ret.z;
+    cc::Vec3 ret = cobj->worldToScreen(tempFloatArray.readVec3());
+    tempFloatArray.writeVec3(ret);
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Camera_worldToScreen)
@@ -450,25 +453,12 @@ SE_BIND_FUNC_FAST(js_scene_Camera_worldToScreen)
 static bool js_scene_Camera_worldMatrixToScreen(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
-
-    cc::Mat4 worldMatrix;
-    memcpy(worldMatrix.m, tempFloatArray, sizeof(float) * 16);
+    cc::Mat4 worldMatrix = tempFloatArray.readMat4();
     cc::Mat4 ret = cobj->worldMatrixToScreen(worldMatrix, static_cast<uint32_t>(tempFloatArray[16]), static_cast<uint32_t>(tempFloatArray[17]));
-    memcpy(tempFloatArray, ret.m, sizeof(float) * 16);
+    tempFloatArray.writeMat4(ret);
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Camera_worldMatrixToScreen)
-
-static bool js_scene_Node_getPosition(void *nativeObj) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = reinterpret_cast<cc::Node *>(nativeObj);
-    const cc::Vec3 &result = cobj->getPosition();
-    tempFloatArray[0] = result.x;
-    tempFloatArray[1] = result.y;
-    tempFloatArray[2] = result.z;
-    return true;
-}
-SE_BIND_FUNC_FAST(js_scene_Node_getPosition)
 
 static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -478,7 +468,7 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
     if (argc == 1) {
         uint8_t *buffer = nullptr;
         args[0].toObject()->getArrayBufferData(&buffer, nullptr);
-        tempFloatArray = reinterpret_cast<float *>(buffer);
+        tempFloatArray.setData(reinterpret_cast<float *>(buffer));
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -486,62 +476,41 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Node_setTempFloatArray)
 
-static bool js_scene_Node_getRight(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getRight : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Vec3 result = cobj->getRight();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getRight : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getRight)
+#define FAST_GET_VALUE(ns, className, method, type)                   \
+    static bool js_scene_##className##_##method(void *nativeObject) { \
+        auto *cobj = reinterpret_cast<ns::className *>(nativeObject); \
+        auto result = cobj->method();                                 \
+        tempFloatArray.write##type(result);                           \
+        return true;                                                  \
+    }                                                                 \
+    SE_BIND_FUNC_FAST(js_scene_##className##_##method)
 
-static bool js_scene_Node_getRotation(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getRotation : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::Quaternion &result = cobj->getRotation();
-        ok &= scene_Quaternion_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getRotation : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getRotation)
+#define FAST_GET_CONST_REF(ns, className, method, type)               \
+    static bool js_scene_##className##_##method(void *nativeObject) { \
+        auto *cobj = reinterpret_cast<ns::className *>(nativeObject); \
+        const auto &result = cobj->method();                          \
+        tempFloatArray.write##type(result);                           \
+        return true;                                                  \
+    }                                                                 \
+    SE_BIND_FUNC_FAST(js_scene_##className##_##method)
 
-static bool js_scene_Node_getScale(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getScale : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::Vec3 &result = cobj->getScale();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getScale : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getScale)
+FAST_GET_VALUE(cc, Node, getRight, Vec3)
+FAST_GET_VALUE(cc, Node, getForward, Vec3)
+FAST_GET_VALUE(cc, Node, getUp, Vec3)
+FAST_GET_VALUE(cc, Node, getWorldRS, Mat4)
+FAST_GET_VALUE(cc, Node, getWorldRT, Mat4)
+
+FAST_GET_CONST_REF(cc, Node, getWorldPosition, Vec3)
+FAST_GET_CONST_REF(cc, Node, getWorldRotation, Quaternion)
+FAST_GET_CONST_REF(cc, Node, getWorldScale, Vec3)
+FAST_GET_CONST_REF(cc, Node, getWorldMatrix, Mat4)
+FAST_GET_CONST_REF(cc, Node, getEulerAngles, Vec3)
+
+FAST_GET_CONST_REF(cc::scene, Camera, getMatView, Mat4)
+FAST_GET_CONST_REF(cc::scene, Camera, getMatProj, Mat4)
+FAST_GET_CONST_REF(cc::scene, Camera, getMatProjInv, Mat4)
+FAST_GET_CONST_REF(cc::scene, Camera, getMatViewProj, Mat4)
+FAST_GET_CONST_REF(cc::scene, Camera, getMatViewProjInv, Mat4)
 
 static bool js_scene_Node_setPosition(void *s) // NOLINT(readability-identifier-naming)
 {
@@ -549,7 +518,6 @@ static bool js_scene_Node_setPosition(void *s) // NOLINT(readability-identifier-
     auto argc = static_cast<size_t>(tempFloatArray[0]);
     if (argc == 2) {
         cobj->setPositionInternal(tempFloatArray[1], tempFloatArray[2], true);
-
     } else {
         cobj->setPositionInternal(tempFloatArray[1], tempFloatArray[2], tempFloatArray[3], true);
     }
@@ -624,174 +592,19 @@ static bool js_scene_Node_rotateForJS(void *s) // NOLINT(readability-identifier-
     }
 
     const auto &lrot = cobj->getRotation();
-    tempFloatArray[0] = lrot.x;
-    tempFloatArray[1] = lrot.y;
-    tempFloatArray[2] = lrot.z;
-    tempFloatArray[3] = lrot.w;
+    tempFloatArray.writeQuaternion(lrot);
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Node_rotateForJS)
 
-static bool js_scene_Node_getUp(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getUp : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Vec3 result = cobj->getUp();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getUp : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getUp)
-
-static bool js_scene_Node_getWorldMatrix(void *nativeObject) // NOLINT(readability-identifier-naming)
+static bool js_scene_Node_inverseTransformPoint(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::Node *>(nativeObject);
-    const cc::Mat4 &result = cobj->getWorldMatrix();
-    memcpy(tempFloatArray, result.m, sizeof(result.m));
+    auto p = cobj->inverseTransformPoint(tempFloatArray.readVec3());
+    tempFloatArray.writeVec3(p);
     return true;
 }
-SE_BIND_FUNC_FAST(js_scene_Node_getWorldMatrix)
-
-static bool js_scene_Node_getWorldPosition(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldPosition : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::Vec3 &result = cobj->getWorldPosition();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getWorldPosition : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getWorldPosition)
-
-static bool js_scene_Node_getWorldRS(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldRS : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Mat4 result = cobj->getWorldRS();
-        ok &= scene_Mat4_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getWorldRS : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getWorldRS)
-
-static bool js_scene_Node_getWorldRT(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldRT : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Mat4 result = cobj->getWorldRT();
-        ok &= scene_Mat4_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getWorldRT : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getWorldRT)
-
-static bool js_scene_Node_getWorldRotation(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldRotation : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::Quaternion &result = cobj->getWorldRotation();
-        ok &= scene_Quaternion_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getWorldRotation : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getWorldRotation)
-
-static bool js_scene_Node_getWorldScale(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldScale : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::Vec3 &result = cobj->getWorldScale();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getWorldScale : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getWorldScale)
-
-static bool js_scene_Node_getEulerAngles(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getEulerAngles : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::Vec3 &result = cobj->getEulerAngles();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getEulerAngles : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getEulerAngles)
-
-static bool js_scene_Node_getForward(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getForward : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Vec3 result = cobj->getForward();
-        ok &= scene_Vec3_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getForward : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getForward)
+SE_BIND_FUNC_FAST(js_scene_Node_inverseTransformPoint)
 
 static bool js_scene_Pass_blocks_getter(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
@@ -979,25 +792,6 @@ static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT
 }
 SE_BIND_FUNC(js_assets_MaterialInstance_registerListeners) // NOLINT(readability-identifier-naming)
 
-#define BIND_CAMERA_MAT_GETTER(name) \
-static bool js_scene_Camera_getMat##name(se::State& s) \
-{ \
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s); \
-    SE_PRECONDITION2(cobj, false, "js_scene_Camera_getMat : Invalid Native Object"); \
-    const cc::Mat4& result = cobj->getMat##name(); \
-    memcpy(tempFloatArray, result.m, sizeof(result.m)); \
-    return true; \
-} \
-SE_BIND_FUNC(js_scene_Camera_getMat##name)
-
-BIND_CAMERA_MAT_GETTER(View)
-BIND_CAMERA_MAT_GETTER(Proj)
-BIND_CAMERA_MAT_GETTER(ProjInv)
-BIND_CAMERA_MAT_GETTER(ViewProj)
-BIND_CAMERA_MAT_GETTER(ViewProjInv)
-
-#undef BIND_CAMERA_MAT_GETTER
-
 bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier-naming)
 {
     // Get the ns
@@ -1007,21 +801,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
         nsVal.setObject(jsobj);
         obj->setProperty("ns", nsVal);
     }
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-
-// NOLINTNEXTLINE(readability-identifier-naming, bugprone-reserved-identifier)
-#define _SAFE_UNROOT_AND_DEC(obj) \
-    if ((obj) != nullptr) {       \
-        (obj)->unroot();          \
-        (obj)->decRef();          \
-        (obj) = nullptr;          \
-    }
-        _SAFE_UNROOT_AND_DEC(nodeVec3CacheObj);
-        _SAFE_UNROOT_AND_DEC(nodeQuatCacheObj);
-        _SAFE_UNROOT_AND_DEC(nodeMat4CacheObj);
-
-#undef _SAFE_UNROOT_AND_DEC
-    });
 
     __jsb_cc_Root_proto->defineFunction("_registerListeners", _SE(js_root_registerListeners));
 
@@ -1035,7 +814,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_scene_Camera_proto->defineFunction("getMatProjInv", _SE(js_scene_Camera_getMatProjInv));
     __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProj", _SE(js_scene_Camera_getMatViewProj));
     __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProjInv", _SE(js_scene_Camera_getMatViewProjInv));
-
 
     // Node TS wrapper will invoke this function to let native object listen some events.
     __jsb_cc_Node_proto->defineFunction("_registerListeners", _SE(js_scene_Node_registerListeners));
@@ -1054,25 +832,27 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
 
     nodeVal.toObject()->defineFunction("_setTempFloatArray", _SE(js_scene_Node_setTempFloatArray));
 
-    __jsb_cc_Node_proto->defineFunction("getPosition", _SE(js_scene_Node_getPosition));
-    __jsb_cc_Node_proto->defineFunction("getRotation", _SE(js_scene_Node_getRotation));
-    __jsb_cc_Node_proto->defineFunction("setRotation", _SE(js_scene_Node_setRotation));
-    __jsb_cc_Node_proto->defineFunction("setRotationFromEuler", _SE(js_scene_Node_setRotationFromEuler));
-    __jsb_cc_Node_proto->defineFunction("getScale", _SE(js_scene_Node_getScale));
-    __jsb_cc_Node_proto->defineFunction("getEulerAngles", _SE(js_scene_Node_getEulerAngles));
-    __jsb_cc_Node_proto->defineFunction("getForward", _SE(js_scene_Node_getForward));
-    __jsb_cc_Node_proto->defineFunction("getUp", _SE(js_scene_Node_getUp));
-    __jsb_cc_Node_proto->defineFunction("getRight", _SE(js_scene_Node_getRight));
-    __jsb_cc_Node_proto->defineFunction("getWorldMatrix", _SE(js_scene_Node_getWorldMatrix));
-    __jsb_cc_Node_proto->defineFunction("getWorldPosition", _SE(js_scene_Node_getWorldPosition));
-    __jsb_cc_Node_proto->defineFunction("getWorldRS", _SE(js_scene_Node_getWorldRS));
-    __jsb_cc_Node_proto->defineFunction("getWorldRT", _SE(js_scene_Node_getWorldRT));
-    __jsb_cc_Node_proto->defineFunction("getWorldRotation", _SE(js_scene_Node_getWorldRotation));
-    __jsb_cc_Node_proto->defineFunction("getWorldScale", _SE(js_scene_Node_getWorldScale));
-    __jsb_cc_Node_proto->defineFunction("setPosition", _SE(js_scene_Node_setPosition));
-    __jsb_cc_Node_proto->defineFunction("setScale", _SE(js_scene_Node_setScale));
-    __jsb_cc_Node_proto->defineFunction("rotateForJS", _SE(js_scene_Node_rotateForJS));
-    __jsb_cc_Node_proto->defineFunction("setRTS", _SE(js_scene_Node_setRTS));
+    __jsb_cc_Node_proto->defineFunction("_setPosition", _SE(js_scene_Node_setPosition));
+    __jsb_cc_Node_proto->defineFunction("_setScale", _SE(js_scene_Node_setScale));
+    __jsb_cc_Node_proto->defineFunction("_setRotation", _SE(js_scene_Node_setRotation));
+    __jsb_cc_Node_proto->defineFunction("_setRotationFromEuler", _SE(js_scene_Node_setRotationFromEuler));
+    __jsb_cc_Node_proto->defineFunction("_rotateForJS", _SE(js_scene_Node_rotateForJS));
+
+    __jsb_cc_Node_proto->defineFunction("_getEulerAngles", _SE(js_scene_Node_getEulerAngles));
+    __jsb_cc_Node_proto->defineFunction("_getForward", _SE(js_scene_Node_getForward));
+    __jsb_cc_Node_proto->defineFunction("_getUp", _SE(js_scene_Node_getUp));
+    __jsb_cc_Node_proto->defineFunction("_getRight", _SE(js_scene_Node_getRight));
+
+    __jsb_cc_Node_proto->defineFunction("_getWorldPosition", _SE(js_scene_Node_getWorldPosition));
+    __jsb_cc_Node_proto->defineFunction("_getWorldRotation", _SE(js_scene_Node_getWorldRotation));
+    __jsb_cc_Node_proto->defineFunction("_getWorldScale", _SE(js_scene_Node_getWorldScale));
+
+    __jsb_cc_Node_proto->defineFunction("_getWorldMatrix", _SE(js_scene_Node_getWorldMatrix));
+    __jsb_cc_Node_proto->defineFunction("_getWorldRS", _SE(js_scene_Node_getWorldRS));
+    __jsb_cc_Node_proto->defineFunction("_getWorldRT", _SE(js_scene_Node_getWorldRT));
+
+    __jsb_cc_Node_proto->defineFunction("_setRTS", _SE(js_scene_Node_setRTS));
+    __jsb_cc_Node_proto->defineFunction("_inverseTransformPoint", _SE(js_scene_Node_inverseTransformPoint));
 
     __jsb_cc_scene_Pass_proto->defineProperty("blocks", _SE(js_scene_Pass_blocks_getter), nullptr);
 

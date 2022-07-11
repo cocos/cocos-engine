@@ -89,8 +89,8 @@ export class PackManager {
                 out[`${pack[i]}@import`] = json[i];
             }
         } else {
-            const textureType = js._getClassId(Texture2D);
-            const imageAssetType = js._getClassId(ImageAsset);
+            const textureType = js.getClassId(Texture2D);
+            const imageAssetType = js.getClassId(ImageAsset);
             if (json.type === textureType && json.data) {
                 const datas = json.data;
                 if (datas.length !== pack.length) {
