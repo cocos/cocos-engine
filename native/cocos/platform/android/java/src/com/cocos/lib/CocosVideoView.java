@@ -114,6 +114,8 @@ public class CocosVideoView extends SurfaceView {
     // MediaPlayer will be released when surface view is destroyed, so should record the position,
     // and use it to play after MedialPlayer is created again.
     private int mPositionBeforeRelease = 0;
+    // also need to record play state when surface is destroyed.
+    private State mStateBeforeRelease = State.IDLE;
 
     // ===========================================================
     // Constructors
@@ -476,11 +478,16 @@ public class CocosVideoView extends SurfaceView {
 
             mCurrentState = State.PREPARED;
 
-            if (mPositionBeforeRelease > 0) {
+            if (mStateBeforeRelease == State.STARTED) {
                 CocosVideoView.this.start();
-                CocosVideoView.this.seekTo(mPositionBeforeRelease);
-                mPositionBeforeRelease = 0;
             }
+
+            if (mPositionBeforeRelease > 0) {
+                CocosVideoView.this.seekTo(mPositionBeforeRelease);
+            }
+
+            mStateBeforeRelease = State.IDLE;
+            mPositionBeforeRelease = 0;
         }
     };
 
@@ -560,6 +567,7 @@ public class CocosVideoView extends SurfaceView {
             // after we return from this we can't use the surface any more
             mSurfaceHolder = null;
             mPositionBeforeRelease = getCurrentPosition();
+            mStateBeforeRelease = mCurrentState;
             CocosVideoView.this.release();
         }
     };
