@@ -705,7 +705,6 @@ export class UIRenderer extends Renderer {
     // it should be overwritten by inherited classes
     protected initRenderEntity () {
         this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.STATIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
     }
 
     private disposeRenderEntity () {

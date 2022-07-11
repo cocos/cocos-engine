@@ -38,12 +38,6 @@ StencilManager* StencilManager::getInstance() {
     return instance;
 }
 
-StencilManager::StencilManager(/* args */) {
-    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_stencilSharedBuffer, sizeof(StencilEntity), [](void* a, size_t b, void* c) {});
-    _stencilSharedBuffer = ccnew ArrayBuffer();
-    _stencilSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
-}
-
 StencilManager::~StencilManager() {
     for (auto pair : _cacheStateMap) {
         CC_SAFE_DELETE(pair.second);
