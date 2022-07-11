@@ -25,13 +25,13 @@
 
 #include "core/scene-graph/Node.h"
 #include "base/StringUtil.h"
+#include "bindings/jswrapper/SeApi.h"
 #include "core/data/Object.h"
 #include "core/memop/CachedArray.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/NodeEnum.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
-#include "bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
@@ -80,7 +80,7 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 
 Node::Node(const ccstd::string &name) {
     static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == 20, "Shared memory should be 20 bytes");
-    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(&_eventMask, 20, [](void *, size_t, void *){});
+    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(&_eventMask, 20, [](void *, size_t, void *) {});
     _sharedArrayBufferObject->root();
 
     _id = idGenerator.getNewId();
