@@ -45,6 +45,7 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { IAssemblerManager } from '../renderer/base';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { Sprite } from './sprite';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -117,6 +118,7 @@ const SEGMENTS_MAX = 10000;
 @executionOrder(110)
 @menu('2D/Mask')
 export class Mask extends UIRenderer {
+    // only for the mask use to reset stage
     public static ChildPostAssembler: IAssemblerManager | null = null;
     /**
      * @en
@@ -136,28 +138,25 @@ export class Mask extends UIRenderer {
             return;
         }
 
-        // if (this._type === MaskType.IMAGE_STENCIL && !this._spriteFrame) {
-        //     this._detachClearModel();
-        // }
-
         this._type = value;
         this.markForUpdateRenderData(false);
         this._updateMaterial();
 
         if (this._type !== MaskType.IMAGE_STENCIL) {
+            if (this._sprite) {
+                this._sprite = null;
+            }
             this._spriteFrame = null;
+            this._maskNode!.parent = null;
+            this._changeRenderType();
             this._updateGraphics();
-            // keep renderData to transport renderDrawInfo
-            // if (this.renderData) {
-            //     this.destroyRenderData();
-            //     this.renderData = null;
-            // }
         } else {
-            this._useRenderData();
-
             if (this._graphics) {
                 this._graphics.clear();
+                this._graphics = null;
             }
+            this._maskNode!.parent = null;
+            this._changeRenderType();
         }
     }
 
@@ -179,6 +178,8 @@ export class Mask extends UIRenderer {
         this.stencilStage = Stage.DISABLED;
         if (this._graphics) {
             this._graphics.stencilStage = Stage.DISABLED;
+        } else if (this._sprite) {
+            this._sprite.stencilStage = Stage.DISABLED;
         }
 
         if (JSB) {
@@ -232,13 +233,13 @@ export class Mask extends UIRenderer {
             return;
         }
 
-        const lastSp = this._spriteFrame;
         this._spriteFrame = value;
-        if (this._type === MaskType.IMAGE_STENCIL) {
-            if (!lastSp && value) {
-                this.markForUpdateRenderData();
-            }
+
+        if (this._sprite) {
+            this._sprite.spriteFrame = value;
+            this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
         }
+        this._updateMaterial();
     }
 
     /**
@@ -269,40 +270,14 @@ export class Mask extends UIRenderer {
         }
 
         this._alphaThreshold = value;
-        if (this.type === MaskType.IMAGE_STENCIL && this._graphics) {
-            const mat = this._graphics.getMaterialInstance(0)!;
+        if (this.type === MaskType.IMAGE_STENCIL && this._sprite) {
+            const mat = this._sprite.getMaterialInstance(0)!;
             mat.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
 
-    get graphics () {
-        return this._graphics;
-    }
-
-    get dstBlendFactor () {
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value) {
-        if (this._dstBlendFactor === value) {
-            return;
-        }
-
-        this._dstBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    get srcBlendFactor () {
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value) {
-        if (this._srcBlendFactor === value) {
-            return;
-        }
-
-        this._srcBlendFactor = value;
-        this._updateBlendFunc();
+    get subComp () {
+        return this._graphics || this._sprite;
     }
 
     @override
@@ -313,12 +288,7 @@ export class Mask extends UIRenderer {
     }
 
     set color (value) {
-        if (this._color === value) {
-            return;
-        }
-
-        this._color.set(value);
-        this.markForUpdateRenderData();
+        super.color = value;
     }
 
     @override
@@ -351,15 +321,18 @@ export class Mask extends UIRenderer {
     @serializable
     protected _segments = 64;
 
+    // for image stencil
     @serializable
     protected _spriteFrame: SpriteFrame | null = null;
 
     @serializable
     protected _alphaThreshold = 0.1;
 
+    protected _sprite: Sprite | null = null;
     protected _graphics: Graphics | null = null;
-    protected _maskNode: Node | null = null;
+    protected _maskNode: Node | null = null; // child node,is graphics or sprite
 
+    // always use
     private _clearModelMesh: RenderingSubMesh | null = null;
 
     constructor () {
@@ -369,9 +342,9 @@ export class Mask extends UIRenderer {
 
     public onLoad () {
         this._createClearModel();
-        this._createGraphics();
+        this._changeRenderType();
 
-        if (this._graphics) {
+        if (this._graphics) { //isGraphics
             this._graphics.onLoad();
         }
 
@@ -379,10 +352,9 @@ export class Mask extends UIRenderer {
             if (!this._renderEntity) {
                 this.initRenderEntity();
             }
-            if (this._renderEntity && this.renderData
-                && this._graphics && this._graphics.renderEntity) {
+            if (this._renderEntity && this.renderData && this.subComp && this.subComp.renderEntity) {
                 this._renderEntity.setIsMask(true);
-                this._graphics.renderEntity.setIsSubMask(true);
+                this.subComp.renderEntity.setIsSubMask(true);
                 this._renderEntity.setIsMaskInverted(this._inverted);
                 // subMask and mask should have the same inverted flag
                 this._graphics.renderEntity.setIsMaskInverted(this._inverted);
@@ -403,7 +375,7 @@ export class Mask extends UIRenderer {
      * 图形内容重塑。
      */
     public onRestore () {
-        this._createGraphics();
+        this._changeRenderType();
         super.updateMaterial();
         this._updateGraphics();
         this.markForUpdateRenderData();
@@ -488,7 +460,11 @@ export class Mask extends UIRenderer {
             return false;
         }
 
-        return this._graphics !== null && (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame !== null);
+        if (this._type !== MaskType.IMAGE_STENCIL) {
+            return this._graphics !== null;
+        } else {
+            return this._sprite !== null && this._spriteFrame !== null; // Or use sprite canRender
+        }
     }
 
     protected _flushAssembler () {
@@ -505,6 +481,37 @@ export class Mask extends UIRenderer {
         }
 
         this._useRenderData();
+    }
+
+    private _changeRenderType () {
+        const isGraphics = (this._type !== MaskType.IMAGE_STENCIL);
+        if (isGraphics) {
+            this._createGraphics();
+        } else {
+            this._createSprite();
+        }
+    }
+
+    private _initSpriteNode () {
+        const node = new Node('MASK_CHILD');
+        node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+        node.addComponent(Sprite);
+        node.setPosition(0, 0, 0);
+        this._maskNode = node;
+        this.node.insertChild(node, 0);
+    }
+
+    protected _createSprite () {
+        if (!this._sprite) {
+            this._initSpriteNode();
+            const sprite = this._sprite = this._maskNode!.getComponent(Sprite)!;
+            sprite.color = Color.WHITE.clone();
+            // @ts-ignore
+            sprite._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
+        }
+        this._sprite.spriteFrame = this._spriteFrame;
+        this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
+        this._updateMaterial();
     }
 
     private _initGraphicsNode () {
@@ -622,17 +629,16 @@ export class Mask extends UIRenderer {
         if (this._graphics) {
             const target = this._graphics;
             target.stencilStage = Stage.DISABLED;
-            let mat;
-            if (this._type === MaskType.IMAGE_STENCIL) {
-                mat = builtinResMgr.get<Material>('ui-alpha-test-material');
-                target.setMaterial(mat, 0);
-                mat = target.getMaterialInstance(0);
-                mat.setProperty('alphaThreshold', this._alphaThreshold);
-            } else {
-                mat = builtinResMgr.get<Material>('ui-graphics-material');
-                target.setMaterial(mat, 0);
-                target.getMaterialInstance(0);
-            }
+            const mat = builtinResMgr.get<Material>('ui-graphics-material');
+            target.setMaterial(mat, 0);
+            target.getMaterialInstance(0);
+        } else if (this._sprite) {
+            const target = this._sprite;
+            target.stencilStage = Stage.DISABLED;
+            let mat = builtinResMgr.get<Material>('ui-alpha-test-material');
+            target.setMaterial(mat, 0);
+            mat = target.getMaterialInstance(0)!;
+            mat.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
 
