@@ -45,6 +45,7 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { IAssemblerManager } from '../renderer/base';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -388,6 +389,7 @@ export class Mask extends UIRenderer {
                 this._graphics.renderEntity.setIsMaskInverted(this._inverted);
                 // hack for isMeshBuffer flag
                 this.renderData.renderDrawInfo.setIsMeshBuffer(true);
+                this.renderData.drawInfoType = RenderDrawInfoType.MODEL;
             }
         }
     }

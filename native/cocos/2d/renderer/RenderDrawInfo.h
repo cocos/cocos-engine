@@ -48,6 +48,12 @@ struct DrawInfoAttrLayout {
     uint32_t enabledIndex;
 };
 
+enum class RenderDrawInfoType {
+    COMP,
+    MODEL,
+    IA
+};
+
 class Batcher2d;
 class RenderDrawInfo final {
 public:
@@ -95,6 +101,10 @@ public:
     void setBlendHash(uint32_t blendHash);
     inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
+    inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
+    void setDrawInfoType(uint32_t type);
+
+    inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
 
@@ -167,6 +177,8 @@ private:
     gfx::Sampler* _sampler{nullptr};
 
     uint32_t _blendHash{0};
+
+    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
 
     gfx::InputAssemblerInfo _iaInfo;
     ccstd::vector<gfx::Attribute> _attributes{
