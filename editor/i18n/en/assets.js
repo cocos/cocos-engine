@@ -98,7 +98,7 @@ module.exports = {
         },
         spriteFrame: {
             packable: 'Packable',
-            packableTip: 'Whether to participate in dynamic atlas',
+            packableTip: 'Whether to participate in dynamic atlas or automatic atlas in build processes.',
             rotated: 'Rotated',
             rotatedTip: 'Whether the sprite frame in TexturePacker is rotated',
             offsetX: 'Offset X',
