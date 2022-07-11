@@ -1867,18 +1867,20 @@ static bool js_2d_Batcher2d_handleColor(se::State& s) // NOLINT(readability-iden
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
+    if (argc == 4) {
         HolderType<cc::RenderEntity*, false> arg0 = {};
         HolderType<cc::RenderDrawInfo*, false> arg1 = {};
         HolderType<cc::Node*, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handleColor : Error processing arguments");
-        cobj->handleColor(arg0.value(), arg1.value(), arg2.value());
+        cobj->handleColor(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handleColor)
@@ -1891,16 +1893,18 @@ static bool js_2d_Batcher2d_handleDynamicDrawInfo(se::State& s) // NOLINT(readab
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
+    if (argc == 3) {
         HolderType<cc::RenderEntity*, false> arg0 = {};
         HolderType<cc::RenderDrawInfo*, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handleDynamicDrawInfo : Error processing arguments");
-        cobj->handleDynamicDrawInfo(arg0.value(), arg1.value());
+        cobj->handleDynamicDrawInfo(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo)
@@ -1933,18 +1937,20 @@ static bool js_2d_Batcher2d_handleStaticDrawInfo(se::State& s) // NOLINT(readabi
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
+    if (argc == 4) {
         HolderType<cc::RenderEntity*, false> arg0 = {};
         HolderType<cc::RenderDrawInfo*, false> arg1 = {};
         HolderType<cc::Node*, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handleStaticDrawInfo : Error processing arguments");
-        cobj->handleStaticDrawInfo(arg0.value(), arg1.value(), arg2.value());
+        cobj->handleStaticDrawInfo(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handleStaticDrawInfo)

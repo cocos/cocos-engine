@@ -104,8 +104,8 @@ public:
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
-    inline float getParentOpacity() const { return _parentOpacity; }
-    inline void setParentOpacity(float parentOpacity) { _parentOpacity = parentOpacity; }
+ /*   inline float getParentOpacity() const { return _parentOpacity; }
+    inline void setParentOpacity(float parentOpacity) { _parentOpacity = parentOpacity; }*/
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
 
 private:
@@ -130,7 +130,7 @@ private:
     ArrayBuffer::Ptr _entitySharedBuffer;
 
     float _opacity{1.0f};
-    float _parentOpacity{1.0f};
+    //float _parentOpacity{1.0f};
 
     bool _isMask{false};
     bool _isSubMask{false};
