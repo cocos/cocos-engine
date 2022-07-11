@@ -117,7 +117,6 @@ std::wstring str2ws(const ccstd::string &text) {
 }
 
 LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    auto order = SendMessage(getCurrentWindowHwnd(), EM_GETEVENTMASK, 0, 0);
     switch (msg) {
         case WM_LBUTTONDOWN:
             EditBox::complete();
