@@ -254,6 +254,8 @@ public class CocosVideoView extends SurfaceView {
 
             // after the video is stop, it shall prepare to be playable again
             try {
+                mMediaPlayer.reset(); // reset to avoid some problems on start.
+                loadDataSource();
                 mMediaPlayer.prepare();
                 this.showFirstFrame();
             } catch (Exception ex) {}
@@ -411,6 +413,15 @@ public class CocosVideoView extends SurfaceView {
         mVideoHeight = 0;
     }
 
+    private void loadDataSource() throws IOException {
+        if (mIsAssetRouse) {
+            AssetFileDescriptor afd = mActivity.getAssets().openFd(mVideoFilePath);
+            mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+        } else {
+            mMediaPlayer.setDataSource(mVideoUri.toString());
+        }
+    }
+
     private void openVideo() {
         if (mSurfaceHolder == null) {
             // not ready for playback just yet, will try again later
@@ -434,14 +445,8 @@ public class CocosVideoView extends SurfaceView {
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setScreenOnWhilePlaying(true);
 
-            if (mIsAssetRouse) {
-                AssetFileDescriptor afd = mActivity.getAssets().openFd(mVideoFilePath);
-                mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-            } else {
-                mMediaPlayer.setDataSource(mVideoUri.toString());
-            }
+            loadDataSource();
             mCurrentState = State.INITIALIZED;
-
 
             // Use Prepare() instead of PrepareAsync to make things easy.
             mMediaPlayer.prepare();
