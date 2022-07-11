@@ -132,8 +132,9 @@ export const bmfontUtils = {
     updateColor (label: Label) {
         if (JSB) {
             const renderData = label.renderData!;
-            const vData = renderData.chunk.vb;
             const vertexCount = renderData.vertexCount;
+            if (vertexCount === 0) return;
+            const vData = renderData.chunk.vb;
             const stride = renderData.floatStride;
             let colorOffset = 5;
             const color = label.color;

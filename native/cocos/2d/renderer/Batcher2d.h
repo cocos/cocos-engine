@@ -31,6 +31,7 @@
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "core/assets/Material.h"
+#include "core/memop/Pool.h"
 #include "renderer/gfx-base/GFXTexture.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
 #include "scene/DrawBatch2D.h"
@@ -63,6 +64,7 @@ public:
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node);
+    void handlePostRender(RenderEntity* entity);
     void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
     void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo);
@@ -136,6 +138,8 @@ private:
     }
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
+
+    StencilManager* _stencilManager{nullptr};
 
     // weak reference
     Root* _root{nullptr};

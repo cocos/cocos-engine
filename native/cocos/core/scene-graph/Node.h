@@ -80,9 +80,6 @@ public:
     static index_t stackId;
 
     static void setScene(Node *);
-    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
-
-    static bool isStatic; // cjh TODO: add getter / setter
 
     /**
      * @en Finds a node by hierarchy path, the path is case-sensitive.
@@ -190,7 +187,7 @@ public:
     void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
@@ -236,7 +233,7 @@ public:
         }
     }
     void removeAllChildren();
-    bool isChildOf(Node *parent);
+    bool isChildOf(Node *parent) const;
 
     inline float getParentOpacity() const { return _parentOpacity; }
     inline void setParentOpacity(float parentOpacity) { _parentOpacity = parentOpacity; }
@@ -484,22 +481,30 @@ public:
         return _euler.z;
     }
 
-    inline Vec3 getForward() {
+    inline Vec3 getForward() const {
         Vec3 forward{0, 0, -1};
         forward.transformQuat(_worldRotation);
         return forward;
     }
 
-    inline Vec3 getUp() {
+    inline Vec3 getUp() const {
         Vec3 up{0, 1, 0};
         up.transformQuat(_worldRotation);
         return up;
     }
 
-    inline Vec3 getRight() {
+    inline Vec3 getRight() const {
         Vec3 right{1, 0, 0};
         right.transformQuat(_worldRotation);
         return right;
+    }
+
+    inline bool isStatic() const {
+        return _isStatic;
+    }
+
+    inline void setStatic(bool v) {
+        _isStatic = v;
     }
 
     /**
@@ -627,6 +632,8 @@ public:
     bool onPreDestroyBase();
 
 protected:
+    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
+
     void onSetParent(Node *oldParent, bool keepWorldTransform);
 
     virtual void updateScene();
@@ -715,6 +722,9 @@ private:
     float _parentOpacity{1.0F};
 
     IntrusivePtr<UserData> _userData;
+
+    bool _isStatic{false};
+
     friend class NodeActivator;
     friend class Scene;
 
@@ -727,7 +737,7 @@ bool Node::isNode(T *obj) {
 }
 
 template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
+void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
     _eventProcessor->emit(type, std::forward<Args>(args)...);
 }
 

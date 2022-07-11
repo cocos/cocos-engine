@@ -384,7 +384,7 @@ uintptr_t SDLHelper::getDisplay() const {
 }
 #endif
 
-uintptr_t SDLHelper::getWindowHandler() const {
+uintptr_t SDLHelper::getWindowHandle() const {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(_handle, &wmInfo);
@@ -398,7 +398,7 @@ uintptr_t SDLHelper::getWindowHandler() const {
     return 0;
 }
 
-SDL_Window* SDLHelper::getSDLWindowHandler() const {
+SDL_Window* SDLHelper::getSDLWindowHandle() const {
     return _handle;
 }
 

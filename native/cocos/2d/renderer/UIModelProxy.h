@@ -32,7 +32,7 @@ namespace cc {
 class UIModelProxy final {
 public:
     UIModelProxy();
-    ~UIModelProxy() = default;
+    ~UIModelProxy();
 
     void initModel(Node* node);
     void activeSubModel(uint8_t val);

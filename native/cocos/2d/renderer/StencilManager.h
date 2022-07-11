@@ -34,6 +34,7 @@
 #include "scene/Pass.h"
 
 namespace cc {
+class RenderEntity;
 enum class StencilStage {
     // Stencil disabled
     DISABLED = 0,
@@ -65,7 +66,7 @@ struct StencilEntity {
 class StencilManager final {
 public:
     static StencilManager* getInstance();
-    StencilManager();
+    StencilManager() = default;
     ~StencilManager();
 
     inline StencilStage getStencilStage() const { return _stage; }
@@ -73,12 +74,43 @@ public:
     gfx::DepthStencilState* getDepthStencilState(StencilStage stage, Material* mat = nullptr);
     void setDepthStencilStateFromStage(StencilStage stage);
 
+    inline uint32_t getMaskStackSize() const { return _maskStackSize; }
+    inline void setMaskStackSize(uint32_t size) {
+        _maskStackSize = size;
+    } 
+
+    inline void pushMask() {
+        ++_maskStackSize;
+    }
+
+    void clear(RenderEntity* entity);
+    void enterLevel(RenderEntity* entity);
+
+    inline void enableMask() {
+        _stage = StencilStage::ENABLED;
+    }
+
+    inline void exitMask() {
+        if (_maskStackSize == 0) {
+            return;
+        }
+
+        --_maskStackSize;
+        if (_maskStackSize == 0) {
+            _stage = StencilStage::DISABLED;
+        } else {
+            _stage = StencilStage::ENABLED;
+        }
+    }
+
     inline uint32_t getWriteMask() const {
         return 1 << (_maskStackSize - 1);
     }
+
     inline uint32_t getExitWriteMask() const {
         return 1 << _maskStackSize;
     }
+
     inline uint32_t getStencilRef() const {
         uint32_t result = 0;
         for (uint32_t i = 0; i < _maskStackSize; i++) {
@@ -86,12 +118,12 @@ public:
         }
         return result;
     }
+
     inline uint32_t getStencilHash(StencilStage stage) const {
         return ((static_cast<uint32_t>(stage)) << 8) | _maskStackSize;
     }
 
     void setStencilStage(uint32_t stageIndex);
-    inline const ArrayBuffer& getStencilSharedBufferForJS() const { return *_stencilSharedBuffer; }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(StencilManager);

@@ -489,6 +489,26 @@ static bool js_scene_Node_isPersistNode(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_isPersistNode)
 
+static bool js_scene_Node_isStatic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    // SE_PRECONDITION2(cobj, false, "js_scene_Node_isStatic : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isStatic();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Node_isStatic : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_isStatic)
+
 static bool js_scene_Node_lookAt(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -1264,6 +1284,26 @@ static bool js_scene_Node_setSiblingIndex(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Node_setSiblingIndex)
 
+static bool js_scene_Node_setStatic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setStatic : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Node_setStatic : Error processing arguments");
+        cobj->setStatic(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_setStatic)
+
 static bool js_scene_Node_setWorldPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -1633,28 +1673,6 @@ static bool js_scene_Node_clearNodeArray_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_scene_Node_clearNodeArray_static)
 
-static bool js_scene_Node_getIdxOfChild_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<std::vector<cc::IntrusivePtr<cc::Node>>, true> arg0 = {};
-        HolderType<cc::Node*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getIdxOfChild_static : Error processing arguments");
-        int result = cc::Node::getIdxOfChild(arg0.value(), arg1.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getIdxOfChild_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getIdxOfChild_static)
-
 static bool js_scene_Node_instantiate_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -1886,6 +1904,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("insertChild", _SE(js_scene_Node_insertChild));
     cls->defineFunction("invalidateChildren", _SE(js_scene_Node_invalidateChildren));
     cls->defineFunction("isChildOf", _SE(js_scene_Node_isChildOf));
+    cls->defineFunction("isStatic", _SE(js_scene_Node_isStatic));
     cls->defineFunction("lookAt", _SE(js_scene_Node_lookAt));
     cls->defineFunction("off", _SE(js_scene_Node_off));
     cls->defineFunction("onPostActivated", _SE(js_scene_Node_onPostActivated));
@@ -1910,6 +1929,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("setScaleForJS", _SE(js_scene_Node_setScaleForJS));
     cls->defineFunction("setScaleInternal", _SE(js_scene_Node_setScaleInternal));
     cls->defineFunction("setSiblingIndex", _SE(js_scene_Node_setSiblingIndex));
+    cls->defineFunction("setStatic", _SE(js_scene_Node_setStatic));
     cls->defineFunction("setWorldPosition", _SE(js_scene_Node_setWorldPosition));
     cls->defineFunction("setWorldRotation", _SE(js_scene_Node_setWorldRotation));
     cls->defineFunction("setWorldRotationFromEuler", _SE(js_scene_Node_setWorldRotationFromEuler));
@@ -1920,7 +1940,6 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("updateWorldTransform", _SE(js_scene_Node_updateWorldTransform));
     cls->defineFunction("walk", _SE(js_scene_Node_walk));
     cls->defineStaticFunction("clearNodeArray", _SE(js_scene_Node_clearNodeArray_static));
-    cls->defineStaticFunction("getIdxOfChild", _SE(js_scene_Node_getIdxOfChild_static));
     cls->defineStaticFunction("instantiate", _SE(js_scene_Node_instantiate_static));
     cls->defineStaticFunction("resetHasChangedFlags", _SE(js_scene_Node_resetChangedFlags_static));
     cls->defineStaticFunction("setScene", _SE(js_scene_Node_setScene_static));

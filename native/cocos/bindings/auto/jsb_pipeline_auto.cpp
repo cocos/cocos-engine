@@ -2754,56 +2754,6 @@ static bool js_pipeline_InstancedBuffer_setDynamicOffset(se::State& s) // NOLINT
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset)
 
-static bool js_pipeline_InstancedBuffer_destroyInstancedBuffer_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::pipeline::InstancedBuffer::destroyInstancedBuffer();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer_static)
-
-static bool js_pipeline_InstancedBuffer_get_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<cc::scene::Pass*, false> arg0 = {};
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            HolderType<unsigned int, false> arg1 = {};
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::pipeline::InstancedBuffer* result = cc::pipeline::InstancedBuffer::get(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get_static : Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while (false);
-    do {
-        if (argc == 1) {
-            HolderType<cc::scene::Pass*, false> arg0 = {};
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::pipeline::InstancedBuffer* result = cc::pipeline::InstancedBuffer::get(arg0.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get_static : Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while (false);
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_InstancedBuffer_get_static)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_InstancedBuffer_finalize)
 
 static bool js_pipeline_InstancedBuffer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -2834,8 +2784,6 @@ bool js_register_pipeline_InstancedBuffer(se::Object* obj) // NOLINT(readability
 #endif
     cls->defineFunction("destroy", _SE(js_pipeline_InstancedBuffer_destroy));
     cls->defineFunction("setDynamicOffset", _SE(js_pipeline_InstancedBuffer_setDynamicOffset));
-    cls->defineStaticFunction("destroyInstancedBuffer", _SE(js_pipeline_InstancedBuffer_destroyInstancedBuffer_static));
-    cls->defineStaticFunction("get", _SE(js_pipeline_InstancedBuffer_get_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_InstancedBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::InstancedBuffer>(cls);
@@ -4613,56 +4561,6 @@ static bool js_pipeline_BatchedBuffer_setDynamicOffset(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_pipeline_BatchedBuffer_setDynamicOffset)
 
-static bool js_pipeline_BatchedBuffer_destroyBatchedBuffer_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::pipeline::BatchedBuffer::destroyBatchedBuffer();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_BatchedBuffer_destroyBatchedBuffer_static)
-
-static bool js_pipeline_BatchedBuffer_get_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<cc::scene::Pass*, false> arg0 = {};
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            HolderType<unsigned int, false> arg1 = {};
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::pipeline::BatchedBuffer* result = cc::pipeline::BatchedBuffer::get(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_pipeline_BatchedBuffer_get_static : Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while (false);
-    do {
-        if (argc == 1) {
-            HolderType<cc::scene::Pass*, false> arg0 = {};
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::pipeline::BatchedBuffer* result = cc::pipeline::BatchedBuffer::get(arg0.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_pipeline_BatchedBuffer_get_static : Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while (false);
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_BatchedBuffer_get_static)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_BatchedBuffer_finalize)
 
 static bool js_pipeline_BatchedBuffer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -4698,8 +4596,6 @@ bool js_register_pipeline_BatchedBuffer(se::Object* obj) // NOLINT(readability-i
     cls->defineFunction("getPass", _SE(js_pipeline_BatchedBuffer_getPass));
     cls->defineFunction("merge", _SE(js_pipeline_BatchedBuffer_merge));
     cls->defineFunction("setDynamicOffset", _SE(js_pipeline_BatchedBuffer_setDynamicOffset));
-    cls->defineStaticFunction("destroyBatchedBuffer", _SE(js_pipeline_BatchedBuffer_destroyBatchedBuffer_static));
-    cls->defineStaticFunction("get", _SE(js_pipeline_BatchedBuffer_get_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_BatchedBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::BatchedBuffer>(cls);

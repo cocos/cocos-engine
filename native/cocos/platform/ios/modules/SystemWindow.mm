@@ -46,7 +46,7 @@ void SystemWindow::closeWindow() {
     cc::EventDispatcher::dispatchCloseEvent();
     exit(0);
 }
-uintptr_t SystemWindow::getWindowHandler() const {
+uintptr_t SystemWindow::getWindowHandle() const {
     return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
 }
 

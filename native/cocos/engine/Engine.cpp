@@ -72,7 +72,7 @@ bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
-    auto handler = window->getWindowHandler();
+    auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
 
     std::stringstream ss;

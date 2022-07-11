@@ -191,13 +191,17 @@ export class BaseRenderData {
             if (!this._renderDrawInfo) {
                 return;
             }
-            this._renderDrawInfo.setBufferId(this.chunk.bufferId);
-            this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
-            this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-            this._renderDrawInfo.setVB(this.chunk.vb);
-            this._renderDrawInfo.setIB(this.chunk.ib);
-            this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
-            this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            if (this.chunk) {
+                this._renderDrawInfo.setBufferId(this.chunk.bufferId);
+                this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
+                this._renderDrawInfo.setVB(this.chunk.vb);
+                this._renderDrawInfo.setIB(this.chunk.ib);
+                if (this.chunk.meshBuffer) {
+                    this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+                    this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+                    this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+                }
+            }
             this._renderDrawInfo.setVBCount(this._vc);
             this._renderDrawInfo.setIBCount(this._ic);
 

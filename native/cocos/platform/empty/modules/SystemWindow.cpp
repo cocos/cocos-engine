@@ -42,7 +42,7 @@ SystemWindow::SystemWindow(IEventDispatch* delegate) {
 SystemWindow::~SystemWindow() {
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
+uintptr_t SystemWindow::getWindowHandle() const {
     return 0;
 }
 

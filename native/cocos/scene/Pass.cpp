@@ -130,6 +130,10 @@ Pass::Pass(Root *root) {
     _phase = pipeline::getPhaseID(_phaseString);
 }
 
+Pass::~Pass() {
+    destroy();
+}
+
 void Pass::initialize(const IPassInfoFull &info) {
     doInit(info);
     resetUBOs();
@@ -261,8 +265,10 @@ pipeline::BatchedBuffer *Pass::getBatchedBuffer(int32_t extraKey) {
 }
 
 void Pass::destroy() {
-    for (const auto &u : _shaderInfo->blocks) {
-        _buffers[u.binding]->destroy();
+    if (!_buffers.empty()) {
+        for (const auto &u : _shaderInfo->blocks) {
+            _buffers[u.binding]->destroy();
+        }
     }
 
     _buffers.clear();
@@ -282,7 +288,11 @@ void Pass::destroy() {
     }
     _batchedBuffers.clear();
 
-    _descriptorSet->destroy();
+    // NOTE: There may be many passes reference the same descriptor set,
+    // so here we can't use _descriptorSet->destroy() to release it.
+    // Its type is IntrusivePtr<gfx::DescriptorSet>, so just set it to nullptr,
+    // and let its destructor to destroy it.
+    _descriptorSet = nullptr;
 }
 
 void Pass::resetUniform(const ccstd::string &name) {

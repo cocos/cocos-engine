@@ -54,6 +54,20 @@ void RenderEntity::removeDynamicRenderDrawInfo() {
     if (_dynamicDrawInfos.empty()) return;
     _dynamicDrawInfos.pop_back(); // warning: memory leaking & crash
 }
+
+void RenderEntity::clearDynamicRenderDrawInfos() {
+    _dynamicDrawInfos.clear();
+}
+
+void RenderEntity::setIsMask(bool isMask) {
+    _isMask = isMask;
+}
+void RenderEntity::setIsSubMask(bool isSubMask) {
+    _isSubMask = isSubMask;
+}
+void RenderEntity::setIsMaskInverted(bool isMaskInverted) {
+    _isMaskInverted = isMaskInverted;
+}
 void RenderEntity::setNode(Node* node) {
     if (_node) {
         _node->setUserData(nullptr);

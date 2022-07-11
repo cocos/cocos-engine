@@ -10,13 +10,11 @@
 #include "cocos/2d/renderer/Batcher2d.h"
 #include "cocos/2d/renderer/RenderEntity.h"
 #include "cocos/2d/renderer/UIModelProxy.h"
-#include "cocos/2d/renderer/StencilManager.h"
 
 bool register_all_2d(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::UIMeshBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderDrawInfo);
-JSB_REGISTER_OBJECT_TYPE(cc::StencilManager);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderEntity);
 JSB_REGISTER_OBJECT_TYPE(cc::Batcher2d);
 JSB_REGISTER_OBJECT_TYPE(cc::UIModelProxy);
@@ -41,30 +39,11 @@ bool js_register_cc_RenderDrawInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getMeshBuffer);
-SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_requestIA);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_resetMeshIA);
-SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setModel);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_RenderDrawInfo);
-
-extern se::Object *__jsb_cc_StencilManager_proto; // NOLINT
-extern se::Class * __jsb_cc_StencilManager_class; // NOLINT
-
-bool js_register_cc_StencilManager(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_2d_StencilManager_getDepthStencilState);
-SE_DECLARE_FUNC(js_2d_StencilManager_getExitWriteMask);
-SE_DECLARE_FUNC(js_2d_StencilManager_getStencilHash);
-SE_DECLARE_FUNC(js_2d_StencilManager_getStencilRef);
-SE_DECLARE_FUNC(js_2d_StencilManager_getStencilSharedBufferForJS);
-SE_DECLARE_FUNC(js_2d_StencilManager_getStencilStage);
-SE_DECLARE_FUNC(js_2d_StencilManager_getWriteMask);
-SE_DECLARE_FUNC(js_2d_StencilManager_setDepthStencilStateFromStage);
-SE_DECLARE_FUNC(js_2d_StencilManager_setStencilStage);
-SE_DECLARE_FUNC(js_2d_StencilManager_getInstance);
-SE_DECLARE_FUNC(js_2d_StencilManager_StencilManager);
 
 extern se::Object *__jsb_cc_RenderEntity_proto; // NOLINT
 extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
@@ -92,6 +71,7 @@ bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_2d_Batcher2d_addRootNode);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleColor);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo);
+SE_DECLARE_FUNC(js_2d_Batcher2d_handlePostRender);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleStaticDrawInfo);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
 SE_DECLARE_FUNC(js_2d_Batcher2d_releaseDescriptorSetCache);

@@ -61,6 +61,16 @@ public:
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
     void removeDynamicRenderDrawInfo();
+    void clearDynamicRenderDrawInfos();
+
+    inline bool getIsMask() const { return _isMask; }
+    void setIsMask(bool isMask);
+
+    inline bool getIsSubMask() const { return _isSubMask; }
+    void setIsSubMask(bool isSubMask);
+
+    inline bool getIsMaskInverted() const { return _isMaskInverted; }
+    void setIsMaskInverted(bool isMaskInverted);
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
@@ -117,6 +127,11 @@ private:
 
     EntityAttrLayout _entityAttrLayout;
     ArrayBuffer::Ptr _entitySharedBuffer;
+
     float _opacity{1.0F};
+
+    bool _isMask{false};
+    bool _isSubMask{false};
+    bool _isMaskInverted{false};
 };
 } // namespace cc

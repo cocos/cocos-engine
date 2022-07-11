@@ -230,6 +230,9 @@ bool register_all_spine_manual(se::Object *obj) {
     ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
+        if (!se::NativePtrToObjectMap::isValid()) {
+            return;
+        }
         // Support Native Spine fo Creator V3.0
         se::Object *seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(spineObj);

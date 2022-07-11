@@ -300,10 +300,6 @@ void Root::resetCumulativeTime() {
 }
 
 void Root::frameMove(float deltaTime, int32_t totalFrames) {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
-
     CCObject::deferredDestroy();
 
     _frameTime = deltaTime;
