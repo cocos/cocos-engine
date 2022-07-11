@@ -44,7 +44,7 @@ Batcher2d::Batcher2d(Root* root)
     _stencilManager = StencilManager::getInstance();
 }
 
-Batcher2d::~Batcher2d() {
+Batcher2d::~Batcher2d() { // NOLINT
     _drawBatchPool.destroy();
 
     for (auto iter : _descriptorSetCache) {
