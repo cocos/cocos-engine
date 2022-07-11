@@ -30,12 +30,12 @@
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
+#include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/NativePipelineTypes.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
-#include "renderer/pipeline/GeometryRenderer.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -161,7 +161,7 @@ public:
     void setProfiler(scene::Model *profiler) override {
         pipeline->setProfiler(profiler);
     }
-    pipeline::GeometryRenderer  *getGeometryRenderer() const override {
+    pipeline::GeometryRenderer *getGeometryRenderer() const override {
         return pipeline->getGeometryRenderer();
     }
     float getShadingScale() const override {
@@ -170,13 +170,13 @@ public:
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
     }
-    void setMacroString(const ccstd::string& name, const ccstd::string& value) override {
+    void setMacroString(const ccstd::string &name, const ccstd::string &value) override {
         pipeline->setValue(name, value);
     }
-    void setMacroInt(const ccstd::string& name, int32_t value) override {
+    void setMacroInt(const ccstd::string &name, int32_t value) override {
         pipeline->setValue(name, value);
     }
-    void setMacroBool(const ccstd::string& name, bool value) override {
+    void setMacroBool(const ccstd::string &name, bool value) override {
         pipeline->setValue(name, value);
     }
     void onGlobalPipelineStateChanged() override {
@@ -329,11 +329,14 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             return a->getPriority() < b->getPriority();
         });
 #if !defined(CC_SERVER_MODE)
+
+    #if CC_USE_GEOMETRY_RENDERER
         for (auto *camera : _cameraList) {
             if (camera->getGeometryRenderer()) {
                 camera->getGeometryRenderer()->update();
             }
         }
+    #endif
 
         _pipelineRuntime->render(_cameraList);
 #endif
