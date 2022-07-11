@@ -107,6 +107,9 @@ export const tiled: IAssembler = {
 
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
+        if (renderData.vertexCount !== row * col * 4) {
+            if (sprite.renderEntity) { sprite.renderEntity.colorDirty = true; }
+        }
         // update data property
         renderData.resize(row * col * 4, row * col * 6);
         // update index here
@@ -203,206 +206,16 @@ export const tiled: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
         const vData = chunk.vb;
 
-        const uiTrans = node._uiProps.uiTransformComp!;
-        const contentWidth = Math.abs(uiTrans.width);
-        const contentHeight = Math.abs(uiTrans.height);
-
-        const frame = sprite.spriteFrame!;
-        const rotated = frame.rotated;
-        const uv = frame.uv;
-        const uvSliced: IUV[] = frame.uvSliced;
-        const rect = frame.rect;
-
-        const leftWidth = frame.insetLeft;
-        const rightWidth = frame.insetRight;
-        const centerWidth = rect.width - leftWidth - rightWidth;
-        const topHeight = frame.insetTop;
-        const bottomHeight = frame.insetBottom;
-        const centerHeight = rect.height - topHeight - bottomHeight;
-        let sizableWidth = contentWidth - leftWidth - rightWidth;
-        let sizableHeight = contentHeight - topHeight - bottomHeight;
-        sizableWidth = sizableWidth > 0 ? sizableWidth : 0;
-        sizableHeight = sizableHeight > 0 ? sizableHeight : 0;
-        const hRepeat = centerWidth === 0 ? sizableWidth : sizableWidth / centerWidth;
-        const vRepeat = centerHeight === 0 ? sizableHeight : sizableHeight / centerHeight;
-        // 9 sliced Frames have two more vertices in a row or in a column than common frames.
-        const offsetVertexCount = has9SlicedOffsetVertexCount(frame);
-        const row = Math.ceil(vRepeat + offsetVertexCount);
-        const col = Math.ceil(hRepeat + offsetVertexCount);
-
-        // update Vertex
-        let vertexOffset = 0;
-        let x = 0; let x1 = 0; let y = 0; let y1 = 0;
-        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
-            y = dataList[yIndex].y;
-            y1 = dataList[yIndex + 1].y;
-            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
-                x = dataList[xIndex].x;
-                x1 = dataList[xIndex + 1].x;
-
-                Vec3.set(vec3_temps[0], x, y, 0);
-                Vec3.set(vec3_temps[1], x1, y, 0);
-                Vec3.set(vec3_temps[2], x, y1, 0);
-                Vec3.set(vec3_temps[3], x1, y1, 0);
-
-                for (let i = 0; i < 4; i++) {
-                    const vec3_temp = vec3_temps[i];
-                    Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                    const offset = i * stride;
-                    vData[vertexOffset + offset] = vec3_temp.x;
-                    vData[vertexOffset + offset + 1] = vec3_temp.y;
-                    vData[vertexOffset + offset + 2] = vec3_temp.z;
-                }
-                vertexOffset += 4 * stride;
-            }
+        for (let i  = 0; i < dataList.length; i++) {
+            Vec3.set(vec3_temp, dataList[i].x, dataList[i].y, dataList[i].z);
+            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            const offset = i * stride;
+            vData[offset] = vec3_temp.x;
+            vData[offset + 1] = vec3_temp.y;
+            vData[offset + 2] = vec3_temp.z;
         }
 
-        // update UVs
-        vertexOffset = 0;
-        const offset = stride;
-        const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
-        let coefU = 0; let coefV = 0;
-        const tempXVerts :any = [];
-        const tempYVerts :any = [];
-
-        // origin at left bottom
-        origin = uvSliced[0];
-        // on bottom edge
-        leftInner = uvSliced[1];
-        rightInner = uvSliced[2];
-        rightOuter = uvSliced[3];
-        // on left edge
-        bottomInner = uvSliced[4];
-        topInner = uvSliced[8];
-        topOuter = uvSliced[12];
-
-        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
-            if (sizableHeight > centerHeight) {
-                //if 9 sliced, we should exclude bottom border vertex (yIndex-1)
-                const curYRectCount = offsetVertexCount > 0 ? yIndex : yIndex + 1;
-                // The height of the rect which contains the left bottom vertex in current loop should be calculated in total height.
-                if (sizableHeight >= curYRectCount * centerHeight) {
-                    coefV = 1;
-                } else {
-                    coefV = vRepeat % 1;
-                }
-            } else {
-                coefV = vRepeat;
-            }
-            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
-                //if 9 sliced, we should exclude left border vertex (xIndex-1)
-                const curXRectCount = offsetVertexCount > 0 ? xIndex : xIndex + 1;
-                // The width of the rect which contains the left bottom vertex in current loop should be calculated in total width.
-                // Example: xIndex = 2 means that these is the third vertex, we should take the rect whose left bottom vertex is this
-                // vertex into account, so the following condition should be comparing the values of content size and (2+1)*centerWidth.
-                if (sizableWidth >= curXRectCount * centerWidth) {
-                    if (sizableWidth >= xIndex * centerWidth) {
-                        coefU = 1;
-                    } else {
-                        coefU = hRepeat % 1;
-                    }
-                } else {
-                    coefU = hRepeat;
-                }
-
-                const vertexOffsetU = vertexOffset + 3;
-                const vertexOffsetV = vertexOffsetU + 1;
-                // UV
-                if (rotated) {
-                    if (offsetVertexCount === 0) { //no sliced
-                        tempXVerts[0] = bottomInner.u;
-                        tempXVerts[1] = bottomInner.u;
-                        tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
-
-                        tempYVerts[0] = leftInner.v;
-                        tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
-                        tempYVerts[2] = leftInner.v;
-                    } else { //sliced
-                        if (yIndex === 0) {
-                            tempXVerts[0] = origin.u;
-                            tempXVerts[1] = origin.u;
-                            tempXVerts[2] = bottomInner.u;
-                        } else if (yIndex < (row - 1)) {
-                            tempXVerts[0] = bottomInner.u;
-                            tempXVerts[1] = bottomInner.u;
-                            tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
-                        } else if (yIndex === (row - 1)) {
-                            tempXVerts[0] = topInner.u;
-                            tempXVerts[1] = topInner.u;
-                            tempXVerts[2] = topOuter.u;
-                        }
-                        if (xIndex === 0) {
-                            tempYVerts[0] = origin.v;
-                            tempYVerts[1] = leftInner.v;
-                            tempYVerts[2] = origin.v;
-                        } else if (xIndex < (col - 1)) {
-                            tempYVerts[0] = leftInner.v;
-                            tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
-                            tempYVerts[2] = leftInner.v;
-                        } else if (xIndex === (col - 1)) {
-                            tempYVerts[0] = rightInner.v;
-                            tempYVerts[1] = rightOuter.v;
-                            tempYVerts[2] = rightInner.v;
-                        }
-                    }
-                    tempXVerts[3] = tempXVerts[2];
-                    tempYVerts[3] = tempYVerts[1];
-                } else {
-                    if (offsetVertexCount === 0) { //no sliced
-                        tempXVerts[0] = leftInner.u;
-                        tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
-                        tempXVerts[2] = leftInner.u;
-
-                        tempYVerts[0] = bottomInner.v;
-                        tempYVerts[1] = bottomInner.v;
-                        tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
-                    } else { //sliced
-                        if (xIndex === 0) {
-                            tempXVerts[0] = origin.u;
-                            tempXVerts[1] = leftInner.u;
-                            tempXVerts[2] = origin.u;
-                        } else if (xIndex < (col - 1)) {
-                            tempXVerts[0] = leftInner.u;
-                            tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
-                            tempXVerts[2] = leftInner.u;
-                        } else if (xIndex === (col - 1)) {
-                            tempXVerts[0] = rightInner.u;
-                            tempXVerts[1] = rightOuter.u;
-                            tempXVerts[2] = rightInner.u;
-                        }
-                        if (yIndex === 0) {
-                            tempYVerts[0] = origin.v;
-                            tempYVerts[1] = origin.v;
-                            tempYVerts[2] = bottomInner.v;
-                        } else if (yIndex < (row - 1)) {
-                            tempYVerts[0] = bottomInner.v;
-                            tempYVerts[1] = bottomInner.v;
-                            tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
-                        } else if (yIndex === (row - 1)) {
-                            tempYVerts[0] = topInner.v;
-                            tempYVerts[1] = topInner.v;
-                            tempYVerts[2] = topOuter.v;
-                        }
-                    }
-                    tempXVerts[3] = tempXVerts[1];
-                    tempYVerts[3] = tempYVerts[2];
-                }
-                // lb
-                vData[vertexOffsetU] = tempXVerts[0];
-                vData[vertexOffsetV] = tempYVerts[0];
-                // rb
-                vData[vertexOffsetU + offset1] = tempXVerts[1];
-                vData[vertexOffsetV + offset1] = tempYVerts[1];
-                // lt
-                vData[vertexOffsetU + offset2] = tempXVerts[2];
-                vData[vertexOffsetV + offset2] = tempYVerts[2];
-                // rt
-                vData[vertexOffsetU + offset3] = tempXVerts[3];
-                vData[vertexOffsetV + offset3] = tempYVerts[3];
-
-                vertexOffset += offset4;
-            }
-        }
+        this.updateWorldUVData(sprite);
     },
 
     updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number) {
