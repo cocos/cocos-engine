@@ -66,7 +66,7 @@ struct StencilEntity {
 class StencilManager final {
 public:
     static StencilManager* getInstance();
-    StencilManager();
+    StencilManager() = default;
     ~StencilManager();
 
     inline StencilStage getStencilStage() const { return _stage; }
@@ -124,7 +124,6 @@ public:
     }
 
     void setStencilStage(uint32_t stageIndex);
-    inline const ArrayBuffer& getStencilSharedBufferForJS() const { return *_stencilSharedBuffer; }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(StencilManager);

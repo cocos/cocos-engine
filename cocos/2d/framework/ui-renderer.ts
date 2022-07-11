@@ -173,8 +173,8 @@ export class UIRenderer extends Renderer {
         this._customMaterial = val;
         this.updateMaterial();
 
-        if (this._renderEntity) {
-            this._renderEntity.setCustomMaterial(val);
+        if (this.renderEntity) {
+            this.renderEntity.setCustomMaterial(val);
         }
     }
 
