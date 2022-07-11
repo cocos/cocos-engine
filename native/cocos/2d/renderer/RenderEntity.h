@@ -61,6 +61,7 @@ public:
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
     void removeDynamicRenderDrawInfo();
+    void clearDynamicRenderDrawInfos();
 
     inline bool getIsMask() const { return _isMask; }
     void setIsMask(bool isMask);

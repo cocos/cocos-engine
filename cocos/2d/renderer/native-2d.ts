@@ -77,6 +77,7 @@ export declare class NativeRenderEntity {
     addDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo);
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);
     removeDynamicRenderDrawInfo();
+    clearDynamicRenderDrawInfos();
 
     get isMask(): boolean;
     set isMask(val: boolean);
