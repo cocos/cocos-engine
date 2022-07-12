@@ -43,6 +43,7 @@ SE_DECLARE_FUNC(js_engine_FileUtils_fullPathForFilename);
 SE_DECLARE_FUNC(js_engine_FileUtils_fullPathFromRelativeFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_getDataFromFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_getDefaultResourceRootPath);
+SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileExtension);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileSize);
 SE_DECLARE_FUNC(js_engine_FileUtils_getOriginalSearchPaths);
@@ -57,6 +58,7 @@ SE_DECLARE_FUNC(js_engine_FileUtils_isAbsolutePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_isDirectoryExist);
 SE_DECLARE_FUNC(js_engine_FileUtils_isFileExist);
 SE_DECLARE_FUNC(js_engine_FileUtils_listFiles);
+SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_purgeCachedEntries);
 SE_DECLARE_FUNC(js_engine_FileUtils_removeDirectory);
 SE_DECLARE_FUNC(js_engine_FileUtils_removeFile);
@@ -69,9 +71,7 @@ SE_DECLARE_FUNC(js_engine_FileUtils_writeStringToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeValueMapToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeValueVectorToFile);
-SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
-SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 
 extern se::Object *__jsb_cc_Vec2_proto; // NOLINT
 extern se::Class * __jsb_cc_Vec2_class; // NOLINT
