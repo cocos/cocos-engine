@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import { Color } from '../core/math/color';
-import { Vec2 } from '../core/math/vec2';
+import type { Color } from '../core/math/color';
+import type { Vec2 } from '../core/math/vec2';
 
 // @ts-expect-error this is a virtual module
 export * from 'internal:native';
