@@ -452,14 +452,6 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Node_setTempFloatArray)
 
-static bool js_scene_Node_getSharedArrayBuffer(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_getSharedArrayBuffer : Invalid Native Object");
-    s.rval().setObject(cobj->_getSharedArrayBufferObject());
-    return true;
-}
-SE_BIND_FUNC(js_scene_Node_getSharedArrayBuffer)
 
 #define FAST_GET_VALUE(ns, className, method, type)                   \
     static bool js_scene_##className##_##method(void *nativeObject) { \
@@ -817,7 +809,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
 
     nodeVal.toObject()->defineFunction("_setTempFloatArray", _SE(js_scene_Node_setTempFloatArray));
 
-    __jsb_cc_Node_proto->defineFunction("_getSharedArrayBuffer", _SE(js_scene_Node_getSharedArrayBuffer));
     __jsb_cc_Node_proto->defineFunction("_setPosition", _SE(js_scene_Node_setPosition));
     __jsb_cc_Node_proto->defineFunction("_setScale", _SE(js_scene_Node_setScale));
     __jsb_cc_Node_proto->defineFunction("_setRotation", _SE(js_scene_Node_setRotation));

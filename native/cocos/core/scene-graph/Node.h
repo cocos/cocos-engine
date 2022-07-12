@@ -27,6 +27,7 @@
 
 #include "base/Ptr.h"
 #include "base/std/any.h"
+#include "bindings/utils/BindingUtils.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -41,10 +42,6 @@
 #include "math/Quaternion.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
-
-namespace se {
-class Object;
-}
 
 namespace cc {
 
@@ -626,7 +623,7 @@ public:
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
 
-    inline se::Object *_getSharedArrayBufferObject() const { return _sharedArrayBufferObject; } // NOLINT
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryManager.getSharedArrayBufferObject(); } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
@@ -713,17 +710,18 @@ private:
 
     IntrusivePtr<UserData> _userData;
 
-    // Shared memory with JS.
-    uint32_t _eventMask{0};
-    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)};
-    index_t _siblingIndex{0};
-    uint32_t _dirtyFlag{0};
-    uint8_t _activeInHierarchy{0};
-    uint8_t _active{1};
-    uint8_t _isStatic{0};
-    uint8_t _padding{0};
+    // Shared memory with JS
+    // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
+    uint32_t _eventMask{0}; // Uint32: 0
+    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
+    uint32_t _dirtyFlag{0}; // Uint32: 2
+    index_t _siblingIndex{0}; // Int32: 0
+    uint8_t _activeInHierarchy{0}; // Uint8: 0
+    uint8_t _active{1}; // Uint8: 1
+    uint8_t _isStatic{0}; // Uint8: 2
+    uint8_t _padding{0}; // Uint8: 3
 
-    se::Object *_sharedArrayBufferObject{nullptr};
+    bindings::CppMemorySharedToScriptManager _sharedMemoryManager;
 
     //
     friend class NodeActivator;

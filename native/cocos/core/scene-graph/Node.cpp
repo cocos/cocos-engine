@@ -25,7 +25,6 @@
 
 #include "core/scene-graph/Node.h"
 #include "base/StringUtil.h"
-#include "bindings/jswrapper/SeApi.h"
 #include "core/data/Object.h"
 #include "core/memop/CachedArray.h"
 #include "core/platform/Debug.h"
@@ -80,8 +79,7 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 
 Node::Node(const ccstd::string &name) {
     static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == 20, "Shared memory should be 20 bytes");
-    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(&_eventMask, 20, [](void *, size_t, void *) {});
-    _sharedArrayBufferObject->root();
+    _sharedMemoryManager.initialize(&_eventMask, 20);
 
     _id = idGenerator.getNewId();
     if (name.empty()) {
@@ -94,8 +92,6 @@ Node::Node(const ccstd::string &name) {
 
 Node::~Node() {
     CC_SAFE_DELETE(_eventProcessor);
-    _sharedArrayBufferObject->unroot();
-    _sharedArrayBufferObject->decRef();
 }
 
 void Node::onBatchCreated(bool dontChildPrefab) {
