@@ -368,6 +368,7 @@ export class Mask extends UIRenderer {
         this._updateGraphics();
         this._enableGraphics();
         this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+        this._sizeChange();
     }
 
     /**
@@ -516,7 +517,7 @@ export class Mask extends UIRenderer {
             // @ts-expect-error Mask hack
             sprite._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
             sprite.sizeMode = 0;
-            this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
+            this._sizeChange();
         }
         this._sprite.spriteFrame = this._spriteFrame;
         this._updateMaterial();
