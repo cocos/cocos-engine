@@ -1064,11 +1064,11 @@ void FileUtils::valueMapCompact(ValueMap &valueMap) {
 void FileUtils::valueVectorCompact(ValueVector &valueVector) {
 }
 
-ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
+ccstd::string FileUtils::getFileDir(const ccstd::string &path) const {
     return cc::FilePath(path).dirName().value();
 }
 
-ccstd::string FileUtils::normalizePath(const ccstd::string &path) {
+ccstd::string FileUtils::normalizePath(const ccstd::string &path) const {
      return cc::FilePath(path).normalizePath();
 }
 
