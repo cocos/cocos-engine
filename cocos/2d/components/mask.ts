@@ -147,7 +147,7 @@ export class Mask extends UIRenderer {
                 this._sprite = null;
             }
             this._spriteFrame = null;
-            this._maskNode!.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+            this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
             this._maskNode!.parent = null;
             this._changeRenderType();
             this._updateGraphics();
