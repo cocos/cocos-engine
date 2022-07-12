@@ -28,6 +28,7 @@
 #include "base/std/hash/hash.h"
 
 #include "GFXDef.h"
+#include "GFXRenderPass.h"
 #include "GFXTexture.h"
 
 namespace cc {
@@ -114,25 +115,31 @@ ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) c
     // render pass is mostly irrelevant
     ccstd::hash_t seed;
     if (info.depthStencilTexture) {
-        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3;
+        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3 + 2;
         ccstd::hash_combine(seed, info.depthStencilTexture);
         ccstd::hash_combine(seed, info.depthStencilTexture->getRaw());
         ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
     } else {
-        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3;
+        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3 + 2;
     }
     for (auto *colorTexture : info.colorTextures) {
         ccstd::hash_combine(seed, colorTexture);
         ccstd::hash_combine(seed, colorTexture->getRaw());
         ccstd::hash_combine(seed, colorTexture->getHash());
     }
+    ccstd::hash_combine(seed, info.renderPass);
+    ccstd::hash_combine(seed, info.renderPass->getHash());
     return seed;
 }
 
 bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
     // render pass is mostly irrelevant
     bool res = false;
-    res = lhs.colorTextures == rhs.colorTextures;
+    res = lhs.renderPass == rhs.renderPass;
+
+    if (res) {
+        res = lhs.colorTextures == rhs.colorTextures;
+    }
 
     if (res) {
         res = lhs.depthStencilTexture == rhs.depthStencilTexture;
@@ -146,6 +153,7 @@ bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
                 break;
             }
         }
+        res = lhs.renderPass->getHash() == rhs.renderPass->getHash();
         if (res) {
             res = lhs.depthStencilTexture->getRaw() == rhs.depthStencilTexture->getRaw() &&
                   lhs.depthStencilTexture->getHash() == rhs.depthStencilTexture->getHash();
