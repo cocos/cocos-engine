@@ -77,9 +77,6 @@ export const graphicsAssembler: IAssembler = {
     useModel: true,
 
     updateRenderData (graphics: Graphics) {
-        if (JSB) {
-            graphics.updateRenderer();
-        }
     },
 
     fillBuffers (graphics: Graphics, renderer: IBatcher) {
