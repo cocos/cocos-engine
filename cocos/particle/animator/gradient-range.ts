@@ -174,7 +174,7 @@ function evaluateHeight (gr: GradientRange) {
 export function packGradientRange (samples: number, gr: GradientRange) {
     const height = evaluateHeight(gr);
     const data = new Uint8Array(samples * height * 4);
-    const interval = 1.0 / (samples - 1);
+    const interval = 1.0 / (samples);
     let offset = 0;
 
     for (let h = 0; h < height; h++) {
