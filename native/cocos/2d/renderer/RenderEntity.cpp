@@ -36,7 +36,7 @@ RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
         drawInfo.setBatcher(_batcher);
     }
 
-    _entitySharedBufferManager.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
+    _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 
 RenderEntity::~RenderEntity() = default;

@@ -623,7 +623,7 @@ public:
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
 
-    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryManager.getSharedArrayBufferObject(); } // NOLINT
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
@@ -721,7 +721,7 @@ private:
     uint8_t _isStatic{0};                                               // Uint8: 2
     uint8_t _padding{0};                                                // Uint8: 3
 
-    bindings::CppMemorySharedToScriptManager _sharedMemoryManager;
+    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
 
     //
     friend class NodeActivator;

@@ -79,7 +79,7 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 
 Node::Node(const ccstd::string &name) {
     static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == 20, "Shared memory should be 20 bytes");
-    _sharedMemoryManager.initialize(&_eventMask, 20);
+    _sharedMemoryActor.initialize(&_eventMask, 20);
 
     _id = idGenerator.getNewId();
     if (name.empty()) {

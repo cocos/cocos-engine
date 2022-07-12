@@ -28,11 +28,11 @@
 
 namespace cc::bindings {
 
-CppMemorySharedToScriptManager::~CppMemorySharedToScriptManager() {
+NativeMemorySharedToScriptActor::~NativeMemorySharedToScriptActor() {
     destroy();
 }
 
-void CppMemorySharedToScriptManager::initialize(void* ptr, uint32_t byteLength) {
+void NativeMemorySharedToScriptActor::initialize(void* ptr, uint32_t byteLength) {
     CC_ASSERT(_sharedArrayBufferObject == nullptr);
     // Free buffer callback is empty since the memory is allocated inside Node,
     // the external array buffer just holds a reference to the memory.
@@ -40,7 +40,7 @@ void CppMemorySharedToScriptManager::initialize(void* ptr, uint32_t byteLength) 
     _sharedArrayBufferObject->root();
 }
 
-void CppMemorySharedToScriptManager::destroy() {
+void NativeMemorySharedToScriptActor::destroy() {
     if (_sharedArrayBufferObject != nullptr) {
         _sharedArrayBufferObject->unroot();
         _sharedArrayBufferObject->decRef();

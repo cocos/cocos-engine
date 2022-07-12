@@ -33,7 +33,7 @@ RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
-    _attrSharedBufferManager.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
+    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
@@ -44,7 +44,7 @@ RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t
     _size = 0;
     _batcher = nullptr;
 
-    _attrSharedBufferManager.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
+    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
@@ -139,7 +139,7 @@ void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, 
 }
 
 se::Object* RenderDrawInfo::getAttrSharedBufferForJS() const {
-    return _attrSharedBufferManager.getSharedArrayBufferObject();
+    return _attrSharedBufferActor.getSharedArrayBufferObject();
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {

@@ -35,10 +35,10 @@ class Object;
 
 namespace cc::bindings {
 
-class CppMemorySharedToScriptManager final {
+class NativeMemorySharedToScriptActor final {
 public:
-    CppMemorySharedToScriptManager() = default;
-    ~CppMemorySharedToScriptManager();
+    NativeMemorySharedToScriptActor() = default;
+    ~NativeMemorySharedToScriptActor();
 
     void initialize(void *ptr, uint32_t byteLength);
     void destroy();
@@ -48,7 +48,7 @@ public:
 private:
     se::Object *_sharedArrayBufferObject{nullptr};
 
-    CC_DISALLOW_COPY_MOVE_ASSIGN(CppMemorySharedToScriptManager)
+    CC_DISALLOW_COPY_MOVE_ASSIGN(NativeMemorySharedToScriptActor)
 };
 
 } // namespace cc::bindings

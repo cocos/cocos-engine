@@ -129,7 +129,7 @@ private:
     uint32_t _size{0};
 
     DrawInfoAttrLayout _drawInfoAttrLayout;
-    bindings::CppMemorySharedToScriptManager _attrSharedBufferManager;
+    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
 
     index_t _bufferId{0};
     index_t _accId{0};
