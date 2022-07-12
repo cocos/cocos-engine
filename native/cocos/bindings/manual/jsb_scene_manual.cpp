@@ -452,7 +452,6 @@ static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Node_setTempFloatArray)
 
-
 #define FAST_GET_VALUE(ns, className, method, type)                   \
     static bool js_scene_##className##_##method(void *nativeObject) { \
         auto *cobj = reinterpret_cast<ns::className *>(nativeObject); \
