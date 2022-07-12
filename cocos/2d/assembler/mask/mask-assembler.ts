@@ -27,7 +27,6 @@ import { IBatcher } from '../../renderer/i-batcher';
 import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { StencilManager } from '../../renderer/stencil-manager';
-import { simple } from '../sprite';
 
 const _stencilManager = StencilManager.sharedManager!;
 
@@ -39,31 +38,18 @@ function applyClearMask (mask: Mask, renderer: IBatcher) {
 function applyAreaMask (mask: Mask, renderer: IBatcher) {
     _stencilManager.enterLevel(mask);
     if (mask.type === MaskType.IMAGE_STENCIL) {
-        simple.fillBuffers(mask, renderer);
-        const mat = mask.graphics!.getMaterialInstance(0)!;
-        renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
-    } else {
-        // mask.graphics!.updateAssembler(renderer);
+        // Apply stencil stage
+        _stencilManager.stage = mask.subComp!.stencilStage;
     }
 }
 
-const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();
-        renderData.dataLength = 4;
-        renderData.resize(4, 6);
-        renderData.vertexRow = 2;
-        renderData.vertexCol = 2;
-        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
     updateRenderData (mask: Mask) {
-        if (mask.type === MaskType.IMAGE_STENCIL) {
-            simple.updateRenderData(mask);
-            simple.updateColor(mask);
-        }
     },
 
     fillBuffers (mask: Mask, renderer: IBatcher) {
@@ -73,8 +59,6 @@ export const maskAssembler: IAssembler = {
             renderer.finishMergeBatches();
             applyClearMask(mask, renderer);
             applyAreaMask(mask, renderer);
-
-            // _stencilManager.enableMask();
         }
     },
 };
@@ -104,7 +88,7 @@ const childPostAssembler: IAssemblerManager = {
 };
 
 export const childEndAssembler: IAssembler = {
-    fillBuffers (graphics: any, ui: IBatcher) {
+    fillBuffers (subComp: any, ui: IBatcher) {
         _stencilManager.enableMask();
     },
 };
