@@ -34,6 +34,7 @@ cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
+cc_set_if_undefined(NET_MODE                  0) # 0 is client
 
 add_definitions()
 
@@ -62,6 +63,16 @@ if(USE_SERVER_MODE)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
     add_definitions(-DCC_SERVER_MODE)
+endif()
+
+
+add_definitions(-DCC_NETMODE_CLIENT=0)
+add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
+add_definitions(-DCC_NETMODE_HOST_SERVER=2)
+if(${NET_MODE} EQUAL "0" OR ${NET_MODE} EQUAL "1" OR ${NET_MODE} EQUAL "2")
+    add_definitions(-DCC_NETMODE=${NET_MODE})
+else()
+    message(FATAL_ERROR "NET_MODE only support setting to 1 2 or 3.")
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -1243,6 +1254,7 @@ cocos_source_files(
                  cocos/scene/DirectionalLight.h
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
+                 cocos/scene/DrawBatch2D.cpp
                  cocos/scene/Fog.h
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
@@ -1660,10 +1672,20 @@ if(USE_PHYSICS_PHYSX)
 endif()
 
 ##### 2d
-# cocos_source_files(
-#     cocos/2d/framework/UITransform.h
-#     cocos/2d/framework/UITransform.cpp
-# )
+cocos_source_files(
+    cocos/2d/renderer/Batcher2d.h
+    cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/UIModelProxy.h
+    cocos/2d/renderer/UIModelProxy.cpp
+    cocos/2d/renderer/RenderDrawInfo.h
+    cocos/2d/renderer/RenderDrawInfo.cpp
+    cocos/2d/renderer/UIMeshBuffer.h
+    cocos/2d/renderer/UIMeshBuffer.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
+    cocos/2d/renderer/StencilManager.h
+    cocos/2d/renderer/StencilManager.cpp
+)
 
 ##### 3d
 cocos_source_files(
@@ -1991,6 +2013,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_geometry_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
                             cocos/bindings/auto/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
+                            cocos/bindings/auto/jsb_2d_auto.h
 )
 
 if(USE_AUDIO)
@@ -2873,6 +2897,13 @@ endif()
 
 
 if(MSVC)
+    set(V8_DIR
+        ${CWD}/external/win64/libs/v8
+    )
+    file(GLOB V8_DLLS
+        ${CWD}/external/win64/libs/v8/Release/*.dll
+    )
+    
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll

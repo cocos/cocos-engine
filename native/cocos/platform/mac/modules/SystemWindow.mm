@@ -65,7 +65,12 @@ bool SystemWindow::createWindow(const char *title,
     [delegate createWindow:aString xPos:x yPos:y width:w height:h];
     return true;
 }
-
+void SystemWindow::closeWindow() {
+    id window = [[[NSApplication sharedApplication] delegate] getWindow];
+    if (window) {
+        [window close];
+    }
+}
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
@@ -76,7 +81,7 @@ void SystemWindow::copyTextToClipboard(const std::string &text) {
     [pasteboard setString:tmp forType:NSPasteboardTypeString];
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
+uintptr_t SystemWindow::getWindowHandle() const {
     NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
     return reinterpret_cast<uintptr_t>(view);
 }

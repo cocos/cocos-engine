@@ -22,7 +22,6 @@
 #include "cocos/scene/SubModel.h"
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
-#include "cocos/scene/DrawBatch2D.h"
 #include "cocos/scene/RenderWindow.h"
 #include "cocos/scene/Camera.h"
 #include "cocos/scene/Define.h"
@@ -66,7 +65,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::DirectionalLight);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SpotLight);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::PassDynamicsValue);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Pass);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawBatch2D);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::ICameraInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Camera);
 JSB_REGISTER_OBJECT_TYPE(cc::PassInstance);
@@ -107,6 +105,7 @@ SE_DECLARE_FUNC(js_scene_Node_getSiblingIndex);
 SE_DECLARE_FUNC(js_scene_Node_insertChild);
 SE_DECLARE_FUNC(js_scene_Node_invalidateChildren);
 SE_DECLARE_FUNC(js_scene_Node_isChildOf);
+SE_DECLARE_FUNC(js_scene_Node_isStatic);
 SE_DECLARE_FUNC(js_scene_Node_lookAt);
 SE_DECLARE_FUNC(js_scene_Node_off);
 SE_DECLARE_FUNC(js_scene_Node_onPostActivated);
@@ -131,6 +130,7 @@ SE_DECLARE_FUNC(js_scene_Node_setRotationInternal);
 SE_DECLARE_FUNC(js_scene_Node_setScaleForJS);
 SE_DECLARE_FUNC(js_scene_Node_setScaleInternal);
 SE_DECLARE_FUNC(js_scene_Node_setSiblingIndex);
+SE_DECLARE_FUNC(js_scene_Node_setStatic);
 SE_DECLARE_FUNC(js_scene_Node_setWorldPosition);
 SE_DECLARE_FUNC(js_scene_Node_setWorldRotation);
 SE_DECLARE_FUNC(js_scene_Node_setWorldRotationFromEuler);
@@ -141,7 +141,6 @@ SE_DECLARE_FUNC(js_scene_Node_updateSiblingIndex);
 SE_DECLARE_FUNC(js_scene_Node_updateWorldTransform);
 SE_DECLARE_FUNC(js_scene_Node_walk);
 SE_DECLARE_FUNC(js_scene_Node_clearNodeArray);
-SE_DECLARE_FUNC(js_scene_Node_getIdxOfChild);
 SE_DECLARE_FUNC(js_scene_Node_instantiate);
 SE_DECLARE_FUNC(js_scene_Node_resetChangedFlags);
 SE_DECLARE_FUNC(js_scene_Node_setScene);
@@ -330,7 +329,6 @@ extern se::Class * __jsb_cc_scene_RenderScene_class; // NOLINT
 bool js_register_cc_scene_RenderScene(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_RenderScene_activate);
-SE_DECLARE_FUNC(js_scene_RenderScene_addBatch);
 SE_DECLARE_FUNC(js_scene_RenderScene_addCamera);
 SE_DECLARE_FUNC(js_scene_RenderScene_addDirectionalLight);
 SE_DECLARE_FUNC(js_scene_RenderScene_addModel);
@@ -338,13 +336,9 @@ SE_DECLARE_FUNC(js_scene_RenderScene_addSphereLight);
 SE_DECLARE_FUNC(js_scene_RenderScene_addSpotLight);
 SE_DECLARE_FUNC(js_scene_RenderScene_destroy);
 SE_DECLARE_FUNC(js_scene_RenderScene_generateModelId);
-SE_DECLARE_FUNC(js_scene_RenderScene_getBatches);
-SE_DECLARE_FUNC(js_scene_RenderScene_getDrawBatch2Ds);
 SE_DECLARE_FUNC(js_scene_RenderScene_getOctree);
 SE_DECLARE_FUNC(js_scene_RenderScene_initialize);
 SE_DECLARE_FUNC(js_scene_RenderScene_onGlobalPipelineStateChanged);
-SE_DECLARE_FUNC(js_scene_RenderScene_removeBatch);
-SE_DECLARE_FUNC(js_scene_RenderScene_removeBatches);
 SE_DECLARE_FUNC(js_scene_RenderScene_removeCamera);
 SE_DECLARE_FUNC(js_scene_RenderScene_removeCameras);
 SE_DECLARE_FUNC(js_scene_RenderScene_removeDirectionalLight);
@@ -414,7 +408,6 @@ SE_DECLARE_FUNC(js_scene_Root_destroyScenes);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindow);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindows);
 SE_DECLARE_FUNC(js_scene_Root_frameMove);
-SE_DECLARE_FUNC(js_scene_Root_getBatcher2D);
 SE_DECLARE_FUNC(js_scene_Root_getDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
@@ -521,14 +514,6 @@ SE_DECLARE_FUNC(js_scene_Pass_getOffsetFromHandle);
 SE_DECLARE_FUNC(js_scene_Pass_getPassHash);
 SE_DECLARE_FUNC(js_scene_Pass_getTypeFromHandle);
 SE_DECLARE_FUNC(js_scene_Pass_Pass);
-
-extern se::Object *__jsb_cc_scene_DrawBatch2D_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_DrawBatch2D_class; // NOLINT
-
-bool js_register_cc_scene_DrawBatch2D(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::scene::DrawBatch2D *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_scene_ICameraInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_ICameraInfo_class; // NOLINT

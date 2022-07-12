@@ -60,6 +60,7 @@
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/UniversalPlatform.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -71,7 +72,7 @@ bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
-    auto handler = window->getWindowHandler();
+    auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
 
     std::stringstream ss;
@@ -209,6 +210,7 @@ int Engine::restart() {
 }
 
 void Engine::close() { // NOLINT
+    
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
@@ -220,11 +222,10 @@ void Engine::close() { // NOLINT
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
-
+    cc::EventDispatcher::dispatchCloseEvent();
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
 
-    // TODO(timlyeee): The code below is a hack on v3.6, and should be replaced in the future.
-    exit(0);
+
 }
 
 uint Engine::getTotalFrames() const {

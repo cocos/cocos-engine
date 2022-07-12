@@ -361,9 +361,6 @@ void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, uint32_t referen
 }
 
 void CCVKCommandBuffer::nextSubpass() {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
     vkCmdNextSubpass(_gpuCommandBuffer->vkCommandBuffer, _secondaryRP ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 }
 

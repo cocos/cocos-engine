@@ -94,7 +94,7 @@ INT_PTR CALLBACK AboutDialogCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 
 void onHelpAbout() {
     ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    HWND           windowHandler    = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandler());
+    HWND           windowHandler    = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     DialogBox(GetModuleHandle(NULL),
               MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
               windowHandler,
@@ -103,7 +103,7 @@ void onHelpAbout() {
 
 void shutDownApp() {
     ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    HWND           windowHandler    = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandler());
+    HWND           windowHandler    = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     ::SendMessage(windowHandler, WM_CLOSE, NULL, NULL);
 }
 
@@ -357,7 +357,7 @@ int SimulatorApp::run() {
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
     ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    _hwnd                           = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandler());
+    _hwnd                           = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     player::PlayerWin::createWithHwnd(_hwnd);
     DragAcceptFiles(_hwnd, TRUE);
     // SendMessage(_hwnd, WM_SETICON, ICON_BIG, (LPARAM)icon);

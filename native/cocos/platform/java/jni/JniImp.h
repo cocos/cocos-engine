@@ -46,3 +46,4 @@ extern void flushTasksOnGameThreadAtForegroundJNI();
 extern void setAccelerometerEnabledJNI(bool isEnabled);
 extern void setAccelerometerIntervalJNI(float interval);
 extern float *getDeviceMotionValueJNI();
+extern void finishActivity();

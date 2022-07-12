@@ -64,6 +64,8 @@ void SceneGlobals::activate() {
     if (_octreeInfo != nullptr) {
         _octreeInfo->activate(sceneData->getOctree());
     }
+
+    Root::getInstance()->onGlobalPipelineStateChanged();
 }
 
 void SceneGlobals::setAmbientInfo(scene::AmbientInfo *info) { _ambientInfo = info; }

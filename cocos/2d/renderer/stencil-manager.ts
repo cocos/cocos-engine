@@ -23,9 +23,11 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
 import { Mask } from '../components/mask';
 import { Material } from '../../core';
+import { NativeStencilManager } from './native-2d';
 
 // Stage types
 export enum Stage {
@@ -45,9 +47,20 @@ export enum Stage {
     ENTER_LEVEL_INVERTED = 6,
 }
 
+export enum StencilSharedBufferView {
+    stencilTest,
+    func,
+    stencilMask,
+    writeMask,
+    failOp,
+    zFailOp,
+    passOp,
+    ref,
+    count,
+}
+
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
-    public stage = Stage.DISABLED;
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
@@ -59,6 +72,14 @@ export class StencilManager {
         passOp: StencilOp.KEEP,
         ref: 1,
     };
+
+    private _stage:Stage = Stage.DISABLED;
+    get stage () {
+        return this._stage;
+    }
+    set stage (val:Stage) {
+        this._stage = val;
+    }
 
     get pattern () {
         return this._stencilPattern;
@@ -74,7 +95,7 @@ export class StencilManager {
     }
 
     public enterLevel (comp: Mask) {
-        comp.graphics!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
+        comp.subComp!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
         // this.stage = Stage.ENTER_LEVEL;
     }
 

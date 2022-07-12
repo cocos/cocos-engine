@@ -32,4 +32,5 @@
 - (void)windowWillCloseNotification;
 - (void)applicationWillTerminate:(NSNotification*)aNotification;
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication;
+- (NSWindow*) getWindow;
 @end

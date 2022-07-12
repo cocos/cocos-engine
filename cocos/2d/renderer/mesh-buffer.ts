@@ -23,11 +23,13 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { NativeUIMeshBuffer } from './native-2d';
 
 interface IIARef {
     ia: InputAssembler;
@@ -35,19 +37,98 @@ interface IIARef {
     indexBuffer: Buffer;
 }
 
+export enum MeshBufferSharedBufferView{
+    byteOffset,
+    vertexOffset,
+    indexOffset,
+    dirty,
+    floatsPerVertex,
+    count = 5
+}
+
 export class MeshBuffer {
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
 
-    public byteOffset = 0;
-    public vertexOffset = 0;
-    public indexOffset = 0;
-    public vData: Float32Array = null!;
-    public iData: Uint16Array = null!;
+    protected _byteOffset = 0;
+    get byteOffset () {
+        return this._byteOffset;
+    }
+    set byteOffset (val:number) {
+        this._byteOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.byteOffset] = val;
+        }
+    }
 
-    private _dirty = false;
+    protected _vertexOffset = 0;
+    get vertexOffset () {
+        return this._vertexOffset;
+    }
+    set vertexOffset (val:number) {
+        this._vertexOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.vertexOffset] = val;
+        }
+    }
+
+    protected _indexOffset = 0;
+    get indexOffset () {
+        return this._indexOffset;
+    }
+    set indexOffset (val:number) {
+        this._indexOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.indexOffset] = val;
+        }
+    }
+
+    protected _dirty = false;
+    get dirty () {
+        return this._dirty;
+    }
+    set dirty (val:boolean) {
+        this._dirty = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.dirty] = val ? 1 : 0;
+        }
+    }
+
+    protected _floatsPerVertex = 0;
+    get floatsPerVertex () {
+        return this._floatsPerVertex;
+    }
+    set floatsPerVertex (val:number) {
+        this._floatsPerVertex = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.floatsPerVertex] = val;
+        }
+    }
+
+    protected _vData: Float32Array = null!;
+    get vData () {
+        return this._vData;
+    }
+    set vData (val:Float32Array) {
+        this._vData = val;
+        //还得看是否需要共享.buffer
+        if (JSB) {
+            this._nativeObj.vData = val;
+        }
+    }
+
+    protected _iData: Uint16Array = null!;
+    get iData () {
+        return this._iData;
+    }
+    set iData (val:Uint16Array) {
+        this._iData = val;
+        if (JSB) {
+            this._nativeObj.iData = val;
+        }
+    }
+
     private _vertexFormatBytes = 0;
-    private _floatsPerVertex = 0;
     private _initVDataCount = 0;
     private _initIDataCount = 0;
     private _attributes: Attribute[] = null!;
@@ -57,11 +138,46 @@ export class MeshBuffer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
+    //nativeObj
+    protected declare _nativeObj:NativeUIMeshBuffer;
+    get nativeObj () {
+        return this._nativeObj;
+    }
+
+    //sharedBuffer
+    protected declare _sharedBuffer: Uint32Array;
+    get sharedBuffer () {
+        return this._sharedBuffer;
+    }
+
+    public initSharedBuffer () {
+        if (JSB) {
+            this._sharedBuffer = new Uint32Array(MeshBufferSharedBufferView.count);
+        }
+    }
+
+    public syncSharedBufferToNative () {
+        if (JSB) {
+            this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
+        }
+    }
+
+    constructor () {
+        if (JSB) {
+            this._nativeObj = new NativeUIMeshBuffer();
+        }
+        this.initSharedBuffer();
+        this.syncSharedBufferToNative();
+    }
+
     public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
         this._initVDataCount = vFloatCount;
         this._initIDataCount = iCount;
         this._attributes = attrs;
-        this._floatsPerVertex = getComponentPerVertex(attrs);
+
+        //sync to native
+        this.floatsPerVertex = getComponentPerVertex(attrs);
+
         assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
 
         if (!this.vData || !this.iData) {
@@ -70,11 +186,14 @@ export class MeshBuffer {
         }
         // Initialize the first ia
         this._iaPool.push(this.createNewIA(device));
+        if (JSB) {
+            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
+        }
     }
 
     public reset () {
         this._nextFreeIAHandle = 0;
-        this._dirty = false;
+        this.dirty = false;
     }
 
     public destroy () {
@@ -99,7 +218,7 @@ export class MeshBuffer {
     }
 
     public setDirty () {
-        this._dirty = true;
+        this.dirty = true;
     }
 
     /**
@@ -111,6 +230,7 @@ export class MeshBuffer {
         return false;
     }
 
+    //有返回值暂时没写
     public requireFreeIA (device: Device) {
         if (this._iaPool.length <= this._nextFreeIAHandle) {
             this._iaPool.push(this.createNewIA(device));
@@ -119,6 +239,7 @@ export class MeshBuffer {
         return ia;
     }
 
+    //参数暂时没传
     public recycleIA (ia: InputAssembler) {
         const pool = this._iaPool;
         for (let i = 0; i < this._nextFreeIAHandle; ++i) {
@@ -176,9 +297,10 @@ export class MeshBuffer {
             }
             iaRef.indexBuffer.update(indicesData);
         }
-        this._dirty = false;
+        this.dirty = false;
     }
 
+    //有返回值，暂时没原生化
     private createNewIA (device: Device): IIARef {
         let ia;
         let vertexBuffers;

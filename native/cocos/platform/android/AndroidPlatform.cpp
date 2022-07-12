@@ -277,6 +277,8 @@ public:
                 break;
             case APP_CMD_INIT_WINDOW: {
                 _hasWindow = true;
+                auto *systemWindow = _androidPlatform->getInterface<SystemWindow>();
+                systemWindow->setWindowHandle(_androidPlatform->_app->window);
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
                 if (!_launched) {
@@ -287,7 +289,7 @@ public:
                 } else {
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->getWindowHandler());
+                    event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
                     _androidPlatform->dispatchEvent(event);
                 }
                 break;
@@ -298,7 +300,7 @@ public:
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_TERM_WINDOW");
                 cc::CustomEvent event;
                 event.name = EVENT_DESTROY_WINDOW;
-                event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->getWindowHandler());
+                event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
                 _androidPlatform->dispatchEvent(event);
                 break;
             }
@@ -324,7 +326,7 @@ public:
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 _androidPlatform->dispatchEvent(ev);
-                _androidPlatform->onDestory();
+                _androidPlatform->onDestroy();
                 break;
             }
             case APP_CMD_STOP: {
@@ -482,8 +484,8 @@ int AndroidPlatform::init() {
     return 0;
 }
 
-void AndroidPlatform::onDestory() {
-    UniversalPlatform::onDestory();
+void AndroidPlatform::onDestroy() {
+    UniversalPlatform::onDestroy();
     unregisterAllInterfaces();
     CC_SAFE_DELETE(_inputProxy)
 }
@@ -495,10 +497,6 @@ int AndroidPlatform::getSdkVersion() const {
 int32_t AndroidPlatform::run(int  /*argc*/, const char **/*argv*/) {
     loop();
     return 0;
-}
-
-uintptr_t AndroidPlatform::getWindowHandler() const {
-    return reinterpret_cast<uintptr_t>(_app->window);
 }
 
 int32_t AndroidPlatform::loop() {
@@ -545,20 +543,12 @@ void AndroidPlatform::pollEvent() {
     //
 }
 
-void *AndroidPlatform::getActivity() {
+void *AndroidPlatform::getActivity() { // Dangerous
     return _app->activity->javaGameActivity;
 }
 
 void *AndroidPlatform::getEnv() {
     return JniHelper::getEnv();
-}
-
-int32_t AndroidPlatform::getWidth() const {
-    return ANativeWindow_getWidth(_app->window);
-}
-
-int32_t AndroidPlatform::getHeight() const {
-    return ANativeWindow_getHeight(_app->window);
 }
 
 } // namespace cc
