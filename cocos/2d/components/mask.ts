@@ -357,7 +357,7 @@ export class Mask extends UIRenderer {
                 this.subComp.renderEntity.setIsSubMask(true);
                 this._renderEntity.setIsMaskInverted(this._inverted);
                 // subMask and mask should have the same inverted flag
-                this._graphics.renderEntity.setIsMaskInverted(this._inverted);
+                this.subComp.renderEntity.setIsMaskInverted(this._inverted);
                 // hack for isMeshBuffer flag
                 this.renderData.renderDrawInfo.setIsMeshBuffer(true);
             }
@@ -506,7 +506,7 @@ export class Mask extends UIRenderer {
             this._initSpriteNode();
             const sprite = this._sprite = this._maskNode!.getComponent(Sprite)!;
             sprite.color = Color.WHITE.clone();
-            // @ts-ignore
+            // @ts-expect-error Mask hack
             sprite._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
         }
         this._sprite.spriteFrame = this._spriteFrame;
