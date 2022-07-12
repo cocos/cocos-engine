@@ -26,7 +26,6 @@
 #include "bindings/utils/BindingUtils.h"
 #include "bindings/jswrapper/SeApi.h"
 
-
 namespace cc::bindings {
 
 CppMemorySharedToScriptManager::~CppMemorySharedToScriptManager() {
@@ -37,7 +36,7 @@ void CppMemorySharedToScriptManager::initialize(void* ptr, uint32_t byteLength) 
     CC_ASSERT(_sharedArrayBufferObject == nullptr);
     // Free buffer callback is empty since the memory is allocated inside Node,
     // the external array buffer just holds a reference to the memory.
-    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(ptr, byteLength, [](void * /*contents*/, size_t /*byteLength*/, void * /*userData*/) {});
+    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(ptr, byteLength, [](void* /*contents*/, size_t /*byteLength*/, void* /*userData*/) {});
     _sharedArrayBufferObject->root();
 }
 
@@ -49,4 +48,4 @@ void CppMemorySharedToScriptManager::destroy() {
     }
 }
 
-}
+} // namespace cc::bindings

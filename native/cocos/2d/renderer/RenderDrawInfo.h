@@ -101,7 +101,7 @@ public:
 
     inline Batcher2d* getBatcher() const { return _batcher; }
     void setBatcher(Batcher2d* batcher);
-    se::Object *getAttrSharedBufferForJS() const;
+    se::Object* getAttrSharedBufferForJS() const;
 
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));

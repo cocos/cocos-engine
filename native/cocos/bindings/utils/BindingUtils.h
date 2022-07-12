@@ -40,7 +40,7 @@ public:
     CppMemorySharedToScriptManager() = default;
     ~CppMemorySharedToScriptManager();
 
-    void initialize(void* ptr, uint32_t byteLength);
+    void initialize(void *ptr, uint32_t byteLength);
     void destroy();
 
     inline se::Object *getSharedArrayBufferObject() const { return _sharedArrayBufferObject; }

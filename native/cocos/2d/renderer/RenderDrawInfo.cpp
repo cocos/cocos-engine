@@ -138,7 +138,7 @@ void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, 
     _sharedBuffer = buffer;
 }
 
-se::Object *RenderDrawInfo::getAttrSharedBufferForJS() const {
+se::Object* RenderDrawInfo::getAttrSharedBufferForJS() const {
     return _attrSharedBufferManager.getSharedArrayBufferObject();
 }
 
