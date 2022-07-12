@@ -5,4 +5,5 @@ export const native = {
     Downloader: globalJsb.Downloader,
     zipUtils: globalJsb.ZipUtils,
     fileUtils: globalJsb.fileUtils,
+    DebugRenderer: globalJsb.DebugRenderer,
 };
