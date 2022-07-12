@@ -124,7 +124,7 @@ exports.template = `
     z-index: 10;
     background-color: var(--color-normal-fill);
     border: 1px solid var(--color-normal-fill-important);
-    border-radius: 4px;
+    border-radius: 2px;
     box-sizing: border-box;
 }
 
@@ -287,7 +287,7 @@ exports.template = `
 
 .widget-component .button-group {
     border: 1px solid var(--color-normal-border);
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
     display: flex;
     flex: 1;
@@ -341,14 +341,14 @@ exports.template = `
     position: absolute;
     width: 12px;
     height: 4px;
-    background-color: var(--color-normal-border-weakest);
+    background-color: var(--color-normal-contrast-weakest);
 }
 
 .widget-component .button-group .button .icon .short {
     position: absolute;
     width: 7px;
     height: 4px;
-    background-color: var(--color-normal-border-weakest);
+    background-color: var(--color-normal-contrast-weakest);
 }
 
 .widget-component .button-group .button .left.bottom {
