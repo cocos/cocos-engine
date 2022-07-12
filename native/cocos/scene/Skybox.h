@@ -292,6 +292,7 @@ private:
     bool _useIBL{false};
     bool _useHDR{true};
     bool _useDiffuseMap{false};
+    bool _activated{false};
     IntrusivePtr<Material> _editableMaterial;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);

@@ -63,6 +63,7 @@ public:
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
     void removeDynamicRenderDrawInfo();
+    void clearDynamicRenderDrawInfos();
 
     inline bool getIsMask() const { return _isMask; }
     void setIsMask(bool isMask);
@@ -130,7 +131,6 @@ private:
     ArrayBuffer::Ptr _entitySharedBuffer;
 
     float _opacity{1.0f};
-    //float _parentOpacity{1.0f};
 
     bool _isMask{false};
     bool _isSubMask{false};

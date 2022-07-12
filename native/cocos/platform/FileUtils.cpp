@@ -1143,7 +1143,7 @@ void FileUtils::valueMapCompact(ValueMap &valueMap) {
 void FileUtils::valueVectorCompact(ValueVector &valueVector) {
 }
 
-ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
+ccstd::string FileUtils::getFileDir(const ccstd::string &path) const {
     ccstd::string ret;
     size_t pos = path.rfind('/');
     if (pos != ccstd::string::npos) {
@@ -1155,7 +1155,7 @@ ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
     return ret;
 }
 
-ccstd::string FileUtils::normalizePath(const ccstd::string &path) {
+ccstd::string FileUtils::normalizePath(const ccstd::string &path) const {
     ccstd::string ret;
     // Normalize: remove . and ..
     ret = std::regex_replace(path, std::regex("/\\./"), "/");

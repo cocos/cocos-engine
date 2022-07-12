@@ -230,8 +230,10 @@ export class Fog {
     protected _fogAtten = 5;
     protected _fogTop = 1.5;
     protected _fogRange = 1.2;
+    protected _activated = false;
 
     public initialize (fogInfo : FogInfo) {
+        this._activated = false;
         this.fogColor = fogInfo.fogColor;
         this._enabled = fogInfo.enabled;
         this._type = this.enabled ? fogInfo.type : FOG_TYPE_NONE;
@@ -246,6 +248,7 @@ export class Fog {
 
     public activate () {
         this._updatePipeline();
+        this._activated = true;
     }
 
     protected _updatePipeline () {
@@ -258,7 +261,9 @@ export class Fog {
         }
         pipeline.macros.CC_USE_FOG = value;
         pipeline.macros.CC_USE_ACCURATE_FOG = accurateValue;
-        root.onGlobalPipelineStateChanged();
+        if (this._activated) {
+            root.onGlobalPipelineStateChanged();
+        }
     }
 }
 

@@ -123,7 +123,7 @@ void main()  {
     #endif
       color.rgb = ACESToneMap(color.rgb);
   #endif
-  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
     if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
   #endif
   color.rgb = LinearToSRGB(color.rgb);
