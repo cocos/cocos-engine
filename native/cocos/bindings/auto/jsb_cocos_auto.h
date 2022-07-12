@@ -15,6 +15,7 @@
 #include "cocos/math/Color.h"
 #include "cocos/core/data/Object.h"
 #include "cocos/core/data/JSBNativeDataHolder.h"
+#include "cocos/profiler/DebugRenderer.h"
 
 bool register_all_engine(se::Object *obj);                   // NOLINT
 
@@ -30,6 +31,8 @@ JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
 JSB_REGISTER_OBJECT_TYPE(cc::Color);
 JSB_REGISTER_OBJECT_TYPE(cc::CCObject);
 JSB_REGISTER_OBJECT_TYPE(cc::JSBNativeDataHolder);
+JSB_REGISTER_OBJECT_TYPE(cc::DebugTextInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::DebugRenderer);
 
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT
@@ -185,4 +188,24 @@ bool js_register_cc_JSBNativeDataHolder(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_engine_JSBNativeDataHolder_destroy);
 SE_DECLARE_FUNC(js_engine_JSBNativeDataHolder_JSBNativeDataHolder);
+
+#if CC_USE_DEBUG_RENDERER
+extern se::Object *__jsb_cc_DebugTextInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_DebugTextInfo_class; // NOLINT
+
+bool js_register_cc_DebugTextInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::DebugTextInfo *, se::Object *ctx); //NOLINT
+#endif //CC_USE_DEBUG_RENDERER
+
+#if CC_USE_DEBUG_RENDERER
+extern se::Object *__jsb_cc_DebugRenderer_proto; // NOLINT
+extern se::Class * __jsb_cc_DebugRenderer_class; // NOLINT
+
+bool js_register_cc_DebugRenderer(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_engine_DebugRenderer_addText);
+SE_DECLARE_FUNC(js_engine_DebugRenderer_getInstance);
+#endif //CC_USE_DEBUG_RENDERER
 // clang-format on
