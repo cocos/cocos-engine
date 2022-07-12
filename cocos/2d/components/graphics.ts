@@ -733,6 +733,7 @@ export class Graphics extends UIRenderer {
     }
 
     public updateRenderer () {
+        super.updateRenderer();
         if (JSB) {
             if (this._isNeedUploadData) {
                 if (this.impl) {
