@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
-import { LayoutGraphColorMap } from './effect';
+import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 // eslint-disable-next-line max-len
 import { DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
@@ -365,7 +365,7 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     public print (): string {
         const g: LayoutGraphData = this._data;
         const visitor = new PrintVisitor();
-        const colorMap = new LayoutGraphColorMap(g.numVertices());
+        const colorMap = new VectorGraphColorMap(g.numVertices());
         depthFirstSearch(g, visitor, colorMap);
         return visitor.oss;
     }

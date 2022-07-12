@@ -85,6 +85,17 @@ export const enum ResourceGraphValue {
     Swapchain,
 }
 
+export function getResourceGraphValueName (e: ResourceGraphValue): string {
+    switch (e) {
+    case ResourceGraphValue.Managed: return 'Managed';
+    case ResourceGraphValue.PersistentBuffer: return 'PersistentBuffer';
+    case ResourceGraphValue.PersistentTexture: return 'PersistentTexture';
+    case ResourceGraphValue.Framebuffer: return 'Framebuffer';
+    case ResourceGraphValue.Swapchain: return 'Swapchain';
+    default: return '';
+    }
+}
+
 interface ResourceGraphValueType {
     [ResourceGraphValue.Managed]: ManagedResource
     [ResourceGraphValue.PersistentBuffer]: Buffer
@@ -1140,6 +1151,22 @@ export const enum RenderGraphValue {
     Scene,
     Blit,
     Dispatch,
+}
+
+export function getRenderGraphValueName (e: RenderGraphValue): string {
+    switch (e) {
+    case RenderGraphValue.Raster: return 'Raster';
+    case RenderGraphValue.Compute: return 'Compute';
+    case RenderGraphValue.Copy: return 'Copy';
+    case RenderGraphValue.Move: return 'Move';
+    case RenderGraphValue.Present: return 'Present';
+    case RenderGraphValue.Raytrace: return 'Raytrace';
+    case RenderGraphValue.Queue: return 'Queue';
+    case RenderGraphValue.Scene: return 'Scene';
+    case RenderGraphValue.Blit: return 'Blit';
+    case RenderGraphValue.Dispatch: return 'Dispatch';
+    default: return '';
+    }
 }
 
 interface RenderGraphValueType {

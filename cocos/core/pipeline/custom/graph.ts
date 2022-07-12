@@ -636,7 +636,8 @@ function depthFirstVisitImpl (
             visitor.finishEdge(srcE, g);
         }
         if (ei) { // has out edges
-            for (const e of ei) {
+            for (let ev = ei.next(); !ev.done; ev = ei.next()) {
+                const e = ev.value;
                 const v = e.target;
                 visitor.examineEdge(e, g);
                 const vColor = color.get(v);
@@ -739,4 +740,42 @@ export class DefaultVisitor implements GraphVisitor {
     finishVertex (v: vertex_descriptor, g: IncidenceGraph): void {
         // do nothing
     }
+}
+
+export class ReferenceGraphView <BaseGraph extends ReferenceGraph & VertexListGraph>
+implements IncidenceGraph, VertexListGraph {
+    constructor (g: BaseGraph) {
+        this.g = g;
+        this.directed_category = directional.directed;
+        this.edge_parallel_category = parallel.allow;
+        this.traversal_category = traversal.incidence | traversal.vertex_list;
+    }
+    nullVertex () {
+        return this.g.nullVertex();
+    }
+    edge (u: vertex_descriptor, v: vertex_descriptor): boolean {
+        return this.g.reference(u, v);
+    }
+    source (e: edge_descriptor): vertex_descriptor {
+        return this.g.parent(e);
+    }
+    target (e: edge_descriptor): vertex_descriptor {
+        return this.g.child(e);
+    }
+    outEdges (v: vertex_descriptor): out_edge_iterator {
+        return this.g.children(v);
+    }
+    outDegree (v: vertex_descriptor): number {
+        return this.g.numChildren(v);
+    }
+    vertices (): IterableIterator<vertex_descriptor> {
+        return this.g.vertices();
+    }
+    numVertices (): number {
+        return this.g.numVertices();
+    }
+    readonly directed_category: directional;
+    readonly edge_parallel_category: parallel;
+    readonly traversal_category: traversal;
+    g: BaseGraph;
 }

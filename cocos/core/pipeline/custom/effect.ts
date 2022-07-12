@@ -217,7 +217,7 @@ enum DeferredStage {
     LIGHTING,
 }
 
-export class LayoutGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
+export class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
     constructor (sz: number) {
         this.colors = new Array<GraphColor>(sz);
     }
@@ -252,7 +252,7 @@ export function buildDeferredLayout (ppl: Pipeline) {
     lg.setDescriptor(lightingPassBlock, 'depth_stencil', Type.FLOAT4);
 
     const visitor = new CollectVisitor();
-    const colorMap = new LayoutGraphColorMap(lg.layoutGraph.numVertices());
+    const colorMap = new VectorGraphColorMap(lg.layoutGraph.numVertices());
     depthFirstSearch(lg.layoutGraph, visitor, colorMap);
 
     if (visitor.error) {

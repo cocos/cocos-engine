@@ -124,6 +124,14 @@ export const enum LayoutGraphValue {
     RenderPhase,
 }
 
+export function getLayoutGraphValueName (e: LayoutGraphValue): string {
+    switch (e) {
+    case LayoutGraphValue.RenderStage: return 'RenderStage';
+    case LayoutGraphValue.RenderPhase: return 'RenderPhase';
+    default: return '';
+    }
+}
+
 interface LayoutGraphValueType {
     [LayoutGraphValue.RenderStage]: number
     [LayoutGraphValue.RenderPhase]: RenderPhase
@@ -701,6 +709,14 @@ export class RenderPhaseData {
 export const enum LayoutGraphDataValue {
     RenderStage,
     RenderPhase,
+}
+
+export function getLayoutGraphDataValueName (e: LayoutGraphDataValue): string {
+    switch (e) {
+    case LayoutGraphDataValue.RenderStage: return 'RenderStage';
+    case LayoutGraphDataValue.RenderPhase: return 'RenderPhase';
+    default: return '';
+    }
 }
 
 interface LayoutGraphDataValueType {
