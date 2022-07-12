@@ -70,7 +70,7 @@ enum class UdpLogClientState {
 * 1. testId
 * 2. clentId
 * 3. bootId,  the boot timestamp
-* 4. readable log time
+* 4. millseconds since boot
 * 5. log content
 *
 * These parts are joined with '\n'.
@@ -93,14 +93,14 @@ public:
         if (_status == UdpLogClientState::DONE) {
             return;
         }
-        std::time_t now = std::time(nullptr);
-        char dateString[100] = {0};
-        std::strftime(dateString, sizeof(dateString), "%c", std::localtime(&now));
+        auto timeNow = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
         std::stringstream ss;
         ss << _testID << std::endl
            << _clientID << std::endl
            << _bootID << std::endl
-           << dateString << std::endl
+           << (timeNow - _bootID) << std::endl
            << msg;
         sendLog(ss.str());
     }
