@@ -147,7 +147,6 @@ export class Mask extends UIRenderer {
                 this._sprite = null;
             }
             this._spriteFrame = null;
-            this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
             this._maskNode!.parent = null;
             this._changeRenderType();
             this._updateGraphics();
@@ -368,6 +367,7 @@ export class Mask extends UIRenderer {
         super.onEnable();
         this._updateGraphics();
         this._enableGraphics();
+        this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
     }
 
     /**
@@ -384,6 +384,7 @@ export class Mask extends UIRenderer {
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
+        this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
     }
 
     public onDestroy () {
@@ -499,11 +500,12 @@ export class Mask extends UIRenderer {
         node.setPosition(0, 0, 0);
         this._maskNode = node;
         this.node.insertChild(node, 0);
-        this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
     }
 
     private _sizeChange () {
-        this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
+        if (this._sprite) {
+            this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
+        }
     }
 
     protected _createSprite () {
