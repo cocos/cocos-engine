@@ -108,6 +108,7 @@ void FogInfo::activate(Fog *resource) {
 
 //
 void Fog::initialize(const FogInfo &fogInfo) {
+    _activated = false;
     setFogColor(fogInfo.getFogColor());
     _enabled = fogInfo.isEnabled();
     _accurate = fogInfo.isAccurate();
@@ -137,7 +138,9 @@ void Fog::updatePipeline() {
 
     pipeline->setValue("CC_USE_FOG", static_cast<int32_t>(value));
     pipeline->setValue("CC_USE_ACCURATE_FOG", accurateValue);
-    root->onGlobalPipelineStateChanged();
+    if (_activated) {
+        root->onGlobalPipelineStateChanged();
+    }
 }
 
 void Fog::setFogColor(const Color &val) {
