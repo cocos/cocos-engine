@@ -112,8 +112,17 @@
     [super viewDidChangeBackingProperties];
     CAMetalLayer *layer = (CAMetalLayer *)self.layer;
     layer.contentsScale = self.window.backingScaleFactor;
+    auto size = [[self.window contentView] frame].size;
+    auto width = size.width * self.window.backingScaleFactor;
+    auto height = size.height * self.window.backingScaleFactor;
+
+    if(width > 0 && height > 0) {
+        [super setFrameSize:size];
+        layer.drawableSize = CGSizeMake(width, height);
+    }
+
     if (cc::EventDispatcher::initialized())
-        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>([layer drawableSize].width), static_cast<int>([layer drawableSize].height));
+        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(width), static_cast<int>(height));
 }
 
 - (void)keyDown:(NSEvent *)event {
