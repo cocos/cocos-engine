@@ -150,6 +150,11 @@ export class Mask extends UIRenderer {
             this._maskNode!.parent = null;
             this._changeRenderType();
             this._updateGraphics();
+            if (JSB) {
+                this.subComp!.renderEntity!.setIsSubMask(true);
+                // subMask and mask should have the same inverted flag
+                this.subComp!.renderEntity!.setIsMaskInverted(this._inverted);
+            }
         } else {
             if (this._graphics) {
                 this._graphics.clear();
@@ -157,6 +162,11 @@ export class Mask extends UIRenderer {
             }
             this._maskNode!.parent = null;
             this._changeRenderType();
+            if (JSB) {
+                this.subComp!.renderEntity!.setIsSubMask(true);
+                // subMask and mask should have the same inverted flag
+                this.subComp!.renderEntity!.setIsMaskInverted(this._inverted);
+            }
         }
     }
 
@@ -368,7 +378,9 @@ export class Mask extends UIRenderer {
         this._updateGraphics();
         this._enableGraphics();
         this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+        this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
         this._sizeChange();
+        this._siblingChange();
     }
 
     /**
@@ -386,6 +398,7 @@ export class Mask extends UIRenderer {
         super.onDisable();
         this._disableGraphics();
         this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+        this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
     }
 
     public onDestroy () {
@@ -506,6 +519,12 @@ export class Mask extends UIRenderer {
     private _sizeChange () {
         if (this._sprite) {
             this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
+        }
+    }
+
+    private _siblingChange () {
+        if (this._maskNode && this._maskNode.getSiblingIndex() !== 0) {
+            this._maskNode.setSiblingIndex(0);
         }
     }
 
