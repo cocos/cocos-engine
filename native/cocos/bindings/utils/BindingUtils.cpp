@@ -34,7 +34,7 @@ NativeMemorySharedToScriptActor::~NativeMemorySharedToScriptActor() {
 
 void NativeMemorySharedToScriptActor::initialize(void* ptr, uint32_t byteLength) {
     CC_ASSERT(_sharedArrayBufferObject == nullptr);
-    // Free buffer callback is empty since the memory is allocated inside Node,
+    // The callback of freeing buffer is empty since the memory is managed in native,
     // the external array buffer just holds a reference to the memory.
     _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(ptr, byteLength, [](void* /*contents*/, size_t /*byteLength*/, void* /*userData*/) {});
     _sharedArrayBufferObject->root();
