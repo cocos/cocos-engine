@@ -59,12 +59,7 @@
 CC_FORMAT_HINT(3, 4)
 void selogMessage(cc::LogLevel level, const char *tag, const char *format, ...);
 
-#if CC_DEBUG
-    #define SE_LOGD(...) selogMessage(cc::LogLevel::LEVEL_DEBUG, "D/", ##__VA_ARGS__)
-#else
-    #define SE_LOGD(...)
-#endif
-
+#define SE_LOGD(...) selogMessage(cc::LogLevel::LEVEL_DEBUG, "D/", ##__VA_ARGS__)
 #define SE_LOGE(...) selogMessage(cc::LogLevel::ERR, "E/", ##__VA_ARGS__)
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
