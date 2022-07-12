@@ -34,7 +34,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, CCObject, Node } from '../../core';
+import { Game, Material, builtinResMgr, director, CCObject, Node, NodeEventType } from '../../core';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode, deviceManager } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
@@ -147,6 +147,7 @@ export class Mask extends UIRenderer {
                 this._sprite = null;
             }
             this._spriteFrame = null;
+            this._maskNode!.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
             this._maskNode!.parent = null;
             this._changeRenderType();
             this._updateGraphics();
@@ -237,7 +238,6 @@ export class Mask extends UIRenderer {
 
         if (this._sprite) {
             this._sprite.spriteFrame = value;
-            this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
         }
         this._updateMaterial();
     }
@@ -499,6 +499,11 @@ export class Mask extends UIRenderer {
         node.setPosition(0, 0, 0);
         this._maskNode = node;
         this.node.insertChild(node, 0);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+    }
+
+    private _sizeChange () {
+        this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
     }
 
     protected _createSprite () {
@@ -508,9 +513,10 @@ export class Mask extends UIRenderer {
             sprite.color = Color.WHITE.clone();
             // @ts-expect-error Mask hack
             sprite._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
+            sprite.sizeMode = 0;
+            this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
         }
         this._sprite.spriteFrame = this._spriteFrame;
-        this._maskNode!._uiProps.uiTransformComp!.setContentSize(this.node._uiProps.uiTransformComp!.contentSize);
         this._updateMaterial();
     }
 
