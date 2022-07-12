@@ -230,8 +230,8 @@ CCProgram surface-fragment %{
     #endif
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      baseColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor.a = texColor.a;
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor = texColor;
     #else
       baseColor.rgb *= diffuseFactor;
     #endif
@@ -264,6 +264,14 @@ CCProgram surface-fragment %{
       inSpecularIntensity *= inMetallic; //simulate specular color is black
     #endif
     baseColor.rgb = albedo;
+
+    #if DCC_APP_NAME == DCC_APP_BLENDER
+      float spec = specularFactor;
+      #if USE_SPECULAR_MAP
+        spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+      #endif
+      inSpecularIntensity *= spec * 0.5;
+    #endif
 
     pbrParams.x = 1.0 - inGlossiness;
     pbrParams.y = inMetallic;
@@ -321,6 +329,7 @@ CCProgram surface-fragment %{
     pbr.x = 1.0;
     #if USE_OCCLUSION_MAP
       pbr.x = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
+      pbr.x = pow(pbr.x, 1.5);
     #endif
     pbr.y = outParams.x;
     pbr.z = outParams.y;

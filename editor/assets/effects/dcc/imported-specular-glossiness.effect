@@ -350,6 +350,15 @@ CCProgram standard-fs %{
       inSpecularIntensity *= inMetallic; //simulate specular color is black
     #endif
 
+    #if DCC_APP_NAME == DCC_APP_BLENDER
+      float spec = specularFactor;
+      #if USE_SPECULAR_MAP
+        spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+      #endif
+      inSpecularIntensity *= specularFactor;
+    #endif
+
+
     s.normal = v_normal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, TEXTURE_UV).xyz - vec3(0.5);
