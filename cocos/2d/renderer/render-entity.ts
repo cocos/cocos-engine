@@ -13,14 +13,19 @@ export enum RenderEntityType {
     DYNAMIC,
 }
 
-export enum RenderEntitySharedBufferView {
+export enum RenderEntityFloatSharedBufferView {
     colorR,
     colorG,
     colorB,
     colorA,
-    colorDirty,
     localOpacity,
+    count,
+}
+export enum RenderEntityBoolSharedBufferView{
+    colorDirty,
     enabled,
+    padding0,
+    padding1,
     count,
 }
 
@@ -43,7 +48,8 @@ export class RenderEntity {
     // is mask inverted
     protected _isMaskInverted = false;
 
-    protected declare _sharedBuffer: Float32Array;
+    protected declare _floatSharedBuffer: Float32Array;
+    protected declare _boolSharedBuffer:Uint8Array;
 
     private declare _nativeObj: NativeRenderEntity;
     get nativeObj () {
@@ -68,21 +74,10 @@ export class RenderEntity {
     set color (val: Color) {
         this._color = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.colorR] = val.r;
-            this._sharedBuffer[RenderEntitySharedBufferView.colorG] = val.g;
-            this._sharedBuffer[RenderEntitySharedBufferView.colorB] = val.b;
-            this._sharedBuffer[RenderEntitySharedBufferView.colorA] = val.a;
-        }
-    }
-
-    protected _colorDirty = true;
-    get colorDirty () {
-        return this._colorDirty;
-    }
-    set colorDirty (val: boolean) {
-        this._colorDirty = val;
-        if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.colorDirty] = val ? 1 : 0;
+            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorR] = val.r;
+            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorG] = val.g;
+            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorB] = val.b;
+            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorA] = val.a;
         }
     }
 
@@ -93,7 +88,18 @@ export class RenderEntity {
     set localOpacity (val: number) {
         this._localOpacity = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.localOpacity] = val;
+            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.localOpacity] = val;
+        }
+    }
+
+    protected _colorDirty = true;
+    get colorDirty () {
+        return this._colorDirty;
+    }
+    set colorDirty (val: boolean) {
+        this._colorDirty = val;
+        if (JSB) {
+            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty] = val ? 1 : 0;
         }
     }
 
@@ -104,7 +110,7 @@ export class RenderEntity {
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.enabled] = val ? 1 : 0;
+            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.enabled] = val ? 1 : 0;
         }
     }
 
@@ -252,7 +258,9 @@ export class RenderEntity {
     private initSharedBuffer () {
         if (JSB) {
             //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
-            this._sharedBuffer = new Float32Array(this._nativeObj.getEntitySharedBufferForJS());
+            const buffer = this._nativeObj.getEntitySharedBufferForJS();
+            this._floatSharedBuffer = new Float32Array(buffer, 0, RenderEntityFloatSharedBufferView.count);
+            this._boolSharedBuffer = new Uint8Array(buffer, RenderEntityFloatSharedBufferView.count * 4, RenderEntityBoolSharedBufferView.count);
         }
     }
 }

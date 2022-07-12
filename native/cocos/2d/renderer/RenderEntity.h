@@ -41,13 +41,15 @@ enum class RenderEntityType {
 };
 
 struct EntityAttrLayout {
-    float colorR;
-    float colorG;
-    float colorB;
-    float colorA;
-    float colorDirtyBit;
-    float localOpacity;
-    float enabledIndex;
+    float colorR{0.0f};
+    float colorG{0.0f};
+    float colorB{0.0f};
+    float colorA{0.0f};
+    float localOpacity{0.0f};
+    uint8_t colorDirtyBit{0};
+    uint8_t enabledIndex{0};
+    uint8_t padding0{0}; //available
+    uint8_t padding1{0}; //available
 };
 
 class RenderEntity final : public Node::UserData {
@@ -104,8 +106,6 @@ public:
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
- /*   inline float getParentOpacity() const { return _parentOpacity; }
-    inline void setParentOpacity(float parentOpacity) { _parentOpacity = parentOpacity; }*/
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
 
 private:
