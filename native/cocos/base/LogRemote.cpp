@@ -64,7 +64,20 @@ enum class UdpLogClientState {
     OK,
     DONE, // FAILED
 };
-
+/**
+* Parse auto-test-config.json to get ServerConfig.IP & ServerConfig.PORT
+* Logs will be formated with 5 fields
+* 1. testId
+* 2. clentId
+* 3. bootId,  the boot timestamp
+* 4. readable log time
+* 5. log content
+*
+* These parts are joined with '\n'.
+*
+* The log text is sent to the server via UDP. Due to the nature of the UDP protocol,
+* there may be packet loss/missequencing issues.
+*/
 class UdpLogClient {
 public:
     UdpLogClient() {
@@ -88,8 +101,7 @@ public:
            << _clientID << std::endl
            << _bootID << std::endl
            << dateString << std::endl
-           << msg
-           << '\0';
+           << msg;
         sendLog(ss.str());
     }
 
