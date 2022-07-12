@@ -78,8 +78,10 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
 Node::Node(const ccstd::string &name) {
-    static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == 20, "Shared memory should be 20 bytes");
-    _sharedMemoryActor.initialize(&_eventMask, 20);
+#define NODE_SHARED_MEMORY_BYTE_LENGTH (20)
+    static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");
+    _sharedMemoryActor.initialize(&_eventMask, NODE_SHARED_MEMORY_BYTE_LENGTH);
+#undef NODE_SHARED_MEMORY_BYTE_LENGTH
 
     _id = idGenerator.getNewId();
     if (name.empty()) {
