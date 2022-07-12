@@ -18,7 +18,6 @@
 
 package com.cocos.lib;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -104,7 +103,7 @@ public class CocosVideoView extends SurfaceView {
 
     protected boolean mFullScreenEnabled = false;
 
-    private boolean mIsAssetRouse = false;
+    private boolean mIsAssetResource = false;
     private String mVideoFilePath = null;
 
     private int mViewTag = 0;
@@ -164,7 +163,7 @@ public class CocosVideoView extends SurfaceView {
     }
 
     public void setVideoURL(String url) {
-        mIsAssetRouse = false;
+        mIsAssetResource = false;
         setVideoURI(Uri.parse(url), null);
     }
 
@@ -174,13 +173,13 @@ public class CocosVideoView extends SurfaceView {
         }
 
         if (path.startsWith("/")) {
-            mIsAssetRouse = false;
+            mIsAssetResource = false;
             setVideoURI(Uri.parse(path),null);
         }
         else {
 
             mVideoFilePath = path;
-            mIsAssetRouse = true;
+            mIsAssetResource = true;
             setVideoURI(Uri.parse(path), null);
         }
     }
@@ -414,7 +413,7 @@ public class CocosVideoView extends SurfaceView {
     }
 
     private void loadDataSource() throws IOException {
-        if (mIsAssetRouse) {
+        if (mIsAssetResource) {
             AssetFileDescriptor afd = mActivity.getAssets().openFd(mVideoFilePath);
             mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
         } else {
@@ -427,7 +426,7 @@ public class CocosVideoView extends SurfaceView {
             // not ready for playback just yet, will try again later
             return;
         }
-        if (mIsAssetRouse) {
+        if (mIsAssetResource) {
             if(mVideoFilePath == null)
                 return;
         } else if(mVideoUri == null) {
