@@ -51,6 +51,11 @@
 namespace {
 
 #define AUTO_TEST_CONFIG_FILE "auto-test-config.json"
+#define ATC_KEY_CONFIG        "ServerConfig"
+#define ATC_KEY_IP            "IP"
+#define ATC_KEY_PORT          "PORT"
+#define ATC_KEY_PLANID        "planId"
+#define ATC_KEY_FLAGID        "flagId"
 
 enum class UdpLogClientState {
     UNINITIALIZED,
@@ -136,21 +141,37 @@ private:
             _status = UdpLogClientState::DONE;
             return;
         }
-        if (!doc.HasMember("ServerConfig")) {
+
+        if (!doc.HasMember(ATC_KEY_CONFIG)) {
             _status = UdpLogClientState::DONE;
             return;
         }
-        if (doc.HasMember("planId")) {
-            _testID = doc["planId"].GetString();
-        } else {
-            _testID = doc["flagId"].GetString();
-        }
-        _clientID = doc["flagId"].GetString();
-        rapidjson::Value &cfg = doc["ServerConfig"];
-        std::string remoteIp = cfg["IP"].GetString();
-        int remotePort = cfg["PORT"].GetInt() + 1;
-        setServerAddr(remoteIp.c_str(), remotePort);
+        {
+            // parse clientID & testID
+            if (doc.HasMember(ATC_KEY_FLAGID)) {
+                _clientID = doc[ATC_KEY_FLAGID].GetString();
+            } else {
+                _clientID = "flagId is not set!";
+            }
 
+            if (doc.HasMember(ATC_KEY_PLANID)) {
+                _testID = doc[ATC_KEY_PLANID].GetString();
+            } else {
+                _testID = "planId is not set!";
+            }
+        }
+
+        {
+            // parse ip & port
+            rapidjson::Value &cfg = doc[ATC_KEY_CONFIG];
+            if (!cfg.HasMember(ATC_KEY_IP) || !cfg.HasMember(ATC_KEY_PORT)) {
+                _status = UdpLogClientState::DONE;
+                return;
+            }
+            const char *remoteIp = cfg[ATC_KEY_IP].GetString();
+            int remotePort = cfg[ATC_KEY_PORT].GetInt() + 1;
+            setServerAddr(remoteIp, remotePort);
+        }
         _bootID = std::chrono::duration_cast<std::chrono::milliseconds>(
                       std::chrono::system_clock::now().time_since_epoch())
                       .count();
@@ -158,10 +179,10 @@ private:
         _status = UdpLogClientState::CONFIGURED;
     }
 
-    void setServerAddr(const char *addr, int port) {
+    void setServerAddr(const std::string_view &addr, int port) {
         memset(&_serverAddr, 0, sizeof(_serverAddr));
         _serverAddr.sin_family = AF_INET;
-        _serverAddr.sin_addr.s_addr = inet_addr(addr);
+        _serverAddr.sin_addr.s_addr = inet_addr(addr.data());
         _serverAddr.sin_port = htons(port);
     }
 

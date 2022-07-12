@@ -35,7 +35,7 @@ cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
 cc_set_if_undefined(NET_MODE                  0) # 0 is client
-cc_set_if_undefined(USE_REMOTE_LOG           ON)
+cc_set_if_undefined(USE_REMOTE_LOG           OFF)
 
 
 add_definitions()
