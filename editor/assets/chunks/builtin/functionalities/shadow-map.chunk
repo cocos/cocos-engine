@@ -174,7 +174,14 @@ float CCGetLinearDepth(vec3 worldPos) {
   float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
   {
     float pcf = cc_shadowWHPBInfo.z;
-    vec4 pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
+    vec4 pos = vec4(1.0);
+    if (cc_shadowNFLSInfo.z > EPSILON) {
+      float zn = cc_shadowNFLSInfo.x, zf = cc_shadowNFLSInfo.y;
+      //pos = ApplyShadowDepthBias_Orthographic(shadowPos, shadowBias.x, zn / (zn-zf), 1.0 / (zf-zn));
+      pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
+    } else {
+      pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
+    }
     if (pcf > 2.9) {
       return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
     } else if (pcf > 1.9) { 

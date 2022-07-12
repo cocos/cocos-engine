@@ -6,18 +6,18 @@
     // for alpha clip
     SurfacesFragmentModifyBaseColorAndTransparency();
 
+    highp float clipDepth = v_clip_depth;
     // spot use linear
     if(cc_shadowLPNNInfo.x > EPSILON && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
       if (cc_shadowNFLSInfo.z > EPSILON) {
-        fragColorX = vec4(CCGetLinearDepth(FSInput_worldPos.xyz), 1.0, 1.0, 1.0);
-        return;
+        clipDepth = CCGetLinearDepth(FSInput_worldPos.xyz);
       }
     }
 
     if (cc_shadowLPNNInfo.y > EPSILON) {
-      fragColorX = packDepthToRGBA(v_clip_depth);
+      fragColorX = packDepthToRGBA(clipDepth);
     } else {
-      fragColorX = vec4(v_clip_depth, 1.0, 1.0, 1.0);
+      fragColorX = vec4(clipDepth, 1.0, 1.0, 1.0);
     }
   }
