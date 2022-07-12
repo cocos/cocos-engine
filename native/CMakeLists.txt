@@ -656,6 +656,12 @@ cocos_source_files(MODULE cclog
     cocos/base/Log.h
 )
 
+if(USE_REMOTE_LOG)
+cocos_source_files(MODULE cclog
+    cocos/base/LogRemote.cpp
+)
+endif()
+
 ############ module log
 cocos_source_files(MODULE ccunzip
     cocos/base/ZipUtils.cpp

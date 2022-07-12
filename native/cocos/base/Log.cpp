@@ -45,9 +45,7 @@
     #define SET_CONSOLE_TEXT_COLOR(color) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color)
 
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-
     #include <android/log.h>
-
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <hilog/log.h>
 #endif
