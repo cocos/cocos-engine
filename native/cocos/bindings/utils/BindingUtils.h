@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "base/Macros.h"
 
