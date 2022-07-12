@@ -34,6 +34,7 @@ cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
+cc_set_if_undefined(NET_MODE                  0) # 0 is client
 
 add_definitions()
 
@@ -62,6 +63,16 @@ if(USE_SERVER_MODE)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
     add_definitions(-DCC_SERVER_MODE)
+endif()
+
+
+add_definitions(-DCC_NETMODE_CLIENT=0)
+add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
+add_definitions(-DCC_NETMODE_HOST_SERVER=2)
+if(${NET_MODE} EQUAL "0" OR ${NET_MODE} EQUAL "1" OR ${NET_MODE} EQUAL "2")
+    add_definitions(-DCC_NETMODE=${NET_MODE})
+else()
+    message(FATAL_ERROR "NET_MODE only support setting to 1 2 or 3.")
 endif()
 
 if(USE_PHYSICS_PHYSX)
