@@ -366,7 +366,7 @@ export class cchelper {
             console.error(`'java' is not found in PATH`);
         } else {
             try {
-                const version = execSync(`${javaPath} --version`).toString();
+                const version = execSync(`"${cchelper.fixPath(javaPath)}" -version`).toString();
                 if (/Java\(TM\)/.test(version)) {
                     return true;
                 } else {
