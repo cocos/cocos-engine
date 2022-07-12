@@ -28,10 +28,13 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "cocos/core/filesystem/windows/WindowsFileSystem.h"
-#else
+#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "cocos/core/filesystem/android/AndroidFileSystem.h"
     #include <sys/stat.h>
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
+    #include "cocos/core/filesystem/apple/AppleFileSystem.h"
 #endif
+
 namespace cc {
 
 LocalFileSystem::LocalFileSystem() {
@@ -43,7 +46,7 @@ LocalFileSystem::~LocalFileSystem() {
 }
 
 BaseFileHandle* LocalFileSystem::open(const FilePath& path) {
-    FILE *fp = fopen(path.value().c_str(), "wb");
+    FILE *fp = fopen(path.value().c_str(), "rb");
     if(!fp) {
         return nullptr;
     }
@@ -81,6 +84,7 @@ bool LocalFileSystem::exist(const FilePath& filepath) const {
     }
     ccstd::string fullpath = fullPathForFilename(filepath.value());
     return !fullpath.empty();
+    /*
     struct stat st;
     if (stat(fullpath.c_str(), &st) == 0) {
         #if CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -95,6 +99,7 @@ bool LocalFileSystem::exist(const FilePath& filepath) const {
             return S_ISDIR(st.st_mode) || S_ISREG(st.st_mode);
         #endif
     }
+    */
     return false;
 }
 
@@ -103,6 +108,8 @@ LocalFileSystem* LocalFileSystem::createLocalFileSystem() {
     return new WindowsFileSystem;
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     return new AndroidFileSystem;
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
+    return new AppleFileSystem;
 #endif
     return nullptr;
 }

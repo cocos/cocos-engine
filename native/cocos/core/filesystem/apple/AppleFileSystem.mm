@@ -23,11 +23,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+#import <Foundation/Foundation.h>
 #include "cocos/core/filesystem/apple/AppleFileSystem.h"
+#include <ftw.h>
+#include <stack>
+#include "base/Log.h"
+#include "base/memory/Memory.h"
+#include "base/std/container/string.h"
+#include "platform/FileUtils.h"
+#include "platform/SAXParser.h"
 
 namespace cc {
-struct FileUtilsApple::IMPL {
+struct AppleFileSystem::IMPL {
     IMPL(NSBundle *bundle) : bundle_([NSBundle mainBundle]) {}
     void setBundle(NSBundle *bundle) {
         bundle_ = bundle;
@@ -155,7 +162,7 @@ static void addCCValueToNSArray(const Value &value, NSMutableArray *array) {
 
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict) {
     // the key must be a string
-    CCASSERT([nsKey isKindOfClass:[NSString class]], "The key should be a string!");
+    CC_ASSERT([nsKey isKindOfClass:[NSString class]]);
     std::string key = [nsKey UTF8String];
     dict[key] = convertNSObjectToCCValue(nsValue);
 }
@@ -165,9 +172,36 @@ static void addCCValueToNSDictionary(const std::string &key, const Value &value,
     [dict setObject:convertCCValueToNSObject(value) forKey:NSkey];
 }
 
+bool FileUtils::writeValueMapToFile(const ValueMap &dict, const ccstd::string &fullPath) {
+    valueMapCompact(const_cast<ValueMap &>(dict));
+    //CC_LOG_DEBUG("iOS||Mac Dictionary %d write to file %s", dict->_ID, fullPath.c_str());
+    NSMutableDictionary *nsDict = [NSMutableDictionary dictionary];
+
+    for (auto iter = dict.begin(); iter != dict.end(); ++iter) {
+        addCCValueToNSDictionary(iter->first, iter->second, nsDict);
+    }
+
+    NSString *file = [NSString stringWithUTF8String:fullPath.c_str()];
+    // do it atomically
+    return [nsDict writeToFile:file atomically:YES];
+}
+
+bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const ccstd::string &fullPath) {
+    NSString *path = [NSString stringWithUTF8String:fullPath.c_str()];
+    NSMutableArray *array = [NSMutableArray array];
+
+    for (const auto &e : vecData) {
+        addCCValueToNSArray(e, array);
+    }
+
+    [array writeToFile:path atomically:YES];
+
+    return true;
+}
+
 static NSFileManager *s_fileManager = [NSFileManager defaultManager];
 
-AppleFileSystem::AppleFileSystem() {
+AppleFileSystem::AppleFileSystem():_impl(ccnew IMPL([NSBundle mainBundle])) {
 
 }
 
@@ -175,18 +209,24 @@ AppleFileSystem::~AppleFileSystem() {
 
 }
 
-bool AppleFileSystem::createDirectory(const std::string &path) {
-    CCASSERT(!path.empty(), "Invalid path");
+#if CC_FILEUTILS_APPLE_ENABLE_OBJC
+void AppleFileSystem::setBundle(NSBundle *bundle) {
+    pimpl_->setBundle(bundle);
+}
+#endif
 
-    if (isDirectoryExist(path))
-        return true;
+bool AppleFileSystem::createDirectory(const FilePath &path) {
+    CC_ASSERT(!path.value().empty());
+
+    //if (isDirectoryExist(path))
+     //   return true;
 
     NSError *error;
 
-    bool result = [s_fileManager createDirectoryAtPath:[NSString stringWithUTF8String:path.c_str()] withIntermediateDirectories:YES attributes:nil error:&error];
+    bool result = [s_fileManager createDirectoryAtPath:[NSString stringWithUTF8String:path.value().c_str()] withIntermediateDirectories:YES attributes:nil error:&error];
 
     if (!result && error != nil) {
-        CC_LOG_ERROR("Fail to create directory \"%s\": %s", path.c_str(), [error.localizedDescription UTF8String]);
+        CC_LOG_ERROR("Fail to create directory \"%s\": %s", path.value().c_str(), [error.localizedDescription UTF8String]);
     }
 
     return result;
@@ -201,21 +241,21 @@ static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, str
     return ret;
 }
 
-bool AppleFileSystem::removeDirectory(const std::string &path) {
-    if (path.empty()) {
+bool AppleFileSystem::removeDirectory(const FilePath&path) {
+    if (path.value().empty()) {
         CC_LOG_ERROR("Fail to remove directory, path is empty!");
         return false;
     }
 
-    if (nftw(path.c_str(), unlink_cb, 64, FTW_DEPTH | FTW_PHYS))
+    if (nftw(path.value().c_str(), unlink_cb, 64, FTW_DEPTH | FTW_PHYS))
         return false;
     else
         return true;
 }
 
-bool AppleFileSystem::exist(const FilePath &filePathIn) const {
+bool AppleFileSystem::existInternal(const FilePath &filePathIn) const {
     std::string filePath = filePathIn.value();
-    if (filePath.value().empty()) {
+    if (filePath.empty()) {
         return false;
     }
 
@@ -232,7 +272,7 @@ bool AppleFileSystem::exist(const FilePath &filePathIn) const {
             file = filePath;
         }
 
-        NSString *fullpath = [pimpl_->getBundle() pathForResource:[NSString stringWithUTF8String:file.c_str()]
+        NSString *fullpath = [_impl->getBundle() pathForResource:[NSString stringWithUTF8String:file.c_str()]
                                                            ofType:nil
                                                       inDirectory:[NSString stringWithUTF8String:path.c_str()]];
         if (fullpath != nil) {
@@ -279,7 +319,7 @@ std::string AppleFileSystem::getFullPathForDirectoryAndFilename(const std::strin
             dirStr = [NSString pathWithComponents:pathComps];
         }
 
-        NSString *fullpath = [pimpl_->getBundle() pathForResource:[NSString stringWithUTF8String:filename.c_str()]
+        NSString *fullpath = [_impl->getBundle() pathForResource:[NSString stringWithUTF8String:filename.c_str()]
                                                            ofType:nil
                                                       inDirectory:dirStr];
         if (fullpath != nil) {

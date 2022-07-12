@@ -27,7 +27,9 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "cocos/core/filesystem/AppleFileSystem.h"
+#include "cocos/core/filesystem/FilePath.h"
+#include "cocos/core/filesystem/LocalFileSystem.h"
+#include "cocos/core/filesystem/apple/AppleFileSystem.h"
 
 namespace cc {
 
@@ -36,11 +38,29 @@ public:
     AppleFileSystem();
     ~AppleFileSystem() override;
 
-    bool removeDirectory(const std::string &path);
-    bool createDirectory(const std::string &path) override;
+    bool createDirectory(const FilePath &path) override;
+    int64_t getFileSize(const FilePath& filepath) override{
+        return 0;
+    };
+    bool removeFile(const FilePath& filepath) override {
+        return false;
+    }
+    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override {
+        return false;
+    }
+    bool removeDirectory(const FilePath &path) override;
+    
     ccstd::string getWritablePath() const override;
     std::string getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const override;
-    bool exist(const FilePath& filepath) const override;
+    bool existInternal(const FilePath& filepath) const override;
+    
+#if CC_FILEUTILS_APPLE_ENABLE_OBJC
+    void setBundle(NSBundle *bundle);
+#endif
+
+private:
+    struct IMPL;
+    std::unique_ptr<IMPL> _impl;
 };
 
 }

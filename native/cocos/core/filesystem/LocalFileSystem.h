@@ -37,8 +37,8 @@ public:
     bool exist(const FilePath& filepath) const override;
     static LocalFileSystem* createLocalFileSystem();
     ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const override;
-    BaseFileHandle* open(const FilePath& path);
-    bool isAbsolutePath(const std::string &strPath) const;
+    BaseFileHandle* open(const FilePath& path) override;
+    bool isAbsolutePath(const std::string &strPath) const override;
 private:
     virtual bool existInternal(const FilePath& filepath) const = 0;
     

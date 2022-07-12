@@ -901,6 +901,13 @@ elseif(ANDROID)
 
 
     )
+elseif(APPLE)
+    cocos_source_files(MODULE ccfilesystem
+        cocos/core/filesystem/apple/AppleFileSystem.h
+        cocos/core/filesystem/apple/AppleFileSystem.mm
+        #cocos/core/filesystem/apple/AppleFileHandle.h
+        #cocos/core/filesystem/apple/AppleFileHandle.cpp
+    )
 endif()
 
 if(WINDOWS)
@@ -931,10 +938,10 @@ elseif(ANDROID)
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
 
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/android/FileUtils-android.cpp
-        cocos/platform/android/FileUtils-android.h
-    )
+    #cocos_source_files(MODULE ccfilesystem
+    #    cocos/platform/android/FileUtils-android.cpp
+    #    cocos/platform/android/FileUtils-android.h
+    #)
 elseif(OHOS)
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/ohos/jni/JniCocosAbility.cpp
@@ -962,10 +969,10 @@ elseif(APPLE)
         cocos/platform/apple/Reachability.cpp
     )
 
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/apple/FileUtils-apple.h
-        cocos/platform/apple/FileUtils-apple.mm
-    )
+    #cocos_source_files(MODULE ccfilesystem
+    #    cocos/platform/apple/FileUtils-apple.h
+    #    cocos/platform/apple/FileUtils-apple.mm
+    #)
     if(MACOSX)
         cocos_source_files(
             cocos/platform/mac/View.h
