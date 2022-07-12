@@ -151,6 +151,12 @@ void Batcher2d::handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawI
         if (_currHash != dataHash || dataHash == 0 || _currMaterial != drawInfo->getMaterial() || _currStencilStage != tempStage) {
             // Generate a batch if not batching
             generateBatch(_currEntity, _currDrawInfo);
+
+            bool isSubMask = entity->getIsSubMask();
+            if (isSubMask) {
+                // Mask subComp
+                _stencilManager->enterLevel(entity);
+            }
             if (!drawInfo->getIsMeshBuffer()) {
                 UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
                 if (_currMeshBuffer != buffer) {
@@ -212,7 +218,7 @@ void Batcher2d::handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* draw
             finalMat = commitModelMat;
 
         } else if (isSubMask) {
-            //Mask graphics
+            //Mask Comp
             _stencilManager->enterLevel(entity);
 
         } else {
