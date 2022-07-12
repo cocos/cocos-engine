@@ -45,7 +45,7 @@ struct Render2dLayout {
 };
 
 struct DrawInfoAttrLayout {
-    uint32_t enabledIndex;
+    uint32_t enabledIndex{1};
 };
 
 enum class RenderDrawInfoType {
