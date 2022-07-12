@@ -211,9 +211,4 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     logRemote(buff);
 }
 
-#if !CC_REMOTE_LOG
-void Log::logRemote(const char *msg) {
-}
-#endif
-
 } // namespace cc

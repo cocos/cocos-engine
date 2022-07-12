@@ -23,39 +23,40 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <chrono>
-#include <sstream>
-#include <string_view>
-#include "platform/FileUtils.h"
-#include "rapidjson/document.h"
-
 #include "base/Log.h"
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <Windows.h>
-    #include <winsock2.h>
-    #include <cstdio>
-    #pragma comment(lib, "ws2_32.lib")
+#if CC_REMOTE_LOG
+    #include <chrono>
+    #include <sstream>
+    #include <string_view>
+    #include "platform/FileUtils.h"
+    #include "rapidjson/document.h"
 
-#else
-    #include <arpa/inet.h>
-    #include <fcntl.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <sys/types.h>
-#endif
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        #ifndef WIN32_LEAN_AND_MEAN
+            #define WIN32_LEAN_AND_MEAN
+        #endif
+        #include <Windows.h>
+        #include <winsock2.h>
+        #include <cstdio>
+        #pragma comment(lib, "ws2_32.lib")
+
+    #else
+        #include <arpa/inet.h>
+        #include <fcntl.h>
+        #include <netinet/in.h>
+        #include <sys/socket.h>
+        #include <sys/types.h>
+    #endif
 
 namespace {
 
-#define AUTO_TEST_CONFIG_FILE "auto-test-config.json"
-#define ATC_KEY_CONFIG        "ServerConfig"
-#define ATC_KEY_IP            "IP"
-#define ATC_KEY_PORT          "PORT"
-#define ATC_KEY_PLANID        "planId"
-#define ATC_KEY_FLAGID        "flagId"
+    #define AUTO_TEST_CONFIG_FILE "auto-test-config.json"
+    #define ATC_KEY_CONFIG        "ServerConfig"
+    #define ATC_KEY_IP            "IP"
+    #define ATC_KEY_PORT          "PORT"
+    #define ATC_KEY_PLANID        "planId"
+    #define ATC_KEY_FLAGID        "flagId"
 
 enum class UdpLogClientState {
     UNINITIALIZED,
@@ -107,33 +108,33 @@ public:
 
 private:
     void init() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         WSAData wsa;
         if (WSAStartup(MAKEWORD(1, 2), &wsa) != 0) {
             printf("WSAStartup failed, code: %d\n", WSAGetLastError());
             _status = UdpLogClientState::DONE;
             return;
         }
-#endif
+    #endif
         _status = UdpLogClientState::INITIALIZED;
     }
 
     void deinit() {
         if (_status == UdpLogClientState::OK) {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
             closesocket(_sock);
             WSACleanup();
-#else
+    #else
             close(_sock);
-#endif
+    #endif
         }
     }
     void tryParseConfig() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         if (_status != UdpLogClientState::INITIALIZED) {
             return;
         }
-#endif
+    #endif
         auto *fu = cc::FileUtils::getInstance();
         if (!fu) {
             // engine is not ready, retry later
@@ -199,11 +200,11 @@ private:
     }
 
     static auto getErrorCode() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         return WSAGetLastError();
-#else
+    #else
         return errno;
-#endif
+    #endif
     }
 
     void ensureInitSocket() {
@@ -237,21 +238,21 @@ private:
             return;
         }
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         u_long mode = 1;
         if (ioctlsocket(_sock, FIONBIO, &mode)) {
             auto errorCode = getErrorCode();
             printf("set nonblock failed, code: %d\n", errorCode);
             // continue
         }
-#else
+    #else
         int flags = fcntl(_sock, F_GETFL);
         if (fcntl(_sock, F_SETFL, flags | O_NONBLOCK)) {
             auto errorCode = getErrorCode();
             printf("set nonblock failed, code: %d\n", errorCode);
             // continue
         }
-#endif
+    #endif
         _status = UdpLogClientState::OK;
     }
 
@@ -262,11 +263,11 @@ private:
         }
     }
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     SOCKET _sock{INVALID_SOCKET};
-#else
+    #else
     int _sock{-1};
-#endif
+    #endif
     sockaddr_in _serverAddr;
     sockaddr_in _localAddr;
     UdpLogClientState _status{UdpLogClientState::UNINITIALIZED};
@@ -282,8 +283,14 @@ void sendLogThroughUDP(const std::string_view &msg) {
 
 } // namespace
 
+#endif
+
 namespace cc {
+
 void Log::logRemote(const char *msg) {
+#if CC_REMOTE_LOG
     sendLogThroughUDP(msg);
+#endif
 }
+
 } // namespace cc
