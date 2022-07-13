@@ -836,12 +836,10 @@ export class ParticleSystem2D extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-
         if (this._assembler && this._assembler.createData) {
             this._simulator.renderData = this._assembler.createData(this);
-            this._simulator.renderData.particleInitRenderDrawInfo(this._simulator.renderEntity!); // 确保 renderEntity 和 renderData 都是 simulator 上的
+            this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
             this._simulator.initDrawInfo();
-            this._simulator.renderEntity!.assignExtraEntityAttrs(this);
         }
     }
 

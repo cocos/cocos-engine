@@ -166,24 +166,6 @@ export class RenderEntity {
         return null;
     }
 
-    public destroy () {
-        this.setNode(null);
-        this.enabled = false;
-        this.setCustomMaterial(null);
-        this.setStencilStage(0);
-        this.setCommitModelMaterial(null);
-        // @ts-expect-error temporary no care
-        this._nativeObj = null;
-        this._dynamicDrawInfoArr = [];
-    }
-
-    public assignExtraEntityAttrs (comp: UIRenderer) {
-        if (JSB) {
-            this.setNode(comp.node);
-            this.enabled = comp.enabled;
-        }
-    }
-
     setIsMask (val:boolean) {
         if (JSB) {
             if (this._isMask !== val) {

@@ -37,6 +37,7 @@ import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { director } from '../../core/director';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
+import { assert } from '../../core';
 
 /**
  * @en
@@ -54,6 +55,14 @@ import { MeshRenderData, RenderData } from '../renderer/render-data';
 @menu('UI/UIMeshRenderer')
 @executeInEditMode
 export class UIMeshRenderer extends Component {
+    constructor () {
+        super();
+        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
+        if (JSB) {
+            this._UIModelNativeProxy = new NativeUIModelProxy();
+        }
+    }
+
     public get modelComponent () {
         return this._modelComponent;
     }
@@ -61,18 +70,14 @@ export class UIMeshRenderer extends Component {
     private _modelComponent: ModelRenderer | null = null;
 
     //nativeObj
-    private declare _UIModelNativeProxy:NativeUIModelProxy;
-    protected _renderEntity : RenderEntity|null = null;
+    private declare _UIModelNativeProxy: NativeUIModelProxy;
+    protected declare _renderEntity : RenderEntity;
     private modelCount = 0;
     public _dirtyVersion = -1;
     public _internalId = -1;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
-        if (JSB) {
-            this._UIModelNativeProxy = new NativeUIModelProxy();
-            this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
-        }
     }
 
     onEnable () {
@@ -97,12 +102,12 @@ export class UIMeshRenderer extends Component {
         }
         if (JSB) {
             this._UIModelNativeProxy.attachNode(this.node);
-            // @ts-expect-error temporary no care
-            this.renderEntity!.assignExtraEntityAttrs(this);
         }
+        this.renderEntity.setNode(this.node);
     }
 
     public onDestroy () {
+        this.renderEntity.setNode(null);
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
@@ -112,10 +117,6 @@ export class UIMeshRenderer extends Component {
         }
 
         this._modelComponent._sceneGetter = null;
-
-        if (JSB) {
-            this._UIModelNativeProxy.destroy();
-        }
     }
 
     /**
@@ -239,14 +240,8 @@ export class UIMeshRenderer extends Component {
     }
 
     get renderEntity () {
-        if (!this._renderEntity) {
-            this.initRenderEntity();
-        }
+        assert(this._renderEntity);
         return this._renderEntity;
-    }
-
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
     }
 
     protected _renderData:RenderData|null = null;

@@ -1741,9 +1741,8 @@ export class Skeleton extends UIRenderer {
         this._materialCache = {};
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
+    protected createRenderEntity () {
+        return new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
     }
 }
 

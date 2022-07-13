@@ -543,6 +543,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     onLoad () {
+        super.onLoad();
         // Adapt to old code,remove unuse child which is created by old code.
         // This logic can be remove after 2.2 or later.
         const children = this.node.children;
@@ -1337,9 +1338,8 @@ export class ArmatureDisplay extends UIRenderer {
         this._materialCache = {};
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
+    protected createRenderEntity () {
+        return new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
     }
 }
 
