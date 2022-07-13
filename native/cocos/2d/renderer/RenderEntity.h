@@ -41,11 +41,11 @@ enum class RenderEntityType {
 };
 
 struct EntityAttrLayout {
-    float colorR{255.0f};
-    float colorG{255.0f};
-    float colorB{255.0f};
-    float colorA{255.0f};
     float localOpacity{1.0f};
+    uint8_t colorR{255};
+    uint8_t colorG{255};
+    uint8_t colorB{255};
+    uint8_t colorA{255};
     uint8_t colorDirtyBit{1};
     uint8_t enabledIndex{1};
     uint8_t padding0{0}; //available

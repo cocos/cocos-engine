@@ -14,13 +14,18 @@ export enum RenderEntityType {
 }
 
 export enum RenderEntityFloatSharedBufferView {
+    localOpacity,
+    count,
+}
+
+export enum RenderEntityUInt8SharedBufferView {
     colorR,
     colorG,
     colorB,
     colorA,
-    localOpacity,
     count,
 }
+
 export enum RenderEntityBoolSharedBufferView{
     colorDirty,
     enabled,
@@ -49,6 +54,7 @@ export class RenderEntity {
     protected _isMaskInverted = false;
 
     protected declare _floatSharedBuffer: Float32Array;
+    protected declare _uint8SharedBuffer: Uint8Array;
     protected declare _boolSharedBuffer:Uint8Array;
 
     private declare _nativeObj: NativeRenderEntity;
@@ -74,10 +80,10 @@ export class RenderEntity {
     set color (val: Color) {
         this._color = val;
         if (JSB) {
-            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorR] = val.r;
-            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorG] = val.g;
-            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorB] = val.b;
-            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.colorA] = val.a;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorR] = val.r;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorG] = val.g;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorB] = val.b;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorA] = val.a;
         }
     }
 
@@ -266,8 +272,12 @@ export class RenderEntity {
         if (JSB) {
             //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
             const buffer = this._nativeObj.getEntitySharedBufferForJS();
-            this._floatSharedBuffer = new Float32Array(buffer, 0, RenderEntityFloatSharedBufferView.count);
-            this._boolSharedBuffer = new Uint8Array(buffer, RenderEntityFloatSharedBufferView.count * 4, RenderEntityBoolSharedBufferView.count);
+            let offset = 0;
+            this._floatSharedBuffer = new Float32Array(buffer, offset, RenderEntityFloatSharedBufferView.count);
+            offset += RenderEntityFloatSharedBufferView.count * 4;
+            this._uint8SharedBuffer = new Uint8Array(buffer, offset, RenderEntityUInt8SharedBufferView.count);
+            offset += RenderEntityUInt8SharedBufferView.count * 1;
+            this._boolSharedBuffer = new Uint8Array(buffer, offset, RenderEntityBoolSharedBufferView.count);
         }
     }
 }
