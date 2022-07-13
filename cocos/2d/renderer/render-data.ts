@@ -156,7 +156,7 @@ export class BaseRenderData {
     // it should be invoked at where a render data is allocated.
     public initRenderDrawInfo (comp:UIRenderer) {
         if (JSB) {
-            const renderEntity:RenderEntity = comp.renderEntity!;
+            const renderEntity:RenderEntity = comp.renderEntity;
 
             if (renderEntity.renderEntityType === RenderEntityType.STATIC) {
                 if (!this._renderDrawInfo) {
@@ -168,7 +168,7 @@ export class BaseRenderData {
                 }
             } else if (this.multiOwner === false) {
                 if (!this._renderDrawInfo) {
-                    this._renderDrawInfo = new RenderDrawInfo(this.batcher);
+                    this._renderDrawInfo = new RenderDrawInfo();
                     // for no resize() invoking components
                     this.setRenderDrawInfoAttributes();
                     renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
@@ -179,7 +179,7 @@ export class BaseRenderData {
 
     public removeRenderDrawInfo (comp:UIRenderer) {
         if (JSB) {
-            const renderEntity:RenderEntity = comp.renderEntity!;
+            const renderEntity:RenderEntity = comp.renderEntity;
             if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
                 renderEntity.removeDynamicRenderDrawInfo();
             }

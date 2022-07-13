@@ -752,7 +752,7 @@ export class Graphics extends UIRenderer {
     }
 
     protected createRenderEntity () {
-        return new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

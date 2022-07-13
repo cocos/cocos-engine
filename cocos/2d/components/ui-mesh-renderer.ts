@@ -57,7 +57,7 @@ import { assert } from '../../core';
 export class UIMeshRenderer extends Component {
     constructor () {
         super();
-        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
+        this._renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
         if (JSB) {
             this._UIModelNativeProxy = new NativeUIModelProxy();
         }

@@ -517,7 +517,7 @@ export class ArmatureDisplay extends UIRenderer {
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo(batch2d);
+            this._drawInfoList[idx] = new RenderDrawInfo();
         }
         return this._drawInfoList[idx];
     }
@@ -1340,7 +1340,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected createRenderEntity () {
-        return new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

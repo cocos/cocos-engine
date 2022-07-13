@@ -693,7 +693,7 @@ export class Mask extends UIRenderer {
     // RenderEntity
     // it should be overwritten by inherited classes
     protected createRenderEntity () {
-        return new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

@@ -600,7 +600,7 @@ export class UIRenderer extends Renderer {
     // RenderEntity
     // it should be overwritten by inherited classes
     protected createRenderEntity () {
-        return new RenderEntity(this.batcher, RenderEntityType.STATIC);
+        return new RenderEntity(RenderEntityType.STATIC);
     }
 }
 
