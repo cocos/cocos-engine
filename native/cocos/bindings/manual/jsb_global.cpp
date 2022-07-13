@@ -577,8 +577,16 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
             if (loadSucceed) {
                 imgInfo = createImageInfo(img);
             }
-
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+            auto application = CC_CURRENT_APPLICATION();
+            if (!application) {
+                delete imgInfo;
+                delete img;
+                return;
+            }
+            auto engine = application->getEngine();
+            CC_ASSERT(engine != nullptr);
+            engine->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
 
