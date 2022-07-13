@@ -155,7 +155,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @displayOrder(11)
     @tooltip('i18n:velocityOvertimeModule.offsetZ')
     public offsetZ = new CurveRange();
-    
+
     /**
      * @zh 轨道半径。
      */
