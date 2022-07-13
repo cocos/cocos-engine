@@ -276,7 +276,7 @@ static bool js_2d_RenderDrawInfo_getAttrSharedBufferForJS(se::State& s) // NOLIN
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::ArrayBuffer& result = cobj->getAttrSharedBufferForJS();
+        se::Object* result = cobj->getAttrSharedBufferForJS();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_2d_RenderDrawInfo_getAttrSharedBufferForJS : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1308,7 +1308,7 @@ static bool js_2d_RenderEntity_getEntitySharedBufferForJS(se::State& s) // NOLIN
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::ArrayBuffer& result = cobj->getEntitySharedBufferForJS();
+        se::Object* result = cobj->getEntitySharedBufferForJS();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getEntitySharedBufferForJS : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
