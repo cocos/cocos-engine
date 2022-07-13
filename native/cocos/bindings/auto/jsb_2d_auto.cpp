@@ -1943,30 +1943,6 @@ static bool js_2d_Batcher2d_handleColor(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handleColor)
 
-static bool js_2d_Batcher2d_handleDynamicDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_handleDynamicDrawInfo : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<cc::RenderEntity*, false> arg0 = {};
-        HolderType<cc::RenderDrawInfo*, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handleDynamicDrawInfo : Error processing arguments");
-        cobj->handleDynamicDrawInfo(arg0.value(), arg1.value(), arg2.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo)
-
 static bool js_2d_Batcher2d_handlePostRender(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
@@ -1986,32 +1962,6 @@ static bool js_2d_Batcher2d_handlePostRender(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handlePostRender)
-
-static bool js_2d_Batcher2d_handleStaticDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    // SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_handleStaticDrawInfo : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        HolderType<cc::RenderEntity*, false> arg0 = {};
-        HolderType<cc::RenderDrawInfo*, false> arg1 = {};
-        HolderType<cc::Node*, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handleStaticDrawInfo : Error processing arguments");
-        cobj->handleStaticDrawInfo(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_2d_Batcher2d_handleStaticDrawInfo)
 
 static bool js_2d_Batcher2d_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2169,9 +2119,7 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
 #endif
     cls->defineFunction("addRootNode", _SE(js_2d_Batcher2d_addRootNode));
     cls->defineFunction("handleColor", _SE(js_2d_Batcher2d_handleColor));
-    cls->defineFunction("handleDynamicDrawInfo", _SE(js_2d_Batcher2d_handleDynamicDrawInfo));
     cls->defineFunction("handlePostRender", _SE(js_2d_Batcher2d_handlePostRender));
-    cls->defineFunction("handleStaticDrawInfo", _SE(js_2d_Batcher2d_handleStaticDrawInfo));
     cls->defineFunction("initialize", _SE(js_2d_Batcher2d_initialize));
     cls->defineFunction("releaseDescriptorSetCache", _SE(js_2d_Batcher2d_releaseDescriptorSetCache));
     cls->defineFunction("reset", _SE(js_2d_Batcher2d_reset));
