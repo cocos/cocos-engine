@@ -27,6 +27,7 @@
 #include "2d/renderer/UIMeshBuffer.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "bindings/utils/BindingUtils.h"
 #include "core/ArrayBuffer.h"
 #include "core/assets/Material.h"
 #include "core/scene-graph/Node.h"
@@ -110,7 +111,7 @@ public:
 
     inline Batcher2d* getBatcher() const { return _batcher; }
     void setBatcher(Batcher2d* batcher);
-    const ArrayBuffer& getAttrSharedBufferForJS() const;
+    se::Object* getAttrSharedBufferForJS() const;
 
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
@@ -138,7 +139,7 @@ private:
     uint32_t _size{0};
 
     DrawInfoAttrLayout _drawInfoAttrLayout;
-    ArrayBuffer::Ptr _attrSharedBuffer;
+    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
 
     index_t _bufferId{0};
     index_t _accId{0};
