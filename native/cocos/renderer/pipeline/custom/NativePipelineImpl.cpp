@@ -204,7 +204,8 @@ RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName, const ccstd::string &name) {
+ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName,
+    const ccstd::string &name) {
     auto passID = addVertex(
         ComputeTag{},
         std::forward_as_tuple(name.c_str()),

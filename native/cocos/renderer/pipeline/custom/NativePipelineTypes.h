@@ -66,17 +66,17 @@ public:
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
-    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
     : renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
-      queueID(queueIDIn),
-      layoutID(layoutIDIn) {}
+      queueID(queueIDIn) {}
 
     void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -95,7 +95,6 @@ public:
     RenderGraph*           renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t               queueID{RenderGraph::null_vertex()};
-    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeRasterPassBuilder final : public RasterPassBuilder {
@@ -109,11 +108,11 @@ public:
 
     void addRasterView(const ccstd::string& name, const RasterView& view) override;
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
-    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName, const ccstd::string& name) override;
-    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName) override;
+    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) override;
     RasterQueueBuilder *addQueue(QueueHint hint) override;
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -138,14 +137,12 @@ public:
 class NativeComputeQueueBuilder final : public ComputeQueueBuilder {
 public:
     NativeComputeQueueBuilder() = default;
-    NativeComputeQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    NativeComputeQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
     : renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
-      queueID(queueIDIn),
-      layoutID(layoutIDIn) {}
+      queueID(queueIDIn) {}
 
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) override;
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) override;
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) override;
     void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -164,7 +161,6 @@ public:
     RenderGraph*           renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t               queueID{RenderGraph::null_vertex()};
-    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeComputePassBuilder final : public ComputePassBuilder {
@@ -178,12 +174,10 @@ public:
 
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
 
-    ComputeQueueBuilder *addQueue(const ccstd::string& layoutName, const ccstd::string& name) override;
-    ComputeQueueBuilder *addQueue(const ccstd::string& layoutName) override;
+    ComputeQueueBuilder *addQueue(const ccstd::string& name) override;
     ComputeQueueBuilder *addQueue() override;
 
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) override;
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) override;
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) override;
     void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;

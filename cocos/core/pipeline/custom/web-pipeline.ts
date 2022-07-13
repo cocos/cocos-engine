@@ -209,14 +209,11 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         }
     }
 
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = '', name = 'Queue') {
-        if (!layoutName) {
-            layoutName = getFirstChildLayoutName(this._layoutGraph, this._layoutID);
-        }
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue') {
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, layoutName, data, false, this._vertID,
+            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
@@ -234,7 +231,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
     }
 
-    addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags) {
+    addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags, name = 'CameraQuad') {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue, queue,
@@ -242,7 +239,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, sceneFlags, camera),
-            'CameraQuad', '', new RenderData(), false, queueId,
+            name, '', new RenderData(), false, queueId,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -265,12 +262,11 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         threadGroupCountX: number,
         threadGroupCountY: number,
         threadGroupCountZ: number,
-        layoutName = '',
         name = 'Dispatch') {
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, layoutName, new RenderData(), false, this._vertID,
+            name, '', new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -300,14 +296,11 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             this._pass.computeViews.set(name, [view]);
         }
     }
-    addQueue (layoutName = '', name = 'Queue') {
-        if (!layoutName) {
-            layoutName = getFirstChildLayoutName(this._layoutGraph, this._layoutID);
-        }
+    addQueue (name = 'Queue') {
         const queue = new RenderQueue();
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, layoutName, data, false, this._vertID,
+            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
@@ -315,15 +308,11 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         threadGroupCountX: number,
         threadGroupCountY: number,
         threadGroupCountZ: number,
-        layoutName = '',
         name = 'Dispatch') {
-        if (!layoutName) {
-            layoutName = getFirstChildLayoutName(this._layoutGraph, this._layoutID);
-        }
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, layoutName, new RenderData(), false, this._vertID,
+            name, '', new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;

@@ -88,33 +88,31 @@ export abstract class RasterQueueBuilder extends Setter {
     public abstract addScene(name: string, sceneFlags: SceneFlags): void;
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags, name: string): void;
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags): void;
+    public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags, name: string): void;
     public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags): void;
 }
 
 export abstract class RasterPassBuilder extends Setter {
     public abstract addRasterView(name: string, view: RasterView): void;
     public abstract addComputeView(name: string, view: ComputeView): void;
-    public abstract addQueue(hint: QueueHint, layoutName: string, name: string): RasterQueueBuilder;
-    public abstract addQueue(hint: QueueHint, layoutName: string): RasterQueueBuilder;
+    public abstract addQueue(hint: QueueHint, name: string): RasterQueueBuilder;
     public abstract addQueue(hint: QueueHint): RasterQueueBuilder;
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags, name: string): void;
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags): void;
+    public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags, name: string): void;
     public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags): void;
 }
 
 export abstract class ComputeQueueBuilder extends Setter {
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
+    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
 export abstract class ComputePassBuilder extends Setter {
     public abstract addComputeView(name: string, view: ComputeView): void;
-    public abstract addQueue(layoutName: string, name: string): ComputeQueueBuilder;
-    public abstract addQueue(layoutName: string): ComputeQueueBuilder;
+    public abstract addQueue(name: string): ComputeQueueBuilder;
     public abstract addQueue(): ComputeQueueBuilder;
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
+    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
