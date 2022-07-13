@@ -146,7 +146,7 @@ float CCGetLinearDepth(vec3 worldPos) {
 	  vec3 shadowNDCPos;
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
-	}
+	  }
     return NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
@@ -172,7 +172,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   {
     float pcf = cc_shadowWHPBInfo.z;
     vec4 pos = vec4(1.0);
-    if (cc_shadowNFLSInfo.z < EPSILON) {
+    if (cc_shadowNFLSInfo.z > EPSILON) {
       pos = ApplyShadowDepthBias_PerspectiveLinearDepth(shadowPos, shadowBias.x, worldPos);
     } else {
       pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);

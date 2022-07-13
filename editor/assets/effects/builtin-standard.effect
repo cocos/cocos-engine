@@ -349,6 +349,9 @@ CCProgram shadow-caster-fs %{
   #include <common/data/packing>
   #include <legacy/shadow-map-base>
 
+  #pragma define SHADOWMAP_FORMAT_RGBA8 1
+  #pragma define SHADOWMAP_FORMAT_FLOAT 0
+
   in vec2 v_uv;
   #if HAS_SECOND_UV
     in vec2 v_uv1;
@@ -385,10 +388,10 @@ CCProgram shadow-caster-fs %{
       }
     }
 
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       return packDepthToRGBA(clipDepth);
-    }
-
-    return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
   }
 }%

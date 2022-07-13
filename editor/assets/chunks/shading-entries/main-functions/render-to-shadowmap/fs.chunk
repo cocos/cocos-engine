@@ -15,9 +15,9 @@ void main () {
     }
   }
 
-  if (cc_shadowLPNNInfo.y > EPSILON) {
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
     fragColorX = packDepthToRGBA(clipDepth);
-  } else {
+  #else
     fragColorX = vec4(clipDepth, 1.0, 1.0, 1.0);
-  }
+  #endif
 }

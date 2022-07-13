@@ -7,6 +7,9 @@
 #pragma define-meta CC_PIPELINE_TYPE range([0, 1])
 #pragma define-meta CC_FORCE_FORWARD_SHADING
 
+#pragma define SHADOWMAP_FORMAT_RGBA8 1
+#pragma define SHADOWMAP_FORMAT_FLOAT 0
+
 #define CC_USE_SURFACE_SHADER 1
 
 // Surface
