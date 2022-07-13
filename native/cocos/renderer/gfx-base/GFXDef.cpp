@@ -115,19 +115,18 @@ ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) c
     // render pass is mostly irrelevant
     ccstd::hash_t seed;
     if (info.depthStencilTexture) {
-        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3 + 2;
+        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3 + 1;
         ccstd::hash_combine(seed, info.depthStencilTexture);
         ccstd::hash_combine(seed, info.depthStencilTexture->getRaw());
         ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
     } else {
-        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3 + 2;
+        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3 + 1;
     }
     for (auto *colorTexture : info.colorTextures) {
         ccstd::hash_combine(seed, colorTexture);
         ccstd::hash_combine(seed, colorTexture->getRaw());
         ccstd::hash_combine(seed, colorTexture->getHash());
     }
-    ccstd::hash_combine(seed, info.renderPass);
     ccstd::hash_combine(seed, info.renderPass->getHash());
     return seed;
 }
@@ -135,11 +134,7 @@ ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) c
 bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
     // render pass is mostly irrelevant
     bool res = false;
-    res = lhs.renderPass == rhs.renderPass;
-
-    if (res) {
-        res = lhs.colorTextures == rhs.colorTextures;
-    }
+    res = lhs.colorTextures == rhs.colorTextures;
 
     if (res) {
         res = lhs.depthStencilTexture == rhs.depthStencilTexture;
