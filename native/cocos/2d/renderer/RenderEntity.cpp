@@ -25,6 +25,7 @@
 
 #include "2d/renderer/RenderEntity.h"
 #include "2d/renderer/Batcher2d.h"
+#include "bindings/utils/BindingUtils.h"
 
 namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(nullptr) {
@@ -35,9 +36,7 @@ RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
         drawInfo.setBatcher(_batcher);
     }
 
-    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_entityAttrLayout, sizeof(EntityAttrLayout), [](void* a, size_t b, void* c) {});
-    _entitySharedBuffer = ccnew ArrayBuffer();
-    _entitySharedBuffer->setJSArrayBuffer(seArrayBufferObject);
+    _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 
 RenderEntity::~RenderEntity() = default;

@@ -2033,6 +2033,13 @@ cocos_source_files(MODULE ccgeometry
 )
 
 ##### script bindings
+
+######## utils
+cocos_source_files(
+    cocos/bindings/utils/BindingUtils.cpp
+    cocos/bindings/utils/BindingUtils.h
+)
+
 ######## dop
 cocos_source_files(
                 NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
