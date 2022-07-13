@@ -721,6 +721,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     onEnable () {
         super.onEnable();
+        this._renderEntity.setCustomMaterial(this.customMaterial);
         // If cache mode is cache, no need to update by dragonbones library.
         if (this._armature && !this.isAnimationCached()) {
             this._factory!._dragonBones.clock.add(this._armature);
