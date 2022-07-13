@@ -249,23 +249,6 @@ export class UIMeshRenderer extends Component {
     get renderData () {
         return this._renderData;
     }
-
-    set renderData (val: RenderData | null) {
-        if (val === this._renderData) {
-            return;
-        }
-        this._renderData = val;
-        const entity = this.renderEntity;
-        if (entity) {
-            if (entity.renderDrawInfoArr.length === 0) {
-                entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
-            } else if (entity.renderDrawInfoArr.length > 0) {
-                if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
-                    entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
-                }
-            }
-        }
-    }
 }
 
 legacyCC.UIMeshRenderer = UIMeshRenderer;
