@@ -65,7 +65,7 @@ public:
     void fillBuffersAndMergeBatches();
     void walk(Node* node, float parentOpacity);
     void handlePostRender(RenderEntity* entity);
-    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode,float parentOpacity);
+    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity);
     void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();

@@ -191,7 +191,7 @@ void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, N
                 fillVertexBuffers(entity, drawInfo);
                 drawInfo->setVertDirty(false);
             }
-            handleColor(entity, drawInfo, node, parentOpacity);
+            handleColor(entity, drawInfo, parentOpacity);
             fillIndexBuffers(drawInfo);
         }
 
@@ -302,7 +302,7 @@ void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, N
     }
 }
 
-void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity) {
+void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity) {
     if (entity->getColorDirty()) {
         float localOpacity = entity->getLocalOpacity();
         float localColorAlpha = entity->getColorAlpha();
