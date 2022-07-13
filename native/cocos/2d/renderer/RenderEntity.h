@@ -29,6 +29,7 @@
 #include "2d/renderer/StencilManager.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "bindings/utils/BindingUtils.h"
 #include "core/ArrayBuffer.h"
 #include "core/scene-graph/Node.h"
 
@@ -97,7 +98,7 @@ public:
     RenderDrawInfo* getDynamicRenderDrawInfo(uint32_t index);
     ccstd::vector<RenderDrawInfo*>& getDynamicRenderDrawInfos();
 
-    inline const ArrayBuffer& getEntitySharedBufferForJS() const { return *_entitySharedBuffer; }
+    inline se::Object* getEntitySharedBufferForJS() const { return _entitySharedBufferActor.getSharedArrayBufferObject(); }
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
     inline Color getColor() const { return Color(static_cast<uint8_t>(_entityAttrLayout.colorR), static_cast<uint8_t>(_entityAttrLayout.colorG), static_cast<uint8_t>(_entityAttrLayout.colorB), static_cast<uint8_t>(_entityAttrLayout.colorA)); }
@@ -126,7 +127,8 @@ private:
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
 
     EntityAttrLayout _entityAttrLayout;
-    ArrayBuffer::Ptr _entitySharedBuffer;
+
+    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
 
     float _opacity{1.0F};
 

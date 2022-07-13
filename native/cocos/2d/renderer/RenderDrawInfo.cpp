@@ -33,9 +33,7 @@ RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
-    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _attrSharedBuffer = ccnew ArrayBuffer();
-    _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
+    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
@@ -46,9 +44,7 @@ RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t
     _size = 0;
     _batcher = nullptr;
 
-    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _attrSharedBuffer = ccnew ArrayBuffer();
-    _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
+    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
@@ -142,8 +138,8 @@ void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, 
     _sharedBuffer = buffer;
 }
 
-const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
-    return *_attrSharedBuffer;
+se::Object* RenderDrawInfo::getAttrSharedBufferForJS() const {
+    return _attrSharedBufferActor.getSharedArrayBufferObject();
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
