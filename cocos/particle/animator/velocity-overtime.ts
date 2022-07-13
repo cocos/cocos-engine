@@ -166,7 +166,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @tooltip('i18n:velocityOvertimeModule.radius')
     public radius = new CurveRange();
 
-     /**
+    /**
      * @zh 速度计算时采用的坐标系[[Space]]。
      */
     @type(Space)
@@ -223,7 +223,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         newPos.add(radialPos);
 
         // add oribtal velocity
-        Vec3.add(p.animatedVelocity, p.animatedVelocity, newPos.subtract(pos).multiplyScalar(1/dt).multiplyScalar(speed));
+        Vec3.add(p.animatedVelocity, p.animatedVelocity, newPos.subtract(pos).multiplyScalar(1 / dt).multiplyScalar(speed));
 
         // add animated velocity to final
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
