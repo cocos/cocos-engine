@@ -144,6 +144,7 @@ class LetterTexture {
     public destroy () {
         this.image = null;
         // Label._canvasPool.put(this._data);
+        CanvasPool.getInstance().put(this.data as ISharedLabelData);
     }
 
     private _updateProperties () {
