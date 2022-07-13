@@ -50,11 +50,14 @@ export class RenderInfo implements IRenderPass {
     public subModel;
     public passIdx = -1;
 }
+
 export class WebSceneTask extends SceneTask {
-    constructor (scneData: PipelineSceneData, ubo: PipelineUBO, camera: Camera, visitor: SceneVisitor) {
+    constructor (scneData: PipelineSceneData, ubo: PipelineUBO, camera: Camera | null, visitor: SceneVisitor) {
         super();
-        this._scene = camera.scene!;
-        this._camera = camera;
+        if (camera) {
+            this._scene = camera.scene!;
+            this._camera = camera;
+        }
         this._visitor = visitor;
         this._sceneData = scneData;
         this._ubo = ubo;
@@ -116,9 +119,10 @@ export class WebSceneTask extends SceneTask {
     }
 
     protected _sceneCulling () {
-        const scene = this._scene;
-        const camera = this._camera;
-        const mainLight = scene.mainLight;
+        if (!this.camera) { return; }
+        const scene = this.renderScene;
+        const camera = this.camera;
+        const mainLight = scene!.mainLight;
         const sceneData = this._sceneData;
         const shadows = sceneData.shadows;
         const skybox = sceneData.skybox;
@@ -151,7 +155,7 @@ export class WebSceneTask extends SceneTask {
             renderObjects.push(this._getRenderObject(skybox.model, camera));
         }
 
-        const models = scene.models;
+        const models = scene!.models;
         const visibility = camera.visibility;
 
         for (let i = 0; i < models.length; i++) {
@@ -187,14 +191,14 @@ export class WebSceneTask extends SceneTask {
 
     }
     get camera () { return this._camera; }
-    get scene (): RenderScene {
+    get renderScene () {
         return this._scene;
     }
     get visitor () { return this._visitor; }
     get dirLightFrustum () { return this._dirLightFrustum; }
     get sceneData (): PipelineSceneData { return this._sceneData; }
-    private _scene: RenderScene;
-    private _camera: Camera;
+    private _scene: RenderScene | null = null;
+    private _camera: Camera | null = null;
     private _visitor: SceneVisitor;
     private _sceneData: PipelineSceneData;
     private _dirLightFrustum = new Frustum();
@@ -208,18 +212,18 @@ export class WebSceneTransversal extends SceneTransversal {
     public postRenderPass (visitor: SceneVisitor): SceneTask {
         return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
-    constructor (camera: Camera, sceneData: PipelineSceneData, ubo: PipelineUBO) {
+    constructor (camera: Camera | null, sceneData: PipelineSceneData, ubo: PipelineUBO) {
         super();
         this._camera = camera;
-        this._scene = camera.scene!;
+        if (camera) this._scene = camera.scene!;
         this._sceneData = sceneData;
         this._ubo = ubo;
     }
     public transverse (visitor: SceneVisitor): SceneTask {
         return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
-    protected _scene: RenderScene;
-    protected _camera: Camera;
+    protected _scene: RenderScene | null = null;
+    protected _camera: Camera | null = null;
     protected _ubo: PipelineUBO;
     protected _sceneData: PipelineSceneData;
 }
