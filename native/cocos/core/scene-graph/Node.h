@@ -235,9 +235,6 @@ public:
     void removeAllChildren();
     bool isChildOf(Node *parent) const;
 
-    inline float getParentOpacity() const { return _parentOpacity; }
-    inline void setParentOpacity(float parentOpacity) { _parentOpacity = parentOpacity; }
-
     void setActive(bool isActive);
 
     void setSiblingIndex(index_t index);
@@ -704,9 +701,6 @@ private:
     Vec3 _worldScale{Vec3::ONE};
     //
     Vec3 _euler{0, 0, 0};
-
-    //
-    float _parentOpacity{1.0F};
 
     IntrusivePtr<UserData> _userData;
 
