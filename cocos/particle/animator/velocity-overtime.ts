@@ -100,31 +100,31 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 沿 X 轴的轨道速度。
      */
-     @type(CurveRange)
-     @serializable
-     @range([-1, 1])
-     @displayOrder(6)
-     @tooltip('i18n:velocityOvertimeModule.orbitX')
-     public orbitX = new CurveRange();
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(6)
+    @tooltip('i18n:velocityOvertimeModule.orbitX')
+    public orbitX = new CurveRange();
     /**
      * @zh 沿 Y 轴的轨道速度。
      */
-     @type(CurveRange)
-     @serializable
-     @range([-1, 1])
-     @displayOrder(7)
-     @tooltip('i18n:velocityOvertimeModule.orbitY')
-     public orbitY = new CurveRange();
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(7)
+    @tooltip('i18n:velocityOvertimeModule.orbitY')
+    public orbitY = new CurveRange();
 
     /**
      * @zh 沿 Z 轴的轨道速度。
      */
-     @type(CurveRange)
-     @serializable
-     @range([-1, 1])
-     @displayOrder(8)
-     @tooltip('i18n:velocityOvertimeModule.orbitZ')
-     public orbitZ = new CurveRange();
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(8)
+    @tooltip('i18n:velocityOvertimeModule.orbitZ')
+    public orbitZ = new CurveRange();
 
     /**
      * @zh 沿 X 轴的轨道偏移。
@@ -135,6 +135,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @displayOrder(9)
     @tooltip('i18n:velocityOvertimeModule.offsetX')
     public offsetX = new CurveRange();
+
     /**
      * @zh 沿 Y 轴的轨道偏移。
      */
@@ -158,12 +159,12 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 轨道半径。
      */
-     @type(CurveRange)
-     @serializable
-     @range([-1, 1])
-     @displayOrder(12)
-     @tooltip('i18n:velocityOvertimeModule.radius')
-     public radius = new CurveRange();
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(12)
+    @tooltip('i18n:velocityOvertimeModule.radius')
+    public radius = new CurveRange();
 
      /**
      * @zh 速度计算时采用的坐标系[[Space]]。
