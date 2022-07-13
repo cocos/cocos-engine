@@ -132,6 +132,10 @@ void RenderDrawInfo::setModel(scene::Model* model) {
     _model = model;
 }
 
+void RenderDrawInfo::setDrawInfoType(uint32_t type) {
+    _drawInfoType = static_cast<RenderDrawInfoType>(type);
+}
+
 void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) { // NOLINT(bugprone-easily-swappable-parameters)
     _stride = stride;
     _size = size;

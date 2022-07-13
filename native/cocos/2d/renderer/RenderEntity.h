@@ -42,13 +42,15 @@ enum class RenderEntityType {
 };
 
 struct EntityAttrLayout {
-    float colorR;
-    float colorG;
-    float colorB;
-    float colorA;
-    float colorDirtyBit;
-    float localOpacity;
-    float enabledIndex;
+    float localOpacity{1.0F};
+    uint8_t colorR{255};
+    uint8_t colorG{255};
+    uint8_t colorB{255};
+    uint8_t colorA{255};
+    uint8_t colorDirtyBit{1};
+    uint8_t enabledIndex{1};
+    uint8_t padding0{0}; //available
+    uint8_t padding1{0}; //available
 };
 
 class RenderEntity final : public Node::UserData {
@@ -101,8 +103,8 @@ public:
     inline se::Object* getEntitySharedBufferForJS() const { return _entitySharedBufferActor.getSharedArrayBufferObject(); }
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
-    inline Color getColor() const { return Color(static_cast<uint8_t>(_entityAttrLayout.colorR), static_cast<uint8_t>(_entityAttrLayout.colorG), static_cast<uint8_t>(_entityAttrLayout.colorB), static_cast<uint8_t>(_entityAttrLayout.colorA)); }
-    inline float getColorAlpha() const { return _entityAttrLayout.colorA / 255; }
+    inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
+    inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA) / 255.F; }
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
