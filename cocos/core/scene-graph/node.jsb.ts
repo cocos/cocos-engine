@@ -35,7 +35,7 @@ import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
 import { property } from '../data/class-decorator';
-import './base-node';
+import { nodePolyfill } from './node-dev';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
@@ -1333,4 +1333,6 @@ const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
 editable(NodeProto, 'angle', angleDescriptor);
 const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
 editable(NodeProto, 'layer', layerDescriptor);
+
+nodePolyfill(Node);
 ccclass('cc.Node')(Node);

@@ -26,7 +26,6 @@
 import './node-event-processor';
 import './deprecated';
 
-export { BaseNode } from './base-node';
 export { Node } from './node';
 export { Scene } from './scene';
 export { Layers } from './layers';

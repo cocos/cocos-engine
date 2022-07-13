@@ -281,12 +281,12 @@ function instantiateObj (obj, parent) {
     if (isCCClassOrFastDefined(ctor)) {
         if (parent) {
             if (parent instanceof legacyCC.Component) {
-                if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
+                if (obj instanceof legacyCC.Node || obj instanceof legacyCC.Component) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return obj;
                 }
-            } else if (parent instanceof legacyCC._BaseNode) {
-                if (obj instanceof legacyCC._BaseNode) {
+            } else if (parent instanceof legacyCC.Node) {
+                if (obj instanceof legacyCC.Node) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

@@ -1905,7 +1905,6 @@ cocos_source_files(
     cocos/core/scene-graph/Layers.h
     cocos/core/scene-graph/Node.cpp
     cocos/core/scene-graph/Node.h
-    cocos/core/scene-graph/BaseNode.h
     # cocos/core/scene-graph/ComponentScheduler.h
     # cocos/core/scene-graph/ComponentScheduler.cpp
     # cocos/core/scene-graph/NodeActivator.cpp

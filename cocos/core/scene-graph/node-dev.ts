@@ -32,9 +32,9 @@ import { Component } from '../components';
 
 const Destroying = CCObject.Flags.Destroying;
 
-export function baseNodePolyfill (BaseNode) {
+export function nodePolyfill (Node) {
     if (EDITOR || TEST) {
-        BaseNode.prototype._checkMultipleComp = function (ctor) {
+        Node.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
@@ -52,7 +52,7 @@ export function baseNodePolyfill (BaseNode) {
          * @param {Component} comp
          * @param {Number} index
          */
-        BaseNode.prototype._addComponentAt = function (comp, index) {
+        Node.prototype._addComponentAt = function (comp, index) {
             if (this._objFlags & Destroying) {
                 return error('isDestroying');
             }
@@ -104,7 +104,7 @@ export function baseNodePolyfill (BaseNode) {
          * @param {Component} depended
          * @return {Component[]}
          */
-        BaseNode.prototype._getDependComponent = function (depended) {
+        Node.prototype._getDependComponent = function (depended) {
             const dependant: Component[] = [];
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
@@ -126,7 +126,7 @@ export function baseNodePolyfill (BaseNode) {
             return dependant;
         };
 
-        BaseNode.prototype.onRestore = function () {
+        Node.prototype.onRestore = function () {
             // check activity state
             const shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
             if (this._activeInHierarchy !== shouldActiveNow) {
@@ -134,7 +134,7 @@ export function baseNodePolyfill (BaseNode) {
             }
         };
 
-        BaseNode.prototype._onPreDestroy = function () {
+        Node.prototype._onPreDestroy = function () {
             const destroyByParent: boolean = this._onPreDestroyBase();
             if (!destroyByParent) {
                 // ensure this node can reattach to scene by undo system
@@ -144,11 +144,11 @@ export function baseNodePolyfill (BaseNode) {
             return destroyByParent;
         };
 
-        BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
+        Node.prototype._onRestoreBase = Node.prototype.onRestore;
     }
 
     if (EDITOR || TEST) {
-        BaseNode.prototype._registerIfAttached = function (register) {
+        Node.prototype._registerIfAttached = function (register) {
             const attachedObjsForEditor = legacyCC.engine.attachedObjsForEditor;
             if (register) {
                 attachedObjsForEditor[this._id] = this;
@@ -179,7 +179,7 @@ export function baseNodePolyfill (BaseNode) {
 
     if (DEV) {
         // promote debug info
-        js.get(BaseNode.prototype, ' INFO ', function () {
+        js.get(Node.prototype, ' INFO ', function () {
             let path = '';
             // @ts-expect-error
             let node = this;
