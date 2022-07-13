@@ -36,6 +36,8 @@ cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
 cc_set_if_undefined(NET_MODE                  0) # 0 is client
 cc_set_if_undefined(USE_REMOTE_LOG           OFF)
+cc_set_if_undefined(USE_OPENAL               ON)
+cc_set_if_undefined(USE_AVAUDIOENGINE        OFF)
 
 
 if(ANDROID AND NOT DEFINED USE_CCACHE)
@@ -343,17 +345,29 @@ if(USE_AUDIO)
             cocos/audio/android/audio_utils/primitives.c
         )
     elseif(APPLE)
-        cocos_source_files(
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-Impl.mm
-                                    cocos/audio/apple/AudioEngine-Impl.h
-                                    cocos/audio/apple/AudioCache.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
-                                    cocos/audio/apple/AudioMacros.h
-                                    cocos/audio/apple/AudioPlayer.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
-                                    # cocos/audio/apple/AudioDecoder.h
-            # NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
-        )
+        if(USE_OPENAL)
+            cocos_source_files(
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/OpenAL/AudioEngine-inl.mm
+                                        cocos/audio/apple/OpenAL/AudioEngine-inl.h
+                                        cocos/audio/apple/OpenAL/AudioCache.h
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/OpenAL/AudioCache.mm
+                                        cocos/audio/apple/OpenAL/AudioMacros.h
+                                        cocos/audio/apple/OpenAL/AudioPlayer.h
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/OpenAL/AudioPlayer.mm
+                                        cocos/audio/apple/OpenAL/AudioDecoder.h
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/OpenAL/AudioDecoder.mm
+            )
+        elseif(USE_AVAUDIOENGINE)
+            cocos_source_files(
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/AVAudioEngine/AudioEngine-inl.mm
+                                        cocos/audio/apple/AVAudioEngine/AudioEngine-inl.h
+                                        cocos/audio/apple/AVAudioEngine/AudioCache.h
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/AVAudioEngine/AudioCache.mm
+                                        cocos/audio/apple/AVAudioEngine/AudioMacros.h
+                                        cocos/audio/apple/AVAudioEngine/AudioPlayer.h
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/AVAudioEngine/AudioPlayer.mm
+            )
+        endif()
     endif()
 
 endif()
@@ -2885,6 +2899,8 @@ function(cc_apply_definations target)
         $<$<BOOL:${USE_REMOTE_LOG}>:CC_REMOTE_LOG=1>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
+        $<IF:$<BOOL:${USE_OPENAL}>,CC_USE_OPENAL=1,CC_USE_OPENAL=0>
+        $<IF:$<BOOL:${USE_AVAUDIOENGINE}>,CC_USE_AVAUDIOENGINE=1,CC_USE_AVAUDIOENGINE=0>
     )
 endfunction()
 

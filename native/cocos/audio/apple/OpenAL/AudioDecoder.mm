@@ -24,8 +24,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "audio/apple/AudioDecoder.h"
-#include "audio/apple/AudioMacros.h"
+#include "audio/apple/OpenAL/AudioDecoder.h"
+#include "audio/apple/OpenAL/AudioMacros.h"
 
 #import <Foundation/Foundation.h>
 

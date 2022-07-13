@@ -86,7 +86,7 @@ void AudioPlayer::rotateBuffer() {
     AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:sizeOfFrameToLoad];
     __block bool shouldTmpBufferBeDeleted = false;
     __block bool isRendered = false;
-    NSLog(@"[ROTATE THREAD] Start load to buffer with currentFrame %d, and sizeOfFrameToLoad %d", currentFrame, sizeOfFrameToLoad);
+    NSLog(@"[ROTATE THREAD] Start load to buffer with currentFrame %lld, and sizeOfFrameToLoad %d", currentFrame, sizeOfFrameToLoad);
     // reset _cache audio file's frame position to current frame
     _cache->loadToBuffer(currentFrame, tmpBuffer, sizeOfFrameToLoad);
     NSLog(@"[ROTATE THREAD] Read into buffer, rotate buffer");
@@ -226,7 +226,6 @@ float AudioPlayer::getVolume() {
     return _volume;
 }
 bool AudioPlayer::setCurrentTime(float curTime) {
-    //TODO: node set currentTime
     if (_state == State::PLAYING) {
         NSLog(@"Setting currentTime while old is %f, and new one is %f and _currentTime is %f", _startRenderTime, curTime, _currentTime);
         _startRenderTime = curTime;
