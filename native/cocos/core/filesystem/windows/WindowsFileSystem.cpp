@@ -25,11 +25,11 @@
  ****************************************************************************/
 
 #include "cocos/core/filesystem/windows/WindowsFileSystem.h"
+#include <ShlObj.h>
 #include <Windows.h>
+#include "cocos/base/Log.h"
 #include "cocos/core/filesystem/windows/WindowsFileHandle.h"
 #include "cocos/platform/win32/Utils-win32.h"
-#include "cocos/base/Log.h"
-#include <ShlObj.h>
 
 namespace cc {
 constexpr int kMaxPath = 512;
@@ -60,8 +60,7 @@ WindowsFileSystem::WindowsFileSystem() {
     addSearchPath(FilePath("data"), true);
 }
 
-WindowsFileSystem::~WindowsFileSystem() {
-}
+WindowsFileSystem::~WindowsFileSystem() = default;
 
 bool WindowsFileSystem::createDirectory(const FilePath& path) {
     if (exist(path)) {
@@ -88,35 +87,11 @@ bool WindowsFileSystem::createDirectory(const FilePath& path) {
     return true;
 }
 
-bool WindowsFileSystem::existInternal(const FilePath& filepath) const {
-    FilePath actualPath = filepath;
-    if (!isAbsolutePath(filepath.value())) {
-        actualPath = _defaultResRootPath;
-        actualPath = actualPath.append(filepath);
-    }
-    int32_t result = GetFileAttributesW(StringUtf8ToWideChar(actualPath.value()).c_str());
-    if (result != 0xFFFFFFFF && !(result & FILE_ATTRIBUTE_DIRECTORY)) {
-        return true;
-    }
-    return false;
-}
-
-int64_t WindowsFileSystem::getFileSize(const FilePath& filepath) {
-    WIN32_FILE_ATTRIBUTE_DATA fad;
-    if (!GetFileAttributesEx(StringUtf8ToWideChar(filepath.value()).c_str(), GetFileExInfoStandard, &fad)) {
-        return 0; // error condition, could call GetLastError to find out more
-    }
-    LARGE_INTEGER size;
-    size.HighPart = fad.nFileSizeHigh;
-    size.LowPart = fad.nFileSizeLow;
-    return (long)size.QuadPart;
-}
-
-bool WindowsFileSystem::removeDirectory(const FilePath& dirPath) {
-    if (dirPath.value().empty()) {
+bool WindowsFileSystem::removeDirectory(const FilePath& path) {
+    if (path.value().empty()) {
         return false;
     }
-    std::wstring wpath = StringUtf8ToWideChar(dirPath.value());
+    std::wstring wpath = StringUtf8ToWideChar(path.value());
     std::wstring files = wpath + L"*.*";
     WIN32_FIND_DATA wfd;
     HANDLE search = FindFirstFileEx(files.c_str(), FindExInfoStandard, &wfd, FindExSearchNameMatch, NULL, 0);
@@ -146,32 +121,49 @@ bool WindowsFileSystem::removeDirectory(const FilePath& dirPath) {
     return false;
 }
 
-bool WindowsFileSystem::removeFile(const FilePath& filepath) {
-    if (DeleteFile(StringUtf8ToWideChar(filepath.value()).c_str())) {
+bool WindowsFileSystem::isAbsolutePath(const FilePath& strPath) const {
+    if ((strPath.value().length() > 2 && ((strPath.value()[0] >= 'a' && strPath.value()[0] <= 'z') || (strPath.value()[0] >= 'A' && strPath.value()[0] <= 'Z')) && strPath.value()[1] == ':') || (strPath.value()[0] == '/' && strPath.value()[1] == '/')) {
         return true;
     }
-    CC_LOG_ERROR("Fail remove file %s !Error code is 0x%x", filepath.value().c_str(), GetLastError());
     return false;
 }
 
+int64_t WindowsFileSystem::getFileSize(const FilePath& filePath) {
+    WIN32_FILE_ATTRIBUTE_DATA fad;
+    if (!GetFileAttributesEx(StringUtf8ToWideChar(filePath.value()).c_str(), GetFileExInfoStandard, &fad)) {
+        return 0; // error condition, could call GetLastError to find out more
+    }
+    LARGE_INTEGER size;
+    size.HighPart = fad.nFileSizeHigh;
+    size.LowPart = fad.nFileSizeLow;
+    return (long)size.QuadPart;
+}
 
-bool WindowsFileSystem::renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) {
-    CC_ASSERT(!oldFilepath.value().empty());
-    CC_ASSERT(!newFilepath.value().empty());
+bool WindowsFileSystem::removeFile(const FilePath& filePath) {
+    if (DeleteFile(StringUtf8ToWideChar(filePath.value()).c_str())) {
+        return true;
+    }
+    CC_LOG_ERROR("Fail remove file %s !Error code is 0x%x", filePath.value().c_str(), GetLastError());
+    return false;
+}
 
-    std::wstring _wNew = StringUtf8ToWideChar(newFilepath.value());
-    std::wstring _wOld = StringUtf8ToWideChar(oldFilepath.value());
+bool WindowsFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) {
+    CC_ASSERT(!oldFilePath.value().empty());
+    CC_ASSERT(!newFilePath.value().empty());
 
-    if (exist(newFilepath)) {
+    std::wstring _wNew = StringUtf8ToWideChar(newFilePath.value());
+    std::wstring _wOld = StringUtf8ToWideChar(oldFilePath.value());
+
+    if (exist(newFilePath)) {
         if (!DeleteFile(_wNew.c_str())) {
-            CC_LOG_ERROR("Fail to delete file %s !Error code is 0x%x", newFilepath.value().c_str(), GetLastError());
+            CC_LOG_ERROR("Fail to delete file %s !Error code is 0x%x", newFilePath.value().c_str(), GetLastError());
         }
     }
 
     if (MoveFile(_wOld.c_str(), _wNew.c_str())) {
         return true;
-    } 
-    CC_LOG_ERROR("Fail to rename file %s to %s !Error code is 0x%x", oldFilepath.value().c_str(), newFilepath.value().c_str(), GetLastError());
+    }
+    CC_LOG_ERROR("Fail to rename file %s to %s !Error code is 0x%x", oldFilePath.value().c_str(), newFilePath.value().c_str(), GetLastError());
     return false;
 }
 
@@ -186,7 +178,7 @@ BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag fla
     } else if (flag == AccessFlag::APPEND) {
         accessFlag = GENERIC_READ | GENERIC_WRITE | OPEN_ALWAYS;
     }
-    
+
     int32_t winFlags = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int32_t createFlag = OPEN_EXISTING;
     FilePath actualPath = filepath;
@@ -199,13 +191,6 @@ BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag fla
         return new WindowsFileHandle(handle);
     }
     return nullptr;
-}
-
-bool WindowsFileSystem::isAbsolutePath(const FilePath & strPath) const {
-    if ((strPath.value().length() > 2 && ((strPath.value()[0] >= 'a' && strPath.value()[0] <= 'z') || (strPath.value()[0] >= 'A' && strPath.value()[0] <= 'Z')) && strPath.value()[1] == ':') || (strPath.value()[0] == '/' && strPath.value()[1] == '/')) {
-        return true;
-    }
-    return false;
 }
 
 FilePath WindowsFileSystem::getUserAppDataPath() const {
@@ -256,4 +241,17 @@ FilePath WindowsFileSystem::getUserAppDataPath() const {
     return FilePath(StringWideCharToUtf8(retPath)).value();
 }
 
+bool WindowsFileSystem::existInternal(const FilePath& filePath) const {
+    FilePath actualPath = filePath;
+    if (!isAbsolutePath(filePath.value())) {
+        actualPath = _defaultResRootPath;
+        actualPath = actualPath.append(filePath);
+    }
+    int32_t result = GetFileAttributesW(StringUtf8ToWideChar(actualPath.value()).c_str());
+    if (result != 0xFFFFFFFF && !(result & FILE_ATTRIBUTE_DIRECTORY)) {
+        return true;
+    }
+    return false;
 }
+
+} // namespace cc

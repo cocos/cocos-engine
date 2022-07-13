@@ -26,43 +26,28 @@
 
 #pragma once
 
-#include "cocos/core/filesystem/zipfilesystem/ZipFileHandle.h"
+#include "cocos/core/filesystem/archive-filesystem/ZipFileSystem.h"
 #include "base/Macros.h"
 #include "base/memory/Memory.h"
+#include "base/ZipUtils.h"
+#include "cocos/core/filesystem/archive-filesystem/ZipFileHandle.h"
 
 namespace cc {
 
-ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const std::string& filepath)
-:_zipfile(zipFile), _filepath(filepath) {
-
+ZipFileSystem::ZipFileSystem(const FilePath& assetsPath) {
+    _zipFile = ccnew ZipFile(assetsPath.value());
 }
 
-ZipFileHandle::~ZipFileHandle() {
-
+ZipFileSystem::~ZipFileSystem() {
+    delete _zipFile;
 }
 
-bool ZipFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
-    return false;
+bool ZipFileSystem::exist(const FilePath& filepath) const {
+    return _zipFile->fileExists(filepath.value());
 }
 
-int64_t ZipFileHandle::tell() {
-    return false;
-}
-
-int64_t ZipFileHandle::fileSize() {
-    return 0;
-}
-
-bool ZipFileHandle::read(char* buffer, int64_t buffersize) {
-    return _zipfile->getFileData(_filepath, buffer, buffersize);
-}
-
-bool ZipFileHandle::write(char* buffer, int64_t buffersize) {
-    return false;
-}
-
-bool ZipFileHandle::flush() {
-    return false;
+BaseFileHandle* ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+    return new ZipFileHandle(_zipFile, filepath.value());
 }
 
 } // namespace cc

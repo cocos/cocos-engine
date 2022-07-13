@@ -41,9 +41,7 @@ LocalFileSystem::LocalFileSystem() {
     _searchPathArray.push_back(_defaultResRootPath);
 }
 
-LocalFileSystem::~LocalFileSystem() {
-
-}
+LocalFileSystem::~LocalFileSystem() = default;
 
 BaseFileHandle* LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
     std::string assert = "";

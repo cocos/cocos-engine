@@ -27,7 +27,7 @@
 #include "cocos/core/filesystem/LocalFileSystem.h"
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "cocos/core/filesystem/android/ResourceFileSystem.h"
-#include "cocos/core/filesystem/zipfilesystem/ZipFileSystem.h"
+#include "cocos/core/filesystem/archive-filesystem/ZipFileSystem.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
 #endif
@@ -44,10 +44,10 @@ FileSystem::FileSystem() {
     _instance = this;
     _localFileSystem.reset(LocalFileSystem::createLocalFileSystem());
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    _subFileSystems.push_back(new ResourceFileSystem);
+    _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
     std::string assetsPath(getObbFilePathJNI());
     if (assetsPath.find("/obb/") != std::string::npos) {
-        _subFileSystems.push_back(new ZipFileSystem(assetsPath));
+        _subFileSystems.push_back(std::make_unique<ZipFileSystem>(assetsPath));
     }
 #endif
 }

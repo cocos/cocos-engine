@@ -24,24 +24,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-
 #include "core/filesystem/android/ResourceFileSystem.h"
 #include "core/filesystem/android/ResourceFileHandle.h"
 
 namespace cc {
-namespace {
-const std::string kAssetsFolderName = "@assets/";
-}
 
 AAssetManager *ResourceFileSystem::assetmanager = nullptr;
 
 ResourceFileSystem::ResourceFileSystem() {
-    addSearchPath("",true);
-    _defaultResRootPath = kAssetsFolderName;
-    addSearchPath("Resources", true);
-    addSearchPath("data", true);
+    addSearchPath(FilePath(""),true);
+    _defaultResRootPath = "";
+    addSearchPath(FilePath("Resources"), true);
+    addSearchPath(FilePath("data"), true);
 }
+
+ResourceFileSystem::~ResourceFileSystem() = default;
 
 void ResourceFileSystem::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
@@ -87,7 +84,7 @@ bool ResourceFileSystem::exist(const FilePath& path) const {
     return false;
 }
 
-BaseFileHandle* ResourceFileSystem::open(const FilePath& filename) {
+BaseFileHandle* ResourceFileSystem::open(const FilePath& filename, AccessFlag flag) {
     if (!ResourceFileSystem::assetmanager) {
         return nullptr;
     }
@@ -96,10 +93,6 @@ BaseFileHandle* ResourceFileSystem::open(const FilePath& filename) {
         return nullptr;
     }
     return new ResourceFileHandle(filename, asset);
-}
-
-bool ResourceFileSystem::isAbsolutePath(const std::string &strPath) const {
-    return strPath.find(kAssetsFolderName) == 0;
 }
 
 }

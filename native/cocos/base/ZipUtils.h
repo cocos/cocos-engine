@@ -31,9 +31,6 @@
 #include "base/std/container/string.h"
 #include "platform/FileUtils.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "platform/android/FileUtils-android.h"
-#endif
 
 namespace cc {
 #ifndef _unz64_H

@@ -28,38 +28,21 @@
 
 
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
 #include "android/asset_manager.h"
+#include "cocos/core/filesystem/BaseResourceFileSystem.h"
 
 namespace cc {
 
-class CC_DLL ResourceFileSystem : public BaseFileSystem {
+class CC_DLL ResourceFileSystem : public BaseResourcesFileSystem {
 public:
     ResourceFileSystem();
+    ~ResourceFileSystem() override;
     static void setassetmanager(AAssetManager *a);
     static AAssetManager *getAssetManager() { return assetmanager; }
+
     bool exist(const FilePath& path) const override;
-    bool isAbsolutePath(const std::string &strPath) const override;
-    BaseFileHandle* open(const FilePath& Filename) override;
-    
-    virtual bool createDirectory(const FilePath& path) {
-        return false;
-    };
-    virtual int64_t getFileSize(const FilePath& filepath) {
-        return 0;
-    };
-    virtual bool removeFile(const FilePath& filepath) {
-        return false;
-    };
-    virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) {
-        return false;
-    }
-    virtual bool removeDirectory(const FilePath& dirPath) {
-        return false;
-    } 
-    virtual ccstd::string getUserAppDataPath() const {
-        return "";
-    }
+    BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
+
 private:
     static AAssetManager *assetmanager;
 };

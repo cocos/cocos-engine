@@ -34,7 +34,6 @@
 #include "modules/System.h"
 #include "platform/BasePlatform.h"
 #include "platform/android/AndroidPlatform.h"
-#include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
@@ -456,7 +455,6 @@ void gameControllerStatusCallback(const int32_t controllerIndex,
 AndroidPlatform::~AndroidPlatform() = default;
 
 int AndroidPlatform::init() {
-    //cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
     cc::ResourceFileSystem::setassetmanager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {

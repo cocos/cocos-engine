@@ -64,11 +64,15 @@ bool ResourceFileHandle::write(char* buffer, int64_t buffersize) {
     assert(false);
 }
 
-int64_t ResourceFileHandle::fileSize() {
+int64_t ResourceFileHandle::size() {
     return AAsset_getLength(_asset);
 }
 
 bool ResourceFileHandle::flush() {
+    return true;
+}
+
+bool ResourceFileHandle::close() {
     return true;
 }
 

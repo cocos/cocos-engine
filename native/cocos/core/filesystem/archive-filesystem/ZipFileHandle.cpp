@@ -26,30 +26,47 @@
 
 #pragma once
 
+#include "cocos/core/filesystem/archive-filesystem/ZipFileHandle.h"
 #include "base/Macros.h"
-#include "cocos/core/filesystem/LocalFileSystem.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
-class CC_DLL AndroidFileSystem : public LocalFileSystem {
-public:
-    AndroidFileSystem();
-    ~AndroidFileSystem() override;
-
-    bool createDirectory(const FilePath& path) override;
-    bool removeDirectory(const FilePath& dirPath) override;
-
-    bool isAbsolutePath(const FilePath& strPath) const override;
-    int64_t getFileSize(const FilePath& Filename) override;
-
-    bool removeFile(const FilePath& Filename) override;
-    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
-
-    BaseFileHandle* open(const FilePath& Filename, AccessFlag flag) override;
-    FilePath getUserAppDataPath() const override;
-
-private:
-    bool existInternal(const FilePath& filepath) const override;
-};
+ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const std::string& filepath)
+:_zipfile(zipFile), _filepath(filepath) {
 
 }
+
+ZipFileHandle::~ZipFileHandle() {
+
+}
+
+bool ZipFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    return false;
+}
+
+int64_t ZipFileHandle::tell() {
+    return false;
+}
+
+int64_t ZipFileHandle::size() {
+    return 0;
+}
+
+bool ZipFileHandle::read(char* buffer, int64_t buffersize) {
+    return _zipfile->getFileData(_filepath, buffer, buffersize);
+}
+
+bool ZipFileHandle::write(char* buffer, int64_t buffersize) {
+    return false;
+}
+
+bool ZipFileHandle::flush() {
+    return false;
+}
+
+bool ZipFileHandle::close() {
+    return true;
+}
+
+} // namespace cc

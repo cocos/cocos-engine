@@ -23,31 +23,33 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
-
-#include "cocos/core/filesystem/zipfilesystem/ZipFileSystem.h"
-#include "base/Macros.h"
-#include "base/memory/Memory.h"
-#include "base/ZipUtils.h"
-#include "cocos/core/filesystem/zipfilesystem/ZipFileHandle.h"
+#include "cocos/core/filesystem/BaseFileSystem.h"
 
 namespace cc {
+class BaseResourcesFileSystem : public BaseFileSystem {
+public:
+    ~BaseResourcesFileSystem() override = default;
+    bool createDirectory(const FilePath& path) override {
+        return false;
+    };
+    int64_t getFileSize(const FilePath& filepath) override {
+        return 0;
+    };
+    bool removeFile(const FilePath& filepath) override {
+        return false;
+    };
+    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override {
+        return false;
+    }
+    bool removeDirectory(const FilePath& dirPath) override {
+        return false;
+    }
+    FilePath getUserAppDataPath() const override {
+        return FilePath("");
+    }
 
-ZipFileSystem::ZipFileSystem(const FilePath& assetsPath) {
-    _zipFile = ccnew ZipFile(assetsPath.value());
+private:
+};
+
 }
-
-ZipFileSystem::~ZipFileSystem() {
-    delete _zipFile;
-}
-
-bool ZipFileSystem::exist(const FilePath& filepath) const {
-    return _zipFile->fileExists(filepath.value());
-}
-
-BaseFileHandle* ZipFileSystem::open(const FilePath& filepath) {
-    return new ZipFileHandle(_zipFile, filepath.value());
-}
-
-} // namespace cc

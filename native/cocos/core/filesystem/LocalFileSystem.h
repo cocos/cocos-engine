@@ -37,12 +37,12 @@ public:
     bool exist(const FilePath& filepath) const override;
     static LocalFileSystem* createLocalFileSystem();
     ccstd::string getFullPathForDirectoryAndFilename(const FilePath& directory, const FilePath& filename) const override;
-    BaseFileHandle* open(const FilePath& path, AccessFlag flag);
-    bool isAbsolutePath(const FilePath& strPath) const;
+    BaseFileHandle* open(const FilePath& path, AccessFlag flag) override;
+    bool isAbsolutePath(const FilePath& strPath) const override;
 
 private:
     virtual bool existInternal(const FilePath& filepath) const = 0;
-    
+
 };
 
 }

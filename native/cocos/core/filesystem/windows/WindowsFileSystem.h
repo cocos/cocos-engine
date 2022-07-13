@@ -37,12 +37,13 @@ public:
     ~WindowsFileSystem() override;
 
     bool createDirectory(const FilePath& path) override;
-    int64_t getFileSize(const FilePath& Filename) override;
-    bool removeFile(const FilePath& Filename) override;
-    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
-    BaseFileHandle* open(const FilePath& Filename, AccessFlag flag) override;
-    bool isAbsolutePath(const FilePath& strPath) const override;
-    bool removeDirectory(const FilePath& dirPath) override;
+    bool removeDirectory(const FilePath& path) override;
+    bool isAbsolutePath(const FilePath& filePath) const override;
+    int64_t getFileSize(const FilePath& filePath) override;
+
+    bool removeFile(const FilePath& filePath) override;
+    bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override;
+    BaseFileHandle* open(const FilePath& filePath, AccessFlag flag) override;
 
     FilePath getUserAppDataPath() const override;
 
@@ -50,4 +51,4 @@ private:
     bool existInternal(const FilePath& filepath) const override;
 };
 
-}
+} // namespace cc

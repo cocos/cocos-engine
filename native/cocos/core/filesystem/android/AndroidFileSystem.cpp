@@ -88,7 +88,7 @@ bool AndroidFileSystem::renameFile(const FilePath& oldFilepath, const FilePath& 
     return false;
 }
 
-BaseFileHandle* AndroidFileSystem::open(const FilePath& filepath) {
+BaseFileHandle* AndroidFileSystem::open(const FilePath& filepath, AccessFlag flag) {
     if (filepath.value().empty()) {
         return nullptr;//FileUtils::Status::NOT_EXISTS;
     }
@@ -107,25 +107,25 @@ BaseFileHandle* AndroidFileSystem::open(const FilePath& filepath) {
     //return new AndroidFileHandle(asset);
 }
 
-bool AndroidFileSystem::isAbsolutePath(const ccstd::string& strPath) const {
+bool AndroidFileSystem::isAbsolutePath(const FilePath& strPath) const {
     // On Android, there are two situations for full path.
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
     // So these two situations need to be checked on Android.
-    return strPath[0] == '/';
+    return strPath.value()[0] == '/';
 }
 
-ccstd::string AndroidFileSystem::getUserAppDataPath() const {
+FilePath AndroidFileSystem::getUserAppDataPath() const {
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
     ccstd::string dir;
-    ccstd::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getUserAppDataPath");
+    ccstd::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
 
     if (tmp.length() > 0) {
         dir.append(tmp).append("/");
         return dir;
     }
-    return "";
+    return FilePath("");
 }
 
 }

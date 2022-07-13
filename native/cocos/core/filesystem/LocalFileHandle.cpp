@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "cocos/core/filesystem/LocalFileHandle.h"
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#include <sys/stat.h>
+#endif
 
 namespace cc {
 
@@ -33,7 +36,7 @@ LocalFileHandle::LocalFileHandle(FILE *fp):_fp(fp) {
 LocalFileHandle::~LocalFileHandle() {
     close();
 }
- 
+
 
 bool LocalFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
     CC_ASSERT(_fp != nullptr);

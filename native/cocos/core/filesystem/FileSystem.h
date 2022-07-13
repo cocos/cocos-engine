@@ -40,14 +40,16 @@ public:
     ~FileSystem() override = default;
 
     bool createDirectory(const FilePath& path) override;
+    bool removeDirectory(const FilePath& dirPath) override;
+
+    bool isAbsolutePath(const FilePath& path) const override;
     int64_t getFileSize(const FilePath& filepath) override;
+
     bool removeFile(const FilePath& filepath) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
     bool exist(const FilePath& filepath) const override;
-    bool removeDirectory(const FilePath& dirPath) override;
-    bool isAbsolutePath(const FilePath& path) const override;
-
-    FilePath GetUserAppDataPath() const override;
+    
+    FilePath getUserAppDataPath() const override;
     ccstd::string fullPathForFilename(const FilePath& dirPath) const override;
     BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
 
