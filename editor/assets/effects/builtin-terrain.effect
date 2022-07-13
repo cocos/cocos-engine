@@ -284,7 +284,8 @@ CCProgram shadow-caster-vs %{
   in vec3 a_normal;
   in vec2 a_texCoord;
 
-  out vec2 v_clip_depth;
+  out vec4 v_worldPos;
+  out highp vec2 v_clip_depth;
 
   vec4 vert () {
     vec4 worldPos;
@@ -292,6 +293,7 @@ CCProgram shadow-caster-vs %{
     worldPos.y = cc_matWorld[3][1] + a_position.y;
     worldPos.z = cc_matWorld[3][2] + a_position.z;
     worldPos.w = 1.0;
+    v_worldPos = worldPos;
 
     vec4 clipPos = cc_matLightViewProj * worldPos;
 
@@ -304,10 +306,25 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <common/data/packing>
+  #include <legacy/shadow-map-base>
 
-  in vec2 v_clip_depth;
+  in vec4 v_worldPos;
+  in highp vec2 v_clip_depth;
 
   vec4 frag () {
-    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
+      if (cc_shadowNFLSInfo.z > 0.000001) {
+        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
+      }
+    }
+
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      return packDepthToRGBA(clipDepth);
+    }
+
+    return vec4(clipDepth, 1.0, 1.0, 1.0);
   }
 }%

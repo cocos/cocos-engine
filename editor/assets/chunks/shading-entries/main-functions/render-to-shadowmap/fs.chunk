@@ -1,4 +1,4 @@
-in highp float v_clip_depth;
+in highp vec2 v_clip_depth;
 
 layout(location = 0) out vec4 fragColorX;
 
@@ -6,7 +6,7 @@ void main () {
   // for alpha clip
   SurfacesFragmentModifyBaseColorAndTransparency();
 
-  highp float clipDepth = v_clip_depth;
+  highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
   // spot use linear
   if(cc_shadowLPNNInfo.x > EPSILON && cc_shadowLPNNInfo.x < 1.999999) {
     // enabled linear depth
