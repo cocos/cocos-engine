@@ -57,7 +57,7 @@ public:
     virtual bool removeDirectory(const FilePath& dirPath) {
         return false;
     } 
-    virtual ccstd::string getWritablePath() const {
+    virtual ccstd::string getUserAppDataPath() const {
         return "";
     }
 private:

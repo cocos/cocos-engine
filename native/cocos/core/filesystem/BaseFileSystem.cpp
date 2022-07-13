@@ -1,4 +1,3 @@
-
 /****************************************************************************
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
@@ -27,76 +26,57 @@
 
 namespace cc {
 
-bool BaseFileSystem::isAbsolutePath(const ccstd::string &path) const {
-    return (path[0] == '/');
+bool BaseFileSystem::isAbsolutePath(const FilePath &path) const {
+    return (path.value()[0] == '/');
 }
 
-void BaseFileSystem::addSearchPath(const ccstd::string &searchpath, bool front) {
+void BaseFileSystem::addSearchPath(const FilePath &searchpath, bool front) {
     ccstd::string prefix;
     if (!isAbsolutePath(searchpath)) {
         prefix = _defaultResRootPath;
     }
 
-    ccstd::string path = prefix + searchpath;
+    ccstd::string path = prefix + searchpath.value();
     if (!path.empty() && path[path.length() - 1] != '/') {
         path += "/";
     }
     if (front) {
-        _originalSearchPaths.insert(_originalSearchPaths.begin(), searchpath);
+        _originalSearchPaths.insert(_originalSearchPaths.begin(), searchpath.value());
         _searchPathArray.insert(_searchPathArray.begin(), path);
     } else {
-        _originalSearchPaths.push_back(searchpath);
+        _originalSearchPaths.push_back(searchpath.value());
         _searchPathArray.push_back(path);
     }
 }
 
 
-ccstd::string BaseFileSystem::getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const {
+ccstd::string BaseFileSystem::getFullPathForDirectoryAndFilename(const FilePath &directory, const FilePath &filename) const {
     // get directory+filename, safely adding '/' as necessary
-    ccstd::string ret = directory;
-    if (!directory.empty() && directory[directory.size() - 1] != '/') {
-        ret += '/';
-    }
-    ret += filename;
+    FilePath path = directory.append(filename);
 
     // if the file doesn't exist, return an empty string
-    if (!exist(ret)) {
-        ret = "";
-    }
-    return ret;
-}
-
-ccstd::string BaseFileSystem::getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const {
-    ccstd::string file{filename};
-    ccstd::string filePath;
-    size_t pos = filename.find_last_of('/');
-    if (pos != ccstd::string::npos) {
-        filePath = filename.substr(0, pos + 1);
-        file = filename.substr(pos + 1);
-    }
-
-    // searchPath + file_path
-    ccstd::string path = searchPath;
-    path.append(filePath);
-
-    path = getFullPathForDirectoryAndFilename(path, file);
-
-    return path;
-}
-
-ccstd::string BaseFileSystem::fullPathForFilename(const ccstd::string &filename) const {
-    if (filename.empty()) {
+    if (!exist(path)) {
         return "";
     }
+    return path.value();
+}
 
+ccstd::string BaseFileSystem::getPathForFilename(const FilePath &filename, const FilePath &searchPath) const {
+    // searchPath + file_path
+    FilePath path = searchPath.append(filename.dirName());
+    path = getFullPathForDirectoryAndFilename(path, filename.baseName());
+    return path.value();
+}
+
+ccstd::string BaseFileSystem::fullPathForFilename(const FilePath &filename) const {
     if (isAbsolutePath(filename)) {
-        return filename;
+        return filename.value();
     }
     //if (exist(filename)) {
     //    return filename;
     //}
     // Already Cached ?
-    auto cacheIter = _fullPathCache.find(filename);
+    auto cacheIter = _fullPathCache.find(filename.value());
     if (cacheIter != _fullPathCache.end()) {
         return cacheIter->second;
     }
@@ -108,7 +88,7 @@ ccstd::string BaseFileSystem::fullPathForFilename(const ccstd::string &filename)
 
         if (!fullpath.empty()) {
             // Using the filename passed in as key.
-            _fullPathCache.insert(std::make_pair(filename, fullpath));
+            _fullPathCache.insert(std::make_pair(filename.value(), fullpath));
             return fullpath;
         }
     }

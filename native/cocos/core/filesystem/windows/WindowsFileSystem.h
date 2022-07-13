@@ -40,10 +40,11 @@ public:
     int64_t getFileSize(const FilePath& Filename) override;
     bool removeFile(const FilePath& Filename) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
-    BaseFileHandle* open(const FilePath& Filename) override;
-    bool isAbsolutePath(const ccstd::string& strPath) const override;
+    BaseFileHandle* open(const FilePath& Filename, AccessFlag flag) override;
+    bool isAbsolutePath(const FilePath& strPath) const override;
     bool removeDirectory(const FilePath& dirPath) override;
-    ccstd::string getWritablePath() const override;
+
+    FilePath getUserAppDataPath() const override;
 
 private:
     bool existInternal(const FilePath& filepath) const override;

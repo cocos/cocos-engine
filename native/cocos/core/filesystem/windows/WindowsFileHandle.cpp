@@ -34,13 +34,11 @@ WindowsFileHandle::WindowsFileHandle(HANDLE handle)
 }
 
 WindowsFileHandle::~WindowsFileHandle() {
-    if (_handle != nullptr) {
-        CloseHandle(_handle);
-        _handle = nullptr;
-    }
+    close();
 }
 
 bool WindowsFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    CC_ASSERT(_handle != nullptr);
     LARGE_INTEGER filepos;
     filepos.QuadPart = pos;
     LARGE_INTEGER newPos;
@@ -58,6 +56,7 @@ bool WindowsFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
 }
 
 int64_t WindowsFileHandle::tell() {
+    CC_ASSERT(_handle != nullptr);
     LARGE_INTEGER seek, pos;
     seek.QuadPart = 0;
     if (!SetFilePointerEx(_handle, seek, &pos, _moveMethod)) {
@@ -68,6 +67,7 @@ int64_t WindowsFileHandle::tell() {
 }
 
 bool WindowsFileHandle::read(char* buffer, int64_t buffersize) {
+    CC_ASSERT(_handle != nullptr);
     DWORD readCount = 0;
     if (!ReadFile(_handle, buffer, buffersize, &readCount, NULL)) {
         CC_LOG_ERROR("Can't read, the error code is %d", GetLastError());
@@ -77,14 +77,17 @@ bool WindowsFileHandle::read(char* buffer, int64_t buffersize) {
 }
 
 bool WindowsFileHandle::write(char* buffer, int64_t buffersize) {
+    CC_ASSERT(_handle != nullptr);
     DWORD writeCount = 0;
     if (!WriteFile(_handle, buffer, buffersize, &writeCount, NULL)) {
         CC_LOG_ERROR("Can't write, the error code is %d", GetLastError());
         return false;
     }
+    return true;
 }
 
-int64_t WindowsFileHandle::fileSize() {
+int64_t WindowsFileHandle::size() {
+    CC_ASSERT(_handle != nullptr);
     LARGE_INTEGER size;
     if (GetFileSizeEx(_handle, &size)) {
         return size.QuadPart;
@@ -93,7 +96,15 @@ int64_t WindowsFileHandle::fileSize() {
 }
 
 bool WindowsFileHandle::flush() {
+    CC_ASSERT(_handle != nullptr);
     return FlushFileBuffers(_handle) != 0;
+}
+
+bool WindowsFileHandle::close() {
+    if (_handle) {
+        CloseHandle(_handle);
+    }
+    return true;
 }
 
 }

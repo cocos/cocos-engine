@@ -50,7 +50,7 @@ public:
     }
     bool removeDirectory(const FilePath &path) override;
     
-    ccstd::string getWritablePath() const override;
+    ccstd::string getUserAppDataPath() const override;
     std::string getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const override;
     bool existInternal(const FilePath& filepath) const override;
     

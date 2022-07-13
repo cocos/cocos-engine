@@ -115,11 +115,11 @@ bool AndroidFileSystem::isAbsolutePath(const ccstd::string& strPath) const {
     return strPath[0] == '/';
 }
 
-ccstd::string AndroidFileSystem::getWritablePath() const {
+ccstd::string AndroidFileSystem::getUserAppDataPath() const {
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
     ccstd::string dir;
-    ccstd::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
+    ccstd::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getUserAppDataPath");
 
     if (tmp.length() > 0) {
         dir.append(tmp).append("/");

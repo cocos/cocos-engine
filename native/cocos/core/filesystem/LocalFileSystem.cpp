@@ -45,35 +45,41 @@ LocalFileSystem::~LocalFileSystem() {
 
 }
 
-BaseFileHandle* LocalFileSystem::open(const FilePath& path) {
-    FILE *fp = fopen(path.value().c_str(), "rb");
+BaseFileHandle* LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
+    std::string assert = "";
+    if (flag == AccessFlag::READ_ONLY) {
+        assert = "rb";
+    } else if (flag == AccessFlag::WRITE_ONLY) {
+        assert = "wb";
+    } else if (flag == AccessFlag::READ_WRITE) {
+        assert = "w+";
+    } else if (flag == AccessFlag::APPEND) {
+        assert = "ab+";
+    }
+    FILE* fp = fopen(path.value().c_str(), assert.c_str());
     if(!fp) {
         return nullptr;
     }
     return new LocalFileHandle(fp);
 }
 
-bool LocalFileSystem::isAbsolutePath(const std::string &strPath) const {
+bool LocalFileSystem::isAbsolutePath(const FilePath& strPath) const {
     // On Android, there are two situations for full path.
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
     // So these two situations need to be checked on Android.
-    return strPath[0] == '/';
+    return strPath.value()[0] == '/';
 }
 
-ccstd::string LocalFileSystem::getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const {
+ccstd::string LocalFileSystem::getFullPathForDirectoryAndFilename(const FilePath& directory, const FilePath&filename) const {
     // get directory+filename, safely adding '/' as necessary
-    ccstd::string ret = directory;
-    if (!directory.empty() && directory[directory.size() - 1] != '/') {
-        ret += '/';
-    }
-    ret += filename;
+    FilePath ret = directory.append(filename);
 
     // if the file doesn't exist, return an empty string
     if (!existInternal(ret)) {
-        ret = "";
+        return "";
     }
-    return ret;
+    return ret.value();
 }
 
 bool LocalFileSystem::exist(const FilePath& filepath) const {

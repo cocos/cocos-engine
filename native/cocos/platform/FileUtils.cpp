@@ -572,12 +572,12 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
     // read the file from hardware
     FilePath fullPath = filesystem->fullPathForFilename(filename);
 
-    std::unique_ptr<BaseFileHandle> fileHandle(filesystem->open(fullPath));
+    std::unique_ptr<BaseFileHandle> fileHandle(filesystem->open(fullPath, BaseFileSystem::AccessFlag::READ_ONLY));
     if (!fileHandle) {
         return FileUtils::Status::NOT_EXISTS;
     }
 
-    auto size = fileHandle->fileSize();
+    auto size = fileHandle->size();
     // don't read file content if it is empty
     if (size == 0) {
         return FileUtils::Status::OK;
@@ -596,7 +596,7 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
 }
 
 ccstd::string FileUtils::getWritablePath() const {
-    return FileSystem::getInstance()->getWritablePath();
+    return FileSystem::getInstance()->getUserAppDataPath().value();
 }
 
 unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {

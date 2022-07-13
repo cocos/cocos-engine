@@ -56,8 +56,8 @@ static void _checkPath() {
 WindowsFileSystem::WindowsFileSystem() {
     _checkPath();
     _defaultResRootPath = s_resourcePath;
-    addSearchPath("Resources", true);
-    addSearchPath("data", true);
+    addSearchPath(FilePath("Resources"), true);
+    addSearchPath(FilePath("data"), true);
 }
 
 WindowsFileSystem::~WindowsFileSystem() {
@@ -175,8 +175,18 @@ bool WindowsFileSystem::renameFile(const FilePath& oldFilepath, const FilePath& 
     return false;
 }
 
-BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath) {
-    int32_t accessFlag = GENERIC_READ;
+BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+    int32_t accessFlag = 0;
+    if (flag == AccessFlag::READ_ONLY) {
+        accessFlag = GENERIC_READ;
+    } else if (flag == AccessFlag::WRITE_ONLY) {
+        accessFlag = GENERIC_WRITE | CREATE_ALWAYS | TRUNCATE_EXISTING;
+    } else if (flag == AccessFlag::READ_WRITE) {
+        accessFlag = GENERIC_READ | GENERIC_WRITE;
+    } else if (flag == AccessFlag::APPEND) {
+        accessFlag = GENERIC_READ | GENERIC_WRITE | OPEN_ALWAYS;
+    }
+    
     int32_t winFlags = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int32_t createFlag = OPEN_EXISTING;
     FilePath actualPath = filepath;
@@ -191,14 +201,14 @@ BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath) {
     return nullptr;
 }
 
-bool WindowsFileSystem::isAbsolutePath(const ccstd::string& strPath) const {
-    if ((strPath.length() > 2 && ((strPath[0] >= 'a' && strPath[0] <= 'z') || (strPath[0] >= 'A' && strPath[0] <= 'Z')) && strPath[1] == ':') || (strPath[0] == '/' && strPath[1] == '/')) {
+bool WindowsFileSystem::isAbsolutePath(const FilePath & strPath) const {
+    if ((strPath.value().length() > 2 && ((strPath.value()[0] >= 'a' && strPath.value()[0] <= 'z') || (strPath.value()[0] >= 'A' && strPath.value()[0] <= 'Z')) && strPath.value()[1] == ':') || (strPath.value()[0] == '/' && strPath.value()[1] == '/')) {
         return true;
     }
     return false;
 }
 
-ccstd::string WindowsFileSystem::getWritablePath() const {
+FilePath WindowsFileSystem::getUserAppDataPath() const {
     if (_writablePath.length()) {
         return _writablePath;
     }

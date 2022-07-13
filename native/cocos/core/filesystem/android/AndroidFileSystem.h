@@ -43,7 +43,7 @@ public:
     BaseFileHandle* open(const FilePath& Filename) override;
     bool isAbsolutePath(const ccstd::string& strPath) const override;
     bool removeDirectory(const FilePath& dirPath) override;
-    ccstd::string getWritablePath() const override;
+    ccstd::string getUserAppDataPath() const override;
 
 private:
     bool existInternal(const FilePath& filepath) const override;

@@ -33,21 +33,29 @@ namespace cc {
 class BaseFileHandle;
 class CC_DLL BaseFileSystem {
 public:
+    enum class AccessFlag {
+        READ_ONLY  = 0x0000,
+        WRITE_ONLY = 0x0001 << 0,
+        READ_WRITE = 0x0001 << 1,
+        APPEND     = 0x0001 << 2,
+    };
     virtual ~BaseFileSystem() = default;
     virtual bool createDirectory(const FilePath& path) = 0;
-    virtual int64_t getFileSize(const FilePath& filepath) = 0;
+    virtual bool removeDirectory(const FilePath& path) = 0; 
+    virtual bool exist(const FilePath& path) const = 0;
+    virtual bool isAbsolutePath(const FilePath& path) const;
+
     virtual bool removeFile(const FilePath& filepath) = 0;
     virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) = 0;
-    virtual BaseFileHandle* open(const FilePath& filepath) = 0;
-    virtual bool exist(const FilePath& filepath) const = 0;
-    virtual bool removeDirectory(const FilePath& dirPath) = 0; 
-    virtual ccstd::string getWritablePath() const = 0;
-    
-    virtual bool isAbsolutePath(const ccstd::string& path) const;
-    void addSearchPath(const ccstd::string& searchpath, bool front);
-    virtual ccstd::string fullPathForFilename(const ccstd::string& filename) const;
-    ccstd::string getPathForFilename(const ccstd::string& filename, const ccstd::string& searchPath) const;
-    virtual ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string& directory, const ccstd::string& filename) const;
+    virtual FilePath getUserAppDataPath() const = 0;
+
+    virtual BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) = 0;
+    virtual int64_t getFileSize(const FilePath& filepath) = 0;
+
+    void addSearchPath(const FilePath& searchpath, bool front);
+    virtual ccstd::string fullPathForFilename(const FilePath& filename) const;
+    ccstd::string getPathForFilename(const FilePath& filename, const FilePath& searchPath) const;
+    virtual ccstd::string getFullPathForDirectoryAndFilename(const FilePath& directory, const FilePath& filename) const;
 
 protected:
     /**

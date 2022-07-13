@@ -35,22 +35,26 @@ class LocalFileSystem;
 class CC_DLL FileSystem : public BaseFileSystem {
 public:
     static FileSystem* getInstance();
+
     FileSystem();
     ~FileSystem() override = default;
+
     bool createDirectory(const FilePath& path) override;
     int64_t getFileSize(const FilePath& filepath) override;
     bool removeFile(const FilePath& filepath) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
-    BaseFileHandle* open(const FilePath& filepath) override;
     bool exist(const FilePath& filepath) const override;
-    ccstd::string getWritablePath() const override;
     bool removeDirectory(const FilePath& dirPath) override;
-    ccstd::string fullPathForFilename(const ccstd::string& dirPath) const override;
+    bool isAbsolutePath(const FilePath& path) const override;
+
+    FilePath GetUserAppDataPath() const override;
+    ccstd::string fullPathForFilename(const FilePath& dirPath) const override;
+    BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
 
 private:
-
     static FileSystem* _instance;
-    std::vector<BaseFileSystem> _subFileSystems;
-    std::unique_ptr<LocalFileSystem> _localFileSystem;
+    using BaseFileSystemSafePtr = std::unique_ptr<BaseFileSystem>;
+    std::vector<BaseFileSystemSafePtr> _subFileSystems;
+    BaseFileSystemSafePtr              _localFileSystem;
 };
 }

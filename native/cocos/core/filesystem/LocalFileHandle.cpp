@@ -36,8 +36,13 @@ namespace cc {
 LocalFileHandle::LocalFileHandle(FILE *fp):_fp(fp) {
 }
 
+LocalFileHandle::~LocalFileHandle() {
+    close();
+}
+ 
 
 bool LocalFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    CC_ASSERT(_fp != nullptr);
     int moveMethodInput = SEEK_END;
     if (moveMethod == MoveMethod::FILE_SEEK_END) {
         moveMethodInput = SEEK_END;
@@ -48,10 +53,12 @@ bool LocalFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
 }
 
 int64_t LocalFileHandle::tell() {
+    CC_ASSERT(_fp != nullptr);
     return ftell(_fp);
 }
 
-int64_t LocalFileHandle::fileSize() {
+int64_t LocalFileHandle::size() {
+    CC_ASSERT(_fp != nullptr);
 #if defined(_MSC_VER)
     auto descriptor = _fileno(_fp);
 #else
@@ -66,19 +73,21 @@ int64_t LocalFileHandle::fileSize() {
 }
 
 bool LocalFileHandle::read(char* buffer, int64_t buffersize) {
-    int size = fileSize();
-    if(size > buffersize) {
-        size = buffersize;
+    CC_ASSERT(_fp != nullptr);
+    int sz = size();
+    if (sz > buffersize) {
+        sz = buffersize;
     }
-    size_t readsize = fread(buffer, 1, size, _fp);
+    size_t readsize = fread(buffer, 1, sz, _fp);
     fclose(_fp);
-    if(readsize < size) {
+    if (readsize < sz) {
         return false;
     }
     return true;
 }
 
 bool LocalFileHandle::write(char* buffer, int64_t buffersize) {
+    CC_ASSERT(_fp != nullptr);
     size_t writeSize = fwrite(buffer, buffersize, 1, _fp);
     fclose(_fp);
     if(writeSize != buffersize) {
@@ -88,7 +97,16 @@ bool LocalFileHandle::write(char* buffer, int64_t buffersize) {
 }
 
 bool LocalFileHandle::flush() {
+    CC_ASSERT(_fp != nullptr);
     return fflush(_fp) == 0;
+}
+
+bool LocalFileHandle::close() {
+    if (_fp != nullptr) {
+        fclose(_fp);
+        _fp = nullptr;
+    }
+    return true;
 }
 
 }

@@ -42,11 +42,11 @@ public:
 
     virtual bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) = 0;
     virtual int64_t tell() = 0;
-    virtual int64_t fileSize() = 0;
+    virtual int64_t size() = 0;
     virtual bool read(char* buffer, int64_t buffersize) = 0;
     virtual bool write(char* buffer, int64_t buffersize) = 0;
     virtual bool flush() = 0;
-    
+    virtual bool close() = 0;
 };
 
 } // namespace cc

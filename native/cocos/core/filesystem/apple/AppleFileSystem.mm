@@ -288,7 +288,7 @@ bool AppleFileSystem::existInternal(const FilePath &filePathIn) const {
     return ret;
 }
 
-std::string AppleFileSystem::getWritablePath() const {
+std::string AppleFileSystem::getUserAppDataPath() const {
     if (_writablePath.length()) {
         return _writablePath;
     }

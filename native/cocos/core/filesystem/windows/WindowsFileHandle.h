@@ -41,10 +41,11 @@ public:
 
     bool seek(int64_t pos, MoveMethod moveMethod) override;
     int64_t tell() override;
-    int64_t fileSize() override;
+    int64_t size() override;
     bool read(char* buffer, int64_t buffersize) override;
     bool write(char* buffer, int64_t buffersize) override;
     bool flush() override;
+    bool close() override;
 
 private:
     DWORD _moveMethod{FILE_BEGIN};

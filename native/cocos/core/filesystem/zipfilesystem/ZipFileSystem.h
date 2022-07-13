@@ -55,7 +55,7 @@ public:
     bool removeDirectory(const FilePath& dirPath) {
         return false;
     }
-    ccstd::string getWritablePath() const override {
+    ccstd::string getUserAppDataPath() const override {
         return "";
     }
 private:

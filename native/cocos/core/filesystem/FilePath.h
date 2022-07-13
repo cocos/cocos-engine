@@ -46,21 +46,18 @@ public:
     static constexpr char kParentDirectory[] = "..";
     static constexpr char kExtensionSeparator = '.';
 
-    ccstd::vector<ccstd::string> getComponents() const;
     const ccstd::string& value() const { return _path; }
+    bool empty() const { return _path.empty(); };
+    void clear() { _path.clear(); }
 
     FilePath baseName() const;
     FilePath dirName() const;
-    void stripTrailingSeparatorsInternal();
+    void removeLastSeparator();
     ccstd::string finalExtension(bool tolower = true) const;
     FilePath removeFinalExtension() const;
-    FilePath removeExtension() const;
-    FilePath addExtension(const std::string& extension) const;
-    FilePath replaceExtension(const std::string& extension) const;
 
     FilePath append(const FilePath& component) const;
-    FilePath append(const std::string& component) const;
-    bool isPathAbsolute(const std::string& path);
+    FilePath append(const ccstd::string& component) const;
 
     ccstd::string normalizePath();
 

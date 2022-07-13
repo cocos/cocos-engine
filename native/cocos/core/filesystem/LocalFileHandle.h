@@ -34,12 +34,13 @@ namespace cc {
 class CC_DLL LocalFileHandle : public BaseFileHandle {
 public:
     LocalFileHandle(FILE* path);
-    ~LocalFileHandle() override{};
+    ~LocalFileHandle() override;
     bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
     int64_t tell() override;
-    int64_t fileSize() override;
+    int64_t size() override;
     bool read(char* buffer, int64_t buffersize) override;
     bool write(char* buffer, int64_t buffersize)  override;
+    bool close() override;
     bool flush();
 private:
     FILE *_fp = {nullptr};
