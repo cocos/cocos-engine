@@ -35,6 +35,8 @@ const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 
 const _temp_v3 = new Vec3();
+const _temp_quat = new Quat();
+const _temp_mat4 = new Mat4();
 
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule extends ParticleModuleBase {
@@ -96,6 +98,74 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public speedModifier = new CurveRange();
 
     /**
+     * @zh 沿 X 轴的轨道速度。
+     */
+     @type(CurveRange)
+     @serializable
+     @range([-1, 1])
+     @displayOrder(6)
+     @tooltip('i18n:velocityOvertimeModule.orbitX')
+     public orbitX = new CurveRange();
+    /**
+     * @zh 沿 Y 轴的轨道速度。
+     */
+     @type(CurveRange)
+     @serializable
+     @range([-1, 1])
+     @displayOrder(7)
+     @tooltip('i18n:velocityOvertimeModule.orbitY')
+     public orbitY = new CurveRange();
+
+    /**
+     * @zh 沿 Z 轴的轨道速度。
+     */
+     @type(CurveRange)
+     @serializable
+     @range([-1, 1])
+     @displayOrder(8)
+     @tooltip('i18n:velocityOvertimeModule.orbitZ')
+     public orbitZ = new CurveRange();
+
+    /**
+     * @zh 沿 X 轴的轨道偏移。
+     */
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(9)
+    @tooltip('i18n:velocityOvertimeModule.offsetX')
+    public offsetX = new CurveRange();
+    /**
+     * @zh 沿 Y 轴的轨道偏移。
+     */
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(10)
+    @tooltip('i18n:velocityOvertimeModule.offsetY')
+    public offsetY = new CurveRange();
+
+    /**
+     * @zh 沿 Z 轴的轨道偏移。
+     */
+    @type(CurveRange)
+    @serializable
+    @range([-1, 1])
+    @displayOrder(11)
+    @tooltip('i18n:velocityOvertimeModule.offsetZ')
+    public offsetZ = new CurveRange();
+    
+    /**
+     * @zh 轨道半径。
+     */
+     @type(CurveRange)
+     @serializable
+     @range([-1, 1])
+     @displayOrder(12)
+     @tooltip('i18n:velocityOvertimeModule.radius')
+     public radius = new CurveRange();
+
+     /**
      * @zh 速度计算时采用的坐标系[[Space]]。
      */
     @type(Space)
@@ -126,8 +196,35 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         if (this.needTransform) {
             Vec3.transformQuat(vel, vel, this.rotation);
         }
-        Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
+
+        // add linear velocity
+        const speed = this.speedModifier.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!;
+        Vec3.add(p.animatedVelocity, p.animatedVelocity, vel.multiplyScalar(speed));
+
+        // calculate orbital velocity
+        const offX = this.offsetX.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!;
+        const offY = this.offsetY.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!;
+        const offZ = this.offsetZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!;
+
+        const offset = Vec3.set(_temp_v3, offX, offY, offZ);
+
+        const radial = this.radius.evaluate(normalizedTime, pseudoRandom(p.randomSeed)) * dt;
+
+        const avelX = this.orbitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))! * dt * Particle.R2D;
+        const avelY = this.orbitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))! * dt * Particle.R2D;
+        const avelZ = this.orbitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))! * dt * Particle.R2D;
+
+        const angM = Mat4.fromQuat(_temp_mat4, Quat.fromEuler(_temp_quat, avelX, avelY, avelZ));
+
+        const pos = p.position.clone().add(offset);
+        const newPos = pos.clone().transformMat4(angM);
+        const radialPos = newPos.clone().normalize().multiplyScalar(radial);
+        newPos.add(radialPos);
+
+        // add oribtal velocity
+        Vec3.add(p.animatedVelocity, p.animatedVelocity, newPos.subtract(pos).multiplyScalar(1/dt).multiplyScalar(speed));
+
+        // add animated velocity to final
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
 }
