@@ -158,7 +158,7 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 
 void RenderDrawInfo::uploadBuffers() {
     if (_vbCount == 0 || _ibCount == 0) return;
-    auto size = _vbCount * 9;
+    auto size = _vbCount * _vertexFormatBytes;
     gfx::Buffer* vBuffer = _vbGFXBuffer;
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
@@ -196,7 +196,7 @@ void RenderDrawInfo::destroy() {
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = 9 * sizeof(float); // hack
+        uint32_t vbStride = _vertexFormatBytes; // hack
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
