@@ -25,12 +25,6 @@
  ****************************************************************************/
 #include "cocos/core/filesystem/LocalFileHandle.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "cocos/core/filesystem/windows/WindowsFileSystem.h"
-#else
-    #include "cocos/core/filesystem/android/AndroidFileSystem.h"
-    #include <sys/stat.h>
-#endif
 namespace cc {
 
 LocalFileHandle::LocalFileHandle(FILE *fp):_fp(fp) {

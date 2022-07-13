@@ -206,11 +206,15 @@ ccstd::string FilePath::normalizePath() {
     }
 
     size_t pos;
-    while ((pos = ret.find("..")) != ccstd::string::npos && pos > 2) {
-        size_t prevSlash = ret.rfind('/', pos - 2);
-        if (prevSlash == ccstd::string::npos) {
-            break;
-        }
+    while ((pos = ret.rfind("..")) != ccstd::string::npos && pos > 0) {
+            int prevSlash = ret.rfind('/', pos - 2);
+            if (prevSlash == ccstd::string::npos) {
+                if (pos + 3 <= ret.length() && ret[pos + 2] == '/')
+                    ret.erase(0, pos + 3);
+                else if (pos + 2 <= ret.length())
+                    ret.erase(0, pos + 2);
+                break;
+            }
 
         ret = ret.replace(prevSlash, pos - prevSlash + 2, "");
     }

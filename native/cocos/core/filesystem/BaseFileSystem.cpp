@@ -31,20 +31,17 @@ bool BaseFileSystem::isAbsolutePath(const FilePath &path) const {
 }
 
 void BaseFileSystem::addSearchPath(const FilePath &searchpath, bool front) {
-    ccstd::string prefix;
+    FilePath rootPath;
     if (!isAbsolutePath(searchpath)) {
-        prefix = _defaultResRootPath;
+        rootPath = _defaultResRootPath;
     }
 
-    ccstd::string path = prefix + searchpath.value();
-    if (!path.empty() && path[path.length() - 1] != '/') {
-        path += "/";
-    }
+    FilePath path = rootPath.append(searchpath);
     if (front) {
-        _originalSearchPaths.insert(_originalSearchPaths.begin(), searchpath.value());
+        _originalSearchPaths.insert(_originalSearchPaths.begin(), searchpath);
         _searchPathArray.insert(_searchPathArray.begin(), path);
     } else {
-        _originalSearchPaths.push_back(searchpath.value());
+        _originalSearchPaths.push_back(searchpath);
         _searchPathArray.push_back(path);
     }
 }

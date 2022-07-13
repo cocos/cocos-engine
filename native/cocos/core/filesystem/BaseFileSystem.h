@@ -70,8 +70,8 @@ protected:
     mutable ccstd::unordered_map<ccstd::string, ccstd::string> _fullPathCache;
 
     ccstd::string _defaultResRootPath;
-    ccstd::vector<ccstd::string> _searchPathArray;
-    ccstd::vector<ccstd::string> _originalSearchPaths;
+    ccstd::vector<FilePath> _searchPathArray;
+    ccstd::vector<FilePath> _originalSearchPaths;
 };
 
 }
