@@ -104,7 +104,7 @@ public:
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
     inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
-    inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA / 255.F); }
+    inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA) / 255.F; }
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
