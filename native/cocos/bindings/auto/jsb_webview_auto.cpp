@@ -27,7 +27,7 @@ se::Class* __jsb_cc_WebView_class = nullptr;  // NOLINT
 static bool js_webview_WebView_canGoBack(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_canGoBack : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -35,7 +35,7 @@ static bool js_webview_WebView_canGoBack(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         bool result = cobj->canGoBack();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_canGoBack : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -47,7 +47,7 @@ SE_BIND_FUNC(js_webview_WebView_canGoBack)
 static bool js_webview_WebView_canGoForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_canGoForward : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -55,7 +55,7 @@ static bool js_webview_WebView_canGoForward(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         bool result = cobj->canGoForward();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_canGoForward : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -67,7 +67,7 @@ SE_BIND_FUNC(js_webview_WebView_canGoForward)
 static bool js_webview_WebView_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -83,7 +83,7 @@ SE_BIND_FUNC(js_webview_WebView_destroy)
 static bool js_webview_WebView_evaluateJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_evaluateJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -91,7 +91,7 @@ static bool js_webview_WebView_evaluateJS(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_evaluateJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->evaluateJS(arg0.value());
         return true;
     }
@@ -103,7 +103,7 @@ SE_BIND_FUNC(js_webview_WebView_evaluateJS)
 static bool js_webview_WebView_getOnDidFailLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnDidFailLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -111,7 +111,7 @@ static bool js_webview_WebView_getOnDidFailLoading(se::State& s) // NOLINT(reada
     if (argc == 0) {
         cc::WebView::ccWebViewCallback result = cobj->getOnDidFailLoading();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_getOnDidFailLoading : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -123,7 +123,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnDidFailLoading)
 static bool js_webview_WebView_getOnDidFinishLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnDidFinishLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -131,7 +131,7 @@ static bool js_webview_WebView_getOnDidFinishLoading(se::State& s) // NOLINT(rea
     if (argc == 0) {
         cc::WebView::ccWebViewCallback result = cobj->getOnDidFinishLoading();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_getOnDidFinishLoading : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -143,7 +143,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnDidFinishLoading)
 static bool js_webview_WebView_getOnJSCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnJSCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -151,7 +151,7 @@ static bool js_webview_WebView_getOnJSCallback(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         cc::WebView::ccWebViewCallback result = cobj->getOnJSCallback();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_getOnJSCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -163,7 +163,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnJSCallback)
 static bool js_webview_WebView_getOnShouldStartLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnShouldStartLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -171,7 +171,7 @@ static bool js_webview_WebView_getOnShouldStartLoading(se::State& s) // NOLINT(r
     if (argc == 0) {
         std::function<bool (cc::WebView *, const std::string)> result = cobj->getOnShouldStartLoading();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_getOnShouldStartLoading : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -183,7 +183,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnShouldStartLoading)
 static bool js_webview_WebView_goBack(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_goBack : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -199,7 +199,7 @@ SE_BIND_FUNC(js_webview_WebView_goBack)
 static bool js_webview_WebView_goForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_goForward : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -215,7 +215,7 @@ SE_BIND_FUNC(js_webview_WebView_goForward)
 static bool js_webview_WebView_loadData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -229,7 +229,7 @@ static bool js_webview_WebView_loadData(se::State& s) // NOLINT(readability-iden
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_loadData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->loadData(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
@@ -241,7 +241,7 @@ SE_BIND_FUNC(js_webview_WebView_loadData)
 static bool js_webview_WebView_loadFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadFile : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -249,7 +249,7 @@ static bool js_webview_WebView_loadFile(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_loadFile : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->loadFile(arg0.value());
         return true;
     }
@@ -261,7 +261,7 @@ SE_BIND_FUNC(js_webview_WebView_loadFile)
 static bool js_webview_WebView_loadHTMLString(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadHTMLString : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -269,7 +269,7 @@ static bool js_webview_WebView_loadHTMLString(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_loadHTMLString : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->loadHTMLString(arg0.value());
         return true;
     }
@@ -278,7 +278,7 @@ static bool js_webview_WebView_loadHTMLString(se::State& s) // NOLINT(readabilit
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_loadHTMLString : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->loadHTMLString(arg0.value(), arg1.value());
         return true;
     }
@@ -290,7 +290,7 @@ SE_BIND_FUNC(js_webview_WebView_loadHTMLString)
 static bool js_webview_WebView_loadURL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadURL : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -298,7 +298,7 @@ static bool js_webview_WebView_loadURL(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_loadURL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->loadURL(arg0.value());
         return true;
     }
@@ -310,7 +310,7 @@ SE_BIND_FUNC(js_webview_WebView_loadURL)
 static bool js_webview_WebView_reload(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_reload : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -326,7 +326,7 @@ SE_BIND_FUNC(js_webview_WebView_reload)
 static bool js_webview_WebView_setBackgroundTransparent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setBackgroundTransparent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -334,7 +334,7 @@ static bool js_webview_WebView_setBackgroundTransparent(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setBackgroundTransparent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setBackgroundTransparent(arg0.value());
         return true;
     }
@@ -346,7 +346,7 @@ SE_BIND_FUNC(js_webview_WebView_setBackgroundTransparent)
 static bool js_webview_WebView_setBounces(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setBounces : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -354,7 +354,7 @@ static bool js_webview_WebView_setBounces(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setBounces : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setBounces(arg0.value());
         return true;
     }
@@ -366,7 +366,7 @@ SE_BIND_FUNC(js_webview_WebView_setBounces)
 static bool js_webview_WebView_setFrame(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setFrame : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -380,7 +380,7 @@ static bool js_webview_WebView_setFrame(se::State& s) // NOLINT(readability-iden
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setFrame : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFrame(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
@@ -392,7 +392,7 @@ SE_BIND_FUNC(js_webview_WebView_setFrame)
 static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -400,7 +400,7 @@ static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s) // NOL
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setJavascriptInterfaceScheme : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setJavascriptInterfaceScheme(arg0.value());
         return true;
     }
@@ -412,7 +412,7 @@ SE_BIND_FUNC(js_webview_WebView_setJavascriptInterfaceScheme)
 static bool js_webview_WebView_setOnDidFailLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnDidFailLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -450,7 +450,7 @@ static bool js_webview_WebView_setOnDidFailLoading(se::State& s) // NOLINT(reada
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setOnDidFailLoading : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnDidFailLoading(arg0.value());
         return true;
     }
@@ -462,7 +462,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnDidFailLoading)
 static bool js_webview_WebView_setOnDidFinishLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnDidFinishLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -500,7 +500,7 @@ static bool js_webview_WebView_setOnDidFinishLoading(se::State& s) // NOLINT(rea
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setOnDidFinishLoading : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnDidFinishLoading(arg0.value());
         return true;
     }
@@ -512,7 +512,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnDidFinishLoading)
 static bool js_webview_WebView_setOnJSCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnJSCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -550,7 +550,7 @@ static bool js_webview_WebView_setOnJSCallback(se::State& s) // NOLINT(readabili
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setOnJSCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnJSCallback(arg0.value());
         return true;
     }
@@ -562,7 +562,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnJSCallback)
 static bool js_webview_WebView_setOnShouldStartLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnShouldStartLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -604,7 +604,7 @@ static bool js_webview_WebView_setOnShouldStartLoading(se::State& s) // NOLINT(r
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setOnShouldStartLoading : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnShouldStartLoading(arg0.value());
         return true;
     }
@@ -616,7 +616,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnShouldStartLoading)
 static bool js_webview_WebView_setScalesPageToFit(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setScalesPageToFit : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -624,7 +624,7 @@ static bool js_webview_WebView_setScalesPageToFit(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setScalesPageToFit : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setScalesPageToFit(arg0.value());
         return true;
     }
@@ -636,7 +636,7 @@ SE_BIND_FUNC(js_webview_WebView_setScalesPageToFit)
 static bool js_webview_WebView_setVisible(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_setVisible : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -644,7 +644,7 @@ static bool js_webview_WebView_setVisible(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setVisible : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setVisible(arg0.value());
         return true;
     }
@@ -656,7 +656,7 @@ SE_BIND_FUNC(js_webview_WebView_setVisible)
 static bool js_webview_WebView_stopLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    // SE_PRECONDITION2(cobj, false, "js_webview_WebView_stopLoading : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -677,7 +677,7 @@ static bool js_webview_WebView_create_static(se::State& s) // NOLINT(readability
     if (argc == 0) {
         cc::WebView* result = cc::WebView::create();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_create_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
