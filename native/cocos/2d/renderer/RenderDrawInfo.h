@@ -187,6 +187,7 @@ private:
         gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
         gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
     };
+    uint32_t _vertexFormatBytes = 9 * sizeof(float); // Affected by _attributes // magic Number
 
     //TODO(): it is not a good way to cache IA here.
     // manage memory manually
