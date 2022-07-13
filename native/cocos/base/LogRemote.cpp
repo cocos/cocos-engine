@@ -69,9 +69,9 @@ enum class UdpLogClientState {
 * Parse auto-test-config.json to get ServerConfig.IP & ServerConfig.PORT
 * Logs will be formated with 5 fields
 * 1. testId
-* 2. clentId
+* 2. clientId
 * 3. bootId,  the boot timestamp
-* 4. millseconds since boot
+* 4. milliseconds since boot
 * 5. log content
 *
 * These parts are joined with '\n'.
@@ -182,6 +182,7 @@ private:
                 return;
             }
             const char *remoteIp = cfg[ATC_KEY_IP].GetString();
+            // The `PORT` property is used by other service and the next port is for log collection.
             int remotePort = cfg[ATC_KEY_PORT].GetInt() + 1;
             setServerAddr(remoteIp, remotePort);
         }
