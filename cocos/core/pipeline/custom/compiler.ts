@@ -26,7 +26,7 @@ import { Buffer, Framebuffer, Texture } from '../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { AccessType, Blit, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
+import { AccessType, Blit, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass,
     PresentPass, RasterPass, RasterView, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { ResourceResidency } from './types';
@@ -82,7 +82,7 @@ class PassVisitor implements RenderGraphVisitor {
             rg.visitVertex(this, sceneID);
         }
     }
-    scene (value: SceneData) {
+    private _fetchValidPass () {
         if (this._currPass!.isValid) {
             return;
         }
@@ -90,23 +90,36 @@ class PassVisitor implements RenderGraphVisitor {
         const outputName = this._context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
         const pass = this._currPass!;
-        for (const [name, raster] of pass.rasterViews) {
+
+        for (const [readName, raster] of pass.rasterViews) {
             // find the pass
-            if (name === outputName
+            if (readName === outputName
                 && raster.accessType !== AccessType.READ) {
                 assert(!pass.isValid, 'The same pass cannot output multiple resources with the same name at the same time');
                 pass.isValid = true;
                 continue;
             }
             if (raster.accessType !== AccessType.WRITE) {
-                readViews.set(name, raster);
+                readViews.set(readName, raster);
             }
         }
         if (pass.isValid) {
-            for (const [name, raster] of readViews) {
-                const resVisitor = new ResourceVisitor(this._context);
-                const resourceGraph = this._context.resourceGraph;
-                const vertID = resourceGraph.vertex(name);
+            let resVisitor;
+            let resourceGraph;
+            let vertID;
+            for (const [rasterName, raster] of readViews) {
+                resVisitor = new ResourceVisitor(this._context);
+                resourceGraph = this._context.resourceGraph;
+                vertID = resourceGraph.vertex(rasterName);
+                if (vertID) {
+                    resVisitor.resID = vertID;
+                    resourceGraph.visitVertex(resVisitor, vertID);
+                }
+            }
+            for (const [computeName, cViews] of pass.computeViews) {
+                resVisitor = new ResourceVisitor(this._context);
+                resourceGraph = this._context.resourceGraph;
+                vertID = resourceGraph.vertex(computeName);
                 if (vertID) {
                     resVisitor.resID = vertID;
                     resourceGraph.visitVertex(resVisitor, vertID);
@@ -114,7 +127,11 @@ class PassVisitor implements RenderGraphVisitor {
             }
         }
     }
+    scene (value: SceneData) {
+        this._fetchValidPass();
+    }
     blit (value: Blit) {
+        this._fetchValidPass();
     }
     dispatch (value: Dispatch) {
     }

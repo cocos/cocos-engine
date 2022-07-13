@@ -215,6 +215,7 @@ export function buildForwardLayout (ppl: Pipeline) {
 enum DeferredStage {
     GEOMETRY,
     LIGHTING,
+    POST
 }
 
 export class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
@@ -234,9 +235,11 @@ export function buildDeferredLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
     const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
     const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);
+    const postPassID = lg.addRenderStage('Postprocess', DeferredStage.POST);
 
     const geometryQueueID = lg.addRenderPhase('Queue', geometryPassID);
     const lightingQueueID = lg.addRenderPhase('Queue', lightingPassID);
+    const postQueueID = lg.addRenderPhase('Queue', postPassID);
 
     const lightingDescriptors = lg.layoutGraph.getDescriptors(lightingQueueID);
 
@@ -255,6 +258,20 @@ export function buildDeferredLayout (ppl: Pipeline) {
     const colorMap = new VectorGraphColorMap(lg.layoutGraph.numVertices());
     depthFirstSearch(lg.layoutGraph, visitor, colorMap);
 
+    lg.mergeDescriptors(lightingPassID);
+    // Postprocess
+    const postDescriptors = lg.layoutGraph.getDescriptors(postPassID);
+
+    const postPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        postDescriptors);
+
+    lg.setDescriptor(postPassBlock, 'outputResultMap', Type.FLOAT4);
+    lg.merge(postDescriptors);
+
+    lg.mergeDescriptors(postPassID);
     if (visitor.error) {
         console.log(visitor.error);
     }

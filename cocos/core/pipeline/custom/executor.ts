@@ -30,13 +30,17 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
+import { assert } from '../..';
 import { AABB } from '../../geometry/aabb';
 import intersect from '../../geometry/intersect';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, Device, deviceManager, Format, Framebuffer,
-    FramebufferInfo, GeneralBarrierInfo, LoadOp, PipelineState, Rect, RenderPass, RenderPassInfo, Shader, StoreOp, Swapchain, Texture, TextureInfo,
+import { Sphere } from '../../geometry/sphere';
+import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
+    FramebufferInfo, GeneralBarrierInfo, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineState, Rect, RenderPass, RenderPassInfo, SamplerInfo, Shader, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { Mat4 } from '../../math/mat4';
+import { Vec3 } from '../../math/vec3';
+import { Vec4 } from '../../math/vec4';
 import { BatchingSchemes, Pass } from '../../renderer';
 import { DirectionalLight, SpotLight } from '../../renderer/scene';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
@@ -46,8 +50,9 @@ import { CSMLevel, CSMOptimizationMode, ShadowType } from '../../renderer/scene/
 import { SubModel } from '../../renderer/scene/submodel';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
-import { RenderPassStage, SetIndex } from '../define';
+import { RenderPassStage, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { PipelineInputAssemblerData } from '../render-pipeline';
 import { ShadowLayerVolume } from '../shadow/csm-layers';
 import { LayoutGraph, LayoutGraphData, LayoutGraphDataVisitor, LayoutGraphVisitor, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
@@ -58,6 +63,7 @@ import { QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequenc
 import { PipelineUBO } from './ubos';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
+import { stringify, parse } from './utils';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -129,6 +135,17 @@ class DeviceTexture extends DeviceResource {
             info.height,
         ));
     }
+
+    release () {
+        if (this.framebuffer) {
+            this.framebuffer.destroy();
+            this._framebuffer = null;
+        }
+        if (this.texture) {
+            this.texture.destroy();
+            this._texture = null;
+        }
+    }
 }
 
 class DeviceBuffer extends DeviceResource {
@@ -136,6 +153,230 @@ class DeviceBuffer extends DeviceResource {
         super(name, context);
     }
 }
+
+class BlitDesc {
+    private _blit: Blit;
+    private _screenQuad: PipelineInputAssemblerData | null = null;
+    private _queue: DeviceRenderQueue | null = null;
+    private _stageDesc: DescriptorSet | null = null;
+    // If VOLUMETRIC_LIGHTING is turned on, it needs to be assigned
+    private _lightVolumeBuffer: Buffer | null = null;
+    private _lightMeterScale = 10000.0;
+    private _lightBufferData!: Float32Array;
+    get screenQuad () { return this._screenQuad; }
+    get blit () { return this._blit; }
+    set blit (blit: Blit) { this._blit = blit; }
+    get stageDesc () { return this._stageDesc; }
+    constructor (blit: Blit, queue: DeviceRenderQueue) {
+        this._blit = blit;
+        this._queue = queue;
+    }
+    /**
+     * @zh
+     * 创建四边形输入汇集器。
+     */
+    protected _createQuadInputAssembler (): PipelineInputAssemblerData {
+        // create vertex buffer
+        const inputAssemblerData = new PipelineInputAssemblerData();
+
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+        const device = this._queue!.devicePass.context.device;
+        const quadVB = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+            vbSize,
+            vbStride,
+        ));
+
+        if (!quadVB) {
+            return inputAssemblerData;
+        }
+
+        // create index buffer
+        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+
+        const quadIB = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
+
+        if (!quadIB) {
+            return inputAssemblerData;
+        }
+
+        const indices = new Uint8Array(6);
+        indices[0] = 0; indices[1] = 1; indices[2] = 2;
+        indices[3] = 1; indices[4] = 3; indices[5] = 2;
+
+        quadIB.update(indices);
+
+        // create input assembler
+
+        const attributes = new Array<Attribute>(2);
+        attributes[0] = new Attribute('a_position', Format.RG32F);
+        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
+
+        const quadIA = device.createInputAssembler(new InputAssemblerInfo(
+            attributes,
+            [quadVB],
+            quadIB,
+        ));
+
+        inputAssemblerData.quadIB = quadIB;
+        inputAssemblerData.quadVB = quadVB;
+        inputAssemblerData.quadIA = quadIA;
+        return inputAssemblerData;
+    }
+    createSreenQuad () {
+        if (!this._screenQuad) {
+            this._screenQuad = this._createQuadInputAssembler();
+        }
+    }
+    private _updateScreenVB () {
+        const devicePass = this._queue!.devicePass;
+        const width = devicePass.context.width;
+        const height = devicePass.context.height;
+        const vb = devicePass.genQuadVertexData(SurfaceTransform.IDENTITY, new Rect(0, 0, width, height));
+        this._screenQuad!.quadVB!.update(vb);
+    }
+    private _gatherVolumeLights (camera: Camera) {
+        if (!camera.scene) { return; }
+        const context = this._queue!.devicePass.context;
+        const pipeline = context.pipeline;
+        const cmdBuff = context.commandBuffer;
+
+        const sphereLights = camera.scene.sphereLights;
+        const spotLights = camera.scene.spotLights;
+        const _sphere = Sphere.create(0, 0, 0, 1);
+        const _vec4Array = new Float32Array(4);
+        const exposure = camera.exposure;
+
+        let idx = 0;
+        const maxLights = UBODeferredLight.LIGHTS_PER_PASS;
+        const elementLen = Vec4.length; // sizeof(vec4) / sizeof(float32)
+        const fieldLen = elementLen * maxLights;
+
+        for (let i = 0; i < sphereLights.length && idx < maxLights; i++, ++idx) {
+            const light = sphereLights[i];
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
+                }
+
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                // cc_lightSizeRangeAngle
+                _vec4Array[0] = light.size;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+            }
+        }
+
+        for (let i = 0; i < spotLights.length && idx < maxLights; i++, ++idx) {
+            const light = spotLights[i];
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = 1;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
+                }
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                // cc_lightSizeRangeAngle
+                _vec4Array[0] = light.size;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = light.spotAngle;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+
+                // cc_lightDir
+                Vec3.toArray(_vec4Array, light.direction);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+            }
+        }
+
+        // the count of lights is set to cc_lightDir[0].w
+        const offset = fieldLen * 3 + 3;
+        this._lightBufferData.set([idx], offset);
+
+        cmdBuff.updateBuffer(this._lightVolumeBuffer!, this._lightBufferData);
+    }
+    update () {
+        this._updateScreenVB();
+        if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING
+            && this.blit.camera) {
+            this._gatherVolumeLights(this.blit.camera);
+        }
+        this._stageDesc!.update();
+    }
+
+    createStageDescriptor () {
+        if (this._stageDesc) {
+            return;
+        }
+        const pass = this.blit.material!.passes[0];
+        const device = this._queue!.devicePass.context.device;
+        this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+        if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING) {
+            let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * UBODeferredLight.LIGHTS_PER_PASS;
+            totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
+
+            this._lightVolumeBuffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                totalSize,
+                device.capabilities.uboOffsetAlignment,
+            ));
+
+            const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._lightVolumeBuffer, 0, totalSize));
+            this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
+            this._stageDesc.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
+        }
+        const _localUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            UBOLocal.SIZE,
+            UBOLocal.SIZE,
+        ));
+        this._stageDesc.bindBuffer(UBOLocal.BINDING, _localUBO);
+    }
+}
+
 class DeviceRenderQueue {
     private _preSceneTasks: DevicePreSceneTask[] = [];
     private _sceneTasks: DeviceSceneTask[] = [];
@@ -149,12 +390,21 @@ class DeviceRenderQueue {
     get renderPhase (): RenderPhaseData | null { return this._renderPhase; }
     set renderPhase (val) { this._renderPhase = val; }
     private _sceneVisitor: WebSceneVisitor;
+    private _blitDesc: BlitDesc | null = null;
     constructor (devicePass: DeviceRenderPass) {
         this._devicePass = devicePass;
         this._sceneVisitor = new WebSceneVisitor(this._devicePass.context.commandBuffer,
             this._devicePass.context.pipeline.pipelineSceneData);
     }
-    addSceneTask (scene: SceneData) {
+    createBlitDesc (blit: Blit) {
+        if (this._blitDesc) {
+            return;
+        }
+        this._blitDesc = new BlitDesc(blit, this);
+        this._blitDesc.createSreenQuad();
+        this._blitDesc.createStageDescriptor();
+    }
+    addSceneTask (scene: GraphScene): void {
         if (!this._transversal) {
             this._transversal = new DeviceSceneTransversal(this, this.devicePass.context.pipelineSceneData,  scene);
         }
@@ -164,6 +414,7 @@ class DeviceRenderQueue {
     clearTasks () {
         this._sceneTasks.length = 0;
     }
+    get blitDesc () { return this._blitDesc; }
     get sceneTasks () { return this._sceneTasks; }
     set queueHint (value: QueueHint) { this._hint = value; }
     get queueHint () { return this._hint; }
@@ -201,13 +452,13 @@ class SubmitInfo {
     public shadowMap: ShadowMap | null = null;
 }
 
-class RenderPassStageInfo {
+class RenderPassLayoutInfo {
     protected _layoutID = 0;
     protected _stage: RenderStageData | null = null;
     protected _layout: PipelineLayoutData;
     protected _context: ExecutorContext;
     protected _inputName: string;
-    protected _desc: DescriptorSet | null = null;
+    protected _descriptorSet: DescriptorSet | null = null;
     constructor (layoutId, input: [string, ComputeView[]], context: ExecutorContext) {
         this._inputName = input[0];
         this._layoutID = layoutId;
@@ -218,8 +469,11 @@ class RenderPassStageInfo {
         const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
         if (layoutData) {
             // find resource
-            const resID = context.resourceGraph.find(this._inputName);
-            const res = context.resourceGraph.getPersistentTexture(resID); // TODO: handle other resource types
+            const deviceTex = context.deviceTextures.get(this._inputName);
+            const gfxTex = deviceTex?.texture;
+            if (!gfxTex) {
+                throw Error(`Could not find texture with resource name ${this._inputName}`);
+            }
             // bind descriptors
             for (const descriptor of input[1]) {
                 const descriptorName = descriptor.name;
@@ -228,14 +482,16 @@ class RenderPassStageInfo {
                 for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
                     for (let i = 0; i !== block.descriptors.length; ++i) {
                         if (descriptorID === block.descriptors[i].descriptorID) {
-                            layoutData.descriptorSet!.bindTexture(block.offset + i, res);
+                            layoutData.descriptorSet!.bindTexture(block.offset + i, gfxTex);
+                            layoutData.descriptorSet!.bindSampler(block.offset + i, context.device.getSampler(new SamplerInfo()));
+                            if (!this._descriptorSet) this._descriptorSet = layoutData.descriptorSet;
                         }
                     }
                 }
             }
         }
     }
-    get descriptorSet () { return this._desc; }
+    get descriptorSet () { return this._descriptorSet; }
     get layoutID () { return this._layoutID; }
     get stage () { return this._stage; }
     get layout () { return this._layout; }
@@ -250,6 +506,10 @@ class RasterPassInfo {
     }
     get id () { return this._id; }
     get pass () { return this._pass; }
+    applyInfo (id: number, pass: RasterPass) {
+        this._id = id;
+        this._pass = pass;
+    }
 }
 
 class DeviceRenderPass {
@@ -261,7 +521,7 @@ class DeviceRenderPass {
     protected _clearStencil = 0;
     protected _context: ExecutorContext;
     private _rasterInfo: RasterPassInfo;
-    private _stage: RenderPassStageInfo | null = null;
+    private _layout: RenderPassLayoutInfo | null = null;
     public submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
     constructor (context: ExecutorContext, passInfo: RasterPassInfo) {
         this._context = context;
@@ -269,8 +529,10 @@ class DeviceRenderPass {
         const device = context.device;
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.format = Format.DEPTH_STENCIL;
+        depthStencilAttachment.depthLoadOp = LoadOp.DISCARD;
+        depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-        depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
             AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
             AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
@@ -281,18 +543,21 @@ class DeviceRenderPass {
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
         for (const cv of passInfo.pass.computeViews) {
-            this._applyRenderStage(cv);
+            this._applyRenderLayout(cv);
+        }
+        // update the layout descriptorSet
+        if (this.renderLayout && this.renderLayout.descriptorSet) {
+            this.renderLayout.descriptorSet.update();
         }
         for (const [resName, rasterV] of passInfo.pass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
-            if (resTex) {
-                continue;
+            if (!resTex) {
+                const resourceGraph = context.resourceGraph;
+                const vertId = resourceGraph.vertex(resName);
+                const resourceVisitor = new ResourceVisitor(resName, context);
+                resourceGraph.visitVertex(resourceVisitor, vertId);
+                resTex = context.deviceTextures.get(resName)!;
             }
-            const resourceGraph = context.resourceGraph;
-            const vertId = resourceGraph.vertex(resName);
-            const resourceVisitor = new ResourceVisitor(resName, context);
-            resourceGraph.visitVertex(resourceVisitor, vertId);
-            resTex = context.deviceTextures.get(resName)!;
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
             const clearFlag = rasterV.clearFlags & 0xffffffff;
@@ -303,31 +568,24 @@ class DeviceRenderPass {
                     const colorAttachment = new ColorAttachment();
                     colorAttachment.format = resTex.description!.format;
                     colorAttachment.sampleCount = resTex.description!.sampleCount;
-                    if (!(clearFlag & ClearFlagBit.COLOR)) {
-                        rasterV.clearColor.x = 0;
-                        rasterV.clearColor.y = 0;
-                        rasterV.clearColor.z = 0;
-                        rasterV.clearColor.w = 1;
-                        if (clearFlag & SKYBOX_FLAG) {
-                            colorAttachment.loadOp = LoadOp.DISCARD;
-                        } else {
-                            colorAttachment.loadOp = LoadOp.LOAD;
-                            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
-                                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
-                            ));
-                        }
+                    colorAttachment.loadOp = rasterV.loadOp;
+                    colorAttachment.storeOp = rasterV.storeOp;
+                    if (rasterV.loadOp === LoadOp.LOAD) {
+                        colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                            AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                            AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                        ));
                     }
                     this._clearColor.push(rasterV.clearColor);
                     colors.push(colorAttachment);
                 }
                 break;
             case AttachmentType.DEPTH_STENCIL:
+                depthStencilAttachment.depthStoreOp = rasterV.storeOp;
+                depthStencilAttachment.stencilStoreOp = rasterV.storeOp;
+                depthStencilAttachment.depthLoadOp = rasterV.loadOp;
+                depthStencilAttachment.stencilLoadOp = rasterV.loadOp;
                 if (!resTex.swapchain && !resTex.framebuffer) depthTex = resTex.texture!;
-                if ((clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
-                    if (!(clearFlag & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
-                    if (!(clearFlag & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-                }
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
                 break;
@@ -342,21 +600,21 @@ class DeviceRenderPass {
             const currTex = device.createTexture(new TextureInfo());
             colorTexs.push(currTex);
         }
-        if (!depthTex && !swapchain && !framebuffer) {
-            depthTex = device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.DEPTH_STENCIL,
-                colorTexs[0].width,
-                colorTexs[0].height,
-            ));
-        }
+        // if (!depthTex && !swapchain && !framebuffer) {
+        //     depthTex = device.createTexture(new TextureInfo(
+        //         TextureType.TEX2D,
+        //         TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
+        //         Format.DEPTH_STENCIL,
+        //         colorTexs[0].width,
+        //         colorTexs[0].height,
+        //     ));
+        // }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
         this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass,
             swapchain ? [swapchain.colorTexture] : colorTexs,
             swapchain ? swapchain.depthStencilTexture : depthTex));
     }
-    get renderStage () { return this._stage; }
+    get renderLayout () { return this._layout; }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
     get framebuffer () { return this._framebuffer; }
@@ -365,22 +623,72 @@ class DeviceRenderPass {
     get clearStencil () { return this._clearStencil; }
     get deviceQueues () { return this._deviceQueues; }
     get rasterPassInfo () { return this._rasterInfo; }
+
     addQueue (queue: DeviceRenderQueue) { this._deviceQueues.push(queue); }
     prePass () {
         for (const queue of this._deviceQueues) {
             queue.preRecord();
         }
     }
-    protected _applyRenderStage (input: [string, ComputeView[]]) {
+    protected _applyRenderLayout (input: [string, ComputeView[]]) {
         const stageName = this._context.renderGraph.getLayout(this.rasterPassInfo.id);
         if (stageName) {
             const layoutGraph = this._context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._stage = new RenderPassStageInfo(stageId, input, this._context);
+                this._layout = new RenderPassLayoutInfo(stageId, input, this._context);
             }
         }
     }
+    genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+        const vbData = new Float32Array(4 * 4);
+
+        const minX = renderArea.x / this._context.width;
+        const maxX = (renderArea.x + renderArea.width) / this._context.width;
+        let minY = renderArea.y / this._context.height;
+        let maxY = (renderArea.y + renderArea.height) / this._context.height;
+        if (this._context.root.device.capabilities.screenSpaceSignY > 0) {
+            const temp = maxY;
+            maxY       = minY;
+            minY       = temp;
+        }
+        let n = 0;
+        switch (surfaceTransform) {
+        case (SurfaceTransform.IDENTITY):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_90):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_180):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        case (SurfaceTransform.ROTATE_270):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        default:
+            break;
+        }
+
+        return vbData;
+    }
+
     // record common buffer
     record () {
         const cmdBuff = this._context.commandBuffer;
@@ -400,13 +708,18 @@ class DeviceRenderPass {
             queue.postRecord();
         }
     }
+    resetQueues (id: number, pass: RasterPass) {
+        this._rasterInfo.applyInfo(id, pass);
+        this._deviceQueues.length = 0;
+    }
 }
 
 class DeviceSceneTransversal extends WebSceneTransversal {
     protected _currentQueue: DeviceRenderQueue;
-    protected _graphScene: SceneData;
-    constructor (quque: DeviceRenderQueue, sceneData: PipelineSceneData, graphSceneData: SceneData) {
-        super(graphSceneData.camera!, sceneData, quque.devicePass.context.ubo);
+    protected _graphScene: GraphScene;
+    constructor (quque: DeviceRenderQueue, sceneData: PipelineSceneData, graphSceneData: GraphScene) {
+        const camera = graphSceneData.scene ? graphSceneData.scene.camera : null;
+        super(camera, sceneData, quque.devicePass.context.ubo);
         this._currentQueue = quque;
         this._graphScene = graphSceneData;
     }
@@ -421,22 +734,35 @@ class DeviceSceneTransversal extends WebSceneTransversal {
         return new DevicePostSceneTask(this._sceneData, this._currentQueue.devicePass.context.ubo, this._camera, visitor);
     }
 }
-
+class GraphScene {
+    scene: SceneData | null = null;
+    blit: Blit | null = null;
+    dispatch: Dispatch | null = null;
+}
 class DevicePreSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
     protected _renderPass: RenderPass;
     protected _submitInfo: SubmitInfo | null = null;
-    protected _graphScene: SceneData;
+    protected _graphScene: GraphScene;
     private _cmdBuff: CommandBuffer;
-    constructor (queue: DeviceRenderQueue, graphScene: SceneData, visitor: SceneVisitor) {
-        super(queue.devicePass.context.pipelineSceneData, queue.devicePass.context.ubo,  graphScene.camera!, visitor);
+    constructor (queue: DeviceRenderQueue, graphScene: GraphScene, visitor: SceneVisitor) {
+        super(queue.devicePass.context.pipelineSceneData, queue.devicePass.context.ubo,
+            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
         this._currentQueue = queue;
         this._graphScene = graphScene;
         this._renderPass = this._currentQueue.devicePass.renderPass;
         this._cmdBuff = queue.devicePass.context.commandBuffer;
     }
     get graphScene () { return this._graphScene; }
+
     public start () {
+        if (this.graphScene.blit) {
+            this._currentQueue.createBlitDesc(this.graphScene.blit);
+            return;
+        }
+        if (!this.camera) {
+            return;
+        }
         const submitMap = this._currentQueue.devicePass.submitMap;
         if (submitMap.has(this.camera)) {
             this._submitInfo = submitMap.get(this.camera)!;
@@ -449,7 +775,7 @@ class DevicePreSceneTask extends WebSceneTask {
         // shadowmap
         if (this._isShadowMap() && !this._submitInfo.shadowMap) {
             this._submitInfo.shadowMap = new ShadowMap(this._currentQueue.devicePass.context);
-            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.light!, this._cmdBuff, ShadowMap.level);
+            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light!, this._cmdBuff, ShadowMap.level);
             return;
         }
 
@@ -457,7 +783,7 @@ class DevicePreSceneTask extends WebSceneTask {
             const subModels = ro.model.subModels;
             for (const submodel of subModels) {
                 const passes = submodel.passes;
-                const sceneFlag = this._graphScene.flags;
+                const sceneFlag = this._graphScene.scene!.flags;
                 for (const p of passes) {
                     if (p.phase !== this._currentQueue.phaseID) continue;
                     const batchingScheme = p.batchingScheme;
@@ -551,18 +877,22 @@ class DevicePreSceneTask extends WebSceneTask {
     private _isShadowMap () {
         return this.sceneData.shadows.enabled
             && this.sceneData.shadows.type === ShadowType.ShadowMap
-            && this.graphScene.flags & SceneFlags.SHADOW_CASTER;
+            && this.graphScene.scene!.flags & SceneFlags.SHADOW_CASTER;
     }
 
     public submit () {
-        const ubo = this._currentQueue.devicePass.context.ubo;
-        if (this._isShadowMap()) {
-            ubo.updateShadowUBOLight(this.graphScene.light!, ShadowMap.level);
+        if (this.graphScene.blit) {
+            this._currentQueue.blitDesc!.update();
             return;
         }
-        ubo.updateGlobalUBO(this.camera.window);
-        ubo.updateCameraUBO(this.camera);
-        ubo.updateShadowUBO(this.camera);
+        const ubo = this._currentQueue.devicePass.context.ubo;
+        if (this._isShadowMap()) {
+            ubo.updateShadowUBOLight(this.graphScene.scene!.light!, ShadowMap.level);
+            return;
+        }
+        ubo.updateGlobalUBO(this.camera!.window);
+        ubo.updateCameraUBO(this.camera!);
+        ubo.updateShadowUBO(this.camera!);
 
         this._uploadInstanceBuffers();
         this._uploadBatchedBuffers();
@@ -572,9 +902,10 @@ class DevicePreSceneTask extends WebSceneTask {
 class DeviceSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
     protected _renderPass: RenderPass;
-    protected _graphScene: SceneData;
-    constructor (queue: DeviceRenderQueue, graphScene: SceneData, visitor: SceneVisitor) {
-        super(queue.devicePass.context.pipelineSceneData, queue.devicePass.context.ubo, graphScene.camera!, visitor);
+    protected _graphScene: GraphScene;
+    constructor (queue: DeviceRenderQueue, graphScene: GraphScene, visitor: SceneVisitor) {
+        super(queue.devicePass.context.pipelineSceneData, queue.devicePass.context.ubo,
+            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
         this._currentQueue = queue;
         this._renderPass = this._currentQueue.devicePass.renderPass;
         this._graphScene = graphScene;
@@ -583,7 +914,7 @@ class DeviceSceneTask extends WebSceneTask {
     public start () {}
     protected _recordRenderList (isTransparent: boolean) {
         const submitMap = this._currentQueue.devicePass.submitMap;
-        const renderList = isTransparent ? submitMap.get(this.camera)!.transparentList : submitMap.get(this.camera)!.opaqueList;
+        const renderList = isTransparent ? submitMap.get(this.camera!)!.transparentList : submitMap.get(this.camera!)!.opaqueList;
         for (let i = 0; i < renderList.length; ++i) {
             const { subModel, passIdx } = renderList[i];
             const { inputAssembler } = subModel;
@@ -603,7 +934,7 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordInstences () {
         const submitMap = this._currentQueue.devicePass.submitMap;
-        const it = submitMap.get(this.camera)!.instances.values(); let res = it.next();
+        const it = submitMap.get(this.camera!)!.instances.values(); let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
@@ -630,7 +961,7 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordBatches () {
         const submitMap = this._currentQueue.devicePass.submitMap;
-        const it = submitMap.get(this.camera)!.batches.values(); let res = it.next();
+        const it = submitMap.get(this.camera!)!.batches.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
             for (let b = 0; b < res.value.batches.length; ++b) {
@@ -653,11 +984,11 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
     protected _recordUI () {
-        const batches = this.camera.scene!.batches;
+        const batches = this.camera!.scene!.batches;
         for (let i = 0; i < batches.length; i++) {
             const batch = batches[i];
             let visible = false;
-            if (this.camera.visibility & batch.visFlags) {
+            if (this.camera!.visibility & batch.visFlags) {
                 visible = true;
             }
 
@@ -685,12 +1016,12 @@ class DeviceSceneTask extends WebSceneTask {
     protected _recordShadowMap () {
         const context = this._currentQueue.devicePass.context;
         const submitMap = this._currentQueue.devicePass.submitMap;
-        submitMap.get(this.camera)?.shadowMap?.recordCommandBuffer(context.device,
+        submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
             this.visitor, this._renderPass);
     }
     protected _generateRenderArea (): Rect {
         const out = new Rect();
-        const vp = this.camera.viewport;
+        const vp = this.camera ? this.camera.viewport : new Rect(0, 0, 1, 1);
         const texture = this._currentQueue.devicePass.framebuffer.colorTextures[0]!;
         const w = texture.width;
         const h = texture.height;
@@ -698,8 +1029,8 @@ class DeviceSceneTask extends WebSceneTask {
         out.y = vp.y * h;
         out.width = vp.width * w;
         out.height = vp.height * h;
-        if (this._isShadowMap() && this.graphScene.light) {
-            const light = this.graphScene.light;
+        if (this._isShadowMap() && this.graphScene.scene!.light) {
+            const light = this.graphScene.scene!.light;
             switch (light.type) {
             case LightType.DIRECTIONAL: {
                 const mainLight = light as DirectionalLight;
@@ -731,12 +1062,39 @@ class DeviceSceneTask extends WebSceneTask {
     private _isShadowMap () {
         return this.sceneData.shadows.enabled
             && this.sceneData.shadows.type === ShadowType.ShadowMap
-            && this.graphScene.flags & SceneFlags.SHADOW_CASTER;
+            && this.graphScene.scene!.flags & SceneFlags.SHADOW_CASTER;
+    }
+    private _recordBlit () {
+        if (!this.graphScene.blit) { return; }
+        const currMat = this.graphScene.blit.material;
+        const pass = currMat!.passes[0];
+        const shader = pass.getShaderVariant();
+        const devicePass = this._currentQueue.devicePass;
+        const screenIa: any = this._currentQueue.blitDesc!.screenQuad!.quadIA;
+        let pso;
+        if (pass !== null && shader !== null && screenIa !== null) {
+            pso = PipelineStateManager.getOrCreatePipelineState(devicePass.context.device, pass, shader,
+                devicePass.renderPass, screenIa);
+        }
+        if (pso) {
+            this.visitor.bindPipelineState(pso);
+            const layoutStage = devicePass.renderLayout;
+            // TODO: It will be changed to global later
+            this.visitor.bindDescriptorSet(SetIndex.MATERIAL, layoutStage!.descriptorSet!);
+            this.visitor.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
+            this.visitor.bindInputAssembler(screenIa);
+            this.visitor.draw(screenIa);
+        }
     }
     public submit () {
         const area = this._generateRenderArea();
         this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
         this.visitor.setScissor(area);
+        // Currently processing blit and camera first
+        if (this.graphScene.blit) {
+            this._recordBlit();
+            return;
+        }
         if (this._isShadowMap()) {
             this._recordShadowMap();
             return;
@@ -745,7 +1103,9 @@ class DeviceSceneTask extends WebSceneTask {
         this._recordInstences();
         this._recordBatches();
         this._recordTransparentList();
-        this._recordUI();
+        if (this.graphScene.scene!.flags & SceneFlags.UI) {
+            this._recordUI();
+        }
     }
 }
 
@@ -757,7 +1117,9 @@ class ExecutorContext {
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph,
-        layoutGraph: LayoutGraphData) {
+        layoutGraph: LayoutGraphData,
+        width: number,
+        height: number) {
         this.pipeline = pipeline;
         this.device = device;
         this.commandBuffer = device.commandBuffer;
@@ -767,18 +1129,22 @@ class ExecutorContext {
         this.root = legacyCC.director.root;
         this.ubo = ubo;
         this.layoutGraph = layoutGraph;
+        this.width = width;
+        this.height = height;
     }
     readonly device: Device;
     readonly pipeline: Pipeline;
     readonly commandBuffer: CommandBuffer;
     readonly pipelineSceneData: PipelineSceneData;
     readonly resourceGraph: ResourceGraph;
-    readonly devicePasses: Map<number, DeviceRenderPass> = new Map<number, DeviceRenderPass>();
+    readonly devicePasses: Map<string, DeviceRenderPass> = new Map<string, DeviceRenderPass>();
     readonly deviceTextures: Map<string, DeviceTexture> = new Map<string, DeviceTexture>();
-    readonly renderGraph: RenderGraph;
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
     readonly ubo: PipelineUBO;
+    readonly width: number;
+    readonly height: number;
+    renderGraph: RenderGraph;
 }
 
 class ShadowMap {
@@ -1094,15 +1460,18 @@ class PassVisitor implements RenderGraphVisitor {
         const rg = this._context.renderGraph;
         const devicePasses = this._context.devicePasses;
         const layout = this._context.layoutGraph;
-        this._currPass = devicePasses.get(this.passID);
+        const passHash = stringify(pass);
+        this._currPass = devicePasses.get(passHash);
         if (!this._currPass) {
             this._currPass = new DeviceRenderPass(this._context, new RasterPassInfo(this.passID, pass));
-            devicePasses.set(this.passID, this._currPass);
-            for (const q of rg.children(this.passID)) {
-                const queueID = q.target as number;
-                this._queueID = queueID;
-                rg.visitVertex(this, queueID);
-            }
+            devicePasses.set(passHash, this._currPass);
+        } else {
+            this._currPass.resetQueues(this.passID, pass);
+        }
+        for (const q of rg.children(this.passID)) {
+            const queueID = q.target as number;
+            this._queueID = queueID;
+            rg.visitVertex(this, queueID);
         }
         this._currPass.prePass();
         this._currPass.record();
@@ -1132,8 +1501,8 @@ class PassVisitor implements RenderGraphVisitor {
         const layoutName = this._context.renderGraph.getLayout(this._queueID);
         if (layoutName) {
             const layoutGraph = this._context.layoutGraph;
-            if (this._currPass!.renderStage) {
-                const layoutId = layoutGraph.locateChild(this._currPass!.renderStage.layoutID, layoutName);
+            if (this._currPass!.renderLayout) {
+                const layoutId = layoutGraph.locateChild(this._currPass!.renderLayout.layoutID, layoutName);
                 deviceQueue.renderPhase = layoutGraph.tryGetRenderPhase(layoutId);
             }
         }
@@ -1144,9 +1513,14 @@ class PassVisitor implements RenderGraphVisitor {
         }
     }
     scene (value: SceneData) {
-        this._currQueue!.addSceneTask(value);
+        const graphScene = new GraphScene();
+        graphScene.scene = value;
+        this._currQueue!.addSceneTask(graphScene);
     }
     blit (value: Blit) {
+        const graphScene = new GraphScene();
+        graphScene.blit = value;
+        this._currQueue!.addSceneTask(graphScene);
     }
     dispatch (value: Dispatch) {
     }
@@ -1157,27 +1531,25 @@ export class Executor {
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
-        layoutGraph: LayoutGraphData) {
-        this._pipeline = pipeline;
-        this._device = device;
-        this._ubo = ubo;
-        this._commandBuffer = device.commandBuffer;
-        this._resourceGraph = resourceGraph;
-        this._layoutGraph = layoutGraph;
+        layoutGraph: LayoutGraphData,
+        width: number, height: number) {
+        this._context = new ExecutorContext(
+            pipeline,
+            ubo,
+            device,
+            resourceGraph,
+            new RenderGraph(),
+            layoutGraph,
+            width,
+            height,
+        );
     }
 
     execute (rg: RenderGraph) {
-        const context = new ExecutorContext(
-            this._pipeline,
-            this._ubo,
-            this._device,
-            this._resourceGraph,
-            rg,
-            this._layoutGraph,
-        );
-        const cmdBuff = context.commandBuffer;
+        this._context.renderGraph = rg;
+        const cmdBuff = this._context.commandBuffer;
         cmdBuff.begin();
-        const passVisitor = new PassVisitor(context);
+        const passVisitor = new PassVisitor(this._context);
         for (const vertID of rg.vertices()) {
             if (rg.numParents(vertID) === 0) {
                 // vertex has no parents, must be pass
@@ -1186,12 +1558,15 @@ export class Executor {
             }
         }
         cmdBuff.end();
-        context.device.queue.submit([cmdBuff]);
+        this._context.device.queue.submit([cmdBuff]);
     }
-    private readonly _pipeline: Pipeline;
-    private readonly _device: Device;
-    private readonly _commandBuffer: CommandBuffer;
-    private readonly _resourceGraph: ResourceGraph;
-    private readonly _layoutGraph: LayoutGraphData;
-    private readonly _ubo: PipelineUBO;
+
+    release () {
+        this._context.devicePasses.clear();
+        for (const [k, v] of this._context.deviceTextures) {
+            v.release();
+        }
+        this._context.deviceTextures.clear();
+    }
+    private readonly _context: ExecutorContext;
 }
