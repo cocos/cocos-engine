@@ -21,3 +21,4 @@
       fragColorX = vec4(clipDepth, 1.0, 1.0, 1.0);
     }
   }
+  
