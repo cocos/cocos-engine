@@ -14,6 +14,8 @@
 #include "math/Color.h"
 #include "core/data/Object.h"
 #include "core/data/JSBNativeDataHolder.h"
+#include "profiler/DebugRenderer.h"
+#include "cocos/bindings/auto/jsb_gfx_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -176,6 +178,29 @@ static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s) // NOLI
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_getDefaultResourceRootPath)
+
+static bool js_engine_FileUtils_getFileDir(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileDir : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
+        std::string result = cobj->getFileDir(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
 static bool js_engine_FileUtils_getFileExtension(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -492,6 +517,29 @@ static bool js_engine_FileUtils_listFiles(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_engine_FileUtils_listFiles)
 
+static bool js_engine_FileUtils_normalizePath(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_normalizePath : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath : Error processing arguments");
+        std::string result = cobj->normalizePath(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_FileUtils_normalizePath)
+
 static bool js_engine_FileUtils_purgeCachedEntries(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
@@ -789,26 +837,6 @@ static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeValueVectorToFile)
 
-static bool js_engine_FileUtils_getFileDir_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::string, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir_static : Error processing arguments");
-        std::string result = cc::FileUtils::getFileDir(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_getFileDir_static)
-
 static bool js_engine_FileUtils_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -826,26 +854,6 @@ static bool js_engine_FileUtils_getInstance_static(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_engine_FileUtils_getInstance_static)
 
-static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::string, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath_static : Error processing arguments");
-        std::string result = cc::FileUtils::normalizePath(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_normalizePath_static)
-
 bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("FileUtils", obj, nullptr, nullptr);
@@ -859,6 +867,7 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("fullPathFromRelativeFile", _SE(js_engine_FileUtils_fullPathFromRelativeFile));
     cls->defineFunction("getDataFromFile", _SE(js_engine_FileUtils_getDataFromFile));
     cls->defineFunction("getDefaultResourceRootPath", _SE(js_engine_FileUtils_getDefaultResourceRootPath));
+    cls->defineFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir));
     cls->defineFunction("getFileExtension", _SE(js_engine_FileUtils_getFileExtension));
     cls->defineFunction("getFileSize", _SE(js_engine_FileUtils_getFileSize));
     cls->defineFunction("getOriginalSearchPaths", _SE(js_engine_FileUtils_getOriginalSearchPaths));
@@ -873,6 +882,7 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("isDirectoryExist", _SE(js_engine_FileUtils_isDirectoryExist));
     cls->defineFunction("isFileExist", _SE(js_engine_FileUtils_isFileExist));
     cls->defineFunction("listFiles", _SE(js_engine_FileUtils_listFiles));
+    cls->defineFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath));
     cls->defineFunction("purgeCachedEntries", _SE(js_engine_FileUtils_purgeCachedEntries));
     cls->defineFunction("removeDirectory", _SE(js_engine_FileUtils_removeDirectory));
     cls->defineFunction("removeFile", _SE(js_engine_FileUtils_removeFile));
@@ -885,9 +895,7 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("writeToFile", _SE(js_engine_FileUtils_writeToFile));
     cls->defineFunction("writeValueMapToFile", _SE(js_engine_FileUtils_writeValueMapToFile));
     cls->defineFunction("writeValueVectorToFile", _SE(js_engine_FileUtils_writeValueVectorToFile));
-    cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir_static));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance_static));
-    cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath_static));
     cls->install();
     JSBClassType::registerClass<cc::FileUtils>(cls);
 
@@ -2856,6 +2864,431 @@ bool js_register_engine_JSBNativeDataHolder(se::Object* obj) // NOLINT(readabili
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+#if CC_USE_DEBUG_RENDERER
+se::Object* __jsb_cc_DebugTextInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_DebugTextInfo_class = nullptr;  // NOLINT
+
+static bool js_engine_DebugTextInfo_get_color(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_color : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->color, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->color, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_color)
+
+static bool js_engine_DebugTextInfo_set_color(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_color : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->color, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_color : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_color)
+
+static bool js_engine_DebugTextInfo_get_bold(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_bold : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->bold, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bold, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_bold)
+
+static bool js_engine_DebugTextInfo_set_bold(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_bold : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->bold, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_bold : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_bold)
+
+static bool js_engine_DebugTextInfo_get_italic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_italic : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->italic, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->italic, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_italic)
+
+static bool js_engine_DebugTextInfo_set_italic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_italic : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->italic, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_italic : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_italic)
+
+static bool js_engine_DebugTextInfo_get_shadow(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_shadow : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->shadow, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->shadow, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_shadow)
+
+static bool js_engine_DebugTextInfo_set_shadow(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_shadow : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->shadow, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_shadow : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_shadow)
+
+static bool js_engine_DebugTextInfo_get_shadowThickness(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_shadowThickness : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->shadowThickness, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->shadowThickness, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_shadowThickness)
+
+static bool js_engine_DebugTextInfo_set_shadowThickness(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_shadowThickness : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->shadowThickness, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_shadowThickness : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_shadowThickness)
+
+static bool js_engine_DebugTextInfo_get_shadowColor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_shadowColor : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->shadowColor, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->shadowColor, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_shadowColor)
+
+static bool js_engine_DebugTextInfo_set_shadowColor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_shadowColor : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->shadowColor, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_shadowColor : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_shadowColor)
+
+static bool js_engine_DebugTextInfo_get_scale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_get_scale : Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->scale, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->scale, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_DebugTextInfo_get_scale)
+
+static bool js_engine_DebugTextInfo_set_scale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugTextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_DebugTextInfo_set_scale : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->scale, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_DebugTextInfo_set_scale : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_DebugTextInfo_set_scale)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::DebugTextInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::DebugTextInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("color", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->color), ctx);
+    }
+    json->getProperty("bold", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bold), ctx);
+    }
+    json->getProperty("italic", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->italic), ctx);
+    }
+    json->getProperty("shadow", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shadow), ctx);
+    }
+    json->getProperty("shadowThickness", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shadowThickness), ctx);
+    }
+    json->getProperty("shadowColor", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shadowColor), ctx);
+    }
+    json->getProperty("scale", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->scale), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_DebugTextInfo_finalize)
+
+static bool js_engine_DebugTextInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DebugTextInfo);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DebugTextInfo);
+        auto cobj = ptr->get<cc::DebugTextInfo>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DebugTextInfo);
+    auto cobj = ptr->get<cc::DebugTextInfo>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->color), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->bold), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->italic), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->shadow), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->shadowThickness), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->shadowColor), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->scale), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_engine_DebugTextInfo_constructor, __jsb_cc_DebugTextInfo_class, js_cc_DebugTextInfo_finalize)
+
+static bool js_cc_DebugTextInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_DebugTextInfo_finalize)
+
+bool js_register_engine_DebugTextInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DebugTextInfo", obj, nullptr, _SE(js_engine_DebugTextInfo_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("color", _SE(js_engine_DebugTextInfo_get_color), _SE(js_engine_DebugTextInfo_set_color));
+    cls->defineProperty("bold", _SE(js_engine_DebugTextInfo_get_bold), _SE(js_engine_DebugTextInfo_set_bold));
+    cls->defineProperty("italic", _SE(js_engine_DebugTextInfo_get_italic), _SE(js_engine_DebugTextInfo_set_italic));
+    cls->defineProperty("shadow", _SE(js_engine_DebugTextInfo_get_shadow), _SE(js_engine_DebugTextInfo_set_shadow));
+    cls->defineProperty("shadowThickness", _SE(js_engine_DebugTextInfo_get_shadowThickness), _SE(js_engine_DebugTextInfo_set_shadowThickness));
+    cls->defineProperty("shadowColor", _SE(js_engine_DebugTextInfo_get_shadowColor), _SE(js_engine_DebugTextInfo_set_shadowColor));
+    cls->defineProperty("scale", _SE(js_engine_DebugTextInfo_get_scale), _SE(js_engine_DebugTextInfo_set_scale));
+    cls->defineFinalizeFunction(_SE(js_cc_DebugTextInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::DebugTextInfo>(cls);
+
+    __jsb_cc_DebugTextInfo_proto = cls->getProto();
+    __jsb_cc_DebugTextInfo_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+#endif // CC_USE_DEBUG_RENDERER
+#if CC_USE_DEBUG_RENDERER
+se::Object* __jsb_cc_DebugRenderer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_DebugRenderer_class = nullptr;  // NOLINT
+
+static bool js_engine_DebugRenderer_addText(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    auto* cobj = SE_THIS_OBJECT<cc::DebugRenderer>(s);
+    // SE_PRECONDITION2( cobj, false, "js_engine_DebugRenderer_addText : Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 3) {
+            HolderType<std::string, true> arg0 = {};
+            HolderType<cc::Vec2, true> arg1 = {};
+            HolderType<cc::DebugTextInfo, true> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addText(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<std::string, true> arg0 = {};
+            HolderType<cc::Vec2, true> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addText(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_engine_DebugRenderer_addText)
+
+static bool js_engine_DebugRenderer_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::DebugRenderer* result = cc::DebugRenderer::getInstance();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_DebugRenderer_getInstance_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_DebugRenderer_getInstance_static)
+
+bool js_register_engine_DebugRenderer(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DebugRenderer", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("addText", _SE(js_engine_DebugRenderer_addText));
+    cls->defineStaticFunction("getInstance", _SE(js_engine_DebugRenderer_getInstance_static));
+    cls->install();
+    JSBClassType::registerClass<cc::DebugRenderer>(cls);
+
+    __jsb_cc_DebugRenderer_proto = cls->getProto();
+    __jsb_cc_DebugRenderer_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+#endif // CC_USE_DEBUG_RENDERER
 bool register_all_engine(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -2875,6 +3308,12 @@ bool register_all_engine(se::Object* obj)    // NOLINT
     js_register_engine_ICanvasRenderingContext2D(ns);
     js_register_engine_CanvasRenderingContext2D(ns);
     js_register_engine_Color(ns);
+    #if CC_USE_DEBUG_RENDERER
+    js_register_engine_DebugRenderer(ns);
+    #endif // CC_USE_DEBUG_RENDERER
+    #if CC_USE_DEBUG_RENDERER
+    js_register_engine_DebugTextInfo(ns);
+    #endif // CC_USE_DEBUG_RENDERER
     js_register_engine_Device(ns);
     js_register_engine_FileUtils(ns);
     js_register_engine_JSBNativeDataHolder(ns);

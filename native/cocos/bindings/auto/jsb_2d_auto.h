@@ -51,6 +51,7 @@ extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
 bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo);
+SE_DECLARE_FUNC(js_2d_RenderEntity_clearDynamicRenderDrawInfos);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getEntitySharedBufferForJS);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getLocalOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getOpacity);

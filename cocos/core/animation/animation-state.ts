@@ -494,9 +494,6 @@ export class AnimationState extends Playable {
 
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
-        if (this._playbackDuration === 0.0) {
-            return info;
-        }
         this._sampleCurves(info.time);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(info);
@@ -582,14 +579,17 @@ export class AnimationState extends Playable {
     private simpleProcess () {
         const playbackStart = this._playbackRange.min;
         const playbackDuration = this._playbackDuration;
-        if (playbackDuration === 0.0) {
-            return;
-        }
 
-        let time = this.time % playbackDuration;
-        if (time < 0.0) { time += playbackDuration; }
-        const realTime = playbackStart + time;
-        const ratio = realTime * this._invDuration;
+        let time = 0.0;
+        let ratio = 0.0;
+        if (playbackDuration !== 0.0) {
+            time = this.time % playbackDuration;
+            if (time < 0.0) {
+                time += playbackDuration;
+            }
+            const realTime = playbackStart + time;
+            ratio = realTime * this._invDuration;
+        }
         this._sampleCurves(playbackStart + time);
 
         const wrapInfo = this.getWrappedInfo(this.time, this._wrappedInfo);
@@ -639,18 +639,18 @@ export class AnimationState extends Playable {
         const playbackStart = this._getPlaybackStart();
         const playbackEnd = this._getPlaybackEnd();
         const playbackDuration = playbackEnd - playbackStart;
+        const repeatCount = this.repeatCount;
 
         if (playbackDuration === 0.0) {
             info.time = 0.0;
             info.ratio = 0.0;
             info.direction = 1.0;
-            info.stopped = true;
+            info.stopped = !!Number.isFinite(repeatCount);
             info.iterations = 0.0;
             return info;
         }
 
         let stopped = false;
-        const repeatCount = this.repeatCount;
 
         time -= playbackStart;
 

@@ -95,7 +95,7 @@ export class StencilManager {
     }
 
     public enterLevel (comp: Mask) {
-        comp.graphics!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
+        comp.subComp!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
         // this.stage = Stage.ENTER_LEVEL;
     }
 

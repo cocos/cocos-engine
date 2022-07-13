@@ -1,7 +1,8 @@
 // make divid-by-zero, non-rational pixel more obvious
 void CCSurfacesDebugDisplayInvalidNumber(inout vec4 color)
 {
-  vec4 error = vec4(1.0, 0.0, 0.2, 1.0);
+  float index = mod(cc_time.x * 10.0, 2.0);
+  vec4 error = index < 1.0 ? vec4(1.0, 0.0, 0.2, 1.0) : vec4(0.0, 1.0, 0.2, 1.0);
 
   color = (isnans(color.rgb) || isinfs(color.rgb)) ? error : color;
 }

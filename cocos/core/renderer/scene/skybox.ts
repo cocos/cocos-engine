@@ -221,8 +221,10 @@ export class Skybox {
     protected _useHDR = true;
     protected _useDiffuseMap = false;
     protected _editableMaterial: MaterialInstance | null = null;
+    protected _activated = false;
 
     public initialize (skyboxInfo: SkyboxInfo) {
+        this._activated = false;
         this._enabled = skyboxInfo.enabled;
         this._useIBL = skyboxInfo.useIBL;
         this._useDiffuseMap = skyboxInfo.applyDiffuseMap;
@@ -302,6 +304,8 @@ export class Skybox {
 
         this._updateGlobalBinding();
         this._updatePipeline();
+
+        this._activated = true;
     }
 
     protected _updatePipeline () {
@@ -322,7 +326,9 @@ export class Skybox {
             pipeline.macros.CC_USE_HDR = useHDRValue;
             pipeline.macros.CC_IBL_CONVOLUTED = useConvMapValue;
 
-            root.onGlobalPipelineStateChanged();
+            if (this._activated) {
+                root.onGlobalPipelineStateChanged();
+            }
         }
 
         if (this.enabled) {
