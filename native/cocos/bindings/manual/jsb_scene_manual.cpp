@@ -108,7 +108,7 @@ TempFloatArray tempFloatArray;
 static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Root>(s);
-    SE_PRECONDITION2(cobj, false, "js_root_registerListeners : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
 #define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName)                                                         \
     cobj->getEventProcessor()->on(eventType, [](cc::Root *rootObj) {                                               \
@@ -273,7 +273,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
 static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerListeners : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
 
@@ -331,7 +331,7 @@ SE_BIND_FUNC(js_scene_Node_registerListeners) // NOLINT(readability-identifier-n
 static bool js_scene_Node_registerOnTransformChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnTransformChanged : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
 
@@ -343,7 +343,7 @@ SE_BIND_FUNC(js_scene_Node_registerOnTransformChanged) // NOLINT(readability-ide
 static bool js_scene_Node_registerOnParentChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnParentChanged : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
 
@@ -355,7 +355,7 @@ SE_BIND_FUNC(js_scene_Node_registerOnParentChanged) // NOLINT(readability-identi
 static bool js_scene_Node_registerOnLayerChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnLayerChanged : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
 
@@ -367,7 +367,7 @@ SE_BIND_FUNC(js_scene_Node_registerOnLayerChanged) // NOLINT(readability-identif
 static bool js_scene_Node_registerOnChildRemoved(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnChildRemoved : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
 
@@ -379,7 +379,7 @@ SE_BIND_FUNC(js_scene_Node_registerOnChildRemoved) // NOLINT(readability-identif
 static bool js_scene_Node_registerOnChildAdded(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnChildAdded : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
 
@@ -391,7 +391,7 @@ SE_BIND_FUNC(js_scene_Node_registerOnChildAdded) // NOLINT(readability-identifie
 static bool js_scene_Node_registerOnSiblingOrderChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerOnSiblingOrderChanged : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
     registerOnSiblingOrderChanged(cobj, jsObject);
@@ -584,7 +584,7 @@ SE_BIND_FUNC_FAST(js_scene_Node_inverseTransformPoint)
 
 static bool js_scene_Pass_blocks_getter(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_registerListeners : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thiz = s.thisObject();
 
     se::Value blocksVal;
@@ -623,7 +623,7 @@ SE_BIND_PROP_GET(js_scene_RenderScene_root_getter)
 static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_Model_setInstancedAttribute : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     auto *thiz = s.thisObject();
@@ -631,7 +631,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
     if (argc == 2) {
         ccstd::string name;
         ok &= sevalue_to_native(args[0], &name, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_Model_setInstancedAttribute : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         const auto &val = args[1];
         if (val.isObject()) {
@@ -696,7 +696,7 @@ SE_BIND_FUNC(js_Model_setInstancedAttribute)
 static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_Model_registerListeners : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thiz = s.thisObject();
 
 #define MODEL_DISPATCH_EVENT_TO_JS(eventType, jsFuncName)                               \
@@ -753,7 +753,7 @@ SE_BIND_FUNC(js_Model_registerListeners) // NOLINT(readability-identifier-naming
 static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::MaterialInstance>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_MaterialInstance_registerListeners : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     cobj->setRebuildPSOCallback([](index_t /*index*/, cc::Material *material) {
         se::AutoHandleScope hs;
         se::Value matVal;

@@ -132,7 +132,7 @@ SE_BIND_FUNC(js_network_Downloader_createDownloadTask)
 // deprecated since v3.6
 static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnFileTaskSuccess : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -167,7 +167,7 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                 arg0 = nullptr;
             }
         } while (false);
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnFileTaskSuccess : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnSuccess(arg0);
         return true;
     }
@@ -178,7 +178,7 @@ SE_BIND_FUNC(js_network_Downloader_setOnFileTaskSuccess) // NOLINT(readability-i
 
 static bool js_network_Downloader_setOnSuccess(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnFileTaskSuccess : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -213,7 +213,7 @@ static bool js_network_Downloader_setOnSuccess(se::State &s) { // NOLINT(readabi
                 arg0 = nullptr;
             }
         } while (false);
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnSuccess : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnSuccess(arg0);
         return true;
     }
@@ -225,7 +225,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_network_Downloader_setOnSuccess)
 // deprecated in v3.6
 static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskError : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -263,7 +263,7 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                 arg0 = nullptr;
             }
         } while (false);
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnTaskError : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnError(arg0);
         return true;
     }
@@ -274,7 +274,7 @@ SE_BIND_FUNC(js_network_Downloader_setOnTaskError) // NOLINT(readability-identif
 
 static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskError : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -312,7 +312,7 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
                 arg0 = nullptr;
             }
         } while (false);
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnError : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnError(arg0);
         return true;
     }
@@ -331,6 +331,6 @@ bool register_all_network_manual(se::Object * /*obj*/) {
     __jsb_cc_network_Downloader_proto->defineFunction("setOnTaskError",
                                                       _SE(js_network_Downloader_setOnTaskError)); // deprecated since v3.6
     __jsb_cc_network_Downloader_proto->defineFunction("setOnFileTaskSuccess",
-                                                      _SE(js_network_Downloader_setOnFileTaskSuccess));  // deprecated since v3.6
+                                                      _SE(js_network_Downloader_setOnFileTaskSuccess)); // deprecated since v3.6
     return true;
 }

@@ -35,7 +35,6 @@
         #define WIN32_LEAN_AND_MEAN
     #endif
     #include <Windows.h>
-    #include <time.h>
 
     #define COLOR_FATAL                   FOREGROUND_INTENSITY | FOREGROUND_RED
     #define COLOR_ERROR                   FOREGROUND_RED
@@ -164,12 +163,23 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     android_LogPriority priority;
     switch (level) {
-        case LogLevel::LEVEL_DEBUG: priority = ANDROID_LOG_DEBUG; break;
-        case LogLevel::INFO: priority = ANDROID_LOG_INFO; break;
-        case LogLevel::WARN: priority = ANDROID_LOG_WARN; break;
-        case LogLevel::ERR: priority = ANDROID_LOG_ERROR; break;
-        case LogLevel::FATAL: priority = ANDROID_LOG_FATAL; break;
-        default: priority = ANDROID_LOG_INFO;
+        case LogLevel::LEVEL_DEBUG:
+            priority = ANDROID_LOG_DEBUG;
+            break;
+        case LogLevel::INFO:
+            priority = ANDROID_LOG_INFO;
+            break;
+        case LogLevel::WARN:
+            priority = ANDROID_LOG_WARN;
+            break;
+        case LogLevel::ERR:
+            priority = ANDROID_LOG_ERROR;
+            break;
+        case LogLevel::FATAL:
+            priority = ANDROID_LOG_FATAL;
+            break;
+        default:
+            priority = ANDROID_LOG_INFO;
     }
 
     __android_log_write(priority, (type == LogType::KERNEL ? "Cocos" : "CocosScript"), buff);
@@ -196,6 +206,9 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     }
 #else
     fputs(buff, stdout);
+#endif
+#if CC_REMOTE_LOG
+    logRemote(buff);
 #endif
 }
 
