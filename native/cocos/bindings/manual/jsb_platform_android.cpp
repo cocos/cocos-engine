@@ -52,11 +52,11 @@ static bool jsbLoadFont(se::State &s) {
 
         ccstd::string originalFamilyName;
         ok &= sevalue_to_native(args[0], &originalFamilyName);
-        SE_PRECONDITION2(ok, false, "originalFamilyName");
+        SE_PRECONDITION2(ok, false, "Error processing argument: originalFamilyName");
 
         ccstd::string source;
         ok &= sevalue_to_native(args[1], &source);
-        SE_PRECONDITION2(ok, false, "source");
+        SE_PRECONDITION2(ok, false, "Error processing argument: source");
 
         ccstd::string fontFilePath;
         std::regex re(R"(url\(\s*'\s*(.*?)\s*'\s*\))");

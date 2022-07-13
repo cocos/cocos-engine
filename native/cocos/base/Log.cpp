@@ -207,8 +207,9 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
 #else
     fputs(buff, stdout);
 #endif
-
+#if CC_REMOTE_LOG
     logRemote(buff);
+#endif
 }
 
 } // namespace cc
