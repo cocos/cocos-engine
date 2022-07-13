@@ -217,16 +217,17 @@ void printJSBInvokeAtFrame(int n);
     #define SE_QUOTEME(x)  SE_QUOTEME_(x)
 
     //IDEA: implement this macro
-    #define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
+    //#define SE_REPORT_ERROR(fmt, ...) SE_LOGE(SE_STR_CONCAT3("[ERROR] ( %s, %d): ", fmt, "\n"), __FILE__, __LINE__, ##__VA_ARGS__)
+    #define SE_REPORT_ERROR(fmt, ...) selogMessage(cc::LogLevel::ERR, "[SE_ERROR]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__)
 
     #if CC_DEBUG > 0
 
-        #define SE_ASSERT(cond, fmt, ...)                                                                 \
-            do {                                                                                          \
-                if (!(cond)) {                                                                            \
-                    SE_LOGE("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
-                    CC_ASSERT(false);                                                                     \
-                }                                                                                         \
+        #define SE_ASSERT(cond, fmt, ...)                                                                                   \
+            do {                                                                                                            \
+                if (!(cond)) {                                                                                              \
+                    selogMessage(cc::LogLevel::ERR, "[SE_ASSERT]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__); \
+                    CC_ASSERT(false);                                                                                       \
+                }                                                                                                           \
             } while (false)
 
     #else

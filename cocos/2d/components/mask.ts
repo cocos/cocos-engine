@@ -45,6 +45,7 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { IAssemblerManager } from '../renderer/base';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { Sprite } from './sprite';
 
 const _worldMatrix = new Mat4();
@@ -369,6 +370,7 @@ export class Mask extends UIRenderer {
                 this.subComp.renderEntity.setIsMaskInverted(this._inverted);
                 // hack for isMeshBuffer flag
                 this.renderData.renderDrawInfo.setIsMeshBuffer(true);
+                this.renderData.drawInfoType = RenderDrawInfoType.MODEL;
             }
         }
     }
@@ -379,8 +381,10 @@ export class Mask extends UIRenderer {
         this._enableGraphics();
         this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
         this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
+        this.node.on(NodeEventType.LAYER_CHANGED, this._layerChange, this);
         this._sizeChange();
         this._siblingChange();
+        this._layerChange();
     }
 
     /**
@@ -399,6 +403,7 @@ export class Mask extends UIRenderer {
         this._disableGraphics();
         this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
         this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
+        this.node.off(NodeEventType.LAYER_CHANGED, this._layerChange, this);
     }
 
     public onDestroy () {
@@ -512,6 +517,7 @@ export class Mask extends UIRenderer {
         node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
         node.addComponent(Sprite);
         node.setPosition(0, 0, 0);
+        node.layer = this.node.layer;
         this._maskNode = node;
         this.node.insertChild(node, 0);
     }
@@ -525,6 +531,12 @@ export class Mask extends UIRenderer {
     private _siblingChange () {
         if (this._maskNode && this._maskNode.getSiblingIndex() !== 0) {
             this._maskNode.setSiblingIndex(0);
+        }
+    }
+
+    private _layerChange () {
+        if (this._maskNode) {
+            this._maskNode.layer = this.node.layer;
         }
     }
 
@@ -547,6 +559,7 @@ export class Mask extends UIRenderer {
         node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
         node.addComponent(Graphics);
         node.setPosition(0, 0, 0);
+        node.layer = this.node.layer;
         this._maskNode = node;
         this.node.insertChild(node, 0);
     }

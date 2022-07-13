@@ -345,6 +345,11 @@ CCProgram standard-fs %{
     vec4 albedo = baseColor;
     #if HAS_EXPORTED_METALLIC
       inMetallic = metallic;
+      float spec = specularFactor;
+      #if USE_SPECULAR_MAP
+        spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+      #endif
+      inSpecularIntensity *= spec * 0.5;
     #else
       GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
       inSpecularIntensity *= inMetallic; //simulate specular color is black

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,15 +23,32 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "bindings/jswrapper/config.h"
-#include <cstdarg>
-#include "base/Log.h"
+#pragma once
 
-void selogMessage(cc::LogLevel level, const char *tag, const char *format, ...) {
-    char logbuf[512] = {0};
-    va_list argp;
-    va_start(argp, format);
-    (void)std::vsnprintf(logbuf, sizeof(logbuf), format, argp);
-    va_end(argp);
-    cc::Log::logMessage(cc::LogType::KERNEL, level, "%s %s", tag, logbuf);
+#include <cstdint>
+
+#include "base/Macros.h"
+
+namespace se {
+class Object;
 }
+
+namespace cc::bindings {
+
+class NativeMemorySharedToScriptActor final {
+public:
+    NativeMemorySharedToScriptActor() = default;
+    ~NativeMemorySharedToScriptActor();
+
+    void initialize(void *ptr, uint32_t byteLength);
+    void destroy();
+
+    inline se::Object *getSharedArrayBufferObject() const { return _sharedArrayBufferObject; }
+
+private:
+    se::Object *_sharedArrayBufferObject{nullptr};
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(NativeMemorySharedToScriptActor)
+};
+
+} // namespace cc::bindings

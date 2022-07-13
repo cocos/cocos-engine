@@ -91,19 +91,21 @@ extern se::Class * __jsb_cc_Node_class; // NOLINT
 
 bool js_register_cc_Node(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_scene_Node__getSharedArrayBufferObject);
 SE_DECLARE_FUNC(js_scene_Node__setChildren);
 SE_DECLARE_FUNC(js_scene_Node_addChild);
 SE_DECLARE_FUNC(js_scene_Node_destroyAllChildren);
 SE_DECLARE_FUNC(js_scene_Node_getChildByName);
 SE_DECLARE_FUNC(js_scene_Node_getChildByPath);
 SE_DECLARE_FUNC(js_scene_Node_getChildByUuid);
-SE_DECLARE_FUNC(js_scene_Node_getEventMask);
+SE_DECLARE_FUNC(js_scene_Node_getDirtyFlag);
 SE_DECLARE_FUNC(js_scene_Node_getLayer);
 SE_DECLARE_FUNC(js_scene_Node_getParent);
 SE_DECLARE_FUNC(js_scene_Node_getScene);
 SE_DECLARE_FUNC(js_scene_Node_getSiblingIndex);
 SE_DECLARE_FUNC(js_scene_Node_insertChild);
 SE_DECLARE_FUNC(js_scene_Node_invalidateChildren);
+SE_DECLARE_FUNC(js_scene_Node_isActive);
 SE_DECLARE_FUNC(js_scene_Node_isChildOf);
 SE_DECLARE_FUNC(js_scene_Node_isStatic);
 SE_DECLARE_FUNC(js_scene_Node_lookAt);
@@ -116,8 +118,9 @@ SE_DECLARE_FUNC(js_scene_Node_removeAllChildren);
 SE_DECLARE_FUNC(js_scene_Node_removeChild);
 SE_DECLARE_FUNC(js_scene_Node_removeFromParent);
 SE_DECLARE_FUNC(js_scene_Node_resumeSystemEvents);
+SE_DECLARE_FUNC(js_scene_Node_setActive);
+SE_DECLARE_FUNC(js_scene_Node_setDirtyFlag);
 SE_DECLARE_FUNC(js_scene_Node_setEulerAngles);
-SE_DECLARE_FUNC(js_scene_Node_setEventMask);
 SE_DECLARE_FUNC(js_scene_Node_setForward);
 SE_DECLARE_FUNC(js_scene_Node_setLayer);
 SE_DECLARE_FUNC(js_scene_Node_setParent);
