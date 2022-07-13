@@ -3,7 +3,7 @@
 static bool ${signature_name}_get_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    // SE_PRECONDITION2(cobj, false, "${signature_name}_get_${name} : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -38,7 +38,7 @@ static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-id
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    SE_PRECONDITION2(cobj, false, "${signature_name}_set_${name} : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     #set $arg_type = $ntype.to_string($generator)
@@ -68,7 +68,7 @@ static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-id
                     })
 #end if
     $conv_text;
-    SE_PRECONDITION2(ok, false, "${signature_name}_set_${name} : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(${signature_name}_set_${name})

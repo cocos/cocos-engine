@@ -38,6 +38,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { director } from '../../core/director';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
 import { assert } from '../../core';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
 /**
  * @en
@@ -172,7 +173,7 @@ export class UIMeshRenderer extends Component {
         if (JSB) {
             const renderData = MeshRenderData.add();
             // @ts-expect-error temporary no care
-            renderData.initRenderDrawInfo(this);
+            renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
             // @ts-expect-error temporary no care
             this._renderData = renderData;
             this._renderData!.material = this._modelComponent!.getMaterialInstance(index);
@@ -231,7 +232,7 @@ export class UIMeshRenderer extends Component {
         uiRendererManager.markDirtyRenderer(this);
     }
 
-    public stencilStage : Stage = Stage.DISABLED;
+    public stencilStage: Stage = Stage.DISABLED;
 
     public setNodeDirty () {
     }
@@ -244,12 +245,12 @@ export class UIMeshRenderer extends Component {
         return this._renderEntity;
     }
 
-    protected _renderData:RenderData|null = null;
+    protected _renderData: RenderData | null = null;
     get renderData () {
         return this._renderData;
     }
 
-    set renderData (val:RenderData|null) {
+    set renderData (val: RenderData | null) {
         if (val === this._renderData) {
             return;
         }

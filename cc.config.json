@@ -76,7 +76,7 @@
 	        "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
         },
 	    "debug-renderer": { 
-            "modules": [ "debug-renderer" ], 
+            "modules": [], 
             "dependentAssets": [
                 "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
                 "b5475517-23b9-4873-bc1a-968d96616081", 

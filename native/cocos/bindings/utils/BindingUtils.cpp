@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,15 +23,29 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "bindings/jswrapper/config.h"
-#include <cstdarg>
-#include "base/Log.h"
+#include "bindings/utils/BindingUtils.h"
+#include "bindings/jswrapper/SeApi.h"
 
-void selogMessage(cc::LogLevel level, const char *tag, const char *format, ...) {
-    char logbuf[512] = {0};
-    va_list argp;
-    va_start(argp, format);
-    (void)std::vsnprintf(logbuf, sizeof(logbuf), format, argp);
-    va_end(argp);
-    cc::Log::logMessage(cc::LogType::KERNEL, level, "%s %s", tag, logbuf);
+namespace cc::bindings {
+
+NativeMemorySharedToScriptActor::~NativeMemorySharedToScriptActor() {
+    destroy();
 }
+
+void NativeMemorySharedToScriptActor::initialize(void* ptr, uint32_t byteLength) {
+    CC_ASSERT(_sharedArrayBufferObject == nullptr);
+    // The callback of freeing buffer is empty since the memory is managed in native,
+    // the external array buffer just holds a reference to the memory.
+    _sharedArrayBufferObject = se::Object::createExternalArrayBufferObject(ptr, byteLength, [](void* /*contents*/, size_t /*byteLength*/, void* /*userData*/) {});
+    _sharedArrayBufferObject->root();
+}
+
+void NativeMemorySharedToScriptActor::destroy() {
+    if (_sharedArrayBufferObject != nullptr) {
+        _sharedArrayBufferObject->unroot();
+        _sharedArrayBufferObject->decRef();
+        _sharedArrayBufferObject = nullptr;
+    }
+}
+
+} // namespace cc::bindings

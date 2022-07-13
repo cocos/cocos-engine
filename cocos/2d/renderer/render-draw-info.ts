@@ -11,6 +11,12 @@ export enum RenderDrawInfoSharedBufferView {
     count,
 }
 
+export enum RenderDrawInfoType {
+    COMP,
+    MODEL,
+    IA,
+}
+
 export class RenderDrawInfo {
     public stencilStage: Stage = Stage.DISABLED;
     protected _accId: number | undefined;
@@ -33,6 +39,8 @@ export class RenderDrawInfo {
     protected _blendHash: number | undefined;
 
     protected _model: Model | undefined;
+
+    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
 
@@ -220,6 +228,15 @@ export class RenderDrawInfo {
                 this._nativeObj.model = model;
             }
         }
+    }
+
+    public setDrawInfoType (drawInfoType: RenderDrawInfoType) {
+        if (JSB) {
+            if (this._drawInfoType !== drawInfoType) {
+                this._nativeObj.drawInfoType = drawInfoType;
+            }
+        }
+        this._drawInfoType = drawInfoType;
     }
 
     public initRender2dBuffer (vertexCount: number, stride: number) {
