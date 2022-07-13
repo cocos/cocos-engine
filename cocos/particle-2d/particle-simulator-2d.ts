@@ -30,8 +30,6 @@ import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-for
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
-import { director } from '../core/director';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
