@@ -1925,20 +1925,18 @@ static bool js_2d_Batcher2d_handleColor(se::State& s) // NOLINT(readability-iden
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 4) {
+    if (argc == 3) {
         HolderType<cc::RenderEntity*, false> arg0 = {};
         HolderType<cc::RenderDrawInfo*, false> arg1 = {};
-        HolderType<cc::Node*, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_handleColor : Error processing arguments");
-        cobj->handleColor(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        cobj->handleColor(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_handleColor)
