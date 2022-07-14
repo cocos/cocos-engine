@@ -30,7 +30,7 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -517,7 +517,7 @@ export class ArmatureDisplay extends UIRenderer {
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo(batch2d);
+            this._drawInfoList[idx] = new RenderDrawInfo();
         }
         return this._drawInfoList[idx];
     }
@@ -543,6 +543,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     onLoad () {
+        super.onLoad();
         // Adapt to old code,remove unuse child which is created by old code.
         // This logic can be remove after 2.2 or later.
         const children = this.node.children;
@@ -601,9 +602,19 @@ export class ArmatureDisplay extends UIRenderer {
         return inst;
     }
 
-    protected updateMaterial () {
-        super.updateMaterial();
+    @override
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    get customMaterial () {
+        return this._customMaterial;
+    }
+    set customMaterial (val) {
+        this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.renderEntity.setCustomMaterial(val);
+        this.markForUpdateRenderData();
     }
 
     protected _render (batcher: Batcher2D) {
@@ -1337,9 +1348,8 @@ export class ArmatureDisplay extends UIRenderer {
         this._materialCache = {};
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 
