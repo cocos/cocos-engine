@@ -70,8 +70,8 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 
     // 0: SHADOWMAP_FLOAT, 1: SHADOWMAP_RGBE.
-    const int32_t isFloat = supportsR32FloatTexture(pipeline->getDevice()) ? 0 : 1;
-    pipeline->setValue("CC_SHADOWMAP_FORMAT", isFloat);
+    const int32_t isRGBE = supportsR32FloatTexture(pipeline->getDevice()) ? 0 : 1;
+    pipeline->setValue("CC_SHADOWMAP_FORMAT", isRGBE);
 
     // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
     const int32_t isLinear = 0;

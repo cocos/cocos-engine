@@ -76,8 +76,8 @@ export class ShadowFlow extends RenderFlow {
         super.activate(pipeline);
 
         // 0: SHADOWMAP_FLOAT, 1: SHADOWMAP_RGBE.
-        const isFloat = supportsR32FloatTexture(pipeline.device) ? 0 : 1;
-        pipeline.macros.CC_SHADOWMAP_FORMAT = isFloat;
+        const isRGBE = supportsR32FloatTexture(pipeline.device) ? 0 : 1;
+        pipeline.macros.CC_SHADOWMAP_FORMAT = isRGBE;
 
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
         const isLinear = pipeline.device.gfxAPI === API.WEBGL ? 1 : 0;
