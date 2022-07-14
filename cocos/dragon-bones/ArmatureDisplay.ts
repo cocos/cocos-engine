@@ -30,7 +30,7 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -602,9 +602,19 @@ export class ArmatureDisplay extends UIRenderer {
         return inst;
     }
 
-    protected updateMaterial () {
-        super.updateMaterial();
+    @override
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    get customMaterial () {
+        return this._customMaterial;
+    }
+    set customMaterial (val) {
+        this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.renderEntity.setCustomMaterial(val);
+        this.markForUpdateRenderData();
     }
 
     protected _render (batcher: Batcher2D) {
@@ -721,7 +731,6 @@ export class ArmatureDisplay extends UIRenderer {
 
     onEnable () {
         super.onEnable();
-        this._renderEntity.setCustomMaterial(this.customMaterial);
         // If cache mode is cache, no need to update by dragonbones library.
         if (this._armature && !this.isAnimationCached()) {
             this._factory!._dragonBones.clock.add(this._armature);
