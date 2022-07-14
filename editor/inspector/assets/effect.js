@@ -29,7 +29,7 @@ exports.style = `
     }
     .asset-effect > .config > .description {
         text-align: center;
-        color: var(--color-normal-border-weakest);
+        color: var(--color-normal-contrast);
     }
     .asset-effect > .config > .combinations {
         padding: 10px 0;
