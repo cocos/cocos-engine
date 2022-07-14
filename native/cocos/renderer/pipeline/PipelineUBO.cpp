@@ -203,7 +203,6 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
     ccstd::array<float, UBOShadow::COUNT> &sv = *shadowBufferView;
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
-    const float linear = 0.0F;
 
     if (shadowInfo->isEnabled() && mainLight) {
         if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
@@ -225,7 +224,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
 
                     memcpy(sv.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
-                    const float shadowNFLSInfos[4] = {nearClamp, farClamp, linear, 1.0F - mainLight->getShadowSaturation()};
+                    const float shadowNFLSInfos[4] = {nearClamp, farClamp, 0.0F, 1.0F - mainLight->getShadowSaturation()};
 
                     memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
@@ -257,7 +256,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                     sv[UBOShadow::CSM_INFO_OFFSET + 2] = 0.0F;
                     sv[UBOShadow::CSM_INFO_OFFSET + 3] = 0.0F;
 
-                    const float shadowNFLSInfos[4] = {0.0F, 0.0F, linear, 1.0F - mainLight->getShadowSaturation()};
+                    const float shadowNFLSInfos[4] = {0.0F, 0.0F, 0.0F, 1.0F - mainLight->getShadowSaturation()};
                     memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                     const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), static_cast<float>(mainLight->getCSMLevel())};
@@ -283,7 +282,6 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
     auto *device = gfx::Device::getInstance();
     auto &shadowUBO = *shadowBufferView;
     const bool hFTexture = supportsR32FloatTexture(device);
-    const float linear = 0.0F;
     const float packing = hFTexture ? 0.0F : 1.0F;
 
     switch (light->getType()) {
@@ -332,7 +330,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
 
                     memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
-                    const float shadowNFLSInfos[4] = {nearClamp, farClamp, linear, 1.0F - mainLight->getShadowSaturation()};
+                    const float shadowNFLSInfos[4] = {nearClamp, farClamp, 0.0F, 1.0F - mainLight->getShadowSaturation()};
                     memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                     const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), levelCount};
@@ -355,7 +353,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                 matShadowViewProj.multiply(matShadowView);
                 memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
-                const float shadowNFLSInfos[4] = {0.01F, spotLight->getRange(), linear, 0.0F};
+                const float shadowNFLSInfos[4] = {0.01F, spotLight->getRange(), 0.0F, 0.0F};
                 memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 const float shadowLPNNInfos[4] = {1.0F, packing, spotLight->getShadowNormalBias(), 0.0F};
