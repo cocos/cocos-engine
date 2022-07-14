@@ -879,6 +879,10 @@ module.exports = {
             label: "Running Stats",
             description: "Include various components and tools used to audit and display rendering stats.",
         },
+        occlusion_query: {
+            label: "Occlusion Query",
+            description: "Hardware based occlusion query.",
+        },
         geometry_renderer: {
             label: "Geometry Renderer",
             description: "Used to render various geometries for debugging or use in editor.",

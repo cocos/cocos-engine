@@ -147,8 +147,8 @@ export class SubModel {
      * @en The descriptor set for world bound
      * @zh 用于存储世界包围盒的描述符集组
      */
-    get worldBoundDescriptorSet (): DescriptorSet {
-        return this._worldBoundDescriptorSet!;
+    get worldBoundDescriptorSet (): DescriptorSet | null {
+        return this._worldBoundDescriptorSet;
     }
 
     /**
@@ -193,10 +193,13 @@ export class SubModel {
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
         const pipeline = (legacyCC.director.root as Root).pipeline;
-        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass()!;
-        const occlusionDSInfo = new DescriptorSetInfo(null!);
-        occlusionDSInfo.layout = occlusionPass.localSetLayout;
-        this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
+        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
+        if (occlusionPass) {
+            const occlusionDSInfo = new DescriptorSetInfo(null!);
+            occlusionDSInfo.layout = occlusionPass.localSetLayout;
+            this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
+        }
+
         this._subMesh = subMesh;
         this._patches = patches;
         this._passes = passes;
@@ -285,7 +288,7 @@ export class SubModel {
         this._inputAssembler!.destroy();
         this._inputAssembler = null;
 
-        this._worldBoundDescriptorSet!.destroy();
+        this._worldBoundDescriptorSet?.destroy();
         this._worldBoundDescriptorSet = null;
 
         this.priority = RenderPriority.DEFAULT;
@@ -313,7 +316,7 @@ export class SubModel {
             pass.update();
         }
         this._descriptorSet!.update();
-        this._worldBoundDescriptorSet!.update();
+        this._worldBoundDescriptorSet?.update();
     }
 
     /**
