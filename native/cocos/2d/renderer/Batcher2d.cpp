@@ -137,8 +137,8 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
 }
 
 CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity) {
-    assert(entity);
-    assert(drawInfo);
+    CC_ASSERT(entity);
+    CC_ASSERT(drawInfo);
     RenderDrawInfoType drawInfoType = drawInfo->getEnumDrawInfoType();
 
     if (drawInfoType == RenderDrawInfoType::COMP) {
