@@ -115,3 +115,29 @@ test('stop pacer in tick', (cb) => {
         cb();
     });
 });
+
+test('stop and restart pacer in tick', (cb) => {
+    const pacer = new Pacer();
+    let calledTime = 0;
+    pacer.onTick = jest.fn(() => { pacer.stop(); pacer.start(); calledTime++; });
+    pacer.start();
+    Promise.resolve().then(() => {
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                expect(calledTime).toBeGreaterThan(0);
+                resolve();
+            }, 100);
+        })
+    }).then(() => {
+        const called = calledTime;
+        pacer.stop();
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                expect(calledTime).toBe(called);
+                resolve();
+            }, 100);
+        })
+    }).then(() => {
+        cb();
+    });
+});
