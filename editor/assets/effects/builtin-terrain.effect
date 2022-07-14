@@ -284,7 +284,6 @@ CCProgram shadow-caster-vs %{
   in vec3 a_normal;
   in vec2 a_texCoord;
 
-  out vec4 v_worldPos;
   out highp vec2 v_clip_depth;
 
   vec4 vert () {
@@ -293,7 +292,6 @@ CCProgram shadow-caster-vs %{
     worldPos.y = cc_matWorld[3][1] + a_position.y;
     worldPos.z = cc_matWorld[3][2] + a_position.z;
     worldPos.w = 1.0;
-    v_worldPos = worldPos;
 
     vec4 clipPos = cc_matLightViewProj * worldPos;
 
@@ -310,7 +308,6 @@ CCProgram shadow-caster-fs %{
   #pragma define SHADOWMAP_FORMAT_RGBA8 1
   #pragma define SHADOWMAP_FORMAT_FLOAT 0
 
-  in vec4 v_worldPos;
   in highp vec2 v_clip_depth;
 
   vec4 frag () {
