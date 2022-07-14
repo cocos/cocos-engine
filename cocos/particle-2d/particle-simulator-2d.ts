@@ -489,15 +489,6 @@ export class Simulator {
 
     public initDrawInfo () {
         const renderData = this.renderData;
-        const entity = this.sys.renderEntity;
-        if (entity) {
-            if (entity.renderDrawInfoArr.length === 0) {
-                entity.addDynamicRenderDrawInfo(renderData.renderDrawInfo);
-            } else if (entity.renderDrawInfoArr.length > 0) {
-                if (entity.renderDrawInfoArr[0] !== renderData.renderDrawInfo) {
-                    entity.setDynamicRenderDrawInfo(renderData.renderDrawInfo, 0);
-                }
-            }
-        }
+        renderData.setRenderDrawInfoAttributes();
     }
 }
