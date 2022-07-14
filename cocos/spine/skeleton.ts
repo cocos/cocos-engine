@@ -1318,7 +1318,6 @@ export class Skeleton extends UIRenderer {
 
     public onEnable () {
         super.onEnable();
-        this._renderEntity.setCustomMaterial(this.customMaterial);
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }

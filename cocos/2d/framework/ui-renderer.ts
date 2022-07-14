@@ -317,6 +317,7 @@ export class UIRenderer extends Renderer {
         this._colorDirty();
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
+        this.renderEntity.setCustomMaterial(this._customMaterial);
     }
 
     // For Redo, Undo
