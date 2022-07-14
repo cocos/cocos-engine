@@ -742,7 +742,10 @@ export class Model {
         this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
 
         this._initWorldBoundDescriptors(subModelIndex);
-        this._updateWorldBoundDescriptors(subModelIndex, subModel.worldBoundDescriptorSet);
+
+        if (subModel.worldBoundDescriptorSet) {
+            this._updateWorldBoundDescriptors(subModelIndex, subModel.worldBoundDescriptorSet);
+        }
 
         const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
