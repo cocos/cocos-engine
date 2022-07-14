@@ -331,7 +331,7 @@ export class AudioSource extends Component {
         }
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
-            this.node.emit(AudioSourceEventType.STARTED, this);
+            this.node?.emit(AudioSourceEventType.STARTED, this);
         }).catch((e) => {});
     }
 
