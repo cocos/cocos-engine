@@ -474,6 +474,7 @@ export class UIRenderer extends Renderer {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
+            this.setEntityEnabled(this._renderFlag);
         }
     }
 
@@ -504,6 +505,12 @@ export class UIRenderer extends Renderer {
     public setEntityOpacity (opacity: number) {
         if (JSB) {
             this._renderEntity.localOpacity = opacity;
+        }
+    }
+
+    public setEntityEnabled (enabled:boolean) {
+        if (JSB) {
+            this._renderEntity.enabled = enabled;
         }
     }
 
