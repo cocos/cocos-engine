@@ -349,9 +349,6 @@ CCProgram shadow-caster-fs %{
   #include <common/data/packing>
   #include <legacy/shadow-map-base>
 
-  #pragma define SHADOWMAP_FORMAT_RGBA8 1
-  #pragma define SHADOWMAP_FORMAT_FLOAT 0
-
   in vec2 v_uv;
   #if HAS_SECOND_UV
     in vec2 v_uv1;

@@ -3,6 +3,9 @@
 #include <common/common-define>
 #include <common/math/coordinates>
 
+#pragma define SHADOWMAP_FORMAT_RGBA8 1
+#pragma define SHADOWMAP_FORMAT_FLOAT 0
+
 float CCGetLinearDepth(vec3 worldPos, float viewSpaceBias) {
 	vec4 viewPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
   viewPos.z += viewSpaceBias;
