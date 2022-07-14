@@ -31,13 +31,13 @@
 #include "application/ApplicationManager.h"
 #include "core/Root.h"
 #include "gfx-base/GFXDevice.h"
+#include "renderer/pipeline/shadow/CSMLayers.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Fog.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/SpotLight.h"
-#include "renderer/pipeline/shadow/CSMLayers.h"
 
 namespace cc {
 
@@ -193,7 +193,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
 }
 
 void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
-                                       const scene::Camera *camera) {
+                                      const scene::Camera *camera) {
     const scene::RenderScene *const scene = camera->getScene();
     const scene::DirectionalLight *mainLight = scene->getMainLight();
     gfx::Device *device = gfx::Device::getInstance();
@@ -275,7 +275,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
 }
 
 void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
-        const scene::Light *light, uint32_t level) {
+                                           const scene::Light *light, uint32_t level) {
     const auto *sceneData = pipeline->getPipelineSceneData();
     const CSMLayers *csmLayers = sceneData->getCSMLayers();
     const auto *shadowInfo = sceneData->getShadows();
@@ -283,6 +283,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
     auto &shadowUBO = *shadowBufferView;
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
+    const auto cap = pipeline->getDevice()->getCapabilities();
 
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
@@ -348,7 +349,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                 const auto matShadowView = matShadowCamera.getInversed();
                 memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
 
-                Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowViewProj);
+                Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0, &matShadowViewProj);
 
                 matShadowViewProj.multiply(matShadowView);
                 memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
@@ -377,18 +378,18 @@ uint8_t PipelineUBO::getCombineSignY() {
     return combineSignY;
 }
 
-float PipelineUBO::getPCFRadius(const scene::Shadows* shadowInfo, const scene::DirectionalLight* dirLight) {
+float PipelineUBO::getPCFRadius(const scene::Shadows *shadowInfo, const scene::DirectionalLight *dirLight) {
     const float shadowMapSize = shadowInfo->getSize().x;
-    if (dirLight->getShadowPcf() == scene::PCFType::SOFT_4X) {  // PCFType.SOFT_4X
+    if (dirLight->getShadowPcf() == scene::PCFType::SOFT_4X) { // PCFType.SOFT_4X
         return 3.0F / (shadowMapSize * 0.5F);
     }
-    if (dirLight->getShadowPcf() == scene::PCFType::SOFT_2X) {  // PCFType.SOFT_2X
+    if (dirLight->getShadowPcf() == scene::PCFType::SOFT_2X) { // PCFType.SOFT_2X
         return 2.0F / (shadowMapSize * 0.5F);
     }
-    if (dirLight->getShadowPcf() == scene::PCFType::SOFT) {     // PCFType.SOFT
+    if (dirLight->getShadowPcf() == scene::PCFType::SOFT) { // PCFType.SOFT
         return 1.0F / (shadowMapSize * 0.5F);
     }
-    return 0.0F;                                                // PCFType.HARD
+    return 0.0F; // PCFType.HARD
 }
 
 void PipelineUBO::initCombineSignY() const {
@@ -496,7 +497,7 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
     const auto *const scene = camera->getScene();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled()) {
         // at least update once to avoid crash #10779
-        if(_shadowUBOUpdated) {
+        if (_shadowUBOUpdated) {
             return;
         }
     }
