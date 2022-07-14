@@ -93,7 +93,7 @@ void PipelineSceneData::initOcclusionQuery() {
         IMaterialInfo info;
         info.effectName = "builtin-occlusion-query";
         _occlusionQueryMaterial->initialize(info);
-        if (_occlusionQueryMaterial->getPasses()->size() > 0) {
+        if (!_occlusionQueryMaterial->getPasses()->empty()) {
             _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
             _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
         }
