@@ -199,7 +199,7 @@ export class SubModel {
             occlusionDSInfo.layout = occlusionPass.localSetLayout;
             this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
         }
-       
+
         this._subMesh = subMesh;
         this._patches = patches;
         this._passes = passes;
