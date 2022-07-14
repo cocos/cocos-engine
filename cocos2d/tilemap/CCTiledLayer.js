@@ -137,7 +137,7 @@ let TiledLayer = cc.Class({
      * !#en enable or disable culling
      * !#zh 开启或关闭裁剪。
      * @method enableCulling
-     * @param value
+     * @param {boolean} value
      */
     enableCulling (value) {
         if (this._enableCulling != value) {
