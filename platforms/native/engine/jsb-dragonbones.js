@@ -527,6 +527,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._flushAssembler();
         armatureSystem.getInstance().add(this);
         middleware.retain();
+        this._renderEntity.setCustomMaterial(this.customMaterial);
     };
 
     const _onDisable = superProto.onDisable;
@@ -789,8 +790,6 @@ const cacheManager = require('./jsb-cache-manager');
             drawInfo.setIBCount(_tempIndicesCount);
 
             entity.setDynamicRenderDrawInfo(drawInfo, index);
-
-            entity.assignExtraEntityAttrs(this);
             this.material = mat;
         }
     };

@@ -690,11 +690,7 @@ export class Batcher2D implements IBatcher {
 
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
-            // render.updateAssembler(this);
-            // render.updateRenderer();// for collecting data
-            if (!JSB) {
-                render.fillBuffers(this);// for rendering
-            }
+            render.fillBuffers(this);// for rendering
         }
 
         // Update cascaded opacity to vertex buffer
