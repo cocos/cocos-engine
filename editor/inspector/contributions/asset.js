@@ -208,10 +208,12 @@ const Elements = {
                 }
             });
 
-            panel.$.icon.addEventListener('click', (event) => {
-                event.stopPropagation();
-                panel.uuidList.forEach((uuid) => {
-                    Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
+            [panel.$.icon, panel.$.name].forEach(ele => {
+                ele.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    panel.uuidList.forEach((uuid) => {
+                        Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
+                    });
                 });
             });
         },
