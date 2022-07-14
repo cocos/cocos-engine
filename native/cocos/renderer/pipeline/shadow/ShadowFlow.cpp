@@ -74,8 +74,8 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     pipeline->setValue("CC_SHADOWMAP_FORMAT", isFloat);
 
     // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
-    const int32_t isLiner = 0;
-    pipeline->setValue("CC_SHADOWMAP_FORMAT", isLiner);
+    const int32_t isLinear = 0;
+    pipeline->setValue("CC_SHADOWMAP_USE_LINEAR_DEPTH", isLinear);
 
     pipeline->onGlobalPipelineStateChanged();
 }

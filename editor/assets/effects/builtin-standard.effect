@@ -380,7 +380,7 @@ CCProgram shadow-caster-fs %{
     // spot use linear
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
-      #if CC_SHADOWMAP_LINER_DEPTH == SHADOWMAP_LINER_DEPTH_ON
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
         clipDepth = CCGetLinearDepth(v_worldPos.xyz);
       #endif
     }

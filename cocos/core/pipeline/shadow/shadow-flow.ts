@@ -80,8 +80,8 @@ export class ShadowFlow extends RenderFlow {
         pipeline.macros.CC_SHADOWMAP_FORMAT = isFloat;
 
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
-        const isLiner = pipeline.device.gfxAPI === API.WEBGL ? 1 : 0;
-        pipeline.macros.CC_SHADOWMAP_LINER_DEPTH = isLiner;
+        const isLinear = pipeline.device.gfxAPI === API.WEBGL ? 1 : 0;
+        pipeline.macros.CC_SHADOWMAP_USE_LINEAR_DEPTH = isLinear;
 
         pipeline.onGlobalPipelineStateChanged();
     }
