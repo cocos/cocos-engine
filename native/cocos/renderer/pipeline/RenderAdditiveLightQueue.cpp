@@ -332,7 +332,6 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const auto *const scene = camera->getScene();
     const auto *device = gfx::Device::getInstance();
     const bool hFTexture = supportsR32FloatTexture(device);
-    const float linear = 0.0F;
     const float packing = hFTexture ? 0.0F : 1.0F;
     const scene::Light *mainLight = scene->getMainLight();
 
@@ -383,7 +382,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
-                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, 0.0F};
+                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), 0.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 const auto &shadowSize = shadowInfo->getSize();

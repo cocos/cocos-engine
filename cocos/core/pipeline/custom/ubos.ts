@@ -206,7 +206,6 @@ export class PipelineUBO {
         const shadowInfo = sceneData.shadows;
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
-        const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
 
         if (shadowInfo.enabled && mainLight) {
@@ -233,7 +232,7 @@ export class PipelineUBO {
 
                         Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                        _vec4ShadowInfo.set(near, far, linear, 1.0 - mainLight.shadowSaturation);
+                        _vec4ShadowInfo.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
                         Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
                         _vec4ShadowInfo.set(0, packing, mainLight.shadowNormalBias, 0);
@@ -268,7 +267,7 @@ export class PipelineUBO {
                         sv[UBOShadow.CSM_INFO_OFFSET + 2] = 0;
                         sv[UBOShadow.CSM_INFO_OFFSET + 3] = 0;
 
-                        _vec4ShadowInfo.set(0, 0, linear, 1.0 - mainLight.shadowSaturation);
+                        _vec4ShadowInfo.set(0, 0, 0, 1.0 - mainLight.shadowSaturation);
                         Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
                         _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
@@ -292,7 +291,6 @@ export class PipelineUBO {
         const shadowInfo = sceneData.shadows;
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
-        const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         switch (light.type) {
         case LightType.DIRECTIONAL: {
@@ -345,7 +343,7 @@ export class PipelineUBO {
 
                     Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                    _vec4ShadowInfo.set(near, far, linear, 1.0 - mainLight.shadowSaturation);
+                    _vec4ShadowInfo.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
                     _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, levelCount);
@@ -367,7 +365,7 @@ export class PipelineUBO {
             Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
             Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
+            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, 0.0, 0.0);
             Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
             _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);

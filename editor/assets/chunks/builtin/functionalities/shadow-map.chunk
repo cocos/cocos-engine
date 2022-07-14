@@ -6,6 +6,9 @@
 #pragma define SHADOWMAP_FORMAT_RGBA8 1
 #pragma define SHADOWMAP_FORMAT_FLOAT 0
 
+#pragma define SHADOWMAP_LINER_DEPTH_ON 1
+#pragma define SHADOWMAP_LINER_DEPTH_OFF 0
+
 float CCGetLinearDepth(vec3 worldPos, float viewSpaceBias) {
 	vec4 viewPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
   viewPos.z += viewSpaceBias;
@@ -68,10 +71,10 @@ float CCGetLinearDepth(vec3 worldPos) {
   	clipSpacePos.zw = viewSpacePos.z * cc_shadowProjDepthInfo.xz + vec2(cc_shadowProjDepthInfo.y, 0.0);
   
   	// enabled linear depth?
-  	if (cc_shadowNFLSInfo.z > EPSILON) {
+  	#if CC_SHADOWMAP_LINER_DEPTH == SHADOWMAP_LINER_DEPTH_ON
   		clipSpacePos.z = GetLinearDepthFromViewSpace(viewSpacePos.xyz, cc_shadowNFLSInfo.x, cc_shadowNFLSInfo.y);
   		clipSpacePos.z = (clipSpacePos.z * 2.0 - 1.0) * clipSpacePos.w;
-  	}
+  	#endif
   
   	return clipSpacePos;
   }
@@ -175,11 +178,11 @@ float CCGetLinearDepth(vec3 worldPos) {
   {
     float pcf = cc_shadowWHPBInfo.z;
     vec4 pos = vec4(1.0);
-    if (cc_shadowNFLSInfo.z > EPSILON) {
+    #if CC_SHADOWMAP_LINER_DEPTH == SHADOWMAP_LINER_DEPTH_ON
       pos = ApplyShadowDepthBias_PerspectiveLinearDepth(shadowPos, shadowBias.x, worldPos);
-    } else {
+    #else
       pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
-    }
+    #endif
 
     if (pcf > 2.9) {
       return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
