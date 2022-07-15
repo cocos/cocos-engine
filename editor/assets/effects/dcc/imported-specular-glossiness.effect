@@ -345,6 +345,11 @@ CCProgram standard-fs %{
     vec4 albedo = baseColor;
     #if HAS_EXPORTED_METALLIC
       inMetallic = metallic;
+      float spec = specularFactor;
+      #if USE_SPECULAR_MAP
+        spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+      #endif
+      inSpecularIntensity *= spec * 0.5;
     #else
       GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
       inSpecularIntensity *= inMetallic; //simulate specular color is black
@@ -396,7 +401,7 @@ CCProgram shadow-caster-vs %{
   out vec2 v_uv1;
   out vec4 v_worldPos;
 
-  out float v_clip_depth;
+  out highp vec2 v_clip_depth;
 
   vec4 vert () {
     StandardVertInput In;
@@ -413,7 +418,7 @@ CCProgram shadow-caster-vs %{
       v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
     #endif
 
-    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
+    v_clip_depth = clipPos.zw;
 
     return clipPos;
   }
@@ -428,7 +433,7 @@ CCProgram shadow-caster-fs %{
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec4 v_worldPos;
-  in float v_clip_depth;
+  in highp vec2 v_clip_depth;
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
 
@@ -455,18 +460,19 @@ CCProgram shadow-caster-fs %{
       if (baseColor.a < albedoScaleAndCutoff.w) discard;
     #endif
 
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
     // spot use linear
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
-      if (cc_shadowNFLSInfo.z > 0.000001) {
-        return vec4(CCGetLinearDepth(v_worldPos.xyz), 1.0, 1.0, 1.0);
-      }
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
+      #endif
     }
 
-    if (cc_shadowLPNNInfo.y > 0.000001) {
-      return packDepthToRGBA(v_clip_depth);
-    }
-
-    return vec4(v_clip_depth, 1.0, 1.0, 1.0);
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
   }
 }%

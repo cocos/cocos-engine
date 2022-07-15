@@ -52,7 +52,7 @@ exports.methods = {
 
     updateReadonly(obj) {
         if (this.asset.readonly) {
-            if ('readonly' in obj && 'value' in obj) {
+            if (obj && 'readonly' in obj && 'value' in obj) {
                 obj.readonly = true;
 
                 if (typeof obj.value === 'object') {

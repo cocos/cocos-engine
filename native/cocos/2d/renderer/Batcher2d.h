@@ -54,7 +54,7 @@ public:
     void uploadBuffers();
     void reset();
 
-    void addRootNode(Node* node);
+    void syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes);
     void releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler);
 
     UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
@@ -63,11 +63,10 @@ public:
     void updateDescriptorSet();
 
     void fillBuffersAndMergeBatches();
-    void walk(Node* node);
+    void walk(Node* node, float parentOpacity);
     void handlePostRender(RenderEntity* entity);
-    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
-    void handleStaticDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* curNode);
-    void handleDynamicDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo);
+    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity);
+    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 

@@ -221,63 +221,11 @@ CCProgram surface-fragment %{
     return vec4(inSpecular, specularFactor);
   }
 
-  vec4 calculateBaseColorAndPBRParams(out vec3 pbrParams)
-  {
-    vec4 baseColor = diffuseColor;
-    #if USE_VERTEX_COLOR
-      baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
-      baseColor.a *= FSInput_vertexColor.a;
-    #endif
-    #if USE_ALBEDO_MAP
-      vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      baseColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor.a = texColor.a;
-    #else
-      baseColor.rgb *= diffuseFactor;
-    #endif
-
-    vec4 specularColorAndFactor = getSpecularColorAndFactor();
-    //glossiness
-    float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
-    #if HAS_EXPORTED_GLOSSINESS
-      inGlossiness = glossiness;
-    #else
-      #if USE_SHININESS_MAP
-        #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL
-          inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).GLOSSINESS_MAP_CHANNEL;
-        #else
-          inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
-        #endif
-      #else
-        inGlossiness = convertShininessExponent(shininessExponent);
-      #endif
-      inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
-    #endif
-
-    //metallic
-    float inMetallic = 0.0;
-    vec3 albedo = baseColor.rgb;
-    #if HAS_EXPORTED_METALLIC
-      inMetallic = metallic;
-    #else
-      GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
-      inSpecularIntensity *= inMetallic; //simulate specular color is black
-    #endif
-    baseColor.rgb = albedo;
-
-    pbrParams.x = 1.0 - inGlossiness;
-    pbrParams.y = inMetallic;
-    pbrParams.z = inSpecularIntensity * 0.5;
-    return baseColor;
-  }
-
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     //diffuse
-    vec3 pbrParams = vec3(1.0);
-
-    vec4 baseColor = calculateBaseColorAndPBRParams(pbrParams);
+    vec4 baseColor = vec4(1.0);
 
     #if USE_TRANSPARENCY_MAP
       baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
@@ -312,20 +260,65 @@ CCProgram surface-fragment %{
     return emissiveColor;
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
-  vec4 SurfacesFragmentModifyPBRParams()
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  #include <surfaces/data-structures/standard>
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
-    vec4 pbr = vec4(1.0);
-    vec3 outParams = vec3(1.0);
-    calculateBaseColorAndPBRParams(outParams);
-    pbr.x = 1.0;
-    #if USE_OCCLUSION_MAP
-      pbr.x = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
-    #endif
-    pbr.y = outParams.x;
-    pbr.z = outParams.y;
-    pbr.w = outParams.z;
-    return pbr;
+      vec4 baseColor = diffuseColor;
+      #if USE_VERTEX_COLOR
+        baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
+        baseColor.a *= FSInput_vertexColor.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        vec4 texColor = texture(albedoMap, TEXTURE_UV);
+        texColor.rgb = SRGBToLinear(texColor.rgb);
+        baseColor = texColor;
+      #else
+        baseColor.rgb *= diffuseFactor;
+      #endif
+
+      vec4 specularColorAndFactor = getSpecularColorAndFactor();
+      //glossiness
+      float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
+      #if HAS_EXPORTED_GLOSSINESS
+        inGlossiness = glossiness;
+      #else
+        #if USE_SHININESS_MAP
+          #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL
+            inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).GLOSSINESS_MAP_CHANNEL;
+          #else
+            inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
+          #endif
+        #else
+          inGlossiness = convertShininessExponent(shininessExponent);
+        #endif
+        inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
+      #endif
+
+      //metallic
+      float inMetallic = 0.0;
+      vec3 albedo = baseColor.rgb;
+      #if HAS_EXPORTED_METALLIC
+        inMetallic = metallic;
+        float spec = specularFactor;
+        #if USE_SPECULAR_MAP
+          spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+        #endif
+        inSpecularIntensity *= spec * 0.5; //0.5 is suitable for blender
+      #else
+        GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
+        inSpecularIntensity *= inMetallic; //simulate specular color is black
+      #endif
+      baseColor.rgb = albedo;
+
+      surfaceData.baseColor.rgb = baseColor.rgb;
+      surfaceData.specularIntensity = inSpecularIntensity * 0.5;
+      surfaceData.roughness = 1.0 - inGlossiness;
+      surfaceData.metallic = inMetallic;
+      surfaceData.ao = 1.0;
+      #if USE_OCCLUSION_MAP
+        surfaceData.ao = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
+      #endif
   }
 }%
 

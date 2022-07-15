@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "core/Root.h"
+#include "2d/renderer/Batcher2d.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "profiler/Profiler.h"
@@ -38,7 +39,6 @@
 #include "renderer/pipeline/forward/ForwardPipeline.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
-#include "scene/DrawBatch2D.h"
 #include "scene/SpotLight.h"
 
 namespace cc {
@@ -109,8 +109,8 @@ void Root::destroy() {
     _pipelineRuntime.reset();
 
     CC_SAFE_DESTROY_NULL(_pipeline);
-    // TODO(minggo):
-    //    CC_SAFE_DESTROY(_batcher2D);
+
+    CC_SAFE_DELETE(_batcher);
 
     // TODO(minggo):
     //    this.dataPoolManager.clear();
@@ -270,15 +270,13 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
     onGlobalPipelineStateChanged();
 
-    _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_INIT, this);
-    // TODO(minggo):
-    //    if (!_batcher) {
-    //        _batcher = ccnew Batcher2D(this);
-    //        if (!this._batcher.initialize()) {
-    //            this.destroy();
-    //            return false;
-    //        }
-    //    }
+    if (_batcher == nullptr) {
+        _batcher = ccnew Batcher2d(this);
+        if (!_batcher->initialize()) {
+            destroy();
+            return false;
+        }
+    }
 
     return true;
 }
@@ -317,12 +315,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         scene->removeBatches();
     }
 
-    _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_UPDATE, this); // cjh added for sync logic in ts.
-
-    // TODO(minggo):
-    //    if (_batcher) {
-    //        _batcher.update();
-    //    }
+    if (_batcher != nullptr) {
+        _batcher->update();
+    }
 
     //
     _cameraList.clear();
@@ -337,10 +332,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
 
-        _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_UPLOAD_BUFFERS, this);
-        //                if (_batcher != nullptr) {
-        //                    _batcher->uploadBuffers();
-        //                }
+        if (_batcher != nullptr) {
+            _batcher->uploadBuffers();
+        }
 
         for (const auto &scene : _scenes) {
             scene->update(stamp);
@@ -368,8 +362,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         _device->present();
     }
 
-    _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_RESET, this);
-    // cjh TODO:    if (this._batcher) this._batcher.reset();
+    if (_batcher != nullptr) {
+        _batcher->reset();
+    }
 }
 
 scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {

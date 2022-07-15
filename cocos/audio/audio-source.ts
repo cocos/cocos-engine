@@ -131,7 +131,7 @@ export class AudioSource extends Component {
             this._player = player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);
-                this.node.emit(AudioSourceEventType.ENDED, this);
+                this.node?.emit(AudioSourceEventType.ENDED, this);
             });
             player.onInterruptionBegin(() => {
                 audioManager.removePlaying(player);
@@ -140,7 +140,7 @@ export class AudioSource extends Component {
                 audioManager.addPlaying(player);
             });
             this._syncStates();
-            this.node.emit(_LOADED_EVENT);
+            this.node?.emit(_LOADED_EVENT);
         }).catch((e) => {});
     }
 
@@ -258,7 +258,7 @@ export class AudioSource extends Component {
             if (this._player) {
                 resolve(this._player.getPCMData(channelIndex));
             } else {
-                this.node.once(_LOADED_EVENT, () => {
+                this.node?.once(_LOADED_EVENT, () => {
                     resolve(this._player?.getPCMData(channelIndex));
                 });
             }
@@ -281,7 +281,7 @@ export class AudioSource extends Component {
             if (this._player) {
                 resolve(this._player.sampleRate);
             } else {
-                this.node.once(_LOADED_EVENT, () => {
+                this.node?.once(_LOADED_EVENT, () => {
                     resolve(this._player!.sampleRate);
                 });
             }
@@ -331,7 +331,7 @@ export class AudioSource extends Component {
         }
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
-            this.node.emit(AudioSourceEventType.STARTED, this);
+            this.node?.emit(AudioSourceEventType.STARTED, this);
         }).catch((e) => {});
     }
 

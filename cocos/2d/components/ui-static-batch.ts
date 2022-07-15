@@ -73,39 +73,6 @@ export class UIStaticBatch extends UIRenderer {
     protected _dirty = true;
     private _uiDrawBatchList: DrawBatch2D[] = [];
 
-    public onLoad () {
-        // const ui = this._getBatcher();
-        // if (!ui) {
-        //     return;
-        // }
-
-        // const attr = vfmtPosUvColor;
-        // this._bufferAccessor = ui.switchBufferAccessor(vfmtPosUvColor);
-        // // buffer.initialize(attr, this._arrivalMaxBuffer.bind(this));
-    }
-
-    public onDestroy () {
-        // super.onDestroy();
-
-        // this._clearData();
-        // if (this._bufferAccessor) {
-        //     this._bufferAccessor.destroy();
-        //     this._bufferAccessor = null;
-        // }
-    }
-
-    public updateAssembler (render: IBatcher) {
-        // render.currIsStatic = true;
-        // if (this._dirty) {
-        //     render.setupStaticBatch(this, this._bufferAccessor!);
-        // }
-
-        // if (this._init) {
-        //     render.finishMergeBatches();
-        //     render.commitStaticBatch(this);
-        // }
-    }
-
     public postUpdateAssembler (render: IBatcher) {
         // if (this._dirty) {
         //     this._dirty = false;
