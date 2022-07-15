@@ -37,6 +37,12 @@ export declare namespace native {
     export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
 
     /**
+     * @en Copy text to clipboard @zh 拷贝字符串到剪切板
+     * @param text
+     */
+    export function copyTextToClipboard(text:string): void;
+
+    /**
      * @en DownloaderHints @zh 下载任务的配置接口
      * @param countOfMaxProcessingTasks
      * @en Maximum number of download tasks processed at the same time, optional, default is 6
