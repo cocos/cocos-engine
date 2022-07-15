@@ -54,7 +54,7 @@ public:
     void uploadBuffers();
     void reset();
 
-    void addRootNode(Node* node);
+    void syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes);
     void releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler);
 
     UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);

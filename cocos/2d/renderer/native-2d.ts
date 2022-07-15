@@ -132,7 +132,7 @@ export declare class NativeBatcher2d {
     update();
     uploadBuffers();
     reset();
-    addRootNode(node: Node);
+    syncRootNodesToNative(nodes: Node[]);
     releaseDescriptorSetCache(texture: Texture, sampler: Sampler);
 }
 
