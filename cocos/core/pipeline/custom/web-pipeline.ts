@@ -716,7 +716,7 @@ export class WebPipeline extends Pipeline {
                 this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
                 this.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
             }
-            const forwardPass = this.addRasterPass(width, height, 'Default', `CameraForwardPass${idx}`);
+            const forwardPass = this.addRasterPass(width, height, 'default', `CameraForwardPass${idx}`);
             if (this._mainLightShadowName && this.resourceGraph.contains(this._mainLightShadowName)) {
                 const computeView = new ComputeView();
                 forwardPass.addComputeView(this._mainLightShadowName, computeView);
@@ -729,12 +729,14 @@ export class WebPipeline extends Pipeline {
             }
             const passView = new RasterView('_',
                 AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                LoadOp.CLEAR, StoreOp.STORE,
+                this.getLoadOpOfClearFlag(camera.clearFlag,
+                    AttachmentType.RENDER_TARGET), StoreOp.STORE,
                 camera.clearFlag,
                 new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
             const passDSView = new RasterView('_',
                 AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                LoadOp.CLEAR, StoreOp.STORE,
+                this.getLoadOpOfClearFlag(camera.clearFlag,
+                    AttachmentType.DEPTH_STENCIL), StoreOp.STORE,
                 camera.clearFlag,
                 new Color(1, 0, 0, 0));
             forwardPass.addRasterView(forwardPassRTName, passView);
