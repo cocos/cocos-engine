@@ -52,11 +52,13 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:          { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
   - name: transparent
     passes:
     - vert: standard-vs
