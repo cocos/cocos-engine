@@ -8,7 +8,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
 #end if
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    // SE_PRECONDITION2( cobj, false, "${signature_name} : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -72,7 +72,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
                                                       "class_name": $func.ret_type.get_class_name($generator),
                                                       "ntype": str($func.ret_type),
                                                       "level": 2})};
-            SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #else
             cobj->${func.func_name}($arg_list);

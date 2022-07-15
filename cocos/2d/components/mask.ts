@@ -45,6 +45,7 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { IAssemblerManager } from '../renderer/base';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { Sprite } from './sprite';
 
 const _worldMatrix = new Mat4();
@@ -151,9 +152,9 @@ export class Mask extends UIRenderer {
             this._changeRenderType();
             this._updateGraphics();
             if (JSB) {
-                this.subComp!.renderEntity!.setIsSubMask(true);
+                this.subComp!.renderEntity.setIsSubMask(true);
                 // subMask and mask should have the same inverted flag
-                this.subComp!.renderEntity!.setIsMaskInverted(this._inverted);
+                this.subComp!.renderEntity.setIsMaskInverted(this._inverted);
             }
         } else {
             if (this._graphics) {
@@ -163,9 +164,9 @@ export class Mask extends UIRenderer {
             this._maskNode!.parent = null;
             this._changeRenderType();
             if (JSB) {
-                this.subComp!.renderEntity!.setIsSubMask(true);
+                this.subComp!.renderEntity.setIsSubMask(true);
                 // subMask and mask should have the same inverted flag
-                this.subComp!.renderEntity!.setIsMaskInverted(this._inverted);
+                this.subComp!.renderEntity.setIsMaskInverted(this._inverted);
             }
         }
     }
@@ -193,9 +194,7 @@ export class Mask extends UIRenderer {
         }
 
         if (JSB) {
-            if (this._renderEntity) {
-                this._renderEntity.setIsMaskInverted(this._inverted);
-            }
+            this._renderEntity.setIsMaskInverted(this._inverted);
         }
     }
 
@@ -350,18 +349,12 @@ export class Mask extends UIRenderer {
     }
 
     public onLoad () {
+        super.onLoad();
         this._createClearModel();
         this._changeRenderType();
 
-        if (this._graphics) { //isGraphics
-            this._graphics.onLoad();
-        }
-
         if (JSB) {
-            if (!this._renderEntity) {
-                this.initRenderEntity();
-            }
-            if (this._renderEntity && this.renderData && this.subComp && this.subComp.renderEntity) {
+            if (this.renderData && this.subComp) {
                 this._renderEntity.setIsMask(true);
                 this.subComp.renderEntity.setIsSubMask(true);
                 this._renderEntity.setIsMaskInverted(this._inverted);
@@ -369,6 +362,7 @@ export class Mask extends UIRenderer {
                 this.subComp.renderEntity.setIsMaskInverted(this._inverted);
                 // hack for isMeshBuffer flag
                 this.renderData.renderDrawInfo.setIsMeshBuffer(true);
+                this.renderData.drawInfoType = RenderDrawInfoType.MODEL;
             }
         }
     }
@@ -379,8 +373,10 @@ export class Mask extends UIRenderer {
         this._enableGraphics();
         this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
         this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
+        this.node.on(NodeEventType.LAYER_CHANGED, this._layerChange, this);
         this._sizeChange();
         this._siblingChange();
+        this._layerChange();
     }
 
     /**
@@ -399,6 +395,7 @@ export class Mask extends UIRenderer {
         this._disableGraphics();
         this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
         this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
+        this.node.off(NodeEventType.LAYER_CHANGED, this._layerChange, this);
     }
 
     public onDestroy () {
@@ -411,7 +408,7 @@ export class Mask extends UIRenderer {
             this._clearStencilMtl.destroy();
         }
 
-        this._removeGraphics();
+        this._removeMaskNode();
         super.onDestroy();
     }
 
@@ -512,6 +509,7 @@ export class Mask extends UIRenderer {
         node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
         node.addComponent(Sprite);
         node.setPosition(0, 0, 0);
+        node.layer = this.node.layer;
         this._maskNode = node;
         this.node.insertChild(node, 0);
     }
@@ -525,6 +523,12 @@ export class Mask extends UIRenderer {
     private _siblingChange () {
         if (this._maskNode && this._maskNode.getSiblingIndex() !== 0) {
             this._maskNode.setSiblingIndex(0);
+        }
+    }
+
+    private _layerChange () {
+        if (this._maskNode) {
+            this._maskNode.layer = this.node.layer;
         }
     }
 
@@ -547,6 +551,7 @@ export class Mask extends UIRenderer {
         node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
         node.addComponent(Graphics);
         node.setPosition(0, 0, 0);
+        node.layer = this.node.layer;
         this._maskNode = node;
         this.node.insertChild(node, 0);
     }
@@ -611,10 +616,7 @@ export class Mask extends UIRenderer {
                 owner: this,
                 subModelIdx: 0,
             });
-            //sync to native
-            if (this.renderEntity) {
-                this.renderEntity.setCommitModelMaterial(this._clearStencilMtl);
-            }
+            this.renderEntity.setCommitModelMaterial(this._clearStencilMtl);
 
             this._clearModel = director.root!.createModel(scene.Model);
             this._clearModel.node = this._clearModel.transform = this.node;
@@ -645,7 +647,7 @@ export class Mask extends UIRenderer {
 
             // sync to native
             if (JSB) {
-                if (this._renderEntity && this._renderData) {
+                if (this._renderData) {
                     const drawInfo = this._renderData.renderDrawInfo;
                     drawInfo.setModel(this._clearModel);
                 }
@@ -671,22 +673,22 @@ export class Mask extends UIRenderer {
     }
 
     protected _enableGraphics () {
-        if (this._graphics) {
-            // @ts-expect-error hack for mask _graphics renderFlag
-            this._graphics._renderFlag = this._graphics._canRender();
+        if (this.subComp) {
+            this.subComp.enabled = true;
         }
     }
 
     protected _disableGraphics () {
-        if (this._graphics) {
-            this._graphics.onDisable();
+        if (this.subComp) {
+            this.subComp.enabled = false;
         }
     }
 
-    protected _removeGraphics () {
-        if (this._graphics) {
-            // this._graphics.destroy();
+    protected _removeMaskNode () {
+        if (this._maskNode && this._maskNode.isValid) {
+            this._maskNode.destroy();
             // this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
+            this._sprite = null;
             this._graphics = null;
         }
     }
@@ -695,7 +697,7 @@ export class Mask extends UIRenderer {
         //if (this._type === MaskType.IMAGE_STENCIL && !this.renderData) {
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this.renderData = this._assembler.createData(this);
+                this._renderData = this._assembler.createData(this);
                 this.markForUpdateRenderData();
             }
         }
@@ -703,8 +705,8 @@ export class Mask extends UIRenderer {
 
     // RenderEntity
     // it should be overwritten by inherited classes
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

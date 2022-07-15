@@ -3,9 +3,17 @@
 #include <common/common-define>
 #include <common/math/coordinates>
 
+#pragma define SHADOWMAP_FORMAT_RGBA8 1
+#pragma define SHADOWMAP_FORMAT_FLOAT 0
+
+float CCGetLinearDepth(vec3 worldPos, float viewSpaceBias) {
+	vec4 viewPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
+  viewPos.z += viewSpaceBias;
+	return GetLinearDepthFromViewSpace(viewPos.xyz, cc_shadowNFLSInfo.x, cc_shadowNFLSInfo.y);
+}
+
 float CCGetLinearDepth(vec3 worldPos) {
-	vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
-	return GetLinearDepthFromViewSpace(viewStartPos.xyz, cc_shadowNFLSInfo.x, cc_shadowNFLSInfo.y);
+	return CCGetLinearDepth(worldPos, 0.0);
 }
 
 #if CC_RECEIVE_SHADOW
@@ -60,10 +68,10 @@ float CCGetLinearDepth(vec3 worldPos) {
   	clipSpacePos.zw = viewSpacePos.z * cc_shadowProjDepthInfo.xz + vec2(cc_shadowProjDepthInfo.y, 0.0);
   
   	// enabled linear depth?
-  	if (cc_shadowNFLSInfo.z > EPSILON) {
+  	#if CC_SHADOWMAP_USE_LINEAR_DEPTH
   		clipSpacePos.z = GetLinearDepthFromViewSpace(viewSpacePos.xyz, cc_shadowNFLSInfo.x, cc_shadowNFLSInfo.y);
   		clipSpacePos.z = (clipSpacePos.z * 2.0 - 1.0) * clipSpacePos.w;
-  	}
+  	#endif
   
   	return clipSpacePos;
   }
@@ -86,86 +94,78 @@ float CCGetLinearDepth(vec3 worldPos) {
   	return result;
   }
 
+  vec4 ApplyShadowDepthBias_PerspectiveLinearDepth(vec4 shadowPos, float viewspaceDepthBias, vec3 worldPos)
+  {
+    // reverse operation for GetShadowNDCPos
+    shadowPos.z = CCGetLinearDepth(worldPos, viewspaceDepthBias) * 2.0 - 1.0;
+    shadowPos.z *= shadowPos.w;
+    return shadowPos;
+  }
+
   //////////////////////////////////////////////////////////Directional Light Shadow
   float CCGetDirLightShadowFactorHard (vec4 shadowPosWithDepthBias) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorHard(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetDirLightShadowFactorSoft (vec4 shadowPosWithDepthBias) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetDirLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetDirLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
   }
   
   
   //////////////////////////////////////////////////////////Spot Light Shadow
   float CCGetSpotLightShadowFactorHard (vec4 shadowPosWithDepthBias, vec3 worldPos) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
-    if (cc_shadowNFLSInfo.z > EPSILON) {
-      shadowNDCPos.z = CCGetLinearDepth(worldPos);
-    }
-  
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorHard(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPosWithDepthBias, vec3 worldPos) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
-    if (cc_shadowNFLSInfo.z > EPSILON) {
-      shadowNDCPos.z = CCGetLinearDepth(worldPos);
-    }
-  
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetSpotLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
-    if (cc_shadowNFLSInfo.z > EPSILON) {
-      shadowNDCPos.z = CCGetLinearDepth(worldPos);
-    }
-  
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
   
   float CCGetSpotLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
-	vec3 shadowNDCPos;
-	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
-		return 1.0;
-	}
-    if (cc_shadowNFLSInfo.z > EPSILON) {
-      shadowNDCPos.z = CCGetLinearDepth(worldPos);
-    }
-  
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
     return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
   }
 
@@ -174,7 +174,13 @@ float CCGetLinearDepth(vec3 worldPos) {
   float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
   {
     float pcf = cc_shadowWHPBInfo.z;
-    vec4 pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
+    vec4 pos = vec4(1.0);
+    #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+      pos = ApplyShadowDepthBias_PerspectiveLinearDepth(shadowPos, shadowBias.x, worldPos);
+    #else
+      pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
+    #endif
+
     if (pcf > 2.9) {
       return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
     } else if (pcf > 1.9) { 

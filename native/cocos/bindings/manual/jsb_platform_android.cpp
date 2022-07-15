@@ -37,15 +37,13 @@
     #define JCLS_CANVASIMPL "com/cocos/lib/CanvasRenderingContext2DImpl"
 #endif
 
-using namespace cc;
-
-static ccstd::unordered_map<ccstd::string, ccstd::string> _fontFamilyNameMap;
+static ccstd::unordered_map<ccstd::string, ccstd::string> gFontFamilyNameMap;
 
 const ccstd::unordered_map<ccstd::string, ccstd::string> &getFontFamilyNameMap() {
-    return _fontFamilyNameMap;
+    return gFontFamilyNameMap;
 }
 
-static bool JSB_loadFont(se::State &s) {
+static bool jsbLoadFont(se::State &s) {
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -54,26 +52,26 @@ static bool JSB_loadFont(se::State &s) {
 
         ccstd::string originalFamilyName;
         ok &= sevalue_to_native(args[0], &originalFamilyName);
-        SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
+        SE_PRECONDITION2(ok, false, "Error processing argument: originalFamilyName");
 
         ccstd::string source;
         ok &= sevalue_to_native(args[1], &source);
-        SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
+        SE_PRECONDITION2(ok, false, "Error processing argument: source");
 
         ccstd::string fontFilePath;
-        std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
+        std::regex re(R"(url\(\s*'\s*(.*?)\s*'\s*\))");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();
         }
 
-        fontFilePath = FileUtils::getInstance()->fullPathForFilename(fontFilePath);
+        fontFilePath = cc::FileUtils::getInstance()->fullPathForFilename(fontFilePath);
         if (fontFilePath.empty()) {
             SE_LOGE("Font (%s) doesn't exist!", fontFilePath.c_str());
             return true;
         }
 
-        JniHelper::callStaticVoidMethod(JCLS_CANVASIMPL, "loadTypeface", originalFamilyName, fontFilePath);
+        cc::JniHelper::callStaticVoidMethod(JCLS_CANVASIMPL, "loadTypeface", originalFamilyName, fontFilePath);
 
         s.rval().setString(originalFamilyName);
 
@@ -83,9 +81,9 @@ static bool JSB_loadFont(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_loadFont)
+SE_BIND_FUNC(jsbLoadFont)
 
-bool register_platform_bindings(se::Object *obj) {
-    __jsbObj->defineFunction("loadFont", _SE(JSB_loadFont));
+bool register_platform_bindings(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
+    __jsbObj->defineFunction("loadFont", _SE(jsbLoadFont));
     return true;
 }

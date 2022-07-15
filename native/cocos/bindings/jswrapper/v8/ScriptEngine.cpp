@@ -34,8 +34,8 @@
     #include "Object.h"
     #include "Utils.h"
     #include "base/std/container/unordered_map.h"
-    #include "plugins/bus/EventBus.h"
     #include "platform/FileUtils.h"
+    #include "plugins/bus/EventBus.h"
 
     #include <sstream>
 
@@ -67,7 +67,7 @@ namespace {
 void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
     if (info[0]->IsString()) {
         v8::String::Utf8Value utf8(v8::Isolate::GetCurrent(), info[0]);
-        SE_LOGD("JS: %s\n", *utf8);
+        SE_LOGD("JS: %s", *utf8);
     }
 }
 
@@ -131,7 +131,7 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
     int argc = static_cast<int>(args.size());
     if ((argc - msgIndex) == 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
-        SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
+        SE_LOGD("JS: %s%s", prefix, msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         size_t pos;
@@ -144,7 +144,7 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
             }
         }
 
-        SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
+        SE_LOGD("JS: %s%s", prefix, msg.c_str());
     }
 
     return true;
@@ -381,9 +381,9 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     if (!value.IsEmpty()) {
         // prepend error object to stack message
         //v8::MaybeLocal<v8::String> maybeStr = value->ToString(isolate->GetCurrentContext());
-        if (value->IsString()) {  
+        if (value->IsString()) {
             v8::Local<v8::String> str = value->ToString(isolate->GetCurrentContext()).ToLocalChecked();
-            
+
             v8::String::Utf8Value valueUtf8(isolate, str);
             auto *strp = *valueUtf8;
             if (strp == nullptr) {

@@ -128,19 +128,29 @@
             "description": "i18n:ENGINE.features.profiler.description",
             "wechatPlugin": true
         },
+        "occlusion-query": {
+            "default": ["occlusion-query"],
+            "label": "i18n:ENGINE.features.occlusion_query.label",
+            "description": "i18n:ENGINE.features.occlusion_query.description",
+            "native": "USE_OCCLUSION_QUERY",
+            "wechatPlugin": true,
+            "category": "3d"
+        },
         "geometry-renderer": {
             "default": ["geometry-renderer"],
             "label": "i18n:ENGINE.features.geometry_renderer.label",
             "description": "i18n:ENGINE.features.geometry_renderer.description",
             "native": "USE_GEOMETRY_RENDERER",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "3d"
         },
         "debug-renderer": {
             "default": ["debug-renderer"],
             "label": "i18n:ENGINE.features.debug_renderer.label",
             "description": "i18n:ENGINE.features.debug_renderer.description",
             "native": "USE_DEBUG_RENDERER",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "3d"
         },
         "particle-2d": {
             "default": ["particle-2d"],

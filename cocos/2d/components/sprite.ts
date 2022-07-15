@@ -268,7 +268,6 @@ export class Sprite extends UIRenderer {
         if (this._fillType !== value) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
-                this.renderData = null;
             } else if (this.renderData) {
                 this.markForUpdateRenderData(true);
             }
@@ -587,7 +586,7 @@ export class Sprite extends UIRenderer {
 
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this.renderData = this._assembler.createData(this);
+                this._renderData = this._assembler.createData(this);
                 this.renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {

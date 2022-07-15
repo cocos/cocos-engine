@@ -55,6 +55,7 @@ vec4 SurfacesFragmentModifyPBRParams()
 
 // some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
 // this function invokes at last
+// should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
 void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
 {

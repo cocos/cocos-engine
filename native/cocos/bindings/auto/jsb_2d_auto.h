@@ -69,15 +69,13 @@ extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 
 bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_2d_Batcher2d_addRootNode);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleColor);
-SE_DECLARE_FUNC(js_2d_Batcher2d_handleDynamicDrawInfo);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handlePostRender);
-SE_DECLARE_FUNC(js_2d_Batcher2d_handleStaticDrawInfo);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
 SE_DECLARE_FUNC(js_2d_Batcher2d_releaseDescriptorSetCache);
 SE_DECLARE_FUNC(js_2d_Batcher2d_reset);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative);
+SE_DECLARE_FUNC(js_2d_Batcher2d_syncRootNodesToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_update);
 SE_DECLARE_FUNC(js_2d_Batcher2d_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);

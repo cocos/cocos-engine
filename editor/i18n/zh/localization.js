@@ -239,7 +239,13 @@ module.exports = {
     label: {
         string: 'Label 显示的文本内容字符串',
         horizontal_align: '文字水平对齐模式',
+        horizontal_align_left: '左对齐',
+        horizontal_align_center: '水平居中对齐',
+        horizontal_align_right: '右对齐',
         vertical_align: '文字垂直对齐模式',
+        vertical_align_top: '顶对齐',
+        vertical_align_center: '垂直居中对齐',
+        vertical_align_bottom: '底对齐',
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
@@ -595,7 +601,6 @@ module.exports = {
         dstBlendFactor: '指定目标的混合模式',
         playOnLoad: '如果设置为 true 运行时会自动发射粒子',
         autoRemoveOnFinish: '粒子播放完毕后自动销毁所在的节点',
-        duration: '发射器生存时间，单位秒，-1表示持续发射',
         emissionRate: '每秒发射的粒子数目',
         life: '粒子的运行时间及变化范围',
         totalParticles: '粒子最大数量',
@@ -855,13 +860,17 @@ module.exports = {
             label: "运行状态统计",
             description: "包含用于统计、显示渲染数据的组件与工具。",
         },
+        occlusion_query: {
+            label: "遮挡查询",
+            description: "基于硬件的遮挡查询。",
+        },
         geometry_renderer: {
             label: "几何体渲染器",
-            description: "渲染各种几何体，用于调试目的或者编辑器.",
+            description: "渲染各种几何体，用于调试目的或者编辑器。",
         },
         debug_renderer: {
             label: "调试文字渲染器",
-            description: "渲染屏幕文字，用于调试目的.",
+            description: "渲染屏幕文字，用于调试目的。",
         },
         tiled_map: {
             label: "Tiled 地图",
