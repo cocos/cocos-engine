@@ -171,20 +171,17 @@ CCProgram surface-fragment %{
     #endif
   }
 
-  // only for render-to-shadow-map or misc usage
-  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
-  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
   {
-    float alpha = baseColor.a;
-
-    #if USE_ALPHA_TEST
-      #if USE_BASE_COLOR_MAP
-        alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
+      #if USE_ALPHA_TEST
+        float alpha = baseColor.ALPHA_TEST_CHANNEL;
+        #if USE_BASE_COLOR_MAP
+          alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
+        #endif
+  
+        if (alpha < colorScaleAndCutoff.w) discard;
       #endif
-      if (alpha < colorScaleAndCutoff.w) discard;
-    #endif
-
-    return vec4(1.0, 1.0, 1.0, alpha);
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL

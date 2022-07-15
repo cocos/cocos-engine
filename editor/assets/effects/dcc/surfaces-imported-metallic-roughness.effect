@@ -225,6 +225,36 @@ CCProgram surface-fragment %{
     return baseColor;
   }
 
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+        float alpha = albedo.a;
+        #if USE_VERTEX_COLOR
+          alpha *= FSInput_vertexColor.a;
+        #endif
+        #if USE_ALBEDO_MAP
+          alpha = texture(albedoMap, TEXTURE_UV).a;
+        #endif
+
+        #if ALPHA_SOURCE_IS_OPACITY
+          #if USE_OPACITY_MAP
+            alpha = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+          #else
+            alpha = 1.0 - alphaSource;
+          #endif
+        #else
+          #if USE_OPACITY_MAP
+            alpha = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+          #else
+            alpha = alphaSource;
+          #endif
+        #endif
+
+        if (alpha < albedoScaleAndCutoff.w) discard;
+      #endif
+  }
+
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
   vec3 SurfacesFragmentModifyWorldNormal()
   {

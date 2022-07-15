@@ -194,32 +194,35 @@ CCProgram surface-fragment %{
       baseColor.a *= FSInput_vertexColor.a;
     #endif
 
-    // shadow caster pass optimization
-    #ifdef CC_SURFACES_SHADOW_CASTER_PASS
-      #if USE_ALPHA_TEST
-        #if USE_ALBEDO_MAP
-          vec4 texColor = texture(albedoMap, ALBEDO_UV);
-          texColor.rgb = SRGBToLinear(texColor.rgb);
-          baseColor *= texColor;
-        #endif
-
-        if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-      #endif
-    // normal pass
-    #else
-      #if USE_ALBEDO_MAP
-        vec4 texColor = texture(albedoMap, ALBEDO_UV);
-        texColor.rgb = SRGBToLinear(texColor.rgb);
-        baseColor *= texColor;
-      #endif
-
-      #if USE_ALPHA_TEST
-        if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-      #endif
-      baseColor.rgb *= albedoScaleAndCutoff.xyz;
+    #if USE_ALBEDO_MAP
+      vec4 texColor = texture(albedoMap, ALBEDO_UV);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor *= texColor;
     #endif
 
+    #if USE_ALPHA_TEST
+      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    baseColor.rgb *= albedoScaleAndCutoff.xyz;
+
     return baseColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+        float alpha = albedo.ALPHA_TEST_CHANNEL;
+        #if USE_VERTEX_COLOR
+          alpha *= FSInput_vertexColor.a;
+        #endif
+        #if USE_ALBEDO_MAP
+          alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
+        #endif
+  
+        if (alpha < albedoScaleAndCutoff.w) discard;
+      #endif
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL

@@ -227,24 +227,27 @@ CCProgram surface-fragment %{
     //diffuse
     vec4 baseColor = vec4(1.0);
 
-    #ifdef CC_SURFACES_SHADOW_CASTER_PASS
-      #if USE_ALPHA_TEST
-        #if USE_TRANSPARENCY_MAP
-          baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-        #endif
-        if (baseColor.a < albedoScaleAndCutoff.w) discard;
-      #endif
-    #else
-      #if USE_TRANSPARENCY_MAP
-        baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-      #endif
+    #if USE_TRANSPARENCY_MAP
+      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+    #endif
   
-      #if USE_ALPHA_TEST
-        if (baseColor.a < albedoScaleAndCutoff.w) discard;
-      #endif
-  #endif
+    #if USE_ALPHA_TEST
+      if (baseColor.a < albedoScaleAndCutoff.w) discard;
+    #endif
     
     return baseColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+      float alpha = 1.0;
+        #if USE_TRANSPARENCY_MAP
+          alpha = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        if (alpha < albedoScaleAndCutoff.w) discard;
+      #endif
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
