@@ -426,8 +426,7 @@
             "type": "boolean",
             "value": "!($MINIGAME || $RUNTIME_BASED)",
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": true
+            "internal": false
         },
         "JSB": {
             "comment": "Running in environment where using JSB as the JavaScript interface binding scheme.",
