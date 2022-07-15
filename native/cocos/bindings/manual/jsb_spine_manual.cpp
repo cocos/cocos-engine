@@ -60,7 +60,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
 
     ccstd::string uuid;
     ok = sevalue_to_native(args[0], &uuid);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
+    SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
@@ -72,19 +72,19 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
 
     ccstd::string skeletonDataFile;
     ok = sevalue_to_native(args[1], &skeletonDataFile);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid json path!");
+    SE_PRECONDITION2(ok, false, "Invalid json path!");
 
     ccstd::string atlasText;
     ok = sevalue_to_native(args[2], &atlasText);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid atlas content!");
+    SE_PRECONDITION2(ok, false, "Invalid atlas content!");
 
     cc::RefMap<ccstd::string, middleware::Texture2D *> textures;
     ok = seval_to_Map_string_key(args[3], &textures);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid textures!");
+    SE_PRECONDITION2(ok, false, "Invalid textures!");
 
     float scale = 1.0f;
     ok = sevalue_to_native(args[4], &scale);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid scale!");
+    SE_PRECONDITION2(ok, false, "Invalid scale!");
 
     // create atlas from preloaded texture
 
@@ -154,7 +154,7 @@ static bool js_register_spine_disposeSkeletonData(se::State &s) {
 
     ccstd::string uuid;
     ok = sevalue_to_native(args[0], &uuid);
-    SE_PRECONDITION2(ok, false, "js_register_spine_disposeSkeletonData: Invalid uuid content!");
+    SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
@@ -176,11 +176,11 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
 
     spine::SkeletonRenderer *node = nullptr;
     ok = seval_to_native_ptr(args[0], &node);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Converting SpineRenderer failed!");
+    SE_PRECONDITION2(ok, false, "Converting SpineRenderer failed!");
 
     ccstd::string uuid;
     ok = sevalue_to_native(args[1], &uuid);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
+    SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
@@ -202,7 +202,7 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
 
     ccstd::string uuid;
     ok = sevalue_to_native(args[0], &uuid);
-    SE_PRECONDITION2(ok, false, "js_register_spine_hasSkeletonData: Invalid uuid content!");
+    SE_PRECONDITION2(ok, false, "Invalid uuid content!");
 
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
@@ -230,6 +230,9 @@ bool register_all_spine_manual(se::Object *obj) {
     ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
+        if (!se::NativePtrToObjectMap::isValid()) {
+            return;
+        }
         // Support Native Spine fo Creator V3.0
         se::Object *seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(spineObj);

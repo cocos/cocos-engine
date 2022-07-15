@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';
@@ -76,7 +77,6 @@ export const graphicsAssembler: IAssembler = {
     useModel: true,
 
     updateRenderData (graphics: Graphics) {
-
     },
 
     fillBuffers (graphics: Graphics, renderer: IBatcher) {

@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import {
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
+
 import { legacyCC } from '../global-exports';
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { applyMixins } from '../event/event-target-factory';

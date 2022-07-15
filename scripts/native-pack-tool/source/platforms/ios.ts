@@ -242,7 +242,7 @@ export class IOSPackTool extends MacOSPackTool {
                 }
             }
         } else {
-            console.error(`Info.plist not found ${infoPlist}`);
+            throw new Error(`Info.plist not found ${infoPlist}`)
         }
         return null;
     }

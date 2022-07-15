@@ -836,9 +836,10 @@ export class ParticleSystem2D extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-
         if (this._assembler && this._assembler.createData) {
             this._simulator.renderData = this._assembler.createData(this);
+            this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
+            this._simulator.initDrawInfo();
         }
     }
 
@@ -881,7 +882,7 @@ export class ParticleSystem2D extends UIRenderer {
     public resetSystem () {
         this._stopped = false;
         this._simulator.reset();
-        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -1145,7 +1146,7 @@ export class ParticleSystem2D extends UIRenderer {
                 this._syncAspect();
                 this._updateMaterial();
                 this._stopped = false;
-                this._renderFlag = this._canRender();
+                this.markForUpdateRenderData();
             }
         } else {
             this.resetSystem();
@@ -1179,7 +1180,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
         this.resetSystem();
         this.stopSystem();
-        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
         }

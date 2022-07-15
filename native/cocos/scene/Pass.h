@@ -115,7 +115,7 @@ public:
 
     Pass();
     explicit Pass(Root *root);
-    ~Pass() override = default;
+    ~Pass() override;
 
     /**
      * @en Initialize the pass with given pass info, shader will be compiled in the init process

@@ -36,7 +36,7 @@ public:
     explicit SystemWindow(IEventDispatch* delegate);
     ~SystemWindow() override;
 
-    uintptr_t getWindowHandler() const override;
+    uintptr_t getWindowHandle() const override;
 
     Size getViewSize() const override;
     /*

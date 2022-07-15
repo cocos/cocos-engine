@@ -89,6 +89,12 @@ void EventDispatcher::destroy() {
         jsResizeEventObj->decRef();
         jsResizeEventObj = nullptr;
     }
+
+    if (jsOrientationEventObj != nullptr) {
+        jsOrientationEventObj->unroot();
+        jsOrientationEventObj->decRef();
+        jsOrientationEventObj = nullptr;
+    }
     inited = false;
     tickVal.setUndefined();
 }
@@ -320,7 +326,7 @@ void EventDispatcher::dispatchCloseEvent() {
 void EventDispatcher::dispatchDestroyWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
@@ -329,7 +335,7 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif

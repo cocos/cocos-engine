@@ -42,8 +42,12 @@ PoolTest *createTest() {
     return new PoolTest(tagValue++);
 }
 
+void destroyTest(PoolTest *obj) {
+    delete obj;
+}
+
 const int32_t ARRAY_SIZE = 10;
-auto *pool = new memop::Pool<PoolTest>(createTest, ARRAY_SIZE);
+auto *pool = new memop::Pool<PoolTest>(createTest, destroyTest, ARRAY_SIZE);
 
 } // namespace
 

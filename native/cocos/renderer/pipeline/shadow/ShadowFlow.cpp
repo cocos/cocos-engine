@@ -26,13 +26,13 @@
 #include "ShadowFlow.h"
 
 #include "CSMLayers.h"
+#include "ShadowStage.h"
+#include "gfx-base/GFXDevice.h"
 #include "pipeline//Define.h"
 #include "pipeline/GlobalDescriptorSetManager.h"
 #include "pipeline/PipelineSceneData.h"
 #include "pipeline/RenderPipeline.h"
 #include "pipeline/SceneCulling.h"
-#include "ShadowStage.h"
-#include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
@@ -69,9 +69,14 @@ bool ShadowFlow::initialize(const RenderFlowInfo &info) {
 void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 
-    // isFloat = true: SHADOWMAP_RGBA8, isFloat = false: SHADOWMAP_FLOAT.
-    const bool isFloat = !supportsR32FloatTexture(pipeline->getDevice());
-    pipeline->setValue("CC_SHADOWMAP_FORMAT", isFloat);
+    // 0: SHADOWMAP_FLOAT, 1: SHADOWMAP_RGBE.
+    const int32_t isRGBE = supportsR32FloatTexture(pipeline->getDevice()) ? 0 : 1;
+    pipeline->setValue("CC_SHADOWMAP_FORMAT", isRGBE);
+
+    // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
+    const int32_t isLinear = 0;
+    pipeline->setValue("CC_SHADOWMAP_USE_LINEAR_DEPTH", isLinear);
+
     pipeline->onGlobalPipelineStateChanged();
 }
 
@@ -89,6 +94,11 @@ void ShadowFlow::render(scene::Camera *camera) {
     if (csmLayers->getCastShadowObjects().empty() && sceneData->getRenderObjects().empty()) {
         clearShadowMap(camera);
         return;
+    }
+
+    if (shadowInfo->isShadowMapDirty()) {
+        _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
+        _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
     }
 
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
@@ -118,7 +128,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
-        }else {
+        } else {
             if (shadowInfo->isShadowMapDirty()) {
                 resizeShadowMap(light, ds);
             }
@@ -230,7 +240,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         width,
         height,
     });
-    
+
     auto *oldDepthStencilTexture = framebuffer->getDepthStencilTexture();
     const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), oldDepthStencilTexture);
     _usedTextures.erase(iter);
@@ -244,7 +254,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
     });
 }
 
-void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light) {
+void ShadowFlow::initShadowFrameBuffer(const RenderPipeline *pipeline, const scene::Light *light) {
     auto *device = gfx::Device::getInstance();
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
@@ -317,6 +327,9 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const sce
 }
 
 void ShadowFlow::destroy() {
+    _pipeline->getGlobalDSManager()->bindTexture(SHADOWMAP::BINDING, nullptr);
+    _pipeline->getGlobalDSManager()->bindTexture(SPOTSHADOWMAP::BINDING, nullptr);
+
     _renderPass = nullptr;
     renderPassHashMap.clear();
     _usedTextures.clear();

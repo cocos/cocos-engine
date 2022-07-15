@@ -284,7 +284,7 @@ CCProgram shadow-caster-vs %{
   in vec3 a_normal;
   in vec2 a_texCoord;
 
-  out vec2 v_clip_depth;
+  out highp vec2 v_clip_depth;
 
   vec4 vert () {
     vec4 worldPos;
@@ -305,9 +305,20 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <common/data/packing>
 
-  in vec2 v_clip_depth;
+  #pragma define SHADOWMAP_FORMAT_RGBA8 1
+  #pragma define SHADOWMAP_FORMAT_FLOAT 0
+
+  in highp vec2 v_clip_depth;
 
   vec4 frag () {
-    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
+
+    //todo: do not support linear mode spot shadow
+    
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
   }
 }%

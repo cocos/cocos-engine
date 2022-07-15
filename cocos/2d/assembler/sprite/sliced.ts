@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Vec3 } from '../../../core/math';
+import { Color, Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
@@ -33,6 +33,10 @@ import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const vec3_temp = new Vec3();
 const matrix = new Mat4();
+const tempRenderData: IRenderData[] = [];
+for (let i = 0; i < 4; i++) {
+    tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
+}
 
 /**
  * sliced 组装器
@@ -43,9 +47,38 @@ export const sliced: IAssembler = {
     createData (sprite: Sprite) {
         const renderData: RenderData | null = sprite.requestRenderData()!;
         // 0-4 for local vertex
-        renderData.dataLength = 4;
+        renderData.dataLength = 16;
         renderData.resize(16, 54);
+        renderData.vertexRow = 4;
+        renderData.vertexCol = 4;
+        this.QUAD_INDICES = new Uint16Array(54);
+        this.createQuadIndices(4, 4);
+        renderData.chunk.setIndexBuffer(this.QUAD_INDICES);
         return renderData;
+    },
+
+    createQuadIndices (vertexRow: number, vertexCol: number) {
+        let offset = 0;
+        for (let curRow = 0; curRow < vertexRow - 1; curRow++) {
+            for (let curCol = 0; curCol < vertexCol - 1; curCol++) {
+                // vid is the index of the left bottom vertex in each rect.
+                const vid = curRow * vertexCol + curCol;
+
+                // left bottom
+                this.QUAD_INDICES[offset++] = vid;
+                // right bottom
+                this.QUAD_INDICES[offset++] = vid + 1;
+                // left top
+                this.QUAD_INDICES[offset++] = vid + vertexCol;
+
+                // right bottom
+                this.QUAD_INDICES[offset++] = vid + 1;
+                // right top
+                this.QUAD_INDICES[offset++] = vid + 1 + vertexCol;
+                // left top
+                this.QUAD_INDICES[offset++] = vid + vertexCol;
+            }
+        }
     },
 
     updateRenderData (sprite: Sprite) {
@@ -63,7 +96,8 @@ export const sliced: IAssembler = {
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
         // TODO update material and uv
-        this.updateUVs(sprite);
+        this.updateUVs(sprite); // dirty need
+        //this.updateColor(sprite); // dirty need
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
@@ -99,14 +133,26 @@ export const sliced: IAssembler = {
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
-        dataList[0].x = -appX;
-        dataList[0].y = -appY;
-        dataList[1].x = leftWidth * xScale - appX;
-        dataList[1].y = bottomHeight * yScale - appY;
-        dataList[2].x = dataList[1].x + sizableWidth;
-        dataList[2].y = dataList[1].y + sizableHeight;
-        dataList[3].x = width - appX;
-        dataList[3].y = height - appY;
+        tempRenderData[0].x = -appX;
+        tempRenderData[0].y = -appY;
+        tempRenderData[1].x = leftWidth * xScale - appX;
+        tempRenderData[1].y = bottomHeight * yScale - appY;
+        tempRenderData[2].x = tempRenderData[1].x + sizableWidth;
+        tempRenderData[2].y = tempRenderData[1].y + sizableHeight;
+        tempRenderData[3].x = width - appX;
+        tempRenderData[3].y = height - appY;
+
+        for (let curRow = 0; curRow < renderData.vertexRow; curRow++) {
+            for (let curCol = 0; curCol < renderData.vertexCol; curCol++) {
+                const curIndex = curRow * renderData.vertexCol + curCol;
+                if (curIndex < renderData.dataLength
+                    && curRow < tempRenderData.length
+                    && curCol < tempRenderData.length) {
+                    dataList[curIndex].x = tempRenderData[curCol].x;
+                    dataList[curIndex].y = tempRenderData[curRow].y;
+                }
+            }
+        }
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
@@ -147,7 +193,7 @@ export const sliced: IAssembler = {
 
         let offset = 0;
         for (let row = 0; row < 4; ++row) {
-            const rowD = dataList[row];
+            const rowD = dataList[row * 4];
             for (let col = 0; col < 4; ++col) {
                 const colD = dataList[col];
 

@@ -25,7 +25,6 @@
 
 import { Attribute, deviceManager } from '../../gfx';
 import { Vec3 } from '../../math';
-import { legacyCC } from '../../global-exports';
 
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;

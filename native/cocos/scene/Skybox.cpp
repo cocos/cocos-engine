@@ -166,9 +166,9 @@ TextureCube *SkyboxInfo::getDiffuseMap() const {
 
 void SkyboxInfo::activate(Skybox *resource) {
     _resource = resource; // weak reference
-    setEnvLightingType(this->_envLightingType);
     if (_resource != nullptr) {
         _resource->initialize(*this);
+        setEnvLightingType(this->_envLightingType);
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
         _resource->setSkyboxMaterial(_editableMaterial);
@@ -217,6 +217,7 @@ void Skybox::setDiffuseMap(TextureCube *val) {
 }
 
 void Skybox::initialize(const SkyboxInfo &skyboxInfo) {
+    _activated = false;
     _enabled = skyboxInfo.isEnabled();
     _useIBL = skyboxInfo.isUseIBL();
     _useDiffuseMap = skyboxInfo.isApplyDiffuseMap();
@@ -301,6 +302,8 @@ void Skybox::activate() {
 
     updateGlobalBinding();
     updatePipeline();
+    
+    _activated = true;
 }
 
 void Skybox::updatePipeline() const {
@@ -374,7 +377,7 @@ void Skybox::updatePipeline() const {
         valueChanged = true;
     }
 
-    if (valueChanged) {
+    if (valueChanged && _activated) {
         root->onGlobalPipelineStateChanged();
     }
 }

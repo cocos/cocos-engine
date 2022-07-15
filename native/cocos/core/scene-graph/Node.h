@@ -27,6 +27,7 @@
 
 #include "base/Ptr.h"
 #include "base/std/any.h"
+#include "bindings/utils/BindingUtils.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -46,7 +47,6 @@ namespace cc {
 
 class Scene;
 class NodeEventProcessor;
-//class NodeUiProperties;
 
 /**
  * Event types emitted by Node
@@ -75,14 +75,8 @@ public:
     static const uint32_t DONT_DESTROY;
 
     static Node *instantiate(Node *cloned, bool isSyncedNode);
-    // for walk
-    static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t stackId;
 
     static void setScene(Node *);
-    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
-
-    static bool isStatic; // cjh TODO: add getter / setter
 
     /**
      * @en Finds a node by hierarchy path, the path is case-sensitive.
@@ -190,7 +184,7 @@ public:
     void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
@@ -236,7 +230,7 @@ public:
         }
     }
     void removeAllChildren();
-    bool isChildOf(Node *parent);
+    bool isChildOf(Node *parent) const;
 
     void setActive(bool isActive);
 
@@ -254,11 +248,12 @@ public:
         return _id;
     }
 
-    inline bool isActive() const { return _active; }
+    inline bool isActive() const { return _active != 0; }
 
-    inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
-    inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
-    inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
+    inline bool isActiveInHierarchy() const { return _activeInHierarchy != 0; }
+    inline void setActiveInHierarchy(bool v) {
+        _activeInHierarchy = (v ? 1 : 0);
+    }
 
     virtual void onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
@@ -479,22 +474,30 @@ public:
         return _euler.z;
     }
 
-    inline Vec3 getForward() {
+    inline Vec3 getForward() const {
         Vec3 forward{0, 0, -1};
         forward.transformQuat(_worldRotation);
         return forward;
     }
 
-    inline Vec3 getUp() {
+    inline Vec3 getUp() const {
         Vec3 up{0, 1, 0};
         up.transformQuat(_worldRotation);
         return up;
     }
 
-    inline Vec3 getRight() {
+    inline Vec3 getRight() const {
         Vec3 right{1, 0, 0};
         right.transformQuat(_worldRotation);
         return right;
+    }
+
+    inline bool isStatic() const {
+        return _isStatic != 0;
+    }
+
+    inline void setStatic(bool v) {
+        _isStatic = v ? 1 : 0;
     }
 
     /**
@@ -512,11 +515,10 @@ public:
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
     inline void setLayer(uint32_t layer) {
-        _layerArr[0] = layer;
+        _layer = layer;
         emit(NodeEventType::LAYER_CHANGED, layer);
     }
-    inline uint32_t getLayer() const { return _layerArr[0]; }
-    inline void setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
+    inline uint32_t getLayer() const { return _layer; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
 
@@ -614,14 +616,15 @@ public:
     //    void     _setChildrenSize(uint32_t size);
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
-    // For JS wrapper.
-    inline uint32_t getEventMask() const { return _eventMask; }
-    inline void setEventMask(uint32_t mask) { _eventMask = mask; }
+
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
 
 protected:
+    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
+
     void onSetParent(Node *oldParent, bool keepWorldTransform);
 
     virtual void updateScene();
@@ -667,8 +670,6 @@ protected:
     Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
 
-    uint32_t _eventMask{0};
-
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
     /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
@@ -676,22 +677,14 @@ protected:
     */
     uint32_t _hasChangedFlagsVersion{0};
     uint32_t _hasChangedFlags{0};
-    uint32_t _dirtyFlag{0};
 
     bool _eulerDirty{false};
-    //    IntrusivePtr<NodeUiProperties> _uiProps;
-    //    bool _activeInHierarchy{false};
-    // Shared memory with JS.
-    uint8_t *_activeInHierarchyArr{nullptr};
-    uint32_t *_layerArr{nullptr};
 
 public:
     std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    index_t _siblingIndex{0};
     // For deserialization
     ccstd::string _id;
     Node *_parent{nullptr};
-    bool _active{true};
 
 private:
     ccstd::vector<IntrusivePtr<Node>> _children;
@@ -706,9 +699,22 @@ private:
     //
     Vec3 _euler{0, 0, 0};
 
-    //
-
     IntrusivePtr<UserData> _userData;
+
+    // Shared memory with JS
+    // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
+    uint32_t _eventMask{0};                                             // Uint32: 0
+    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
+    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    index_t _siblingIndex{0};                                           // Int32: 0
+    uint8_t _activeInHierarchy{0};                                      // Uint8: 0
+    uint8_t _active{1};                                                 // Uint8: 1
+    uint8_t _isStatic{0};                                               // Uint8: 2
+    uint8_t _padding{0};                                                // Uint8: 3
+
+    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
+
+    //
     friend class NodeActivator;
     friend class Scene;
 
@@ -721,7 +727,7 @@ bool Node::isNode(T *obj) {
 }
 
 template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
+void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
     _eventProcessor->emit(type, std::forward<Args>(args)...);
 }
 

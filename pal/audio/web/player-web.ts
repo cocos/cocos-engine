@@ -70,6 +70,7 @@ export class AudioContextAgent {
                 resolve();
                 return;
             }
+            context.resume().catch((e) => {});
             if (context.state === 'running') {
                 resolve();
                 return;

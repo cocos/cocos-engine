@@ -37,10 +37,19 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const std::string& text) override;
-    uintptr_t getWindowHandler() const override;
+
+    void copyTextToClipboard(const std::string &text) override;
+
+    uintptr_t getWindowHandle() const override;
+
+    void setWindowHandle(void *handle);
+
     Size getViewSize() const override;
+
     void closeWindow() override;
+
+private:
+    void *_windowHandle{nullptr};
 };
 
 } // namespace cc

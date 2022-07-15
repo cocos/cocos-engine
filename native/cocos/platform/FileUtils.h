@@ -539,8 +539,8 @@ public:
     /** Returns the full path cache. */
     const ccstd::unordered_map<ccstd::string, ccstd::string> &getFullPathCache() const { return _fullPathCache; }
 
-    static ccstd::string normalizePath(const ccstd::string &path);
-    static ccstd::string getFileDir(const ccstd::string &path);
+    virtual ccstd::string normalizePath(const ccstd::string &path) const;
+    virtual ccstd::string getFileDir(const ccstd::string &path) const;
 
 protected:
     /**

@@ -38,7 +38,7 @@
 static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::ImageAsset>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Asset_setData : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -64,7 +64,7 @@ SE_BIND_FUNC(js_assets_ImageAsset_setData) // NOLINT(readability-identifier-nami
 static bool js_assets_SimpleTexture_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_SimpleTexture_registerListeners : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thisObj = s.thisObject();
     cobj->on(cc::EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED, [thisObj](cc::gfx::Texture *texture) {
         se::AutoHandleScope hs;
@@ -87,7 +87,7 @@ SE_BIND_FUNC(js_assets_SimpleTexture_registerListeners) // NOLINT(readability-id
 static bool js_assets_TextureBase_registerGFXSamplerUpdatedListener(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_registerGFXSamplerUpdatedListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thisObj = s.thisObject();
     cobj->on(cc::EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, [thisObj](cc::gfx::Sampler *sampler) {
         se::AutoHandleScope hs;
@@ -103,7 +103,7 @@ SE_BIND_FUNC(js_assets_TextureBase_registerGFXSamplerUpdatedListener) // NOLINT(
 static bool js_assets_Material_registerPassesUpdatedListener(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Material>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Material_registerPassesUpdatedListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thisObj = s.thisObject();
     cobj->on(cc::EventTypesToJS::MATERIAL_PASSES_UPDATED, [thisObj]() {
         se::AutoHandleScope hs;

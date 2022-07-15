@@ -38,13 +38,10 @@ namespace cc {
 
 uint32_t Node::clearFrame{0};
 uint32_t Node::clearRound{1000};
-bool Node::isStatic{false};
 const uint32_t Node::TRANSFORM_ON{1 << 0};
 const uint32_t Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
 const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
 const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
-index_t Node::stackId{0};
-ccstd::vector<ccstd::vector<Node *>> Node::stacks;
 uint32_t Node::globalFlagChangeVersion{0};
 //
 
@@ -67,6 +64,9 @@ CC_FORCE_INLINE void setDirtyNode(const index_t idx, Node *node) {
 }
 
 CC_FORCE_INLINE Node *getDirtyNode(const index_t idx) {
+    if (idx < 0 || idx >= dirtyNodes.size()) {
+        return nullptr;
+    }
     return dirtyNodes[idx];
 }
 
@@ -76,6 +76,11 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
 Node::Node(const ccstd::string &name) {
+#define NODE_SHARED_MEMORY_BYTE_LENGTH (20)
+    static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");
+    _sharedMemoryActor.initialize(&_eventMask, NODE_SHARED_MEMORY_BYTE_LENGTH);
+#undef NODE_SHARED_MEMORY_BYTE_LENGTH
+
     _id = idGenerator.getNewId();
     if (name.empty()) {
         _name.append("New Node");
@@ -146,7 +151,7 @@ void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-param
     // _Scene.DetectConflict.afterAddChild(this);
 #endif
 
-    bool shouldActiveNow = _active && !!(newParent && newParent->isActiveInHierarchy());
+    bool shouldActiveNow = isActive() && !!(newParent && newParent->isActiveInHierarchy());
     if (isActiveInHierarchy() != shouldActiveNow) {
         // Director::getInstance()->getNodeActivator()->activateNode(this, shouldActiveNow); // TODO(xwx): use TS temporarily
         emit(EventTypesToJS::NODE_ACTIVE_NODE, shouldActiveNow);
@@ -209,8 +214,9 @@ void Node::targetOff(const CallbacksInvoker::KeyType &type) {
 }
 
 void Node::setActive(bool isActive) {
-    if (_active != isActive) {
-        _active = isActive;
+    uint8_t isActiveU8 = isActive ? 1 : 0;
+    if (_active != isActiveU8) {
+        _active = isActiveU8;
         Node *parent = _parent;
         if (parent) {
             bool couldActiveInScene = parent->isActiveInHierarchy();
@@ -265,7 +271,7 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
         }
 #endif
         newParent->_children.emplace_back(this);
-        _siblingIndex = static_cast<int32_t>(newParent->_children.size() - 1);
+        _siblingIndex = static_cast<index_t>(newParent->_children.size() - 1);
         newParent->emit(NodeEventType::CHILD_ADDED, this);
     }
     onHierarchyChanged(oldParent);
@@ -279,90 +285,20 @@ void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) {
-    index_t index{1};
-    index_t i{0};
-    const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
-    Node *curr{nullptr};
-    auto stacksCount = static_cast<index_t>(Node::stacks.size());
-    if (stackId >= stacksCount) {
-        stacks.resize(stackId + 1);
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { //NOLINT(misc-no-recursion)
+    if (preFunc) {
+        preFunc(this);
     }
-    auto stack = stacks[stackId];
-    stackId++;
 
-    stack.clear();
-    stack.resize(1);
-    stack[0] = this;
-    Node *parent{nullptr};
-    bool afterChildren{false};
-    while (index) {
-        index--;
-        auto stackCount = static_cast<index_t>(stack.size());
-        if (index >= stackCount) {
-            continue;
-        }
-        curr = stack[index];
-        if (curr == nullptr) {
-            continue;
-        }
-        if (!afterChildren && preFunc != nullptr) {
-            // pre call
-            preFunc(curr);
-        } else if (afterChildren && postFunc != nullptr) {
-            // post call
-            postFunc(curr);
-        }
-        stack[index] = nullptr;
-        if (afterChildren) {
-            if (parent == _parent) {
-                break;
-            }
-            afterChildren = false;
-        } else {
-            if (static_cast<index_t>(curr->_children.size()) > 0) {
-                parent = curr;
-                children = &curr->_children;
-                i = 0;
-                stack[index] = (*children)[i];
-                stack.resize(++index);
-            } else {
-                stack[index] = curr;
-                stack.resize(++index);
-                afterChildren = true;
-            }
-            continue;
-        }
-
-        if (children != nullptr && !children->empty()) {
-            i++;
-            if (i < children->size() && children->at(i) != nullptr) {
-                stack[index] = children->at(i);
-                stack.resize(++index);
-            } else if (parent) {
-                stack[index] = parent;
-                stack.resize(++index);
-                afterChildren = true;
-                if (parent->_parent != nullptr) {
-                    children = &parent->_parent->_children;
-                    index_t idx = getIdxOfChild(*children, parent);
-                    if (idx != CC_INVALID_INDEX) {
-                        i = idx;
-                    }
-                    parent = parent->_parent;
-                } else {
-                    // At root
-                    parent = nullptr;
-                    children = nullptr;
-                }
-                if (i < 0) {
-                    break;
-                }
-            }
+    for (const auto &child : _children) {
+        if (child) {
+            child->walk(preFunc, postFunc);
         }
     }
-    stack.clear();
-    stackId--;
+
+    if (postFunc) {
+        postFunc(this);
+    }
 }
 
 //Component *Node::addComponent(Component *comp) {
@@ -446,6 +382,7 @@ void Node::updateScene() {
     emit(EventTypesToJS::NODE_SCENE_UPDATED, _scene);
 }
 
+/* static */
 index_t Node::getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &child, Node *target) {
     auto iteChild = std::find(child.begin(), child.end(), target);
     if (iteChild != child.end()) {
@@ -467,8 +404,8 @@ Node *Node::getChildByUuid(const ccstd::string &uuid) const {
     return nullptr;
 }
 
-bool Node::isChildOf(Node *parent) {
-    Node *child = this;
+bool Node::isChildOf(Node *parent) const {
+    const Node *child = this;
     do {
         if (child == parent) {
             return true;

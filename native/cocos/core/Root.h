@@ -33,11 +33,12 @@
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
+#include "scene/DrawBatch2D.h"
 
 namespace cc {
 namespace scene {
 class Camera;
-struct DrawBatch2D;
+class DrawBatch2D;
 } // namespace scene
 namespace gfx {
 class SwapChain;

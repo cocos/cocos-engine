@@ -151,7 +151,6 @@
 .component .component-header > .menu,
 .component .component-header > .link {
     padding: 0 5px;
-    float: right;
     transition: color 0.15s;
 }
 

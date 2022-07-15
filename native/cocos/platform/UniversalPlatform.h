@@ -67,7 +67,7 @@ public:
      */
     void handleDefaultEvent(const OSEvent &ev) override;
     /**
-     * @brief Get the SDK version for Android.Other systems also have sdk versions, 
+     * @brief Get the SDK version for Android.Other systems also have sdk versions,
             but they are not currently used.
      */
     int getSdkVersion() const override;
@@ -76,7 +76,7 @@ public:
      */
     void pollEvent() override;
     /**
-     * @brief Run the task in the platform thread, 
+     * @brief Run the task in the platform thread,
      * @brief most platforms are the main thread, android is the non-main thread
      * @param task : Tasks running in platform threads
      */
@@ -106,7 +106,7 @@ public:
     /**
      * @brief Processing destroy message
      */
-    virtual void onDestory();
+    virtual void onDestroy();
 
 private:
     ThreadCallback _mainTask{nullptr};

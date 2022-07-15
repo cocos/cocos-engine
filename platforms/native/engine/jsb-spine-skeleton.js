@@ -809,6 +809,8 @@ const cacheManager = require('./jsb-cache-manager');
 
         const node = this.node;
         if (!node) return;
+        const entity = this.renderEntity;
+        entity.clearDynamicRenderDrawInfos();
 
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
@@ -882,8 +884,20 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, this.node);
-            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
+            const meshBuffer = renderData.chunk.meshBuffer;
+            meshBuffer.setDirty();
+            const drawInfo = this.requestDrawInfo(index);
+            drawInfo.setTexture(realTexture.getGFXTexture());
+            drawInfo.setTextureHash(realTexture.getHash());
+            drawInfo.setSampler(realTexture.getGFXSampler());
+            drawInfo.setBlendHash(this.blendHash);
+            drawInfo.setMaterial(this.material);
+            renderData.fillDrawInfoAttributes(drawInfo);
+
+            drawInfo.setIndexOffset(_tempIndicesOffset);
+            drawInfo.setIBCount(_tempIndicesCount);
+
+            entity.setDynamicRenderDrawInfo(drawInfo, index);
             this.material = mat;
         }
     };
@@ -896,7 +910,8 @@ const cacheManager = require('./jsb-cache-manager');
     assembler.createData = function (comp) {
     };
 
-    assembler.updateRenderData = function () {
+    assembler.updateRenderData = function (comp) {
+        comp._render();
     };
 
     // eslint-disable-next-line no-unused-vars

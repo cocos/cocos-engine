@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
 import { Color, Mat4, Vec2, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -44,6 +45,7 @@ const _intersectPoint_1: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2(
 const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
+let QUAD_INDICES;
 
 function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]) {
     // left bottom, right, top
@@ -340,9 +342,30 @@ export const radialFilled: IAssembler = {
                     endAngle += PI_2;
                 }
             }
-
+            // hack for native when offset is 0
+            if (offset === 0) {
+                renderData.dataLength = 0;
+            }
             renderData.resize(offset, offset);
+            if (JSB) {
+                const indexCount = renderData.indexCount;
+                this.createQuadIndices(indexCount);
+                renderData.chunk.setIndexBuffer(QUAD_INDICES);
+                // may can update color & uv here
+                // need dirty
+                this.updateWorldUVData(sprite);
+                this.updateColorLate(sprite);
+            }
             renderData.updateRenderData(sprite, frame);
+        }
+    },
+
+    createQuadIndices (indexCount) {
+        QUAD_INDICES = null;
+        QUAD_INDICES = new Uint16Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < indexCount; i++) {
+            QUAD_INDICES[offset++] = i;
         }
     },
 
@@ -356,7 +379,7 @@ export const radialFilled: IAssembler = {
         }
 
         // forColor
-        this.updataColorLate(comp);
+        this.updateColorLate(comp);
 
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
@@ -370,6 +393,19 @@ export const radialFilled: IAssembler = {
         meshBuffer.setDirty();
     },
 
+    updateWorldUVData (sprite: Sprite, chunk: StaticVBChunk) {
+        const renderData = sprite.renderData!;
+        const stride = renderData.floatStride;
+        const dataList: IRenderData[] = renderData.data;
+        const vData = renderData.chunk.vb;
+        for (let i  = 0; i < dataList.length; i++) {
+            const offset = i * stride;
+            vData[offset + 3] = dataList[i].u;
+            vData[offset + 4] = dataList[i].v;
+        }
+    },
+
+    // only for TS
     updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
         node.getWorldMatrix(matrix);
@@ -394,6 +430,8 @@ export const radialFilled: IAssembler = {
         }
     },
 
+    // dirty Mark
+    // the real update uv is on updateWorldUVData
     updateUVs (sprite: Sprite) {
         const renderData = sprite.renderData!;
         renderData.vertDirty = true;
@@ -401,7 +439,7 @@ export const radialFilled: IAssembler = {
     },
 
     // fill color here
-    updataColorLate (sprite: Sprite) {
+    updateColorLate (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;

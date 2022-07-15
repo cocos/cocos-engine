@@ -568,10 +568,11 @@ export class Game extends EventTarget {
         const endFramePromise = new Promise<void>((resolve) => { director.once(Director.EVENT_END_FRAME, () => resolve()); });
         return endFramePromise.then(() => {
             director.reset();
-            legacyCC.profiler.reset();
             legacyCC.Object._deferredDestroy();
             this.pause();
             this.resume();
+            this._shouldLoadLaunchScene = true;
+            SplashScreen.instance.curTime = 0;
             this._safeEmit(Game.EVENT_RESTART);
         });
     }

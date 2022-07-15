@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
@@ -34,6 +35,7 @@ const _tangent = new Vec2();
 // const _miter = new Vec2();
 const _normal = new Vec2();
 const _vec2 = new Vec2();
+let QUAD_INDICES;
 
 function normal (out:Vec2, dir:Vec2) {
     // get perpendicular
@@ -174,7 +176,56 @@ export const MotionStreakAssembler: IAssembler = {
 
         indexCount = vertexCount <= 2 ? 0 : (vertexCount - 2) * 3;
 
-        renderData.resize(vertexCount, indexCount);
+        renderData.resize(vertexCount, indexCount); // resize
+        if (JSB) {
+            const indexCount = renderData.indexCount;
+            this.createQuadIndices(comp, indexCount);
+            renderData.chunk.setIndexBuffer(QUAD_INDICES);
+
+            //  Fill all dataList to vData
+            this.updateWorldVertexAllData(comp);
+
+            renderData.updateRenderData(comp, comp.texture!);
+            // No need update WorldMatrix, so change dirty flag
+            // A dirty hack
+            renderData.renderDrawInfo.setVertDirty(false);
+            comp.node.hasChangedFlags = 0;
+        }
+    },
+
+    updateWorldVertexAllData (comp: MotionStreak) {
+        const renderData = comp.renderData!;
+        const stride = renderData.floatStride;
+        const dataList = renderData.data;
+        const vData = renderData.chunk.vb;
+        for (let i  = 0; i < dataList.length; i++) {
+            const offset = i * stride;
+            vData[offset + 0] = dataList[i].x;
+            vData[offset + 1] = dataList[i].y;
+            vData[offset + 2] = dataList[i].z;
+            vData[offset + 3] = dataList[i].u;
+            vData[offset + 4] = dataList[i].v;
+            Color.toArray(vData, dataList[i].color, offset + 5);
+        }
+    },
+
+    createQuadIndices (comp, indexCount) {
+        const renderData = comp.renderData!;
+        const chunk = renderData.chunk;
+        const vid = 0;
+        const meshBuffer = chunk.meshBuffer;
+        let indexOffset = meshBuffer.indexOffset;
+        QUAD_INDICES = null;
+        QUAD_INDICES = new Uint16Array(indexCount);
+        for (let i = 0, l = indexCount; i < l; i += 2) {
+            const start = vid + i;
+            QUAD_INDICES[indexOffset++] = start;
+            QUAD_INDICES[indexOffset++] = start + 2;
+            QUAD_INDICES[indexOffset++] = start + 1;
+            QUAD_INDICES[indexOffset++] = start + 1;
+            QUAD_INDICES[indexOffset++] = start + 2;
+            QUAD_INDICES[indexOffset++] = start + 3;
+        }
     },
 
     updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {

@@ -52,7 +52,7 @@ void JniNativeGlue::start(int argc, const char** argv) {
     platform->run(argc, argv);
 }
 
-void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
+void JniNativeGlue::setWindowHandle(NativeWindowType* window) {
     if (_pendingWindow) {
         writeCommandSync(JniCommand::JNI_CMD_TERM_WINDOW);
     }
@@ -86,7 +86,7 @@ ResourceManagerType* JniNativeGlue::getResourceManager() {
     return _resourceManager;
 }
 
-NativeWindowType* JniNativeGlue::getWindowHandler() {
+NativeWindowType* JniNativeGlue::getWindowHandle() {
     return _window;
 }
 
@@ -238,13 +238,13 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
             }
             cc::CustomEvent event;
             event.name = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
+            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandle());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
+            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandle());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_RESUME: {

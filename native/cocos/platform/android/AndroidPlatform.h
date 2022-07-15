@@ -53,13 +53,7 @@ public:
 
     static void *getEnv();
 
-    uintptr_t getWindowHandler() const;
-
-    int32_t getWidth() const;
-
-    int32_t getHeight() const;
-
-    void onDestory() override;
+    void onDestroy() override;
 
     inline void setAndroidApp(android_app *app) {
         _app = app;

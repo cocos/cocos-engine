@@ -220,9 +220,7 @@ const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
-
-            // this._eventMask |= TRANSFORM_ON;
-            this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
+            this._eventMask |= TRANSFORM_ON;
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_TRANSFORM_CHANGED)) {
                 this._registerOnTransformChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
@@ -272,8 +270,7 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
-                // this._eventMask &= ~TRANSFORM_ON;
-                this.setEventMask(this.getEventMask() & ~TRANSFORM_ON);
+                this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
                 break;
@@ -299,10 +296,8 @@ nodeProto.hasEventListener = function (type: string, callback?, target?: unknown
 
 nodeProto.targetOff = function (target: string | unknown) {
     // Check for event mask reset
-    const eventMask = this.getEventMask();
-    if ((eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
-        // this._eventMask &= ~TRANSFORM_ON;
-        this.setEventMask(eventMask & ~TRANSFORM_ON);
+    if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
+        this._eventMask &= ~TRANSFORM_ON;
     }
 };
 
@@ -883,10 +878,10 @@ Object.defineProperty(nodeProto, 'activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Boolean> {
-        return this._activeInHierarchyArr[0] != 0;
+        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
     },
     set (v) {
-        this._activeInHierarchyArr[0] = (v ? 1 : 0);
+        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
     },
 });
 
@@ -894,10 +889,10 @@ Object.defineProperty(nodeProto, '_activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Boolean> {
-        return this._activeInHierarchyArr[0] != 0;
+        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
     },
     set (v) {
-        this._activeInHierarchyArr[0] = (v ? 1 : 0);
+        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
     },
 });
 
@@ -905,10 +900,10 @@ Object.defineProperty(nodeProto, 'layer', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._layerArr[0];
+        return this._sharedUint32Arr[1]; // Uint32, 1: layer
     },
     set (v) {
-        this._layerArr[0] = v;
+        this._sharedUint32Arr[1] = v; // Uint32, 1: layer
         if (this._uiProps && this._uiProps.uiComp) {
             this._uiProps.uiComp.setNodeDirty();
             this._uiProps.uiComp.markForUpdateRenderData();
@@ -921,10 +916,80 @@ Object.defineProperty(nodeProto, '_layer', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._layerArr[0];
+        return this._sharedUint32Arr[1]; // Uint32, 1: layer
     },
     set (v) {
-        this._layerArr[0] = v;
+        this._sharedUint32Arr[1] = v; // Uint32, 1: layer
+    },
+});
+
+Object.defineProperty(nodeProto, '_eventMask', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._sharedUint32Arr[0]; // Uint32, 0: eventMask
+    },
+    set (v) {
+        this._sharedUint32Arr[0] = v; // Uint32, 0: eventMask
+    },
+});
+
+Object.defineProperty(nodeProto, '_siblingIndex', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
+    },
+    set (v) {
+        this._sharedInt32Arr[0] = v; // Int32, 0: siblingIndex
+    },
+});
+
+nodeProto.getSiblingIndex = function getSiblingIndex() {
+    return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
+};
+
+Object.defineProperty(nodeProto, '_dirtyFlags', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._sharedUint32Arr[2]; // Uint32, 2: dirtyFlags
+    },
+    set (v) {
+        this._sharedUint32Arr[2] = v; // Uint32, 2: dirtyFlags
+    },
+});
+
+Object.defineProperty(nodeProto, '_active', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+    },
+    set (v) {
+        this._sharedUint8Arr[1] = (v ? 1 : 0); // Uint8, 1: active
+    },
+});
+
+Object.defineProperty(nodeProto, 'active', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+    },
+    set (v) {
+        this.setActive(!!v);
+    },
+});
+
+Object.defineProperty(nodeProto, '_static', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._sharedUint8Arr[2] != 0;
+    },
+    set (v) {
+        this._sharedUint8Arr[2] = (v ? 1 : 0);
     },
 });
 
@@ -1182,9 +1247,17 @@ nodeProto._ctor = function (name?: string) {
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
-    this._activeInHierarchyArr = new Uint8Array(jsb.createExternalArrayBuffer(1));
-    this._layerArr = new Uint32Array(jsb.createExternalArrayBuffer(4));
-    this._layerArr[0] = Layers.Enum.DEFAULT;
+
+    const sharedArrayBuffer = this._getSharedArrayBufferObject();
+    // Uint32Array with 3 elements: eventMask, layer, dirtyFlags
+    this._sharedUint32Arr = new Uint32Array(sharedArrayBuffer, 0, 3);
+    // Int32Array with 1 element: siblingIndex
+    this._sharedInt32Arr = new Int32Array(sharedArrayBuffer, 12, 1);
+    // Uint8Array with 3 elements: activeInHierarchy, active, static
+    this._sharedUint8Arr = new Uint8Array(sharedArrayBuffer, 16, 3);
+    //
+
+    this._sharedUint32Arr[1] = Layers.Enum.DEFAULT; // this._sharedUint32Arr[1] is layer
     this._scene = null;
     this._prefab = null;
     // record scene's id when set this node as persist node

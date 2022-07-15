@@ -77,20 +77,20 @@ bool SystemWindow::createWindow(const char *title,
 
 void SystemWindow::closeWindow() {
     #ifndef CC_SERVER_MODE
-    auto windowHandle = getSDLWindowHandler();
-    
+    auto windowHandle = getSDLWindowHandle();
+
     SDL_Event et;
     et.type = SDL_QUIT;
     auto posted = SDL_PushEvent(&et);
 #endif
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
-    return _sdl->getWindowHandler();
+uintptr_t SystemWindow::getWindowHandle() const {
+    return _sdl->getWindowHandle();
 }
 
-SDL_Window* SystemWindow::getSDLWindowHandler() const {
-    return _sdl->getSDLWindowHandler();
+SDL_Window* SystemWindow::getSDLWindowHandle() const {
+    return _sdl->getSDLWindowHandle();
 }
 
 uintptr_t SystemWindow::getDisplay() const {
