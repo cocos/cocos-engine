@@ -175,7 +175,6 @@ export class UIRenderer extends Renderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
-        this.renderEntity.setCustomMaterial(val);
     }
 
     /**
@@ -317,7 +316,6 @@ export class UIRenderer extends Renderer {
         this._colorDirty();
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
-        this.renderEntity.setCustomMaterial(this._customMaterial);
     }
 
     // For Redo, Undo

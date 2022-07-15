@@ -41,7 +41,6 @@ export class RenderEntity {
 
     protected _node: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
-    protected _customMaterial: Material | null = null;
     protected _commitModelMaterial: Material | null = null;
 
     // is it entity a mask node
@@ -218,15 +217,6 @@ export class RenderEntity {
             }
         }
         this._stencilStage = stage;
-    }
-
-    setCustomMaterial (mat: Material | null) {
-        if (JSB) {
-            if (this._customMaterial !== mat) {
-                this._nativeObj.customMaterial = mat!;
-            }
-        }
-        this._customMaterial = mat;
     }
 
     setCommitModelMaterial (mat:Material|null) {

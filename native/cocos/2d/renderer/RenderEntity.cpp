@@ -82,9 +82,6 @@ void RenderEntity::setStencilStage(uint32_t stage) {
 void RenderEntity::setEnumStencilStage(StencilStage stage) {
     _stencilStage = stage;
 }
-void RenderEntity::setCustomMaterial(Material* mat) {
-    _customMaterial = mat;
-}
 void RenderEntity::setCommitModelMaterial(Material* mat) {
     _commitModelMaterial = mat;
 }
