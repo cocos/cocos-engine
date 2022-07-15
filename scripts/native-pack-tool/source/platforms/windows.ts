@@ -139,7 +139,7 @@ export class WindowsPackTool extends NativePackTool {
             this.paths.nativePrjDir, this.params.debug ? 'Debug' : 'Release',
             `${this.params.projectName}.exe`);
         if (!fs.existsSync(destPath)) {
-            throw new Error(`[windows run] exe file not found at' + destPath!`);
+            throw new Error(`[windows run] exe file not found at ' + ${destPath}!`);
         }
         await cchelper.runCmd(destPath, [], false);
         return true;

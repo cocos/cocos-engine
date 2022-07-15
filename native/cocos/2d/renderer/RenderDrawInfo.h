@@ -27,6 +27,7 @@
 #include "2d/renderer/UIMeshBuffer.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "bindings/utils/BindingUtils.h"
 #include "core/ArrayBuffer.h"
 #include "core/assets/Material.h"
 #include "core/scene-graph/Node.h"
@@ -45,7 +46,13 @@ struct Render2dLayout {
 };
 
 struct DrawInfoAttrLayout {
-    uint32_t enabledIndex;
+    uint32_t enabledIndex{1};
+};
+
+enum class RenderDrawInfoType {
+    COMP,
+    MODEL,
+    IA
 };
 
 class Batcher2d;
@@ -95,12 +102,16 @@ public:
     void setBlendHash(uint32_t blendHash);
     inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
+    inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
+    void setDrawInfoType(uint32_t type);
+
+    inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
 
     inline Batcher2d* getBatcher() const { return _batcher; }
     void setBatcher(Batcher2d* batcher);
-    const ArrayBuffer& getAttrSharedBufferForJS() const;
+    se::Object* getAttrSharedBufferForJS() const;
 
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
@@ -128,7 +139,7 @@ private:
     uint32_t _size{0};
 
     DrawInfoAttrLayout _drawInfoAttrLayout;
-    ArrayBuffer::Ptr _attrSharedBuffer;
+    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
 
     index_t _bufferId{0};
     index_t _accId{0};
@@ -168,12 +179,15 @@ private:
 
     uint32_t _blendHash{0};
 
+    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
+
     gfx::InputAssemblerInfo _iaInfo;
     ccstd::vector<gfx::Attribute> _attributes{
         gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
         gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
         gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
     };
+    uint32_t _vertexFormatBytes = 9 * sizeof(float); // Affected by _attributes // magic Number
 
     //TODO(): it is not a good way to cache IA here.
     // manage memory manually

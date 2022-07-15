@@ -19,7 +19,7 @@ const PROJ_SEARCH_PATHS = fs.readFileSync(search_path_input_file, 'utf8').
 const cc_config_json_list = [];
 
 function search_cc_config_json_levels(dir, depth) {
-    console.log(`[searching plugins] search dir ${dir}`);
+    // console.log(`[searching plugins] search dir ${dir}`);
     if (depth > MAX_SEARCH_LEVEL) return;
     const st = fs.statSync(dir);
     if (!st.isDirectory()) return;

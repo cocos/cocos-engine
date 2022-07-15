@@ -577,8 +577,15 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
             if (loadSucceed) {
                 imgInfo = createImageInfo(img);
             }
-
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+            auto app = CC_CURRENT_APPLICATION();
+            if (!app) {
+                delete imgInfo;
+                delete img;
+                return;
+            }
+            auto engine = app->getEngine();
+            CC_ASSERT(engine != nullptr);
+            engine->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
 
@@ -640,7 +647,7 @@ static bool js_loadImage(se::State &s) { // NOLINT
     if (argc == 2) {
         ccstd::string path;
         ok &= sevalue_to_native(args[0], &path);
-        SE_PRECONDITION2(ok, false, "js_loadImage : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         se::Value callbackVal = args[1];
         CC_ASSERT(callbackVal.isObject());
@@ -660,7 +667,7 @@ static bool js_destroyImage(se::State &s) { // NOLINT
     if (argc == 1) {
         cc::JSBNativeDataHolder *dataHolder = nullptr;
         ok &= sevalue_to_native(args[0], &dataHolder);
-        SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         dataHolder->destroy();
         return true;
     }
@@ -874,7 +881,7 @@ static bool jsb_createExternalArrayBuffer(se::State &s) {
     if (argc == 1) {
         uint32_t byteLength{0};
         ok &= sevalue_to_native(args[0], &byteLength, s.thisObject());
-        SE_PRECONDITION2(ok, false, "jsb_createExternalArrayBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         if (byteLength > 0) {
 // NOTE: Currently V8 use shared_ptr which has different abi on win64-debug and win64-release
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS && SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

@@ -84,8 +84,6 @@ public:
     inline float getShadingScale() const { return _shadingScale; }
     inline void setShadingScale(float val) { _shadingScale = val; }
 
-    scene::Pass *getOcclusionQueryPass();
-
 protected:
     void initOcclusionQuery();
     void initGeometryRenderer();

@@ -26,6 +26,10 @@
 
 #pragma once
 
+#include <cstdio>
+
+#include "base/Log.h"
+
 #define SCRIPT_ENGINE_NONE 0
 #define SCRIPT_ENGINE_SM   1
 #define SCRIPT_ENGINE_V8   2
@@ -46,53 +50,17 @@
     #define HAVE_INSPECTOR      0
 #endif
 
-#ifdef ANDROID
-
-    #include <android/log.h>
-
-    #define LOG_TAG      "jswrapper"
-    #define SE_LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-    #define SE_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#elif __OHOS__
-    #if 1
-        #include "cocos/base/Log.h"
-        #define SE_LOGD(...) CC_LOG_DEBUG(__VA_ARGS__)
-        #define SE_LOGE(...) CC_LOG_ERROR(__VA_ARGS__)
-    #else
-        #define SE_LOGD(...)
-        #define SE_LOGE(...)
-    #endif
-#elif defined(_WIN32) && defined(_WINDOWS)
-
-    #ifndef QUOTEME_
-        #define QUOTEME_(x) #x
-    #endif
-
-    #ifndef QUOTEME
-        #define QUOTEME(x) QUOTEME_(x)
-    #endif
-
-void seLogD(const char *format, ...);
-void seLogE(const char *format, ...);
-
-    #define LOG_TAG           "jswrapper"
-    #define SE_LOGD(fmt, ...) seLogD("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
-    #define SE_LOGE(fmt, ...) seLogE("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
-
+#if defined(__clang__) || defined(__GNUC__)
+    #define CC_FORMAT_HINT(si, fi) __attribute__((__format__(__printf__, si, fi)))
 #else
-
-    #define SE_LOGD(...)                  \
-        do {                              \
-            fprintf(stdout, __VA_ARGS__); \
-            fflush(stdout);               \
-        } while (false)
-    #define SE_LOGE(...)                  \
-        do {                              \
-            fprintf(stderr, __VA_ARGS__); \
-            fflush(stderr);               \
-        } while (false)
-
+    #define CC_FORMAT_HINT(si, fi)
 #endif
+
+CC_FORMAT_HINT(3, 4)
+void selogMessage(cc::LogLevel level, const char *tag, const char *format, ...);
+
+#define SE_LOGD(...) selogMessage(cc::LogLevel::LEVEL_DEBUG, "D/", ##__VA_ARGS__)
+#define SE_LOGE(...) selogMessage(cc::LogLevel::ERR, "E/", ##__VA_ARGS__)
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 

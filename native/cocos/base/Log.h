@@ -56,6 +56,7 @@ public:
     static void logMessage(LogType type, LogLevel level, const char *formats, ...);
 
 private:
+    static void logRemote(const char *msg);
     static FILE *slogFile;
 };
 

@@ -33,9 +33,7 @@ RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
 }
 
 RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
-    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _attrSharedBuffer = ccnew ArrayBuffer();
-    _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
+    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
@@ -46,9 +44,7 @@ RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t
     _size = 0;
     _batcher = nullptr;
 
-    auto* seArrayBufferObject = se::Object::createExternalArrayBufferObject(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout), [](void* a, size_t b, void* c) {});
-    _attrSharedBuffer = ccnew ArrayBuffer();
-    _attrSharedBuffer->setJSArrayBuffer(seArrayBufferObject);
+    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
@@ -136,14 +132,18 @@ void RenderDrawInfo::setModel(scene::Model* model) {
     _model = model;
 }
 
+void RenderDrawInfo::setDrawInfoType(uint32_t type) {
+    _drawInfoType = static_cast<RenderDrawInfoType>(type);
+}
+
 void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) { // NOLINT(bugprone-easily-swappable-parameters)
     _stride = stride;
     _size = size;
     _sharedBuffer = buffer;
 }
 
-const ArrayBuffer& RenderDrawInfo::getAttrSharedBufferForJS() const {
-    return *_attrSharedBuffer;
+se::Object* RenderDrawInfo::getAttrSharedBufferForJS() const {
+    return _attrSharedBufferActor.getSharedArrayBufferObject();
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
@@ -158,7 +158,7 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 
 void RenderDrawInfo::uploadBuffers() {
     if (_vbCount == 0 || _ibCount == 0) return;
-    auto size = _vbCount * 9;
+    auto size = _vbCount * _vertexFormatBytes;
     gfx::Buffer* vBuffer = _vbGFXBuffer;
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
@@ -196,7 +196,7 @@ void RenderDrawInfo::destroy() {
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = 9 * sizeof(float); // hack
+        uint32_t vbStride = _vertexFormatBytes; // hack
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,

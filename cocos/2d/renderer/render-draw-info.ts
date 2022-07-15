@@ -2,11 +2,8 @@ import { JSB } from 'internal:constants';
 import { BaseRenderData, IRenderData } from './render-data';
 import { Stage } from './stencil-manager';
 import { NativeRenderDrawInfo } from './native-2d';
-import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
-import { Material, Node } from '../../core';
+import { director, Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
-import { Batcher2D } from './batcher-2d';
-import IDGenerator from '../../core/utils/id-generator';
 import { Model } from '../../core/renderer/scene';
 
 export enum RenderDrawInfoSharedBufferView {
@@ -14,21 +11,14 @@ export enum RenderDrawInfoSharedBufferView {
     count,
 }
 
+export enum RenderDrawInfoType {
+    COMP,
+    MODEL,
+    IA,
+}
+
 export class RenderDrawInfo {
     public stencilStage: Stage = Stage.DISABLED;
-
-    // protected _enabled = true;
-    // get enabled () {
-    //     return this._enabled;
-    // }
-    // set enabled (val: boolean) {
-    //     this._enabled = val;
-    //     if (JSB) {
-    //         this._sharedBuffer[RenderDrawInfoSharedBufferView.enabled] = val ? 1 : 0;
-    //     }
-    // }
-
-    protected _batcher: Batcher2D | undefined;
     protected _accId: number | undefined;
     protected _bufferId: number | undefined;
     protected _vertexOffset: number | undefined;
@@ -50,6 +40,8 @@ export class RenderDrawInfo {
 
     protected _model: Model | undefined;
 
+    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+
     protected declare _nativeObj: NativeRenderDrawInfo;
 
     // SharedBuffer of pos/uv/color
@@ -61,8 +53,8 @@ export class RenderDrawInfo {
     protected _vertexCount = 0;
     protected _stride = 0;
 
-    constructor (batcher: Batcher2D, nativeDrawInfo?: NativeRenderDrawInfo) {
-        this.init(batcher, nativeDrawInfo);
+    constructor (nativeDrawInfo?: NativeRenderDrawInfo) {
+        this.init(nativeDrawInfo);
     }
 
     get nativeObj () {
@@ -76,14 +68,13 @@ export class RenderDrawInfo {
         return this._render2dBuffer;
     }
 
-    private init (batcher: Batcher2D, nativeDrawInfo?: NativeRenderDrawInfo) {
+    private init (nativeDrawInfo?: NativeRenderDrawInfo) {
         if (JSB) {
-            this._batcher = batcher;
             if (nativeDrawInfo) {
                 this._nativeObj = nativeDrawInfo;
             }
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderDrawInfo(batcher.nativeObj);
+                this._nativeObj = new NativeRenderDrawInfo(director.root!.batcher2D.nativeObj);
             }
         }
 
@@ -237,6 +228,15 @@ export class RenderDrawInfo {
                 this._nativeObj.model = model;
             }
         }
+    }
+
+    public setDrawInfoType (drawInfoType: RenderDrawInfoType) {
+        if (JSB) {
+            if (this._drawInfoType !== drawInfoType) {
+                this._nativeObj.drawInfoType = drawInfoType;
+            }
+        }
+        this._drawInfoType = drawInfoType;
     }
 
     public initRender2dBuffer (vertexCount: number, stride: number) {

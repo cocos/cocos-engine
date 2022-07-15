@@ -36,7 +36,7 @@ import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor, vfmtPosUvTwoColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { RenderDrawInfo } from './render-draw-info';
+import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
 import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
@@ -85,12 +85,15 @@ export class BaseRenderData {
     get vertexFormat () {
         return this._vertexFormat;
     }
-    get drawType () {
-        return this._drawType;
-    }
 
-    public setDrawType (type = 0) {
-        this._drawType = type;
+    get drawInfoType () {
+        return this._drawInfoType;
+    }
+    set drawInfoType (type: RenderDrawInfoType) {
+        this._drawInfoType = type;
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setDrawInfoType(type);
+        }
     }
 
     public chunk: StaticVBChunk = null!;
@@ -116,20 +119,20 @@ export class BaseRenderData {
     get dataHash () {
         return this._dataHash;
     }
-    set dataHash (val:number) {
+    set dataHash (val: number) {
         this._dataHash = val;
         if (this._renderDrawInfo) {
             this._renderDrawInfo.setDataHash(val);
         }
     }
 
-    public isMeshBuffer = false;
+    public _isMeshBuffer = false;
 
     protected _vc = 0;
     protected _ic = 0;
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
-    protected _drawType = 0;
+    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _multiOwner = false;
     get multiOwner () { return this._multiOwner; }
     set multiOwner (val) {
@@ -154,9 +157,9 @@ export class BaseRenderData {
     }
 
     // it should be invoked at where a render data is allocated.
-    public initRenderDrawInfo (comp:UIRenderer) {
+    public initRenderDrawInfo (comp: UIRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP) {
         if (JSB) {
-            const renderEntity:RenderEntity = comp.renderEntity!;
+            const renderEntity: RenderEntity = comp.renderEntity;
 
             if (renderEntity.renderEntityType === RenderEntityType.STATIC) {
                 if (!this._renderDrawInfo) {
@@ -168,18 +171,20 @@ export class BaseRenderData {
                 }
             } else if (this.multiOwner === false) {
                 if (!this._renderDrawInfo) {
-                    this._renderDrawInfo = new RenderDrawInfo(this.batcher);
+                    this._renderDrawInfo = new RenderDrawInfo();
                     // for no resize() invoking components
                     this.setRenderDrawInfoAttributes();
                     renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
                 }
             }
+
+            this.drawInfoType = drawInfoType;
         }
     }
 
-    public removeRenderDrawInfo (comp:UIRenderer) {
+    public removeRenderDrawInfo (comp: UIRenderer) {
         if (JSB) {
-            const renderEntity:RenderEntity = comp.renderEntity!;
+            const renderEntity: RenderEntity = comp.renderEntity;
             if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
                 renderEntity.removeDynamicRenderDrawInfo();
             }
@@ -206,8 +211,9 @@ export class BaseRenderData {
             this._renderDrawInfo.setIBCount(this._ic);
 
             this._renderDrawInfo.setDataHash(this.dataHash);
-            this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
+            this._renderDrawInfo.setIsMeshBuffer(this._isMeshBuffer);
             this._renderDrawInfo.setMaterial(this.material!);
+            this._renderDrawInfo.setDrawInfoType(this._drawInfoType);
         }
     }
 }
@@ -282,7 +288,7 @@ export class RenderData extends BaseRenderData {
     get textureHash () {
         return this._textureHash;
     }
-    set textureHash (val:number) {
+    set textureHash (val: number) {
         this._textureHash = val;
         if (this._renderDrawInfo) {
             this._renderDrawInfo.setTextureHash(val);
@@ -293,7 +299,7 @@ export class RenderData extends BaseRenderData {
     get blendHash () {
         return this._blendHash;
     }
-    set blendHash (val:number) {
+    set blendHash (val: number) {
         this._blendHash = val;
         if (this._renderDrawInfo) {
             this._renderDrawInfo.setBlendHash(val);
@@ -357,6 +363,7 @@ export class RenderData extends BaseRenderData {
 
         if (JSB && this.multiOwner === false && this._renderDrawInfo) {
             // for sync vData and iData address to native
+            this._renderDrawInfo.setDrawInfoType(this._drawInfoType);
             this._renderDrawInfo.setBufferId(this.chunk.bufferId);
             this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
             this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
@@ -383,12 +390,14 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public fillDrawInfoAttributes (drawInfo : RenderDrawInfo) {
+    public fillDrawInfoAttributes (drawInfo: RenderDrawInfo) {
         if (JSB) {
             if (!drawInfo) {
                 return;
             }
+
             drawInfo.setAccId(this._accessor.id);
+            drawInfo.setDrawInfoType(this._drawInfoType);
             drawInfo.setBufferId(this.chunk.bufferId);
             drawInfo.setVertexOffset(this.chunk.vertexOffset);
             drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
@@ -399,7 +408,7 @@ export class RenderData extends BaseRenderData {
             drawInfo.setVBCount(this._vc);
             drawInfo.setIBCount(this._ic);
             drawInfo.setDataHash(this.dataHash);
-            drawInfo.setIsMeshBuffer(this.isMeshBuffer);
+            drawInfo.setIsMeshBuffer(this._isMeshBuffer);
         }
     }
 
@@ -551,7 +560,7 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.clear();
         }
     }
-    public static createStaticVBAccessor (attributes: Attribute[]) : StaticVBAccessor {
+    public static createStaticVBAccessor (attributes: Attribute[]): StaticVBAccessor {
         const device = director.root!.device;
         const accessor = new StaticVBAccessor(device, attributes);
         return accessor;
@@ -585,7 +594,7 @@ export class MeshRenderData extends BaseRenderData {
     /**
      * @deprecated
      */
-    set formatByte (value: number) {}
+    set formatByte (value: number) { }
     get formatByte () { return this.stride; }
 
     get floatStride () { return this._floatStride; }
@@ -595,7 +604,7 @@ export class MeshRenderData extends BaseRenderData {
      */
     get vDataOffset () { return this._byteLength >>> 2; }
 
-    public isMeshBuffer = true;
+    public _isMeshBuffer = true;
     public vData: Float32Array;
     public iData: Uint16Array;
     /**
@@ -777,7 +786,7 @@ export class MeshRenderData extends BaseRenderData {
                 ));
             }
             this._iaInfo = new InputAssemblerInfo(this._vertexFormat, vbs, this._indexBuffer);
-            this._iaPool =  new RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
+            this._iaPool = new RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
         }
     }
 
@@ -807,7 +816,7 @@ export class MeshRenderData extends BaseRenderData {
             this._renderDrawInfo.setVertexOffset(this.vertexStart);
             this._renderDrawInfo.setIndexOffset(this.indexStart);
 
-            this._renderDrawInfo.setIsMeshBuffer(this.isMeshBuffer);
+            this._renderDrawInfo.setIsMeshBuffer(this._isMeshBuffer);
             this._renderDrawInfo.setMaterial(this.material!);
             this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
             this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
@@ -815,7 +824,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     //  only for particle2d
-    public particleInitRenderDrawInfo (entity:RenderEntity) {
+    public particleInitRenderDrawInfo (entity: RenderEntity) {
         if (JSB) {
             if (entity.renderEntityType === RenderEntityType.STATIC) {
                 if (!this._renderDrawInfo) {

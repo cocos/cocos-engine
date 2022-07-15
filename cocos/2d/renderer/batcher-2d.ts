@@ -370,7 +370,7 @@ export class Batcher2D implements IBatcher {
             || this._currDepthStencilStateStage !== depthStencilStateStage) {
             // Merge all previous data to a render batch, and update buffer for next render data
             this.autoMergeBatches(this._currComponent!);
-            if (renderData && !renderData.isMeshBuffer) {
+            if (renderData && !renderData._isMeshBuffer) {
                 this.updateBuffer(renderData.vertexFormat, bufferID);
             }
 
@@ -545,7 +545,7 @@ export class Batcher2D implements IBatcher {
         const rd = this._currRenderData as MeshRenderData;
         const accessor = this._staticVBBuffer;
         // Previous batch using mesh buffer
-        if (rd && rd.isMeshBuffer) {
+        if (rd && rd._isMeshBuffer) {
             ia = rd.requestIA(this.device);
             if (this._meshDataArray.indexOf(rd) === -1) {
                 this._meshDataArray.push(rd);
@@ -690,11 +690,7 @@ export class Batcher2D implements IBatcher {
 
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
-            // render.updateAssembler(this);
-            // render.updateRenderer();// for collecting data
-            if (!JSB) {
-                render.fillBuffers(this);// for rendering
-            }
+            render.fillBuffers(this);// for rendering
         }
 
         // Update cascaded opacity to vertex buffer

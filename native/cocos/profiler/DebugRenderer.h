@@ -28,7 +28,7 @@
 #include <math/Vec4.h>
 #include "base/std/container/array.h"
 #include "base/std/container/string.h"
-#include "gfx-base/GFXDef-common.h"
+#include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
 
@@ -90,7 +90,8 @@ public:
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
     void destroy();
 
-    void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info = DebugTextInfo());
+    void addText(const ccstd::string &text, const Vec2 &screenPos);
+    void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info);
 
 private:
     static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
