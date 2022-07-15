@@ -1494,7 +1494,22 @@ describe('NewGen Anim', () => {
             transition.exitCondition = 0.1;
             transition.duration = 0.3;
             transition.relativeDuration = false;
-            transition.destinationStart = 0.17;
+            const TRANSITION_DESTINATION_START = transition.destinationStart = 0.17;
+
+            // Also test the attribute on empty transition
+            const layer2 = animationGraph.addLayer();
+            const emptyState = layer2.stateMachine.addEmpty();
+            layer2.stateMachine.connect(layer2.stateMachine.entryState, emptyState);
+            const animState3 = layer2.stateMachine.addMotion();
+            animState3.name = 'Motion3';
+            animState3.motion = createClipMotionPositionXLinear(6.0, 7.0, -1.9);
+            const emptyTransition = layer2.stateMachine.connect(emptyState, animState3);
+            emptyTransition.duration = 0.4;
+            const EMPTY_TRANSITION_DESTINATION_START = emptyTransition.destinationStart = 0.13;
+            const [emptyTransitionCondition] = emptyTransition.conditions = [new UnaryCondition()];
+            emptyTransitionCondition.operator = UnaryCondition.Operator.TRUTHY;
+            const emptyTransitionEnablingVarName = emptyTransitionCondition.operand.variable = 'EmptyTransitionEnabling';
+            animationGraph.addBoolean(emptyTransitionEnablingVarName);
 
             const node = new Node();
             const graphEval = createAnimationGraphEval(animationGraph, node);
@@ -1510,7 +1525,7 @@ describe('NewGen Anim', () => {
                 transition: {
                     nextNode: {
                         __DEBUG_ID__: 'Motion2',
-                        progress: 0.17 + 0.2 / 2.2,
+                        progress: TRANSITION_DESTINATION_START + 0.2 / 2.2,
                     },
                 },
             });
@@ -1518,8 +1533,27 @@ describe('NewGen Anim', () => {
             expect(node.position.x).toBeCloseTo(
                 lerp(
                     lerp(0.6, 0.8, 0.1 + 0.2 / 4.0),
-                    lerp(3.0, 0.1415, 0.17 + 0.2 / 2.2),
+                    lerp(3.0, 0.1415, TRANSITION_DESTINATION_START + 0.2 / 2.2),
                     0.2 / 0.3,
+                ),
+            );
+
+            // Start the empty transition
+            graphEval.setValue(emptyTransitionEnablingVarName, true);
+            graphUpdater.step(0.16);
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    lerp( // Layer 1
+                        3.0,
+                        0.1415,
+                        TRANSITION_DESTINATION_START + (0.2 + 0.16) / 2.2,
+                    ),
+                    lerp( // Layer 2
+                        7.0,
+                        -1.9,
+                        EMPTY_TRANSITION_DESTINATION_START + 0.16 / 6.0,
+                    ),
+                    0.16 / 0.4, // Empty transition ratio
                 ),
             );
         });
