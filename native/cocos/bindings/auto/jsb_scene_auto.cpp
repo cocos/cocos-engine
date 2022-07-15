@@ -33,6 +33,7 @@
 #include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
+#include "cocos/bindings/auto/jsb_2d_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -10168,6 +10169,26 @@ static bool js_scene_Root_frameMove(se::State& s) // NOLINT(readability-identifi
 }
 SE_BIND_FUNC(js_scene_Root_frameMove)
 
+static bool js_scene_Root_getBatcher2D(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Batcher2d* result = cobj->getBatcher2D();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Root_getBatcher2D)
+
 static bool js_scene_Root_getCumulativeTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
@@ -10784,6 +10805,7 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("destroyWindow", _SE(js_scene_Root_destroyWindow));
     cls->defineFunction("destroyWindows", _SE(js_scene_Root_destroyWindows));
     cls->defineFunction("frameMove", _SE(js_scene_Root_frameMove));
+    cls->defineFunction("getBatcher2D", _SE(js_scene_Root_getBatcher2D));
     cls->defineFunction("getDebugViewConfig", _SE(js_scene_Root_getDebugViewConfig));
     cls->defineFunction("getEventProcessor", _SE(js_scene_Root_getEventProcessor));
     cls->defineFunction("_initialize", _SE(js_scene_Root_initialize));
