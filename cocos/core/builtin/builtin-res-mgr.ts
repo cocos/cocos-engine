@@ -336,6 +336,7 @@ class BuiltinResMgr {
                 mat.passes[j].tryCompile();
             }
         }
+        this._materialsToBeCompiled.length = 0;
     }
 }
 

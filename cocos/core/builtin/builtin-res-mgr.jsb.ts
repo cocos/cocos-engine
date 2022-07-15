@@ -98,6 +98,7 @@ builtinResMgrProto.compileBuiltinMaterial = function () {
             mat.passes[j].tryCompile();
         }
     }
+    this._materialsToBeCompiled.length = 0;
 };
 
 builtinResMgrProto.loadBuiltinAssets = function () {
