@@ -399,7 +399,7 @@ void Pass::resetTextures() {
 }
 
 bool Pass::tryCompile() {
-    CC_ASSERT(root->getPipeline());
+    CC_ASSERT(_root->getPipeline());
 
     syncBatchingScheme();
     auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
