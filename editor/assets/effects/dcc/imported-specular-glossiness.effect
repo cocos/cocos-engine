@@ -446,17 +446,16 @@ CCProgram shadow-caster-fs %{
   #endif
 
   vec4 frag () {
-    vec4 baseColor = diffuseColor;
-    #if USE_ALBEDO_MAP
-      vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      baseColor *= texColor;
-    #endif
-    
-    #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-    #endif
-
     #if USE_ALPHA_TEST
+      vec4 baseColor = diffuseColor;
+      #if USE_ALBEDO_MAP
+        vec4 texColor = texture(albedoMap, TEXTURE_UV);
+        baseColor *= texColor;
+      #endif
+      
+      #if USE_TRANSPARENCY_MAP
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+      #endif
       if (baseColor.a < albedoScaleAndCutoff.w) discard;
     #endif
 

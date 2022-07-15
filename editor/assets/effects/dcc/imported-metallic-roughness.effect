@@ -440,13 +440,11 @@ CCProgram shadow-caster-fs %{
   #endif
 
   vec4 frag () {
-    vec4 baseColor = albedo;
-
-    #if USE_ALBEDO_MAP
-      baseColor *= texture(albedoMap, ALBEDO_UV);
-    #endif
-
     #if USE_ALPHA_TEST
+      vec4 baseColor = albedo;
+      #if USE_ALBEDO_MAP
+        baseColor *= texture(albedoMap, ALBEDO_UV);
+      #endif
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
