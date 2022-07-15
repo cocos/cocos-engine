@@ -61,7 +61,7 @@ void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuff
 }
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) { // NOLINT(bugprone-easily-swappable-parameters)
-    const auto &map = _meshBuffersMap[accId];
+    const auto& map = _meshBuffersMap[accId];
     return map[bufferId];
 }
 

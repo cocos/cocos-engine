@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "core/Root.h"
+#include "2d/renderer/Batcher2d.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "profiler/Profiler.h"
@@ -39,7 +40,6 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "2d/renderer/Batcher2d.h"
 
 namespace cc {
 

@@ -28,12 +28,12 @@
 //#include "3d/skeletal-animation/DataPoolManager.h"
 #include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
-#include "scene/DrawBatch2D.h"
 
 namespace cc {
 namespace scene {
@@ -50,7 +50,6 @@ class Pipeline;
 } // namespace render
 class CallbacksInvoker;
 class Batcher2d;
-
 
 struct CC_DLL DebugViewConfig {
     uint8_t singleMode;
