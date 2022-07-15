@@ -46,6 +46,7 @@ import { Renderer } from '../../core/components/renderer';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { assert, director } from '../../core';
+import { UIOpacity } from '../components';
 
 // hack
 ccenum(BlendFactor);
@@ -502,13 +503,39 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    // for UIOpacity
+    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        const uiOp = node.getComponent<UIOpacity>(UIOpacity);
+        let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
+
+        if (render) {
+            render._renderEntity.colorDirty = dirty;
+            render._renderEntity.color = render.color;// necessity to be considering
+            if (uiOp) {
+                render._renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
+            } else {
+                // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
+                render._renderEntity.localOpacity = interruptOpacity;
+            }
+            interruptOpacity = 1;
+        } else if (uiOp) {
+            // there is a just UIOpacity but no UIRenderer on the node.
+            interruptOpacity = uiOp.opacity / 255;
+        }
+
+        for (let i = 0; i < node.children.length; i++) {
+            UIRenderer.setEntityLocalOpacityDirtyRecursively(node.children[i], dirty || (interruptOpacity < 1), interruptOpacity);
+        }
+    }
+
     public setEntityOpacity (opacity: number) {
         if (JSB) {
             this._renderEntity.localOpacity = opacity;
         }
     }
 
-    public setEntityEnabled (enabled:boolean) {
+    public setEntityEnabled (enabled: boolean) {
         if (JSB) {
             this._renderEntity.enabled = enabled;
         }

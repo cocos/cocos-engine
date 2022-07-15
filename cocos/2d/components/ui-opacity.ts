@@ -66,16 +66,18 @@ export class UIOpacity extends Component {
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
 
-        this.setEntityColorDirtyRecursively(true);
+        this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
-    private setEntityColorDirtyRecursively (dirty: boolean) {
+    private setEntityLocalOpacityDirtyRecursively (dirty: boolean) {
         if (JSB) {
-            const render = this.node._uiProps.uiComp as UIRenderer;
-            if (render) {
-                render.setEntityOpacity(this.node._uiProps.localOpacity);
-            }
-            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+            // const render = this.node._uiProps.uiComp as UIRenderer;
+            // if (render) {
+            //     render.setEntityOpacity(this.node._uiProps.localOpacity);
+            // }
+            // UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+
+            UIRenderer.setEntityLocalOpacityDirtyRecursively(this.node, dirty, 1);
         }
     }
 
@@ -84,11 +86,11 @@ export class UIOpacity extends Component {
 
     public onEnable () {
         this.node._uiProps.localOpacity = this._opacity / 255;
-        this.setEntityColorDirtyRecursively(true);
+        this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
     public onDisable () {
         this.node._uiProps.localOpacity = 1;
-        this.setEntityColorDirtyRecursively(true);
+        this.setEntityLocalOpacityDirtyRecursively(true);
     }
 }
