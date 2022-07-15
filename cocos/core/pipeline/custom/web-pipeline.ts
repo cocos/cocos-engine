@@ -623,7 +623,7 @@ export class WebPipeline extends Pipeline {
         const dsShadowMap = passName;
         if (!automata.resourceGraph.contains(dsShadowMap)) {
             const format = supportsR32FloatTexture(this._device) ? Format.R32F : Format.RGBA8;
-            automata.addRenderTarget(dsShadowMap, format, width, height, ResourceResidency.PERSISTENT);
+            automata.addRenderTarget(dsShadowMap, format, width, height, ResourceResidency.MANAGED);
         }
         const pass = automata.addRasterPass(width, height, '_', passName);
         pass.addRasterView(dsShadowMap, new RasterView('_',
@@ -716,7 +716,7 @@ export class WebPipeline extends Pipeline {
                 this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
                 this.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
             }
-            const forwardPass = this.addRasterPass(width, height, 'Default', `CameraForwardPass${idx}`);
+            const forwardPass = this.addRasterPass(width, height, 'default', `CameraForwardPass${idx}`);
             if (this._mainLightShadowName && this.resourceGraph.contains(this._mainLightShadowName)) {
                 const computeView = new ComputeView();
                 forwardPass.addComputeView(this._mainLightShadowName, computeView);
@@ -729,14 +729,16 @@ export class WebPipeline extends Pipeline {
             }
             const passView = new RasterView('_',
                 AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                LoadOp.CLEAR, StoreOp.STORE,
+                this.getLoadOpOfClearFlag(camera.clearFlag,
+                    AttachmentType.RENDER_TARGET), StoreOp.STORE,
                 camera.clearFlag,
                 new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
             const passDSView = new RasterView('_',
                 AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                LoadOp.CLEAR, StoreOp.STORE,
+                this.getLoadOpOfClearFlag(camera.clearFlag,
+                    AttachmentType.DEPTH_STENCIL), StoreOp.STORE,
                 camera.clearFlag,
-                new Color(1, 0, 0, 0));
+                new Color(camera.clearDepth, camera.clearStencil, 0, 0));
             forwardPass.addRasterView(forwardPassRTName, passView);
             forwardPass.addRasterView(forwardPassDSName, passDSView);
             forwardPass
@@ -783,7 +785,6 @@ export class WebPipeline extends Pipeline {
                     rtColor.z = camera.clearColor.z;
                 }
             }
-            rtColor.w = camera.clearColor.w;
             const passColorView = new RasterView('_',
                 AccessType.WRITE, AttachmentType.RENDER_TARGET,
                 LoadOp.CLEAR, StoreOp.STORE,
@@ -803,7 +804,7 @@ export class WebPipeline extends Pipeline {
                 AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
                 LoadOp.CLEAR, StoreOp.STORE,
                 camera.clearFlag,
-                new Color(1, 0, 0, 0));
+                new Color(camera.clearDepth, camera.clearStencil, 0, 0));
             gbufferPass.addRasterView(deferredGbufferPassRTName, passColorView);
             gbufferPass.addRasterView(deferredGbufferPassNormal, passNormalView);
             gbufferPass.addRasterView(deferredGbufferPassEmissive, passEmissiveView);
@@ -814,7 +815,7 @@ export class WebPipeline extends Pipeline {
             const deferredLightingPassRTName = `deferredLightingPassRTName`;
             const deferredLightingPassDS = `deferredLightingPassDS`;
             if (!this.resourceGraph.contains(deferredLightingPassRTName)) {
-                this.addRenderTarget(deferredLightingPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+                this.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
                 this.addDepthStencil(deferredLightingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
             }
             // lighting pass
@@ -866,6 +867,11 @@ export class WebPipeline extends Pipeline {
                 postprocessPass.addComputeView(deferredLightingPassRTName, computeView);
             }
             const postClearColor = new Color(0, 0, 0, camera.clearColor.w);
+            if (camera.clearFlag & ClearFlagBit.COLOR) {
+                postClearColor.x = camera.clearColor.x;
+                postClearColor.y = camera.clearColor.y;
+                postClearColor.z = camera.clearColor.z;
+            }
             const postprocessPassView = new RasterView('_',
                 AccessType.WRITE, AttachmentType.RENDER_TARGET,
                 this.getLoadOpOfClearFlag(camera.clearFlag,
@@ -877,7 +883,7 @@ export class WebPipeline extends Pipeline {
                 this.getLoadOpOfClearFlag(camera.clearFlag,
                     AttachmentType.DEPTH_STENCIL), StoreOp.STORE,
                 camera.clearFlag,
-                new Color(1, 0, 0, 0));
+                new Color(camera.clearDepth, camera.clearStencil, 0, 0));
             postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
             postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
             postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(this._deferredPostMaterial, SceneFlags.NONE);
