@@ -196,45 +196,47 @@ protected:
 
     static SubModel *createSubModel();
 
-    Type _type{Type::DEFAULT};
-    bool _localDataUpdated{false};
-    bool _worldBoundsDirty{true};
-    IntrusivePtr<geometry::AABB> _worldBounds;
-    IntrusivePtr<geometry::AABB> _modelBounds;
+    InstancedAttributeBlock _instanceAttributeBlock;
+    Float32Array _localData;
+    ccstd::vector<IntrusivePtr<SubModel>> _subModels;
+    std::tuple<uint8_t *, uint32_t> _instancedBuffer{nullptr, 0};
+
+    // For JS
+    CallbacksInvoker _eventProcessor;
+
+    Vec4 _lightmapUVParam;
+    float _shadowBias{0.0F};
+    float _shadowNormalBias{0.0F};
+
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};
     gfx::Device *_device{nullptr};
-    bool _inited{false};
+
+    Type _type{Type::DEFAULT};
+    Layers::Enum _visFlags{Layers::Enum::NONE};
+
     uint32_t _descriptorSetCount{1};
-    float _shadowBias{0.0F};
-    float _shadowNormalBias{0.0F};
+    uint32_t _priority{0};
+    uint32_t _updateStamp{0};
+    int32_t _instMatWorldIdx{-1};
+
+    IntrusivePtr<Node> _transform;
+    IntrusivePtr<Node> _node;
+    IntrusivePtr<gfx::Buffer> _localBuffer;
+    IntrusivePtr<gfx::Buffer> _worldBoundBuffer;
+    IntrusivePtr<geometry::AABB> _worldBounds;
+    IntrusivePtr<geometry::AABB> _modelBounds;
+    IntrusivePtr<Texture2D> _lightmap;
 
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};
     bool _isDynamicBatching{false};
-
-    int32_t _instMatWorldIdx{-1};
-    Layers::Enum _visFlags{Layers::Enum::NONE};
-    uint32_t _updateStamp{0};
-    IntrusivePtr<Node> _transform;
-    IntrusivePtr<Node> _node;
-    Float32Array _localData;
-    std::tuple<uint8_t *, uint32_t> _instancedBuffer{nullptr, 0};
-    IntrusivePtr<gfx::Buffer> _localBuffer;
-    IntrusivePtr<gfx::Buffer> _worldBoundBuffer;
-    InstancedAttributeBlock _instanceAttributeBlock{};
-    ccstd::vector<IntrusivePtr<SubModel>> _subModels;
-
-    IntrusivePtr<Texture2D> _lightmap;
-    Vec4 _lightmapUVParam;
-
-    uint32_t _priority{0};
-
+    bool _inited{false};
+    bool _localDataUpdated{false};
+    bool _worldBoundsDirty{true};
     // For JS
-    CallbacksInvoker _eventProcessor;
     bool _isCalledFromJS{false};
-    //
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Model);
