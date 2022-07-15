@@ -180,14 +180,17 @@ export function getTaskTypeName (e: TaskType): string {
 
 export const enum SceneFlags {
     NONE = 0,
-    OPAQUE_OBJECT = 0x1,
-    CUTOUT_OBJECT = 0x2,
-    TRANSPARENT_OBJECT = 0x4,
-    SHADOW_CASTER = 0x8,
-    UI = 0x10,
-    DEFAULT_LIGHTING = 0x20,
-    VOLUMETRIC_LIGHTING = 0x40,
-    CLUSTERED_LIGHTING = 0x80,
+    OPAQUE_OBJECT = 1,
+    CUTOUT_OBJECT = 2,
+    TRANSPARENT_OBJECT = 4,
+    SHADOW_CASTER = 8,
+    UI = 16,
+    DEFAULT_LIGHTING = 32,
+    VOLUMETRIC_LIGHTING = 64,
+    CLUSTERED_LIGHTING = 128,
+    PLANAR_SHADOW = 256,
+    GEOMETRY = 512,
+    PROFILER = 1024,
     ALL = 0xFFFFFFFF,
 }
 
