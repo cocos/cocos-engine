@@ -1062,7 +1062,8 @@ class DeviceSceneTask extends WebSceneTask {
     private _isShadowMap () {
         return this.sceneData.shadows.enabled
             && this.sceneData.shadows.type === ShadowType.ShadowMap
-            && this.graphScene.scene!.flags & SceneFlags.SHADOW_CASTER;
+            && this.graphScene.scene
+            && this.graphScene.scene.flags & SceneFlags.SHADOW_CASTER;
     }
     private _recordBlit () {
         if (!this.graphScene.blit) { return; }
@@ -1296,7 +1297,7 @@ class ShadowMap {
         this._shaderArray.length = 0;
         this._passArray.length = 0;
         this._instances.clear();
-        this._instances.clear();
+        this._batches.clear();
     }
 
     getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[]) {
