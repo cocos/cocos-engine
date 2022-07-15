@@ -1,6 +1,7 @@
 name: <Native> Linux
 
 on:
+  push:
   pull_request:
     paths:
     - 'templates/**'
@@ -19,23 +20,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      # - name: Download external libraries
+      #   shell: bash
+      #   run: |
+      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21e
-          add-to-path: false
+          EXT_VERSION=test-swig
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
       - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          python3 -m pip install PyYAML==5.4.1 Cheetah3
-          python3 ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
+          cd ./native/tools/swig-config
+          ./genbindings.sh
+          git status
       - name: Install dependencies
         run: |
           sudo apt install libx11-dev -y

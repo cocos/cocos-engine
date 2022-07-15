@@ -1,6 +1,7 @@
 name: <Native> Glue
 
 on:
+  push:
   pull_request_target:
     types: [closed]
     paths:
@@ -23,13 +24,11 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Run genbindings.py
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Run genbindings.sh
         run: |
-          python3 -m pip install PyYAML==5.4.1 Cheetah3
-          python3 ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
+          cd ./native/tools/swig-config
+          ./genbindings.sh
+          git status
       - name: Update builtin-res 
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
@@ -39,21 +38,21 @@ jobs:
           sh utils/generate_compile_commands_android.sh
           cmake --build ./build --target builtin-res
 
-      - name: Create Pull Request 
-        uses: fish9167/create-pull-request@v3
-        with:
-            title: '[ci skip][AUTO]: Automated PR to generate code'
-            body: |
-              Automated PR to genbindings & built resources
-              [X] does not change any runtime related code or build configuration
-            committer: cocos-robot <cocos-robot@cocos.com>
-            author: cocos-robot <cocos-robot@cocos.com>
-            commit-message: "[ci skip][AUTO]: Automated code generating update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
-            token: ${{ secrets.PR_TOKEN }}
-            push-to-fork: cocos-robot/engine
-            branch: t/bot/genbindings
-            branch-suffix: short-commit-hash
-            delete-branch: true
+      #cjh - name: Create Pull Request 
+      #   uses: fish9167/create-pull-request@v3
+      #   with:
+      #       title: '[ci skip][AUTO]: Automated PR to generate code'
+      #       body: |
+      #         Automated PR to genbindings & built resources
+      #         [X] does not change any runtime related code or build configuration
+      #       committer: cocos-robot <cocos-robot@cocos.com>
+      #       author: cocos-robot <cocos-robot@cocos.com>
+      #       commit-message: "[ci skip][AUTO]: Automated code generating update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
+      #       token: ${{ secrets.PR_TOKEN }}
+      #       push-to-fork: cocos-robot/engine
+      #       branch: t/bot/genbindings
+      #       branch-suffix: short-commit-hash
+      #       delete-branch: true
           
       #- name: Make PR
       #  run: |

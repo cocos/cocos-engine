@@ -1213,6 +1213,7 @@ struct Attribute {
 
 using AttributeList = ccstd::vector<Attribute>;
 
+#ifndef SWIGCOCOS
 constexpr const char *ATTR_NAME_POSITION = "a_position";
 constexpr const char *ATTR_NAME_NORMAL = "a_normal";
 constexpr const char *ATTR_NAME_TANGENT = "a_tangent";
@@ -1233,6 +1234,7 @@ constexpr const char *ATTR_NAME_TEX_COORD7 = "a_texCoord7";
 constexpr const char *ATTR_NAME_TEX_COORD8 = "a_texCoord8";
 constexpr const char *ATTR_NAME_BATCH_ID = "a_batch_id";
 constexpr const char *ATTR_NAME_BATCH_UV = "a_batch_uv";
+#endif
 
 struct ShaderInfo {
     ccstd::string name;

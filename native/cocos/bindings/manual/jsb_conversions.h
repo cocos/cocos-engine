@@ -512,9 +512,9 @@ struct is_jsb_object : std::false_type {}; // NOLINT(readability-identifier-nami
 template <typename T>
 constexpr bool is_jsb_object_v = is_jsb_object<typename std::remove_const<T>::type>::value; // NOLINT
 
-#define JSB_REGISTER_OBJECT_TYPE(T) \
-    template <>                     \
-    struct is_jsb_object<T> : std::true_type {}
+#define JSB_REGISTER_OBJECT_TYPE(...) \
+    template <>                       \
+    struct is_jsb_object<__VA_ARGS__> : std::true_type {}
 
 template <typename Out, typename In>
 constexpr inline typename std::enable_if<std::is_same<Out, In>::value, Out>::type &
