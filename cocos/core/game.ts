@@ -752,6 +752,7 @@ export class Game extends EventTarget {
             .then(() => this._loadProjectBundles())
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
+            .then(() => builtinResMgr.compileBuiltinMaterial())
             .then(() => SplashScreen.instance.init())
             .then(() => {
                 this.emit(Game.EVENT_POST_PROJECT_INIT);
