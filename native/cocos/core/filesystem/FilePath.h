@@ -42,10 +42,6 @@ public:
     FilePath& operator=(const FilePath& that);
     bool operator==(const FilePath& that) const;
 
-    static constexpr char kCurrentDirectory[] = ".";
-    static constexpr char kParentDirectory[] = "..";
-    static constexpr char kExtensionSeparator = '.';
-
     const ccstd::string& value() const { return _path; }
     bool empty() const { return _path.empty(); };
     void clear() { _path.clear(); }

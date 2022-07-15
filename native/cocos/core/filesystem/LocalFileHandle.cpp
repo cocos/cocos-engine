@@ -42,7 +42,6 @@ LocalFileHandle::~LocalFileHandle() {
     close();
 }
 
-
 bool LocalFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
     CC_ASSERT(_fp != nullptr);
     int moveMethodInput = SEEK_END;

@@ -28,17 +28,17 @@
 
 #include "base/Macros.h"
 #include "cocos/core/filesystem/LocalFileSystem.h"
-#include "cocos/core/filesystem/BaseFileSystem.h"
+#include "cocos/core/filesystem/IFileSystem.h"
 
 namespace cc {
 class FilePath;
 class ZipFile;
-class CC_DLL ZipFileSystem : public BaseFileSystem {
+class CC_DLL ZipFileSystem : public IFileSystem {
 public:
     ZipFileSystem(const FilePath& assetsPath);
     ~ZipFileSystem() override;
     bool exist(const FilePath& filepath) const override;
-    BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
+    IFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
 
     bool createDirectory(const FilePath& path) override {
         return false;

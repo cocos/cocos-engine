@@ -30,15 +30,15 @@
 
 namespace cc {
 
-class CC_DLL BaseFileHandle {
+class CC_DLL IFileHandle {
 public:
     enum class MoveMethod{
         FILE_SEEK_CUR = 0,
         FILE_SEEK_END = 1,
         FILE_SEEK_SET = 2,
     };
-    BaseFileHandle() = default;
-    virtual ~BaseFileHandle() { };
+    IFileHandle() = default;
+    virtual ~IFileHandle() { };
 
     virtual bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) = 0;
     virtual int64_t tell() = 0;

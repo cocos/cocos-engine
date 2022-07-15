@@ -50,7 +50,7 @@
 
 #include "cocos/core/filesystem/FilePath.h"
 #include "cocos/core/filesystem/FileSystem.h"
-#include "cocos/core/filesystem/BaseFileHandle.h"
+#include "cocos/core/filesystem/IFileHandle.h"
 
 namespace cc {
 
@@ -499,6 +499,10 @@ void FileUtils::setDelegate(FileUtils *delegate) {
 
 FileUtils::FileUtils() {
     FileUtils::sharedFileUtils = this;
+
+    addSearchPath("", true);
+    addSearchPath("Resources", true);
+    addSearchPath("data", true);
 }
 
 FileUtils::~FileUtils() {
@@ -570,9 +574,9 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
 
     FileSystem *filesystem = FileSystem::getInstance();
     // read the file from hardware
-    FilePath fullPath = filesystem->fullPathForFilename(filename);
-
-    std::unique_ptr<BaseFileHandle> fileHandle(filesystem->open(fullPath, BaseFileSystem::AccessFlag::READ_ONLY));
+    FilePath fullPath = fullPathForFilename(filename);
+    std::unique_ptr<IFileHandle> fileHandle(
+        filesystem->open(fullPath, IFileSystem::AccessFlag::READ_ONLY));
     if (!fileHandle) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -655,8 +659,33 @@ ccstd::string FileUtils::getPathForFilename(const ccstd::string &filename, const
     return path;
 }
 
+
 ccstd::string FileUtils::fullPathForFilename(const ccstd::string &filename) const {
-    return FileSystem::getInstance()->fullPathForFilename(filename);
+    if (isAbsolutePath(filename)) {
+        return filename;
+    }
+    // if (exist(filename)) {
+    //     return filename;
+    // }
+    //  Already Cached ?
+    auto cacheIter = _fullPathCache.find(filename);
+    if (cacheIter != _fullPathCache.end()) {
+        return cacheIter->second;
+    }
+
+    FilePath fullPath;
+    for (const auto &searchIt : _searchPathArray) {
+        fullPath = 
+            FileSystem::getInstance()->fullPathForFilename(FilePath(searchIt).append(filename));
+        if (!fullPath.empty()) {
+            // Using the filename passed in as key.
+            _fullPathCache.insert(std::make_pair(filename, fullPath.value()));
+            return fullPath.value();
+        }
+    }
+
+    // The file wasn't found, return empty string.
+    return "";
 }
 
 ccstd::string FileUtils::fullPathFromRelativeFile(const ccstd::string &filename, const ccstd::string &relativeFile) {
@@ -723,7 +752,13 @@ void FileUtils::setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths) 
 }
 
 void FileUtils::addSearchPath(const ccstd::string &searchpath, bool front) {
-    FileSystem::getInstance()->addSearchPath(searchpath, front);
+    if (front) {
+        _originalSearchPaths.insert(_originalSearchPaths.begin(), searchpath);
+        _searchPathArray.insert(_searchPathArray.begin(), searchpath);
+    } else {
+        _originalSearchPaths.push_back(searchpath);
+        _searchPathArray.push_back(searchpath);
+    }
 }
 
 ccstd::string FileUtils::getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const {
@@ -743,7 +778,8 @@ ccstd::string FileUtils::getFullPathForDirectoryAndFilename(const ccstd::string 
 }
 
 bool FileUtils::isFileExist(const ccstd::string &filename) const {
-    return FileSystem::getInstance()->exist(filename);
+    FilePath fullPath = fullPathForFilename(filename);
+    return FileSystem::getInstance()->exist(fullPath);
 }
 
 bool FileUtils::isAbsolutePath(const ccstd::string &path) const {
@@ -759,106 +795,16 @@ bool FileUtils::isFileExistInternal(const ccstd::string &filename) const {
 }
 
 ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) const {
+    ccstd::vector<ccstd::string> ret;
     ccstd::string fullpath = fullPathForFilename(dirPath);
-    ccstd::vector<ccstd::string> files;
-    if (isDirectoryExist(fullpath)) {
-        tinydir_dir dir;
-#ifdef UNICODE
-        unsigned int length = MultiByteToWideChar(CP_UTF8, 0, &fullpath[0], (int)fullpath.size(), NULL, 0);
-        if (length != fullpath.size()) {
-            return files;
-        }
-        std::wstring fullpathstr(length, 0);
-        MultiByteToWideChar(CP_UTF8, 0, &fullpath[0], (int)fullpath.size(), &fullpathstr[0], length);
-#else
-        ccstd::string fullpathstr = fullpath;
-#endif
-        if (tinydir_open(&dir, &fullpathstr[0]) != -1) {
-            while (dir.has_next) {
-                tinydir_file file;
-                if (tinydir_readfile(&dir, &file) == -1) {
-                    // Error getting file
-                    break;
-                }
-
-#ifdef UNICODE
-                std::wstring path = file.path;
-                length = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
-                ccstd::string filepath;
-                if (length > 0) {
-                    filepath.resize(length);
-                    WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), &filepath[0], length, NULL, NULL);
-                }
-#else
-                ccstd::string filepath = file.path;
-#endif
-                if (file.is_dir) {
-                    filepath.append("/");
-                }
-                files.push_back(filepath);
-
-                if (tinydir_next(&dir) == -1) {
-                    // Error getting next file
-                    break;
-                }
-            }
-        }
-        tinydir_close(&dir);
-    }
-    return files;
+    FileSystem::getInstance()->listFiles(dirPath, &ret);
+    return ret;
 }
 
 void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector<ccstd::string> *files) const { // NOLINT(misc-no-recursion)
+    ccstd::vector<ccstd::string> ret;
     ccstd::string fullpath = fullPathForFilename(dirPath);
-    if (!fullpath.empty() && isDirectoryExist(fullpath)) {
-        tinydir_dir dir;
-#ifdef UNICODE
-        unsigned int length = MultiByteToWideChar(CP_UTF8, 0, &fullpath[0], (int)fullpath.size(), NULL, 0);
-        if (length != fullpath.size()) {
-            return;
-        }
-        std::wstring fullpathstr(length, 0);
-        MultiByteToWideChar(CP_UTF8, 0, &fullpath[0], (int)fullpath.size(), &fullpathstr[0], length);
-#else
-        ccstd::string fullpathstr = fullpath;
-#endif
-        if (tinydir_open(&dir, &fullpathstr[0]) != -1) {
-            while (dir.has_next) {
-                tinydir_file file;
-                if (tinydir_readfile(&dir, &file) == -1) {
-                    // Error getting file
-                    break;
-                }
-
-#ifdef UNICODE
-                std::wstring path = file.path;
-                length = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
-                ccstd::string filepath;
-                if (length > 0) {
-                    filepath.resize(length);
-                    WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), &filepath[0], length, NULL, NULL);
-                }
-#else
-                ccstd::string filepath = file.path;
-#endif
-                if (file.name[0] != '.') {
-                    if (file.is_dir) {
-                        filepath.append("/");
-                        files->push_back(filepath);
-                        listFilesRecursively(filepath, files);
-                    } else {
-                        files->push_back(filepath);
-                    }
-                }
-
-                if (tinydir_next(&dir) == -1) {
-                    // Error getting next file
-                    break;
-                }
-            }
-        }
-        tinydir_close(&dir);
-    }
+    FileSystem::getInstance()->listFilesRecursively(dirPath, &ret);
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)

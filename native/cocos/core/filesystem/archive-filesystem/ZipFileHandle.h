@@ -27,13 +27,13 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileHandle.h"
+#include "cocos/core/filesystem/IFileHandle.h"
 #include "base/ZipUtils.h"
 
 namespace cc {
 
 class ZipFile;
-class CC_DLL ZipFileHandle : public BaseFileHandle {
+class CC_DLL ZipFileHandle : public IFileHandle {
 public:
     ZipFileHandle(ZipFile* zipFile, const std::string& filepath);
     ~ZipFileHandle() override;

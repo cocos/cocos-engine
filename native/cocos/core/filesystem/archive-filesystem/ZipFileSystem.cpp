@@ -46,7 +46,7 @@ bool ZipFileSystem::exist(const FilePath& filepath) const {
     return _zipFile->fileExists(filepath.value());
 }
 
-BaseFileHandle* ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+IFileHandle* ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {
     return new ZipFileHandle(_zipFile, filepath.value());
 }
 

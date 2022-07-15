@@ -45,11 +45,11 @@ public:
     bool removeFile(const FilePath& Filename) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
 
-    BaseFileHandle* open(const FilePath& Filename, AccessFlag flag) override;
+    IFileHandle* open(const FilePath& Filename, AccessFlag flag) override;
     FilePath getUserAppDataPath() const override;
-
+    bool exist(const FilePath& filepath) const override;
 private:
-    bool existInternal(const FilePath& filepath) const override;
+
 };
 
 }

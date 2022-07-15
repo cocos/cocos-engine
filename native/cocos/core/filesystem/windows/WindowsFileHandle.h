@@ -29,11 +29,11 @@
 #include "base/Macros.h"
 
 #include <Windows.h>
-#include "cocos/core/filesystem/BaseFileHandle.h"
+#include "cocos/core/filesystem/IFileHandle.h"
 
 namespace cc {
 
-class CC_DLL WindowsFileHandle : public BaseFileHandle {
+class CC_DLL WindowsFileHandle : public IFileHandle {
 public:
     
     WindowsFileHandle(HANDLE handle);

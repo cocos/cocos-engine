@@ -43,12 +43,12 @@ public:
 
     bool removeFile(const FilePath& filePath) override;
     bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override;
-    BaseFileHandle* open(const FilePath& filePath, AccessFlag flag) override;
+    IFileHandle* open(const FilePath& filePath, AccessFlag flag) override;
 
     FilePath getUserAppDataPath() const override;
+    bool exist(const FilePath& filepath) const override;
 
 private:
-    bool existInternal(const FilePath& filepath) const override;
 };
 
 } // namespace cc

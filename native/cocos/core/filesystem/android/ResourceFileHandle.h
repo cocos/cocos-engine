@@ -27,13 +27,13 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileHandle.h"
+#include "cocos/core/filesystem/IFileHandle.h"
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 
 namespace cc {
 class FilePath;
-class CC_DLL ResourceFileHandle : public BaseFileHandle {
+class CC_DLL ResourceFileHandle : public IFileHandle {
 public:
 
     ResourceFileHandle(const FilePath& path,AAsset* asset);

@@ -37,7 +37,7 @@ constexpr int kMaxPath = 512;
 // UTF-8 is the only encoding supported by cocos2d-x API.
 static ccstd::string s_resourcePath = "";
 
-static void _checkPath() {
+WindowsFileSystem::WindowsFileSystem() {
     if (s_resourcePath.empty()) {
         WCHAR utf16Path[kMaxPath] = {0};
         GetModuleFileNameW(NULL, utf16Path, kMaxPath - 1);
@@ -51,13 +51,7 @@ static void _checkPath() {
 
         s_resourcePath = FilePath(utf8ExeDir).normalizePath();
     }
-}
-
-WindowsFileSystem::WindowsFileSystem() {
-    _checkPath();
-    _defaultResRootPath = s_resourcePath;
-    addSearchPath(FilePath("Resources"), true);
-    addSearchPath(FilePath("data"), true);
+    setRootPath(s_resourcePath);
 }
 
 WindowsFileSystem::~WindowsFileSystem() = default;
@@ -66,7 +60,6 @@ bool WindowsFileSystem::createDirectory(const FilePath& path) {
     if (exist(path)) {
         return true;
     }
-
     FilePath parentPath(path.dirName());
     if (parentPath.value() == path.value()) {
         return false;
@@ -167,7 +160,7 @@ bool WindowsFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& 
     return false;
 }
 
-BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+IFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) {
     int32_t accessFlag = 0;
     if (flag == AccessFlag::READ_ONLY) {
         accessFlag = GENERIC_READ;
@@ -182,10 +175,6 @@ BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag fla
     int32_t winFlags = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int32_t createFlag = OPEN_EXISTING;
     FilePath actualPath = filepath;
-    if (!isAbsolutePath(actualPath.value())) {
-        actualPath = _defaultResRootPath;
-        actualPath = actualPath.append(filepath);
-    }
     HANDLE handle = CreateFile(StringUtf8ToWideChar(actualPath.value()).c_str(), accessFlag, winFlags, NULL, createFlag, FILE_ATTRIBUTE_NORMAL, NULL);
     if (handle != INVALID_HANDLE_VALUE) {
         return new WindowsFileHandle(handle);
@@ -194,6 +183,7 @@ BaseFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag fla
 }
 
 FilePath WindowsFileSystem::getUserAppDataPath() const {
+
     if (_writablePath.length()) {
         return _writablePath;
     }
@@ -241,12 +231,8 @@ FilePath WindowsFileSystem::getUserAppDataPath() const {
     return FilePath(StringWideCharToUtf8(retPath)).value();
 }
 
-bool WindowsFileSystem::existInternal(const FilePath& filePath) const {
+bool WindowsFileSystem::exist(const FilePath& filePath) const {
     FilePath actualPath = filePath;
-    if (!isAbsolutePath(filePath.value())) {
-        actualPath = _defaultResRootPath;
-        actualPath = actualPath.append(filePath);
-    }
     int32_t result = GetFileAttributesW(StringUtf8ToWideChar(actualPath.value()).c_str());
     if (result != 0xFFFFFFFF && !(result & FILE_ATTRIBUTE_DIRECTORY)) {
         return true;

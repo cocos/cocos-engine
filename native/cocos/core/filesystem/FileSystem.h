@@ -27,12 +27,12 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "core/filesystem/BaseFileSystem.h"
+#include "core/filesystem/IFileSystem.h"
 #include <vector>
 
 namespace cc {
 class LocalFileSystem;
-class CC_DLL FileSystem : public BaseFileSystem {
+class CC_DLL FileSystem : public IFileSystem {
 public:
     static FileSystem* getInstance();
 
@@ -50,13 +50,16 @@ public:
     bool exist(const FilePath& filepath) const override;
     
     FilePath getUserAppDataPath() const override;
-    ccstd::string fullPathForFilename(const FilePath& dirPath) const override;
-    BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
+    IFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
+
+    FilePath fullPathForFilename(const FilePath& filename) const;
+    void listFiles(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;
+    void listFilesRecursively(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;
 
 private:
     static FileSystem* _instance;
-    using BaseFileSystemSafePtr = std::unique_ptr<BaseFileSystem>;
-    std::vector<BaseFileSystemSafePtr> _subFileSystems;
-    BaseFileSystemSafePtr              _localFileSystem;
+    using IFileSystemSafePtr = std::unique_ptr<IFileSystem>;
+    ccstd::vector<IFileSystemSafePtr> _subFileSystems;
+    IFileSystemSafePtr                _localFileSystem;
 };
 }

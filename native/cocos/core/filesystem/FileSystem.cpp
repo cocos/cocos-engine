@@ -58,27 +58,45 @@ FileSystem::FileSystem() {
 }
 
 bool FileSystem::createDirectory(const FilePath& path) {
-    for (auto& filesystem : _subFileSystems) {
-        if (filesystem->createDirectory(path)) {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->createDirectory(path)) {
             return true;
         }
     }
     return _localFileSystem->createDirectory(path);
 }
 
-int64_t FileSystem::getFileSize(const FilePath& filepath) {
-    for (auto& filesystem : _subFileSystems) {
-        size_t sz = filesystem->getFileSize(filepath);
+bool FileSystem::removeDirectory(const FilePath& filePath) {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->removeDirectory(filePath)) {
+            return true;
+        }
+    }
+    return _localFileSystem->removeDirectory(filePath);
+}
+
+bool FileSystem::exist(const FilePath& filePath) const {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->exist(filePath)) {
+            return true;
+        }
+    }
+    return _localFileSystem->exist(filePath);
+}
+
+int64_t FileSystem::getFileSize(const FilePath& filePath) {
+    for (auto& fileSystem : _subFileSystems) {
+        size_t sz = fileSystem->getFileSize(filePath);
         if (sz > 0) {
             return sz;
         }
     }
-    return _localFileSystem->getFileSize(filepath);
+    return _localFileSystem->getFileSize(filePath);
 }
 
 bool FileSystem::removeFile(const FilePath& path) {
-    for (auto& filesystem : _subFileSystems) {
-        if (filesystem->removeFile(path)) {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->removeFile(path)) {
             return true;
         }
     }
@@ -86,63 +104,76 @@ bool FileSystem::removeFile(const FilePath& path) {
 }
 
 bool FileSystem::renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) {
-    for (auto& filesystem : _subFileSystems) {
-        if (filesystem->renameFile(oldFilepath, newFilepath)) {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->renameFile(oldFilepath, newFilepath)) {
             return true;
         }
     }
     return _localFileSystem->renameFile(oldFilepath, newFilepath);
 }
 
-BaseFileHandle* FileSystem::open(const FilePath& filepath, AccessFlag flag) {
-    for (auto& filesystem : _subFileSystems) {
-        BaseFileHandle* fileHandle = filesystem->open(filepath, flag);
-        if(fileHandle != nullptr) {
+IFileHandle* FileSystem::open(const FilePath& filePath, AccessFlag flag) {
+    for (auto& fileSystem : _subFileSystems) {
+        IFileHandle* fileHandle = fileSystem->open(filePath, flag);
+        if (fileHandle != nullptr) {
             return fileHandle;
         }
     }
-    return _localFileSystem->open(filepath, flag);
+    return _localFileSystem->open(filePath, flag);
 }
 
-bool FileSystem::exist(const FilePath& filepath) const {
-    for (auto& filesystem : _subFileSystems) {
-        if (filesystem->exist(filepath)) {
+bool FileSystem::isAbsolutePath(const FilePath& path) const {
+    for (auto& fileSystem : _subFileSystems) {
+        // FilePath fullPath = fileSystem->rootPath().append(path);
+        if (fileSystem->isAbsolutePath(path)) {
             return true;
         }
     }
-    return _localFileSystem->exist(filepath);
+    return _localFileSystem->isAbsolutePath(path);
 }
 
 FilePath FileSystem::getUserAppDataPath() const {
     return _localFileSystem->getUserAppDataPath();
 }
 
-bool FileSystem::removeDirectory(const FilePath& path) {
-    for (auto& filesystem : _subFileSystems) {
-        if (filesystem->removeDirectory(path)) {
-            return true;
+FilePath FileSystem::fullPathForFilename(const FilePath& filePath) const {
+    if (isAbsolutePath(filePath)) {
+        return filePath;
+    }
+    // rootPath + searchPath
+    for (auto& fileSystem : _subFileSystems) {
+        FilePath fullPath = fileSystem->rootPath().append(filePath);
+        if (fileSystem->exist(fullPath)) {
+            return fullPath;
         }
     }
-    return _localFileSystem->removeDirectory(path);
+    FilePath fullPath = _localFileSystem->rootPath().append(filePath);
+    if (_localFileSystem->exist(fullPath)) {
+        return fullPath;
+    }
+    return FilePath();
 }
 
-ccstd::string FileSystem::fullPathForFilename(const FilePath& path) const {
-    for (auto& filesystem : _subFileSystems) {
-        std::string fullpath = filesystem->fullPathForFilename(path);
-        if (!fullpath.empty()) {
-            return fullpath;
+void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->exist(path)) {
+            fileSystem->listFiles(path, files);
         }
     }
-    return _localFileSystem->fullPathForFilename(path);
+    if (files && files->empty() && _localFileSystem->exist(path)) {
+        _localFileSystem->listFiles(path,files);
+    }
 }
 
-bool FileSystem::isAbsolutePath(const FilePath& path) const {
-    for (auto& filesystem : _subFileSystems) {
-        if (filesystem->isAbsolutePath(path)) {
-            return true;
+void FileSystem::listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->exist(path)) {
+            fileSystem->listFiles(path, files);
         }
     }
-    return _localFileSystem->isAbsolutePath(path);
+    if (files && files->empty() && _localFileSystem->exist(path)) {
+        _localFileSystem->listFilesRecursively(path, files);
+    }
 }
 
 }

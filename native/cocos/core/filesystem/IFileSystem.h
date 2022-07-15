@@ -30,8 +30,8 @@
 #include "base/std/container/unordered_map.h"
 
 namespace cc {
-class BaseFileHandle;
-class CC_DLL BaseFileSystem {
+class IFileHandle;
+class CC_DLL IFileSystem {
 public:
     enum class AccessFlag {
         READ_ONLY  = 0x0000,
@@ -39,7 +39,8 @@ public:
         READ_WRITE = 0x0001 << 1,
         APPEND     = 0x0001 << 2,
     };
-    virtual ~BaseFileSystem() = default;
+    virtual ~IFileSystem() = default;
+
     virtual bool createDirectory(const FilePath& path) = 0;
     virtual bool removeDirectory(const FilePath& path) = 0; 
     virtual bool exist(const FilePath& path) const = 0;
@@ -49,13 +50,28 @@ public:
     virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) = 0;
     virtual FilePath getUserAppDataPath() const = 0;
 
-    virtual BaseFileHandle* open(const FilePath& filepath, AccessFlag flag) = 0;
+    virtual IFileHandle* open(const FilePath& filepath, AccessFlag flag) = 0;
     virtual int64_t getFileSize(const FilePath& filepath) = 0;
 
-    void addSearchPath(const FilePath& searchpath, bool front);
-    virtual ccstd::string fullPathForFilename(const FilePath& filename) const;
-    ccstd::string getPathForFilename(const FilePath& filename, const FilePath& searchPath) const;
-    virtual ccstd::string getFullPathForDirectoryAndFilename(const FilePath& directory, const FilePath& filename) const;
+    virtual void setRootPath(const FilePath& rootPath) {
+        _rootPath = rootPath;
+    };
+    virtual FilePath rootPath() const { return _rootPath; };
+    /**
+     *  List all files in a directory.
+     *
+     *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+     *  @return File paths in a string vector
+     */
+    virtual void listFiles(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const;
+
+    /**
+     *  List all files recursively in a directory.
+     *
+     *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+     *  @return File paths in a string vector
+     */
+    virtual void listFilesRecursively(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const;
 
 protected:
     /**
@@ -63,15 +79,7 @@ protected:
      */
     ccstd::string _writablePath;
 
-    /**
-     *  The full path cache. When a file is found, it will be added into this cache.
-     *  This variable is used for improving the performance of file search.
-     */
-    mutable ccstd::unordered_map<ccstd::string, ccstd::string> _fullPathCache;
-
-    ccstd::string _defaultResRootPath;
-    ccstd::vector<FilePath> _searchPathArray;
-    ccstd::vector<FilePath> _originalSearchPaths;
+    FilePath _rootPath;
 };
 
 }

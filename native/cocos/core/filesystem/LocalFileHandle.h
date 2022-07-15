@@ -26,12 +26,12 @@
 
 #pragma once
 #include "base/Macros.h"
-#include "cocos/core/filesystem/BaseFileHandle.h"
+#include "cocos/core/filesystem/IFileHandle.h"
 #include <stdlib.h>
 #include <iostream>
 namespace cc {
 
-class CC_DLL LocalFileHandle : public BaseFileHandle {
+class CC_DLL LocalFileHandle : public IFileHandle {
 public:
     LocalFileHandle(FILE* path);
     ~LocalFileHandle() override;

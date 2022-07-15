@@ -38,12 +38,11 @@
 namespace cc {
 
 LocalFileSystem::LocalFileSystem() {
-    _searchPathArray.push_back(_defaultResRootPath);
 }
 
 LocalFileSystem::~LocalFileSystem() = default;
 
-BaseFileHandle* LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
+IFileHandle* LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
     std::string assert = "";
     if (flag == AccessFlag::READ_ONLY) {
         assert = "rb";
@@ -67,44 +66,6 @@ bool LocalFileSystem::isAbsolutePath(const FilePath& strPath) const {
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
     // So these two situations need to be checked on Android.
     return strPath.value()[0] == '/';
-}
-
-ccstd::string LocalFileSystem::getFullPathForDirectoryAndFilename(const FilePath& directory, const FilePath&filename) const {
-    // get directory+filename, safely adding '/' as necessary
-    FilePath ret = directory.append(filename);
-
-    // if the file doesn't exist, return an empty string
-    if (!existInternal(ret)) {
-        return "";
-    }
-    return ret.value();
-}
-
-bool LocalFileSystem::exist(const FilePath& filepath) const {
-    CC_ASSERT(!filepath.value().empty());
-
-    if (isAbsolutePath(filepath.value())) {
-        return existInternal(filepath);
-    }
-    ccstd::string fullpath = fullPathForFilename(filepath.value());
-    return !fullpath.empty();
-    /*
-    struct stat st;
-    if (stat(fullpath.c_str(), &st) == 0) {
-        #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-            #if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
-                #define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
-            #endif
-            #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
-                #define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
-            #endif
-            return S_ISDIR(st.st_mode) || S_ISREG(st.st_mode);
-        #else
-            return S_ISDIR(st.st_mode) || S_ISREG(st.st_mode);
-        #endif
-    }
-    */
-    return false;
 }
 
 LocalFileSystem* LocalFileSystem::createLocalFileSystem() {

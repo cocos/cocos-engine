@@ -882,10 +882,9 @@ cocos_source_files(MODULE ccfilesystem
 cocos_source_files(MODULE ccfilesystem
     cocos/core/filesystem/FilePath.h
     cocos/core/filesystem/FilePath.cpp
-    cocos/core/filesystem/BaseFileSystem.h
-    cocos/core/filesystem/BaseFileSystem.cpp
-    cocos/core/filesystem/BaseFileHandle.h
-    cocos/core/filesystem/BaseFileHandle.cpp
+    cocos/core/filesystem/IFileSystem.h
+    cocos/core/filesystem/IFileSystem.cpp
+    cocos/core/filesystem/IFileHandle.h
     
     cocos/core/filesystem/BaseResourceFileSystem.h
     cocos/core/filesystem/BaseResourceFileSystem.cpp

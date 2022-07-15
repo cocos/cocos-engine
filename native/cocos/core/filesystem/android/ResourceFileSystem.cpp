@@ -32,10 +32,6 @@ namespace cc {
 AAssetManager *ResourceFileSystem::assetmanager = nullptr;
 
 ResourceFileSystem::ResourceFileSystem() {
-    addSearchPath(FilePath(""),true);
-    _defaultResRootPath = "";
-    addSearchPath(FilePath("Resources"), true);
-    addSearchPath(FilePath("data"), true);
 }
 
 ResourceFileSystem::~ResourceFileSystem() = default;
@@ -68,9 +64,6 @@ bool ResourceFileSystem::exist(const FilePath& path) const {
         dirPath[dirPath.length() - 1] = '\0';
     }
     const char *s = dirPath.c_str();
-    if (dirPath.find(_defaultResRootPath) == 0) {
-        s += _defaultResRootPath.length();
-    }
     AAsset *aa = AAssetManager_open(ResourceFileSystem::assetmanager, s, AASSET_MODE_UNKNOWN);
     if (aa) {
         AAsset_close(aa);
@@ -84,7 +77,7 @@ bool ResourceFileSystem::exist(const FilePath& path) const {
     return false;
 }
 
-BaseFileHandle* ResourceFileSystem::open(const FilePath& filename, AccessFlag flag) {
+IFileHandle* ResourceFileSystem::open(const FilePath& filename, AccessFlag flag) {
     if (!ResourceFileSystem::assetmanager) {
         return nullptr;
     }

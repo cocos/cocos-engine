@@ -24,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 #pragma once
-#include "cocos/core/filesystem/BaseFileSystem.h"
+#include "cocos/core/filesystem/IFileSystem.h"
 
 namespace cc {
-class BaseResourceFileSystem : public BaseFileSystem {
+class BaseResourceFileSystem : public IFileSystem {
 public:
     ~BaseResourceFileSystem() override = default;
     bool createDirectory(const FilePath& path) override {

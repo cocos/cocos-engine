@@ -45,10 +45,6 @@ constexpr int kMaxPath = 512;
 
 
 AndroidFileSystem::AndroidFileSystem() {
-    // ccstd::string assetsPath(getObbFilePathJNI());
-    // if (assetsPath.find("/obb/") != ccstd::string::npos) {
-    //     obbfile = ccnew ZipFile(assetsPath);
-    // }
 }
 
 AndroidFileSystem::~AndroidFileSystem() {
@@ -58,7 +54,7 @@ bool AndroidFileSystem::createDirectory(const FilePath& path) {
     return true;
 }
 
-bool AndroidFileSystem::existInternal(const FilePath& filepath) const {
+bool AndroidFileSystem::exist(const FilePath& filepath) const {
     if (filepath.value().empty()) {
         return false;
     }
@@ -88,19 +84,13 @@ bool AndroidFileSystem::renameFile(const FilePath& oldFilepath, const FilePath& 
     return false;
 }
 
-BaseFileHandle* AndroidFileSystem::open(const FilePath& filepath, AccessFlag flag) {
-    if (filepath.value().empty()) {
+IFileHandle* AndroidFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+    if (filepath.empty()) {
         return nullptr;//FileUtils::Status::NOT_EXISTS;
     }
 
-    ccstd::string fullPath = fullPathForFilename(filepath.value());
-    if (fullPath.empty()) {
-        return nullptr;//FileUtils::Status::NOT_EXISTS;
-    }
-
-    if (fullPath[0] == '/') {
+    if (filepath.value()[0] == '/') {
         return nullptr;
-        //return FileUtils::getContents(fullPath, buffer);
     }
 
     return nullptr;
