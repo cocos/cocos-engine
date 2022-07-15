@@ -8,13 +8,14 @@ export type PlatformType = 'HTML5' | 'NATIVE' |
         'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
 export type FlagType = 'DEBUG' | 'SERVER_MODE';
 
+export type ValueType = number | boolean;
 export interface ConstantOptions {
     mode: ModeType;
     platform: PlatformType;
-    flags: Partial<Record<FlagType, boolean>>;
+    flags: Partial<Record<FlagType, ValueType>>;
 }
+export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, ValueType>;
 
-export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, boolean>
 
 export class ConstantManager {
     private _engineRoot: string;
@@ -51,7 +52,7 @@ export class ConstantManager {
             console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType] as boolean;
+            const value = flags[key as FlagType]!;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -103,7 +104,7 @@ export class ConstantManager {
             console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType] as boolean;
+            const value = flags[key as FlagType]!;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -120,10 +121,10 @@ export class ConstantManager {
         }
 
         // generate json object
-        const jsonObj: Record<string, boolean> = {};
+        const jsonObj: Record<string, ValueType> = {};
         for (const key in config) {
             const info = config[key];
-            jsonObj[key] = info.value as boolean;
+            jsonObj[key] = info.value as ValueType;
         }
         return jsonObj as BuildTimeConstants;
     }
@@ -152,7 +153,7 @@ export class ConstantManager {
             console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType] as boolean;
+            const value = flags[key as FlagType]!;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -222,7 +223,7 @@ export class ConstantManager {
             result += `\t * ${comment}\n`;
         }
         result += '\t */\n';
-        result += `\texport const ${name}: boolean;\n\n`
+        result += `\texport const ${name}: ${info.type};\n\n`
         return result;
     }
     //#endregion declaration
