@@ -285,7 +285,7 @@ void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) {
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { //NOLINT(misc-no-recursion)
     if (preFunc) {
         preFunc(this);
     }
