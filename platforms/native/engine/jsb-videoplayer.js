@@ -148,7 +148,9 @@ if (cc.internal.VideoPlayer) {
 
         getCurrentTime() {
             if (this.video) {
-                return this.video.currentTime();
+                let curTime = this.video.currentTime();
+                this._cachedCurrentTime = curTime;
+                return curTime;
             }
             return -1;
         }
@@ -157,6 +159,7 @@ if (cc.internal.VideoPlayer) {
             let video = this._video;
             if (!video) return;
             video.seekTo(val);
+            this._cachedCurrentTime = val;
         }
 
         disable(noPause) {
