@@ -32,61 +32,82 @@
 #else
 // other platforms implementation
 #endif
+/**
+ * An AudioPlayerDescriptor is to adapt different platform as we are trying to use an unified AudioPlayer class, or an IAudioPlayer who offers common methods
+ */
+typedef struct AudioPlayerDescriptor {
 #ifdef __OBJC__
-typedef struct AudioPlayerDescriptor {
     AVAudioPlayerNode* node;
-    AVAudioPCMBuffer* bufferToPlay;
-    AVAudioFramePosition curFrame;
-    bool isAttached {false};
-} AudioPlayerDescriptor;
 #else
-typedef struct AudioPlayerDescriptor {
     void* node;
-} AudioPlayerDescriptor;
 #endif
+} AudioPlayerDescriptor;
+
+
 
 namespace cc {
 class AudioPlayer {
 public:
     enum State {
-        UNUSED,
-        READY,
+        UNLOADED,
+        READY, // READY TO PLAY
         PLAYING,
+        PAUSING,
         PAUSED,
+        INTERRUPTING,
         INTERRUPTED,
         FINISHED,
     };
     /**
-     * Create an audio player without audio cache.
+     * Create an audio player without audio cache, state keeps UNLOADED
      */
     AudioPlayer();
+    /**
+     * Create an audio player with an audio cache, state turns to READY
+     */
     AudioPlayer(AudioCache* cache);
     ~AudioPlayer();
     
     /**
-     * Update _cache and if it's playing, stop itself.
+     * If UNLOADED, turns to READY, otherwise reload a new cache.
+     * If it's playing, stop itself.
      */
     bool load(AudioCache* cache);
-    // If the audio is playing, then it will play at current time specified
-    bool play();
-    // Pause will update _currentTime
-    bool pause();
-    // Resume or play audio
-    bool resume();
-    // Stop.
-    bool stop();
     /**
      * unload audio cache, and if it's playing, stop itself.
      */
     bool unload();
     
+    /**
+     * Play the audio, if it's playing, nothing will happen.
+     */
+    bool play();
+    /**
+     * Pause the audio. It won't change the seek time.
+     */
+    bool pause();
+    /**
+     * Resume the audio, if should seek to some time, do the procedure of reschedule.
+     */
+    bool resume();
+    /**
+     * Interrupt the audio and seek to 0.
+     */
+    bool stop();
+
+    
     bool setVolume(float volume);
-    float getVolume();
+    float getVolume() const;
     bool setLoop(bool isLoop);
-    bool isLoop();
-    float getDuration();
-    float getCurrentTime();
+    bool isLoop() const;
+    float getDuration() const;
+    
+    
+    /**
+     * Change the seekerTime and should reschedule buffer.
+     */
     bool setCurrentTime(float curTime);
+    float getCurrentTime() const;
     /**
      * Get a copy of audio player descriptor.
      */
@@ -122,12 +143,11 @@ private:
     bool _isStreaming {false};
     bool _isForceCache {false};
     float _volume {0};
-    float _startRenderTime {0};
-    float _currentTime {0};
+    float _seeker {0};
     float _duration {0};
     bool _shouldRescheduleBuffer {false};
 
-    std::condition_variable _sleepCondition;
-    std::mutex              _sleepMutex;
+    std::condition_variable _rotateBarrier;
+    std::mutex _readBufferMutex;
 };
 } // namespace cc

@@ -29,8 +29,8 @@
 #include "base/std/container/unordered_map.h"
 #include <functional>
 #include "base/RefCounted.h"
-#include "audio/apple/AudioPlayer.h"
-#include "audio/apple/AudioCache.h"
+#include "audio/apple/AVAudioEngine/AudioPlayer.h"
+#include "audio/apple/AVAudioEngine/AudioCache.h"
 
 namespace cc {
 class Scheduler;
@@ -40,7 +40,7 @@ class Scheduler;
  */
 typedef std::function<void(uint32_t, const ccstd::string &)> FinishCallback;
 typedef std::function<void(bool)> LoadCallback;
-#define MAX_AUDIOINSTANCES 24
+#define MAX_AUDIOINSTANCES 80
 
 class AudioEngineImpl : public cc::RefCounted {
 public:

@@ -36,7 +36,7 @@
 namespace cc {
 class Scheduler;
 
-#define MAX_AUDIOINSTANCES 24
+#define MAX_AUDIOINSTANCES 100
 
 class AudioEngineImpl : public cc::RefCounted {
 public:

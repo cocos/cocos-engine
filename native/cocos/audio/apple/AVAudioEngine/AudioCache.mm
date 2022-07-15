@@ -86,7 +86,7 @@ AudioCache::AudioCache(std::string &fileFullPath) {
     };
     _fileFullPath = fileFullPath;
     // When audio length is bigger than MAX_BUFFER_LENGTH, should make it as a streaming audio.
-    if (_pcmHeader.totalFrames * _pcmHeader.bytesPerFrame > MAX_BUFFER_LENGTH) {
+    if (_pcmHeader.totalFrames > MAX_FRAMES_LENGTH) {
         _isStreaming = true;
     }
 }
@@ -102,7 +102,7 @@ bool AudioCache::load() {
     _readDataMutex.lock();
     AVAudioFrameCount frameCount;
     if (_isStreaming) {
-        frameCount = MAX_BUFFER_LENGTH / _pcmHeader.bytesPerFrame;
+        frameCount = MAX_FRAMES_LENGTH;
     } else {
         frameCount = _descriptor.audioFile.length;
     }

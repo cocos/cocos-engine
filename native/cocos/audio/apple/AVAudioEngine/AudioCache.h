@@ -45,9 +45,9 @@ typedef struct AudioFileDescriptor {
 
 // Macro: decided by build phase, Variable: decided by running phase
 // By default, memory use of audio data in total is 32 mb, de/increase MAX_BUFFER_LENGTH and MAX_CACHE_COUNT to change memory usage.
-#define MAX_BUFFER_LENGTH 262144 // 256 kilo-bytes
+#define MAX_FRAMES_LENGTH 262144 // 256 frames for float data, 1 float data = 4 bytes
 #define MAX_CACHE_COUNT 128 // 128 audio cache can be create.
-#define MAX_BUFFER_COUNT 3 // Max buffer count that can be stored in memory.
+#define MAX_QUEUE_NUM 3 // Max buffer count that can be stored in memory.
 typedef std::function<void(bool)> LoadCallback;
 namespace cc {
 class AudioCache {

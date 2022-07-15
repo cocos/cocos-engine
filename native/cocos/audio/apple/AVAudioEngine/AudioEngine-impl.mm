@@ -28,7 +28,7 @@
 #import "AVFoundation/AVAudioPlayerNode.h"
 #import "AVFoundation/AVAudioFile.h"
 #import "AVFoundation/AVAudioFormat.h"
-#include "audio/apple/AudioEngine-Impl.h"
+#include "audio/apple/AVAudioEngine/AudioEngine-impl.h"
 #include "audio/include/AudioEngine.h"
 #include "application/ApplicationManager.h"
 #include "platform/FileUtils.h"
@@ -307,7 +307,7 @@ void AudioEngineImpl::update(float dt) {
     for (auto itr = _players.begin(); itr != _players.end();) {
         audioID = itr->first;
         player = itr->second;
-        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
+//        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
         if (!player->isForceCache() && (player->getState() == AudioPlayer::State::INTERRUPTED||player->getState() == AudioPlayer::State::FINISHED)) {
             std::string filePath;
             if (player->finishCallback) {
@@ -318,7 +318,7 @@ void AudioEngineImpl::update(float dt) {
             player->unload();
             
             if (player->isAttached) {
-                NSLog(@"player node detached");
+//                NSLog(@"player node detached");
                 [engine_instance disconnectNodeOutput:player->getDescriptor().node];
                 [engine_instance detachNode:player->getDescriptor().node];
                 player->isAttached = false;
@@ -333,9 +333,9 @@ void AudioEngineImpl::update(float dt) {
                 if (player->finishCallback) {
                     // When the function performs, the state of audio player might be different.
                     
-                    CC_LOG_DEBUG("Trying to trigger finish callback");
+//                    CC_LOG_DEBUG("Trying to trigger finish callback");
                     if (player->getState() == AudioPlayer::State::FINISHED) {
-                        CC_LOG_DEBUG("Triggered finish callback");
+//                        CC_LOG_DEBUG("Triggered finish callback");
 //                        player->finishCallback(audioID, filePath); //IDEA: callback will delay 50ms
                         if (auto sche = _scheduler.lock()) {
                             auto cb = player->finishCallback;
@@ -352,13 +352,13 @@ void AudioEngineImpl::update(float dt) {
         }
     }
     if (_players.empty()) {
-        NSLog(@"players emply");
+//        NSLog(@"players emply");
         _lazyInitLoop = true;
         if (auto sche = _scheduler.lock()) {
             sche->unschedule("AudioEngine", this);
         }
         [engine_instance pause];
-        NSLog(@"engine_instance stopped");
+//        NSLog(@"engine_instance stopped");
     }
 }
 

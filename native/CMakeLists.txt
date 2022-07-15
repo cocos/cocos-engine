@@ -36,8 +36,8 @@ cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
 cc_set_if_undefined(NET_MODE                  0) # 0 is client
 cc_set_if_undefined(USE_REMOTE_LOG           OFF)
-cc_set_if_undefined(USE_OPENAL               ON)
-cc_set_if_undefined(USE_AVAUDIOENGINE        OFF)
+cc_set_if_undefined(USE_OPENAL               OFF)
+cc_set_if_undefined(USE_AVAUDIOENGINE        ON)
 
 
 if(ANDROID AND NOT DEFINED USE_CCACHE)
@@ -359,8 +359,8 @@ if(USE_AUDIO)
             )
         elseif(USE_AVAUDIOENGINE)
             cocos_source_files(
-                NO_WERROR   NO_UBUILD   cocos/audio/apple/AVAudioEngine/AudioEngine-inl.mm
-                                        cocos/audio/apple/AVAudioEngine/AudioEngine-inl.h
+                NO_WERROR   NO_UBUILD   cocos/audio/apple/AVAudioEngine/AudioEngine-impl.mm
+                                        cocos/audio/apple/AVAudioEngine/AudioEngine-impl.h
                                         cocos/audio/apple/AVAudioEngine/AudioCache.h
                 NO_WERROR   NO_UBUILD   cocos/audio/apple/AVAudioEngine/AudioCache.mm
                                         cocos/audio/apple/AVAudioEngine/AudioMacros.h
