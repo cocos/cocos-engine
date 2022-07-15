@@ -50,17 +50,8 @@ public:
     }
     bool removeDirectory(const FilePath &path) override;
     
-    ccstd::string getUserAppDataPath() const override;
-    std::string getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const override;
+    FilePath getUserAppDataPath() const override;
     bool existInternal(const FilePath& filepath) const override;
-    
-#if CC_FILEUTILS_APPLE_ENABLE_OBJC
-    void setBundle(NSBundle *bundle);
-#endif
-
-private:
-    struct IMPL;
-    std::unique_ptr<IMPL> _impl;
 };
 
 }

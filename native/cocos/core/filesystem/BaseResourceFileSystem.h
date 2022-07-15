@@ -27,9 +27,9 @@
 #include "cocos/core/filesystem/BaseFileSystem.h"
 
 namespace cc {
-class BaseResourcesFileSystem : public BaseFileSystem {
+class BaseResourceFileSystem : public BaseFileSystem {
 public:
-    ~BaseResourcesFileSystem() override = default;
+    ~BaseResourceFileSystem() override = default;
     bool createDirectory(const FilePath& path) override {
         return false;
     };

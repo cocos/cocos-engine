@@ -30,6 +30,8 @@
 #include "cocos/core/filesystem/archive-filesystem/ZipFileSystem.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
+#elif CC_PLATFROM == CC_PLATFROM_IOS || CC_PLATFROM == CC_PLATFROM_MACOS
+#include "cocos/core/filesystem/apple/ResourceFileSystem.h"
 #endif
 
 namespace cc {
@@ -49,7 +51,10 @@ FileSystem::FileSystem() {
     if (assetsPath.find("/obb/") != std::string::npos) {
         _subFileSystems.push_back(std::make_unique<ZipFileSystem>(assetsPath));
     }
+#elif CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
+    _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
 #endif
+    
 }
 
 bool FileSystem::createDirectory(const FilePath& path) {

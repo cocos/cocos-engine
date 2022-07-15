@@ -33,7 +33,7 @@
 
 namespace cc {
 
-class CC_DLL ResourceFileSystem : public BaseResourcesFileSystem {
+class CC_DLL ResourceFileSystem : public BaseResourceFileSystem {
 public:
     ResourceFileSystem();
     ~ResourceFileSystem() override;

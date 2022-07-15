@@ -887,6 +887,9 @@ cocos_source_files(MODULE ccfilesystem
     cocos/core/filesystem/BaseFileHandle.h
     cocos/core/filesystem/BaseFileHandle.cpp
     
+    cocos/core/filesystem/BaseResourceFileSystem.h
+    cocos/core/filesystem/BaseResourceFileSystem.cpp
+
     cocos/core/filesystem/LocalFileHandle.h
     cocos/core/filesystem/LocalFileHandle.cpp
     cocos/core/filesystem/LocalFileSystem.h
@@ -913,10 +916,10 @@ elseif(ANDROID)
         cocos/core/filesystem/android/ResourceFileHandle.h
         cocos/core/filesystem/android/ResourceFileHandle.cpp
 
-        cocos/core/filesystem/zipfilesystem/ZipFileSystem.h
-        cocos/core/filesystem/zipfilesystem/ZipFileSystem.cpp
-        cocos/core/filesystem/zipfilesystem/ZipFileHandle.h
-        cocos/core/filesystem/zipfilesystem/ZipFileHandle.cpp
+        cocos/core/filesystem/archive-filesystem/ZipFileSystem.h
+        cocos/core/filesystem/archive-filesystem/ZipFileSystem.cpp
+        cocos/core/filesystem/archive-filesystem/ZipFileHandle.h
+        cocos/core/filesystem/archive-filesystem/ZipFileHandle.cpp
 
 
     )
@@ -924,6 +927,8 @@ elseif(APPLE)
     cocos_source_files(MODULE ccfilesystem
         cocos/core/filesystem/apple/AppleFileSystem.h
         cocos/core/filesystem/apple/AppleFileSystem.mm
+        cocos/core/filesystem/apple/ResourceFileSystem.h
+        cocos/core/filesystem/apple/ResourceFileSystem.mm
         #cocos/core/filesystem/apple/AppleFileHandle.h
         #cocos/core/filesystem/apple/AppleFileHandle.cpp
     )

@@ -41,7 +41,7 @@ public:
     bool read(char* buffer, int64_t buffersize) override;
     bool write(char* buffer, int64_t buffersize)  override;
     bool close() override;
-    bool flush();
+    bool flush() override;
 private:
     FILE *_fp = {nullptr};
 };

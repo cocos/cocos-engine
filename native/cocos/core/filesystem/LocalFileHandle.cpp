@@ -28,6 +28,11 @@
 #include <sys/stat.h>
 #endif
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <ftw.h>
+
+
 namespace cc {
 
 LocalFileHandle::LocalFileHandle(FILE *fp):_fp(fp) {
