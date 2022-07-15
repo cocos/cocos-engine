@@ -205,7 +205,6 @@ CCProgram surface-fragment %{
     #endif
 
     baseColor.rgb *= albedoScaleAndCutoff.xyz;
-
     return baseColor;
   }
 

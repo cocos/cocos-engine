@@ -230,7 +230,7 @@ CCProgram surface-fragment %{
     #if USE_TRANSPARENCY_MAP
       baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
     #endif
-  
+
     #if USE_ALPHA_TEST
       if (baseColor.a < albedoScaleAndCutoff.w) discard;
     #endif
