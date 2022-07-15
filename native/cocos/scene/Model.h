@@ -190,6 +190,8 @@ protected:
     static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
     void updateAttributesAndBinding(index_t subModelIndex);
 
+    // Please declare variables in descending order of memory size occupied by variables.
+
     InstancedAttributeBlock _instanceAttributeBlock;
     Float32Array _localData;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
