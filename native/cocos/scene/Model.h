@@ -77,25 +77,31 @@ public:
     Model();
     ~Model() override;
 
-    void initialize();
     virtual void destroy();
-    void updateWorldBound();
-    void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
-    void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
-    void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
     virtual void initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat);
-    void setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
+    virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
     virtual void setSubModelMaterial(index_t idx, Material *mat);
+    virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
+    virtual void updateTransform(uint32_t stamp);
+    virtual void updateUBOs(uint32_t stamp);
+    virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
+    virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
+
+    void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
+    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
+    void initialize();
+    void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void initLocalDescriptors(index_t subModelIndex);
+    void initWorldBoundDescriptors(index_t subModelIndex);
     void onGlobalPipelineStateChanged() const;
     void onMacroPatchesStateChanged();
     void onGeometryChanged();
-    void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
+    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
+    void updateWorldBound();
+    void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
+    void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
-    virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
-    virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
-
-    virtual void updateTransform(uint32_t stamp);
-    virtual void updateUBOs(uint32_t stamp);
     void updateOctree();
     void updateWorldBoundUBOs();
     void updateLocalShadowBias();
@@ -167,14 +173,6 @@ public:
     inline uint32_t getPriority() const { return _priority; }
     inline void setPriority(uint32_t value) { _priority = value; }
 
-    void initLocalDescriptors(index_t subModelIndex);
-    void initWorldBoundDescriptors(index_t subModelIndex);
-
-    virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
-    virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
-
-    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
-
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
     inline CallbacksInvoker &getEventProcessor() { return _eventProcessor; }
@@ -186,8 +184,6 @@ public:
     }
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
-
-    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
 
 protected:
     static SubModel *createSubModel();
