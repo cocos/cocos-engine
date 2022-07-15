@@ -148,9 +148,8 @@ if (cc.internal.VideoPlayer) {
 
         getCurrentTime() {
             if (this.video) {
-                let curTime = this.video.currentTime();
-                this._cachedCurrentTime = curTime;
-                return curTime;
+                this._cachedCurrentTime = this.video.currentTime();
+                return this._cachedCurrentTime;
             }
             return -1;
         }
