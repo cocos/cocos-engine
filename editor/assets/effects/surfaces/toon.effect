@@ -174,20 +174,20 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
   void SurfacesFragmentAlphaClipOnly()
   {
-      #if USE_ALPHA_TEST
-        float alpha = baseColor.ALPHA_TEST_CHANNEL;
-        #if USE_BASE_COLOR_MAP
-          alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
-        #endif
-  
-        if (alpha < colorScaleAndCutoff.w) discard;
+    #if USE_ALPHA_TEST
+      float alpha = baseColor.ALPHA_TEST_CHANNEL;
+      #if USE_BASE_COLOR_MAP
+        alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
       #endif
+  
+      if (alpha < colorScaleAndCutoff.w) discard;
+    #endif
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
   vec3 SurfacesFragmentModifyWorldNormal()
   {
-      vec3 normal = FSInput_worldNormal;
+    vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, FSInput_texcoord).xyz - vec3(0.5);
       normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleAndStrenth.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
