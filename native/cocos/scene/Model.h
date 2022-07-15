@@ -190,11 +190,9 @@ public:
     void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
 
 protected:
-    static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
-
-    void updateAttributesAndBinding(index_t subModelIndex);
-
     static SubModel *createSubModel();
+    static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
+    void updateAttributesAndBinding(index_t subModelIndex);
 
     InstancedAttributeBlock _instanceAttributeBlock;
     Float32Array _localData;
