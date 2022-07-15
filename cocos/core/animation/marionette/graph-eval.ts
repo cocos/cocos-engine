@@ -513,6 +513,7 @@ class LayerEval {
                     transitionEval.interruption = outgoing.interruptionSource;
                 } else if (outgoing instanceof EmptyStateTransition) {
                     transitionEval.duration = outgoing.duration;
+                    transitionEval.destinationStart = outgoing.destinationStart;
                 }
 
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
