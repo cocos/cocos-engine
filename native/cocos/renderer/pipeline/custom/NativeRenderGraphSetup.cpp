@@ -67,8 +67,8 @@ void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sc
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addFullscreenQuad(Material *material,
-                                                 SceneFlags sceneFlags, const ccstd::string &name) {
+void NativeRasterQueueBuilder::addFullscreenQuad(
+    Material *material, SceneFlags sceneFlags, const ccstd::string &name) {
     auto drawID = addVertex(
         BlitTag{},
         std::forward_as_tuple(name.c_str()),
@@ -84,17 +84,23 @@ void NativeRasterQueueBuilder::addFullscreenQuad(Material *material, SceneFlags 
     addFullscreenQuad(material, sceneFlags, "FullscreenQuad");
 }
 
-void NativeRasterQueueBuilder::addCameraQuad(scene::Camera *camera,
-                                             cc::Material *material, SceneFlags sceneFlags) {
+void NativeRasterQueueBuilder::addCameraQuad(
+    scene::Camera *camera, cc::Material *material,
+    SceneFlags sceneFlags, const ccstd::string &name) {
     auto drawID = addVertex(
         BlitTag{},
-        std::forward_as_tuple("CameraQuad"),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(material, sceneFlags, camera),
         *renderGraph, queueID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
+}
+
+void NativeRasterQueueBuilder::addCameraQuad(
+    scene::Camera *camera, cc::Material *material, SceneFlags sceneFlags) {
+    addCameraQuad(camera, material, sceneFlags, "CameraQuad");
 }
 
 namespace {
@@ -281,8 +287,9 @@ void NativeRasterPassBuilder::addFullscreenQuad(
     return addFullscreenQuad(material, sceneFlags, "FullscreenQuad");
 }
 
-void NativeRasterPassBuilder::addCameraQuad(scene::Camera *camera,
-                                            cc::Material *material, SceneFlags sceneFlags) {
+void NativeRasterPassBuilder::addCameraQuad(
+    scene::Camera *camera, cc::Material *material,
+    SceneFlags sceneFlags, const ccstd::string &name) {
     auto queueID = addVertex(
         QueueTag{},
         std::forward_as_tuple("Queue"),
@@ -294,12 +301,17 @@ void NativeRasterPassBuilder::addCameraQuad(scene::Camera *camera,
 
     addVertex(
         BlitTag{},
-        std::forward_as_tuple("CameraQuad"),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(material, sceneFlags, camera),
         *renderGraph, queueID);
+}
+
+void NativeRasterPassBuilder::addCameraQuad(
+    scene::Camera *camera, cc::Material *material, SceneFlags sceneFlags) {
+    return addCameraQuad(camera, material, sceneFlags, "CameraQuad");
 }
 
 void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
