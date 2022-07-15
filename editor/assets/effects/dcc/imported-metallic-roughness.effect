@@ -437,10 +437,6 @@ CCProgram shadow-caster-fs %{
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
 
-  #if USE_ALPHA_TEST
-    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
-  #endif
-
   #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
 
   #if USE_OPACITY_MAP
