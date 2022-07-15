@@ -208,14 +208,6 @@ protected:
     RenderScene *_scene{nullptr};
     gfx::Device *_device{nullptr};
 
-    Type _type{Type::DEFAULT};
-    Layers::Enum _visFlags{Layers::Enum::NONE};
-
-    uint32_t _descriptorSetCount{1};
-    uint32_t _priority{0};
-    uint32_t _updateStamp{0};
-    int32_t _instMatWorldIdx{-1};
-
     IntrusivePtr<Node> _transform;
     IntrusivePtr<Node> _node;
     IntrusivePtr<gfx::Buffer> _localBuffer;
@@ -223,6 +215,14 @@ protected:
     IntrusivePtr<geometry::AABB> _worldBounds;
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
+
+    Type _type{Type::DEFAULT};
+    Layers::Enum _visFlags{Layers::Enum::NONE};
+
+    uint32_t _descriptorSetCount{1};
+    uint32_t _priority{0};
+    uint32_t _updateStamp{0};
+    int32_t _instMatWorldIdx{-1};
 
     bool _enabled{false};
     bool _castShadow{false};
