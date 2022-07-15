@@ -75,7 +75,7 @@ export class ConstantManager {
         for (const key in config) {
             const info = config[key];
             const value = info.value;
-            if (info.dynamic) {
+            if (info.dynamic || info.internal) {
                 continue;
             }
             result += `export const ${key} = ${value};\n`;
