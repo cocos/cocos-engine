@@ -49,6 +49,7 @@ class PipelineRuntime;
 class Pipeline;
 } // namespace render
 class CallbacksInvoker;
+class Batcher2d;
 
 
 struct CC_DLL DebugViewConfig {
@@ -219,7 +220,7 @@ public:
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    inline scene::DrawBatch2D *getBatcher2D() const { return _batcher2D; }
+    inline Batcher2d *getBatcher2D() const { return _batcher; }
 
     /**
      * @zh
@@ -275,13 +276,13 @@ public:
 private:
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
+    Batcher2d *_batcher{nullptr};
     IntrusivePtr<scene::RenderWindow> _mainWindow;
     IntrusivePtr<scene::RenderWindow> _curWindow;
     IntrusivePtr<scene::RenderWindow> _tempWindow;
     ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
     IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};
     std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
-    scene::DrawBatch2D *_batcher2D{nullptr};
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
     DebugViewConfig _debugViewConfig;

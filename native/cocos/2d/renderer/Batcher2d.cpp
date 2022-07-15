@@ -61,7 +61,7 @@ void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuff
 }
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) { // NOLINT(bugprone-easily-swappable-parameters)
-    auto map = _meshBuffersMap[accId];
+    const auto &map = _meshBuffersMap[accId];
     return map[bufferId];
 }
 
@@ -75,8 +75,8 @@ gfx::Device* Batcher2d::getDevice() {
 void Batcher2d::updateDescriptorSet() {
 }
 
-void Batcher2d::addRootNode(Node* node) {
-    _rootNodeArr.push_back(node);
+void Batcher2d::syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes) {
+    _rootNodeArr = std::move(rootNodes);
 }
 
 void Batcher2d::fillBuffersAndMergeBatches() {
@@ -84,7 +84,6 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         walk(rootNode, 1);
         generateBatch(_currEntity, _currDrawInfo);
     }
-    _rootNodeArr.clear();
 }
 
 void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recursion)
