@@ -6,7 +6,9 @@ export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
 export type PlatformType = 'HTML5' | 'NATIVE' |
         'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'BYTEDANCE' |
         'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
-export type FlagType = 'DEBUG' | 'SERVER_MODE';
+export type InternalFlagType = 'SERVER_MODE' | 'NOT_PACK_PHYSX_LIBS' | 'NET_MODE';
+export type PublicFlagType = 'DEBUG';
+export type FlagType = InternalFlagType | PublicFlagType;
 
 export type ValueType = number | boolean;
 export interface ConstantOptions {
@@ -15,6 +17,7 @@ export interface ConstantOptions {
     flags: Partial<Record<FlagType, ValueType>>;
 }
 export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, ValueType>;
+export type CCEnvConstants = Record<PlatformType | ModeType | PublicFlagType, ValueType>;
 
 
 export class ConstantManager {
@@ -85,40 +88,10 @@ export class ConstantManager {
         return result;
     }
 
-    public genBuildTimeConstants ({
-        mode,
-        platform,
-        flags,
-    }: ConstantOptions): BuildTimeConstants {
+    public genBuildTimeConstants (options: ConstantOptions): BuildTimeConstants {
         const config = this._getConfig();
 
-        // update value
-        if (config[mode]) {
-            config[mode].value = true;
-        } else {
-            console.warn(`Unknown mode: ${mode}`);
-        }
-        if (config[platform]) {
-            config[platform].value = true;
-        } else {
-            console.warn(`Unknown platform: ${platform}`);
-        }
-        for (const key in flags) {
-            const value = flags[key as FlagType]!;
-            if (config[key]) {
-                config[key].value = value;
-            } else {
-                console.warn(`Unknown flag: ${key}`);
-            }
-        }
-
-        // eval value
-        for (const key in config) {
-            const info = config[key];
-            if (typeof info.value === 'string') {
-                info.value = this._evalExpression(info.value, config);
-            }
-        }
+        this._applyOptionsToConfig(config, options);
 
         // generate json object
         const jsonObj: Record<string, ValueType> = {};
@@ -127,6 +100,22 @@ export class ConstantManager {
             jsonObj[key] = info.value as ValueType;
         }
         return jsonObj as BuildTimeConstants;
+    }
+
+    public genCCEnvConstants (options: ConstantOptions): CCEnvConstants {
+        const config = this._getConfig();
+
+        this._applyOptionsToConfig(config, options);
+
+        // generate json object
+        const jsonObj: Record<string, ValueType> = {};
+        for (const key in config) {
+            const info = config[key];
+            if (!info.internal) {
+                jsonObj[key] = info.value as ValueType;
+            }
+        }
+        return jsonObj as CCEnvConstants;
     }
 
     public exportStaticConstants ({
@@ -284,6 +273,38 @@ export class ConstantManager {
         // do eval
         const evalFn = new Function('$', `return ${expression}`);
         return evalFn(config);
+    }
+
+    private _applyOptionsToConfig (config: IConstantConfig, options: ConstantOptions) {
+        const { mode, platform, flags } = options;
+
+        // update value
+        if (config[mode]) {
+            config[mode].value = true;
+        } else {
+            console.warn(`Unknown mode: ${mode}`);
+        }
+        if (config[platform]) {
+            config[platform].value = true;
+        } else {
+            console.warn(`Unknown platform: ${platform}`);
+        }
+        for (const key in flags) {
+            const value = flags[key as FlagType]!;
+            if (config[key]) {
+                config[key].value = value;
+            } else {
+                console.warn(`Unknown flag: ${key}`);
+            }
+        }
+
+        // eval value
+        for (const key in config) {
+            const info = config[key];
+            if (typeof info.value === 'string') {
+                info.value = this._evalExpression(info.value, config);
+            }
+        }
     }
     //#endregion utils
 }
