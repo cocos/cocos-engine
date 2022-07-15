@@ -748,6 +748,7 @@ export class Game extends EventTarget {
                 if (scriptPackages) {
                     return Promise.all(scriptPackages.map((pack) => import(pack)));
                 }
+                return Promise.resolve([]);
             })
             .then(() => this._loadProjectBundles())
             .then(() => this._setupRenderPipeline())
