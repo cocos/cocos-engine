@@ -366,7 +366,7 @@ export class PipelineUBO {
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
+                _vec4ShadowInfo.set(0.01, (light as SpotLight).range, 0.0, 0.0);
                 Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
                 _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
