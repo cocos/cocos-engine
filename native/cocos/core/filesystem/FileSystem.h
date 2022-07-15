@@ -50,7 +50,7 @@ public:
     bool exist(const FilePath& filepath) const override;
     
     FilePath getUserAppDataPath() const override;
-    IFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
+    std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
 
     FilePath fullPathForFilename(const FilePath& filename) const;
     void listFiles(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;

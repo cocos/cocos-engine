@@ -28,9 +28,9 @@
 #include "base/Macros.h"
 #include "core/filesystem/FilePath.h"
 #include "base/std/container/unordered_map.h"
+#include "core/filesystem/IFileHandle.h"
 
 namespace cc {
-class IFileHandle;
 class CC_DLL IFileSystem {
 public:
     enum class AccessFlag {
@@ -50,7 +50,7 @@ public:
     virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) = 0;
     virtual FilePath getUserAppDataPath() const = 0;
 
-    virtual IFileHandle* open(const FilePath& filepath, AccessFlag flag) = 0;
+    virtual std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) = 0;
     virtual int64_t getFileSize(const FilePath& filepath) = 0;
 
     virtual void setRootPath(const FilePath& rootPath) {

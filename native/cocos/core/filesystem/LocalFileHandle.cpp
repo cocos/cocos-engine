@@ -26,12 +26,14 @@
 #include "cocos/core/filesystem/LocalFileHandle.h"
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS
 #include <sys/stat.h>
-#endif
-
+#else
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <ftw.h>
+#endif
 
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
+#include <ftw.h>
+#endif
 
 namespace cc {
 

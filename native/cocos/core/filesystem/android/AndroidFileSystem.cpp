@@ -84,7 +84,7 @@ bool AndroidFileSystem::renameFile(const FilePath& oldFilepath, const FilePath& 
     return false;
 }
 
-IFileHandle* AndroidFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+std::unique_ptr<IFileHandle> AndroidFileSystem::open(const FilePath& filepath, AccessFlag flag) {
     if (filepath.empty()) {
         return nullptr;//FileUtils::Status::NOT_EXISTS;
     }

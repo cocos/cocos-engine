@@ -160,7 +160,7 @@ bool WindowsFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& 
     return false;
 }
 
-IFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+std::unique_ptr<IFileHandle> WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) {
     int32_t accessFlag = 0;
     if (flag == AccessFlag::READ_ONLY) {
         accessFlag = GENERIC_READ;
@@ -177,7 +177,7 @@ IFileHandle* WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) 
     FilePath actualPath = filepath;
     HANDLE handle = CreateFile(StringUtf8ToWideChar(actualPath.value()).c_str(), accessFlag, winFlags, NULL, createFlag, FILE_ATTRIBUTE_NORMAL, NULL);
     if (handle != INVALID_HANDLE_VALUE) {
-        return new WindowsFileHandle(handle);
+        return std::make_unique<WindowsFileHandle>(handle);
     }
     return nullptr;
 }

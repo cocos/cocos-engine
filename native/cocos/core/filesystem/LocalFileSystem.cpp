@@ -42,7 +42,7 @@ LocalFileSystem::LocalFileSystem() {
 
 LocalFileSystem::~LocalFileSystem() = default;
 
-IFileHandle* LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
+std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
     std::string assert = "";
     if (flag == AccessFlag::READ_ONLY) {
         assert = "rb";
@@ -57,7 +57,7 @@ IFileHandle* LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
     if(!fp) {
         return nullptr;
     }
-    return new LocalFileHandle(fp);
+    return std::make_unique<LocalFileHandle>(fp);
 }
 
 bool LocalFileSystem::isAbsolutePath(const FilePath& strPath) const {

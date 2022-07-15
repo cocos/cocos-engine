@@ -77,7 +77,7 @@ bool ResourceFileSystem::exist(const FilePath& path) const {
     return false;
 }
 
-IFileHandle* ResourceFileSystem::open(const FilePath& filename, AccessFlag flag) {
+std::unique_ptr<IFileHandle> ResourceFileSystem::open(const FilePath& filename, AccessFlag flag) {
     if (!ResourceFileSystem::assetmanager) {
         return nullptr;
     }
@@ -85,7 +85,7 @@ IFileHandle* ResourceFileSystem::open(const FilePath& filename, AccessFlag flag)
     if (nullptr == asset) {
         return nullptr;
     }
-    return new ResourceFileHandle(filename, asset);
+    return std::make_unique<ResourceFileHandle>(filename, asset);
 }
 
 }

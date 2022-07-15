@@ -46,8 +46,8 @@ bool ZipFileSystem::exist(const FilePath& filepath) const {
     return _zipFile->fileExists(filepath.value());
 }
 
-IFileHandle* ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {
-    return new ZipFileHandle(_zipFile, filepath.value());
+std::unique_ptr<IFileHandle> ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+    return std::make_unique<ZipFileHandle>(_zipFile, filepath.value());
 }
 
 } // namespace cc

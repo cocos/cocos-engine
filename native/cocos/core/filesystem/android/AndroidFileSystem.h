@@ -45,7 +45,7 @@ public:
     bool removeFile(const FilePath& Filename) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
 
-    IFileHandle* open(const FilePath& Filename, AccessFlag flag) override;
+    std::unique_ptr<IFileHandle> open(const FilePath& Filename, AccessFlag flag) override;
     FilePath getUserAppDataPath() const override;
     bool exist(const FilePath& filepath) const override;
 private:

@@ -38,7 +38,7 @@ public:
     ZipFileSystem(const FilePath& assetsPath);
     ~ZipFileSystem() override;
     bool exist(const FilePath& filepath) const override;
-    IFileHandle* open(const FilePath& filepath, AccessFlag flag) override;
+    std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
 
     bool createDirectory(const FilePath& path) override {
         return false;

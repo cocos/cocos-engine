@@ -30,7 +30,7 @@
 #include "cocos/core/filesystem/archive-filesystem/ZipFileSystem.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
-#elif CC_PLATFROM == CC_PLATFROM_IOS || CC_PLATFROM == CC_PLATFROM_MACOS
+#elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 #include "cocos/core/filesystem/apple/ResourceFileSystem.h"
 #endif
 
@@ -112,9 +112,9 @@ bool FileSystem::renameFile(const FilePath& oldFilepath, const FilePath& newFile
     return _localFileSystem->renameFile(oldFilepath, newFilepath);
 }
 
-IFileHandle* FileSystem::open(const FilePath& filePath, AccessFlag flag) {
+std::unique_ptr<IFileHandle> FileSystem::open(const FilePath& filePath, AccessFlag flag) {
     for (auto& fileSystem : _subFileSystems) {
-        IFileHandle* fileHandle = fileSystem->open(filePath, flag);
+        std::unique_ptr<IFileHandle> fileHandle = fileSystem->open(filePath, flag);
         if (fileHandle != nullptr) {
             return fileHandle;
         }

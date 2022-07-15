@@ -35,7 +35,7 @@ public:
     LocalFileSystem();
     ~LocalFileSystem() override;
     static LocalFileSystem* createLocalFileSystem();
-    IFileHandle* open(const FilePath& path, AccessFlag flag) override;
+    std::unique_ptr<IFileHandle> open(const FilePath& path, AccessFlag flag) override;
     bool isAbsolutePath(const FilePath& strPath) const override;
 
 private:
