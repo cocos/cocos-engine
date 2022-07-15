@@ -111,7 +111,7 @@ enum class MipmapMode {
 struct TextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
-    MipmapMode mipmapMode{ MipmapMode::NONE };
+    MipmapMode mipmapMode{MipmapMode::NONE};
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
     TextureCubeMipmapAtlasInfo mipmapAtlas;
 };
@@ -189,7 +189,7 @@ public:
      * @param value All mipmaps of each face of the cube map are stored in the form of atlas.
      * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
      */
-    void setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value);
+    void setMipmapAtlas(const TextureCubeMipmapAtlasInfo &value);
 
     /**
      * @en Level 0 mipmap image.
@@ -255,7 +255,7 @@ public:
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
 
     /*@serializable*/
-    MipmapMode _mipmapMode{ MipmapMode::NONE };
+    MipmapMode _mipmapMode{MipmapMode::NONE};
 
     /*@serializable*/
     TextureCubeMipmapAtlasInfo _mipmapAtlas;
