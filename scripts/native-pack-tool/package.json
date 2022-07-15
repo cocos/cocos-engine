@@ -6,7 +6,7 @@
   "author": "CocosCreator",
   "license": "ISC",
   "scripts": {
-    "preinstall": "cd ./xcode && npm install",
+    "preinstall": "cd ./xcode && npm install --production",
     "pack": "node ./scripts/task",
     "build": "tsc --build",
     "clean": "tsc --clean"
