@@ -19,7 +19,7 @@ CCEffect %{
         specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:   { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:            { value: normal }
@@ -227,13 +227,22 @@ CCProgram surface-fragment %{
     //diffuse
     vec4 baseColor = vec4(1.0);
 
-    #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-    #endif
-
-    #if USE_ALPHA_TEST
-      if (baseColor.a < albedoScaleAndCutoff.w) discard;
-    #endif
+    #ifdef CC_SURFACES_SHADOW_CASTER_PASS
+      #if USE_ALPHA_TEST
+        #if USE_TRANSPARENCY_MAP
+          baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        if (baseColor.a < albedoScaleAndCutoff.w) discard;
+      #endif
+    #else
+      #if USE_TRANSPARENCY_MAP
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+      #endif
+  
+      #if USE_ALPHA_TEST
+        if (baseColor.a < albedoScaleAndCutoff.w) discard;
+      #endif
+  #endif
     
     return baseColor;
   }

@@ -8,4 +8,6 @@
 #define CC_SURFACES_USE_LIGHT_MAP 0
 #define CC_SURFACES_TRANSFER_LOCAL_POS 0
 
+#define CC_SURFACES_SHADOW_CASTER_PASS
+
 #include <surfaces/effect-macros/common-macros>
