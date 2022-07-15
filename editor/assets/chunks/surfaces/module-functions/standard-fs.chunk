@@ -113,15 +113,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
   color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
 #else
-  #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
-    float lum = FSInput_lightMapUV.z;
-    float lightmapCoef = step(lum, EPSILON_LOWP);
-  #else
-    float lightmapCoef = 0.0;
-  #endif
-  
-  color.xyz += (
-    mix(lightingResult.directDiffuse, lightingResult.lightmapColor, lightmapCoef) * lightingResult.diffuseColorWithLighting
+  color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting
+    + (lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting)
     * lightingResult.shadow;
 
