@@ -178,19 +178,13 @@ const Elements = {
             });
             this.$.filterMode.innerHTML = optionsHtml;
 
-            // 根据 userData 的 min/mag/mip 同步到 filterMode 组合值
-            const userData = {
-                minfilter: this.meta.userData.minfilter,
-                magfilter: this.meta.userData.magfilter,
-                mipfilter: this.meta.userData.mipfilter,
-            };
             // 匹配 filterMode 值，没有匹配到组合，则为自定义 Advanced
             let value = 'Advanced';
             for (const filterKey of Object.keys(ModeMap.filter)) {
                 const filterItem = ModeMap.filter[filterKey];
                 let flag = true;
                 for (const key of Object.keys(filterItem)) {
-                    if (userData[key] !== filterItem[key]) {
+                    if (this.meta.userData[key] !== filterItem[key]) {
                         flag = false;
                         break;
                     }
@@ -223,7 +217,7 @@ const Elements = {
             });
             this.$.minfilter.innerHTML = optionsHtml;
 
-            this.$.minfilter.value = this.meta.userData.minfilter;
+            this.$.minfilter.value = this.meta.userData.minfilte || 'nearest';
             this.updateInvalid(this.$.minfilter, 'minfilter');
             this.updateReadonly(this.$.minfilter);
         },
@@ -240,7 +234,7 @@ const Elements = {
             });
             this.$.magfilter.innerHTML = optionsHtml;
 
-            this.$.magfilter.value = this.meta.userData.magfilter;
+            this.$.magfilter.value = this.meta.userData.magfilter || 'nearest';
             this.updateInvalid(this.$.magfilter, 'magfilter');
             this.updateReadonly(this.$.magfilter);
         },
@@ -250,7 +244,7 @@ const Elements = {
             this.$.generateMipmaps.addEventListener('change', this.dataChange.bind(this, 'generateMipmaps'));
         },
         update() {
-            this.$.generateMipmaps.value = this.meta.userData.mipfilter !== 'none';
+            this.$.generateMipmaps.value = this.meta.userData.mipfilter ? this.meta.userData.mipfilter !== 'none' : false;
 
             // 更新时判断是否显示 mipfilter 选项
             this.$.generateMipmaps.value
@@ -273,7 +267,7 @@ const Elements = {
             });
             this.$.mipfilter.innerHTML = optionsHtml;
 
-            this.$.mipfilter.value = this.meta.userData.mipfilter;
+            this.$.mipfilter.value = this.meta.userData.mipfilter || 'nearest';
             this.updateInvalid(this.$.mipfilter, 'mipfilter');
             this.updateReadonly(this.$.mipfilter);
         },
@@ -291,18 +285,13 @@ const Elements = {
             });
             this.$.wrapMode.innerHTML = optionsHtml;
 
-            // 根据 userData 的 wrapModeS/wrapModeT 同步到 wrapMode 组合值
-            const userData = {
-                wrapModeS: this.meta.userData.wrapModeS,
-                wrapModeT: this.meta.userData.wrapModeT,
-            };
             // 匹配 wrapMode 值，没有匹配到组合，则为自定义 Advanced
             let value = 'Advanced';
             for (const wrapKey of Object.keys(ModeMap.wrap)) {
                 const wrapItem = ModeMap.wrap[wrapKey];
                 let flag = true;
                 for (const key of Object.keys(wrapItem)) {
-                    if (userData[key] !== wrapItem[key]) {
+                    if (this.meta.userData[key] !== wrapItem[key]) {
                         flag = false;
                         break;
                     }
@@ -339,7 +328,7 @@ const Elements = {
             }
             this.$.wrapModeS.innerHTML = optionsHtml;
 
-            this.$.wrapModeS.value = this.meta.userData.wrapModeS;
+            this.$.wrapModeS.value = this.meta.userData.wrapModeS || 'repeat';
             this.updateInvalid(this.$.wrapModeS, 'wrapModeS');
             this.updateReadonly(this.$.wrapModeS);
         },
@@ -360,7 +349,7 @@ const Elements = {
             }
             this.$.wrapModeT.innerHTML = optionsHtml;
 
-            this.$.wrapModeT.value = this.meta.userData.wrapModeT;
+            this.$.wrapModeT.value = this.meta.userData.wrapModeT || 'repeat';
             this.updateInvalid(this.$.wrapModeT, 'wrapModeT');
             this.updateReadonly(this.$.wrapModeT);
         },

@@ -189,20 +189,20 @@ const Elements = {
 
             panel.$.filterModeSelect.addEventListener('change', (event) => {
                 // 根据 filterModeSelect 组合值同步相应的 min/mag/mip 到 userData
-                panel.userDataList.forEach((userData) => {
-                    const value = event.target.value;
-                    if (ModeMap.filter[value]) {
+                const value = event.target.value;
+                if (ModeMap.filter[value]) {
+                    panel.userDataList.forEach((userData) => {
                         const data = ModeMap.filter[value];
                         for (const key of Object.keys(data)) {
                             userData[key] = data[key];
                         }
-                        // 选择 filterMode 组合选项，不显示自定义项
-                        panel.$.filterAdvancedSection.style.display = 'none';
-                    } else {
-                        // 选择 advanced 显示自定义项
-                        panel.$.filterAdvancedSection.style.display = 'block';
-                    }
-                });
+                    });
+                    // 选择 filterMode 组合选项，不显示自定义项
+                    panel.$.filterAdvancedSection.style.display = 'none';
+                } else {
+                    // 选择 advanced 显示自定义项
+                    panel.$.filterAdvancedSection.style.display = 'block';
+                }
                 panel.dispatch('change');
             });
         },
@@ -217,19 +217,13 @@ const Elements = {
             });
             panel.$.filterModeSelect.innerHTML = optionsHtml;
 
-            // 根据 userData 的 min/mag/mip 同步到 filterModeSelect 组合值
-            const userData = {
-                minfilter: panel.userData.minfilter,
-                magfilter: panel.userData.magfilter,
-                mipfilter: panel.userData.mipfilter,
-            };
             // 匹配 filterModeSelect 值，没有匹配到组合，则为自定义 Advanced
             let value = 'Advanced';
             for (const filterKey of Object.keys(ModeMap.filter)) {
                 const filterItem = ModeMap.filter[filterKey];
                 let flag = true;
                 for (const key of Object.keys(filterItem)) {
-                    if (userData[key] !== filterItem[key]) {
+                    if (panel.userData[key] !== filterItem[key]) {
                         flag = false;
                         break;
                     }
@@ -271,7 +265,7 @@ const Elements = {
             });
             panel.$.minfilterSelect.innerHTML = optionsHtml;
 
-            panel.$.minfilterSelect.value = panel.userData.minfilter;
+            panel.$.minfilterSelect.value = panel.userData.minfilter || 'nearest';
 
             panel.updateInvalid(panel.$.minfilterSelect, 'minfilter');
             panel.updateReadonly(panel.$.minfilterSelect);
@@ -298,7 +292,7 @@ const Elements = {
             });
             panel.$.magfilterSelect.innerHTML = optionsHtml;
 
-            panel.$.magfilterSelect.value = panel.userData.magfilter;
+            panel.$.magfilterSelect.value = panel.userData.magfilter || 'nearest';
 
             panel.updateInvalid(panel.$.magfilterSelect, 'magfilter');
             panel.updateReadonly(panel.$.magfilterSelect);
@@ -331,7 +325,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.generateMipmapsCheckbox.value = panel.userData.mipfilter !== 'none';
+            panel.$.generateMipmapsCheckbox.value = panel.userData.mipfilter ? panel.userData.mipfilter !== 'none' : false;
 
             // 更新时判断是否显示 mipfilter 选项
             panel.$.generateMipmapsCheckbox.value
@@ -363,7 +357,7 @@ const Elements = {
             });
             panel.$.mipfilterSelect.innerHTML = optionsHtml;
 
-            panel.$.mipfilterSelect.value = panel.userData.mipfilter;
+            panel.$.mipfilterSelect.value = panel.userData.mipfilter || 'nearest';
 
             panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
             panel.updateReadonly(panel.$.mipfilterSelect);
@@ -375,19 +369,19 @@ const Elements = {
 
             panel.$.wrapModeSelect.addEventListener('change', (event) => {
                 // 根据 wrapModeSelect 组合值同步相应的 wrapModeS/wrapModeT 到 userData
-                panel.userDataList.forEach((userData) => {
-                    const value = event.target.value;
-                    if (ModeMap.wrap[value]) {
+                const value = event.target.value;
+                if (ModeMap.wrap[value]) {
+                    panel.userDataList.forEach((userData) => {
                         const data = ModeMap.wrap[value];
                         for (const key of Object.keys(data)) {
                             userData[key] = data[key];
                         }
-                        panel.$.wrapAdvancedSection.style.display = 'none';
-                    } else {
-                        // 选择 advanced 显示自定义项
-                        panel.$.wrapAdvancedSection.style.display = 'block';
-                    }
-                });
+                    });
+                    panel.$.wrapAdvancedSection.style.display = 'none';
+                } else {
+                    // 选择 advanced 显示自定义项
+                    panel.$.wrapAdvancedSection.style.display = 'block';
+                }
                 // 校验是否显示警告提示
                 Elements.warnWords.update.call(panel);
                 panel.dispatch('change');
@@ -404,18 +398,13 @@ const Elements = {
             });
             panel.$.wrapModeSelect.innerHTML = optionsHtml;
 
-            // 根据 userData 的 wrapModeS/wrapModeT 同步到 wrapModeSelect 组合值
-            const userData = {
-                wrapModeS: panel.userData.wrapModeS,
-                wrapModeT: panel.userData.wrapModeT,
-            };
             // 匹配 wrapModeSelect 值，没有匹配到组合，则为自定义 Advanced
             let value = 'Advanced';
             for (const wrapKey of Object.keys(ModeMap.wrap)) {
                 const wrapItem = ModeMap.wrap[wrapKey];
                 let flag = true;
                 for (const key of Object.keys(wrapItem)) {
-                    if (userData[key] !== wrapItem[key]) {
+                    if (panel.userData[key] !== wrapItem[key]) {
                         flag = false;
                         break;
                     }
@@ -463,7 +452,7 @@ const Elements = {
             }
             panel.$.wrapModeSSelect.innerHTML = optionsHtml;
 
-            panel.$.wrapModeSSelect.value = panel.userData.wrapModeS;
+            panel.$.wrapModeSSelect.value = panel.userData.wrapModeS || 'repeat';
 
             panel.updateInvalid(panel.$.wrapModeSSelect, 'wrapModeS');
             panel.updateReadonly(panel.$.wrapModeSSelect);
@@ -495,7 +484,7 @@ const Elements = {
             }
             panel.$.wrapModeTSelect.innerHTML = optionsHtml;
 
-            panel.$.wrapModeTSelect.value = panel.userData.wrapModeT;
+            panel.$.wrapModeTSelect.value = panel.userData.wrapModeT || 'repeat';
 
             panel.updateInvalid(panel.$.wrapModeTSelect, 'wrapModeT');
             panel.updateReadonly(panel.$.wrapModeTSelect);

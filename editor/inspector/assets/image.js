@@ -267,7 +267,7 @@ exports.methods = {
         }
     },
 
-    async _updatePanel($section, type, spriteFrameChange) {
+    _updatePanel($section, type, spriteFrameChange) {
         const assetList = [];
         const metaList = [];
 
@@ -345,7 +345,7 @@ exports.methods = {
      * 更新属性 panel
      * @param {*} spriteFrameChange imageAsset 类型是否切换和 spriteFrame 是否有关
      */
-    async updatePanel(spriteFrameChange) {
+    updatePanel(spriteFrameChange) {
         this._updatePanel(this.$.panelSection, this.meta.userData.type, spriteFrameChange);
         if (this.meta.userData.type === 'sprite-frame') {
             this._updatePanel(this.$.texturePanelSection, 'texture', spriteFrameChange);
