@@ -111,7 +111,7 @@ enum class MipmapMode {
 struct TextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
-    MipmapMode mipmapMode{ MipmapMode::NONE };
+    MipmapMode mipmapMode{MipmapMode::NONE};
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
     TextureCubeMipmapAtlasInfo mipmapAtlas;
 };
@@ -255,7 +255,7 @@ public:
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
 
     /*@serializable*/
-    MipmapMode _mipmapMode{ MipmapMode::NONE };
+    MipmapMode _mipmapMode{MipmapMode::NONE};
 
     /*@serializable*/
     TextureCubeMipmapAtlasInfo _mipmapAtlas;
