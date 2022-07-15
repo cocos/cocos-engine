@@ -395,7 +395,7 @@
             "comment": "Running in the server mode.",
             "type": "boolean",
             "value": false,
-            "internal": false
+            "internal": true
         },
 
 
@@ -447,7 +447,7 @@
             "comment": "The network access mode.\n- 0 Client\n- 1 ListenServer\n- 2 HostServer",
             "type": "number",
             "value": 0,
-            "internal": true
+            "internal": false
         }
     }
 }
