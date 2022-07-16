@@ -3,7 +3,7 @@ name: <Native> Compile
 on: [push]
 
 env:
-  CONAN_USER_HOME : ${{ github.workflow }}/.conan
+  CONAN_USER_HOME : ${{ github.workspace }}/.conan
 
 # github.head_ref is only defined on pull_request events
 concurrency:
