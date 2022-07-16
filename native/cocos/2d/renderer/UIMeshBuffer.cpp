@@ -132,13 +132,13 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
 
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
         auto* indexBuffer = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });
