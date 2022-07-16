@@ -655,14 +655,8 @@ export class Mask extends UIRenderer {
         }
     }
 
-    protected updateMaterial () {
-        super.updateMaterial();
-        if (JSB) {
-            if (this._renderData) {
-                const drawInfo = this._renderData.renderDrawInfo;
-                drawInfo.setMaterial(this._clearStencilMtl!);
-            }
-        }
+    protected _updateBuiltinMaterial (): Material {
+        return this._clearStencilMtl!;
     }
 
     protected _updateMaterial () {
