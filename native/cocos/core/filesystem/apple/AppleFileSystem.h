@@ -51,7 +51,7 @@ public:
     bool removeDirectory(const FilePath &path) override;
     
     FilePath getUserAppDataPath() const override;
-    bool existInternal(const FilePath& filepath) const override;
+    bool exist(const FilePath& filepath) const override;
 };
 
 }

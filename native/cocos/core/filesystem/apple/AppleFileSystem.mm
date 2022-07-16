@@ -83,7 +83,7 @@ bool AppleFileSystem::removeDirectory(const FilePath&path) {
         return true;
 }
 
-bool AppleFileSystem::existInternal(const FilePath& filePath) const {
+bool AppleFileSystem::exist(const FilePath& filePath) const {
     if (filePath.empty()) {
         return false;
     }
