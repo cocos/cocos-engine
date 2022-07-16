@@ -26,6 +26,7 @@
 
 #include "base/Macros.h"
 #include <cstdint>
+#include <cstdlib>
 
 namespace cc {
 namespace math {
@@ -58,11 +59,6 @@ uint32_t CRC32(const char *str);
 uint32_t CRC32NoCase(const char *str);
 
 template <typename T>
-inline T Abs(T x) {
-    return x > 0 ? x : -x;
-}
-
-template <typename T>
 inline T Sgn(T x) {
     return (x < T(0) ? T(-1) : (x > T(0) ? T(1) : T(0)));
 }
@@ -78,11 +74,11 @@ inline bool IsPowerOfTwo(T n) {
 }
 
 inline bool IsEqualF(float lhs, float rhs, float precision = 0.000001f) {
-    return (Abs<float>(lhs - rhs) < precision);
+    return (std::abs(lhs - rhs) < precision);
 }
 
 inline bool IsNotEqualF(float lhs, float rhs, float precision = 0.000001f) {
-    return (Abs<float>(lhs - rhs) > precision);
+    return (std::abs(lhs - rhs) > precision);
 }
 
 } // namespace math
