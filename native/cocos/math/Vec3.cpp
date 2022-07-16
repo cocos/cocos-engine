@@ -222,7 +222,7 @@ void Vec3::transformMat3(const Vec3 &v, const Mat3 &m) {
     z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
 
-void Vec3::transformMat4_neon(const Vec3 &v, const Mat4 &m) {
+void Vec3::transformMat4Neon(const Vec3 &v, const Mat4 &m) {
 #if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
     alignas(16) float tmpV0[4];
 
@@ -256,10 +256,10 @@ void Vec3::transformMat4_neon(const Vec3 &v, const Mat4 &m) {
 #endif
 }
 
-void Vec3::transformMat4_c(const Vec3 &v, const Mat4 &m) {
+void Vec3::transformMat4C(const Vec3 &v, const Mat4 &m) {
     alignas(16) float tmp[4] = {v.x, v.y, v.z, 1.0F};
     MathUtil::transformVec4(m.m, tmp, tmp);
-    float rhw = math::IsNotEqualF(tmp[3], 0.0F) ? 1 / tmp[3] : 1;
+    float rhw = math::isNotEqualF(tmp[3], 0.0F) ? 1 / tmp[3] : 1;
     x = tmp[0] * rhw;
     y = tmp[1] * rhw;
     z = tmp[2] * rhw;
@@ -267,15 +267,15 @@ void Vec3::transformMat4_c(const Vec3 &v, const Mat4 &m) {
 
 void Vec3::transformMat4(const Vec3 &v, const Mat4 &m) {
 #if defined(USE_NEON64)
-    transformMat4_neon(v, m);
+    transformMat4Neon(v, m);
 #elif defined(INCLUDE_NEON32)
     if (CC_PREDICT_TRUE(isNeon32Enabled())) {
-        transformMat4_neon(v, m);
+        transformMat4Neon(v, m);
     } else {
-        transformMat4_c(v, m);
+        transformMat4C(v, m);
     }
 #else
-    transformMat4_c(v, m);
+    transformMat4C(v, m);
 #endif
 }
 
