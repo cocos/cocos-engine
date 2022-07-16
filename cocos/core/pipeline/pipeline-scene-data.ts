@@ -132,12 +132,14 @@ export class PipelineSceneData {
             mat._uuid = 'default-occlusion-query-material';
             mat.initialize({ effectName: 'builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
-            this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+            if (mat.passes.length > 0) {
+                this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+            }
         }
     }
 
     public getOcclusionQueryPass (): Pass | null {
-        if (this._occlusionQueryMaterial) {
+        if (this._occlusionQueryMaterial && this._occlusionQueryMaterial.passes.length > 0) {
             return this._occlusionQueryMaterial.passes[0];
         }
 

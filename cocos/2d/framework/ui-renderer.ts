@@ -176,7 +176,6 @@ export class UIRenderer extends Renderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
-        this.renderEntity.setCustomMaterial(val);
     }
 
     /**
@@ -448,20 +447,11 @@ export class UIRenderer extends Renderer {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
-            if (this.renderData) {
-                this.renderData.material = this._customMaterial;
-                this.markForUpdateRenderData();
-                this.renderData.passDirty = true;
-            }
             this._blendHash = -1; // a flag to check merge
             return;
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
-        if (this.renderData) {
-            this.renderData.material = mat;
-            this.markForUpdateRenderData();
-        }
         this._updateBlendFunc();
     }
 
@@ -589,6 +579,7 @@ export class UIRenderer extends Renderer {
 
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (this.renderData) {
+            this.renderData.material = material;
             this.markForUpdateRenderData();
             this.renderData.passDirty = true;
         }

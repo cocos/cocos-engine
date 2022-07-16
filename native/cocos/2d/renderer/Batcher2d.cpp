@@ -61,7 +61,7 @@ void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuff
 }
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) { // NOLINT(bugprone-easily-swappable-parameters)
-    auto map = _meshBuffersMap[accId];
+    const auto& map = _meshBuffersMap[accId];
     return map[bufferId];
 }
 
@@ -75,8 +75,8 @@ gfx::Device* Batcher2d::getDevice() {
 void Batcher2d::updateDescriptorSet() {
 }
 
-void Batcher2d::addRootNode(Node* node) {
-    _rootNodeArr.push_back(node);
+void Batcher2d::syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes) {
+    _rootNodeArr = std::move(rootNodes);
 }
 
 void Batcher2d::fillBuffersAndMergeBatches() {
@@ -84,7 +84,6 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         walk(rootNode, 1);
         generateBatch(_currEntity, _currDrawInfo);
     }
-    _rootNodeArr.clear();
 }
 
 void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recursion)
@@ -201,37 +200,29 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         // stencil stage
         gfx::DepthStencilState* depthStencil = nullptr;
         ccstd::hash_t dssHash = 0;
-        Material* commitModelMat = entity->getCommitModelMaterial();
-        Material* finalMat = drawInfo->getMaterial();
+        Material* renderMat = drawInfo->getMaterial();
 
         bool isMask = entity->getIsMask();
         bool isSubMask = entity->getIsSubMask();
-        bool isMaskInverted = entity->getIsMaskInverted();
         if (isMask) {
             //Mask node
             _stencilManager->pushMask();
             _stencilManager->clear(entity);
-            finalMat = commitModelMat;
 
             handleColor(entity, drawInfo, parentOpacity);
 
         } else if (isSubMask) {
             //Mask Comp
             _stencilManager->enterLevel(entity);
-
-        } else {
-            //other comps
         }
         _currStencilStage = _stencilManager->getStencilStage();
 
-        if (commitModelMat) {
-            StencilStage entityStage = entity->getEnumStencilStage();
-            if (entityStage == StencilStage::ENABLED || entityStage == StencilStage::DISABLED) {
-                entity->setEnumStencilStage(_stencilManager->getStencilStage());
-            }
-            depthStencil = _stencilManager->getDepthStencilState(entityStage, commitModelMat);
-            dssHash = _stencilManager->getStencilHash(entityStage);
+        StencilStage entityStage = entity->getEnumStencilStage();
+        if (entityStage == StencilStage::ENABLED || entityStage == StencilStage::DISABLED) {
+            entity->setEnumStencilStage(_stencilManager->getStencilStage());
         }
+        depthStencil = _stencilManager->getDepthStencilState(entityStage, renderMat);
+        dssHash = _stencilManager->getStencilHash(entityStage);
 
         // Model
         auto* model = drawInfo->getModel();
@@ -249,7 +240,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
             curdrawBatch->setUseLocalFlag(nullptr);
 
-            curdrawBatch->fillPass(finalMat, depthStencil, dssHash, nullptr, 0, &(submodel->getPatches()));
+            curdrawBatch->fillPass(renderMat, depthStencil, dssHash, nullptr, 0, &(submodel->getPatches()));
             _batches.push_back(curdrawBatch);
         }
     } else if (drawInfoType == RenderDrawInfoType::IA) {
@@ -284,11 +275,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         gfx::DepthStencilState* depthStencil = nullptr;
         ccstd::hash_t dssHash = 0;
         StencilStage entityStage = entity->getEnumStencilStage();
-        if (entity->getCustomMaterial() != nullptr) {
-            depthStencil = _stencilManager->getDepthStencilState(entityStage, drawInfo->getMaterial());
-        } else {
-            depthStencil = _stencilManager->getDepthStencilState(entityStage);
-        }
+        depthStencil = _stencilManager->getDepthStencilState(entityStage, drawInfo->getMaterial());
         dssHash = _stencilManager->getStencilHash(entityStage);
 
         auto* curdrawBatch = _drawBatchPool.alloc();
@@ -345,11 +332,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     gfx::DepthStencilState* depthStencil = nullptr;
     ccstd::hash_t dssHash = 0;
     StencilStage entityStage = entity->getEnumStencilStage();
-    if (entity->getCustomMaterial() != nullptr) {
-        depthStencil = _stencilManager->getDepthStencilState(entityStage, _currMaterial);
-    } else {
-        depthStencil = _stencilManager->getDepthStencilState(entityStage);
-    }
+    depthStencil = _stencilManager->getDepthStencilState(entityStage, _currMaterial);
     dssHash = _stencilManager->getStencilHash(entityStage);
 
     auto* curdrawBatch = _drawBatchPool.alloc();

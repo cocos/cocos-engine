@@ -15325,7 +15325,7 @@ static bool js_assets_TextureCube_getImage(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureCube_getImage)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureCube_getImage)
 
 static bool js_assets_TextureCube_getMipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15345,7 +15345,7 @@ static bool js_assets_TextureCube_getMipmapAtlas(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureCube_getMipmapAtlas)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureCube_getMipmapAtlas)
 
 static bool js_assets_TextureCube_getMipmaps(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15365,7 +15365,7 @@ static bool js_assets_TextureCube_getMipmaps(se::State& s) // NOLINT(readability
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureCube_getMipmaps)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureCube_getMipmaps)
 
 static bool js_assets_TextureCube_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15437,7 +15437,27 @@ static bool js_assets_TextureCube_setImage(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureCube_setImage)
+SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureCube_setImage)
+
+static bool js_assets_TextureCube_setMipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::TextureCubeMipmapAtlasInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMipmapAtlas(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureCube_setMipmapAtlas)
 
 static bool js_assets_TextureCube_setMipmapAtlasForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15477,7 +15497,7 @@ static bool js_assets_TextureCube_setMipmaps(se::State& s) // NOLINT(readability
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureCube_setMipmaps)
+SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureCube_setMipmaps)
 
 static bool js_assets_TextureCube_setMipmapsForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15498,26 +15518,6 @@ static bool js_assets_TextureCube_setMipmapsForJS(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_assets_TextureCube_setMipmapsForJS)
-
-static bool js_assets_TextureCube_setmipmapAtlas(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::TextureCubeMipmapAtlasInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setmipmapAtlas(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureCube_setmipmapAtlas)
 
 static bool js_assets_TextureCube_fromTexture2DArray_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15620,19 +15620,16 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 #endif
     cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineProperty("_mipmapMode", _SE(js_assets_TextureCube_get__mipmapMode), _SE(js_assets_TextureCube_set__mipmapMode));
+    cls->defineProperty("mipmapAtlas", _SE(js_assets_TextureCube_getMipmapAtlas_asGetter), _SE(js_assets_TextureCube_setMipmapAtlas_asSetter));
+    cls->defineProperty("image", _SE(js_assets_TextureCube_getImage_asGetter), _SE(js_assets_TextureCube_setImage_asSetter));
+    cls->defineProperty("mipmaps", _SE(js_assets_TextureCube_getMipmaps_asGetter), _SE(js_assets_TextureCube_setMipmaps_asSetter));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_TextureCube_getGfxTextureCreateInfo));
     cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_TextureCube_getGfxTextureViewCreateInfo));
-    cls->defineFunction("getImage", _SE(js_assets_TextureCube_getImage));
-    cls->defineFunction("getMipmapAtlas", _SE(js_assets_TextureCube_getMipmapAtlas));
-    cls->defineFunction("getMipmaps", _SE(js_assets_TextureCube_getMipmaps));
     cls->defineFunction("initialize", _SE(js_assets_TextureCube_initialize));
     cls->defineFunction("releaseTexture", _SE(js_assets_TextureCube_releaseTexture));
     cls->defineFunction("reset", _SE(js_assets_TextureCube_reset));
-    cls->defineFunction("setImage", _SE(js_assets_TextureCube_setImage));
     cls->defineFunction("setMipmapAtlasForJS", _SE(js_assets_TextureCube_setMipmapAtlasForJS));
-    cls->defineFunction("setMipmaps", _SE(js_assets_TextureCube_setMipmaps));
     cls->defineFunction("setMipmapsForJS", _SE(js_assets_TextureCube_setMipmapsForJS));
-    cls->defineFunction("setmipmapAtlas", _SE(js_assets_TextureCube_setmipmapAtlas));
     cls->defineStaticFunction("fromTexture2DArray", _SE(js_assets_TextureCube_fromTexture2DArray_static));
     cls->defineFinalizeFunction(_SE(js_cc_TextureCube_finalize));
     cls->install();

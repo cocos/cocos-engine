@@ -5,6 +5,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // jcenter() // keeped as anchor, will be removed soon
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.0'
@@ -18,6 +19,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // jcenter() // keeped as anchor, will be removed soon
         flatDir {
             dirs 'libs'
         }

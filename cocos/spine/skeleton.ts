@@ -171,7 +171,6 @@ export class Skeleton extends UIRenderer {
         this._customMaterial = val;
         this._cleanMaterialCache();
         this.setMaterial(this._customMaterial, 0);
-        this.renderEntity.setCustomMaterial(val);
         this.markForUpdateRenderData();
     }
 
@@ -1318,7 +1317,6 @@ export class Skeleton extends UIRenderer {
 
     public onEnable () {
         super.onEnable();
-        this._renderEntity.setCustomMaterial(this.customMaterial);
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }

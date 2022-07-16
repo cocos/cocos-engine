@@ -10,9 +10,9 @@ void main () {
   // spot use linear
   if(cc_shadowLPNNInfo.x > EPSILON && cc_shadowLPNNInfo.x < 1.999999) {
     // enabled linear depth
-    if (cc_shadowNFLSInfo.z > EPSILON) {
+    #if CC_SHADOWMAP_USE_LINEAR_DEPTH
       clipDepth = CCGetLinearDepth(FSInput_worldPos.xyz);
-    }
+    #endif
   }
 
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8

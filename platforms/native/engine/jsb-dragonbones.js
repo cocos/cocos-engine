@@ -527,7 +527,6 @@ const cacheManager = require('./jsb-cache-manager');
         this._flushAssembler();
         armatureSystem.getInstance().add(this);
         middleware.retain();
-        this._renderEntity.setCustomMaterial(this.customMaterial);
     };
 
     const _onDisable = superProto.onDisable;

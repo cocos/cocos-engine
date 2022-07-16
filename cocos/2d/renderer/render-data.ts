@@ -576,9 +576,9 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.clear();
         }
     }
-    public static createStaticVBAccessor (attributes: Attribute[]): StaticVBAccessor {
+    public static createStaticVBAccessor (attributes: Attribute[], vCount?: number, iCount?: number): StaticVBAccessor {
         const device = director.root!.device;
-        const accessor = new StaticVBAccessor(device, attributes);
+        const accessor = new StaticVBAccessor(device, attributes, vCount, iCount);
         return accessor;
     }
 }

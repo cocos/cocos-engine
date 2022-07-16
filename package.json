@@ -23,7 +23,7 @@
     "bundle-adapter": "node ./scripts/bundle-adapter.js",
     "build-const": "node ./scripts/build-consts.js",
     "clear": "git clean -xfd",
-    "clear-platform": "node ./native/utils/clear-platform.js",
+    "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "test": "gulp test",
     "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production",

@@ -123,11 +123,6 @@ export class Batcher2D implements IBatcher {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
-
-        if (JSB) {
-            this._nativeObj = new NativeBatcher2d();
-            //this.initAttrBuffer();
-        }
     }
 
     public initialize () {
@@ -156,6 +151,16 @@ export class Batcher2D implements IBatcher {
         StencilManager.sharedManager!.destroy();
     }
 
+    private syncRootNodesToNative() {
+        if (JSB) {
+            const rootNodes: Node[] = [];
+            for (const screen of this._screens) {
+                rootNodes.push(screen.node);
+            }
+            this._nativeObj.syncRootNodesToNative(rootNodes);
+        }
+    }
+
     /**
      * @en
      * Add the managed Canvas.
@@ -169,6 +174,9 @@ export class Batcher2D implements IBatcher {
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     /**
@@ -183,12 +191,17 @@ export class Batcher2D implements IBatcher {
         if (idx === -1) {
             return;
         }
-
         this._screens.splice(idx, 1);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     public sortScreens () {
         this._screens.sort(this._screenSort);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
@@ -205,44 +218,40 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
-        const screens = this._screens;
         if (JSB) {
-            for (let i = 0; i < screens.length; ++i) {
-                this._nativeObj.addRootNode(screens[i].node);
+            return;
+        }
+        const screens = this._screens;
+        let offset = 0;
+        for (let i = 0; i < screens.length; ++i) {
+            const screen = screens[i];
+            const scene = screen._getRenderScene();
+            if (!screen.enabledInHierarchy || !scene) {
+                continue;
             }
-            this._nativeObj.update();
-        } else {
-            let offset = 0;
-            for (let i = 0; i < screens.length; ++i) {
-                const screen = screens[i];
-                const scene = screen._getRenderScene();
-                if (!screen.enabledInHierarchy || !scene) {
-                    continue;
-                }
-                // Reset state and walk
-                this._opacityDirty = 0;
-                this._pOpacity = 1;
+            // Reset state and walk
+            this._opacityDirty = 0;
+            this._pOpacity = 1;
 
-                this.walk(screen.node);
+            this.walk(screen.node);
 
-                this.autoMergeBatches(this._currComponent!);
-                this.resetRenderStates();
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
 
-                let batchPriority = 0;
-                if (this._batches.length > offset) {
-                    for (; offset < this._batches.length; ++offset) {
-                        const batch = this._batches.array[offset];
+            let batchPriority = 0;
+            if (this._batches.length > offset) {
+                for (; offset < this._batches.length; ++offset) {
+                    const batch = this._batches.array[offset];
 
-                        if (batch.model) {
-                            const subModels = batch.model.subModels;
-                            for (let j = 0; j < subModels.length; j++) {
-                                subModels[j].priority = batchPriority++;
-                            }
-                        } else {
-                            batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                    if (batch.model) {
+                        const subModels = batch.model.subModels;
+                        for (let j = 0; j < subModels.length; j++) {
+                            subModels[j].priority = batchPriority++;
                         }
-                        scene.addBatch(batch);
+                    } else {
+                        batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                     }
+                    scene.addBatch(batch);
                 }
             }
         }

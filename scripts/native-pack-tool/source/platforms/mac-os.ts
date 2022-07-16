@@ -76,7 +76,7 @@ export abstract class MacOSPackTool extends NativePackTool {
         const xcode = require(ps.join(this.params.enginePath, 'scripts/native-pack-tool/xcode'));
         const projs = fs.readdirSync(nativePrjDir).filter((x) => x.endsWith('.xcodeproj')).map((x) => ps.join(nativePrjDir, x));
         if (projs.length === 0) {
-            console.error(`can not find xcode project file in ${nativePrjDir}`);
+            throw new Error(`can not find xcode project file in ${nativePrjDir}`);
         } else {
             try {
                 for (const proj of projs) {
