@@ -39,7 +39,7 @@ jobs:
           name: gen files
           path: |
             ${{ github.workspace }}/native/conan/build
-            ${{CONAN_USER_HOME}}
+            $env:CONAN_USER_HOME
       - name: Download external libraries
         shell: bash
         run: |
