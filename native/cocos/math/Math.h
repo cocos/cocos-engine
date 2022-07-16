@@ -54,7 +54,6 @@ extern CC_DLL const float RAD_TO_DEG;
 extern CC_DLL const float MIN_FLOAT;
 extern CC_DLL const float MAX_FLOAT;
 
-
 template <typename T>
 inline T sgn(T x) {
     return (x < T(0) ? T(-1) : (x > T(0) ? T(1) : T(0)));

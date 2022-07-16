@@ -1,8 +1,8 @@
 #include "math/Math.h"
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstring>
-#include <cctype>
 
 namespace cc {
 namespace math {
