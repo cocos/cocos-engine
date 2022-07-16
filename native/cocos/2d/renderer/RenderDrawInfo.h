@@ -59,7 +59,6 @@ class Batcher2d;
 class RenderDrawInfo final {
 public:
     RenderDrawInfo();
-    explicit RenderDrawInfo(Batcher2d* batcher);
     RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
     ~RenderDrawInfo();
 
@@ -109,10 +108,6 @@ public:
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
 
-    inline Batcher2d* getBatcher() const { return _batcher; }
-    void setBatcher(Batcher2d* batcher);
-    se::Object* getAttrSharedBufferForJS() const;
-
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
     }
@@ -129,16 +124,9 @@ private:
     void destroy();
 
     gfx::InputAssembler* initIAInfo(gfx::Device* device);
-
-    // weak reference
-    Batcher2d* _batcher{nullptr};
-
     // weak reference
     uint8_t* _sharedBuffer{nullptr};
     uint32_t _size{0};
-
-    DrawInfoAttrLayout _drawInfoAttrLayout;
-    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
 
     index_t _bufferId{0};
     index_t _accId{0};

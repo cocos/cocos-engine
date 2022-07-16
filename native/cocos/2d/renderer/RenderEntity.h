@@ -58,7 +58,6 @@ public:
     static constexpr uint32_t STATIC_DRAW_INFO_CAPACITY = 4;
 
     RenderEntity();
-    explicit RenderEntity(Batcher2d* batcher);
     ~RenderEntity() override;
 
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
@@ -106,9 +105,6 @@ public:
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
-
-    // weak reference
-    Batcher2d* _batcher{nullptr};
     // weak reference
     Node* _node{nullptr};
     StencilStage _stencilStage{StencilStage::DISABLED};

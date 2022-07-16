@@ -119,7 +119,7 @@ export class RenderEntity {
     constructor (entityType: RenderEntityType) {
         if (JSB) {
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderEntity(director.root!.batcher2D.nativeObj);
+                this._nativeObj = new NativeRenderEntity();
             }
             this.setRenderEntityType(entityType);
 
