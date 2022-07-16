@@ -167,6 +167,18 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx] = vec4.x;
              a[idx + 1] = vec4.y;
              a[idx + 2] = vec4.z;
+         } else if (ccstd::holds_alternative<float>(v)) {
+             // data may be crupted, prevent crash here
+             float f = ccstd::get<float>(v);
+             a[idx] = f;
+             a[idx + 1] = 0;
+             a[idx + 2] = 0;
+         } else if (ccstd::holds_alternative<Vec2>(v)) {
+             // data may be crupted, prevent crash here
+             const auto &vec3 = ccstd::get<Vec2>(v);
+             a[idx] = vec3.x;
+             a[idx + 1] = vec3.y;
+             a[idx + 2] = 0;
          } else {
              CC_ASSERT(false);
          }
