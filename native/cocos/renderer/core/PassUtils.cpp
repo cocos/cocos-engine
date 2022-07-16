@@ -157,7 +157,17 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
          a[idx + 1] = p->y;
      }},
     {gfx::Type::FLOAT3, [](float *a, const MaterialProperty &v, index_t idx) {
-         if (ccstd::holds_alternative<float>(v)) {
+         if (ccstd::holds_alternative<Vec3>(v)) {
+             const auto &vec3 = ccstd::get<Vec3>(v);
+             a[idx] = vec3.x;
+             a[idx + 1] = vec3.y;
+             a[idx + 2] = vec3.z;
+         } else if (ccstd::holds_alternative<Vec4>(v)) {
+             const auto &vec4 = ccstd::get<Vec4>(v);
+             a[idx] = vec4.x;
+             a[idx + 1] = vec4.y;
+             a[idx + 2] = vec4.z;
+         } else if (ccstd::holds_alternative<float>(v)) {
              // data may be crupted, prevent crash here
              float f = ccstd::get<float>(v);
              a[idx] = f;
@@ -169,16 +179,6 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx] = vec3.x;
              a[idx + 1] = vec3.y;
              a[idx + 2] = 0;
-         } else if (ccstd::holds_alternative<Vec3>(v)) {
-             const auto &vec3 = ccstd::get<Vec3>(v);
-             a[idx] = vec3.x;
-             a[idx + 1] = vec3.y;
-             a[idx + 2] = vec3.z;
-         } else if (ccstd::holds_alternative<Vec4>(v)) {
-             const auto &vec4 = ccstd::get<Vec4>(v);
-             a[idx] = vec4.x;
-             a[idx + 1] = vec4.y;
-             a[idx + 2] = vec4.z;
          } else {
              CC_ASSERT(false);
          }
