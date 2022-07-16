@@ -51,7 +51,7 @@ jobs:
           name: gen files
           path: |
             ${{ github.workspace }}/native/conan/build
-            ${CONAN_USER_HOME}
+            ${{CONAN_USER_HOME}}
       #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
         shell: bash
