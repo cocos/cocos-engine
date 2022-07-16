@@ -3,7 +3,7 @@ name: <Native> Compile
 on: [push]
 
 env:
-  CONAN_USER_HOME : ${{ github.workspace }}/.conan
+  CONAN_USER_HOME : ${{ github.workspace }}/conan_home
 
 # github.head_ref is only defined on pull_request events
 concurrency:
@@ -116,7 +116,7 @@ jobs:
           cd ${{ github.workspace }}/native/conan/android && sed -i -- 's!__andoird_ndk_path__!${{ steps.setup-ndk.outputs.ndk-path }}!g' *
           cat ${{ github.workspace }}/native/conan/android/profile
           conan profile new ndk
-          cat ${{ github.workspace }}/native/conan/android/profile > ${{ github.workspace }}/.conan/profiles/ndk
+          cat ${{ github.workspace }}/native/conan/android/profile > $CONAN_USER_HOME/.conan/profiles/ndk
       
       - name: install third party
         run: |
