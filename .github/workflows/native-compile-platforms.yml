@@ -28,9 +28,15 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/native/conan/build
           cd ${{ github.workspace }}/native/conan/build
-          conan install ${{ github.workspace }}/native/conan/win64 --settings build_type=Release
+          conan install ${{ github.workspace }}/native/conan/win64 --settings build_type=Release -j install_info.json
           ls ${{ github.workspace }}/native/conan/build
-        
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: gen files
+          path: |
+            ${{ github.workspace }}/native/conan/build
+            ${{ github.workspace }}/../../../.conan
       - name: Download external libraries
         shell: bash
         run: |
