@@ -75,7 +75,7 @@ int64_t LocalFileHandle::size() {
     return statBuf.st_size;
 }
 
-bool LocalFileHandle::read(char* buffer, int64_t buffersize) {
+bool LocalFileHandle::read(uint8_t* buffer, int64_t buffersize) {
     CC_ASSERT(_fp != nullptr);
     int sz = size();
     if (sz > buffersize) {
@@ -89,7 +89,7 @@ bool LocalFileHandle::read(char* buffer, int64_t buffersize) {
     return true;
 }
 
-bool LocalFileHandle::write(char* buffer, int64_t buffersize) {
+bool LocalFileHandle::write(uint8_t* buffer, int64_t buffersize) {
     CC_ASSERT(_fp != nullptr);
     size_t writeSize = fwrite(buffer, buffersize, 1, _fp);
     fclose(_fp);

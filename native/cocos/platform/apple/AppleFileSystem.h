@@ -39,15 +39,6 @@ public:
     ~AppleFileSystem() override;
 
     bool createDirectory(const FilePath &path) override;
-    int64_t getFileSize(const FilePath& filepath) override{
-        return 0;
-    };
-    bool removeFile(const FilePath& filepath) override {
-        return false;
-    }
-    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override {
-        return false;
-    }
     bool removeDirectory(const FilePath &path) override;
     
     FilePath getUserAppDataPath() const override;

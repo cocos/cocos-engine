@@ -39,6 +39,9 @@ FileSystem* FileSystem::_instance = nullptr;
 
 // static
 FileSystem* FileSystem::getInstance() {
+    if(!_instance) {
+        _instance = new FileSystem;
+    }
     return _instance;
 }
 

@@ -29,7 +29,7 @@
 
 namespace cc {
 
-ResourceFileHandle::ResourceFileHandle(const FilePath& path, AAsset* asset)
+ResourceFileHandle::ResourceFileHandle(AAsset* asset)
 : _asset(asset) {
 }
 
@@ -48,7 +48,7 @@ int64_t ResourceFileHandle::tell() {
     return 0;
 }
 
-bool ResourceFileHandle::read(char* buffer, int64_t bufferSize) {
+bool ResourceFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
     auto size = AAsset_getLength(_asset);
     if(size > bufferSize) {
         size = bufferSize;
@@ -60,7 +60,9 @@ bool ResourceFileHandle::read(char* buffer, int64_t bufferSize) {
     return true;
 }
 
-bool ResourceFileHandle::write(char* buffer, int64_t buffersize) {
+bool ResourceFileHandle::write(uint8_t* buffer, int64_t bufferSize) {
+    CC_UNUSED_PARAM(buffer);
+    CC_UNUSED_PARAM(bufferSize);
     assert(false);
 }
 

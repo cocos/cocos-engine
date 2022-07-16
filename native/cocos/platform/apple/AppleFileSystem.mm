@@ -37,13 +37,9 @@ namespace cc {
 
 static NSFileManager *s_fileManager = [NSFileManager defaultManager];
 
-AppleFileSystem::AppleFileSystem() {
+AppleFileSystem::AppleFileSystem() = default;
 
-}
-
-AppleFileSystem::~AppleFileSystem() {
-
-}
+AppleFileSystem::~AppleFileSystem() = default;
 
 bool AppleFileSystem::createDirectory(const FilePath &path) {
     CC_ASSERT(!path.value().empty());

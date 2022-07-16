@@ -32,7 +32,7 @@
 namespace cc {
 
 bool IFileSystem::isAbsolutePath(const FilePath &path) const {
-    return (path.value()[0] == '/');
+    return (path[0] == '/');
 }
 
 void IFileSystem::listFiles(const ccstd::string &fullpath, ccstd::vector<ccstd::string> *files) const {

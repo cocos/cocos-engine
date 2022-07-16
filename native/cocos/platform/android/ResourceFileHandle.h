@@ -32,18 +32,17 @@
 #include "android/asset_manager_jni.h"
 
 namespace cc {
-class FilePath;
 class CC_DLL ResourceFileHandle : public IFileHandle {
 public:
 
-    ResourceFileHandle(const FilePath& path,AAsset* asset);
+    ResourceFileHandle(AAsset* asset);
     ~ResourceFileHandle() override;
 
     bool seek(int64_t pos, MoveMethod moveMethod) override;
     int64_t tell() override;
     int64_t size() override;
-    bool read(char* buffer, int64_t buffersize) override;
-    bool write(char* buffer, int64_t buffersize) override;
+    bool read(uint8_t* buffer, int64_t buffersize) override;
+    bool write(uint8_t* buffer, int64_t buffersize) override;
     bool flush() override;
     bool close() override;
 private:

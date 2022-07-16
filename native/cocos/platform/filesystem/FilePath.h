@@ -41,6 +41,7 @@ public:
     ~FilePath();
     FilePath& operator=(const FilePath& that);
     bool operator==(const FilePath& that) const;
+    const char& operator[](int i) const;
 
     const ccstd::string& value() const { return _path; }
     bool empty() const { return _path.empty(); };

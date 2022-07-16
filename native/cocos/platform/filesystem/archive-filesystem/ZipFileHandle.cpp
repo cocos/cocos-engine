@@ -24,8 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-
 #include "cocos/platform/filesystem/archive-filesystem/ZipFileHandle.h"
 #include "base/Macros.h"
 #include "base/memory/Memory.h"
@@ -50,14 +48,14 @@ int64_t ZipFileHandle::tell() {
 }
 
 int64_t ZipFileHandle::size() {
-    return 0;
+    return _zipfile->getFileSize(_filepath);
 }
 
-bool ZipFileHandle::read(char* buffer, int64_t buffersize) {
+bool ZipFileHandle::read(uint8_t* buffer, int64_t buffersize) {
     return _zipfile->getFileData(_filepath, buffer, buffersize);
 }
 
-bool ZipFileHandle::write(char* buffer, int64_t buffersize) {
+bool ZipFileHandle::write(uint8_t* buffer, int64_t buffersize) {
     return false;
 }
 

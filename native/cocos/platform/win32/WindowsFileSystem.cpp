@@ -115,7 +115,7 @@ bool WindowsFileSystem::removeDirectory(const FilePath& path) {
 }
 
 bool WindowsFileSystem::isAbsolutePath(const FilePath& strPath) const {
-    if ((strPath.value().length() > 2 && ((strPath.value()[0] >= 'a' && strPath.value()[0] <= 'z') || (strPath.value()[0] >= 'A' && strPath.value()[0] <= 'Z')) && strPath.value()[1] == ':') || (strPath.value()[0] == '/' && strPath.value()[1] == '/')) {
+    if ((strPath.value().length() > 2 && ((strPath[0] >= 'a' && strPath[0] <= 'z') || (strPath[0] >= 'A' && strPath[0] <= 'Z')) && strPath[1] == ':') || (strPath[0] == '/' && strPath[1] == '/')) {
         return true;
     }
     return false;

@@ -23,9 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#pragma once
-
 #include "cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h"
 #include "base/Macros.h"
 #include "base/memory/Memory.h"

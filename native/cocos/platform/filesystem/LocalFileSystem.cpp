@@ -37,8 +37,7 @@
 
 namespace cc {
 
-LocalFileSystem::LocalFileSystem() {
-}
+LocalFileSystem::LocalFileSystem() = default;
 
 LocalFileSystem::~LocalFileSystem() = default;
 
@@ -65,7 +64,7 @@ bool LocalFileSystem::isAbsolutePath(const FilePath& strPath) const {
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
     // So these two situations need to be checked on Android.
-    return strPath.value()[0] == '/';
+    return strPath[0] == '/';
 }
 
 LocalFileSystem* LocalFileSystem::createLocalFileSystem() {
@@ -79,4 +78,47 @@ LocalFileSystem* LocalFileSystem::createLocalFileSystem() {
     return nullptr;
 }
 
+bool LocalFileSystem::createDirectory(const FilePath& path) {
+    CC_UNUSED_PARAM(path);
+    return true;
+}
+
+bool LocalFileSystem::removeDirectory(const FilePath& path) {
+    CC_UNUSED_PARAM(path);
+    return false;
+}
+
+bool LocalFileSystem::removeFile(const FilePath& filePath) {
+    CC_UNUSED_PARAM(filePath);
+    return false;
+}
+
+
+bool LocalFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) {
+    CC_UNUSED_PARAM(oldFilePath);
+    CC_UNUSED_PARAM(newFilePath);
+    return false;
+}
+
+int64_t LocalFileSystem::getFileSize(const FilePath& filePath) {
+    CC_UNUSED_PARAM(filePath);
+    return (long)0;
+}
+
+bool LocalFileSystem::exist(const FilePath& filePath) const {
+    if (filePath.empty()) {
+        return false;
+    }
+    bool bFound = false;
+    FILE *fp = fopen(filePath.value().c_str(), "r");
+    if (fp) {
+        bFound = true;
+        fclose(fp);
+    }
+    return bFound;
+}
+
+FilePath LocalFileSystem::getUserAppDataPath() const {
+    return FilePath("");
+}
 }

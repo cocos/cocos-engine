@@ -27,15 +27,6 @@
 #include <regex>
 
 namespace {
-int isWindowDriveLetter(const ccstd::string& path) {
-    if (path.length() >= 2 && path[1] == ':' &&
-        ((path[0] >= 'A' && path[0] <= 'Z') ||
-         (path[0] >= 'a' && path[0] <= 'z'))) {
-        return 1;
-    }
-    return ccstd::string::npos;
-}
-
 // D:\aaa\bbb\ccc\ddd\abc.txt --> D:/aaa/bbb/ccc/ddd/abc.txt
 ccstd::string convertToUnixStyle(const ccstd::string& path) {
     ccstd::string ret = path;
@@ -66,9 +57,9 @@ int getLastSepPos(const ccstd::string& path) {
 static constexpr char kSeparators[] =
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     "\\/";
-#else  // FILE_PATH_USES_WIN_SEPARATORS
+#else 
     "/";
-#endif // FILE_PATH_USES_WIN_SEPARATORS
+#endif
 
 static constexpr size_t kSeparatorsLength = std::size(kSeparators);
 
@@ -97,6 +88,11 @@ FilePath& FilePath::operator=(const FilePath& that) = default;
 
 bool FilePath::operator==(const FilePath& that) const {
     return _path == that._path;
+}
+
+const char& FilePath::operator[](int i) const {
+    CC_ASSERT(i >= 0 && i < _path.length());
+    return _path[i];
 }
 
 void FilePath::removeLastSeparator() {

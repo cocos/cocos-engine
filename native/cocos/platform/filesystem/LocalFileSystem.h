@@ -34,7 +34,20 @@ class CC_DLL LocalFileSystem : public IFileSystem {
 public:
     LocalFileSystem();
     ~LocalFileSystem() override;
+
     static LocalFileSystem* createLocalFileSystem();
+
+    bool createDirectory(const FilePath& path) override;
+    bool removeDirectory(const FilePath& path) override;
+
+
+    bool removeFile(const FilePath& Filename) override;
+    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
+
+    FilePath getUserAppDataPath() const override;
+    int64_t getFileSize(const FilePath& filePath) override;
+
+    bool exist(const FilePath& filePath) const override;
     std::unique_ptr<IFileHandle> open(const FilePath& path, AccessFlag flag) override;
     bool isAbsolutePath(const FilePath& strPath) const override;
 

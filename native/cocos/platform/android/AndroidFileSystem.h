@@ -36,18 +36,7 @@ public:
     AndroidFileSystem();
     ~AndroidFileSystem() override;
 
-    bool createDirectory(const FilePath& path) override;
-    bool removeDirectory(const FilePath& dirPath) override;
-
-    bool isAbsolutePath(const FilePath& strPath) const override;
-    int64_t getFileSize(const FilePath& Filename) override;
-
-    bool removeFile(const FilePath& Filename) override;
-    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
-
-    std::unique_ptr<IFileHandle> open(const FilePath& Filename, AccessFlag flag) override;
     FilePath getUserAppDataPath() const override;
-    bool exist(const FilePath& filepath) const override;
 private:
 
 };

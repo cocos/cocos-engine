@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 #include "cocos/platform/android/AndroidFileSystem.h"
-//#include "cocos/platform/filesystem/android/AndroidFileHandle.h"
 
 #include "cocos/base/Log.h"
 
@@ -37,73 +36,15 @@
 
 
 namespace cc {
-constexpr int kMaxPath = 512;
 
 #ifndef JCLS_HELPER
 #define JCLS_HELPER "com/cocos/lib/CocosHelper"
 #endif
 
 
-AndroidFileSystem::AndroidFileSystem() {
-}
+AndroidFileSystem::AndroidFileSystem() = default;
 
-AndroidFileSystem::~AndroidFileSystem() {
-}
-
-bool AndroidFileSystem::createDirectory(const FilePath& path) {
-    return true;
-}
-
-bool AndroidFileSystem::exist(const FilePath& filepath) const {
-    if (filepath.value().empty()) {
-        return false;
-    }
-    bool bFound = false;
-    FILE *fp = fopen(filepath.value().c_str(), "r");
-    if (fp) {
-        bFound = true;
-        fclose(fp);
-    }
-    return bFound;
-}
-
-int64_t AndroidFileSystem::getFileSize(const FilePath& filepath) {
-    return (long)0;
-}
-
-bool AndroidFileSystem::removeDirectory(const FilePath& dirPath) {
-    return false;
-}
-
-bool AndroidFileSystem::removeFile(const FilePath& filepath) {
-    return false;
-}
-
-
-bool AndroidFileSystem::renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) {
-    return false;
-}
-
-std::unique_ptr<IFileHandle> AndroidFileSystem::open(const FilePath& filepath, AccessFlag flag) {
-    if (filepath.empty()) {
-        return nullptr;//FileUtils::Status::NOT_EXISTS;
-    }
-
-    if (filepath.value()[0] == '/') {
-        return nullptr;
-    }
-
-    return nullptr;
-    //return new AndroidFileHandle(asset);
-}
-
-bool AndroidFileSystem::isAbsolutePath(const FilePath& strPath) const {
-    // On Android, there are two situations for full path.
-    // 1) Files in APK, e.g. assets/path/path/file.png
-    // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
-    // So these two situations need to be checked on Android.
-    return strPath.value()[0] == '/';
-}
+AndroidFileSystem::~AndroidFileSystem() = default;
 
 FilePath AndroidFileSystem::getUserAppDataPath() const {
     // Fix for Nexus 10 (Android 4.2 multi-user environment)

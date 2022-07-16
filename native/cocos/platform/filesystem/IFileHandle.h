@@ -27,6 +27,7 @@
 #pragma once
 
 #include "base/Macros.h"
+#include "base/TypeDef.h"
 
 namespace cc {
 
@@ -43,8 +44,8 @@ public:
     virtual bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) = 0;
     virtual int64_t tell() = 0;
     virtual int64_t size() = 0;
-    virtual bool read(char* buffer, int64_t buffersize) = 0;
-    virtual bool write(char* buffer, int64_t buffersize) = 0;
+    virtual bool read(uint8_t* buffer, int64_t buffersize) = 0;
+    virtual bool write(uint8_t* buffer, int64_t buffersize) = 0;
     virtual bool flush() = 0;
     virtual bool close() = 0;
 };

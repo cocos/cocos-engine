@@ -66,7 +66,7 @@ int64_t WindowsFileHandle::tell() {
     return pos.QuadPart;
 }
 
-bool WindowsFileHandle::read(char* buffer, int64_t buffersize) {
+bool WindowsFileHandle::read(uint8_t* buffer, int64_t buffersize) {
     CC_ASSERT(_handle != nullptr);
     DWORD readCount = 0;
     if (!ReadFile(_handle, buffer, buffersize, &readCount, NULL)) {
@@ -76,7 +76,7 @@ bool WindowsFileHandle::read(char* buffer, int64_t buffersize) {
     return true;
 }
 
-bool WindowsFileHandle::write(char* buffer, int64_t buffersize) {
+bool WindowsFileHandle::write(uint8_t* buffer, int64_t buffersize) {
     CC_ASSERT(_handle != nullptr);
     DWORD writeCount = 0;
     if (!WriteFile(_handle, buffer, buffersize, &writeCount, NULL)) {

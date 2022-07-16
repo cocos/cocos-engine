@@ -51,6 +51,7 @@
 #include "cocos/platform/filesystem/FilePath.h"
 #include "cocos/platform/filesystem/FileSystem.h"
 #include "cocos/platform/filesystem/IFileHandle.h"
+#include "cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h"
 
 namespace cc {
 
@@ -482,10 +483,11 @@ bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath)
 // Implement FileUtils
 FileUtils *FileUtils::sharedFileUtils = nullptr;
 
+FileUtils *createFileUtils() {
+    return ccnew FileUtils();
+}
+
 FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils)
-        return FileUtils::sharedFileUtils;
-    FileUtils::sharedFileUtils = new FileUtils;
     return sharedFileUtils;
 }
 
@@ -499,7 +501,6 @@ void FileUtils::setDelegate(FileUtils *delegate) {
 
 FileUtils::FileUtils() {
     FileUtils::sharedFileUtils = this;
-
     addSearchPath("", true);
     addSearchPath("Resources", true);
     addSearchPath("data", true);
@@ -521,25 +522,35 @@ bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::str
     return rv;
 }
 
-bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath) {
-    size_t size = 0;
-    const char *mode = "wb";
+bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &filePath) {
+    FilePath fullPath = fullPathForFilename(filePath);
+    if (fullPath.empty()) {
+        return false;
+    }
+    auto handle = FileSystem::getInstance()->open(fullPath, IFileSystem::AccessFlag::READ_WRITE);
+    if (!handle) {
+        return false;
+    }
+    handle->write(static_cast<uint8_t*>(data.getBytes()), data.getSize());
 
-    CC_ASSERT(!fullPath.empty() && data.getSize() != 0);
+    //size_t size = 0;
+    //const char *mode = "wb";
 
-    auto *fileutils = FileUtils::getInstance();
-    do {
-        // Read the file from hardware
-        FILE *fp = fopen(fileutils->getSuitableFOpen(fullPath).c_str(), mode);
-        CC_BREAK_IF(!fp);
-        size = data.getSize();
+    //CC_ASSERT(!fullPath.empty() && data.getSize() != 0);
 
-        fwrite(data.getBytes(), size, 1, fp);
+    //auto *fileutils = FileUtils::getInstance();
+    //do {
+    //    // Read the file from hardware
+    //    FILE *fp = fopen(fileutils->getSuitableFOpen(fullPath).c_str(), mode);
+    //    CC_BREAK_IF(!fp);
+    //    size = data.getSize();
 
-        fclose(fp);
+    //    fwrite(data.getBytes(), size, 1, fp);
 
-        return true;
-    } while (false);
+    //    fclose(fp);
+
+    //    return true;
+    //} while (false);
 
     return false;
 }
@@ -569,16 +580,19 @@ Data FileUtils::getDataFromFile(const ccstd::string &filename) {
 
 
 FileUtils::Status FileUtils::getContents(const ccstd::string &filename, ResizableBuffer *buffer) {
-    if (filename.empty())
+    if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
+    }
+    FilePath fullPath = fullPathForFilename(filename);
+    if (fullPath.empty()) {
+        return FileUtils::Status::NOT_EXISTS;
+    }
 
     FileSystem *filesystem = FileSystem::getInstance();
-    // read the file from hardware
-    FilePath fullPath = fullPathForFilename(filename);
     std::unique_ptr<IFileHandle> fileHandle(
         filesystem->open(fullPath, IFileSystem::AccessFlag::READ_ONLY));
     if (!fileHandle) {
-        return FileUtils::Status::NOT_EXISTS;
+        return FileUtils::Status::OPEN_FAILED;
     }
 
     auto size = fileHandle->size();
@@ -589,7 +603,7 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
 
     buffer->resize(size);
     size_t sizeRead = 0;
-    if (!fileHandle->read((char *)buffer->buffer(), size)) {
+    if (!fileHandle->read(static_cast<uint8_t*>(buffer->buffer()), size)) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         CC_LOG_DEBUG("Get data from file(%s) failed, error code is %s", filename.data(), std::to_string(::GetLastError()).data());
 #endif
@@ -604,39 +618,49 @@ ccstd::string FileUtils::getWritablePath() const {
 }
 
 unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {
-    unsigned char *buffer = nullptr;
-    unzFile file = nullptr;
-    *size = 0;
-
-    do {
-        CC_BREAK_IF(zipFilePath.empty());
-
-        file = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFilePath).c_str());
-        CC_BREAK_IF(!file);
-
-        // minizip 1.2.0 is same with other platforms
-        int ret = unzLocateFile(file, filename.c_str(), nullptr);
-        CC_BREAK_IF(UNZ_OK != ret);
-
-        char filePathA[260];
-        unz_file_info fileInfo;
-        ret = unzGetCurrentFileInfo(file, &fileInfo, filePathA, sizeof(filePathA), nullptr, 0, nullptr, 0);
-        CC_BREAK_IF(UNZ_OK != ret);
-
-        ret = unzOpenCurrentFile(file);
-        CC_BREAK_IF(UNZ_OK != ret);
-
-        buffer = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
-        int CC_UNUSED readedSize = unzReadCurrentFile(file, buffer, static_cast<unsigned>(fileInfo.uncompressed_size));
-        CC_ASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size);
-
-        *size = fileInfo.uncompressed_size;
-        unzCloseCurrentFile(file);
-    } while (false);
-
-    if (file) {
-        unzClose(file);
+    auto filesystem = std::make_unique<ZipFileSystem>(zipFilePath);
+    auto handle = filesystem->open(filename, IFileSystem::AccessFlag::READ_ONLY);
+    if (!handle) {
+        return nullptr;
     }
+
+    int64_t fileSize = handle->size();
+    
+    unsigned char *buffer = static_cast<unsigned char *>(malloc(fileSize));
+    handle->read(buffer, fileSize);
+    //unsigned char *buffer = nullptr;
+    //unzFile file = nullptr;
+    //*size = 0;
+
+    //do {
+    //    CC_BREAK_IF(zipFilePath.empty());
+
+    //    file = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFilePath).c_str());
+    //    CC_BREAK_IF(!file);
+
+    //    // minizip 1.2.0 is same with other platforms
+    //    int ret = unzLocateFile(file, filename.c_str(), nullptr);
+    //    CC_BREAK_IF(UNZ_OK != ret);
+
+    //    char filePathA[260];
+    //    unz_file_info fileInfo;
+    //    ret = unzGetCurrentFileInfo(file, &fileInfo, filePathA, sizeof(filePathA), nullptr, 0, nullptr, 0);
+    //    CC_BREAK_IF(UNZ_OK != ret);
+
+    //    ret = unzOpenCurrentFile(file);
+    //    CC_BREAK_IF(UNZ_OK != ret);
+
+    //    buffer = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
+    //    int CC_UNUSED readedSize = unzReadCurrentFile(file, buffer, static_cast<unsigned>(fileInfo.uncompressed_size));
+    //    CC_ASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size);
+
+    //    *size = fileInfo.uncompressed_size;
+    //    unzCloseCurrentFile(file);
+    //} while (false);
+
+    //if (file) {
+    //    unzClose(file);
+    //}
 
     return buffer;
 }
@@ -661,7 +685,7 @@ ccstd::string FileUtils::getPathForFilename(const ccstd::string &filename, const
 
 
 ccstd::string FileUtils::fullPathForFilename(const ccstd::string &filename) const {
-    if (isAbsolutePath(filename)) {
+    if (filename.empty() || isAbsolutePath(filename)) {
         return filename;
     }
     // if (exist(filename)) {
@@ -802,9 +826,8 @@ ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) 
 }
 
 void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector<ccstd::string> *files) const { // NOLINT(misc-no-recursion)
-    ccstd::vector<ccstd::string> ret;
     ccstd::string fullpath = fullPathForFilename(dirPath);
-    FileSystem::getInstance()->listFilesRecursively(dirPath, &ret);
+    FileSystem::getInstance()->listFilesRecursively(dirPath, files);
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
@@ -816,7 +839,7 @@ bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {
-    return FileSystem::getInstance()->exist(path);
+    return FileSystem::getInstance()->createDirectory(path);
 }
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {

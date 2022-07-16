@@ -31,8 +31,7 @@ namespace cc {
 
 AAssetManager *ResourceFileSystem::assetmanager = nullptr;
 
-ResourceFileSystem::ResourceFileSystem() {
-}
+ResourceFileSystem::ResourceFileSystem() = default;
 
 ResourceFileSystem::~ResourceFileSystem() = default;
 
@@ -56,10 +55,7 @@ bool ResourceFileSystem::exist(const FilePath& path) const {
     }
 
     std::string dirPath = path.value();
-    //if (!isAbsolutePath(dirPath.c_str())) {
-    //    dirPath = fullPathForFilename(dirPath.c_str());
-    //}
-
+    
     if (dirPath[dirPath.length() - 1] == '/') {
         dirPath[dirPath.length() - 1] = '\0';
     }
@@ -85,7 +81,7 @@ std::unique_ptr<IFileHandle> ResourceFileSystem::open(const FilePath& filename, 
     if (nullptr == asset) {
         return nullptr;
     }
-    return std::make_unique<ResourceFileHandle>(filename, asset);
+    return std::make_unique<ResourceFileHandle>(asset);
 }
 
 }

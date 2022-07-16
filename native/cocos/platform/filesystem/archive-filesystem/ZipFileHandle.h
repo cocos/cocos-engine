@@ -40,8 +40,8 @@ public:
     bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
     int64_t tell() override;
     int64_t size() override;
-    bool read(char* buffer, int64_t buffersize) override;
-    bool write(char* buffer, int64_t buffersize) override;
+    bool read(uint8_t* buffer, int64_t buffersize) override;
+    bool write(uint8_t* buffer, int64_t buffersize) override;
     bool flush() override;
     bool close() override;
 private:
