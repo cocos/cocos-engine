@@ -35,10 +35,6 @@
     #if defined(__arm64__)
         #define USE_NEON64
         #define INCLUDE_NEON64
-    #elif defined(__ARM_NEON__)
-        #define USE_NEON32
-        #define INCLUDE_NEON32
-    #else
     #endif
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #if defined(__arm64__) || defined(__aarch64__)
