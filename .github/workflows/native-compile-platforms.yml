@@ -2,6 +2,9 @@ name: <Native> Compile
 
 on: [push]
 
+env:
+  CONAN_USER_HOME : ${{ github.workflow }}/.conan
+
 # github.head_ref is only defined on pull_request events
 concurrency:
   group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
@@ -36,7 +39,7 @@ jobs:
           name: gen files
           path: |
             ${{ github.workspace }}/native/conan/build
-            C:/Users/runneradmin/.conan
+            ${CONAN_USER_HOME}
       - name: Download external libraries
         shell: bash
         run: |

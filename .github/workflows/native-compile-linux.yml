@@ -2,6 +2,9 @@ name: <Native> Linux
 
 on: [push]
 
+env:
+  CONAN_USER_HOME : ${{ github.workflow }}/.conan
+  
 # github.head_ref is only defined on pull_request events
 concurrency:
   group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
@@ -50,7 +53,7 @@ jobs:
           name: gen files
           path: |
             ${{ github.workspace }}/native/conan/build
-            ${{ github.workspace }}/../../../.conan
+            ${CONAN_USER_HOME}
       #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
         shell: bash
