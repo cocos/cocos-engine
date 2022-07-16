@@ -41,7 +41,7 @@ import { macro } from '../../platform/macro';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR16HalfFloatTexture, supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
+import { UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from './ubos';
@@ -50,7 +50,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../assets';
-import { SRGBToLinear } from '../pipeline-funcs';
+import { setupBuiltinDeferred, setupBuiltinForward } from './builtin-pipelines';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -399,31 +399,6 @@ export class WebPipeline extends Pipeline {
         this._constantMacros = str;
     }
 
-    private _buildMaterial () {
-        this._deferredLightingMaterial = new Material();
-        this._deferredLightingMaterial.name = 'builtin-deferred-material';
-        this._deferredLightingMaterial.initialize({ effectName: 'pipeline/deferred-lighting' });
-        for (let i = 0; i < this._deferredLightingMaterial.passes.length; ++i) {
-            this._deferredLightingMaterial.passes[i].tryCompile();
-        }
-
-        this._deferredPostMaterial = new Material();
-        this._deferredPostMaterial.name = 'builtin-post-process-material';
-        if (macro.ENABLE_ANTIALIAS_FXAA) {
-            this._antiAliasing = AntiAliasing.FXAA;
-        }
-        this._deferredPostMaterial.initialize({
-            effectName: 'pipeline/post-process',
-            defines: {
-                // Anti-aliasing type, currently only fxaa, so 1 means fxaa
-                ANTIALIAS_TYPE: this._antiAliasing,
-            },
-        });
-        for (let i = 0; i < this._deferredPostMaterial.passes.length; ++i) {
-            this._deferredPostMaterial.passes[i].tryCompile();
-        }
-    }
-
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -435,7 +410,6 @@ export class WebPipeline extends Pipeline {
         // enable the deferred pipeline
         if (root.useDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
-            this._buildMaterial();
         }
         const shadowMapSampler = this._globalDSManager.pointSampler;
         this.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
@@ -613,284 +587,6 @@ export class WebPipeline extends Pipeline {
         }
         this._executor.execute(this._renderGraph);
     }
-    protected _buildShadowPass (automata: WebPipeline,
-        camera: Camera,
-        light: Light,
-        shadows: Readonly<Shadows>,
-        passName: Readonly<string>,
-        width: Readonly<number>,
-        height: Readonly<number>) {
-        const dsShadowMap = passName;
-        if (!automata.resourceGraph.contains(dsShadowMap)) {
-            const format = supportsR32FloatTexture(this._device) ? Format.R32F : Format.RGBA8;
-            automata.addRenderTarget(dsShadowMap, format, width, height, ResourceResidency.MANAGED);
-        }
-        const pass = automata.addRasterPass(width, height, '_', passName);
-        pass.addRasterView(dsShadowMap, new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE,
-            ClearFlagBit.COLOR,
-            new Color(0, 0, 0, 0)));
-        const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
-        queue.addSceneOfCamera(camera, light,
-            SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.SHADOW_CASTER);
-    }
-    protected _buildShadowPasses (automata: WebPipeline,
-        camera: Camera,
-        validLights: Light[],
-        pplScene: Readonly<PipelineSceneData>,
-        name: Readonly<string>): void {
-        const shadows = pplScene.shadows;
-        if (!shadows.enabled || shadows.type !== ShadowType.ShadowMap) {
-            return;
-        }
-        const validPunctualLights = pplScene.validPunctualLights;
-
-        // force clean up
-        validLights.length = 0;
-
-        // pick spot lights
-        let numSpotLights = 0;
-        for (let i = 0; numSpotLights < shadows.maxReceived && i < validPunctualLights.length; ++i) {
-            const light = validPunctualLights[i];
-            if (light.type === LightType.SPOT) {
-                validLights.push(light);
-                ++numSpotLights;
-            }
-        }
-
-        // build shadow map
-        const mapWidth = shadows.size.x;
-        const mapHeight = shadows.size.y;
-        const mainLight = camera.scene!.mainLight;
-        // main light
-        if (mainLight) {
-            this._mainLightShadowName =  `MainLightShadow${name}`;
-            this._buildShadowPass(automata, camera, mainLight, shadows,
-                this._mainLightShadowName, mapWidth, mapHeight);
-        }
-        // spot lights
-        for (let i = 0; i !== validLights.length; ++i) {
-            const passName = `SpotLightShadow${i.toString()}${name}`;
-            this._spotLightShadowName[i] = passName;
-            this._buildShadowPass(automata, camera, validLights[i], shadows,
-                passName, mapWidth, mapHeight);
-        }
-    }
-    private readonly _validLights: Light[] = [];
-    private _mainLightShadowName = ``;
-    private _spotLightShadowName: string[] = [];
-    clear () {
-        this._mainLightShadowName = '';
-        this._spotLightShadowName = [];
-    }
-
-    public getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: AttachmentType): LoadOp {
-        let loadOp = LoadOp.CLEAR;
-        if (!(clearFlag & ClearFlagBit.COLOR)
-        && attachment === AttachmentType.RENDER_TARGET) {
-            if (clearFlag & SKYBOX_FLAG) {
-                loadOp = LoadOp.DISCARD;
-            } else {
-                loadOp = LoadOp.LOAD;
-            }
-        }
-        if ((clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL
-        && attachment === AttachmentType.DEPTH_STENCIL) {
-            if (!(clearFlag & ClearFlagBit.DEPTH)) loadOp = LoadOp.LOAD;
-            if (!(clearFlag & ClearFlagBit.STENCIL)) loadOp = LoadOp.LOAD;
-        }
-        return loadOp;
-    }
-
-    private _forward (camera: Camera, idx: number): boolean {
-        const window = camera.window;
-        const width = Math.floor(window.width);
-        const height = Math.floor(window.height);
-        const root = legacyCC.director.root;
-        const isDeferred: boolean = root.useDeferredPipeline;
-        if (!isDeferred) {
-            const forwardPassRTName = `dsForwardPassColorCamera${idx}`;
-            const forwardPassDSName = `dsForwardPassDSCamera${idx}`;
-            if (!this.resourceGraph.contains(forwardPassRTName)) {
-                this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
-                this.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-            }
-            const forwardPass = this.addRasterPass(width, height, 'default', `CameraForwardPass${idx}`);
-            if (this._mainLightShadowName && this.resourceGraph.contains(this._mainLightShadowName)) {
-                const computeView = new ComputeView();
-                forwardPass.addComputeView(this._mainLightShadowName, computeView);
-            }
-            for (const spotShadowName of this._spotLightShadowName) {
-                if (this.resourceGraph.contains(spotShadowName)) {
-                    const computeView = new ComputeView();
-                    forwardPass.addComputeView(spotShadowName, computeView);
-                }
-            }
-            const passView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                this.getLoadOpOfClearFlag(camera.clearFlag,
-                    AttachmentType.RENDER_TARGET), StoreOp.STORE,
-                camera.clearFlag,
-                new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-            const passDSView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                this.getLoadOpOfClearFlag(camera.clearFlag,
-                    AttachmentType.DEPTH_STENCIL), StoreOp.STORE,
-                camera.clearFlag,
-                new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-            forwardPass.addRasterView(forwardPassRTName, passView);
-            forwardPass.addRasterView(forwardPassDSName, passDSView);
-            forwardPass
-                .addQueue(QueueHint.RENDER_OPAQUE)
-                .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
-            forwardPass
-                .addQueue(QueueHint.RENDER_TRANSPARENT)
-                .addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI);
-        }
-        return !isDeferred;
-    }
-
-    private _deferred (camera: Camera, idx: number): boolean {
-        const window = camera.window;
-        const width = Math.floor(window.width);
-        const height = Math.floor(window.height);
-        const root = legacyCC.director.root;
-        const isDeferred: boolean = root.useDeferredPipeline;
-        if (isDeferred) {
-            const deferredGbufferPassRTName = `dsDeferredPassColorCamera`;
-            const deferredGbufferPassNormal = `deferredGbufferPassNormal`;
-            const deferredGbufferPassEmissive = `deferredGbufferPassEmissive`;
-            const deferredGbufferPassDSName = `dsDeferredPassDSCamera`;
-            if (!this.resourceGraph.contains(deferredGbufferPassRTName)) {
-                const colFormat = Format.RGBA16F;
-                this.addRenderTarget(deferredGbufferPassRTName, colFormat, width, height, ResourceResidency.MANAGED);
-                this.addRenderTarget(deferredGbufferPassNormal, colFormat, width, height, ResourceResidency.MANAGED);
-                this.addRenderTarget(deferredGbufferPassEmissive, colFormat, width, height, ResourceResidency.MANAGED);
-                this.addDepthStencil(deferredGbufferPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-            }
-            // gbuffer pass
-            const gbufferPass = this.addRasterPass(width, height, 'Geometry', `CameraGbufferPass${idx}`);
-            if (this._mainLightShadowName && this.resourceGraph.contains(this._mainLightShadowName)) {
-                const computeView = new ComputeView();
-                gbufferPass.addComputeView(this._mainLightShadowName, computeView);
-            }
-            const rtColor = new Color(0, 0, 0, 0);
-            if (camera.clearFlag & ClearFlagBit.COLOR) {
-                if (this.pipelineSceneData.isHDR) {
-                    SRGBToLinear(rtColor, camera.clearColor);
-                } else {
-                    rtColor.x = camera.clearColor.x;
-                    rtColor.y = camera.clearColor.y;
-                    rtColor.z = camera.clearColor.z;
-                }
-            }
-            const passColorView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                LoadOp.CLEAR, StoreOp.STORE,
-                camera.clearFlag,
-                rtColor);
-            const passNormalView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                LoadOp.CLEAR, StoreOp.STORE,
-                camera.clearFlag,
-                new Color(0, 0, 0, 0));
-            const passEmissiveView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                LoadOp.CLEAR, StoreOp.STORE,
-                camera.clearFlag,
-                new Color(0, 0, 0, 0));
-            const passDSView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                LoadOp.CLEAR, StoreOp.STORE,
-                camera.clearFlag,
-                new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-            gbufferPass.addRasterView(deferredGbufferPassRTName, passColorView);
-            gbufferPass.addRasterView(deferredGbufferPassNormal, passNormalView);
-            gbufferPass.addRasterView(deferredGbufferPassEmissive, passEmissiveView);
-            gbufferPass.addRasterView(deferredGbufferPassDSName, passDSView);
-            gbufferPass
-                .addQueue(QueueHint.RENDER_OPAQUE)
-                .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
-            const deferredLightingPassRTName = `deferredLightingPassRTName`;
-            const deferredLightingPassDS = `deferredLightingPassDS`;
-            if (!this.resourceGraph.contains(deferredLightingPassRTName)) {
-                this.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-                this.addDepthStencil(deferredLightingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-            }
-            // lighting pass
-            const lightingPass = this.addRasterPass(width, height, 'Lighting', `CameraLightingPass${idx}`);
-            if (this._resourceGraph.contains(deferredGbufferPassRTName)) {
-                const computeView = new ComputeView();
-                computeView.name = 'gbuffer_albedoMap';
-                lightingPass.addComputeView(deferredGbufferPassRTName, computeView);
-
-                const computeNormalView = new ComputeView();
-                computeNormalView.name = 'gbuffer_normalMap';
-                lightingPass.addComputeView(deferredGbufferPassNormal, computeNormalView);
-
-                const computeEmissiveView = new ComputeView();
-                computeEmissiveView.name = 'gbuffer_emissiveMap';
-                lightingPass.addComputeView(deferredGbufferPassEmissive, computeEmissiveView);
-
-                const computeDepthView = new ComputeView();
-                computeDepthView.name = 'depth_stencil';
-                lightingPass.addComputeView(deferredGbufferPassDSName, computeDepthView);
-            }
-            const lightingClearColor = new Color(0, 0, 0, 0);
-            if (camera.clearFlag & ClearFlagBit.COLOR) {
-                lightingClearColor.x = camera.clearColor.x;
-                lightingClearColor.y = camera.clearColor.y;
-                lightingClearColor.z = camera.clearColor.z;
-            }
-            lightingClearColor.w = 0;
-            const lightingPassView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                LoadOp.CLEAR, StoreOp.STORE,
-                camera.clearFlag,
-                lightingClearColor);
-            lightingPass.addRasterView(deferredLightingPassRTName, lightingPassView);
-            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(camera, this._deferredLightingMaterial,
-                SceneFlags.VOLUMETRIC_LIGHTING);
-            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT);
-            // Postprocess
-            const postprocessPassRTName = `postprocessPassRTName${idx}`;
-            const postprocessPassDS = `postprocessPassDS${idx}`;
-            if (!this.resourceGraph.contains(postprocessPassRTName)) {
-                this.addRenderTexture(postprocessPassRTName, Format.RGBA8, width, height, camera.window);
-                this.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-            }
-            const postprocessPass = this.addRasterPass(width, height, 'Postprocess', `CameraPostprocessPass${idx}`);
-            if (this._resourceGraph.contains(deferredLightingPassRTName)) {
-                const computeView = new ComputeView();
-                computeView.name = 'outputResultMap';
-                postprocessPass.addComputeView(deferredLightingPassRTName, computeView);
-            }
-            const postClearColor = new Color(0, 0, 0, camera.clearColor.w);
-            if (camera.clearFlag & ClearFlagBit.COLOR) {
-                postClearColor.x = camera.clearColor.x;
-                postClearColor.y = camera.clearColor.y;
-                postClearColor.z = camera.clearColor.z;
-            }
-            const postprocessPassView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                this.getLoadOpOfClearFlag(camera.clearFlag,
-                    AttachmentType.RENDER_TARGET), StoreOp.STORE,
-                camera.clearFlag,
-                postClearColor);
-            const postprocessPassDSView = new RasterView('_',
-                AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                this.getLoadOpOfClearFlag(camera.clearFlag,
-                    AttachmentType.DEPTH_STENCIL), StoreOp.STORE,
-                camera.clearFlag,
-                new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-            postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
-            postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
-            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(this._deferredPostMaterial, SceneFlags.NONE);
-            postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, null, SceneFlags.UI);
-        }
-        return isDeferred;
-    }
     protected _applySize (cameras: Camera[]) {
         let newWidth = this._width;
         let newHeight = this._height;
@@ -918,20 +614,11 @@ export class WebPipeline extends Pipeline {
         this._applySize(cameras);
         // build graph
         this.beginFrame();
-        this.clear();
-        for (let i = 0; i < cameras.length; i++) {
-            const camera = cameras[i];
-            if (camera.scene) {
-                const idx = this._cameras.indexOf(camera);
-                this._buildShadowPasses(this, camera, this._validLights,
-                    this._pipelineSceneData,
-                    `Camera${idx}`);
-
-                if (this._deferred(camera, idx)) {
-                    continue;
-                }
-                this._forward(camera, idx);
-            }
+        const root = legacyCC.director.root;
+        if (root.useDeferredPipeline) {
+            setupBuiltinDeferred(cameras, this);
+        } else {
+            setupBuiltinForward(cameras, this);
         }
         this.compile();
         this.execute();

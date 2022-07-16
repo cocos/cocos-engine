@@ -1455,9 +1455,6 @@ class PassVisitor implements RenderGraphVisitor {
         this._context = context;
     }
     raster (pass: RasterPass) {
-        if (!pass.isValid) {
-            return;
-        }
         const rg = this._context.renderGraph;
         const devicePasses = this._context.devicePasses;
         const layout = this._context.layoutGraph;
