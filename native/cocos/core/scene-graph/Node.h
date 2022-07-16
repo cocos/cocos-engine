@@ -75,9 +75,6 @@ public:
     static const uint32_t DONT_DESTROY;
 
     static Node *instantiate(Node *cloned, bool isSyncedNode);
-    // for walk
-    static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t stackId;
 
     static void setScene(Node *);
 

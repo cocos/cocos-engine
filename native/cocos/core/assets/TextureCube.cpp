@@ -103,7 +103,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     }
 }
 
-void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
+void TextureCube::setMipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
     if (value.layout.empty()) {
         return;
     }
@@ -215,7 +215,7 @@ bool TextureCube::isUsingOfflineMipmaps() {
 
 void TextureCube::initialize() {
     if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
-        setmipmapAtlas(_mipmapAtlas);
+        setMipmapAtlas(_mipmapAtlas);
     } else {
         setMipmaps(_mipmaps);
     }

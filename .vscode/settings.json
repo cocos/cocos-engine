@@ -19,6 +19,7 @@
         "source.fixAll": true,
     },
     "files.associations": {
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "*.ipp": "cpp"
     },
 }

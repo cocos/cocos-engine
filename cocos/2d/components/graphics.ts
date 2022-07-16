@@ -261,12 +261,12 @@ export class Graphics extends UIRenderer {
     }
 
     public onLoad () {
+        super.onLoad();
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
         this._flushAssembler();
         if (JSB) {
             this._graphicsNativeProxy.initModel(this.node);
-            this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
         }
     }
 
@@ -289,9 +289,6 @@ export class Graphics extends UIRenderer {
         if (this.model) {
             director.root!.destroyModel(this.model);
             this.model = null;
-            if (JSB) {
-                this._graphicsNativeProxy.destroy();
-            }
         }
 
         const subMeshLength = this._graphicsUseSubMeshes.length;
@@ -752,6 +749,10 @@ export class Graphics extends UIRenderer {
                 this._isNeedUploadData = false;
             }
         }
+    }
+
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

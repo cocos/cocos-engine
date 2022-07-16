@@ -159,7 +159,7 @@ export class BaseRenderData {
     // it should be invoked at where a render data is allocated.
     public initRenderDrawInfo (comp: UIRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP) {
         if (JSB) {
-            const renderEntity: RenderEntity = comp.renderEntity!;
+            const renderEntity: RenderEntity = comp.renderEntity;
 
             if (renderEntity.renderEntityType === RenderEntityType.STATIC) {
                 if (!this._renderDrawInfo) {
@@ -171,7 +171,7 @@ export class BaseRenderData {
                 }
             } else if (this.multiOwner === false) {
                 if (!this._renderDrawInfo) {
-                    this._renderDrawInfo = new RenderDrawInfo(this.batcher);
+                    this._renderDrawInfo = new RenderDrawInfo();
                     // for no resize() invoking components
                     this.setRenderDrawInfoAttributes();
                     renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
@@ -184,7 +184,7 @@ export class BaseRenderData {
 
     public removeRenderDrawInfo (comp: UIRenderer) {
         if (JSB) {
-            const renderEntity: RenderEntity = comp.renderEntity!;
+            const renderEntity: RenderEntity = comp.renderEntity;
             if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
                 renderEntity.removeDynamicRenderDrawInfo();
             }
@@ -560,9 +560,9 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.clear();
         }
     }
-    public static createStaticVBAccessor (attributes: Attribute[]): StaticVBAccessor {
+    public static createStaticVBAccessor (attributes: Attribute[], vCount?: number, iCount?: number): StaticVBAccessor {
         const device = director.root!.device;
-        const accessor = new StaticVBAccessor(device, attributes);
+        const accessor = new StaticVBAccessor(device, attributes, vCount, iCount);
         return accessor;
     }
 }

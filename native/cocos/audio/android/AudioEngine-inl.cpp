@@ -95,6 +95,7 @@ static CallerThreadUtils gCallerThreadUtils;
 
 static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     int fd = -1;
+    /*
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
         int64_t lenV;
@@ -112,7 +113,7 @@ static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     if (fd <= 0) {
         ALOGE("Failed to open file descriptor for '%s'", url.c_str());
     }
-
+   */
     return fd;
 };
 

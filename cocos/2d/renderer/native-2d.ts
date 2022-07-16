@@ -97,12 +97,6 @@ export declare class NativeRenderEntity {
     get stencilStage(): number;
     set stencilStage(stage: number);
 
-    get customMaterial(): Material;
-    set customMaterial(mat: Material);
-
-    get commitModelMaterial(): Material;
-    set commitModelMaterial(mat: Material);
-
     get staticDrawInfoSize(): number;
     set staticDrawInfoSize(size: number);
 
@@ -132,7 +126,7 @@ export declare class NativeBatcher2d {
     update();
     uploadBuffers();
     reset();
-    addRootNode(node: Node);
+    syncRootNodesToNative(nodes: Node[]);
     releaseDescriptorSetCache(texture: Texture, sampler: Sampler);
 }
 
