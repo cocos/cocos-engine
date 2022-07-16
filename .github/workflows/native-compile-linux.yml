@@ -38,14 +38,19 @@ jobs:
           conan profile update settings.arch=x86_64 clang
           conan profile update settings.build_type=Release clang
           conan profile show clang
+      - name: install third party
+        run: |
+          mkdir -p ${{ github.workspace }}/native/conan/build
+          cd ${{ github.workspace }}/native/conan/build
+          conan install ${{ github.workspace }}/native/conan -pr clang --build=missing
+          ls ${{ github.workspace }}/native/conan/build
+
       #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/oahcy/engine-native-external native/external
-      - run: cd ${{ github.workspace }}/native/external/linux/ && conan install ${{ github.workspace }}/native/external/conan -pr clang --build=missing
-      - run: ls ${{ github.workspace }}/native/external/linux/
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
