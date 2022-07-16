@@ -234,9 +234,8 @@ void Vec3::transformMat4Neon(const Vec3 &v, const Mat4 &m) {
     row0 = row0 + row1 + row2 + row3;
     enoki::store(tmpV0, row0);
     float rhw;
-    // FIXME: use std::numeric_limits<float>::epsilon() instead ?
-    static constexpr float FLT_PRECISION = 0.000001F;
-    if (CC_PREDICT_TRUE(std::abs(tmpV0[3]) > FLT_PRECISION)) {
+
+    if (CC_PREDICT_TRUE(math::isNotZeroF(tmpV0[3]))) {
         rhw = 1.F / tmpV0[3];
     } else {
         rhw = 1.F;
@@ -255,7 +254,7 @@ void Vec3::transformMat4Neon(const Vec3 &v, const Mat4 &m) {
 void Vec3::transformMat4C(const Vec3 &v, const Mat4 &m) {
     alignas(16) float tmp[4] = {v.x, v.y, v.z, 1.0F};
     MathUtil::transformVec4(m.m, tmp, tmp);
-    float rhw = math::isNotEqualF(tmp[3], 0.0F) ? 1 / tmp[3] : 1;
+    float rhw = math::isNotZeroF(tmp[3]) ? 1.F / tmp[3] : 1.F;
     x = tmp[0] * rhw;
     y = tmp[1] * rhw;
     z = tmp[2] * rhw;

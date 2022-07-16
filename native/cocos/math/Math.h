@@ -72,5 +72,9 @@ inline bool isNotEqualF(float lhs, float rhs, float precision = 0.000001F) {
     return (std::abs(lhs - rhs) > precision);
 }
 
+inline bool isNotZeroF(float v, float precision = 0.000001F) {
+    return (std::abs(v) > precision);
+}
+
 } // namespace math
 } // namespace cc
