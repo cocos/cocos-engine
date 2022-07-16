@@ -78,10 +78,12 @@ export class RenderEntity {
     set color (val: Color) {
         this._color = val;
         if (JSB) {
-            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorR] = val.r;
-            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorG] = val.g;
-            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorB] = val.b;
-            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorA] = val.a;
+            if (val) {
+                this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorR] = val.r;
+                this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorG] = val.g;
+                this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorB] = val.b;
+                this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorA] = val.a;
+            }
         }
     }
 
