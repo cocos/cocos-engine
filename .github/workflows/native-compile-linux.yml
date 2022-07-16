@@ -29,9 +29,7 @@ jobs:
           version: 11
           platform: x64
       - name: install conan
-        run: python -m pip install conan
-      - name: show conan version
-        run: conan -v
+        run: python -m pip install conan && conan -v
       - name: config clang profile
         run: |
           conan profile new clang
