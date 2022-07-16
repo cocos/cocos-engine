@@ -28,6 +28,7 @@ import { JSB } from 'internal:constants';
 import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
 import { UIRenderer } from '../framework/ui-renderer';
+import { Node } from '../../core/scene-graph';
 
 /**
  * @en
@@ -77,7 +78,33 @@ export class UIOpacity extends Component {
             // }
             // UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
 
-            UIRenderer.setEntityLocalOpacityDirtyRecursively(this.node, dirty, 1);
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, dirty, 1);
+        }
+    }
+
+    // for UIOpacity
+    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        const uiOp = node.getComponent<UIOpacity>(UIOpacity);
+        let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
+
+        if (render) {
+            render.renderEntity.colorDirty = dirty;
+            render.renderEntity.color = render.color;// necessity to be considering
+            if (uiOp) {
+                render.renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
+            } else {
+                // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
+                render.renderEntity.localOpacity = interruptOpacity;
+            }
+            interruptOpacity = 1;
+        } else if (uiOp) {
+            // there is a just UIOpacity but no UIRenderer on the node.
+            interruptOpacity = uiOp.opacity / 255;
+        }
+
+        for (let i = 0; i < node.children.length; i++) {
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(node.children[i], dirty || (interruptOpacity < 1), interruptOpacity);
         }
     }
 

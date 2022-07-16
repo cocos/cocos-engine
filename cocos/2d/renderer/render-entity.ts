@@ -1,6 +1,5 @@
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
-import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
