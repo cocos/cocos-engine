@@ -50,7 +50,7 @@
 #endif
 
 #if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
-#include "enoki/array.h"
+    #include "enoki/array.h"
     #ifndef ENOKI_ARM_NEON
         #error "ENOKI_ARM_NEON isn't enabled!"
     #endif
@@ -221,7 +221,6 @@ void Vec3::transformMat3(const Vec3 &v, const Mat3 &m) {
     y = ix * m.m[1] + iy * m.m[4] + iz * m.m[7];
     z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
-
 
 void Vec3::transformMat4_neon(const Vec3 &v, const Mat4 &m) {
 #if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
