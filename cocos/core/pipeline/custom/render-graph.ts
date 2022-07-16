@@ -1585,11 +1585,17 @@ export class RenderGraph implements impl.BidirectionalGraph
     getLayout (v: number): string {
         return this._layoutNodes[v];
     }
+    setLayout (v: number, value: string) {
+        this._layoutNodes[v] = value;
+    }
     getData (v: number): RenderData {
         return this._data[v];
     }
     getValid (v: number): boolean {
         return this._valid[v];
+    }
+    setValid (v: number, value: boolean) {
+        this._valid[v] = value;
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph

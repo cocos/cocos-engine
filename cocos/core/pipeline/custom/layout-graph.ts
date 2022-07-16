@@ -1059,6 +1059,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     getUpdate (v: number): UpdateFrequency {
         return this._updateFrequencies[v];
     }
+    setUpdate (v: number, value: UpdateFrequency) {
+        this._updateFrequencies[v] = value;
+    }
     getLayout (v: number): PipelineLayoutData {
         return this._layouts[v];
     }
