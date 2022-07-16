@@ -31,9 +31,6 @@
 #include "base/std/container/string.h"
 #include "platform/FileUtils.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "platform/android/FileUtils-android.h"
-#endif
 
 namespace cc {
 #ifndef _unz64_H
@@ -258,6 +255,7 @@ public:
         * @return True if successful.
         */
     bool getFileData(const ccstd::string &fileName, ResizableBuffer *buffer);
+    bool getFileData(const ccstd::string &fileName, const char *buffer, size_t bufferSize);
 
     ccstd::string getFirstFilename();
     ccstd::string getNextFilename();

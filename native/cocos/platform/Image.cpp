@@ -61,9 +61,7 @@ extern "C" {
 
 #include "base/ZipUtils.h"
 #include "platform/FileUtils.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "platform/android/FileUtils-android.h"
-#endif
+
 
 #include "base/std/container/unordered_map.h"
 

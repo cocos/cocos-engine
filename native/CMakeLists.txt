@@ -101,11 +101,11 @@ endif()
 
 ## disable middleware when dragonbones and spine are disabled
 if(NOT USE_DRAGONBONES AND NOT USE_SPINE)
-	set(USE_MIDDLEWARE OFF)
+    set(USE_MIDDLEWARE OFF)
 endif()
 
 if(USE_DRAGONBONES OR USE_SPINE)
-	set(USE_MIDDLEWARE ON)
+    set(USE_MIDDLEWARE ON)
 endif()
 
 if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
@@ -885,6 +885,59 @@ cocos_source_files(MODULE ccfilesystem
     cocos/platform/FileUtils.h
 )
 
+########## module ccfilesystem
+cocos_source_files(MODULE ccfilesystem
+    cocos/platform/filesystem/FilePath.h
+    cocos/platform/filesystem/FilePath.cpp
+    cocos/platform/filesystem/IFileSystem.h
+    cocos/platform/filesystem/IFileSystem.cpp
+    cocos/platform/filesystem/IFileHandle.h
+    
+    cocos/platform/filesystem/BaseResourceFileSystem.h
+    cocos/platform/filesystem/LocalFileHandle.h
+    cocos/platform/filesystem/LocalFileHandle.cpp
+    cocos/platform/filesystem/LocalFileSystem.h
+    cocos/platform/filesystem/LocalFileSystem.cpp
+    cocos/platform/filesystem/FileSystem.h
+    cocos/platform/filesystem/FileSystem.cpp
+)
+
+if(WINDOWS)
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/win32/WindowsFileSystem.h
+        cocos/platform/win32/WindowsFileSystem.cpp
+        cocos/platform/win32/WindowsFileHandle.h
+        cocos/platform/win32/WindowsFileHandle.cpp
+    )
+elseif(ANDROID)
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/android/AndroidFileSystem.h
+        cocos/platform/android/AndroidFileSystem.cpp
+        #cocos/platform/android/AndroidFileHandle.h
+        #cocos/platform/android/AndroidFileHandle.cpp
+        cocos/platform/android/ResourceFileSystem.h
+        cocos/platform/android/ResourceFileSystem.cpp
+        cocos/platform/android/ResourceFileHandle.h
+        cocos/platform/android/ResourceFileHandle.cpp
+
+        cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h
+        cocos/platform/filesystem/archive-filesystem/ZipFileSystem.cpp
+        cocos/platform/filesystem/archive-filesystem/ZipFileHandle.h
+        cocos/platform/filesystem/archive-filesystem/ZipFileHandle.cpp
+
+
+    )
+elseif(APPLE)
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/apple/AppleFileSystem.h
+        cocos/platform/apple/AppleFileSystem.mm
+        cocos/platform/apple/ResourceFileSystem.h
+        cocos/platform/apple/ResourceFileSystem.mm
+        #cocos/platform/apple/AppleFileHandle.h
+        #cocos/platform/apple/AppleFileHandle.cpp
+    )
+endif()
+
 if(WINDOWS)
     cocos_source_files(MODULE ccutils
         cocos/platform/win32/Utils-win32.cpp
@@ -897,10 +950,10 @@ if(WINDOWS)
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
     )
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/win32/FileUtils-win32.cpp
-        cocos/platform/win32/FileUtils-win32.h
-    )
+#    cocos_source_files(MODULE ccfilesystem
+#        cocos/platform/win32/FileUtils-win32.cpp
+#        cocos/platform/win32/FileUtils-win32.h
+#    )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
@@ -913,10 +966,10 @@ elseif(ANDROID)
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
 
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/android/FileUtils-android.cpp
-        cocos/platform/android/FileUtils-android.h
-    )
+    #cocos_source_files(MODULE ccfilesystem
+    #    cocos/platform/android/FileUtils-android.cpp
+    #    cocos/platform/android/FileUtils-android.h
+    #)
 elseif(OHOS)
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/ohos/jni/JniCocosAbility.cpp
@@ -944,10 +997,10 @@ elseif(APPLE)
         cocos/platform/apple/Reachability.cpp
     )
 
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/apple/FileUtils-apple.h
-        cocos/platform/apple/FileUtils-apple.mm
-    )
+    #cocos_source_files(MODULE ccfilesystem
+    #    cocos/platform/apple/FileUtils-apple.h
+    #    cocos/platform/apple/FileUtils-apple.mm
+    #)
     if(MACOSX)
         cocos_source_files(
             cocos/platform/mac/View.h

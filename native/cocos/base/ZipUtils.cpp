@@ -581,6 +581,39 @@ unsigned char *ZipFile::getFileData(const ccstd::string &fileName, uint32_t *siz
     return buffer;
 }
 
+bool ZipFile::getFileData(const ccstd::string &fileName, const char *buffer, size_t bufferSize) {
+    bool res = false;
+    do {
+        auto zipFile = _data->zipFile.lock();
+        CC_BREAK_IF(!(*zipFile));
+        CC_BREAK_IF(fileName.empty());
+
+        auto it = _data->fileList.find(fileName);
+        CC_BREAK_IF(it == _data->fileList.end());
+
+        ZipEntryInfo fileInfo = it->second;
+
+        int nRet = unzGoToFilePos(*zipFile, &fileInfo.pos);
+        CC_BREAK_IF(UNZ_OK != nRet);
+
+        nRet = unzOpenCurrentFile(*zipFile);
+        CC_BREAK_IF(UNZ_OK != nRet);
+
+        size_t size = fileInfo.uncompressed_size;
+        if(size > bufferSize) {
+            size = bufferSize;
+        }
+
+        //buffer->resize(fileInfo.uncompressed_size);
+        int CC_UNUSED readSize = unzReadCurrentFile(*zipFile, (voidp)buffer, static_cast<unsigned int>(size));
+        CC_ASSERT(readSize == 0 || readSize == (int)size);
+        unzCloseCurrentFile(*zipFile);
+        res = true;
+    } while (false);
+
+    return res;
+}
+
 bool ZipFile::getFileData(const ccstd::string &fileName, ResizableBuffer *buffer) {
     bool res = false;
     do {
