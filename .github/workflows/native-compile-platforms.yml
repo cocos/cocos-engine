@@ -122,7 +122,7 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/native/conan/build
           cd ${{ github.workspace }}/native/conan/build
-          conan install ${{ github.workspace }}/native/conan/andoird -pr ndk --build=missing -j install_info.json
+          conan install ${{ github.workspace }}/native/conan/android -pr ndk --build=missing -j install_info.json
 
       - name: Download external libraries
         shell: bash
