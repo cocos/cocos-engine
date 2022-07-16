@@ -49,7 +49,7 @@ struct DrawInfoAttrLayout {
     uint32_t enabledIndex{1};
 };
 
-enum class RenderDrawInfoType {
+enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
     IA
@@ -135,7 +135,6 @@ private:
 
     // weak reference
     uint8_t* _sharedBuffer{nullptr};
-    uint8_t _stride{0};
     uint32_t _size{0};
 
     DrawInfoAttrLayout _drawInfoAttrLayout;
@@ -161,14 +160,16 @@ private:
     uint32_t _vbCount{0};
     uint32_t _ibCount{0};
 
+    uint8_t _stride{0};
     bool _vertDirty{false};
+    bool _isMeshBuffer{false};
+    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
 
     // weak reference
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
     uint32_t _stencilStage{0};
-    bool _isMeshBuffer{false};
     // weak reference
     Material* _material{nullptr};
     // weak reference
@@ -178,8 +179,6 @@ private:
     gfx::Sampler* _sampler{nullptr};
 
     uint32_t _blendHash{0};
-
-    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
 
     gfx::InputAssemblerInfo _iaInfo;
     ccstd::vector<gfx::Attribute> _attributes{

@@ -36,7 +36,7 @@
 namespace cc {
 class Batcher2d;
 
-enum class RenderEntityType {
+enum class RenderEntityType: uint8_t {
     STATIC,
     DYNAMIC
 };
@@ -107,25 +107,22 @@ public:
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
 
-    uint32_t _staticDrawInfoSize{0};
-    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
-    ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
-
     // weak reference
     Batcher2d* _batcher{nullptr};
     // weak reference
     Node* _node{nullptr};
     StencilStage _stencilStage{StencilStage::DISABLED};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
-
-    EntityAttrLayout _entityAttrLayout;
-
-    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
-
-    float _opacity{1.0F};
-
     bool _isMask{false};
     bool _isSubMask{false};
+
+    EntityAttrLayout _entityAttrLayout;
+    float _opacity{1.0F};
+    uint32_t _staticDrawInfoSize{0};
+
+    bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
+    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
+    ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
     bool _isMaskInverted{false};
 };
 } // namespace cc
