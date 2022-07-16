@@ -37,7 +37,7 @@ Cocos Creator inherited many good qualities and cool features from its previous 
 
 ![image](https://user-images.githubusercontent.com/1503156/111037166-f27c7600-845d-11eb-988f-4c2c8b5c7321.png)
 
-This repo is the engine part of Cocos Creator, it's mainly written in TypeScript and support users to use TypeScript or ES6 to write game logics. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc. It supports both native and web platforms, including Windows, Mac, iOS, Android, Web. What's more exciting is that it supports rapidly expanding instant gaming platforms like WeChat Mini Game and Facebook Instant Games.
+This repo is the engine part of Cocos Creator, it's mainly written in TypeScript and support users to use TypeScript or ES6 to write game logics. In addition, the `native` directory provides the underlying implementation of the engine on native platforms. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc. It supports both native and web platforms, including Windows, Mac, iOS, Android, HarmonyOS, Web. What's more exciting is that it supports rapidly expanding instant gaming platforms like WeChat Mini Game and Facebook Instant Games.
 
 The engine is naturally integrated within Cocos Creator, designed to only be the essential runtime library and not to be used independently.
 
@@ -61,8 +61,7 @@ This is all you have to do to setup engine development environment.
 
 ### Build
 
-- If running inside Cocos Creator, the engine will automatically compile and build after the editor window is opened.
-
+- If running inside Cocos Creator, the engine will automatically compile and build after the editor window is opened. For more instructions on modifying the engine in Cocos Creator, please refer to [Engine Customization Workflow](https://docs.cocos.com/creator/manual/en/advanced-topics/engine-customization.html).
 - Outside the editor, you need to run the following command to build:
 
   ```bash
@@ -71,10 +70,10 @@ This is all you have to do to setup engine development environment.
 
 ## Example Project
 
-- [Example Cases](https://github.com/cocos-creator/example-3d): Simple yet expressive demo scenes for baseline testing and topic-specific case study.
-- [Mind Your Step 3D](https://github.com/cocos-creator/tutorial-mind-your-step-3d): Beginner's step-by-step tutorial project repo.
-- [UI Demo](https://github.com/cocos-creator/demo-ui/tree/3d): use cases for various kinds of UI components.
-- [Test Cases](https://github.com/cocos-creator/test-cases-3d): Unit test scenes for every engine module.
+- [Example Cases](https://github.com/cocos/cocos-example-projects): Simple yet expressive demo scenes for baseline testing and topic-specific case study.
+- [Mind Your Step 3D](https://github.com/cocos/cocos-tutorial-mind-your-step): Beginner's step-by-step tutorial project repo.
+- [UI Demo](https://github.com/cocos/cocos-example-ui): Use cases for various kinds of UI components.
+- [Test Cases](https://github.com/cocos/cocos-test-projects): Unit test scenes for every engine module.
 
 ## Links
 
@@ -83,4 +82,5 @@ This is all you have to do to setup engine development environment.
 - [Documentation](https://docs.cocos.com/creator/manual/)
 - [API References](https://docs.cocos.com/creator/api/)
 - [Forum](https://discuss.cocos2d-x.org/c/creator)
-- Road Map: To be announced
+- [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)
+
