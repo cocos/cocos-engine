@@ -110,8 +110,8 @@ class PassVisitor implements RenderGraphVisitor {
             for (const [rasterName, raster] of readViews) {
                 resVisitor = new ResourceVisitor(this._context);
                 resourceGraph = this._context.resourceGraph;
-                vertID = resourceGraph.vertex(rasterName);
-                if (vertID) {
+                vertID = resourceGraph.find(rasterName);
+                if (vertID !== 0xFFFFFFFF) {
                     resVisitor.resID = vertID;
                     resourceGraph.visitVertex(resVisitor, vertID);
                 }
@@ -119,8 +119,8 @@ class PassVisitor implements RenderGraphVisitor {
             for (const [computeName, cViews] of pass.computeViews) {
                 resVisitor = new ResourceVisitor(this._context);
                 resourceGraph = this._context.resourceGraph;
-                vertID = resourceGraph.vertex(computeName);
-                if (vertID) {
+                vertID = resourceGraph.find(computeName);
+                if (vertID !== 0xFFFFFFFF) {
                     resVisitor.resID = vertID;
                     resourceGraph.visitVertex(resVisitor, vertID);
                 }

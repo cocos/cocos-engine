@@ -233,6 +233,8 @@ export class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor>
 
 export function buildDeferredLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
+    const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true);
+    lg.mergeDescriptors(defaultID);
     const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
     const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);
     const postPassID = lg.addRenderStage('Postprocess', DeferredStage.POST);
