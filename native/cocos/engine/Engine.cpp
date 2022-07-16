@@ -65,7 +65,7 @@
     #include "profiler/DebugRenderer.h"
 #endif
 #include "profiler/Profiler.h"
-#include "cocos/core/filesystem/FileSystem.h"
+#include "cocos/platform/filesystem/FileSystem.h"
 
 namespace {
 

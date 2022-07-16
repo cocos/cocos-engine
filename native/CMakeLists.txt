@@ -880,56 +880,54 @@ cocos_source_files(MODULE ccfilesystem
 
 ########## module ccfilesystem
 cocos_source_files(MODULE ccfilesystem
-    cocos/core/filesystem/FilePath.h
-    cocos/core/filesystem/FilePath.cpp
-    cocos/core/filesystem/IFileSystem.h
-    cocos/core/filesystem/IFileSystem.cpp
-    cocos/core/filesystem/IFileHandle.h
+    cocos/platform/filesystem/FilePath.h
+    cocos/platform/filesystem/FilePath.cpp
+    cocos/platform/filesystem/IFileSystem.h
+    cocos/platform/filesystem/IFileSystem.cpp
+    cocos/platform/filesystem/IFileHandle.h
     
-    cocos/core/filesystem/BaseResourceFileSystem.h
-    cocos/core/filesystem/BaseResourceFileSystem.cpp
-
-    cocos/core/filesystem/LocalFileHandle.h
-    cocos/core/filesystem/LocalFileHandle.cpp
-    cocos/core/filesystem/LocalFileSystem.h
-    cocos/core/filesystem/LocalFileSystem.cpp
-    cocos/core/filesystem/FileSystem.h
-    cocos/core/filesystem/FileSystem.cpp
+    cocos/platform/filesystem/BaseResourceFileSystem.h
+    cocos/platform/filesystem/LocalFileHandle.h
+    cocos/platform/filesystem/LocalFileHandle.cpp
+    cocos/platform/filesystem/LocalFileSystem.h
+    cocos/platform/filesystem/LocalFileSystem.cpp
+    cocos/platform/filesystem/FileSystem.h
+    cocos/platform/filesystem/FileSystem.cpp
 )
 
 if(WINDOWS)
     cocos_source_files(MODULE ccfilesystem
-        cocos/core/filesystem/windows/WindowsFileSystem.h
-        cocos/core/filesystem/windows/WindowsFileSystem.cpp
-        cocos/core/filesystem/windows/WindowsFileHandle.h
-        cocos/core/filesystem/windows/WindowsFileHandle.cpp
+        cocos/platform/win32/WindowsFileSystem.h
+        cocos/platform/win32/WindowsFileSystem.cpp
+        cocos/platform/win32/WindowsFileHandle.h
+        cocos/platform/win32/WindowsFileHandle.cpp
     )
 elseif(ANDROID)
     cocos_source_files(MODULE ccfilesystem
-        cocos/core/filesystem/android/AndroidFileSystem.h
-        cocos/core/filesystem/android/AndroidFileSystem.cpp
-        #cocos/core/filesystem/android/AndroidFileHandle.h
-        #cocos/core/filesystem/android/AndroidFileHandle.cpp
-        cocos/core/filesystem/android/ResourceFileSystem.h
-        cocos/core/filesystem/android/ResourceFileSystem.cpp
-        cocos/core/filesystem/android/ResourceFileHandle.h
-        cocos/core/filesystem/android/ResourceFileHandle.cpp
+        cocos/platform/android/AndroidFileSystem.h
+        cocos/platform/android/AndroidFileSystem.cpp
+        #cocos/platform/android/AndroidFileHandle.h
+        #cocos/platform/android/AndroidFileHandle.cpp
+        cocos/platform/android/ResourceFileSystem.h
+        cocos/platform/android/ResourceFileSystem.cpp
+        cocos/platform/android/ResourceFileHandle.h
+        cocos/platform/android/ResourceFileHandle.cpp
 
-        cocos/core/filesystem/archive-filesystem/ZipFileSystem.h
-        cocos/core/filesystem/archive-filesystem/ZipFileSystem.cpp
-        cocos/core/filesystem/archive-filesystem/ZipFileHandle.h
-        cocos/core/filesystem/archive-filesystem/ZipFileHandle.cpp
+        cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h
+        cocos/platform/filesystem/archive-filesystem/ZipFileSystem.cpp
+        cocos/platform/filesystem/archive-filesystem/ZipFileHandle.h
+        cocos/platform/filesystem/archive-filesystem/ZipFileHandle.cpp
 
 
     )
 elseif(APPLE)
     cocos_source_files(MODULE ccfilesystem
-        cocos/core/filesystem/apple/AppleFileSystem.h
-        cocos/core/filesystem/apple/AppleFileSystem.mm
-        cocos/core/filesystem/apple/ResourceFileSystem.h
-        cocos/core/filesystem/apple/ResourceFileSystem.mm
-        #cocos/core/filesystem/apple/AppleFileHandle.h
-        #cocos/core/filesystem/apple/AppleFileHandle.cpp
+        cocos/platform/apple/AppleFileSystem.h
+        cocos/platform/apple/AppleFileSystem.mm
+        cocos/platform/apple/ResourceFileSystem.h
+        cocos/platform/apple/ResourceFileSystem.mm
+        #cocos/platform/apple/AppleFileHandle.h
+        #cocos/platform/apple/AppleFileHandle.cpp
     )
 endif()
 

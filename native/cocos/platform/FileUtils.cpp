@@ -48,9 +48,9 @@
 #include "tinydir/tinydir.h"
 #include "tinyxml2/tinyxml2.h"
 
-#include "cocos/core/filesystem/FilePath.h"
-#include "cocos/core/filesystem/FileSystem.h"
-#include "cocos/core/filesystem/IFileHandle.h"
+#include "cocos/platform/filesystem/FilePath.h"
+#include "cocos/platform/filesystem/FileSystem.h"
+#include "cocos/platform/filesystem/IFileHandle.h"
 
 namespace cc {
 

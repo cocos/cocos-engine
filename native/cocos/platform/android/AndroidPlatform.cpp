@@ -43,7 +43,7 @@
 #include "platform/java/modules/Vibrator.h"
 
 #include "bindings/event/EventDispatcher.h"
-#include "cocos/core/filesystem/android/ResourceFileSystem.h"
+#include "cocos/platform/android/ResourceFileSystem.h"
 #include "paddleboat.h"
 
 #define ABORT_GAME                          \
