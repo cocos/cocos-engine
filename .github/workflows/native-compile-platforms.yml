@@ -113,7 +113,7 @@ jobs:
 
       - name: config ndk profile
         run: |
-          cd ${{ github.workspace }}/native/conan/android && sed -i -- 's/__andoird_ndk_path__/${{ steps.setup-ndk.outputs.ndk-path }}/g' *
+          cd ${{ github.workspace }}/native/conan/android && sed -i -- 's!__andoird_ndk_path__!${{ steps.setup-ndk.outputs.ndk-path }}!g' *
           cat ${{ github.workspace }}/native/conan/android/profile
           cp ${{ github.workspace }}/native/conan/android/profile ${{ github.workspace }}/.conan/profile/ndk
       
