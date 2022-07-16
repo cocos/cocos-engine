@@ -79,8 +79,7 @@ This is all you have to do to setup engine development environment.
 
 - [Official site](https://www.cocos.com/products#CocosCreator)
 - [Download](https://www.cocos.com/creator)
-- [Documentation](https://docs.cocos.com/creator/manual/)
-- [API References](https://docs.cocos.com/creator/api/)
+- [Documentation](https://docs.cocos.com/creator/manual/en/)
+- [API References](https://docs.cocos.com/creator/api/en/)
 - [Forum](https://discuss.cocos2d-x.org/c/creator)
 - [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)
-

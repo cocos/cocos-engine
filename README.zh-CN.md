@@ -73,13 +73,13 @@ npm install
 - [Example Cases](https://github.com/cocos/cocos-example-projects)：简单而富有表现力的演示场景，用于基线测试和特定主题的案例学习
 - [Mind Your Step 3D](https://github.com/cocos/cocos-tutorial-mind-your-step)：初学者的逐步教程项目
 - [UI Demo](https://github.com/cocos/cocos-example-ui)：各种 UI 组件的使用案例
-- [Test Cases](https://github.com/cocos/cocos-test-projects：引擎各模块的测试场景
+- [Test Cases](https://github.com/cocos/cocos-test-projects)：引擎各模块的测试场景
 
 ## 链接
 
-- [Official site](https://www.cocos.com/products#CocosCreator)
-- [Download](https://www.cocos.com/creator)
-- [Documentation](https://docs.cocos.com/creator/manual/)
-- [API References](https://docs.cocos.com/creator/api/)
-- [Forum](https://discuss.cocos2d-x.org/c/creator)
+- [官网](https://www.cocos.com/products#CocosCreator)
+- [下载](https://www.cocos.com/creator)
+- [文档](https://docs.cocos.com/creator/manual/zh/)
+- [API 参考](https://docs.cocos.com/creator/api/zh/)
+- [论坛](http://forum.cocos.org/c/Creator)
 - [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)
