@@ -377,12 +377,6 @@ export class Mask extends UIRenderer {
         this._sizeChange();
         this._siblingChange();
         this._layerChange();
-        if (JSB) {
-            if (this._renderData && this._clearStencilMtl) {
-                const drawInfo = this._renderData.renderDrawInfo;
-                drawInfo.setMaterial(this._clearStencilMtl);
-            }
-        }
     }
 
     /**
@@ -659,6 +653,10 @@ export class Mask extends UIRenderer {
                 }
             }
         }
+    }
+
+    protected _updateBuiltinMaterial (): Material {
+        return this._clearStencilMtl!;
     }
 
     protected _updateMaterial () {
