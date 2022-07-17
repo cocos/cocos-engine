@@ -57,6 +57,9 @@
     ViewController* viewController = [[ViewController alloc] initWithSize:rect];
     _window.contentViewController = viewController;
     _window.contentView = viewController.view;
+    [viewController release];
+    viewController = nil;
+    
     [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
     [_window makeKeyAndOrderFront:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self

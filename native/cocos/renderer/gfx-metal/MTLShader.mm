@@ -162,12 +162,14 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
             if (!library) {
                 CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
                 CC_LOG_ERROR("%s", stage.source.c_str());
+                [opts release];
                 return false;
             }
         } else {
             //delayed instance and pretend tobe specialized function.
             _gpuShader->specializeColor = false;
             _gpuShader->shaderSrc = [shader retain];
+            [opts release];
             CC_ASSERT(_gpuShader->shaderSrc != nil);
             return true;
         }
@@ -176,6 +178,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
         if (!library) {
             CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
             CC_LOG_ERROR("%s", stage.source.c_str());
+            [opts release];
             return false;
         }
     }
@@ -246,6 +249,7 @@ id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint32_t* index, int* va
                 CC_LOG_ERROR("Can not specialize shader: %s", [[error localizedDescription] UTF8String]);
             }
             [_specializedFragFuncs setObject:specFragFunc forKey:hashStr];
+            [specFragFunc release];
         } else {
             NSString* res = nil;
             for (size_t i = 0; i < count; i++) {
