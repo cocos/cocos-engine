@@ -98,7 +98,7 @@ DragonBonesData *CCFactory::loadDragonBonesData(const std::string &filePath, con
             const auto binary = (unsigned char *)malloc(sizeof(unsigned char) * cocos2dData.getSize());
             memcpy(binary, cocos2dData.getBytes(), cocos2dData.getSize());
             const auto data = parseDragonBonesData((char *)binary, name, scale);
-
+            free(binary);
             return data;
         }
     }
@@ -122,8 +122,9 @@ DragonBonesData *CCFactory::parseDragonBonesDataByPath(const std::string &filePa
             cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
             const auto binary = (unsigned char *)malloc(sizeof(unsigned char) * cocos2dData.getSize());
             memcpy(binary, cocos2dData.getBytes(), cocos2dData.getSize());
-
-            return parseDragonBonesData((char *)binary, name, scale);
+            auto* ret = parseDragonBonesData((char *)binary, name, scale);
+            free(binary);
+            return ret;
         }
     } else {
         return parseDragonBonesData(filePath.c_str(), name, scale);
