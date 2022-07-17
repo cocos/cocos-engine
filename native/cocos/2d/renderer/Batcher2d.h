@@ -74,7 +74,6 @@ private:
     bool _isInit = false;
 
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        uint32_t vertexOffset = drawInfo->getVertexOffset();
         uint16_t* ib = drawInfo->getIDataBuffer();
 
         UIMeshBuffer* buffer = drawInfo->getMeshBuffer();

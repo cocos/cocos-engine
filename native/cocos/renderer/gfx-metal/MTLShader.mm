@@ -149,7 +149,6 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
     size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
     ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize() / unitSize, stage.stage, _gpuShader);
 
-    NSString* rawSrc = [NSString stringWithUTF8String:stage.source.c_str()];
     NSString* shader = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
     NSError* error = nil;
     MTLCompileOptions* opts = [[MTLCompileOptions alloc] init];

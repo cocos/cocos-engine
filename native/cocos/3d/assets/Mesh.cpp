@@ -629,9 +629,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
         Uint8Array vbView(vb);
 
         Uint8Array srcVBView = _data.subarray(srcOffset, srcOffset + bundle.view.length);
-        srcOffset += srcVBView.length();
         Uint8Array dstVBView = mesh->_data.subarray(dstOffset, dstOffset + dstBundle.view.length);
-        dstOffset += dstVBView.length();
 
         vbView.set(srcVBView);
 
@@ -762,7 +760,6 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                     }
                 }
             }
-            srcOffset += prim.indexView.value().length;
 
             // merge dst indices
             uint32_t indexViewStride = dstPrim.indexView.value().stride;
@@ -785,7 +782,6 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                         vertBatchCount + getTypedArrayValue<uint32_t>(dstIBView, n);
                 }
             }
-            dstOffset += dstPrim.indexView.value().length;
 
             IBufferView indexView;
             indexView.offset = bufferBlob.getLength();
