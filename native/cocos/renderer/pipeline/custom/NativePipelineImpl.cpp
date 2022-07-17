@@ -87,7 +87,7 @@ gfx::Device* NativePipeline::getDevice() const {
 }
 
 bool NativePipeline::containsResource(const ccstd::string &name) const {
-    return resourceGraph.contains(name);
+    return contains(name, resourceGraph);
 }
 
 // NOLINTNEXTLINE
