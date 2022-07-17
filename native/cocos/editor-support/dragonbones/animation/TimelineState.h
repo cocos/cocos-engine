@@ -128,9 +128,9 @@ public:
     ~SlotColorTimelineState() {
         _onClear();
 
-        delete _current;
-        delete _delta;
-        delete _result;
+        delete[] _current;
+        delete[] _delta;
+        delete[] _result;
     }
 
 protected:
