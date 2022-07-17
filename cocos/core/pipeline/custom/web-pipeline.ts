@@ -52,11 +52,6 @@ import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../assets';
 import { setupBuiltinDeferred, setupBuiltinForward } from './builtin-pipelines';
 
-// Anti-aliasing type, other types will be gradually added in the future
-export enum AntiAliasing {
-    NONE,
-    FXAA,
-}
 export class WebSetter {
     constructor (data: RenderData) {
         this._data = data;
@@ -359,6 +354,12 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline extends Pipeline {
+    public get device (): Device {
+        return this._device;
+    }
+    public containsResource (name: string): boolean {
+        return this._resourceGraph.contains(name);
+    }
     public addComputePass(layoutName: string, name: string): ComputePassBuilder;
     public addComputePass(layoutName: string): ComputePassBuilder;
     public addComputePass (layoutName: any, name?: any): ComputePassBuilder {
@@ -487,9 +488,6 @@ export class WebPipeline extends Pipeline {
     }
     public setMacroBool (name: string, value: boolean): void {
         this._macros[name] = value;
-    }
-    public get device () {
-        return this._device;
     }
     public onGlobalPipelineStateChanged (): void {
         // do nothing
@@ -679,8 +677,4 @@ export class WebPipeline extends Pipeline {
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
     private _executor: Executor | null = null;
-    // deferred material
-    protected declare _deferredLightingMaterial: Material;
-    protected declare _deferredPostMaterial: Material;
-    protected _antiAliasing: AntiAliasing = AntiAliasing.NONE;
 }

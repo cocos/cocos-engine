@@ -247,18 +247,22 @@ public:
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
 
-    uint32_t            addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
-    uint32_t            addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    uint32_t            addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    void                beginFrame() override;
-    void                endFrame() override;
-    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) override;
-    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) override;
+    gfx::Device* getDevice() const override;
+
+    bool containsResource(const ccstd::string& name) const override;
+    uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
+    uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+
+    void beginFrame() override;
+    void endFrame() override;
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) override;
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) override;
     ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) override;
     ComputePassBuilder *addComputePass(const ccstd::string& layoutName) override;
-    MovePassBuilder    *addMovePass(const ccstd::string& name) override;
-    CopyPassBuilder    *addCopyPass(const ccstd::string& name) override;
-    void                presentAll() override;
+    MovePassBuilder *addMovePass(const ccstd::string& name) override;
+    CopyPassBuilder *addCopyPass(const ccstd::string& name) override;
+    void presentAll() override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     LayoutGraphBuilder *getLayoutGraphBuilder() override;

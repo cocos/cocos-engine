@@ -316,18 +316,22 @@ public:
 
     ~Pipeline() noexcept override = 0;
 
-    virtual uint32_t            addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
-    virtual uint32_t            addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual uint32_t            addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual void                beginFrame() = 0;
-    virtual void                endFrame() = 0;
-    virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) = 0;
+    virtual gfx::Device* getDevice() const = 0;
+
+    virtual bool containsResource(const ccstd::string& name) const = 0;
+    virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
+    virtual uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+    virtual uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+
+    virtual void beginFrame() = 0;
+    virtual void endFrame() = 0;
+    virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) = 0;
+    virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) = 0;
     virtual ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) = 0;
     virtual ComputePassBuilder *addComputePass(const ccstd::string& layoutName) = 0;
-    virtual MovePassBuilder    *addMovePass(const ccstd::string& name) = 0;
-    virtual CopyPassBuilder    *addCopyPass(const ccstd::string& name) = 0;
-    virtual void                presentAll() = 0;
+    virtual MovePassBuilder *addMovePass(const ccstd::string& name) = 0;
+    virtual CopyPassBuilder *addCopyPass(const ccstd::string& name) = 0;
+    virtual void presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;

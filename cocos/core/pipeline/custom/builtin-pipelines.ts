@@ -7,7 +7,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, AttachmentType, ComputeView, RasterView } from './render-graph';
 import { QueueHint, ResourceResidency, SceneFlags } from './types';
-import { AntiAliasing, WebPipeline } from './web-pipeline';
+import { Pipeline } from './pipeline';
 
 function pickSpotLights (pplScene: Readonly<PipelineSceneData>): Array<Light> {
     const validPunctualLights = pplScene.validPunctualLights;
@@ -27,12 +27,12 @@ function pickSpotLights (pplScene: Readonly<PipelineSceneData>): Array<Light> {
 }
 
 function buildShadowPass (passName: Readonly<string>,
-    ppl: WebPipeline,
+    ppl: Pipeline,
     camera: Camera, light: Light,
     width: Readonly<number>, height: Readonly<number>) {
     const device = ppl.device;
     const shadowMapName = passName;
-    if (!ppl.resourceGraph.contains(shadowMapName)) {
+    if (!ppl.containsResource(shadowMapName)) {
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
         ppl.addRenderTarget(shadowMapName, format, width, height, ResourceResidency.MANAGED);
     }
@@ -53,7 +53,7 @@ class CameraInfo {
     spotLightShadowNames = new Array<string>();
 }
 
-function buildShadowPasses (cameraName: string, camera: Camera, ppl: WebPipeline): CameraInfo {
+function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipeline): CameraInfo {
     const pplScene = ppl.pipelineSceneData;
     const shadows = ppl.pipelineSceneData.shadows;
     const cameraInfo = new CameraInfo();
@@ -110,8 +110,7 @@ function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: AttachmentTy
     return loadOp;
 }
 
-export function setupBuiltinForward (cameras: Camera[], ppl: WebPipeline) {
-    const resg = ppl.resourceGraph;
+export function setupBuiltinForward (cameras: Camera[], ppl: Pipeline) {
     for (let i = 0; i < cameras.length; i++) {
         const camera = cameras[i];
         if (camera.scene === null) {
@@ -125,18 +124,18 @@ export function setupBuiltinForward (cameras: Camera[], ppl: WebPipeline) {
 
         const forwardPassRTName = `dsForwardPassColor${cameraName}`;
         const forwardPassDSName = `dsForwardPassDS${cameraName}`;
-        if (!resg.contains(forwardPassRTName)) {
+        if (!ppl.containsResource(forwardPassRTName)) {
             ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
             ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
         const forwardPass = ppl.addRasterPass(width, height, 'default', `CameraForwardPass${cameraID}`);
         if (cameraInfo.mainLightShadowName) {
-            assert(resg.contains(cameraInfo.mainLightShadowName));
+            assert(ppl.containsResource(cameraInfo.mainLightShadowName));
             const computeView = new ComputeView();
             forwardPass.addComputeView(cameraInfo.mainLightShadowName, computeView);
         }
         for (const spotShadowName of cameraInfo.spotLightShadowNames) {
-            if (resg.contains(spotShadowName)) {
+            if (ppl.containsResource(spotShadowName)) {
                 const computeView = new ComputeView();
                 forwardPass.addComputeView(spotShadowName, computeView);
             }
@@ -162,6 +161,12 @@ export function setupBuiltinForward (cameras: Camera[], ppl: WebPipeline) {
             .addQueue(QueueHint.RENDER_TRANSPARENT)
             .addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI);
     }
+}
+
+// Anti-aliasing type, other types will be gradually added in the future
+export enum AntiAliasing {
+    NONE,
+    FXAA,
 }
 
 class DeferredData {
@@ -196,11 +201,10 @@ class DeferredData {
 
 let _deferredData: DeferredData | null = null;
 
-export function setupBuiltinDeferred (cameras: Camera[], ppl: WebPipeline) {
+export function setupBuiltinDeferred (cameras: Camera[], ppl: Pipeline) {
     if (!_deferredData) {
         _deferredData = new DeferredData();
     }
-    const resg = ppl.resourceGraph;
     for (let i = 0; i < cameras.length; ++i) {
         const camera = cameras[i];
         if (!camera.scene) {
@@ -216,7 +220,7 @@ export function setupBuiltinDeferred (cameras: Camera[], ppl: WebPipeline) {
         const deferredGbufferPassNormal = `deferredGbufferPassNormal`;
         const deferredGbufferPassEmissive = `deferredGbufferPassEmissive`;
         const deferredGbufferPassDSName = `dsDeferredPassDSCamera`;
-        if (!ppl.resourceGraph.contains(deferredGbufferPassRTName)) {
+        if (!ppl.containsResource(deferredGbufferPassRTName)) {
             const colFormat = Format.RGBA16F;
             ppl.addRenderTarget(deferredGbufferPassRTName, colFormat, width, height, ResourceResidency.MANAGED);
             ppl.addRenderTarget(deferredGbufferPassNormal, colFormat, width, height, ResourceResidency.MANAGED);
@@ -226,7 +230,7 @@ export function setupBuiltinDeferred (cameras: Camera[], ppl: WebPipeline) {
         // gbuffer pass
         const gbufferPass = ppl.addRasterPass(width, height, 'Geometry', `CameraGbufferPass${cameraID}`);
         if (cameraInfo.mainLightShadowName) {
-            assert(ppl.resourceGraph.contains(cameraInfo.mainLightShadowName));
+            assert(ppl.containsResource(cameraInfo.mainLightShadowName));
             const computeView = new ComputeView();
             gbufferPass.addComputeView(cameraInfo.mainLightShadowName, computeView);
         }
@@ -269,13 +273,13 @@ export function setupBuiltinDeferred (cameras: Camera[], ppl: WebPipeline) {
             .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
         const deferredLightingPassRTName = `deferredLightingPassRTName`;
         const deferredLightingPassDS = `deferredLightingPassDS`;
-        if (!ppl.resourceGraph.contains(deferredLightingPassRTName)) {
+        if (!ppl.containsResource(deferredLightingPassRTName)) {
             ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
             ppl.addDepthStencil(deferredLightingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
         // lighting pass
         const lightingPass = ppl.addRasterPass(width, height, 'Lighting', `CameraLightingPass${cameraID}`);
-        if (resg.contains(deferredGbufferPassRTName)) {
+        if (ppl.containsResource(deferredGbufferPassRTName)) {
             const computeView = new ComputeView();
             computeView.name = 'gbuffer_albedoMap';
             lightingPass.addComputeView(deferredGbufferPassRTName, computeView);
@@ -313,12 +317,12 @@ export function setupBuiltinDeferred (cameras: Camera[], ppl: WebPipeline) {
         // Postprocess
         const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
         const postprocessPassDS = `postprocessPassDS${cameraID}`;
-        if (!ppl.resourceGraph.contains(postprocessPassRTName)) {
+        if (!ppl.containsResource(postprocessPassRTName)) {
             ppl.addRenderTexture(postprocessPassRTName, Format.RGBA8, width, height, camera.window);
             ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
         const postprocessPass = ppl.addRasterPass(width, height, 'Postprocess', `CameraPostprocessPass${cameraID}`);
-        if (resg.contains(deferredLightingPassRTName)) {
+        if (ppl.containsResource(deferredLightingPassRTName)) {
             const computeView = new ComputeView();
             computeView.name = 'outputResultMap';
             postprocessPass.addComputeView(deferredLightingPassRTName, computeView);

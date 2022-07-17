@@ -32,7 +32,7 @@
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
+import { Buffer, Color, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
@@ -160,6 +160,8 @@ export abstract class LayoutGraphBuilder {
 }
 
 export abstract class Pipeline extends PipelineRuntime {
+    public abstract get device(): Device;
+    public abstract containsResource(name: string): boolean;
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;

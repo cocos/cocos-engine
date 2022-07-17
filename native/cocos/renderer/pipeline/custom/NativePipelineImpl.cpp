@@ -33,6 +33,7 @@
 #include "NativePipelineTypes.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
+#include "base/std/container/string.h"
 #include "boost/utility/string_view_fwd.hpp"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -80,6 +81,14 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
   resourceGraph(alloc),
   renderGraph(alloc) {}
+
+gfx::Device* NativePipeline::getDevice() {
+    return device;
+}
+
+bool NativePipeline::containsResource(const ccstd::string &name) const {
+    return resourceGraph.contains(name);
+}
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
