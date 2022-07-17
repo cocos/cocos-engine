@@ -83,12 +83,6 @@ public:
     inline StencilStage getEnumStencilStage() const { return _stencilStage; }
     void setEnumStencilStage(StencilStage stage);
 
-    inline Material* getCustomMaterial() const { return _customMaterial; }
-    void setCustomMaterial(Material* mat);
-
-    inline Material* getCommitModelMaterial() const { return _commitModelMaterial; }
-    void setCommitModelMaterial(Material* mat);
-
     inline RenderEntityType getRenderEntityType() const { return _renderEntityType; };
     void setRenderEntityType(uint32_t type);
 
@@ -122,10 +116,6 @@ private:
     // weak reference
     Node* _node{nullptr};
     StencilStage _stencilStage{StencilStage::DISABLED};
-    // weak reference
-    Material* _customMaterial{nullptr};
-    // weak reference
-    Material* _commitModelMaterial{nullptr};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
 
     EntityAttrLayout _entityAttrLayout;

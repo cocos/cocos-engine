@@ -383,6 +383,12 @@ cocos_source_files(
     cocos/base/std/container/unordered_map.h
     cocos/base/std/container/unordered_set.h
     cocos/base/std/container/vector.h
+    cocos/base/std/hash/detail/float_functions.hpp
+    cocos/base/std/hash/detail/hash_float.hpp
+    cocos/base/std/hash/detail/limits.hpp
+    cocos/base/std/hash/extensions.hpp
+    cocos/base/std/hash/hash_fwd.hpp
+    cocos/base/std/hash/hash.h
 )
 
 ############ application

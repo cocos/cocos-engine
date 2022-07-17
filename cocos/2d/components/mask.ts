@@ -616,7 +616,6 @@ export class Mask extends UIRenderer {
                 owner: this,
                 subModelIdx: 0,
             });
-            this.renderEntity.setCommitModelMaterial(this._clearStencilMtl);
 
             this._clearModel = director.root!.createModel(scene.Model);
             this._clearModel.node = this._clearModel.transform = this.node;
@@ -650,9 +649,14 @@ export class Mask extends UIRenderer {
                 if (this._renderData) {
                     const drawInfo = this._renderData.renderDrawInfo;
                     drawInfo.setModel(this._clearModel);
+                    drawInfo.setMaterial(this._clearStencilMtl);
                 }
             }
         }
+    }
+
+    protected _updateBuiltinMaterial (): Material {
+        return this._clearStencilMtl!;
     }
 
     protected _updateMaterial () {

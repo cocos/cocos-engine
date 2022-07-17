@@ -211,8 +211,7 @@ export class Sprite extends UIRenderer {
 
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
-        // render & update render data flag will be triggered while applying new sprite frame
-        this.markForUpdateRenderData(false);
+        this.markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);

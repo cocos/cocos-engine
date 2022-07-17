@@ -35,9 +35,11 @@ import { BuiltinBundleName } from '../asset-manager/shared';
 import Bundle from '../asset-manager/bundle';
 import { Settings, settings } from '../settings';
 import releaseManager from '../asset-manager/release-manager';
+import { Material } from '../assets';
 
 class BuiltinResMgr {
     protected _resources: Record<string, Asset> = {};
+    protected _materialsToBeCompiled: Material[] = [];
 
     // this should be called after renderer initialized
     public init () {
@@ -315,12 +317,26 @@ class BuiltinResMgr {
                         assets.forEach((asset) => {
                             resources[asset.name] = asset;
                             releaseManager.addIgnoredAsset(asset);
+                            if (asset instanceof legacyCC.Material) {
+                                this._materialsToBeCompiled.push(asset as Material);
+                            }
                         });
                         resolve();
                     }
                 });
             });
         });
+    }
+
+    public compileBuiltinMaterial () {
+        // NOTE: Builtin material should be compiled again after the render pipeline setup
+        for (let i = 0; i < this._materialsToBeCompiled.length; ++i) {
+            const mat = this._materialsToBeCompiled[i];
+            for (let j = 0; j < mat.passes.length; ++j) {
+                mat.passes[j].tryCompile();
+            }
+        }
+        this._materialsToBeCompiled.length = 0;
     }
 }
 
