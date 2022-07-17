@@ -82,7 +82,7 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   resourceGraph(alloc),
   renderGraph(alloc) {}
 
-gfx::Device* NativePipeline::getDevice() {
+gfx::Device* NativePipeline::getDevice() const {
     return device;
 }
 
