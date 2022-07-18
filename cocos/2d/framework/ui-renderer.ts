@@ -471,7 +471,7 @@ export class UIRenderer extends Renderer {
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
-        if (render) {
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
             render._renderEntity.colorDirty = dirty;
             render._renderEntity.color = render.color;// necessity to be considering
         }
