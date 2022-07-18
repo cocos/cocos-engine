@@ -264,7 +264,7 @@ void Vec3::transformMat4(const Vec3 &v, const Mat4 &m) {
 #if defined(USE_NEON64)
     transformMat4Neon(v, m);
 #elif defined(INCLUDE_NEON32)
-    if (CC_PREDICT_TRUE(isNeon32Enabled())) {
+    if (CC_PREDICT_TRUE(MathUtil::isNeon32Enabled())) {
         transformMat4Neon(v, m);
     } else {
         transformMat4C(v, m);
