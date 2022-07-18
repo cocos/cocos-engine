@@ -118,7 +118,7 @@ int32_t MacPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<SystemWindow>(this));
     registerInterface(std::make_shared<Vibrator>());
     return 0;
 }

@@ -33,7 +33,7 @@ namespace {
 
 namespace cc {
 
-SystemWindow::SystemWindow() = default;
+SystemWindow::SystemWindow(IEventDispatch *delegate) {}
 
 SystemWindow::~SystemWindow() = default;
 
