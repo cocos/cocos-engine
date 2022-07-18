@@ -113,10 +113,6 @@ void RenderDrawInfo::setSampler(gfx::Sampler* sampler) {
     _sampler = sampler;
 }
 
-void RenderDrawInfo::setBlendHash(uint32_t blendHash) {
-    _blendHash = blendHash;
-}
-
 void RenderDrawInfo::setModel(scene::Model* model) {
     _model = model;
 }
