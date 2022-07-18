@@ -58,7 +58,7 @@ enum class RenderDrawInfoType: uint8_t {
 class Batcher2d;
 class RenderDrawInfo final {
 public:
-    RenderDrawInfo();
+    RenderDrawInfo() = default;
     RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
     ~RenderDrawInfo();
 

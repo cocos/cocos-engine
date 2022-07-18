@@ -31,9 +31,6 @@
 
 namespace cc {
 
-RenderDrawInfo::RenderDrawInfo() {
-}
-
 RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
     _bufferId = bufferId;
     _vertexOffset = vertexOffset;
