@@ -601,8 +601,6 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
     // merge vertex buffer
     uint32_t vertCount = 0;
     uint32_t vertStride = 0;
-    uint32_t srcOffset = 0;
-    uint32_t dstOffset = 0;
 
     uint32_t srcAttrOffset = 0;
     uint32_t srcVBOffset = 0;
@@ -620,18 +618,14 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
         const auto &bundle = _struct.vertexBundles[i];
         auto &dstBundle = mesh->_struct.vertexBundles[i];
 
-        srcOffset = bundle.view.offset;
-        dstOffset = dstBundle.view.offset;
         vertStride = bundle.view.stride;
         vertCount = bundle.view.count + dstBundle.view.count;
 
         auto *vb = ccnew ArrayBuffer(vertCount * vertStride);
         Uint8Array vbView(vb);
 
-        Uint8Array srcVBView = _data.subarray(srcOffset, srcOffset + bundle.view.length);
-        srcOffset += srcVBView.length();
-        Uint8Array dstVBView = mesh->_data.subarray(dstOffset, dstOffset + dstBundle.view.length);
-        dstOffset += dstVBView.length();
+        Uint8Array srcVBView = _data.subarray(bundle.view.offset, bundle.view.offset + bundle.view.length);
+        Uint8Array dstVBView = mesh->_data.subarray(dstBundle.view.offset, dstBundle.view.offset + dstBundle.view.length);
 
         vbView.set(srcVBView);
 
@@ -705,9 +699,6 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
             idxCount = prim.indexView.value().count;
             idxCount += dstPrim.indexView.value().count;
 
-            srcOffset = prim.indexView.value().offset;
-            dstOffset = dstPrim.indexView.value().offset;
-
             if (idxCount < 256) {
                 idxStride = 1;
             } else if (idxCount < 65536) {
@@ -732,11 +723,11 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
 
             // merge src indices
             if (prim.indexView.value().stride == 2) {
-                srcIBView = Uint16Array(_data.buffer(), srcOffset, prim.indexView.value().count);
+                srcIBView = Uint16Array(_data.buffer(), prim.indexView.value().offset, prim.indexView.value().count);
             } else if (prim.indexView.value().stride == 1) {
-                srcIBView = Uint8Array(_data.buffer(), srcOffset, prim.indexView.value().count);
+                srcIBView = Uint8Array(_data.buffer(), prim.indexView.value().offset, prim.indexView.value().count);
             } else { // Uint32
-                srcIBView = Uint32Array(_data.buffer(), srcOffset, prim.indexView.value().count);
+                srcIBView = Uint32Array(_data.buffer(), prim.indexView.value().offset, prim.indexView.value().count);
             }
             //
             if (idxStride == prim.indexView.value().stride) {
@@ -762,16 +753,15 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                     }
                 }
             }
-            srcOffset += prim.indexView.value().length;
 
             // merge dst indices
             uint32_t indexViewStride = dstPrim.indexView.value().stride;
             if (indexViewStride == 2) {
-                dstIBView = Uint16Array(mesh->_data.buffer(), dstOffset, dstPrim.indexView->count);
+                dstIBView = Uint16Array(mesh->_data.buffer(), dstPrim.indexView.value().offset, dstPrim.indexView->count);
             } else if (indexViewStride == 1) {
-                dstIBView = Uint8Array(mesh->_data.buffer(), dstOffset, dstPrim.indexView->count);
+                dstIBView = Uint8Array(mesh->_data.buffer(), dstPrim.indexView.value().offset, dstPrim.indexView->count);
             } else { // Uint32
-                dstIBView = Uint32Array(mesh->_data.buffer(), dstOffset, dstPrim.indexView->count);
+                dstIBView = Uint32Array(mesh->_data.buffer(), dstPrim.indexView.value().offset, dstPrim.indexView->count);
             }
             for (uint32_t n = 0; n < dstPrim.indexView.value().count; ++n) {
                 if (idxStride == 2) {
@@ -785,7 +775,6 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                         vertBatchCount + getTypedArrayValue<uint32_t>(dstIBView, n);
                 }
             }
-            dstOffset += dstPrim.indexView.value().length;
 
             IBufferView indexView;
             indexView.offset = bufferBlob.getLength();
