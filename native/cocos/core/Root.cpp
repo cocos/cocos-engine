@@ -140,6 +140,9 @@ public:
     void render(const ccstd::vector<scene::Camera *> &cameras) override {
         pipeline->render(cameras);
     }
+    gfx::Device* getDevice() const override {
+        return pipeline->getDevice();
+    }
     const MacroRecord &getMacros() const override {
         return pipeline->getMacros();
     }
