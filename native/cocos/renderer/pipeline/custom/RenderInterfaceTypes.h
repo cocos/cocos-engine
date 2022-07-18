@@ -80,17 +80,18 @@ public:
     virtual bool destroy() noexcept = 0;
     virtual void render(const ccstd::vector<scene::Camera*>& cameras) = 0;
 
-    virtual const MacroRecord           &getMacros() const = 0;
-    virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
-    virtual gfx::DescriptorSetLayout    *getDescriptorSetLayout() const = 0;
+    virtual gfx::Device* getDevice() const = 0;
+    virtual const MacroRecord &getMacros() const = 0;
+    virtual pipeline::GlobalDSManager *getGlobalDSManager() const = 0;
+    virtual gfx::DescriptorSetLayout *getDescriptorSetLayout() const = 0;
     virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
-    virtual const ccstd::string         &getConstantMacros() const = 0;
-    virtual scene::Model                *getProfiler() const = 0;
-    virtual void                         setProfiler(scene::Model *profiler) = 0;
+    virtual const ccstd::string &getConstantMacros() const = 0;
+    virtual scene::Model *getProfiler() const = 0;
+    virtual void setProfiler(scene::Model *profiler) = 0;
     virtual pipeline::GeometryRenderer  *getGeometryRenderer() const = 0;
 
     virtual float getShadingScale() const = 0;
-    virtual void  setShadingScale(float scale) = 0;
+    virtual void setShadingScale(float scale) = 0;
 
     virtual const ccstd::string& getMacroString(const ccstd::string& name) const = 0;
     virtual int32_t getMacroInt(const ccstd::string& name) const = 0;
@@ -315,8 +316,6 @@ public:
     Pipeline() noexcept = default;
 
     ~Pipeline() noexcept override = 0;
-
-    virtual gfx::Device* getDevice() const = 0;
 
     virtual bool containsResource(const ccstd::string& name) const = 0;
     virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;

@@ -48,6 +48,7 @@ export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
     public abstract destroy(): boolean;
     public abstract render(cameras: Camera[]): void;
+    public abstract get device(): Device;
     public abstract get globalDSManager(): GlobalDSManager;
     public abstract get descriptorSetLayout(): DescriptorSetLayout;
     public abstract get pipelineSceneData(): PipelineSceneData;
@@ -160,7 +161,6 @@ export abstract class LayoutGraphBuilder {
 }
 
 export abstract class Pipeline extends PipelineRuntime {
-    public abstract get device(): Device;
     public abstract containsResource(name: string): boolean;
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;

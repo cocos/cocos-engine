@@ -247,8 +247,6 @@ public:
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
 
-    gfx::Device* getDevice() const override;
-
     bool containsResource(const ccstd::string& name) const override;
     uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
     uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
@@ -272,17 +270,18 @@ public:
     bool destroy() noexcept override;
     void render(const ccstd::vector<scene::Camera*>& cameras) override;
 
-    const MacroRecord           &getMacros() const override;
-    pipeline::GlobalDSManager   *getGlobalDSManager() const override;
-    gfx::DescriptorSetLayout    *getDescriptorSetLayout() const override;
+    gfx::Device* getDevice() const override;
+    const MacroRecord &getMacros() const override;
+    pipeline::GlobalDSManager *getGlobalDSManager() const override;
+    gfx::DescriptorSetLayout *getDescriptorSetLayout() const override;
     pipeline::PipelineSceneData *getPipelineSceneData() const override;
-    const ccstd::string         &getConstantMacros() const override;
-    scene::Model                *getProfiler() const override;
-    void                         setProfiler(scene::Model *profiler) override;
+    const ccstd::string &getConstantMacros() const override;
+    scene::Model *getProfiler() const override;
+    void setProfiler(scene::Model *profiler) override;
     pipeline::GeometryRenderer  *getGeometryRenderer() const override;
 
     float getShadingScale() const override;
-    void  setShadingScale(float scale) override;
+    void setShadingScale(float scale) override;
 
     const ccstd::string& getMacroString(const ccstd::string& name) const override;
     int32_t getMacroInt(const ccstd::string& name) const override;
