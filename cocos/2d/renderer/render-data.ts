@@ -483,6 +483,7 @@ export class RenderData extends BaseRenderData {
 
             if (this._renderDrawInfo) {
                 this._renderDrawInfo.setMaterial(this.material);
+                this._renderDrawInfo.setBlendHash(this.blendHash);
             }
         }
         if (this.nodeDirty) {
@@ -504,7 +505,6 @@ export class RenderData extends BaseRenderData {
                 this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
                 this._renderDrawInfo.setTextureHash(this.textureHash);
                 this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
-                this._renderDrawInfo.setBlendHash(this.blendHash);
             }
         }
         if (this.hashDirty) {
