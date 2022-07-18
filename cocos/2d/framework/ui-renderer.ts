@@ -552,7 +552,6 @@ export class UIRenderer extends Renderer {
 
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (this.renderData) {
-            this.renderData.material = material;
             this.markForUpdateRenderData();
             this.renderData.passDirty = true;
         }

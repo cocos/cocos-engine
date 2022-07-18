@@ -27,14 +27,9 @@
 #include "2d/renderer/Batcher2d.h"
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
+#include "core/Root.h"
 
 namespace cc {
-RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
-}
-
-RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
-    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
-}
 
 RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
     _bufferId = bufferId;
@@ -42,17 +37,10 @@ RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t
     _indexOffset = indexOffset;
     _stride = 0;
     _size = 0;
-    _batcher = nullptr;
-
-    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
     destroy();
-}
-
-void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
-    _batcher = batcher;
 }
 
 void RenderDrawInfo::setAccId(index_t id) {
@@ -60,8 +48,9 @@ void RenderDrawInfo::setAccId(index_t id) {
 }
 
 void RenderDrawInfo::setBufferId(index_t bufferId) {
+    CC_ASSERT(Root::getInstance()->getBatcher2D());
     _bufferId = bufferId;
-    _meshBuffer = _batcher->getMeshBuffer(_accId, _bufferId);
+    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(_accId, _bufferId);
 }
 
 void RenderDrawInfo::setVertexOffset(uint32_t vertexOffset) {
@@ -140,10 +129,6 @@ void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, 
     _stride = stride;
     _size = size;
     _sharedBuffer = buffer;
-}
-
-se::Object* RenderDrawInfo::getAttrSharedBufferForJS() const {
-    return _attrSharedBufferActor.getSharedArrayBufferObject();
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {

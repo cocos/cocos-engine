@@ -359,6 +359,8 @@ export function isCCClassOrFastDefined<T> (constructor: Constructor<T>) {
     return  constructor?.hasOwnProperty?.('__values__');
 }
 
+CCClass.isCCClassOrFastDefined = isCCClassOrFastDefined;
+
 /**
  * Return all super classes.
  * @param constructor The Constructor.
