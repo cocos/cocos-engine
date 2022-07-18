@@ -132,6 +132,7 @@ let dynamicAtlasManager = {
      * !#zh 添加碎图进入动态图集。
      * @method insertSpriteFrame
      * @param {SpriteFrame} spriteFrame
+     * @return {Object} frame
      */
     insertSpriteFrame (spriteFrame) {
         if (CC_EDITOR) return null;

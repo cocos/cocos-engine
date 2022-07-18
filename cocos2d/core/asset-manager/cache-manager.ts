@@ -149,6 +149,7 @@ export abstract class CacheManager {
      * 通过原始 url 移除缓存
      * 
      * @method removeCache
+     * @param {string} originUrl
      */
     public abstract removeCache (originUrl: string): void;
 }
