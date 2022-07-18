@@ -176,7 +176,29 @@ function Tween (target) {
     this._finalAction = null;
     this._target = target;
     this._tag = cc.Action.TAG_INVALID;
+
+    // for time scale
+    this._timeScale = 1
 }
+
+/**
+ * !#en set/get time scale for tween
+ * !#zh 设置/读取 tween 的 time scale (时间缩放参数)
+ * @property timeScale
+ * @type {Number}
+ * @default 1
+ */
+cc.js.getset(Tween.prototype, 'timeScale',
+    function () {
+        return this._timeScale;
+    },
+    function (value) {
+        this._timeScale = value;
+        if (this._finalAction) {
+            this._finalAction.timeScale = value;
+        }
+    }
+);
 
 /**
  * @method constructor
@@ -272,6 +294,7 @@ Tween.prototype.start = function () {
         cc.director.getActionManager().removeAction(this._finalAction);
     }
     this._finalAction = this._union();
+    this._finalAction.timeScale = this._timeScale;
 
     if (target._id === undefined) {
         target._id = ++_tweenID;
@@ -310,7 +333,7 @@ Tween.prototype.stop = function () {
  */
 Tween.prototype.pause = function () {
     if (this._finalAction) {
-        this._finalAction.paused = true
+        this._finalAction.paused = true;
     }
     return this;
 }
@@ -326,7 +349,7 @@ Tween.prototype.pause = function () {
  */
 Tween.prototype.resume = function () {
     if (this._finalAction) {
-        this._finalAction.paused = false
+        this._finalAction.paused = false;
     }
     return this;
 }
