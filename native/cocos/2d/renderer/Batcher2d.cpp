@@ -111,7 +111,8 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
 
     const auto& children = node->getChildren();
     for (const auto& child : children) {
-        float thisOpacity = entity ? entity->getOpacity() : 1;
+        // we should find parent opacity recursively upwards if it doesn't have an entity.
+        float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
         walk(child, thisOpacity);
     }
 
@@ -207,6 +208,9 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             //Mask node
             _stencilManager->pushMask();
             _stencilManager->clear(entity);
+
+            handleColor(entity, drawInfo, parentOpacity);
+
         } else if (isSubMask) {
             //Mask Comp
             _stencilManager->enterLevel(entity);
