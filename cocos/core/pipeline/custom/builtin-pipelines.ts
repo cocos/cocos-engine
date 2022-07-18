@@ -5,7 +5,7 @@ import { Camera, Light, LightType, ShadowType, SKYBOX_FLAG } from '../../rendere
 import { supportsR32FloatTexture } from '../define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, AttachmentType, ComputeView, RasterView } from './render-graph';
+import { AccessType, AttachmentType, ComputeView, LightInfo, RasterView } from './render-graph';
 import { QueueHint, ResourceResidency, SceneFlags } from './types';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
@@ -43,7 +43,7 @@ export function buildShadowPass (passName: Readonly<string>,
         ClearFlagBit.COLOR,
         new Color(0, 0, 0, 0)));
     const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
-    queue.addSceneOfCamera(camera, light,
+    queue.addSceneOfCamera(camera, new LightInfo(light),
         SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.SHADOW_CASTER);
 }
 
@@ -157,10 +157,10 @@ export class ForwardPipelineBuilder extends PipelineBuilder {
             forwardPass.addRasterView(forwardPassDSName, passDSView);
             forwardPass
                 .addQueue(QueueHint.RENDER_OPAQUE)
-                .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
             forwardPass
                 .addQueue(QueueHint.RENDER_TRANSPARENT)
-                .addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI);
         }
     }
 }
@@ -268,7 +268,7 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
             gbufferPass.addRasterView(deferredGbufferPassDSName, passDSView);
             gbufferPass
                 .addQueue(QueueHint.RENDER_OPAQUE)
-                .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
             const deferredLightingPassRTName = `deferredLightingPassRTName`;
             const deferredLightingPassDS = `deferredLightingPassDS`;
             if (!ppl.containsResource(deferredLightingPassRTName)) {
@@ -311,7 +311,7 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
                 camera, this._deferredData._deferredLightingMaterial,
                 SceneFlags.VOLUMETRIC_LIGHTING,
             );
-            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT);
+            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT);
             // Postprocess
             const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
             const postprocessPassDS = `postprocessPassDS${cameraID}`;
@@ -346,7 +346,7 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
             postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
             postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
             postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(this._deferredData._deferredPostMaterial, SceneFlags.NONE);
-            postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, null, SceneFlags.UI);
+            postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(), SceneFlags.UI);
         }
     }
     readonly _deferredData = new DeferredData();
