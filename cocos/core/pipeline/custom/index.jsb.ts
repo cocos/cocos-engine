@@ -26,7 +26,7 @@
 declare const render: any;
 
 import { legacyCC } from '../../global-exports';
-import { Pipeline } from './pipeline';
+import { Pipeline, PipelineBuilder } from './pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 
 export function createCustomPipeline (): Pipeline {
@@ -38,4 +38,8 @@ export function createCustomPipeline (): Pipeline {
         buildForwardLayout(ppl);
     }
     return ppl;
+}
+
+export function setCustomPipelineBuilder (builder: PipelineBuilder) {
+    // not implemented yet
 }

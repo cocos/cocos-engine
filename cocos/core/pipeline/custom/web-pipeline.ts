@@ -29,7 +29,7 @@ import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeat
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { LightingMode, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
@@ -50,7 +50,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../assets';
-import { setupBuiltinDeferred, setupBuiltinForward } from './builtin-pipelines';
+import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -419,6 +419,9 @@ export class WebPipeline extends Pipeline {
         this.descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this.descriptorSet.update();
         this.layoutGraphBuilder.compile();
+
+        this._forward = new ForwardPipelineBuilder();
+        this._deferred = new DeferredPipelineBuilder();
         return true;
     }
     public destroy (): boolean {
@@ -612,11 +615,15 @@ export class WebPipeline extends Pipeline {
         this._applySize(cameras);
         // build graph
         this.beginFrame();
-        const root = legacyCC.director.root;
-        if (root.useDeferredPipeline) {
-            setupBuiltinDeferred(cameras, this);
+        if (this.builder) {
+            this.builder.setup(cameras, this);
         } else {
-            setupBuiltinForward(cameras, this);
+            const root = legacyCC.director.root;
+            if (root.useDeferredPipeline) {
+                this._deferred.setup(cameras, this);
+            } else {
+                this._forward.setup(cameras, this);
+            }
         }
         this.compile();
         this.execute();
@@ -677,4 +684,7 @@ export class WebPipeline extends Pipeline {
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
     private _executor: Executor | null = null;
+    private _forward!: ForwardPipelineBuilder;
+    private _deferred!: DeferredPipelineBuilder;
+    public builder: PipelineBuilder | null = null;
 }

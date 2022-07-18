@@ -24,9 +24,11 @@
  */
 
 import { legacyCC } from '../../global-exports';
-import { Pipeline } from './pipeline';
+import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
+
+let _pipeline: WebPipeline | null = null;
 
 export function createCustomPipeline (): Pipeline {
     const root = legacyCC.director.root;
@@ -36,5 +38,12 @@ export function createCustomPipeline (): Pipeline {
     } else {
         buildForwardLayout(ppl);
     }
+    _pipeline = ppl;
     return ppl;
+}
+
+export function setCustomPipelineBuilder (builder: PipelineBuilder) {
+    if (_pipeline) {
+        _pipeline.builder = builder;
+    }
 }

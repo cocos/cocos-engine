@@ -339,6 +339,21 @@ public:
 
 inline Pipeline::~Pipeline() noexcept = default;
 
+class PipelineBuilder {
+public:
+    PipelineBuilder() noexcept = default;
+    PipelineBuilder(PipelineBuilder&& rhs)      = delete;
+    PipelineBuilder(PipelineBuilder const& rhs) = delete;
+    PipelineBuilder& operator=(PipelineBuilder&& rhs) = delete;
+    PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
+
+    virtual ~PipelineBuilder() noexcept = 0;
+
+    virtual void setup(const ccstd::vector<scene::Camera*>& cameras, Pipeline* pipeline) = 0;
+};
+
+inline PipelineBuilder::~PipelineBuilder() noexcept = default;
+
 class Factory {
 public:
     static Pipeline            *createPipeline();

@@ -179,5 +179,9 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
+export abstract class PipelineBuilder {
+    public abstract setup(cameras: Camera[], pipeline: Pipeline): void;
+}
+
 export class Factory {
 }
