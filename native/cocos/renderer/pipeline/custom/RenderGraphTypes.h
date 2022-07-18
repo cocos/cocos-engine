@@ -626,6 +626,16 @@ struct RenderQueue {
     QueueHint hint{QueueHint::RENDER_OPAQUE};
 };
 
+struct LightInfo {
+    LightInfo() = default;
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
+    : light(std::move(lightIn)),
+      level(levelIn) {}
+
+    IntrusivePtr<scene::Light> light;
+    uint32_t                   level{0};
+};
+
 struct SceneData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -633,7 +643,7 @@ struct SceneData {
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, const allocator_type& alloc) noexcept;
+    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, LightInfo lightIn, const allocator_type& alloc) noexcept;
     SceneData(SceneData&& rhs, const allocator_type& alloc);
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
@@ -644,7 +654,7 @@ struct SceneData {
 
     ccstd::pmr::string                     name;
     scene::Camera*                         camera{nullptr};
-    scene::Light*                          light{nullptr};
+    LightInfo                              light;
     SceneFlags                             flags{SceneFlags::NONE};
     ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };

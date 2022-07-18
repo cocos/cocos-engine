@@ -71,8 +71,8 @@ public:
       layoutGraph(layoutGraphIn),
       queueID(queueIDIn) {}
 
-    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) override;
+    void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;

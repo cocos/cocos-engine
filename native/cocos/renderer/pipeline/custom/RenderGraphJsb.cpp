@@ -30,6 +30,7 @@
  */
 // clang-format off
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/renderer/pipeline/custom/JsbConversion.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
@@ -148,6 +149,20 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
 
     nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
     obj->setProperty("targetPlaneSlice", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
+bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.light, tmp, ctx);
+    obj->setProperty("light", tmp);
+
+    nativevalue_to_se(from.level, tmp, ctx);
+    obj->setProperty("level", tmp);
 
     to.setObject(obj);
     return true;
@@ -305,6 +320,24 @@ bool sevalue_to_native<cc::render::MovePair>(const se::Value &from, cc::render::
     obj->getProperty("targetPlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
+    }
+    return ok;
+}
+
+template <>
+bool sevalue_to_native<cc::render::LightInfo>(const se::Value &from, cc::render::LightInfo *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to LightInfo failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("light", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->light), ctx);
+    }
+    obj->getProperty("level", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->level), ctx);
     }
     return ok;
 }

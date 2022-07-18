@@ -39,10 +39,10 @@ import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
-import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
+import { ComputeView, CopyPair, LightInfo, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
-import { Light, Model } from '../../renderer/scene';
+import { Model } from '../../renderer/scene';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
@@ -84,8 +84,8 @@ export abstract class Setter {
 }
 
 export abstract class RasterQueueBuilder extends Setter {
-    public abstract addSceneOfCamera(camera: Camera, light: Light | null, sceneFlags: SceneFlags, name: string): void;
-    public abstract addSceneOfCamera(camera: Camera, light: Light | null, sceneFlags: SceneFlags): void;
+    public abstract addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
+    public abstract addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
     public abstract addScene(name: string, sceneFlags: SceneFlags): void;
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags, name: string): void;
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags): void;

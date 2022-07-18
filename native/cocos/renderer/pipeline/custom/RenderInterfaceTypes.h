@@ -143,8 +143,8 @@ public:
 
     ~RasterQueueBuilder() noexcept override = 0;
 
-    virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
     virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;

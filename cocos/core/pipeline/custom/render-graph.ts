@@ -1080,14 +1080,24 @@ export class RenderQueue {
     hint: QueueHint;
 }
 
+export class LightInfo {
+    constructor (light: Light | null = null, level = 0) {
+        this.light = light;
+        this.level = level;
+    }
+    /*object*/ light: Light | null;
+    level: number;
+}
+
 export class SceneData {
-    constructor (name = '', flags: SceneFlags = SceneFlags.NONE) {
+    constructor (name = '', flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
         this.name = name;
+        this.light = light;
         this.flags = flags;
     }
     name: string;
     camera: Camera | null = null;
-    light: Light | null = null;
+    readonly light: LightInfo;
     flags: SceneFlags;
     readonly scenes: string[] = [];
 }

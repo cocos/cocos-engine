@@ -75,6 +75,7 @@ struct DispatchTag;
 struct BlitTag;
 struct PresentTag;
 struct RenderQueue;
+struct LightInfo;
 struct SceneData;
 struct Dispatch;
 struct Blit;

@@ -87,6 +87,7 @@ inline const char* getName(const DispatchTag& /*v*/) noexcept { return "Dispatch
 inline const char* getName(const BlitTag& /*v*/) noexcept { return "Blit"; }
 inline const char* getName(const PresentTag& /*v*/) noexcept { return "Present"; }
 inline const char* getName(const RenderQueue& /*v*/) noexcept { return "RenderQueue"; }
+inline const char* getName(const LightInfo& /*v*/) noexcept { return "LightInfo"; }
 inline const char* getName(const SceneData& /*v*/) noexcept { return "SceneData"; }
 inline const char* getName(const Dispatch& /*v*/) noexcept { return "Dispatch"; }
 inline const char* getName(const Blit& /*v*/) noexcept { return "Blit"; }
