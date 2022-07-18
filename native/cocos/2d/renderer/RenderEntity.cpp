@@ -28,14 +28,7 @@
 #include "bindings/utils/BindingUtils.h"
 
 namespace cc {
-RenderEntity::RenderEntity() : RenderEntity(nullptr) {
-}
-
-RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
-    for (auto& drawInfo : _staticDrawInfos) {
-        drawInfo.setBatcher(_batcher);
-    }
-
+RenderEntity::RenderEntity() {
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 

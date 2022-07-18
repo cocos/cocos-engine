@@ -19,7 +19,7 @@ CCEffect %{
         specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:   { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:            { value: normal }
@@ -52,11 +52,13 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:          { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -236,6 +238,18 @@ CCProgram surface-fragment %{
     #endif
     
     return baseColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+      float alpha = 1.0;
+        #if USE_TRANSPARENCY_MAP
+          alpha = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        if (alpha < albedoScaleAndCutoff.w) discard;
+      #endif
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL

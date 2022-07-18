@@ -23,13 +23,17 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { Mat4, Size, Vec3 } from '../../core/math';
 import { IAssembler } from '../../2d/renderer/base';
-import { MeshRenderData } from '../../2d/renderer/render-data';
 import { IBatcher } from '../../2d/renderer/i-batcher';
-import { TiledLayer, TiledMeshData, TiledTile } from '..';
+import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
-import { Texture2D, Node } from '../../core';
+import { Texture2D, Node, director, Director } from '../../core';
+import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
+import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
+import { RenderData } from '../../2d/renderer/render-data';
+import { RenderDrawInfoType } from '../../2d/renderer/render-draw-info';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 
@@ -46,39 +50,74 @@ let _uvb = { x: 0, y: 0 };
 let _uvc = { x: 0, y: 0 };
 let _uvd = { x: 0, y: 0 };
 
-let _renderData: { renderData: MeshRenderData, texture: Texture2D | null } | null;
-let _fillGrids = 0;
 let _vfOffset = 0;
 let _moveX = 0;
 let _moveY = 0;
 
+let _fillCount = 0;
+let _curTexture : Texture2D | null = null;
+let _tempBuffers : Float32Array;
+let _curLayer: TiledLayer;
+
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
 
+let _accessor: StaticVBAccessor = null!;
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    createData (layer: TiledLayer) {
-        const renderData = layer.requestMeshRenderData();
-        const maxGrids = layer.rightTop.col * layer.rightTop.row;
-        if (maxGrids * 4 > 65535) {
-            console.error('Vertex count exceeds 65535');
+    ensureAccessor () {
+        if (!_accessor) {
+            const device = director.root!.device;
+            const batcher = director.root!.batcher2D;
+            _accessor = new StaticVBAccessor(device, vfmtPosUvColor, this.vCount);
+            //batcher.registerBufferAccessor(Number.parseInt('TILED-MAP', 36), _accessor);
+            director.on(Director.EVENT_BEFORE_DRAW, () => {
+                _accessor.reset();
+            });
         }
-        return renderData;
     },
 
-    updateRenderData (comp: TiledLayer, ui: IBatcher) {
+    createData (layer: TiledLayer) {
+        if (JSB) {
+            this.ensureAccessor();
+        }
+    },
+
+    fillBuffers (layer: TiledLayer, renderer: IBatcher) {
+        if (!layer || layer.tiledDataArray.length === 0) return;
+
+        const dataArray = layer.tiledDataArray;
+
+        // 当前渲染的数据
+        const data = dataArray[layer._tiledDataArrayIdx] as TiledRenderData;
+        const renderData = data.renderData!;
+        const iBuf = renderData.chunk.meshBuffer.iData;
+
+        let indexOffset = renderData.chunk.meshBuffer.indexOffset;
+        let vertexId = renderData.chunk.vertexOffset;
+        const quadCount = renderData.vertexCount / 4;
+        for (let i = 0; i < quadCount; i += 1) {
+            iBuf[indexOffset] = vertexId;
+            iBuf[indexOffset + 1] = vertexId + 1;
+            iBuf[indexOffset + 2] = vertexId + 2;
+            iBuf[indexOffset + 3] = vertexId + 2;
+            iBuf[indexOffset + 4] = vertexId + 1;
+            iBuf[indexOffset + 5] = vertexId + 3;
+            indexOffset += 6;
+            vertexId += 4;
+        }
+        renderData.chunk.meshBuffer.indexOffset = indexOffset;
+    },
+
+    updateRenderData (comp: TiledLayer) {
         comp.updateCulling();
-        const renderData = comp.requestMeshRenderData();
         _moveX = comp.leftDownToCenterX;
         _moveY = comp.leftDownToCenterY;
-        _renderData = renderData;
-
         if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation()
             || comp.hasTiledNode() || comp.node.hasChangedFlags) {
             comp.colorChanged = false;
-
             comp.destroyRenderData();
 
             let leftDown: { col: number, row: number };
@@ -114,8 +153,9 @@ export const simple: IAssembler = {
             comp.setCullingDirty(false);
             comp.setUserNodeDirty(false);
         }
-
-        _renderData = null;
+        if (JSB) {
+            comp.prepareDrawData();
+        }
     },
 
     updateColor (tiled: TiledLayer) {
@@ -125,41 +165,14 @@ export const simple: IAssembler = {
         colorV[1] = color.g / 255;
         colorV[2] = color.b / 255;
         colorV[3] = color.a / 255;
-        const rs = tiled.meshRenderDataArray;
-        if (rs) {
-            for (const r of rs) {
-                if (!(r as any).renderData) continue;
-                const renderData = (r as any).renderData;
-                const vs = renderData.vData;
-                for (let i = renderData.vertexStart, l = renderData.vertexCount; i < l; i++) {
-                    vs.set(colorV, i * 9 + 5);
-                }
+        const rs = tiled.tiledDataArray;
+        for (const r of rs) {
+            if (!(r as any).renderData) continue;
+            const renderData = (r as any).renderData;
+            const vs = renderData.vData;
+            for (let i = renderData.vertexStart, l = renderData.vertexCount; i < l; i++) {
+                vs.set(colorV, i * 9 + 5);
             }
-        }
-    },
-
-    fillBuffers (layer: TiledLayer, renderer: IBatcher) {
-        if (!layer || !layer.meshRenderDataArray) return;
-
-        const dataArray = layer.meshRenderDataArray;
-
-        // 当前渲染的数据
-        const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;
-        const renderData = data.renderData;
-        const iBuf = renderData.iData;
-
-        let indexOffset = 0;
-        let vertexId = 0;
-        const quadCount = renderData.vertexCount / 4;
-        for (let i = 0; i < quadCount; i += 1) {
-            iBuf[indexOffset] = vertexId;
-            iBuf[indexOffset + 1] = vertexId + 1;
-            iBuf[indexOffset + 2] = vertexId + 2;
-            iBuf[indexOffset + 3] = vertexId + 2;
-            iBuf[indexOffset + 4] = vertexId + 1;
-            iBuf[indexOffset + 5] = vertexId + 3;
-            indexOffset += 6;
-            vertexId += 4;
         }
     },
 };
@@ -287,15 +300,26 @@ function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID) {
     }
 }
 
-function switchRenderData (curTexIdx: Texture2D | null, grid: TiledGrid, comp: TiledLayer) {
-    // need flush
-    if (!curTexIdx) curTexIdx = grid.texture;
-    if (!_renderData!.texture) {
-        _renderData!.texture = curTexIdx;
+function packRenderData () {
+    if (_fillCount < 1 || !_curTexture) return;
+
+    const vbCount = 4 * _fillCount;
+    const ibCount = 6 * _fillCount;
+    const tiledData = _curLayer.requestTiledRenderData();
+    if (JSB) {
+        tiledData.renderData = RenderData.add(vfmtPosUvColor, _accessor);
+        tiledData.renderData.drawInfoType = RenderDrawInfoType.IA;
+    } else {
+        tiledData.renderData = RenderData.add(vfmtPosUvColor);
     }
-    // update material
-    _renderData = comp.requestMeshRenderData() as any;
-    _renderData!.texture = grid.texture;
+    tiledData.texture = _curTexture;
+    const rd = tiledData.renderData;
+    rd.resize(vbCount, ibCount);
+    const vb = rd.chunk.vb;
+    vb.set(_tempBuffers.subarray(0, vbCount * 9), 0);
+
+    _fillCount = 0;
+    _curTexture = null;
 }
 
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
@@ -303,18 +327,11 @@ function switchRenderData (curTexIdx: Texture2D | null, grid: TiledGrid, comp: T
 function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
     rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
     // show nothing
-    if (!_renderData || rightTop.row < 0 || rightTop.col < 0) return;
+    if (rightTop.row < 0 || rightTop.col < 0) return;
 
-    if (!_renderData.renderData) {
-        _renderData = comp.requestMeshRenderData();
-    }
-
-    let vertexBuf: Float32Array = _renderData.renderData.vData;
-    // let idxBuf: Uint16Array = _renderData!.renderData.iData;
+    _curLayer = comp;
 
     const matrix = comp.node.worldMatrix;
-
-    _fillGrids = 0;
     _vfOffset = 0;
 
     const tiledTiles = comp.tiledTiles;
@@ -341,9 +358,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     let right = 0;
     let top = 0; // x, y
     let tiledNode: TiledTile | null;
-    let curTexIdx: Texture2D | null = null;
     let colNodesCount = 0;
-    let checkColRange = true;
+    let isCheckColRange = true;
 
     const diamondTile = false; // TODO:comp._diamondTile;
 
@@ -363,19 +379,24 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
         rows = rightTop.row;
     }
 
+    const _tempRows = Math.abs(leftDown.row - rightTop.row) + 1;
+    const _tempClos = Math.abs(rightTop.col - leftDown.col) + 1;
+    _tempBuffers = new Float32Array(_tempRows * _tempClos * 9 * 4);
+    _fillCount = 0;
+    const vertexBuf = _tempBuffers;
     // traverse row
     for (; (rows - row) * rowMoveDir >= 0; row += rowMoveDir) {
         rowData = vertices[row];
         colNodesCount = comp.getNodesCountByRow(row);
-        checkColRange = rowData && colNodesCount === 0;
+        isCheckColRange = rowData && colNodesCount === 0;
 
         // limit min col and max col
         if (colMoveDir === 1) {
-            col = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
-            cols = checkColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
+            col = isCheckColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
+            cols = isCheckColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
         } else {
-            col = checkColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
-            cols = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
+            col = isCheckColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
+            cols = isCheckColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
         }
 
         // traverse col
@@ -383,12 +404,11 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             colData = rowData && rowData[col];
 
             if (colNodesCount > 0) {
+                packRenderData();
                 const nodes = comp.requestSubNodesData();
                 const celData = comp.getNodesByRowCol(row, col);
                 if (celData && celData.count > 0) {
                     (nodes as any).subNodes = comp.getNodesByRowCol(row, col)!.list as any;
-                    curTexIdx = null;
-                    _renderData = comp.requestMeshRenderData() as any;
                 }
             }
 
@@ -402,9 +422,9 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             if (!grid) continue;
 
             // check init or new material
-            if (curTexIdx !== grid.texture) {
-                switchRenderData(curTexIdx, grid, comp);
-                curTexIdx = grid.texture;
+            if (_curTexture !== grid.texture) {
+                packRenderData();
+                _curTexture = grid.texture;
             }
 
             tileSize = grid.tileset._tileSize;
@@ -418,10 +438,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             // begin to fill vertex buffer
             tiledNode = tiledTiles[colData.index];
 
-            const renderData = _renderData!.renderData;
-            renderData.reserve(4, 0);
-            _vfOffset = renderData.vertexCount * 9;
-            vertexBuf = renderData.vData;
+            _vfOffset = _fillCount * 4 * 9;
+
             if (!tiledNode) {
                 if (diamondTile) {
                     const centerX = (left + right) / 2;
@@ -505,21 +523,15 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             vertexBuf[_vfOffset + vertStep3 + 3] = _uvd.x;
             vertexBuf[_vfOffset + vertStep3 + 4] = _uvd.y;
 
-            _fillGrids++;
-
-            renderData.request(4, 6);
-            renderData.resize(renderData.vertexCount, renderData.indexCount);
-
-            // check render users node
-            // if (colNodesCount > 0) _renderNodes(row, col);
+            _fillCount++;
 
             // vertices count exceed 66635, buffer must be switched
-            if (_fillGrids >= MaxGridsLimit) {
-                switchRenderData(curTexIdx, grid, comp);
-                curTexIdx = grid.texture;
+            if (_fillCount >= MaxGridsLimit) {
+                packRenderData();
             }
         }
     }
+    packRenderData();
 }
 
 function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Array,
