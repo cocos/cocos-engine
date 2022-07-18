@@ -35,9 +35,9 @@ namespace cc {
 class ZipFile;
 class CC_DLL ZipFileHandle : public IFileHandle {
 public:
-    ZipFileHandle(ZipFile* zipFile, const std::string& filePath);
+    ZipFileHandle(ZipFile* zipFile, const ccstd::string& filePath);
     ~ZipFileHandle() override;
-    bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
+    bool seek(int64_t pos, MoveMethod moveMethod) override;
     int64_t tell() override;
     int64_t size() override;
     bool read(uint8_t* buffer, int64_t bufferSize) override;
@@ -46,7 +46,7 @@ public:
     bool close() override;
 
 private:
-    std::string _filePath;
+    ccstd::string _filePath;
     ZipFile* _zipfile;
 };
 

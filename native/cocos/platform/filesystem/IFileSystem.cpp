@@ -26,7 +26,7 @@
 #include "tinydir/tinydir.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-#include "cocos/platform/win32/Utils-win32.h"
+    #include "cocos/platform/win32/Utils-win32.h"
 #endif
 
 namespace cc {
@@ -37,7 +37,7 @@ bool IFileSystem::isAbsolutePath(const FilePath &path) const {
 
 void IFileSystem::listFiles(const ccstd::string &path, ccstd::vector<ccstd::string> *files) const {
     if (path.empty() || !pathExists(path) || !files) {
-        return ;
+        return;
     }
     tinydir_dir dir;
 #ifdef UNICODE
@@ -114,5 +114,4 @@ void IFileSystem::listFilesRecursively(const ccstd::string &path, ccstd::vector<
     tinydir_close(&dir);
 }
 
-
-}
+} // namespace cc

@@ -83,20 +83,22 @@ bool LocalFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
     }
     size_t readsize = fread(buffer, 1, sz, _fp);
     fclose(_fp);
+    bool ret = true;
     if (readsize < sz) {
-        return false;
+        ret = false;
     }
-    return true;
+    return ret;
 }
 
 bool LocalFileHandle::write(uint8_t* buffer, int64_t bufferSize) {
     CC_ASSERT(_fp != nullptr);
     size_t writeSize = fwrite(buffer, bufferSize, 1, _fp);
     fclose(_fp);
+    bool ret = true;
     if (writeSize != bufferSize) {
-        return false;
+        ret = false;
     }
-    return true;
+    return ret;
 }
 
 bool LocalFileHandle::flush() {

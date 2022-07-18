@@ -35,11 +35,11 @@ public:
         return false;
     }
     int64_t getFileSize(const FilePath& filePath) const override {
-        CC_UNUSED_PARAM(path);
+        CC_UNUSED_PARAM(filePath);
         return 0;
     }
     bool removeFile(const FilePath& filePath) override {
-        CC_UNUSED_PARAM(path);
+        CC_UNUSED_PARAM(filePath);
         return false;
     }
     bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override {

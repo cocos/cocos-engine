@@ -29,8 +29,8 @@
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "cocos/platform/win32/WindowsFileSystem.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "cocos/platform/android/AndroidFileSystem.h"
     #include <sys/stat.h>
+    #include "cocos/platform/android/AndroidFileSystem.h"
 #elif (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
     #include "cocos/platform/apple/AppleFileSystem.h"
 #endif
@@ -42,7 +42,7 @@ LocalFileSystem::LocalFileSystem() = default;
 LocalFileSystem::~LocalFileSystem() = default;
 
 std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& filePath, AccessFlag flag) {
-    std::string assert = "";
+    ccstd::string assert;
     if (flag == AccessFlag::READ_ONLY) {
         assert = "rb";
     } else if (flag == AccessFlag::WRITE_ONLY) {
@@ -53,14 +53,14 @@ std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& filePath, Acc
         assert = "ab+";
     }
     FILE* fp = fopen(filePath.value().c_str(), assert.c_str());
-    if(!fp) {
+    if (!fp) {
         return nullptr;
     }
     return std::make_unique<LocalFileHandle>(fp);
 }
 
 bool LocalFileSystem::isAbsolutePath(const FilePath& path) const {
-    return strPath[0] == '/';
+    return path[0] == '/';
 }
 
 LocalFileSystem* LocalFileSystem::createLocalFileSystem() {
@@ -89,7 +89,6 @@ bool LocalFileSystem::removeFile(const FilePath& filePath) {
     return false;
 }
 
-
 bool LocalFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) {
     CC_UNUSED_PARAM(oldFilePath);
     CC_UNUSED_PARAM(newFilePath);
@@ -98,7 +97,7 @@ bool LocalFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& ne
 
 int64_t LocalFileSystem::getFileSize(const FilePath& filePath) const {
     CC_UNUSED_PARAM(filePath);
-    return (long)0;
+    return 0;
 }
 
 bool LocalFileSystem::pathExists(const FilePath& path) const {
@@ -117,4 +116,4 @@ bool LocalFileSystem::pathExists(const FilePath& path) const {
 FilePath LocalFileSystem::getUserAppDataPath() const {
     return FilePath("");
 }
-}
+} // namespace cc

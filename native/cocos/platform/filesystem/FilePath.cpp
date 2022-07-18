@@ -40,27 +40,28 @@ ccstd::string convertToUnixStyle(const ccstd::string& path) {
 }
 
 bool isEmptyOrSpecialPath(const ccstd::string& path) {
-    if (path == "." || path == ".." || path.empty())
+    if (path.empty() || path[0] == '.' || path == "..") {
         return true;
-
+    }
     return false;
 }
 
 ccstd::string::size_type getLastSepPos(const ccstd::string& path) {
-    if (isEmptyOrSpecialPath(path))
+    if (isEmptyOrSpecialPath(path)) {
         return ccstd::string::npos;
+    }
 
-    return path.find_last_of(".");
+    return path.find_last_of('.');
 }
 
-static constexpr char kSeparators[] =
+constexpr char kSeparators[] =
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     "\\/";
 #else
     "/";
 #endif
 
-static constexpr size_t kSeparatorsLength = std::size(kSeparators);
+constexpr size_t kSeparatorsLength = std::size(kSeparators);
 
 bool isSeparator(char character) {
     for (size_t i = 0; i < kSeparatorsLength - 1; ++i) {
@@ -121,7 +122,7 @@ FilePath FilePath::dirName() const {
 }
 
 void FilePath::removeLastSeparator() {
-    int i = _path.length() - 1;
+    int32_t i = static_cast<int32_t>(_path.length()) - 1;
     while (i > 0) {
         if ((_path[i] == '/' || _path[i] == '\\') && i > 0 && _path[i - 1] != ':') {
             i--;
@@ -137,8 +138,10 @@ void FilePath::removeLastSeparator() {
 ccstd::string FilePath::finalExtension(bool tolower) const {
     FilePath base(baseName());
     const size_t dot = getLastSepPos(base._path);
-    if (dot == ccstd::string::npos)
+    if (dot == ccstd::string::npos) {
         return "";
+    }
+
     ccstd::string ext = base._path.substr(dot, ccstd::string::npos);
     if (tolower) {
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
@@ -147,12 +150,14 @@ ccstd::string FilePath::finalExtension(bool tolower) const {
 }
 
 FilePath FilePath::removeFinalExtension() const {
-    if (finalExtension().empty())
+    if (finalExtension().empty()) {
         return *this;
+    }
 
     const size_t dot = getLastSepPos(_path);
-    if (dot == ccstd::string::npos)
+    if (dot == ccstd::string::npos) {
         return *this;
+    }
 
     return FilePath(_path.substr(0, dot));
 }
@@ -163,7 +168,6 @@ FilePath FilePath::append(const FilePath& path) const {
 
 FilePath FilePath::append(const ccstd::string& path) const {
     ccstd::string appended = path;
-    ccstd::string without_nuls;
 
     int nulPos = path.find('\0');
     if (nulPos != ccstd::string::npos) {
@@ -194,8 +198,9 @@ ccstd::string FilePath::normalizePath() {
     ccstd::string ret;
     // Normalize: remove . and ..
     ret = std::regex_replace(_path, std::regex("/\\./"), "/");
-    if (!ret.empty())
+    if (!ret.empty()) {
         ret = std::regex_replace(ret, std::regex("/\\.$"), "");
+    }
 
     // ./pathA/path
     if (ret[0] == '.' && ret[1] == '/') {
@@ -206,10 +211,11 @@ ccstd::string FilePath::normalizePath() {
     while ((pos = ret.rfind("..")) != ccstd::string::npos && pos > 0) {
         int prevSlash = ret.rfind('/', pos - 2);
         if (prevSlash == ccstd::string::npos) {
-            if (pos + 3 <= ret.length() && ret[pos + 2] == '/')
+            if (pos + 3 <= ret.length() && ret[pos + 2] == '/') {
                 ret.erase(0, pos + 3);
-            else if (pos + 2 <= ret.length())
+            } else if (pos + 2 <= ret.length()) {
                 ret.erase(0, pos + 2);
+            }
             break;
         }
 

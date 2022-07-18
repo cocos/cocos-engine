@@ -35,7 +35,7 @@ class FilePath;
 class ZipFile;
 class CC_DLL ZipFileSystem : public IFileSystem {
 public:
-    ZipFileSystem(const FilePath& assetsPath);
+    explicit ZipFileSystem(const FilePath& assetsPath);
     ~ZipFileSystem() override;
 
     int64_t getFileSize(const FilePath& filePath) const override;

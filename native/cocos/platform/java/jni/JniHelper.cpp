@@ -395,7 +395,7 @@ jstring JniHelper::convert(JniHelper::LocalRefMapType *localRefs, cc::JniMethodI
     return convert(localRefs, t, x.c_str());
 }
 
-jobject JniHelper::convert(JniHelper::LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<std::string> &x) {
+jobject JniHelper::convert(JniHelper::LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<ccstd::string> &x) {
     jclass stringClass = _getClassID("java/lang/String");
     jobjectArray ret = t->env->NewObjectArray(x.size(), stringClass, nullptr);
     for (auto i = 0; i < x.size(); i++) {

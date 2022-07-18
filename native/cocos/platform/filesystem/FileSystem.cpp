@@ -35,22 +35,22 @@
 #endif
 
 namespace cc {
-FileSystem* FileSystem::_instance = nullptr;
+FileSystem* FileSystem::instance = nullptr;
 
 // static
 FileSystem* FileSystem::getInstance() {
-    if (!_instance) {
-        _instance = new FileSystem;
+    if (!instance) {
+        instance = new FileSystem;
     }
-    return _instance;
+    return instance;
 }
 
 FileSystem::FileSystem() {
     _localFileSystem.reset(LocalFileSystem::createLocalFileSystem());
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
-    std::string assetsPath(getObbFilePathJNI());
-    if (assetsPath.find("/obb/") != std::string::npos) {
+    ccstd::string assetsPath(getObbFilePathJNI());
+    if (assetsPath.find("/obb/") != ccstd::string::npos) {
         _subFileSystems.push_back(std::make_unique<ZipFileSystem>(assetsPath));
     }
 #elif CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
@@ -95,7 +95,7 @@ bool FileSystem::renameFile(const FilePath& oldFilePath, const FilePath& newFile
 }
 
 int64_t FileSystem::getFileSize(const FilePath& filePath) const {
-    for (auto& fileSystem : _subFileSystems) {
+    for (const auto& fileSystem : _subFileSystems) {
         size_t sz = fileSystem->getFileSize(filePath);
         if (sz > 0) {
             return sz;
@@ -105,7 +105,7 @@ int64_t FileSystem::getFileSize(const FilePath& filePath) const {
 }
 
 bool FileSystem::isAbsolutePath(const FilePath& path) const {
-    for (auto& fileSystem : _subFileSystems) {
+    for (const auto& fileSystem : _subFileSystems) {
         // FilePath fullPath = fileSystem->rootPath().append(path);
         if (fileSystem->isAbsolutePath(path)) {
             return true;
@@ -115,7 +115,7 @@ bool FileSystem::isAbsolutePath(const FilePath& path) const {
 }
 
 bool FileSystem::pathExists(const FilePath& path) const {
-    for (auto& fileSystem : _subFileSystems) {
+    for (const auto& fileSystem : _subFileSystems) {
         if (fileSystem->pathExists(path)) {
             return true;
         }
@@ -142,7 +142,7 @@ FilePath FileSystem::fullPathForFilename(const FilePath& filePath) const {
         return filePath;
     }
     // rootPath + searchPath
-    for (auto& fileSystem : _subFileSystems) {
+    for (const auto& fileSystem : _subFileSystems) {
         FilePath fullPath = fileSystem->rootPath().append(filePath);
         if (fileSystem->pathExists(fullPath)) {
             return fullPath;
@@ -156,7 +156,7 @@ FilePath FileSystem::fullPathForFilename(const FilePath& filePath) const {
 }
 
 void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
-    for (auto& fileSystem : _subFileSystems) {
+    for (const auto& fileSystem : _subFileSystems) {
         if (fileSystem->pathExists(path)) {
             fileSystem->listFiles(path, files);
         }
@@ -167,7 +167,7 @@ void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::strin
 }
 
 void FileSystem::listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
-    for (auto& fileSystem : _subFileSystems) {
+    for (const auto& fileSystem : _subFileSystems) {
         if (fileSystem->pathExists(path)) {
             fileSystem->listFiles(path, files);
         }

@@ -38,7 +38,7 @@ public:
      */
     void setCursorEnabled(bool value) override;
 
-    void copyTextToClipboard(const std::string &text) override;
+    void copyTextToClipboard(const ccstd::string &text) override;
 
     uintptr_t getWindowHandle() const override;
 

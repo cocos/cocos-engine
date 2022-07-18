@@ -158,12 +158,12 @@ public:
 
     template <typename... Ts>
     static jlong callObjectLongMethod(jobject object,
-                                      const std::string &className,
-                                      const std::string &methodName,
+                                      const ccstd::string &className,
+                                      const ccstd::string &methodName,
                                       Ts... xs) {
         jlong ret = 0;
         cc::JniMethodInfo t;
-        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")J";
+        ccstd::string signature = "(" + ccstd::string(getJNISignature(xs...)) + ")J";
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallLongMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
@@ -402,7 +402,7 @@ private:
 
     static jstring convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const ccstd::string &x);
 
-    static jobject convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<std::string> &x);
+    static jobject convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<ccstd::string> &x);
 
     template <typename T>
     static T convert(LocalRefMapType * /*localRefs*/, cc::JniMethodInfo * /*t*/, T x) {
@@ -529,15 +529,15 @@ private:
     }
 
     template <typename T>
-    static std::string getJNISignature(std::pair<T *, size_t> /*x*/) {
+    static ccstd::string getJNISignature(std::pair<T *, size_t> /*x*/) {
         typename std::remove_pointer<typename std::remove_cv<T>::type>::type m;
-        return std::string("[") + getJNISignature(m);
+        return ccstd::string("[") + getJNISignature(m);
     }
 
     template <typename T, typename A>
-    static std::string getJNISignature(const std::vector<T, A> & /*x*/) {
+    static ccstd::string getJNISignature(const std::vector<T, A> & /*x*/) {
         T m;
-        return std::string("[") + getJNISignature(m);
+        return ccstd::string("[") + getJNISignature(m);
     }
 
     template <typename T, typename... Ts>

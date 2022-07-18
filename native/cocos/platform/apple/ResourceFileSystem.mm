@@ -52,7 +52,7 @@ static id convertCCValueToNSObject(const cc::Value &value);
 static cc::Value convertNSObjectToCCValue(id object);
 
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict);
-static void addCCValueToNSDictionary(const std::string &key, const Value &value, NSMutableDictionary *dict);
+static void addCCValueToNSDictionary(const ccstd::string &key, const Value &value, NSMutableDictionary *dict);
 static void addNSObjectToCCVector(id item, ValueVector &array);
 static void addCCValueToNSArray(const Value &value, NSMutableArray *array);
 
@@ -164,11 +164,11 @@ static void addCCValueToNSArray(const Value &value, NSMutableArray *array) {
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict) {
     // the key must be a string
     CC_ASSERT([nsKey isKindOfClass:[NSString class]]);
-    std::string key = [nsKey UTF8String];
+    ccstd::string key = [nsKey UTF8String];
     dict[key] = convertNSObjectToCCValue(nsValue);
 }
 
-static void addCCValueToNSDictionary(const std::string &key, const Value &value, NSMutableDictionary *dict) {
+static void addCCValueToNSDictionary(const ccstd::string &key, const Value &value, NSMutableDictionary *dict) {
     NSString *NSkey = [NSString stringWithCString:key.c_str() encoding:NSUTF8StringEncoding];
     [dict setObject:convertCCValueToNSObject(value) forKey:NSkey];
 }
@@ -221,8 +221,8 @@ FilePath ResourceFileSystem::getExistFullPath(const FilePath& filePath) const {
     }
     bool ret = false;
     if(!isAbsolutePath(filePath)) {
-        std::string path = filePath.dirName().value();
-        std::string file = filePath.baseName().value();
+        ccstd::string path = filePath.dirName().value();
+        ccstd::string file = filePath.baseName().value();
         NSString *fullpath = [_impl->getBundle() pathForResource:[NSString stringWithUTF8String:file.c_str()]
                                                            ofType:nil
                                                       inDirectory:[NSString stringWithUTF8String:path.c_str()]];
@@ -242,7 +242,7 @@ bool ResourceFileSystem::pathExists(const FilePath& path) const {
 }
 
 std::unique_ptr<IFileHandle> ResourceFileSystem::open(const FilePath& filePath, AccessFlag flag) {
-    std::string assert = "";
+    ccstd::string assert = "";
     if (flag == AccessFlag::READ_ONLY) {
         assert = "rb";
     } else if (flag == AccessFlag::WRITE_ONLY) {

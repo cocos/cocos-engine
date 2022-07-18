@@ -86,8 +86,8 @@ public:
     void setSdkVersion(int sdkVersion);
     int getSdkVersion() const;
 
-    void setObbPath(const std::string& path);
-    std::string getObbPath() const;
+    void setObbPath(const ccstd::string& path);
+    ccstd::string getObbPath() const;
 
     bool isRunning() const;
     void setRunning(bool isRunning);
@@ -131,7 +131,7 @@ private:
     bool _animating{false};
 
     std::promise<void> _threadPromise;
-    std::string _obbPath;
+    ccstd::string _obbPath;
     ResourceManagerType* _resourceManager{nullptr};
     NativeWindowType* _window{nullptr};
     NativeWindowType* _pendingWindow{nullptr};

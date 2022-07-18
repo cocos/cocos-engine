@@ -34,7 +34,7 @@
 namespace cc {
 class CC_DLL ResourceFileHandle : public IFileHandle {
 public:
-    ResourceFileHandle(AAsset* asset);
+    explicit ResourceFileHandle(AAsset* asset);
     ~ResourceFileHandle() override;
 
     bool seek(int64_t pos, MoveMethod moveMethod) override;

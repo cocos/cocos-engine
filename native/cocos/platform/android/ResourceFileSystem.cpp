@@ -49,7 +49,7 @@ bool ResourceFileSystem::pathExists(const FilePath &path) const {
         return false;
     }
 
-    std::string dirPath = path.value();
+    ccstd::string dirPath = path.value();
 
     if (dirPath[dirPath.length() - 1] == '/') {
         dirPath[dirPath.length() - 1] = '\0';

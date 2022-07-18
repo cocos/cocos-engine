@@ -40,7 +40,7 @@ public:
     bool createDirectory(const FilePath& path) override;
     bool removeDirectory(const FilePath& path) override;
 
-    bool removeFile(const FilePath& Filename) override;
+    bool removeFile(const FilePath& FilePath) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
 
     FilePath getUserAppDataPath() const override;
@@ -53,4 +53,4 @@ public:
 private:
 };
 
-}
+} // namespace cc

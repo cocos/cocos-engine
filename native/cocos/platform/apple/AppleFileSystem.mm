@@ -99,7 +99,7 @@ FilePath AppleFileSystem::getUserAppDataPath() const {
     // save to document folder
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
-    std::string strRet = [documentsDirectory UTF8String];
+    ccstd::string strRet = [documentsDirectory UTF8String];
     strRet.append("/");
     return strRet;
 }

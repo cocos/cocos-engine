@@ -57,7 +57,7 @@ public:
     void listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const override;
 
 private:
-    static FileSystem* _instance;
+    static FileSystem* instance;
     using IFileSystemSafePtr = std::unique_ptr<IFileSystem>;
     ccstd::vector<IFileSystemSafePtr> _subFileSystems;
     IFileSystemSafePtr _localFileSystem;

@@ -30,12 +30,11 @@
 
 namespace cc {
 
-ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const std::string& filePath)
+ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const ccstd::string& filePath)
 : _zipfile(zipFile), _filePath(filePath) {
 }
 
-ZipFileHandle::~ZipFileHandle() {
-}
+ZipFileHandle::~ZipFileHandle() = default;
 
 bool ZipFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
     CC_UNUSED_PARAM(pos);

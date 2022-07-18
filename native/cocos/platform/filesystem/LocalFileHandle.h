@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 #pragma once
-#include <stdlib.h>
+#include <cstdlib.h>
 #include <iostream>
 #include "base/Macros.h"
 #include "cocos/platform/filesystem/IFileHandle.h"
@@ -33,9 +33,9 @@ namespace cc {
 
 class CC_DLL LocalFileHandle : public IFileHandle {
 public:
-    LocalFileHandle(FILE* path);
+    explicit LocalFileHandle(FILE* fp);
     ~LocalFileHandle() override;
-    bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
+    bool seek(int64_t pos, MoveMethod moveMethod) override;
     int64_t tell() override;
     int64_t size() override;
     bool read(uint8_t* buffer, int64_t bufferSize) override;

@@ -53,7 +53,7 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const std::string& text) override;
+    void copyTextToClipboard(const ccstd::string& text) override;
 
 private:
     int32_t _width{0};

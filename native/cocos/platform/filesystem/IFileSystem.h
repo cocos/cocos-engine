@@ -36,15 +36,15 @@ namespace cc {
 class CC_DLL IFileSystem {
 public:
     enum class AccessFlag {
-        READ_ONLY  = 0x0000,
+        READ_ONLY = 0x0000,
         WRITE_ONLY = 0x0001 << 0,
         READ_WRITE = 0x0001 << 1,
-        APPEND     = 0x0001 << 2,
+        APPEND = 0x0001 << 2,
     };
     virtual ~IFileSystem() = default;
 
     virtual bool createDirectory(const FilePath& path) = 0;
-    virtual bool removeDirectory(const FilePath& path) = 0; 
+    virtual bool removeDirectory(const FilePath& path) = 0;
 
     virtual bool removeFile(const FilePath& filePath) = 0;
     virtual bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) = 0;
@@ -86,4 +86,4 @@ protected:
     FilePath _rootPath;
 };
 
-}
+} // namespace cc

@@ -43,7 +43,7 @@ public:
     bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override;
     
     bool pathExists(const FilePath& path) const override;
-    bool isAbsolutePath(const FilePath& filePath) const override;
+    bool isAbsolutePath(const FilePath& path) const override;
     
     int64_t getFileSize(const FilePath& filePath) const override;
     std::unique_ptr<IFileHandle> open(const FilePath& filePath, AccessFlag flag) override;

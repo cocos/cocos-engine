@@ -56,10 +56,11 @@ bool ResourceFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
         size = bufferSize;
     }
     int readSize = AAsset_read(_asset, buffer, size);
+    bool ret = true;
     if (readSize < size) {
-        return false;
+        ret = false;
     }
-    return true;
+    return ret;
 }
 
 bool ResourceFileHandle::write(uint8_t* buffer, int64_t bufferSize) {

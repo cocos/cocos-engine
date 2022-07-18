@@ -98,11 +98,11 @@ int JniNativeGlue::getSdkVersion() const {
     return _sdkVersion;
 }
 
-void JniNativeGlue::setObbPath(const std::string& path) {
+void JniNativeGlue::setObbPath(const ccstd::string& path) {
     _obbPath = path;
 }
 
-std::string JniNativeGlue::getObbPath() const {
+ccstd::string JniNativeGlue::getObbPath() const {
     return _obbPath;
 }
 
