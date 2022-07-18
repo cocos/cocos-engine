@@ -37,7 +37,7 @@ public:
     ResourceFileSystem();
     ~ResourceFileSystem() override;
     
-    bool exist(const FilePath& filePath) const override; 
+    bool pathExists(const FilePath& path) const override; 
     std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
 
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC

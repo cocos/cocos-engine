@@ -38,16 +38,17 @@ public:
 
     bool createDirectory(const FilePath& path) override;
     bool removeDirectory(const FilePath& path) override;
-    bool isAbsolutePath(const FilePath& filePath) const override;
-    int64_t getFileSize(const FilePath& filePath) override;
 
     bool removeFile(const FilePath& filePath) override;
     bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override;
+    
+    bool pathExists(const FilePath& path) const override;
+    bool isAbsolutePath(const FilePath& filePath) const override;
+    
+    int64_t getFileSize(const FilePath& filePath) const override;
     std::unique_ptr<IFileHandle> open(const FilePath& filePath, AccessFlag flag) override;
 
     FilePath getUserAppDataPath() const override;
-    bool exist(const FilePath& filepath) const override;
-
 private:
 };
 

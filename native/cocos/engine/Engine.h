@@ -49,7 +49,6 @@ class DebugRenderer;
 class Profiler;
 class BuiltinResMgr;
 class ProgramLib;
-class FileSystem;
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
 
@@ -145,7 +144,7 @@ private:
     bool _inited{false};
 
     // Some global objects.
-    FileSystem *_fs{nullptr};
+    FileUtils *_fs{nullptr};
 #if CC_USE_PROFILER
     Profiler *_profiler{nullptr};
 #endif

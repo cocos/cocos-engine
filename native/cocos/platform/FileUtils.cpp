@@ -803,7 +803,7 @@ ccstd::string FileUtils::getFullPathForDirectoryAndFilename(const ccstd::string 
 
 bool FileUtils::isFileExist(const ccstd::string &filename) const {
     FilePath fullPath = fullPathForFilename(filename);
-    return FileSystem::getInstance()->exist(fullPath);
+    return FileSystem::getInstance()->pathExists(fullPath);
 }
 
 bool FileUtils::isAbsolutePath(const ccstd::string &path) const {
@@ -811,11 +811,11 @@ bool FileUtils::isAbsolutePath(const ccstd::string &path) const {
 }
 
 bool FileUtils::isDirectoryExist(const ccstd::string &dirPath) const {
-    return FileSystem::getInstance()->exist(dirPath);
+    return FileSystem::getInstance()->pathExists(dirPath);
 }
 
 bool FileUtils::isFileExistInternal(const ccstd::string &filename) const {
-    return FileSystem::getInstance()->exist(filename);
+    return FileSystem::getInstance()->pathExists(filename);
 }
 
 ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) const {
@@ -835,7 +835,7 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
     // FileUtils not support isDirectoryExistInternal.
 
-    return FileSystem::getInstance()->exist(dirPath);
+    return FileSystem::getInstance()->pathExists(dirPath);
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {

@@ -36,7 +36,7 @@ bool IFileSystem::isAbsolutePath(const FilePath &path) const {
 }
 
 void IFileSystem::listFiles(const ccstd::string &fullpath, ccstd::vector<ccstd::string> *files) const {
-    if (fullpath.empty() || !exist(fullpath) || !files) {
+    if (fullpath.empty() || !pathExists(fullpath) || !files) {
         return ;
     }
     tinydir_dir dir;
@@ -73,7 +73,7 @@ void IFileSystem::listFiles(const ccstd::string &fullpath, ccstd::vector<ccstd::
 }
 
 void IFileSystem::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector<ccstd::string> *files) const { // NOLINT(misc-no-recursion)
-    if (dirPath.empty() || !exist(dirPath) || !files) {
+    if (dirPath.empty() || !pathExists(dirPath) || !files) {
         return;
     }
     tinydir_dir dir;

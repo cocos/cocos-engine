@@ -45,15 +45,17 @@ public:
 
     virtual bool createDirectory(const FilePath& path) = 0;
     virtual bool removeDirectory(const FilePath& path) = 0; 
-    virtual bool exist(const FilePath& path) const = 0;
-    virtual bool isAbsolutePath(const FilePath& path) const;
 
     virtual bool removeFile(const FilePath& filepath) = 0;
     virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) = 0;
-    virtual FilePath getUserAppDataPath() const = 0;
+
+    virtual bool pathExists(const FilePath& path) const = 0;
+    virtual bool isAbsolutePath(const FilePath& path) const;
 
     virtual std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) = 0;
-    virtual int64_t getFileSize(const FilePath& filepath) = 0;
+    virtual int64_t getFileSize(const FilePath& filePath) const = 0;
+
+    virtual FilePath getUserAppDataPath() const = 0;
 
     virtual void setRootPath(const FilePath& rootPath) {
         _rootPath = rootPath;

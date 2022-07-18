@@ -41,13 +41,12 @@ public:
 
     bool createDirectory(const FilePath& path) override;
     bool removeDirectory(const FilePath& dirPath) override;
-
-    bool isAbsolutePath(const FilePath& path) const override;
-    int64_t getFileSize(const FilePath& filepath) override;
-
     bool removeFile(const FilePath& filepath) override;
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
-    bool exist(const FilePath& filepath) const override;
+
+    bool isAbsolutePath(const FilePath& path) const override;
+    int64_t getFileSize(const FilePath& filePath) const override;
+    bool pathExists(const FilePath& path) const override;
     
     FilePath getUserAppDataPath() const override;
     std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
@@ -55,7 +54,6 @@ public:
     FilePath fullPathForFilename(const FilePath& filename) const;
     void listFiles(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;
     void listFilesRecursively(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;
-
 private:
     static FileSystem* _instance;
     using IFileSystemSafePtr = std::unique_ptr<IFileSystem>;

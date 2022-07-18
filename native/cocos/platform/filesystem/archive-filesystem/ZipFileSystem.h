@@ -37,15 +37,15 @@ class CC_DLL ZipFileSystem : public IFileSystem {
 public:
     ZipFileSystem(const FilePath& assetsPath);
     ~ZipFileSystem() override;
-    bool exist(const FilePath& filepath) const override;
+    bool pathExists(const FilePath& path) const override;
     std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
+    
+    int64_t getFileSize(const FilePath& filePath) const override;
 
     bool createDirectory(const FilePath& path) override {
         return false;
     }
-    int64_t getFileSize(const FilePath& filepath) override {
-        return 0;
-     }
+    
     bool removeFile(const FilePath& filepath) override {
         return false;
     }
@@ -59,7 +59,7 @@ public:
         return FilePath("");
     }
 private:
-    ZipFile* _zipFile;
+    ZipFile* _zipFile{nullptr};
 };
 
 }

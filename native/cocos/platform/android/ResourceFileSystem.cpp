@@ -45,12 +45,9 @@ void ResourceFileSystem::setassetmanager(AAssetManager *a) {
 }
 
 
-bool ResourceFileSystem::exist(const FilePath& path) const {
+bool ResourceFileSystem::pathExists(const FilePath& path) const {
 
-    if (!ResourceFileSystem::assetmanager) {
-        return false;
-    }
-    if (path.value().empty()) {
+    if (!ResourceFileSystem::assetmanager || path.empty()) {
         return false;
     }
 

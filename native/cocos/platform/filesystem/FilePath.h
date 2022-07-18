@@ -39,6 +39,7 @@ public:
     FilePath(const FilePath& that);
     FilePath(const ccstd::string& path);
     ~FilePath();
+    
     FilePath& operator=(const FilePath& that);
     bool operator==(const FilePath& that) const;
     const char& operator[](int i) const;
@@ -50,6 +51,7 @@ public:
     FilePath baseName() const;
     FilePath dirName() const;
     void removeLastSeparator();
+
     ccstd::string finalExtension(bool tolower = true) const;
     FilePath removeFinalExtension() const;
 

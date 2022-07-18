@@ -46,7 +46,7 @@ bool isEmptyOrSpecialPath(const ccstd::string& path) {
     return false;
 }
 
-int getLastSepPos(const ccstd::string& path) {
+ccstd::string::size_type getLastSepPos(const ccstd::string& path) {
     if (isEmptyOrSpecialPath(path))
         return ccstd::string::npos;
 
@@ -76,7 +76,10 @@ bool isSeparator(char character) {
 }
 
 namespace cc {
-FilePath::FilePath() = default;
+FilePath::FilePath():FilePath("") {
+
+}
+
 FilePath::FilePath(const FilePath& that) = default;
 //FilePath::FilePath(FilePath&& that) noexcept = default;
 FilePath::FilePath(const ccstd::string& path) : _path(path) {

@@ -57,7 +57,7 @@ WindowsFileSystem::WindowsFileSystem() {
 WindowsFileSystem::~WindowsFileSystem() = default;
 
 bool WindowsFileSystem::createDirectory(const FilePath& path) {
-    if (exist(path)) {
+    if (pathExists(path)) {
         return true;
     }
     FilePath parentPath(path.dirName());
@@ -69,7 +69,6 @@ bool WindowsFileSystem::createDirectory(const FilePath& path) {
     }
 
     std::wstring wPath = StringUtf8ToWideChar(path.value());
-
     if (!CreateDirectory(wPath.c_str(), NULL)) {
         if (ERROR_ALREADY_EXISTS != GetLastError()) {
             CC_LOG_ERROR("Fail create directory %s !Error code is 0x%x", path.value().c_str(), GetLastError());
@@ -121,7 +120,7 @@ bool WindowsFileSystem::isAbsolutePath(const FilePath& strPath) const {
     return false;
 }
 
-int64_t WindowsFileSystem::getFileSize(const FilePath& filePath) {
+int64_t WindowsFileSystem::getFileSize(const FilePath& filePath) const {
     WIN32_FILE_ATTRIBUTE_DATA fad;
     if (!GetFileAttributesEx(StringUtf8ToWideChar(filePath.value()).c_str(), GetFileExInfoStandard, &fad)) {
         return 0; // error condition, could call GetLastError to find out more
@@ -141,13 +140,13 @@ bool WindowsFileSystem::removeFile(const FilePath& filePath) {
 }
 
 bool WindowsFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) {
-    CC_ASSERT(!oldFilePath.value().empty());
-    CC_ASSERT(!newFilePath.value().empty());
+    CC_ASSERT(!oldFilePath.empty());
+    CC_ASSERT(!newFilePath.empty());
 
     std::wstring _wNew = StringUtf8ToWideChar(newFilePath.value());
     std::wstring _wOld = StringUtf8ToWideChar(oldFilePath.value());
 
-    if (exist(newFilePath)) {
+    if (pathExists(newFilePath)) {
         if (!DeleteFile(_wNew.c_str())) {
             CC_LOG_ERROR("Fail to delete file %s !Error code is 0x%x", newFilePath.value().c_str(), GetLastError());
         }
@@ -228,13 +227,12 @@ FilePath WindowsFileSystem::getUserAppDataPath() const {
         retPath = retPath.substr(0, retPath.rfind(L"\\") + 1);
     }
 
-    return FilePath(StringWideCharToUtf8(retPath)).value();
+    return FilePath(StringWideCharToUtf8(retPath));
 }
 
-bool WindowsFileSystem::exist(const FilePath& filePath) const {
-    FilePath actualPath = filePath;
-    int32_t result = GetFileAttributesW(StringUtf8ToWideChar(actualPath.value()).c_str());
-    if (result != 0xFFFFFFFF && !(result & FILE_ATTRIBUTE_DIRECTORY)) {
+bool WindowsFileSystem::pathExists(const FilePath& path) const {
+    int32_t result = GetFileAttributesW(StringUtf8ToWideChar(path.value()).c_str());
+    if (result != INVALID_FILE_ATTRIBUTES) {
         return true;
     }
     return false;

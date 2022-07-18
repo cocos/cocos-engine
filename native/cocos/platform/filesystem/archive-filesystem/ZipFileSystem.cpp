@@ -39,8 +39,12 @@ ZipFileSystem::~ZipFileSystem() {
     delete _zipFile;
 }
 
-bool ZipFileSystem::exist(const FilePath& filepath) const {
-    return _zipFile->fileExists(filepath.value());
+int64_t ZipFileSystem::getFileSize(const FilePath& filePath) const {
+    return _zipFile->getFileSize(filePath.value());
+}
+
+bool ZipFileSystem::pathExists(const FilePath& path) const {
+    return _zipFile->fileExists(path.value());
 }
 
 std::unique_ptr<IFileHandle> ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {

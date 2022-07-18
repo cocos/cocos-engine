@@ -40,7 +40,7 @@ public:
     static void setassetmanager(AAssetManager *a);
     static AAssetManager *getAssetManager() { return assetmanager; }
 
-    bool exist(const FilePath& path) const override;
+    bool pathExists(const FilePath& path) const override;
     std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
 
 private:

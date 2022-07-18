@@ -32,13 +32,13 @@ public:
     ~BaseResourceFileSystem() override = default;
     bool createDirectory(const FilePath& path) override {
         return false;
-    };
-    int64_t getFileSize(const FilePath& filepath) override {
+    }
+    int64_t getFileSize(const FilePath& filePath) const override {
         return 0;
-    };
+    }
     bool removeFile(const FilePath& filepath) override {
         return false;
-    };
+    }
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override {
         return false;
     }

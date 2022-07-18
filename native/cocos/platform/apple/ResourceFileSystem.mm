@@ -233,7 +233,7 @@ FilePath ResourceFileSystem::getExistFullPath(const FilePath& filePath) const {
     return FilePath("");
 }
 
-bool ResourceFileSystem::exist(const FilePath& filePath) const {
+bool ResourceFileSystem::pathExists(const FilePath& path) const {
     FilePath fullPath = getExistFullPath(filePath);
     if(fullPath.empty()) {
         return false;

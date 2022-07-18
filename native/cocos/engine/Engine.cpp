@@ -65,7 +65,6 @@
     #include "profiler/DebugRenderer.h"
 #endif
 #include "profiler/Profiler.h"
-#include "cocos/platform/filesystem/FileSystem.h"
 
 namespace {
 
@@ -105,7 +104,7 @@ Engine::~Engine() {
 
 int32_t Engine::init() {
     _scheduler = std::make_shared<Scheduler>();
-    _fs = new FileSystem();
+    _fs = createFileUtils();
     // May create gfx device in render subsystem in future.
     _gfxDevice = gfx::DeviceManager::create();
     _programLib = ccnew ProgramLib();
@@ -183,7 +182,7 @@ void Engine::destroy() {
     delete _builtinResMgr;
     delete _programLib;
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
-    //delete _fs;
+    delete _fs;
     _scheduler.reset();
 
     _inited = false;

@@ -60,10 +60,6 @@ std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& path, AccessF
 }
 
 bool LocalFileSystem::isAbsolutePath(const FilePath& strPath) const {
-    // On Android, there are two situations for full path.
-    // 1) Files in APK, e.g. assets/path/path/file.png
-    // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
-    // So these two situations need to be checked on Android.
     return strPath[0] == '/';
 }
 
@@ -100,17 +96,17 @@ bool LocalFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& ne
     return false;
 }
 
-int64_t LocalFileSystem::getFileSize(const FilePath& filePath) {
+int64_t LocalFileSystem::getFileSize(const FilePath& filePath) const {
     CC_UNUSED_PARAM(filePath);
     return (long)0;
 }
 
-bool LocalFileSystem::exist(const FilePath& filePath) const {
-    if (filePath.empty()) {
+bool LocalFileSystem::pathExists(const FilePath& path) const {
+    if (path.empty()) {
         return false;
     }
     bool bFound = false;
-    FILE *fp = fopen(filePath.value().c_str(), "r");
+    FILE* fp = fopen(path.value().c_str(), "r");
     if (fp) {
         bFound = true;
         fclose(fp);

@@ -46,7 +46,6 @@ FileSystem* FileSystem::getInstance() {
 }
 
 FileSystem::FileSystem() {
-    _instance = this;
     _localFileSystem.reset(LocalFileSystem::createLocalFileSystem());
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
@@ -78,16 +77,16 @@ bool FileSystem::removeDirectory(const FilePath& filePath) {
     return _localFileSystem->removeDirectory(filePath);
 }
 
-bool FileSystem::exist(const FilePath& filePath) const {
+bool FileSystem::pathExists(const FilePath& path) const {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->exist(filePath)) {
+        if (fileSystem->pathExists(path)) {
             return true;
         }
     }
-    return _localFileSystem->exist(filePath);
+    return _localFileSystem->pathExists(path);
 }
 
-int64_t FileSystem::getFileSize(const FilePath& filePath) {
+int64_t FileSystem::getFileSize(const FilePath& filePath) const {
     for (auto& fileSystem : _subFileSystems) {
         size_t sz = fileSystem->getFileSize(filePath);
         if (sz > 0) {
@@ -146,12 +145,12 @@ FilePath FileSystem::fullPathForFilename(const FilePath& filePath) const {
     // rootPath + searchPath
     for (auto& fileSystem : _subFileSystems) {
         FilePath fullPath = fileSystem->rootPath().append(filePath);
-        if (fileSystem->exist(fullPath)) {
+        if (fileSystem->pathExists(fullPath)) {
             return fullPath;
         }
     }
     FilePath fullPath = _localFileSystem->rootPath().append(filePath);
-    if (_localFileSystem->exist(fullPath)) {
+    if (_localFileSystem->pathExists(fullPath)) {
         return fullPath;
     }
     return FilePath();
@@ -159,22 +158,22 @@ FilePath FileSystem::fullPathForFilename(const FilePath& filePath) const {
 
 void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->exist(path)) {
+        if (fileSystem->pathExists(path)) {
             fileSystem->listFiles(path, files);
         }
     }
-    if (files && files->empty() && _localFileSystem->exist(path)) {
+    if (files && files->empty() && _localFileSystem->pathExists(path)) {
         _localFileSystem->listFiles(path,files);
     }
 }
 
 void FileSystem::listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->exist(path)) {
+        if (fileSystem->pathExists(path)) {
             fileSystem->listFiles(path, files);
         }
     }
-    if (files && files->empty() && _localFileSystem->exist(path)) {
+    if (files && files->empty() && _localFileSystem->pathExists(path)) {
         _localFileSystem->listFilesRecursively(path, files);
     }
 }

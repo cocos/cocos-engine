@@ -545,6 +545,19 @@ bool ZipFile::fileExists(const ccstd::string &fileName) const {
     return ret;
 }
 
+int64_t ZipFile::getFileSize(const ccstd::string &fileName) const {
+    int64_t size = 0;
+    do {
+        CC_BREAK_IF(!_data);
+        CC_BREAK_IF(!fileName.empty());
+        auto it = _data->fileList.find(fileName);
+        CC_BREAK_IF(it == _data->fileList.end());
+        size = it->second.uncompressed_size;
+    } while (false);
+
+    return size;
+}
+
 unsigned char *ZipFile::getFileData(const ccstd::string &fileName, uint32_t *size) {
     unsigned char *buffer = nullptr;
     if (size) {
@@ -581,9 +594,10 @@ unsigned char *ZipFile::getFileData(const ccstd::string &fileName, uint32_t *siz
     return buffer;
 }
 
-bool ZipFile::getFileData(const ccstd::string &fileName, const char *buffer, size_t bufferSize) {
+bool ZipFile::getFileData(const ccstd::string &fileName, uint8_t *buffer, size_t bufferSize) {
     bool res = false;
     do {
+        CC_BREAK_IF(!_data);
         auto zipFile = _data->zipFile.lock();
         CC_BREAK_IF(!(*zipFile));
         CC_BREAK_IF(fileName.empty());
@@ -604,8 +618,7 @@ bool ZipFile::getFileData(const ccstd::string &fileName, const char *buffer, siz
             size = bufferSize;
         }
 
-        //buffer->resize(fileInfo.uncompressed_size);
-        int CC_UNUSED readSize = unzReadCurrentFile(*zipFile, (voidp)buffer, static_cast<unsigned int>(size));
+        int CC_UNUSED readSize = unzReadCurrentFile(*zipFile, reinterpret_cast<voidp>(buffer), static_cast<unsigned int>(size));
         CC_ASSERT(readSize == 0 || readSize == (int)size);
         unzCloseCurrentFile(*zipFile);
         res = true;

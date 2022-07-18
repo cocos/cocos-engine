@@ -255,13 +255,13 @@ public:
         * @return True if successful.
         */
     bool getFileData(const ccstd::string &fileName, ResizableBuffer *buffer);
-    bool getFileData(const ccstd::string &fileName, const char *buffer, size_t bufferSize);
+    bool getFileData(const ccstd::string &fileName, uint8_t *buffer, size_t bufferSize);
 
     ccstd::string getFirstFilename();
     ccstd::string getNextFilename();
 
     static ZipFile *createWithBuffer(const void *buffer, uint32_t size);
-
+    int64_t getFileSize(const ccstd::string &fileName) const;
 private:
     /* Only used internal for createWithBuffer() */
     ZipFile();
