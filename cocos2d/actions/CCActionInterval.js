@@ -65,6 +65,8 @@ cc.ActionInterval = cc.Class({
 
         // for pausing the action
         this.paused = false;
+        // for time scale
+        this.timeScale = 1;
     },
 
     /*
@@ -153,16 +155,16 @@ cc.ActionInterval = cc.Class({
         if (this._elapsed === -1) {
             this._elapsed = 0;
         } else if (this.paused) {
-            return
+            return;
         } else {
-            this._elapsed += dt;
+            this._elapsed += dt * this.timeScale;
         }
 
         //this.update((1 > (this._elapsed / this._duration)) ? this._elapsed / this._duration : 1);
         //this.update(Math.max(0, Math.min(1, this._elapsed / Math.max(this._duration, cc.macro.FLT_EPSILON))));
         var t = this._elapsed / (this._duration > 0.0000001192092896 ? this._duration : 0.0000001192092896);
-        t = (1 > t ? t : 1);
-        this.update(t > 0 ? t : 0);
+        t = 0 < t ? (t < 1 ? t : 1) : 0;
+        this.update(t);
 
         //Compatible with repeat class, Discard after can be deleted (this._repeatMethod)
         if(this._repeatMethod && this._timesForRepeat > 1 && this.isDone()){
@@ -684,6 +686,8 @@ cc.RepeatForever = cc.Class({
     },
 
     step:function (dt) {
+        dt *= this.timeScale;
+
         var locInnerAction = this._innerAction;
         locInnerAction.step(dt);
         if (locInnerAction.isDone()) {
