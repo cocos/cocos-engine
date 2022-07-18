@@ -25,19 +25,19 @@
  ****************************************************************************/
 #include "cocos/platform/filesystem/LocalFileHandle.h"
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS
-#include <sys/stat.h>
+    #include <sys/stat.h>
 #else
-#include <sys/stat.h>
-#include <sys/types.h>
+    #include <sys/stat.h>
+    #include <sys/types.h>
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
-#include <ftw.h>
+    #include <ftw.h>
 #endif
 
 namespace cc {
 
-LocalFileHandle::LocalFileHandle(FILE *fp):_fp(fp) {
+LocalFileHandle::LocalFileHandle(FILE* fp) : _fp(fp) {
 }
 
 LocalFileHandle::~LocalFileHandle() {
@@ -75,11 +75,11 @@ int64_t LocalFileHandle::size() {
     return statBuf.st_size;
 }
 
-bool LocalFileHandle::read(uint8_t* buffer, int64_t buffersize) {
+bool LocalFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
     CC_ASSERT(_fp != nullptr);
     int sz = size();
-    if (sz > buffersize) {
-        sz = buffersize;
+    if (sz > bufferSize) {
+        sz = bufferSize;
     }
     size_t readsize = fread(buffer, 1, sz, _fp);
     fclose(_fp);
@@ -89,11 +89,11 @@ bool LocalFileHandle::read(uint8_t* buffer, int64_t buffersize) {
     return true;
 }
 
-bool LocalFileHandle::write(uint8_t* buffer, int64_t buffersize) {
+bool LocalFileHandle::write(uint8_t* buffer, int64_t bufferSize) {
     CC_ASSERT(_fp != nullptr);
-    size_t writeSize = fwrite(buffer, buffersize, 1, _fp);
+    size_t writeSize = fwrite(buffer, bufferSize, 1, _fp);
     fclose(_fp);
-    if(writeSize != buffersize) {
+    if (writeSize != bufferSize) {
         return false;
     }
     return true;
@@ -112,4 +112,4 @@ bool LocalFileHandle::close() {
     return true;
 }
 
-}
+} // namespace cc

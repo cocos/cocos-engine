@@ -626,8 +626,11 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
 
     int64_t fileSize = handle->size();
     
-    unsigned char *buffer = static_cast<unsigned char *>(malloc(fileSize));
+    auto buffer = static_cast<unsigned char *>(malloc(fileSize));
     handle->read(buffer, fileSize);
+    if(size) {
+        *size = fileSize;
+    }
     //unsigned char *buffer = nullptr;
     //unzFile file = nullptr;
     //*size = 0;

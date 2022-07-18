@@ -37,8 +37,8 @@ public:
     ~AndroidFileSystem() override;
 
     FilePath getUserAppDataPath() const override;
-private:
 
+private:
 };
 
-}
+} // namespace cc

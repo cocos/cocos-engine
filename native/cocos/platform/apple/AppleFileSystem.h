@@ -27,9 +27,9 @@
 #pragma once
 
 #include "base/Macros.h"
+#include "cocos/platform/apple/AppleFileSystem.h"
 #include "cocos/platform/filesystem/FilePath.h"
 #include "cocos/platform/filesystem/LocalFileSystem.h"
-#include "cocos/platform/apple/AppleFileSystem.h"
 
 namespace cc {
 
@@ -40,9 +40,9 @@ public:
 
     bool createDirectory(const FilePath &path) override;
     bool removeDirectory(const FilePath &path) override;
-    
+
     FilePath getUserAppDataPath() const override;
-    bool pathExists(const FilePath& path) const override;
+    bool pathExists(const FilePath &path) const override;
 };
 
-}
+} // namespace cc

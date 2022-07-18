@@ -1,9 +1,9 @@
 
 /****************************************************************************
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -11,10 +11,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -66,20 +66,20 @@ int64_t WindowsFileHandle::tell() {
     return pos.QuadPart;
 }
 
-bool WindowsFileHandle::read(uint8_t* buffer, int64_t buffersize) {
+bool WindowsFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
     CC_ASSERT(_handle != nullptr);
     DWORD readCount = 0;
-    if (!ReadFile(_handle, buffer, buffersize, &readCount, NULL)) {
+    if (!ReadFile(_handle, buffer, bufferSize, &readCount, NULL)) {
         CC_LOG_ERROR("Can't read, the error code is %d", GetLastError());
         return false;
     }
     return true;
 }
 
-bool WindowsFileHandle::write(uint8_t* buffer, int64_t buffersize) {
+bool WindowsFileHandle::write(uint8_t* buffer, int64_t bufferSize) {
     CC_ASSERT(_handle != nullptr);
     DWORD writeCount = 0;
-    if (!WriteFile(_handle, buffer, buffersize, &writeCount, NULL)) {
+    if (!WriteFile(_handle, buffer, bufferSize, &writeCount, NULL)) {
         CC_LOG_ERROR("Can't write, the error code is %d", GetLastError());
         return false;
     }
@@ -107,4 +107,4 @@ bool WindowsFileHandle::close() {
     return true;
 }
 
-}
+} // namespace cc

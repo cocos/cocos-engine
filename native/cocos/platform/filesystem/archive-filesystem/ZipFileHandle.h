@@ -27,26 +27,27 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "cocos/platform/filesystem/IFileHandle.h"
 #include "base/ZipUtils.h"
+#include "cocos/platform/filesystem/IFileHandle.h"
 
 namespace cc {
 
 class ZipFile;
 class CC_DLL ZipFileHandle : public IFileHandle {
 public:
-    ZipFileHandle(ZipFile* zipFile, const std::string& filepath);
+    ZipFileHandle(ZipFile* zipFile, const std::string& filePath);
     ~ZipFileHandle() override;
     bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
     int64_t tell() override;
     int64_t size() override;
-    bool read(uint8_t* buffer, int64_t buffersize) override;
-    bool write(uint8_t* buffer, int64_t buffersize) override;
+    bool read(uint8_t* buffer, int64_t bufferSize) override;
+    bool write(uint8_t* buffer, int64_t bufferSize) override;
     bool flush() override;
     bool close() override;
+
 private:
-    std::string _filepath;
+    std::string _filePath;
     ZipFile* _zipfile;
 };
 
-}
+} // namespace cc

@@ -46,13 +46,13 @@ public:
     virtual bool createDirectory(const FilePath& path) = 0;
     virtual bool removeDirectory(const FilePath& path) = 0; 
 
-    virtual bool removeFile(const FilePath& filepath) = 0;
-    virtual bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) = 0;
+    virtual bool removeFile(const FilePath& filePath) = 0;
+    virtual bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) = 0;
 
     virtual bool pathExists(const FilePath& path) const = 0;
     virtual bool isAbsolutePath(const FilePath& path) const;
 
-    virtual std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) = 0;
+    virtual std::unique_ptr<IFileHandle> open(const FilePath& filePath, AccessFlag flag) = 0;
     virtual int64_t getFileSize(const FilePath& filePath) const = 0;
 
     virtual FilePath getUserAppDataPath() const = 0;
@@ -67,7 +67,7 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual void listFiles(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const;
+    virtual void listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const;
 
     /**
      *  List all files recursively in a directory.
@@ -75,7 +75,7 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual void listFilesRecursively(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const;
+    virtual void listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const;
 
 protected:
     /**

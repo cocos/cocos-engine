@@ -30,16 +30,16 @@
 
 namespace cc {
 
-ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const std::string& filepath)
-:_zipfile(zipFile), _filepath(filepath) {
-
+ZipFileHandle::ZipFileHandle(ZipFile* zipFile, const std::string& filePath)
+: _zipfile(zipFile), _filePath(filePath) {
 }
 
 ZipFileHandle::~ZipFileHandle() {
-
 }
 
 bool ZipFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    CC_UNUSED_PARAM(pos);
+    CC_UNUSED_PARAM(moveMethod);
     return false;
 }
 
@@ -48,14 +48,16 @@ int64_t ZipFileHandle::tell() {
 }
 
 int64_t ZipFileHandle::size() {
-    return _zipfile->getFileSize(_filepath);
+    return _zipfile->getFileSize(_filePath);
 }
 
-bool ZipFileHandle::read(uint8_t* buffer, int64_t buffersize) {
-    return _zipfile->getFileData(_filepath, buffer, buffersize);
+bool ZipFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
+    return _zipfile->getFileData(_filePath, buffer, bufferSize);
 }
 
-bool ZipFileHandle::write(uint8_t* buffer, int64_t buffersize) {
+bool ZipFileHandle::write(uint8_t* buffer, int64_t bufferSize) {
+    CC_UNUSED_PARAM(buffer);
+    CC_UNUSED_PARAM(bufferSize);
     return false;
 }
 

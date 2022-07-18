@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include <vector>
 #include "base/Macros.h"
 #include "cocos/platform/filesystem/IFileSystem.h"
-#include <vector>
 
 namespace cc {
 class LocalFileSystem;
@@ -40,24 +40,26 @@ public:
     ~FileSystem() override = default;
 
     bool createDirectory(const FilePath& path) override;
-    bool removeDirectory(const FilePath& dirPath) override;
-    bool removeFile(const FilePath& filepath) override;
-    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override;
+    bool removeDirectory(const FilePath& path) override;
+    bool removeFile(const FilePath& filePath) override;
+    bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override;
 
-    bool isAbsolutePath(const FilePath& path) const override;
     int64_t getFileSize(const FilePath& filePath) const override;
+    bool isAbsolutePath(const FilePath& path) const override;
     bool pathExists(const FilePath& path) const override;
-    
-    FilePath getUserAppDataPath() const override;
+
     std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
 
-    FilePath fullPathForFilename(const FilePath& filename) const;
-    void listFiles(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;
-    void listFilesRecursively(const ccstd::string& dirPath, ccstd::vector<ccstd::string>* files) const override;
+    FilePath getUserAppDataPath() const override;
+    FilePath fullPathForFilename(const FilePath& filePath) const;
+
+    void listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const override;
+    void listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const override;
+
 private:
     static FileSystem* _instance;
     using IFileSystemSafePtr = std::unique_ptr<IFileSystem>;
     ccstd::vector<IFileSystemSafePtr> _subFileSystems;
-    IFileSystemSafePtr                _localFileSystem;
+    IFileSystemSafePtr _localFileSystem;
 };
-}
+} // namespace cc

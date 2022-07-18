@@ -67,8 +67,8 @@ static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, str
     return ret;
 }
 
-bool AppleFileSystem::removeDirectory(const FilePath&path) {
-    if (path.value().empty()) {
+bool AppleFileSystem::removeDirectory(const FilePath& path) {
+    if (path.empty()) {
         CC_LOG_ERROR("Fail to remove directory, path is empty!");
         return false;
     }
@@ -80,12 +80,12 @@ bool AppleFileSystem::removeDirectory(const FilePath&path) {
 }
 
 bool AppleFileSystem::pathExists(const FilePath& path) const {
-    if (filePath.empty()) {
+    if (path.empty()) {
         return false;
     }
     bool ret = false;
     // Search path is an absolute path.
-    if ([s_fileManager fileExistsAtPath:[NSString stringWithUTF8String:filePath.value().c_str()]]) {
+    if ([s_fileManager fileExistsAtPath:[NSString stringWithUTF8String:path.value().c_str()]]) {
         ret = true;
     }
     return ret;
@@ -104,4 +104,4 @@ FilePath AppleFileSystem::getUserAppDataPath() const {
     return strRet;
 }
 
-}
+} // namespace cc

@@ -41,7 +41,7 @@ LocalFileSystem::LocalFileSystem() = default;
 
 LocalFileSystem::~LocalFileSystem() = default;
 
-std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& path, AccessFlag flag) {
+std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& filePath, AccessFlag flag) {
     std::string assert = "";
     if (flag == AccessFlag::READ_ONLY) {
         assert = "rb";
@@ -52,14 +52,14 @@ std::unique_ptr<IFileHandle> LocalFileSystem::open(const FilePath& path, AccessF
     } else if (flag == AccessFlag::APPEND) {
         assert = "ab+";
     }
-    FILE* fp = fopen(path.value().c_str(), assert.c_str());
+    FILE* fp = fopen(filePath.value().c_str(), assert.c_str());
     if(!fp) {
         return nullptr;
     }
     return std::make_unique<LocalFileHandle>(fp);
 }
 
-bool LocalFileSystem::isAbsolutePath(const FilePath& strPath) const {
+bool LocalFileSystem::isAbsolutePath(const FilePath& path) const {
     return strPath[0] == '/';
 }
 

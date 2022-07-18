@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 #pragma once
-#include "base/Macros.h"
-#include "cocos/platform/filesystem/IFileHandle.h"
 #include <stdlib.h>
 #include <iostream>
+#include "base/Macros.h"
+#include "cocos/platform/filesystem/IFileHandle.h"
 namespace cc {
 
 class CC_DLL LocalFileHandle : public IFileHandle {
@@ -38,12 +38,13 @@ public:
     bool seek(int64_t pos, MoveMethod moveMethod = MoveMethod::FILE_SEEK_CUR) override;
     int64_t tell() override;
     int64_t size() override;
-    bool read(uint8_t* buffer, int64_t buffersize) override;
-    bool write(uint8_t* buffer, int64_t buffersize)  override;
+    bool read(uint8_t* buffer, int64_t bufferSize) override;
+    bool write(uint8_t* buffer, int64_t bufferSize) override;
     bool close() override;
     bool flush() override;
+
 private:
-    FILE *_fp{nullptr};
+    FILE* _fp{nullptr};
 };
 
-}
+} // namespace cc

@@ -31,18 +31,24 @@ class BaseResourceFileSystem : public IFileSystem {
 public:
     ~BaseResourceFileSystem() override = default;
     bool createDirectory(const FilePath& path) override {
+        CC_UNUSED_PARAM(path);
         return false;
     }
     int64_t getFileSize(const FilePath& filePath) const override {
+        CC_UNUSED_PARAM(path);
         return 0;
     }
-    bool removeFile(const FilePath& filepath) override {
+    bool removeFile(const FilePath& filePath) override {
+        CC_UNUSED_PARAM(path);
         return false;
     }
-    bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override {
+    bool renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) override {
+        CC_UNUSED_PARAM(oldFilePath);
+        CC_UNUSED_PARAM(newFilePath);
         return false;
     }
-    bool removeDirectory(const FilePath& dirPath) override {
+    bool removeDirectory(const FilePath& path) override {
+        CC_UNUSED_PARAM(path);
         return false;
     }
     FilePath getUserAppDataPath() const override {

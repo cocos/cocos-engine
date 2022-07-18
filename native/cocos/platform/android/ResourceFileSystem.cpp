@@ -37,22 +37,20 @@ ResourceFileSystem::~ResourceFileSystem() = default;
 
 void ResourceFileSystem::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
-        //LOGD("setassetmanager : received unexpected nullptr parameter");
+        // LOGD("setassetmanager : received unexpected nullptr parameter");
         return;
     }
 
     cc::ResourceFileSystem::assetmanager = a;
 }
 
-
-bool ResourceFileSystem::pathExists(const FilePath& path) const {
-
+bool ResourceFileSystem::pathExists(const FilePath &path) const {
     if (!ResourceFileSystem::assetmanager || path.empty()) {
         return false;
     }
 
     std::string dirPath = path.value();
-    
+
     if (dirPath[dirPath.length() - 1] == '/') {
         dirPath[dirPath.length() - 1] = '\0';
     }
@@ -70,15 +68,16 @@ bool ResourceFileSystem::pathExists(const FilePath& path) const {
     return false;
 }
 
-std::unique_ptr<IFileHandle> ResourceFileSystem::open(const FilePath& filename, AccessFlag flag) {
+std::unique_ptr<IFileHandle> ResourceFileSystem::open(const FilePath &filePath, AccessFlag flag) {
+    CC_UNUSED_PARAM(flag);
     if (!ResourceFileSystem::assetmanager) {
         return nullptr;
     }
-    AAsset *asset = AAssetManager_open(assetmanager, filename.value().c_str(), AASSET_MODE_UNKNOWN);
+    AAsset *asset = AAssetManager_open(assetmanager, filePath.value().c_str(), AASSET_MODE_UNKNOWN);
     if (nullptr == asset) {
         return nullptr;
     }
     return std::make_unique<ResourceFileHandle>(asset);
 }
 
-}
+} // namespace cc

@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#include "cocos/platform/filesystem/IFileHandle.h"
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
+#include "base/Macros.h"
+#include "cocos/platform/filesystem/IFileHandle.h"
 
 namespace cc {
 class CC_DLL ResourceFileHandle : public IFileHandle {
 public:
-
     ResourceFileHandle(AAsset* asset);
     ~ResourceFileHandle() override;
 
@@ -45,9 +44,9 @@ public:
     bool write(uint8_t* buffer, int64_t buffersize) override;
     bool flush() override;
     bool close() override;
-private:
-    AAsset *_asset{nullptr};
 
+private:
+    AAsset* _asset{nullptr};
 };
 
-}
+} // namespace cc

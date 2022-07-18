@@ -26,12 +26,12 @@
 #include "cocos/platform/filesystem/FileSystem.h"
 #include "cocos/platform/filesystem/LocalFileSystem.h"
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-#include "cocos/platform/android/ResourceFileSystem.h"
-#include "cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h"
-#include "platform/java/jni/JniHelper.h"
-#include "platform/java/jni/JniImp.h"
+    #include "cocos/platform/android/ResourceFileSystem.h"
+    #include "cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h"
+    #include "platform/java/jni/JniHelper.h"
+    #include "platform/java/jni/JniImp.h"
 #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
-#include "cocos/platform/apple/ResourceFileSystem.h"
+    #include "cocos/platform/apple/ResourceFileSystem.h"
 #endif
 
 namespace cc {
@@ -39,7 +39,7 @@ FileSystem* FileSystem::_instance = nullptr;
 
 // static
 FileSystem* FileSystem::getInstance() {
-    if(!_instance) {
+    if (!_instance) {
         _instance = new FileSystem;
     }
     return _instance;
@@ -56,7 +56,6 @@ FileSystem::FileSystem() {
 #elif CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
     _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
 #endif
-
 }
 
 bool FileSystem::createDirectory(const FilePath& path) {
@@ -68,22 +67,31 @@ bool FileSystem::createDirectory(const FilePath& path) {
     return _localFileSystem->createDirectory(path);
 }
 
-bool FileSystem::removeDirectory(const FilePath& filePath) {
+bool FileSystem::removeDirectory(const FilePath& path) {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->removeDirectory(filePath)) {
+        if (fileSystem->removeDirectory(path)) {
             return true;
         }
     }
-    return _localFileSystem->removeDirectory(filePath);
+    return _localFileSystem->removeDirectory(path);
 }
 
-bool FileSystem::pathExists(const FilePath& path) const {
+bool FileSystem::removeFile(const FilePath& filePath) {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->pathExists(path)) {
+        if (fileSystem->removeFile(filePath)) {
             return true;
         }
     }
-    return _localFileSystem->pathExists(path);
+    return _localFileSystem->removeFile(filePath);
+}
+
+bool FileSystem::renameFile(const FilePath& oldFilePath, const FilePath& newFilePath) {
+    for (auto& fileSystem : _subFileSystems) {
+        if (fileSystem->renameFile(oldFilePath, newFilePath)) {
+            return true;
+        }
+    }
+    return _localFileSystem->renameFile(oldFilePath, newFilePath);
 }
 
 int64_t FileSystem::getFileSize(const FilePath& filePath) const {
@@ -96,22 +104,23 @@ int64_t FileSystem::getFileSize(const FilePath& filePath) const {
     return _localFileSystem->getFileSize(filePath);
 }
 
-bool FileSystem::removeFile(const FilePath& path) {
+bool FileSystem::isAbsolutePath(const FilePath& path) const {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->removeFile(path)) {
+        // FilePath fullPath = fileSystem->rootPath().append(path);
+        if (fileSystem->isAbsolutePath(path)) {
             return true;
         }
     }
-    return _localFileSystem->removeFile(path);
+    return _localFileSystem->isAbsolutePath(path);
 }
 
-bool FileSystem::renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) {
+bool FileSystem::pathExists(const FilePath& path) const {
     for (auto& fileSystem : _subFileSystems) {
-        if (fileSystem->renameFile(oldFilepath, newFilepath)) {
+        if (fileSystem->pathExists(path)) {
             return true;
         }
     }
-    return _localFileSystem->renameFile(oldFilepath, newFilepath);
+    return _localFileSystem->pathExists(path);
 }
 
 std::unique_ptr<IFileHandle> FileSystem::open(const FilePath& filePath, AccessFlag flag) {
@@ -122,16 +131,6 @@ std::unique_ptr<IFileHandle> FileSystem::open(const FilePath& filePath, AccessFl
         }
     }
     return _localFileSystem->open(filePath, flag);
-}
-
-bool FileSystem::isAbsolutePath(const FilePath& path) const {
-    for (auto& fileSystem : _subFileSystems) {
-        // FilePath fullPath = fileSystem->rootPath().append(path);
-        if (fileSystem->isAbsolutePath(path)) {
-            return true;
-        }
-    }
-    return _localFileSystem->isAbsolutePath(path);
 }
 
 FilePath FileSystem::getUserAppDataPath() const {
@@ -163,7 +162,7 @@ void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::strin
         }
     }
     if (files && files->empty() && _localFileSystem->pathExists(path)) {
-        _localFileSystem->listFiles(path,files);
+        _localFileSystem->listFiles(path, files);
     }
 }
 
@@ -178,5 +177,4 @@ void FileSystem::listFilesRecursively(const ccstd::string& path, ccstd::vector<c
     }
 }
 
-}
-// namespace cc
+} // namespace cc

@@ -33,14 +33,11 @@
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
 
-
-
 namespace cc {
 
 #ifndef JCLS_HELPER
-#define JCLS_HELPER "com/cocos/lib/CocosHelper"
+    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
 #endif
-
 
 AndroidFileSystem::AndroidFileSystem() = default;
 
@@ -59,4 +56,4 @@ FilePath AndroidFileSystem::getUserAppDataPath() const {
     return FilePath("");
 }
 
-}
+} // namespace cc

@@ -55,8 +55,8 @@ public:
     ccstd::string finalExtension(bool tolower = true) const;
     FilePath removeFinalExtension() const;
 
-    FilePath append(const FilePath& component) const;
-    FilePath append(const ccstd::string& component) const;
+    FilePath append(const FilePath& path) const;
+    FilePath append(const ccstd::string& path) const;
 
     ccstd::string normalizePath();
 

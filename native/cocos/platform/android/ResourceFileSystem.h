@@ -26,9 +26,8 @@
 
 #pragma once
 
-
-#include "base/Macros.h"
 #include "android/asset_manager.h"
+#include "base/Macros.h"
 #include "cocos/platform/filesystem/BaseResourceFileSystem.h"
 
 namespace cc {
@@ -40,11 +39,11 @@ public:
     static void setassetmanager(AAssetManager *a);
     static AAssetManager *getAssetManager() { return assetmanager; }
 
-    bool pathExists(const FilePath& path) const override;
-    std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
+    bool pathExists(const FilePath &path) const override;
+    std::unique_ptr<IFileHandle> open(const FilePath &filePath, AccessFlag flag) override;
 
 private:
     static AAssetManager *assetmanager;
 };
 
-}
+} // namespace cc

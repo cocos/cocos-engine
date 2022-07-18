@@ -25,8 +25,8 @@
  ****************************************************************************/
 #include "cocos/platform/filesystem/archive-filesystem/ZipFileSystem.h"
 #include "base/Macros.h"
-#include "base/memory/Memory.h"
 #include "base/ZipUtils.h"
+#include "base/memory/Memory.h"
 #include "cocos/platform/filesystem/archive-filesystem/ZipFileHandle.h"
 
 namespace cc {
@@ -48,6 +48,7 @@ bool ZipFileSystem::pathExists(const FilePath& path) const {
 }
 
 std::unique_ptr<IFileHandle> ZipFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+    CC_UNUSED_PARAM(flag);
     return std::make_unique<ZipFileHandle>(_zipFile, filepath.value());
 }
 

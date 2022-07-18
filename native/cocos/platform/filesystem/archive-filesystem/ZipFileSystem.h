@@ -27,8 +27,8 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "cocos/platform/filesystem/LocalFileSystem.h"
 #include "cocos/platform/filesystem/IFileSystem.h"
+#include "cocos/platform/filesystem/LocalFileSystem.h"
 
 namespace cc {
 class FilePath;
@@ -37,29 +37,35 @@ class CC_DLL ZipFileSystem : public IFileSystem {
 public:
     ZipFileSystem(const FilePath& assetsPath);
     ~ZipFileSystem() override;
+
+    int64_t getFileSize(const FilePath& filePath) const override;
     bool pathExists(const FilePath& path) const override;
     std::unique_ptr<IFileHandle> open(const FilePath& filepath, AccessFlag flag) override;
-    
-    int64_t getFileSize(const FilePath& filePath) const override;
 
     bool createDirectory(const FilePath& path) override {
+        CC_UNUSED_PARAM(path);
         return false;
     }
-    
-    bool removeFile(const FilePath& filepath) override {
+
+    bool removeFile(const FilePath& filePath) override {
+        CC_UNUSED_PARAM(filePath);
         return false;
     }
     bool renameFile(const FilePath& oldFilepath, const FilePath& newFilepath) override {
+        CC_UNUSED_PARAM(oldFilepath);
+        CC_UNUSED_PARAM(newFilepath);
         return false;
     }
-    bool removeDirectory(const FilePath& dirPath) override {
+    bool removeDirectory(const FilePath& path) override {
+        CC_UNUSED_PARAM(path);
         return false;
     }
     FilePath getUserAppDataPath() const override {
         return FilePath("");
     }
+
 private:
     ZipFile* _zipFile{nullptr};
 };
 
-}
+} // namespace cc

@@ -399,7 +399,7 @@ public:
      *@param fullPath The full path to the file you want to save a string
      *@return bool
      */
-    virtual bool writeDataToFile(const Data &data, const ccstd::string &fullPath);
+    virtual bool writeDataToFile(const Data &data, const ccstd::string &filePath);
 
     /**
     * write ValueMap into a plist file

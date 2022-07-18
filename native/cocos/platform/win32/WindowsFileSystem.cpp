@@ -113,8 +113,8 @@ bool WindowsFileSystem::removeDirectory(const FilePath& path) {
     return false;
 }
 
-bool WindowsFileSystem::isAbsolutePath(const FilePath& strPath) const {
-    if ((strPath.value().length() > 2 && ((strPath[0] >= 'a' && strPath[0] <= 'z') || (strPath[0] >= 'A' && strPath[0] <= 'Z')) && strPath[1] == ':') || (strPath[0] == '/' && strPath[1] == '/')) {
+bool WindowsFileSystem::isAbsolutePath(const FilePath& path) const {
+    if ((path.value().length() > 2 && ((path[0] >= 'a' && path[0] <= 'z') || (path[0] >= 'A' && path[0] <= 'Z')) && path[1] == ':') || (path[0] == '/' && path[1] == '/')) {
         return true;
     }
     return false;
@@ -159,7 +159,7 @@ bool WindowsFileSystem::renameFile(const FilePath& oldFilePath, const FilePath& 
     return false;
 }
 
-std::unique_ptr<IFileHandle> WindowsFileSystem::open(const FilePath& filepath, AccessFlag flag) {
+std::unique_ptr<IFileHandle> WindowsFileSystem::open(const FilePath& filePath, AccessFlag flag) {
     int32_t accessFlag = 0;
     if (flag == AccessFlag::READ_ONLY) {
         accessFlag = GENERIC_READ;
@@ -173,7 +173,7 @@ std::unique_ptr<IFileHandle> WindowsFileSystem::open(const FilePath& filepath, A
 
     int32_t winFlags = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int32_t createFlag = OPEN_EXISTING;
-    FilePath actualPath = filepath;
+    FilePath actualPath = filePath;
     HANDLE handle = CreateFile(StringUtf8ToWideChar(actualPath.value()).c_str(), accessFlag, winFlags, NULL, createFlag, FILE_ATTRIBUTE_NORMAL, NULL);
     if (handle != INVALID_HANDLE_VALUE) {
         return std::make_unique<WindowsFileHandle>(handle);

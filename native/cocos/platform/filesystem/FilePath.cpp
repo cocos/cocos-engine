@@ -53,11 +53,10 @@ ccstd::string::size_type getLastSepPos(const ccstd::string& path) {
     return path.find_last_of(".");
 }
 
-
 static constexpr char kSeparators[] =
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     "\\/";
-#else 
+#else
     "/";
 #endif
 
@@ -73,15 +72,14 @@ bool isSeparator(char character) {
     return false;
 }
 
-}
+} // namespace
 
 namespace cc {
-FilePath::FilePath():FilePath("") {
-
+FilePath::FilePath() : FilePath("") {
 }
 
 FilePath::FilePath(const FilePath& that) = default;
-//FilePath::FilePath(FilePath&& that) noexcept = default;
+// FilePath::FilePath(FilePath&& that) noexcept = default;
 FilePath::FilePath(const ccstd::string& path) : _path(path) {
     _path = normalizePath();
 }
@@ -98,18 +96,14 @@ const char& FilePath::operator[](int i) const {
     return _path[i];
 }
 
-void FilePath::removeLastSeparator() {
-    int i = _path.length() - 1;
-    while (i > 0) {
-        if ((_path[i] == '/' || _path[i] == '\\') && i > 0 && _path[i - 1] != ':') {
-            i--;
-        } else {
-            break;
-        }
+FilePath FilePath::baseName() const {
+    FilePath newPath(_path);
+    newPath.removeLastSeparator();
+    int lastSep = newPath._path.find_last_of(kSeparators);
+    if (lastSep != ccstd::string::npos) {
+        newPath._path.erase(0, lastSep + 1);
     }
-    if (i >= 0) {
-        _path.resize(i + 1);
-    }
+    return newPath;
 }
 
 FilePath FilePath::dirName() const {
@@ -126,25 +120,18 @@ FilePath FilePath::dirName() const {
     return newPath;
 }
 
-FilePath FilePath::baseName() const {
-    FilePath newPath(_path);
-    newPath.removeLastSeparator();
-    int lastSep = newPath._path.find_last_of(kSeparators);
-    if (lastSep != ccstd::string::npos) {
-        newPath._path.erase(0, lastSep + 1);
+void FilePath::removeLastSeparator() {
+    int i = _path.length() - 1;
+    while (i > 0) {
+        if ((_path[i] == '/' || _path[i] == '\\') && i > 0 && _path[i - 1] != ':') {
+            i--;
+        } else {
+            break;
+        }
     }
-    return newPath;
-}
-
-FilePath FilePath::removeFinalExtension() const {
-    if (finalExtension().empty())
-        return *this;
-
-    const size_t dot = getLastSepPos(_path);
-    if (dot == ccstd::string::npos)
-        return *this;
-
-    return FilePath(_path.substr(0, dot));
+    if (i >= 0) {
+        _path.resize(i + 1);
+    }
 }
 
 ccstd::string FilePath::finalExtension(bool tolower) const {
@@ -159,35 +146,46 @@ ccstd::string FilePath::finalExtension(bool tolower) const {
     return ext;
 }
 
+FilePath FilePath::removeFinalExtension() const {
+    if (finalExtension().empty())
+        return *this;
+
+    const size_t dot = getLastSepPos(_path);
+    if (dot == ccstd::string::npos)
+        return *this;
+
+    return FilePath(_path.substr(0, dot));
+}
+
 FilePath FilePath::append(const FilePath& path) const {
     return append(path.value());
- }
+}
 
 FilePath FilePath::append(const ccstd::string& path) const {
-     ccstd::string appended = path;
-     ccstd::string without_nuls;
+    ccstd::string appended = path;
+    ccstd::string without_nuls;
 
-     int nulPos = path.find('\0');
-     if (nulPos != ccstd::string::npos) {
-         appended = path.substr(0, nulPos);
-     }
+    int nulPos = path.find('\0');
+    if (nulPos != ccstd::string::npos) {
+        appended = path.substr(0, nulPos);
+    }
 
-     if (_path == "." && !appended.empty()) {
-         return FilePath(appended);
-     }
+    if (_path == "." && !appended.empty()) {
+        return FilePath(appended);
+    }
 
-     FilePath new_path(_path);
-     new_path.removeLastSeparator();
+    FilePath new_path(_path);
+    new_path.removeLastSeparator();
 
-     if (!appended.empty() && !new_path._path.empty()) {
-         if (!isSeparator(new_path._path.back())) {
-              new_path._path.append(1, '/');
-         }
-     }
+    if (!appended.empty() && !new_path._path.empty()) {
+        if (!isSeparator(new_path._path.back())) {
+            new_path._path.append(1, '/');
+        }
+    }
 
-     new_path._path.append(appended.data(), appended.size());
-     return new_path;
- }
+    new_path._path.append(appended.data(), appended.size());
+    return new_path;
+}
 
 ccstd::string FilePath::normalizePath() {
     _path = convertToUnixStyle(_path);
@@ -197,7 +195,7 @@ ccstd::string FilePath::normalizePath() {
     // Normalize: remove . and ..
     ret = std::regex_replace(_path, std::regex("/\\./"), "/");
     if (!ret.empty())
-    ret = std::regex_replace(ret, std::regex("/\\.$"), "");
+        ret = std::regex_replace(ret, std::regex("/\\.$"), "");
 
     // ./pathA/path
     if (ret[0] == '.' && ret[1] == '/') {
@@ -206,21 +204,18 @@ ccstd::string FilePath::normalizePath() {
 
     size_t pos;
     while ((pos = ret.rfind("..")) != ccstd::string::npos && pos > 0) {
-            int prevSlash = ret.rfind('/', pos - 2);
-            if (prevSlash == ccstd::string::npos) {
-                if (pos + 3 <= ret.length() && ret[pos + 2] == '/')
-                    ret.erase(0, pos + 3);
-                else if (pos + 2 <= ret.length())
-                    ret.erase(0, pos + 2);
-                break;
-            }
+        int prevSlash = ret.rfind('/', pos - 2);
+        if (prevSlash == ccstd::string::npos) {
+            if (pos + 3 <= ret.length() && ret[pos + 2] == '/')
+                ret.erase(0, pos + 3);
+            else if (pos + 2 <= ret.length())
+                ret.erase(0, pos + 2);
+            break;
+        }
 
         ret = ret.replace(prevSlash, pos - prevSlash + 2, "");
     }
     return convertToUnixStyle(ret);
- }
+}
 
-
-
-
- }
+} // namespace cc

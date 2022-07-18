@@ -41,6 +41,8 @@ ResourceFileHandle::~ResourceFileHandle() {
 }
 
 bool ResourceFileHandle::seek(int64_t pos, MoveMethod moveMethod) {
+    CC_UNUSED_PARAM(pos);
+    CC_UNUSED_PARAM(moveMethod);
     return true;
 }
 
@@ -50,11 +52,11 @@ int64_t ResourceFileHandle::tell() {
 
 bool ResourceFileHandle::read(uint8_t* buffer, int64_t bufferSize) {
     auto size = AAsset_getLength(_asset);
-    if(size > bufferSize) {
+    if (size > bufferSize) {
         size = bufferSize;
     }
     int readSize = AAsset_read(_asset, buffer, size);
-    if(readSize < size) {
+    if (readSize < size) {
         return false;
     }
     return true;
@@ -64,6 +66,7 @@ bool ResourceFileHandle::write(uint8_t* buffer, int64_t bufferSize) {
     CC_UNUSED_PARAM(buffer);
     CC_UNUSED_PARAM(bufferSize);
     assert(false);
+    return false;
 }
 
 int64_t ResourceFileHandle::size() {
@@ -78,4 +81,4 @@ bool ResourceFileHandle::close() {
     return true;
 }
 
-}
+} // namespace cc
