@@ -193,7 +193,7 @@ CCProgram surface-fragment %{
       baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
       baseColor.a *= FSInput_vertexColor.a;
     #endif
-    
+
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
@@ -208,10 +208,26 @@ CCProgram surface-fragment %{
     return baseColor;
   }
 
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+    #if USE_ALPHA_TEST
+      float alpha = albedo.ALPHA_TEST_CHANNEL;
+      #if USE_VERTEX_COLOR
+        alpha *= FSInput_vertexColor.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
+      #endif
+  
+      if (alpha < albedoScaleAndCutoff.w) discard;
+    #endif
+  }
+
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
   vec3 SurfacesFragmentModifyWorldNormal()
   {
-      vec3 normal = FSInput_worldNormal;
+    vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
@@ -223,8 +239,8 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
   vec4 SurfacesFragmentModifyAnisotropyParams()
   {
-      float anisotropyRotation = anisotropyParam.y;
-      float anisotropyShape = anisotropyParam.x;
+    float anisotropyRotation = anisotropyParam.y;
+    float anisotropyShape = anisotropyParam.x;
     #if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
       anisotropyRotation = fract(anisotropyRotation + texture(anisotropyRotationMap, DEFAULT_UV).x);
     #endif

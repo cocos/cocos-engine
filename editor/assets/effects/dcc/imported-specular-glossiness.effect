@@ -52,11 +52,13 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:           { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:        { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -446,19 +448,13 @@ CCProgram shadow-caster-fs %{
   #endif
 
   vec4 frag () {
-    vec4 baseColor = diffuseColor;
-    #if USE_ALBEDO_MAP
-      vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      baseColor *= texColor;
-    #endif
-    
-    #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-    #endif
-
-    #if USE_ALPHA_TEST
-      if (baseColor.a < albedoScaleAndCutoff.w) discard;
-    #endif
+      #if USE_ALPHA_TEST
+      float alpha = 1.0;
+        #if USE_TRANSPARENCY_MAP
+          alpha = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        if (alpha < albedoScaleAndCutoff.w) discard;
+      #endif
 
     highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
     // spot use linear

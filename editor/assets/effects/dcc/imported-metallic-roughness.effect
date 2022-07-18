@@ -57,6 +57,8 @@ CCEffect %{
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        alphaSource:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap: { value: grey, editor: { parent: USE_OPACITY_MAP } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -435,19 +437,33 @@ CCProgram shadow-caster-fs %{
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
 
-  #if USE_ALPHA_TEST
-    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
+  #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
+
+  #if USE_OPACITY_MAP
+    #pragma define-meta ALPHA_SOURCE_CHANNEL options([r, g, b, a])
+    uniform sampler2D alphaSourceMap;
   #endif
 
   vec4 frag () {
-    vec4 baseColor = albedo;
-
-    #if USE_ALBEDO_MAP
-      baseColor *= texture(albedoMap, ALBEDO_UV);
-    #endif
-
     #if USE_ALPHA_TEST
-      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+      float alpha = albedo.a;
+      #if USE_ALBEDO_MAP
+        alpha = texture(albedoMap, TEXTURE_UV).a;
+      #endif
+      #if ALPHA_SOURCE_IS_OPACITY
+        #if USE_OPACITY_MAP
+          alpha = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+        #else
+          alpha = 1.0 - alphaSource;
+        #endif
+      #else
+        #if USE_OPACITY_MAP
+          alpha = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+        #else
+          alpha = alphaSource;
+        #endif
+      #endif
+      if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
 
     highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
