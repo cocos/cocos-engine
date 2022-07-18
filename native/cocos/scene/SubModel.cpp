@@ -49,7 +49,10 @@ void SubModel::update() {
         pass->update();
     }
     _descriptorSet->update();
-    _worldBoundDescriptorSet->update();
+
+    if (_worldBoundDescriptorSet) {
+        _worldBoundDescriptorSet->update();
+    }
 }
 
 void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses) {
@@ -98,11 +101,15 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
     dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
     _inputAssembler = _device->createInputAssembler(subMesh->getIaInfo());
     _descriptorSet = _device->createDescriptorSet(dsInfo);
+
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *occlusionPass = pipeline->getPipelineSceneData()->getOcclusionQueryPass();
-    cc::gfx::DescriptorSetInfo occlusionDSInfo;
-    occlusionDSInfo.layout = occlusionPass->getLocalSetLayout();
-    _worldBoundDescriptorSet = _device->createDescriptorSet(occlusionDSInfo);
+    if (occlusionPass) {
+        cc::gfx::DescriptorSetInfo occlusionDSInfo;
+        occlusionDSInfo.layout = occlusionPass->getLocalSetLayout();
+        _worldBoundDescriptorSet = _device->createDescriptorSet(occlusionDSInfo);
+    }
+
     _subMesh = subMesh;
     _patches = patches;
     _passes = pPasses;

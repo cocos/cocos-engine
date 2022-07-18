@@ -1188,7 +1188,7 @@ void Mesh::tryConvertVertexData() {
                 const auto iter = std::find(attributeIndicsNeedConvert.cbegin(), attributeIndicsNeedConvert.cend(), attributeIndex);
 
                 if (iter == attributeIndicsNeedConvert.end()) {
-                    memcpy(dstIndex, srcIndex, formatInfo.size);
+                    memmove(dstIndex, srcIndex, formatInfo.size);
 
                     dstIndex += formatInfo.size;
                     wroteBytes += formatInfo.size;

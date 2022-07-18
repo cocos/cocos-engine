@@ -38,7 +38,7 @@ se::Class *jsb_BufferPool_class = nullptr; // NOLINT
 
 static bool jsb_BufferPool_allocateNewChunk(se::State &s) { // NOLINT
     auto *pool = static_cast<se::BufferPool *>(s.nativeThisObject());
-    SE_PRECONDITION2(pool, false, "jsb_BufferPool_allocateNewChunk : Invalid Native Object");
+    SE_PRECONDITION2(pool, false, "Invalid Native Object");
     s.rval().setObject(pool->allocateNewChunk());
     return true;
 }
@@ -121,7 +121,7 @@ SE_BIND_FINALIZE_FUNC(jsb_BufferAllocator_finalize)
 
 static bool jsb_BufferAllocator_alloc(se::State &s) { // NOLINT
     auto *bufferAllocator = static_cast<se::BufferAllocator *>(s.nativeThisObject());
-    SE_PRECONDITION2(bufferAllocator, false, "jsb_Array_alloc : Invalid Native Object");
+    SE_PRECONDITION2(bufferAllocator, false, "Invalid Native Object");
 
     const auto &args = s.args();
     size_t argc = args.size();
@@ -141,7 +141,7 @@ SE_BIND_FUNC(jsb_BufferAllocator_alloc);
 
 static bool jsb_BufferAllocator_free(se::State &s) { // NOLINT
     auto *bufferAllocator = static_cast<se::BufferAllocator *>(s.nativeThisObject());
-    SE_PRECONDITION2(bufferAllocator, false, "jsb_Array_alloc : Invalid Native Object");
+    SE_PRECONDITION2(bufferAllocator, false, "Invalid Native Object");
 
     const auto &args = s.args();
     size_t argc = args.size();

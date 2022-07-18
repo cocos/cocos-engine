@@ -15,7 +15,6 @@
             "modules": [ "3d" ], 
             "dependentAssets": [
                 "1baf0fc9-befa-459c-8bdd-af1a450a0319",
-                "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0",
                 "9361fd90-ba52-4f84-aa93-6e878fd576ca",
                 "511d2633-09a7-4bdd-ac42-f778032124b3",
                 "5d45aa00-e064-4938-b314-4265f0c2258c",
@@ -71,12 +70,16 @@
             "modules": [ "profiler" ],
             "dependentAssets": [ "871c3b6c-7379-419d-bda3-794b239ab90d" ] 
         },
+        "occlusion-query": { 
+            "modules": [], 
+	        "dependentAssets": [ "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0" ]
+        },
         "geometry-renderer": { 
             "modules": [ "geometry-renderer" ], 
 	        "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
         },
 	    "debug-renderer": { 
-            "modules": [ "debug-renderer" ], 
+            "modules": [], 
             "dependentAssets": [
                 "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
                 "b5475517-23b9-4873-bc1a-968d96616081", 

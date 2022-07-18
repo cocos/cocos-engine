@@ -211,8 +211,7 @@ export class Sprite extends UIRenderer {
 
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
-        // render & update render data flag will be triggered while applying new sprite frame
-        this.markForUpdateRenderData(false);
+        this.markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
@@ -268,7 +267,6 @@ export class Sprite extends UIRenderer {
         if (this._fillType !== value) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
-                this.renderData = null;
             } else if (this.renderData) {
                 this.markForUpdateRenderData(true);
             }
@@ -587,7 +585,7 @@ export class Sprite extends UIRenderer {
 
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this.renderData = this._assembler.createData(this);
+                this._renderData = this._assembler.createData(this);
                 this.renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {

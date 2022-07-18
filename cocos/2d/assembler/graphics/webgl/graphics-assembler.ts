@@ -78,7 +78,9 @@ export const graphicsAssembler: IAssembler = {
 
     updateRenderData (graphics: Graphics) {
         if (JSB) {
-            graphics.updateRenderer();
+            if (graphics.renderData) {
+                graphics.renderData.material = graphics.getMaterialInstance(0);
+            }
         }
     },
 

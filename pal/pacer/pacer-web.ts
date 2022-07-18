@@ -58,22 +58,22 @@ export class Pacer {
         if (this._isPlaying) return;
         if (this._targetFrameRate === 60) {
             const updateCallback = () => {
-                if (this._onTick) {
-                    this._onTick();
-                }
                 if (this._isPlaying) {
                     this._rafHandle = this._rAF.call(window, updateCallback);
+                }
+                if (this._onTick) {
+                    this._onTick();
                 }
             };
             this._rafHandle = this._rAF.call(window, updateCallback);
         } else {
             const updateCallback = () => {
                 this._startTime = performance.now();
-                if (this._onTick) {
-                    this._onTick();
-                }
                 if (this._isPlaying) {
                     this._stHandle = this._stTime(updateCallback);
+                }
+                if (this._onTick) {
+                    this._onTick();
                 }
             };
             this._startTime = performance.now();

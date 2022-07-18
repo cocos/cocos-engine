@@ -1,11 +1,11 @@
 #include "jsb_audio_manual.h"
 #include <cstdint>
 #include "State.h"
+#include "audio/include/AudioDef.h"
+#include "audio/include/AudioEngine.h"
 #include "bindings/auto/jsb_audio_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "audio/include/AudioEngine.h"
-#include "audio/include/AudioDef.h"
 #include "v8/HelperMacros.h"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -29,16 +29,15 @@ static bool js_audio_AudioEngine_getPCMHeader(se::State& s) // NOLINT
     if (argc == 1) {
         ccstd::string arg0;
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         PCMHeader header = cc::AudioEngine::getPCMHeader(arg0.c_str());
         ok &= PCMHeader_to_seval(header, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
-
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getPCMHeader)
 
@@ -50,22 +49,21 @@ static bool js_audio_AudioEngine_getOriginalPCMBuffer(se::State& s) // NOLINT
     if (argc == 2) {
         ccstd::string arg0; // url of audio
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
-        
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+
         uint32_t arg1{0};
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPCMBuffer_static : Error processing arguments");
-        
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+
         ccstd::vector<uint8_t> buffer = cc::AudioEngine::getOriginalPCMBuffer(arg0.c_str(), arg1);
         se::HandleObject obj(se::Object::createArrayBufferObject(buffer.data(), buffer.size()));
         s.rval().setObject(obj);
-        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
-
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getOriginalPCMBuffer)
 

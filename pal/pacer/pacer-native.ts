@@ -9,11 +9,11 @@ export class Pacer {
     private _updateCallback: () => void;
     constructor () {
         this._updateCallback = () => {
-            if (this._onTick) {
-                this._onTick();
-            }
             if (this._isPlaying) {
                 this._rafHandle = requestAnimationFrame(this._updateCallback);
+            }
+            if (this._onTick) {
+                this._onTick();
             }
         };
     }

@@ -31,7 +31,7 @@ import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
     Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Swapchain,
-    Framebuffer, DescriptorSet } from '../../gfx';
+    Framebuffer, DescriptorSet, API } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
@@ -75,9 +75,14 @@ export class ShadowFlow extends RenderFlow {
     public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
 
-        // 0: SHADOWMAP_RGBE, 1: SHADOWMAP_FLOAT.
-        const isFloat = supportsR32FloatTexture(pipeline.device) ? 0 : 1;
-        pipeline.macros.CC_SHADOWMAP_FORMAT = isFloat;
+        // 0: SHADOWMAP_FLOAT, 1: SHADOWMAP_RGBE.
+        const isRGBE = supportsR32FloatTexture(pipeline.device) ? 0 : 1;
+        pipeline.macros.CC_SHADOWMAP_FORMAT = isRGBE;
+
+        // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
+        const isLinear = pipeline.device.gfxAPI === API.WEBGL ? 1 : 0;
+        pipeline.macros.CC_SHADOWMAP_USE_LINEAR_DEPTH = isLinear;
+
         pipeline.onGlobalPipelineStateChanged();
     }
 

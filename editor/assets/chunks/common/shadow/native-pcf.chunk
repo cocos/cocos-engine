@@ -1,6 +1,3 @@
-#pragma define SHADOWMAP_FORMAT_RGBA8 1
-#pragma define SHADOWMAP_FORMAT_FLOAT 0
-
 // NDC shadowPos applied with normal bias and depth bias
 
 float NativePCFShadowFactorHard (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)

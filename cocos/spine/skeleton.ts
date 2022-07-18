@@ -170,6 +170,8 @@ export class Skeleton extends UIRenderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -623,7 +625,7 @@ export class Skeleton extends UIRenderer {
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo(batch2d);
+            this._drawInfoList[idx] = new RenderDrawInfo();
         }
         return this._drawInfoList[idx];
     }
@@ -1741,9 +1743,8 @@ export class Skeleton extends UIRenderer {
         this._materialCache = {};
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

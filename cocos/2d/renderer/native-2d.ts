@@ -66,6 +66,9 @@ export declare class NativeRenderDrawInfo {
     get model(): Model | null;
     set model(model: Model | null);
 
+    get drawInfoType(): number;
+    set drawInfoType(drawInfoType: number);
+
     setRender2dBufferToNative(data: TypedArray, stride: number, size: number);
     syncSharedBufferToNative(data: TypedArray);
     getAttrSharedBufferForJS(): ArrayBufferLike;
@@ -85,20 +88,14 @@ export declare class NativeRenderEntity {
     get isSubMask(): boolean;
     set isSubMask(val: boolean);
 
-    get isMaskInverted():boolean;
-    set isMaskInverted(val:boolean);
+    get isMaskInverted(): boolean;
+    set isMaskInverted(val: boolean);
 
     get node(): Node | null;
     set node(node: Node | null);
 
     get stencilStage(): number;
     set stencilStage(stage: number);
-
-    get customMaterial(): Material;
-    set customMaterial(mat: Material);
-
-    get commitModelMaterial(): Material;
-    set commitModelMaterial(mat: Material);
 
     get staticDrawInfoSize(): number;
     set staticDrawInfoSize(size: number);
@@ -129,7 +126,7 @@ export declare class NativeBatcher2d {
     update();
     uploadBuffers();
     reset();
-    addRootNode(node: Node);
+    syncRootNodesToNative(nodes: Node[]);
     releaseDescriptorSetCache(texture: Texture, sampler: Sampler);
 }
 

@@ -31,11 +31,6 @@ namespace cc {
 // Internal EventTypesToJS : 100~199
 // Internal Game event : 200~299
 // Internal Director Event Type: 300~399
-const CallbacksInvoker::KeyType EventTypesToJS::ROOT_BATCH2D_INIT{100};           //{"ROOT_BATCH2D_INIT"};
-const CallbacksInvoker::KeyType EventTypesToJS::ROOT_BATCH2D_UPDATE{101};         //{"ROOT_BATCH2D_UPDATE"};
-const CallbacksInvoker::KeyType EventTypesToJS::ROOT_BATCH2D_UPLOAD_BUFFERS{102}; //{"ROOT_BATCH2D_UPLOAD_BUFFERS"};
-const CallbacksInvoker::KeyType EventTypesToJS::ROOT_BATCH2D_RESET{103};          //{"ROOT_BATCH2D_RESET"};
-
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_REATTACH{104};                 //{"NODE_REATTACH"};
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE{105}; //{"NODE_REMOVE_PERSIST_ROOT_NODE"};
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_DESTROY_COMPONENTS{106};       //{"NODE_DESTROY_COMPONENTS"};

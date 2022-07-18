@@ -789,8 +789,6 @@ const cacheManager = require('./jsb-cache-manager');
             drawInfo.setIBCount(_tempIndicesCount);
 
             entity.setDynamicRenderDrawInfo(drawInfo, index);
-
-            entity.assignExtraEntityAttrs(this);
             this.material = mat;
         }
     };

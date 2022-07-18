@@ -66,17 +66,6 @@ export class UIComponent extends Component {
     }
 
     /**
-     * @en Render data submission procedure, it update and assemble the render data to 2D data buffers before all children submission process.
-     * Usually called each frame when the ui flow assemble all render data to geometry buffers.
-     * Don't call it unless you know what you are doing.
-     * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
-     * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
-     * 注意：不要手动调用该函数，除非你理解整个流程。
-     */
-    public updateAssembler (render: IBatcher) {
-    }
-
-    /**
      * @en Post render data submission procedure, it's executed after assembler updated for all children.
      * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
      * Don't call it unless you know what you are doing.

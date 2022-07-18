@@ -4,7 +4,7 @@ import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
-import { color, Color, Material, Node } from '../../core';
+import { color, Color, director, Material, Node } from '../../core';
 import { EmitLocation } from '../../particle/enum';
 import { Stage } from './stencil-manager';
 
@@ -13,14 +13,24 @@ export enum RenderEntityType {
     DYNAMIC,
 }
 
-export enum RenderEntitySharedBufferView {
+export enum RenderEntityFloatSharedBufferView {
+    localOpacity,
+    count,
+}
+
+export enum RenderEntityUInt8SharedBufferView {
     colorR,
     colorG,
     colorB,
     colorA,
+    count,
+}
+
+export enum RenderEntityBoolSharedBufferView{
     colorDirty,
-    localOpacity,
     enabled,
+    padding0,
+    padding1,
     count,
 }
 
@@ -29,12 +39,8 @@ export class RenderEntity {
 
     private _dynamicDrawInfoArr: RenderDrawInfo[] = [];
 
-    private _batcher: Batcher2D | undefined;
-
     protected _node: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
-    protected _customMaterial: Material | null = null;
-    protected _commitModelMaterial: Material | null = null;
 
     // is it entity a mask node
     protected _isMask = false;
@@ -43,7 +49,9 @@ export class RenderEntity {
     // is mask inverted
     protected _isMaskInverted = false;
 
-    protected declare _sharedBuffer: Float32Array;
+    protected declare _floatSharedBuffer: Float32Array;
+    protected declare _uint8SharedBuffer: Uint8Array;
+    protected declare _boolSharedBuffer:Uint8Array;
 
     private declare _nativeObj: NativeRenderEntity;
     get nativeObj () {
@@ -68,21 +76,10 @@ export class RenderEntity {
     set color (val: Color) {
         this._color = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.colorR] = val.r;
-            this._sharedBuffer[RenderEntitySharedBufferView.colorG] = val.g;
-            this._sharedBuffer[RenderEntitySharedBufferView.colorB] = val.b;
-            this._sharedBuffer[RenderEntitySharedBufferView.colorA] = val.a;
-        }
-    }
-
-    protected _colorDirty = true;
-    get colorDirty () {
-        return this._colorDirty;
-    }
-    set colorDirty (val: boolean) {
-        this._colorDirty = val;
-        if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.colorDirty] = val ? 1 : 0;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorR] = val.r;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorG] = val.g;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorB] = val.b;
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.colorA] = val.a;
         }
     }
 
@@ -93,7 +90,18 @@ export class RenderEntity {
     set localOpacity (val: number) {
         this._localOpacity = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.localOpacity] = val;
+            this._floatSharedBuffer[RenderEntityFloatSharedBufferView.localOpacity] = val;
+        }
+    }
+
+    protected _colorDirty = true;
+    get colorDirty () {
+        return this._colorDirty;
+    }
+    set colorDirty (val: boolean) {
+        this._colorDirty = val;
+        if (JSB) {
+            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty] = val ? 1 : 0;
         }
     }
 
@@ -104,15 +112,14 @@ export class RenderEntity {
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.enabled] = val ? 1 : 0;
+            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.enabled] = val ? 1 : 0;
         }
     }
 
-    constructor (batcher: Batcher2D, entityType: RenderEntityType) {
+    constructor (entityType: RenderEntityType) {
         if (JSB) {
-            this._batcher = batcher;
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
+                this._nativeObj = new NativeRenderEntity(director.root!.batcher2D.nativeObj);
             }
             this.setRenderEntityType(entityType);
 
@@ -160,28 +167,10 @@ export class RenderEntity {
     public getStaticRenderDrawInfo (): RenderDrawInfo | null {
         if (JSB) {
             const nativeDrawInfo = this._nativeObj.getStaticRenderDrawInfo(this._nativeObj.staticDrawInfoSize++);
-            const drawInfo = new RenderDrawInfo(this._batcher!, nativeDrawInfo);
+            const drawInfo = new RenderDrawInfo(nativeDrawInfo);
             return drawInfo;
         }
         return null;
-    }
-
-    public destroy () {
-        this.setNode(null);
-        this.enabled = false;
-        this.setCustomMaterial(null);
-        this.setStencilStage(0);
-        this.setCommitModelMaterial(null);
-        // @ts-expect-error temporary no care
-        this._nativeObj = null;
-        this._dynamicDrawInfoArr = [];
-    }
-
-    public assignExtraEntityAttrs (comp: UIRenderer) {
-        if (JSB) {
-            this.setNode(comp.node);
-            this.enabled = comp.enabled;
-        }
     }
 
     setIsMask (val:boolean) {
@@ -229,24 +218,6 @@ export class RenderEntity {
         this._stencilStage = stage;
     }
 
-    setCustomMaterial (mat: Material | null) {
-        if (JSB) {
-            if (this._customMaterial !== mat) {
-                this._nativeObj.customMaterial = mat!;
-            }
-        }
-        this._customMaterial = mat;
-    }
-
-    setCommitModelMaterial (mat:Material|null) {
-        if (JSB) {
-            if (this._commitModelMaterial !== mat) {
-                this._nativeObj.commitModelMaterial = mat!;
-            }
-        }
-        this._commitModelMaterial = mat;
-    }
-
     setRenderEntityType (type: RenderEntityType) {
         if (JSB) {
             if (this._renderEntityType !== type) {
@@ -259,7 +230,13 @@ export class RenderEntity {
     private initSharedBuffer () {
         if (JSB) {
             //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
-            this._sharedBuffer = new Float32Array(this._nativeObj.getEntitySharedBufferForJS());
+            const buffer = this._nativeObj.getEntitySharedBufferForJS();
+            let offset = 0;
+            this._floatSharedBuffer = new Float32Array(buffer, offset, RenderEntityFloatSharedBufferView.count);
+            offset += RenderEntityFloatSharedBufferView.count * 4;
+            this._uint8SharedBuffer = new Uint8Array(buffer, offset, RenderEntityUInt8SharedBufferView.count);
+            offset += RenderEntityUInt8SharedBufferView.count * 1;
+            this._boolSharedBuffer = new Uint8Array(buffer, offset, RenderEntityBoolSharedBufferView.count);
         }
     }
 }

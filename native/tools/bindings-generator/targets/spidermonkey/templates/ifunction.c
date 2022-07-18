@@ -7,7 +7,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
 \#if $module_macro
 #end if
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    // SE_PRECONDITION2(cobj, false, "${signature_name} : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 #if len($arguments) >= $min_args
     const auto& args = s.args();
@@ -61,7 +61,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0
-        SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         #end if
         #set $arg_list = ", ".join($arg_array)
         #if $ret_type.name != "void"
@@ -76,7 +76,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
                                     "class_name": $ret_type.get_class_name($generator),
                                     "ntype": str($ret_type),
                                     "level": 2})};
-        SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
             #if $generator.should_obtain_return_value($class_name, $func_name)
         s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
             #end if
