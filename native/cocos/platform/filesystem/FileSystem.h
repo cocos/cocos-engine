@@ -53,8 +53,8 @@ public:
     FilePath getUserAppDataPath() const override;
     FilePath fullPathForFilename(const FilePath& filePath) const;
 
-    void listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const override;
-    void listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const override;
+    void listFiles(const FilePath& path, ccstd::vector<ccstd::string>* files) const override;
+    void listFilesRecursively(const FilePath& path, ccstd::vector<ccstd::string>* files) const override;
 
 private:
     static FileSystem* instance;

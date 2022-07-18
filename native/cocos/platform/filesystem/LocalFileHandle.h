@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 #pragma once
-#include <cstdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include "base/Macros.h"
 #include "cocos/platform/filesystem/IFileHandle.h"

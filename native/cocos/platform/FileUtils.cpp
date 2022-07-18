@@ -523,7 +523,7 @@ bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::str
 }
 
 bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &filePath) {
-    FilePath fullPath = fullPathForFilename(filePath);
+    FilePath fullPath(fullPathForFilename(filePath));
     if (fullPath.empty()) {
         return false;
     }
@@ -531,7 +531,7 @@ bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &filePath)
     if (!handle) {
         return false;
     }
-    handle->write(static_cast<uint8_t*>(data.getBytes()), data.getSize());
+    handle->write(reinterpret_cast<uint8_t*>(data.getBytes()), data.getSize());
 
     //size_t size = 0;
     //const char *mode = "wb";
@@ -583,7 +583,7 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
     if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
-    FilePath fullPath = fullPathForFilename(filename);
+    FilePath fullPath(fullPathForFilename(filename));
     if (fullPath.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -618,14 +618,14 @@ ccstd::string FileUtils::getWritablePath() const {
 }
 
 unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {
-    auto filesystem = std::make_unique<ZipFileSystem>(zipFilePath);
-    auto handle = filesystem->open(filename, IFileSystem::AccessFlag::READ_ONLY);
+    auto filesystem = std::make_unique<ZipFileSystem>(FilePath(zipFilePath));
+    auto handle = filesystem->open(FilePath(filename), IFileSystem::AccessFlag::READ_ONLY);
     if (!handle) {
         return nullptr;
     }
 
     int64_t fileSize = handle->size();
-    
+
     auto* buffer = static_cast<unsigned char *>(malloc(fileSize));
     handle->read(buffer, fileSize);
     if(size) {
@@ -702,7 +702,7 @@ ccstd::string FileUtils::fullPathForFilename(const ccstd::string &filename) cons
 
     FilePath fullPath;
     for (const auto &searchIt : _searchPathArray) {
-        fullPath = 
+        fullPath =
             FileSystem::getInstance()->fullPathForFilename(FilePath(searchIt).append(filename));
         if (!fullPath.empty()) {
             // Using the filename passed in as key.
@@ -805,7 +805,7 @@ ccstd::string FileUtils::getFullPathForDirectoryAndFilename(const ccstd::string 
 }
 
 bool FileUtils::isFileExist(const ccstd::string &filename) const {
-    FilePath fullPath = fullPathForFilename(filename);
+    FilePath fullPath(fullPathForFilename(filename));
     return FileSystem::getInstance()->pathExists(fullPath);
 }
 
@@ -823,13 +823,13 @@ bool FileUtils::isFileExistInternal(const ccstd::string &filename) const {
 
 ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) const {
     ccstd::vector<ccstd::string> ret;
-    ccstd::string fullpath = fullPathForFilename(dirPath);
+    ccstd::string fullpath(fullPathForFilename(dirPath));
     FileSystem::getInstance()->listFiles(dirPath, &ret);
     return ret;
 }
 
 void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector<ccstd::string> *files) const { // NOLINT(misc-no-recursion)
-    ccstd::string fullpath = fullPathForFilename(dirPath);
+    ccstd::string fullpath(fullPathForFilename(dirPath));
     FileSystem::getInstance()->listFilesRecursively(dirPath, files);
 }
 

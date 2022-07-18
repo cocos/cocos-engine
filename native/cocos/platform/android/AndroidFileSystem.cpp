@@ -51,7 +51,7 @@ FilePath AndroidFileSystem::getUserAppDataPath() const {
 
     if (tmp.length() > 0) {
         dir.append(tmp).append("/");
-        return dir;
+        return FilePath(dir);
     }
     return FilePath("");
 }

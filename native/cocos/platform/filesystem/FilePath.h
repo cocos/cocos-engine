@@ -36,8 +36,8 @@ namespace cc {
 class CC_DLL FilePath {
 public:
     FilePath();
-    explicit FilePath(const FilePath& that);
-    explicit FilePath(const ccstd::string& path);
+    FilePath(const FilePath& that); //NOLINT
+    FilePath(const ccstd::string& path); // NOLINT
     ~FilePath();
     
     FilePath& operator=(const FilePath& that);

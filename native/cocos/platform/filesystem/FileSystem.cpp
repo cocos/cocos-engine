@@ -51,7 +51,7 @@ FileSystem::FileSystem() {
     _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
     ccstd::string assetsPath(getObbFilePathJNI());
     if (assetsPath.find("/obb/") != ccstd::string::npos) {
-        _subFileSystems.push_back(std::make_unique<ZipFileSystem>(assetsPath));
+        _subFileSystems.push_back(std::make_unique<ZipFileSystem>(FilePath(assetsPath)));
     }
 #elif CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
     _subFileSystems.push_back(std::make_unique<ResourceFileSystem>());
@@ -155,7 +155,7 @@ FilePath FileSystem::fullPathForFilename(const FilePath& filePath) const {
     return FilePath();
 }
 
-void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
+void FileSystem::listFiles(const FilePath& path, ccstd::vector<ccstd::string>* files) const {
     for (const auto& fileSystem : _subFileSystems) {
         if (fileSystem->pathExists(path)) {
             fileSystem->listFiles(path, files);
@@ -166,7 +166,7 @@ void FileSystem::listFiles(const ccstd::string& path, ccstd::vector<ccstd::strin
     }
 }
 
-void FileSystem::listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const {
+void FileSystem::listFilesRecursively(const FilePath& path, ccstd::vector<ccstd::string>* files) const {
     for (const auto& fileSystem : _subFileSystems) {
         if (fileSystem->pathExists(path)) {
             fileSystem->listFiles(path, files);

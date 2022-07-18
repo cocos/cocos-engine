@@ -35,15 +35,15 @@ bool IFileSystem::isAbsolutePath(const FilePath &path) const {
     return (path[0] == '/');
 }
 
-void IFileSystem::listFiles(const ccstd::string &path, ccstd::vector<ccstd::string> *files) const {
+void IFileSystem::listFiles(const FilePath &path, ccstd::vector<ccstd::string> *files) const {
     if (path.empty() || !pathExists(path) || !files) {
         return;
     }
     tinydir_dir dir;
 #ifdef UNICODE
-    std::wstring fullpathstr = StringUtf8ToWideChar(path);
+    std::wstring fullpathstr = StringUtf8ToWideChar(path.value());
 #else
-    ccstd::string fullpathstr = path;
+    ccstd::string fullpathstr = path.value();
 #endif
     if (tinydir_open(&dir, &fullpathstr[0]) != -1) {
         while (dir.has_next) {
@@ -72,15 +72,15 @@ void IFileSystem::listFiles(const ccstd::string &path, ccstd::vector<ccstd::stri
     tinydir_close(&dir);
 }
 
-void IFileSystem::listFilesRecursively(const ccstd::string &path, ccstd::vector<ccstd::string> *files) const { // NOLINT(misc-no-recursion)
-    if (path.empty() || !pathExists(path) || !files) {
+void IFileSystem::listFilesRecursively(const FilePath &path, ccstd::vector<ccstd::string> *files) const { // NOLINT(misc-no-recursion)
+    if (path.empty() || !pathExists(FilePath(path)) || !files) {
         return;
     }
     tinydir_dir dir;
 #ifdef UNICODE
-    std::wstring fullpathstr = StringUtf8ToWideChar(path);
+    std::wstring fullpathstr = StringUtf8ToWideChar(path.value());
 #else
-    ccstd::string fullpathstr = path;
+    ccstd::string fullpathstr = path.value();
 #endif
     if (tinydir_open(&dir, &fullpathstr[0]) != -1) {
         while (dir.has_next) {

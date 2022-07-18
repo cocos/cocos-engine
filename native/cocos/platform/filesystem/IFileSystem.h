@@ -67,7 +67,7 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual void listFiles(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const;
+    virtual void listFiles(const FilePath& path, ccstd::vector<ccstd::string>* files) const;
 
     /**
      *  List all files recursively in a directory.
@@ -75,7 +75,7 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual void listFilesRecursively(const ccstd::string& path, ccstd::vector<ccstd::string>* files) const;
+    virtual void listFilesRecursively(const FilePath& path, ccstd::vector<ccstd::string>* files) const;
 
 protected:
     /**
