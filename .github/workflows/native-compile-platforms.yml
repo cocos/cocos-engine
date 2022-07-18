@@ -37,9 +37,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: gen files
-          path: |
-            ${{ github.workspace }}/native/conan/build
-            $env:CONAN_USER_HOME
+          path: ${{ github.workspace }}/native/conan/build
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: gen files
+          path: $env:CONAN_USER_HOME
       - name: Download external libraries
         shell: bash
         run: |
