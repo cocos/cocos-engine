@@ -47,9 +47,6 @@ export class RenderDrawInfo {
     // SharedBuffer of pos/uv/color
     protected declare _render2dBuffer: Float32Array;
 
-    // SharedBuffer of extra attributes
-    protected declare _sharedBuffer: Int32Array;
-
     protected _vertexCount = 0;
     protected _stride = 0;
 
@@ -74,11 +71,9 @@ export class RenderDrawInfo {
                 this._nativeObj = nativeDrawInfo;
             }
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderDrawInfo(director.root!.batcher2D.nativeObj);
+                this._nativeObj = new NativeRenderDrawInfo();
             }
         }
-
-        this.initSharedBuffer();
     }
 
     public clear () {
@@ -279,13 +274,6 @@ export class RenderDrawInfo {
     public setRender2dBufferToNative () {
         if (JSB) {
             this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride);
-        }
-    }
-
-    private initSharedBuffer () {
-        if (JSB) {
-            //this._sharedBuffer = new Int32Array(RenderDrawInfoSharedBufferView.count);
-            this._sharedBuffer = new Int32Array(this._nativeObj.getAttrSharedBufferForJS());
         }
     }
 }
