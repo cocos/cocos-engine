@@ -88,7 +88,7 @@ export class UIOpacity extends Component {
         const uiOp = node.getComponent<UIOpacity>(UIOpacity);
         let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
 
-        if (render) {
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = dirty;
             render.renderEntity.color = render.color;// necessity to be considering
             if (uiOp) {
