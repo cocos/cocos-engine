@@ -97,7 +97,9 @@ private:
         float* vbBuffer = drawInfo->getVbBuffer();
         for (int i = 0; i < size; i += stride) {
             Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
+            // make sure that the layout of Vec3 is three consecutive floats
             static_assert(sizeof(Vec3) == 3 * sizeof(float));
+            // cast to reduce value copy instructions
             reinterpret_cast<Vec3*>(vbBuffer + i)->transformMat4(curLayout->position, matrix);
         }
     }
