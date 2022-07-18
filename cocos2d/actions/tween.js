@@ -294,6 +294,7 @@ Tween.prototype.start = function () {
 Tween.prototype.stop = function () {
     if (this._finalAction) {
         cc.director.getActionManager().removeAction(this._finalAction);
+        this._finalAction = null;
     }
     return this;
 };
