@@ -267,26 +267,6 @@ static bool js_2d_RenderDrawInfo_getAccId(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getAccId)
 
-static bool js_2d_RenderDrawInfo_getAttrSharedBufferForJS(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se::Object* result = cobj->getAttrSharedBufferForJS();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_2d_RenderDrawInfo_getAttrSharedBufferForJS)
-
 static bool js_2d_RenderDrawInfo_getBlendHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1174,23 +1154,6 @@ static bool js_2d_RenderDrawInfo_constructor(se::State& s) // NOLINT(readability
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 1) {
-            HolderType<cc::Batcher2d*, false> arg0 = {};
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderDrawInfo, arg0.value());
-            s.thisObject()->setPrivateObject(ptr);
-            return true;
-        }
-    } while(false);
-    do {
-        if (argc == 0) {
-            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderDrawInfo);
-            s.thisObject()->setPrivateObject(ptr);
-            return true;
-        }
-    } while(false);
-    do {
         if (argc == 3) {
             HolderType<int, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1202,6 +1165,13 @@ static bool js_2d_RenderDrawInfo_constructor(se::State& s) // NOLINT(readability
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             if (!ok) { ok = true; break; }
             auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderDrawInfo, arg0.value(), arg1.value(), arg2.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderDrawInfo);
             s.thisObject()->setPrivateObject(ptr);
             return true;
         }
@@ -1244,7 +1214,6 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("blendHash", _SE(js_2d_RenderDrawInfo_getBlendHash_asGetter), _SE(js_2d_RenderDrawInfo_setBlendHash_asSetter));
     cls->defineProperty("model", _SE(js_2d_RenderDrawInfo_getModel_asGetter), _SE(js_2d_RenderDrawInfo_setModel_asSetter));
     cls->defineProperty("drawInfoType", _SE(js_2d_RenderDrawInfo_getDrawInfoType_asGetter), _SE(js_2d_RenderDrawInfo_setDrawInfoType_asSetter));
-    cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));
     cls->defineFunction("requestIA", _SE(js_2d_RenderDrawInfo_requestIA));
     cls->defineFunction("resetMeshIA", _SE(js_2d_RenderDrawInfo_resetMeshIA));
@@ -1743,30 +1712,11 @@ SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setStencilStage)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_RenderEntity_finalize)
 
-static bool js_2d_RenderEntity_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+static bool js_2d_RenderEntity_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<cc::Batcher2d*, false> arg0 = {};
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity, arg0.value());
-            s.thisObject()->setPrivateObject(ptr);
-            return true;
-        }
-    } while(false);
-    do {
-        if (argc == 0) {
-            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity);
-            s.thisObject()->setPrivateObject(ptr);
-            return true;
-        }
-    } while(false);
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
 }
 SE_BIND_CTOR(js_2d_RenderEntity_constructor, __jsb_cc_RenderEntity_class, js_cc_RenderEntity_finalize)
 

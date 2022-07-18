@@ -278,16 +278,16 @@ void CCVKCommandBuffer::setScissor(const Rect &rect) {
 }
 
 void CCVKCommandBuffer::setLineWidth(float width) {
-    if (math::IsNotEqualF(_curDynamicStates.lineWidth, width)) {
+    if (math::isNotEqualF(_curDynamicStates.lineWidth, width)) {
         _curDynamicStates.lineWidth = width;
         vkCmdSetLineWidth(_gpuCommandBuffer->vkCommandBuffer, width);
     }
 }
 
 void CCVKCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
-        math::IsNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
-        math::IsNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
+    if (math::isNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
+        math::isNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
+        math::isNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
         _curDynamicStates.depthBiasConstant = constant;
         _curDynamicStates.depthBiasClamp = clamp;
         _curDynamicStates.depthBiasSlope = slope;
@@ -296,10 +296,10 @@ void CCVKCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
 }
 
 void CCVKCommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
+    if (math::isNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
         _curDynamicStates.blendConstant.x = constants.x;
         _curDynamicStates.blendConstant.y = constants.y;
         _curDynamicStates.blendConstant.z = constants.z;
@@ -309,8 +309,8 @@ void CCVKCommandBuffer::setBlendConstants(const Color &constants) {
 }
 
 void CCVKCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
-    if (math::IsNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
-        math::IsNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
+    if (math::isNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
+        math::isNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
         _curDynamicStates.depthMinBounds = minBounds;
         _curDynamicStates.depthMaxBounds = maxBounds;
         vkCmdSetDepthBounds(_gpuCommandBuffer->vkCommandBuffer, minBounds, maxBounds);

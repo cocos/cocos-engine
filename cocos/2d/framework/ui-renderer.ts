@@ -464,13 +464,14 @@ export class UIRenderer extends Renderer {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
+            this.setEntityEnabled(this._renderFlag);
         }
     }
 
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
-        if (render) {
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
             render._renderEntity.colorDirty = dirty;
             render._renderEntity.color = render.color;// necessity to be considering
         }
@@ -494,6 +495,12 @@ export class UIRenderer extends Renderer {
     public setEntityOpacity (opacity: number) {
         if (JSB) {
             this._renderEntity.localOpacity = opacity;
+        }
+    }
+
+    public setEntityEnabled (enabled: boolean) {
+        if (JSB) {
+            this._renderEntity.enabled = enabled;
         }
     }
 

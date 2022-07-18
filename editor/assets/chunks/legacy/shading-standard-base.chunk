@@ -100,38 +100,36 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - position);
 
-  float NV = max(abs(dot(N, V)), 0.0);
-  specular = BRDFApprox(specular, s.roughness, NV);
-
-  vec3 L = normalize(-cc_mainLitDir.xyz);
-  vec3 H = normalize(L + V);
-  float NH = max(dot(N, H), 0.0);
-  float NL = max(dot(N, L), 0.0);
-  vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
-  vec3 diffuseContrib = diffuse / PI;
-
-  // Cook-Torrance Microfacet Specular BRDF
-  vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
-  vec3 dirlightContrib = (diffuseContrib + specularContrib);
-
-  float shadow = 1.0;
-  #if CC_RECEIVE_SHADOW
-    if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-      if (cc_shadowLPNNInfo.w > 0.0) {
-        shadow = CCCSMFactorBase(position, N, s.shadowBias);
-      } else {
-        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
-      }
-    }
-  #endif
-
-  dirlightContrib *= shadow;
-  finalColor *= dirlightContrib;
-
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    if (s.lightmap_test > EPSILON_LOWP) {
-      finalColor = diffuse * s.lightmap.rgb * shadow;
-    }
+    vec3 finalColor = diffuse * s.lightmap.rgb;
+  #else
+    float NV = max(abs(dot(N, V)), 0.0);
+    specular = BRDFApprox(specular, s.roughness, NV);
+  
+    vec3 L = normalize(-cc_mainLitDir.xyz);
+    vec3 H = normalize(L + V);
+    float NH = max(dot(N, H), 0.0);
+    float NL = max(dot(N, L), 0.0);
+    vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
+    vec3 diffuseContrib = diffuse / PI;
+  
+    // Cook-Torrance Microfacet Specular BRDF
+    vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
+    vec3 dirlightContrib = (diffuseContrib + specularContrib);
+  
+    float shadow = 1.0;
+    #if CC_RECEIVE_SHADOW
+      if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
+        if (cc_shadowLPNNInfo.w > 0.0) {
+          shadow = CCCSMFactorBase(position, N, s.shadowBias);
+        } else {
+          shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+        }
+      }
+    #endif
+  
+    dirlightContrib *= shadow;
+    finalColor *= dirlightContrib;
   #endif
 
   float fAmb = 0.5 - N.y * 0.5;

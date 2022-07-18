@@ -49,7 +49,7 @@ struct DrawInfoAttrLayout {
     uint32_t enabledIndex{1};
 };
 
-enum class RenderDrawInfoType {
+enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
     IA
@@ -58,8 +58,7 @@ enum class RenderDrawInfoType {
 class Batcher2d;
 class RenderDrawInfo final {
 public:
-    RenderDrawInfo();
-    explicit RenderDrawInfo(Batcher2d* batcher);
+    RenderDrawInfo() = default;
     RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
     ~RenderDrawInfo();
 
@@ -109,10 +108,6 @@ public:
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
 
-    inline Batcher2d* getBatcher() const { return _batcher; }
-    void setBatcher(Batcher2d* batcher);
-    se::Object* getAttrSharedBufferForJS() const;
-
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
     }
@@ -129,17 +124,9 @@ private:
     void destroy();
 
     gfx::InputAssembler* initIAInfo(gfx::Device* device);
-
-    // weak reference
-    Batcher2d* _batcher{nullptr};
-
     // weak reference
     uint8_t* _sharedBuffer{nullptr};
-    uint8_t _stride{0};
     uint32_t _size{0};
-
-    DrawInfoAttrLayout _drawInfoAttrLayout;
-    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
 
     index_t _bufferId{0};
     index_t _accId{0};
@@ -161,14 +148,16 @@ private:
     uint32_t _vbCount{0};
     uint32_t _ibCount{0};
 
+    uint8_t _stride{0};
     bool _vertDirty{false};
+    bool _isMeshBuffer{false};
+    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
 
     // weak reference
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
     uint32_t _stencilStage{0};
-    bool _isMeshBuffer{false};
     // weak reference
     Material* _material{nullptr};
     // weak reference
@@ -178,8 +167,6 @@ private:
     gfx::Sampler* _sampler{nullptr};
 
     uint32_t _blendHash{0};
-
-    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
 
     gfx::InputAssemblerInfo _iaInfo;
     ccstd::vector<gfx::Attribute> _attributes{
