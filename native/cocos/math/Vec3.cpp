@@ -27,6 +27,32 @@
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
 
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #include <cpu-features.h>
+#endif
+
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
+    #if defined(__arm64__)
+        #define USE_NEON64
+        #define INCLUDE_NEON64
+    #endif
+#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #if defined(__arm64__) || defined(__aarch64__)
+        #define USE_NEON64
+        #define INCLUDE_NEON64
+    #elif defined(__ARM_NEON__)
+        #define INCLUDE_NEON32
+    #endif
+#endif
+
+#if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
+    #include "enoki/array.h"
+    #ifndef ENOKI_ARM_NEON
+        #error "ENOKI_ARM_NEON isn't enabled!"
+    #endif
+using SimdVec4 = enoki::Array<float, 4>;
+#endif
+
 NS_CC_MATH_BEGIN
 
 Vec3::Vec3(float xx, float yy, float zz)
@@ -192,13 +218,60 @@ void Vec3::transformMat3(const Vec3 &v, const Mat3 &m) {
     z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
 
-void Vec3::transformMat4(const Vec3 &v, const Mat4 &m) {
+void Vec3::transformMat4Neon(const Vec3 &v, const Mat4 &m) {
+#if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
+    alignas(16) float tmpV0[4];
+
+    auto row0 = enoki::load<SimdVec4>(&m.m[0]);
+    auto row1 = enoki::load<SimdVec4>(&m.m[4]);
+    auto row2 = enoki::load<SimdVec4>(&m.m[8]);
+    auto row3 = enoki::load<SimdVec4>(&m.m[12]);
+
+    row0 *= v.x;
+    row1 *= v.y;
+    row2 *= v.z;
+
+    row0 = row0 + row1 + row2 + row3;
+    enoki::store(tmpV0, row0);
+    float rhw;
+
+    if (CC_PREDICT_TRUE(math::isNotZeroF(tmpV0[3]))) {
+        rhw = 1.F / tmpV0[3];
+    } else {
+        rhw = 1.F;
+    }
+
+    SimdVec4 tmpV1{rhw};
+    row0 *= tmpV1;
+    enoki::store(tmpV0, row0);
+
+    x = tmpV0[0];
+    y = tmpV0[1];
+    z = tmpV0[2];
+#endif
+}
+
+void Vec3::transformMat4C(const Vec3 &v, const Mat4 &m) {
     alignas(16) float tmp[4] = {v.x, v.y, v.z, 1.0F};
     MathUtil::transformVec4(m.m, tmp, tmp);
-    float rhw = math::IsNotEqualF(tmp[3], 0.0F) ? 1 / tmp[3] : 1;
+    float rhw = math::isNotZeroF(tmp[3]) ? 1.F / tmp[3] : 1.F;
     x = tmp[0] * rhw;
     y = tmp[1] * rhw;
     z = tmp[2] * rhw;
+}
+
+void Vec3::transformMat4(const Vec3 &v, const Mat4 &m) {
+#if defined(USE_NEON64)
+    transformMat4Neon(v, m);
+#elif defined(INCLUDE_NEON32)
+    if (CC_PREDICT_TRUE(MathUtil::isNeon32Enabled())) {
+        transformMat4Neon(v, m);
+    } else {
+        transformMat4C(v, m);
+    }
+#else
+    transformMat4C(v, m);
+#endif
 }
 
 void Vec3::transformMat4(const Vec3 &v, const Mat4 &m, Vec3 *dst) {

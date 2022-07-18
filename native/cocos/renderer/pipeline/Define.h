@@ -171,7 +171,7 @@ inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.hash < b.hash;
     }
 
-    if (math::IsNotEqualF(a.depth, b.depth)) {
+    if (math::isNotEqualF(a.depth, b.depth)) {
         return a.depth < b.depth;
     }
 
@@ -182,12 +182,12 @@ inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.priority != b.priority) {
         return a.priority < b.priority;
     }
-    
+
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
 
-    if (math::IsNotEqualF(a.depth, b.depth)) {
+    if (math::isNotEqualF(a.depth, b.depth)) {
         return b.depth < a.depth;
     }
 
@@ -350,7 +350,7 @@ struct CC_DLL UBOSkinning {
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static gfx::UniformBlock layout;
     static const ccstd::string NAME;
-    static void initLayout (uint capacity);
+    static void initLayout(uint capacity);
 };
 
 struct CC_DLL UBOMorph {
@@ -420,7 +420,7 @@ struct CC_DLL UBOGlobal {
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
-    
+
     static constexpr uint32_t COUNT = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
 
     static constexpr uint32_t SIZE = UBOGlobal::COUNT * 4;
@@ -516,9 +516,9 @@ const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & 
 
 uint32_t nextPow2(uint32_t val);
 
-bool supportsR16HalfFloatTexture(const gfx::Device* device);
+bool supportsR16HalfFloatTexture(const gfx::Device *device);
 
-bool supportsR32FloatTexture(const gfx::Device* device);
+bool supportsR32FloatTexture(const gfx::Device *device);
 
 extern CC_DLL uint32_t skyboxFlag;
 

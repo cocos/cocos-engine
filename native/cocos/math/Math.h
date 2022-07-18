@@ -24,8 +24,9 @@
  ****************************************************************************/
 #pragma once
 
-#include "base/Macros.h"
 #include <cstdint>
+#include <cstdlib>
+#include "base/Macros.h"
 
 namespace cc {
 namespace math {
@@ -53,36 +54,26 @@ extern CC_DLL const float RAD_TO_DEG;
 extern CC_DLL const float MIN_FLOAT;
 extern CC_DLL const float MAX_FLOAT;
 
-uint16_t CRC16(const char *str);
-uint32_t CRC32(const char *str);
-uint32_t CRC32NoCase(const char *str);
-
 template <typename T>
-inline T Abs(T x) {
-    return x > 0 ? x : -x;
-}
-
-template <typename T>
-inline T Sgn(T x) {
+inline T sgn(T x) {
     return (x < T(0) ? T(-1) : (x > T(0) ? T(1) : T(0)));
 }
 
 template <typename T>
-inline T Sqr(T x) {
-    return x * x;
-}
-
-template <typename T>
-inline bool IsPowerOfTwo(T n) {
+inline bool isPowerOfTwo(T n) {
     return (n & (n - 1)) == 0;
 }
 
-inline bool IsEqualF(float lhs, float rhs, float precision = 0.000001f) {
-    return (Abs<float>(lhs - rhs) < precision);
+inline bool isEqualF(float lhs, float rhs, float precision = 0.000001F) {
+    return (std::abs(lhs - rhs) < precision);
 }
 
-inline bool IsNotEqualF(float lhs, float rhs, float precision = 0.000001f) {
-    return (Abs<float>(lhs - rhs) > precision);
+inline bool isNotEqualF(float lhs, float rhs, float precision = 0.000001F) {
+    return (std::abs(lhs - rhs) > precision);
+}
+
+inline bool isNotZeroF(float v, float precision = 0.000001F) {
+    return (std::abs(v) > precision);
 }
 
 } // namespace math
