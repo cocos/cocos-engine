@@ -25,8 +25,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EDITOR } from 'internal:constants';
 import { warnID } from '../platform/debug';
 

@@ -60,19 +60,19 @@ ccstd::string getObbFilePathJNI() {
 
 int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size) {
     JniMethodInfo methodInfo;
-    int           fd = 0;
+    int fd = 0;
 
     if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) {
-        jstring stringArg   = methodInfo.env->NewStringUTF(path.c_str());
-        auto *  newArray    = static_cast<jlongArray>(methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg));
-        jsize   theArrayLen = methodInfo.env->GetArrayLength(newArray);
+        jstring stringArg = methodInfo.env->NewStringUTF(path.c_str());
+        auto *newArray = static_cast<jlongArray>(methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg));
+        jsize theArrayLen = methodInfo.env->GetArrayLength(newArray);
 
         if (3 == theArrayLen) {
-            jboolean copy  = JNI_FALSE;
-            jlong *  array = methodInfo.env->GetLongArrayElements(newArray, &copy);
-            fd             = static_cast<int>(array[0]);
-            *startOffset   = array[1];
-            *size          = array[2];
+            jboolean copy = JNI_FALSE;
+            jlong *array = methodInfo.env->GetLongArrayElements(newArray, &copy);
+            fd = static_cast<int>(array[0]);
+            *startOffset = array[1];
+            *size = array[2];
             methodInfo.env->ReleaseLongArrayElements(newArray, array, 0);
         }
 
@@ -115,6 +115,9 @@ void setVibrateJNI(float duration) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "vibrate", duration);
 }
 
+void finishActivity() {
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "finishActivity");
+}
 int getNetworkTypeJNI() {
     return JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
 }
@@ -155,6 +158,8 @@ float *getDeviceMotionValueJNI() {
 
 extern "C" {
 JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
+#if CC_USE_AUDIO
     AudioEngine::setVolumeFactor(volumeFactor);
+#endif
 }
 }

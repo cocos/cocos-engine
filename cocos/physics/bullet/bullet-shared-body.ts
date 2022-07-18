@@ -38,8 +38,6 @@ import { fastRemoveAt } from '../../core/utils/array';
 import { bt } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
-
-
 const v3_0 = CC_V3_0;
 const quat_0 = CC_QUAT_0;
 let IDCounter = 0;

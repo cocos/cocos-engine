@@ -20,29 +20,24 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_VEC2_H
-#define MATH_VEC2_H
+#pragma once
 
 #include <algorithm>
-#include <functional>
 #include <cmath>
+#include <functional>
 #include "math/MathBase.h"
-
-/**
- * @addtogroup base
- * @{
- */
 
 NS_CC_MATH_BEGIN
 
 /** Clamp a value between from and to.
  */
 
-inline float clampf(float value, float min_inclusive, float max_inclusive) {
-    if (min_inclusive > max_inclusive) {
-        std::swap(min_inclusive, max_inclusive);
+inline float clampf(float value, float minInclusive, float maxInclusive) {
+    if (minInclusive > maxInclusive) {
+        std::swap(minInclusive, maxInclusive);
     }
-    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+    return value < minInclusive ? minInclusive : value < maxInclusive ? value
+                                                                      : maxInclusive;
 }
 
 class Mat4;
@@ -80,7 +75,7 @@ public:
      *
      * @param array An array containing the elements of the vector in the order x, y.
      */
-    Vec2(const float *array);
+    explicit Vec2(const float *array);
 
     /**
      * Constructs a vector that describes the direction between the specified points.
@@ -449,12 +444,6 @@ public:
      */
     inline bool operator!=(const Vec2 &v) const;
 
-    //code added compatible for Point
-public:
-    /**
-     * @js NA
-     * @lua NA
-     */
     inline void setPoint(float xx, float yy);
     /**
      * @js NA
@@ -463,16 +452,12 @@ public:
 
     /** @returns if points have fuzzy equality which means equal with some degree of variance.
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     bool fuzzyEquals(const Vec2 &target, float variance) const;
 
     /** Calculates distance between point an origin
      @return float
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline float getLength() const {
         return sqrtf(x * x + y * y);
@@ -481,8 +466,6 @@ public:
     /** Calculates the square length of a Vec2 (not calling sqrt() )
      @return float
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline float getLengthSq() const {
         return dot(*this); //x*x + y*y;
@@ -491,8 +474,6 @@ public:
     /** Calculates the square distance between two points (not calling sqrt() )
      @return float
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline float getDistanceSq(const Vec2 &other) const {
         return (*this - other).getLengthSq();
@@ -501,8 +482,6 @@ public:
     /** Calculates the distance between two points
      @return float
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline float getDistance(const Vec2 &other) const {
         return (*this - other).getLength();
@@ -510,8 +489,6 @@ public:
 
     /** @returns the angle in radians between this vector and the x axis
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline float getAngle() const {
         return atan2f(y, x);
@@ -519,16 +496,12 @@ public:
 
     /** @returns the angle in radians between two vector directions
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     float getAngle(const Vec2 &other) const;
 
     /** Calculates cross product of two points.
      @return float
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline float cross(const Vec2 &other) const {
         return x * other.y - y * other.x;
@@ -537,8 +510,6 @@ public:
     /** Calculates perpendicular of v, rotated 90 degrees counter-clockwise -- cross(v, perp(v)) >= 0
      @return Vec2
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline Vec2 getPerp() const {
         return Vec2(-y, x);
@@ -547,8 +518,6 @@ public:
     /** Calculates midpoint between two points.
      @return Vec2
      @since v3.0
-     * @js NA
-     * @lua NA
      */
     inline Vec2 getMidpoint(const Vec2 &other) const {
         return Vec2((x + other.x) / 2.0f, (y + other.y) / 2.0f);
@@ -556,8 +525,6 @@ public:
 
     /** Clamp a point between from and to.
      @since v3.0
-     * @js NA
-     * @lua NA
      */
     inline Vec2 getClampPoint(const Vec2 &min_inclusive, const Vec2 &max_inclusive) const {
         return Vec2(clampf(x, min_inclusive.x, max_inclusive.x), clampf(y, min_inclusive.y, max_inclusive.y));
@@ -569,8 +536,6 @@ public:
      * For example: let's try to take the floor of x,y
      * p.compOp(floorf);
      @since v3.0
-     * @js NA
-     * @lua NA
      */
     inline Vec2 compOp(std::function<float(float)> function) const {
         return Vec2(function(x), function(y));
@@ -579,8 +544,6 @@ public:
     /** Calculates perpendicular of v, rotated 90 degrees clockwise -- cross(v, rperp(v)) <= 0
      @return Vec2
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline Vec2 getRPerp() const {
         return Vec2(y, -x);
@@ -589,8 +552,6 @@ public:
     /** Calculates the projection of this over other.
      @return Vec2
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline Vec2 project(const Vec2 &other) const {
         return other * (dot(other) / other.dot(other));
@@ -600,8 +561,6 @@ public:
      @return Vec2 vector with an angle of this.getAngle() + other.getAngle(),
      and a length of this.getLength() * other.getLength().
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline Vec2 rotate(const Vec2 &other) const {
         return Vec2(x * other.x - y * other.y, x * other.y + y * other.x);
@@ -611,8 +570,6 @@ public:
      @return Vec2 vector with an angle of this.getAngle() - other.getAngle(),
      and a length of this.getLength() * other.getLength().
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline Vec2 unrotate(const Vec2 &other) const {
         return Vec2(x * other.x + y * other.y, y * other.x - x * other.y);
@@ -624,8 +581,6 @@ public:
         alpha == 1 ? b
         otherwise a value between a..b
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     inline Vec2 lerp(const Vec2 &other, float alpha) const {
         return *this * (1.f - alpha) + other * alpha;
@@ -636,83 +591,65 @@ public:
      @param angle is the angle of rotation ccw in radians
      @returns the rotated point
      @since v2.1.4
-     * @js NA
-     * @lua NA
      */
     Vec2 rotateByAngle(const Vec2 &pivot, float angle) const;
 
-    /**
-     * @js NA
-     * @lua NA
-     */
     static inline Vec2 forAngle(const float a) {
         return Vec2(cosf(a), sinf(a));
     }
 
     /** A general line-line intersection test
-     @param A   the startpoint for the first line L1 = (A - B)
-     @param B   the endpoint for the first line L1 = (A - B)
-     @param C   the startpoint for the second line L2 = (C - D)
-     @param D   the endpoint for the second line L2 = (C - D)
-     @param S   the range for a hitpoint in L1 (p = A + S*(B - A))
-     @param T   the range for a hitpoint in L2 (p = C + T*(D - C))
+     @param a   the startpoint for the first line L1 = (a - b)
+     @param b   the endpoint for the first line L1 = (a - b)
+     @param c   the startpoint for the second line L2 = (c - d)
+     @param d   the endpoint for the second line L2 = (c - d)
+     @param s   the range for a hitpoint in L1 (p = a + s*(b - a))
+     @param t   the range for a hitpoint in L2 (p = c + t*(d - c))
      @return    whether these two lines intersects.
 
      Note that to truly test intersection for segments we have to make
-     sure that S & T lie within [0..1] and for rays, make sure S & T > 0
-     the hit point is        C + T * (D - C);
-     the hit point also is   A + S * (B - A);
+     sure that s & t lie within [0..1] and for rays, make sure s & t > 0
+     the hit point is        c + t * (d - c);
+     the hit point also is   a + b * (b - a);
      @since 3.0
-     * @js NA
-     * @lua NA
      */
-    static bool isLineIntersect(const Vec2 &A, const Vec2 &B,
-                                const Vec2 &C, const Vec2 &D,
-                                float *S = nullptr, float *T = nullptr);
+    static bool isLineIntersect(const Vec2 &a, const Vec2 &b,
+                                const Vec2 &c, const Vec2 &d,
+                                float *s = nullptr, float *t = nullptr);
 
     /**
-     returns true if Line A-B overlap with segment C-D
+     returns true if Line a-b overlap with segment c-d
      @since v3.0
-     * @js NA
-     * @lua NA
      */
-    static bool isLineOverlap(const Vec2 &A, const Vec2 &B,
-                              const Vec2 &C, const Vec2 &D);
+    static bool isLineOverlap(const Vec2 &a, const Vec2 &b,
+                              const Vec2 &c, const Vec2 &d);
 
     /**
-     returns true if Line A-B parallel with segment C-D
+     returns true if Line a-b parallel with segment c-d
      @since v3.0
-     * @js NA
-     * @lua NA
      */
-    static bool isLineParallel(const Vec2 &A, const Vec2 &B,
-                               const Vec2 &C, const Vec2 &D);
+    static bool isLineParallel(const Vec2 &a, const Vec2 &b,
+                               const Vec2 &c, const Vec2 &d);
 
     /**
-     returns true if Segment A-B overlap with segment C-D
+     returns true if Segment a-b overlap with segment c-d
      @since v3.0
-     * @js NA
-     * @lua NA
      */
-    static bool isSegmentOverlap(const Vec2 &A, const Vec2 &B,
-                                 const Vec2 &C, const Vec2 &D,
-                                 Vec2 *S = nullptr, Vec2 *E = nullptr);
+    static bool isSegmentOverlap(const Vec2 &a, const Vec2 &b,
+                                 const Vec2 &c, const Vec2 &d,
+                                 Vec2 *s = nullptr, Vec2 *e = nullptr);
 
     /**
-     returns true if Segment A-B intersects with segment C-D
+     returns true if Segment a-b intersects with segment c-d
      @since v3.0
-     * @js NA
-     * @lua NA
      */
-    static bool isSegmentIntersect(const Vec2 &A, const Vec2 &B, const Vec2 &C, const Vec2 &D);
+    static bool isSegmentIntersect(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d);
 
     /**
-     returns the intersection point of line A-B, C-D
+     returns the intersection point of line a-b, c-d
      @since v3.0
-     * @js NA
-     * @lua NA
      */
-    static Vec2 getIntersectPoint(const Vec2 &A, const Vec2 &B, const Vec2 &C, const Vec2 &D);
+    static Vec2 getIntersectPoint(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d);
 
     /** equals to Vec2(0,0) */
     static const Vec2 ZERO;
@@ -755,11 +692,4 @@ typedef Vec2 Point;
 
 NS_CC_MATH_END
 
-/**
- end of base group
- @}
- */
-
 #include "math/Vec2.inl"
-
-#endif // MATH_VEC2_H

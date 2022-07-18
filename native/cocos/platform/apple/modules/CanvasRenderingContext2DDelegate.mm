@@ -28,13 +28,12 @@
 #include "base/csscolorparser.h"
 #include "math/Math.h"
 
-
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 
 #import <Foundation/Foundation.h>
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     #import <Cocoa/Cocoa.h>
 #else
     #import <CoreText/CoreText.h>
@@ -53,15 +52,15 @@
 #include <regex>
 
 @interface CanvasRenderingContext2DDelegateImpl : NSObject {
-    NSFont *             _font;
+    NSFont *_font;
     NSMutableDictionary *_tokenAttributesDict;
-    NSString *           _fontName;
-    CGFloat              _fontSize;
-    CGFloat              _width;
-    CGFloat              _height;
-    CGContextRef         _context;
+    NSString *_fontName;
+    CGFloat _fontSize;
+    CGFloat _width;
+    CGFloat _height;
+    CGContextRef _context;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     NSGraphicsContext *_currentGraphicsContext;
     NSGraphicsContext *_oldGraphicsContext;
 #else
@@ -69,47 +68,47 @@
 #endif
 
     CGColorSpaceRef _colorSpace;
-    cc::Data        _imageData;
-    NSBezierPath *  _path;
+    cc::Data _imageData;
+    NSBezierPath *_path;
 
-    CanvasTextAlign      _textAlign;
-    CanvasTextBaseline   _textBaseLine;
+    cc::ICanvasRenderingContext2D::TextAlign _textAlign;
+    cc::ICanvasRenderingContext2D::TextBaseline _textBaseLine;
     ccstd::array<float, 4> _fillStyle;
     ccstd::array<float, 4> _strokeStyle;
-    float                _lineWidth;
-    bool                 _bold;
+    float _lineWidth;
+    bool _bold;
 }
 
-@property (nonatomic, strong) NSFont *             font;
+@property (nonatomic, strong) NSFont *font;
 @property (nonatomic, strong) NSMutableDictionary *tokenAttributesDict;
-@property (nonatomic, strong) NSString *           fontName;
-@property (nonatomic, assign) CanvasTextAlign      textAlign;
-@property (nonatomic, assign) CanvasTextBaseline   textBaseLine;
-@property (nonatomic, assign) float                lineWidth;
+@property (nonatomic, strong) NSString *fontName;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextAlign textAlign;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextBaseline textBaseLine;
+@property (nonatomic, assign) float lineWidth;
 
 @end
 
 @implementation CanvasRenderingContext2DDelegateImpl
 
-@synthesize font                = _font;
+@synthesize font = _font;
 @synthesize tokenAttributesDict = _tokenAttributesDict;
-@synthesize fontName            = _fontName;
-@synthesize textAlign           = _textAlign;
-@synthesize textBaseLine        = _textBaseLine;
-@synthesize lineWidth           = _lineWidth;
+@synthesize fontName = _fontName;
+@synthesize textAlign = _textAlign;
+@synthesize textBaseLine = _textBaseLine;
+@synthesize lineWidth = _lineWidth;
 
 - (id)init {
     if (self = [super init]) {
-        _lineWidth    = 0;
-        _textAlign    = CanvasTextAlign::LEFT;
-        _textBaseLine = CanvasTextBaseline::BOTTOM;
+        _lineWidth = 0;
+        _textAlign = cc::ICanvasRenderingContext2D::TextAlign::LEFT;
+        _textBaseLine = cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM;
         _width = _height = 0;
-        _context         = nil;
-        _colorSpace      = nil;
+        _context = nil;
+        _colorSpace = nil;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
         _currentGraphicsContext = nil;
-        _oldGraphicsContext     = nil;
+        _oldGraphicsContext = nil;
 #endif
         _path = [NSBezierPath bezierPath];
         [_path retain];
@@ -120,20 +119,20 @@
 }
 
 - (void)dealloc {
-    self.font                = nil;
+    self.font = nil;
     self.tokenAttributesDict = nil;
-    self.fontName            = nil;
+    self.fontName = nil;
     CGColorSpaceRelease(_colorSpace);
     // release the context
     CGContextRelease(_context);
     [_path release];
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     [_currentGraphicsContext release];
 #endif
     [super dealloc];
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
 
 - (NSFont *)_createSystemFont {
     NSFontTraitMask mask = NSUnitalicFontMask;
@@ -151,7 +150,7 @@
 
     if (font == nil) {
         const auto &familyMap = getFontFamilyNameMap();
-        auto        iter      = familyMap.find([_fontName UTF8String]);
+        auto iter = familyMap.find([_fontName UTF8String]);
         if (iter != familyMap.end()) {
             font = [[NSFontManager sharedFontManager]
                 fontWithFamily:[NSString stringWithUTF8String:iter->second.c_str()]
@@ -204,13 +203,13 @@
 
 - (void)updateFontWithName:(NSString *)fontName fontSize:(CGFloat)fontSize bold:(bool)bold {
     _fontSize = fontSize;
-    _bold     = bold;
+    _bold = bold;
 
     self.fontName = fontName;
-    self.font     = [self _createSystemFont];
+    self.font = [self _createSystemFont];
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    paragraphStyle.lineBreakMode            = NSLineBreakByTruncatingTail;
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
     [paragraphStyle setAlignment:NSTextAlignmentCenter];
 
     // color
@@ -228,18 +227,18 @@
 
 - (void)recreateBufferWithWidth:(NSInteger)width height:(NSInteger)height {
     _width = width = width > 0 ? width : 1;
-    _height = height           = height > 0 ? height : 1;
-    NSUInteger     textureSize = width * height * 4;
-    unsigned char *data        = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
+    _height = height = height > 0 ? height : 1;
+    NSUInteger textureSize = width * height * 4;
+    unsigned char *data = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
     memset(data, 0, textureSize);
-    _imageData.fastSet(data, textureSize);
+    _imageData.fastSet(data, static_cast<uint32_t>(textureSize));
 
     if (_context != nil) {
         CGContextRelease(_context);
         _context = nil;
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     if (_currentGraphicsContext != nil) {
         [_currentGraphicsContext release];
         _currentGraphicsContext = nil;
@@ -248,7 +247,7 @@
 
     // draw text
     _colorSpace = CGColorSpaceCreateDeviceRGB();
-    _context    = CGBitmapContextCreate(data,
+    _context = CGBitmapContextCreate(data,
                                      width,
                                      height,
                                      8,
@@ -260,7 +259,7 @@
         _colorSpace = nil;
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped:NO];
     [_currentGraphicsContext retain];
 #else
@@ -277,12 +276,12 @@
                                                                                 attributes:_tokenAttributesDict] autorelease];
 
     NSSize textRect = NSZeroSize;
-    textRect.width  = CGFLOAT_MAX;
+    textRect.width = CGFLOAT_MAX;
     textRect.height = CGFLOAT_MAX;
 
     NSSize dim = [stringWithAttributes boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin)context:nil].size;
 
-    dim.width  = ceilf(dim.width);
+    dim.width = ceilf(dim.width);
     dim.height = ceilf(dim.height);
 
     return dim;
@@ -293,33 +292,33 @@
     // Need to adjust 'point' according 'text align' & 'text base line'.
     NSSize textSize = [self measureText:text];
 
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == cc::ICanvasRenderingContext2D::TextAlign::CENTER) {
         point.x -= textSize.width / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == cc::ICanvasRenderingContext2D::TextAlign::RIGHT) {
         point.x -= textSize.width;
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     // The origin on macOS is bottom-left by default,
     // so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::TOP) {
         point.y += -textSize.height;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM) {
         // drawAtPoint default
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::ALPHABETIC) {
         point.y += _font.descender;
     }
 #else
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::TOP) {
         // drawAtPoint default
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM) {
         point.y += -textSize.height;
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::ALPHABETIC) {
         point.y -= _font.ascender;
     }
 #endif
@@ -334,7 +333,7 @@
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    paragraphStyle.lineBreakMode            = NSLineBreakByTruncatingTail;
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
 
@@ -367,7 +366,7 @@
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    paragraphStyle.lineBreakMode            = NSLineBreakByTruncatingTail;
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
 
@@ -422,9 +421,9 @@
     if (_imageData.isNull())
         return;
 
-    rect.origin.x    = floor(rect.origin.x);
-    rect.origin.y    = floor(rect.origin.y);
-    rect.size.width  = floor(rect.size.width);
+    rect.origin.x = floor(rect.origin.x);
+    rect.origin.y = floor(rect.origin.y);
+    rect.size.width = floor(rect.size.width);
     rect.size.height = floor(rect.size.height);
 
     if (rect.origin.x < 0) rect.origin.x = 0;
@@ -433,7 +432,7 @@
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //REFINE:
-    //    assert(rect.origin.x == 0 && rect.origin.y == 0);
+    //    CC_ASSERT(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void *)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
@@ -442,7 +441,7 @@
 
     NSColor *color = [NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3]];
     [color setFill];
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     CGRect tmpRect = CGRectMake(rect.origin.x, _height - rect.origin.y - rect.size.height, rect.size.width, rect.size.height);
     [NSBezierPath fillRect:tmpRect];
 #else
@@ -453,7 +452,7 @@
 }
 
 - (void)saveContext {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     // save the old graphics context
     _oldGraphicsContext = [NSGraphicsContext currentContext];
     // store the current context
@@ -471,7 +470,7 @@
 }
 
 - (void)restoreContext {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     // pop the context
     [NSGraphicsContext restoreGraphicsState];
     // reset the old graphics context
@@ -497,7 +496,7 @@
 }
 
 - (void)moveToX:(float)x y:(float)y {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     [_path moveToPoint:NSMakePoint(x, _height - y)];
 #else
     [_path moveToPoint:NSMakePoint(x, y)];
@@ -505,7 +504,7 @@
 }
 
 - (void)lineToX:(float)x y:(float)y {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     [_path lineToPoint:NSMakePoint(x, _height - y)];
 #else
     [_path addLineToPoint:NSMakePoint(x, y)];
@@ -605,11 +604,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
     [_impl updateFontWithName:[NSString stringWithUTF8String:fontName.c_str()] fontSize:gfloatFontSize bold:bold];
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _impl.textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _impl.textBaseLine = baseline;
 }
 
@@ -632,12 +631,12 @@ void CanvasRenderingContext2DDelegate::fillData() {
 }
 
 #define CLAMP(V, HI) std::min((V), (HI))
-void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) const {
+void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint32_t size) const {
     float alpha;
     for (int i = 0; i < size; i += 4) {
         alpha = (float)ptr[i + 3];
         if (alpha > 0) {
-            ptr[i]     = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
+            ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
             ptr[i + 1] = CLAMP((int)((float)ptr[i + 1] / alpha * 255), 255);
             ptr[i + 2] = CLAMP((int)((float)ptr[i + 2] / alpha * 255), 255);
         }

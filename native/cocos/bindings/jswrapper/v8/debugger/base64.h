@@ -56,7 +56,7 @@ bool base64_decode_group_slow(char *const dst, const size_t dstlen,
     #define V(expr)                                \
         for (;;) {                                 \
             const uint8_t c = src[*i];             \
-            lo              = unbase64(c);         \
+            lo = unbase64(c);                      \
             *i += 1;                               \
             if (lo < 64)                           \
                 break; /* Legal character. */      \
@@ -82,10 +82,10 @@ size_t base64_decode_fast(char *const dst, const size_t dstlen,
                           const TypeName *const src, const size_t srclen,
                           const size_t decoded_size) {
     const size_t available = dstlen < decoded_size ? dstlen : decoded_size;
-    const size_t max_k     = available / 3 * 3;
-    size_t       max_i     = srclen / 4 * 4;
-    size_t       i         = 0;
-    size_t       k         = 0;
+    const size_t max_k = available / 3 * 3;
+    size_t max_i = srclen / 4 * 4;
+    size_t i = 0;
+    size_t k = 0;
     while (i < max_i && k < max_k) {
         const uint32_t v =
             unbase64(src[i + 0]) << 24 |
@@ -119,9 +119,9 @@ size_t base64_decode(char *const dst, const size_t dstlen,
 }
 
 static size_t base64_encode(const char *src,
-                            size_t      slen,
-                            char *      dst,
-                            size_t      dlen) {
+                            size_t slen,
+                            char *dst,
+                            size_t dlen) {
     // We know how much we'll write, just make sure that there's space.
     CHECK(dlen >= base64_encoded_size(slen) &&
           "not enough space provided for base64 encode");
@@ -161,7 +161,7 @@ static size_t base64_encode(const char *src,
     if (n != slen) {
         switch (slen - n) {
             case 1:
-                a          = src[i + 0] & 0xff;
+                a = src[i + 0] & 0xff;
                 dst[k + 0] = table[a >> 2];
                 dst[k + 1] = table[(a & 3) << 4];
                 dst[k + 2] = '=';
@@ -169,8 +169,8 @@ static size_t base64_encode(const char *src,
                 break;
 
             case 2:
-                a          = src[i + 0] & 0xff;
-                b          = src[i + 1] & 0xff;
+                a = src[i + 0] & 0xff;
+                b = src[i + 1] & 0xff;
                 dst[k + 0] = table[a >> 2];
                 dst[k + 1] = table[((a & 3) << 4) | (b >> 4)];
                 dst[k + 2] = table[(b & 0x0f) << 2];

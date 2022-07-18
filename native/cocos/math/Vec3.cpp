@@ -49,7 +49,7 @@ Vec3::Vec3(const Vec3 &copy) {
 
 Vec3 Vec3::fromColor(unsigned int color) {
     float components[3];
-    int   componentIndex = 0;
+    int componentIndex = 0;
     for (int i = 2; i >= 0; --i) {
         auto component = (color >> i * 8) & 0x0000ff;
 
@@ -61,7 +61,7 @@ Vec3 Vec3::fromColor(unsigned int color) {
 }
 
 void Vec3::transformInverseRTS(const Vec3 &v, const Quaternion &r, const Vec3 &t, const Vec3 &s, Vec3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     const float x = v.x - t.x;
     const float y = v.y - t.y;
     const float z = v.z - t.z;
@@ -70,9 +70,9 @@ void Vec3::transformInverseRTS(const Vec3 &v, const Quaternion &r, const Vec3 &t
     const float iy = r.w * y - r.z * x + r.x * z;
     const float iz = r.w * z - r.x * y + r.y * x;
     const float iw = r.x * x + r.y * y + r.z * z;
-    out->x         = (ix * r.w + iw * r.x + iy * r.z - iz * r.y) / s.x;
-    out->y         = (iy * r.w + iw * r.y + iz * r.x - ix * r.z) / s.y;
-    out->z         = (iz * r.w + iw * r.z + ix * r.y - iy * r.x) / s.z;
+    out->x = (ix * r.w + iw * r.x + iy * r.z - iz * r.y) / s.x;
+    out->y = (iy * r.w + iw * r.y + iz * r.x - ix * r.z) / s.y;
+    out->z = (iz * r.w + iw * r.z + ix * r.y - iy * r.x) / s.z;
 }
 
 float Vec3::angle(const Vec3 &v1, const Vec3 &v2) {
@@ -84,7 +84,7 @@ float Vec3::angle(const Vec3 &v1, const Vec3 &v2) {
 }
 
 void Vec3::add(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x + v2.x;
     dst->y = v1.y + v2.y;
@@ -92,7 +92,7 @@ void Vec3::add(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
 }
 
 void Vec3::clamp(const Vec3 &min, const Vec3 &max) {
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
 
     // Clamp the x value.
     if (x < min.x) {
@@ -120,8 +120,8 @@ void Vec3::clamp(const Vec3 &min, const Vec3 &max) {
 }
 
 void Vec3::clamp(const Vec3 &v, const Vec3 &min, const Vec3 &max, Vec3 *dst) {
-    GP_ASSERT(dst);
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
+    CC_ASSERT(dst);
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
 
     // Clamp the x value.
     dst->x = v.x;
@@ -156,7 +156,7 @@ void Vec3::cross(const Vec3 &v) {
 }
 
 void Vec3::cross(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     // NOTE: This code assumes Vec3 struct members are contiguous floats in memory.
     // We might want to revisit this (and other areas of code that make this assumption)
@@ -187,18 +187,18 @@ void Vec3::transformMat3(const Vec3 &v, const Mat3 &m) {
     const float ix = v.x;
     const float iy = v.y;
     const float iz = v.z;
-    x              = ix * m.m[0] + iy * m.m[3] + iz * m.m[6];
-    y              = ix * m.m[1] + iy * m.m[4] + iz * m.m[7];
-    z              = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
+    x = ix * m.m[0] + iy * m.m[3] + iz * m.m[6];
+    y = ix * m.m[1] + iy * m.m[4] + iz * m.m[7];
+    z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
 
 void Vec3::transformMat4(const Vec3 &v, const Mat4 &m) {
     alignas(16) float tmp[4] = {v.x, v.y, v.z, 1.0F};
     MathUtil::transformVec4(m.m, tmp, tmp);
     float rhw = math::IsNotEqualF(tmp[3], 0.0F) ? 1 / tmp[3] : 1;
-    x         = tmp[0] * rhw;
-    y         = tmp[1] * rhw;
-    z         = tmp[2] * rhw;
+    x = tmp[0] * rhw;
+    y = tmp[1] * rhw;
+    z = tmp[2] * rhw;
 }
 
 void Vec3::transformMat4(const Vec3 &v, const Mat4 &m, Vec3 *dst) {
@@ -206,14 +206,14 @@ void Vec3::transformMat4(const Vec3 &v, const Mat4 &m, Vec3 *dst) {
 }
 
 void Vec3::transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst) {
-    float x   = v.x;
-    float y   = v.y;
-    float z   = v.z;
+    float x = v.x;
+    float y = v.y;
+    float z = v.z;
     float rhw = m.m[3] * x + m.m[7] * y + m.m[11] * z;
-    rhw       = rhw != 0.0F ? std::abs(1.0F / rhw) : 1.0F;
-    dst->x    = (m.m[0] * x + m.m[4] * y + m.m[8] * z) * rhw;
-    dst->y    = (m.m[1] * x + m.m[5] * y + m.m[9] * z) * rhw;
-    dst->z    = (m.m[2] * x + m.m[6] * y + m.m[10] * z) * rhw;
+    rhw = rhw != 0.0F ? std::abs(1.0F / rhw) : 1.0F;
+    dst->x = (m.m[0] * x + m.m[4] * y + m.m[8] * z) * rhw;
+    dst->y = (m.m[1] * x + m.m[5] * y + m.m[9] * z) * rhw;
+    dst->z = (m.m[2] * x + m.m[6] * y + m.m[10] * z) * rhw;
 }
 
 void Vec3::transformQuat(const Quaternion &q) {
@@ -284,7 +284,7 @@ Vec3 Vec3::getNormalized() const {
 }
 
 void Vec3::subtract(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x - v2.x;
     dst->y = v1.y - v2.y;
@@ -292,7 +292,7 @@ void Vec3::subtract(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
 }
 
 void Vec3::max(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = std::fmaxf(v1.x, v2.x);
     dst->y = std::fmaxf(v1.y, v2.y);
@@ -300,7 +300,7 @@ void Vec3::max(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
 }
 
 void Vec3::min(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = std::fminf(v1.x, v2.x);
     dst->y = std::fminf(v1.y, v2.y);

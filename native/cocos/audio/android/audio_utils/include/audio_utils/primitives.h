@@ -528,7 +528,7 @@ static inline int16_t clamp16_from_float(float f) {
     static const int32_t limpos = (0x10f << 22) /*zero*/ + 32767; /* 0x43c07fff */
 
     union {
-        float   f;
+        float f;
         int32_t i;
     } u;
 
@@ -566,7 +566,7 @@ static inline uint8_t clamp8_from_float(float f) {
     static const int32_t limpos = (0x11f << 22) /*zero*/ + 255; /* 0x47c000ff */
 
     union {
-        float   f;
+        float f;
         int32_t i;
     } u;
 
@@ -591,7 +591,7 @@ static inline uint8_t clamp8_from_float(float f) {
  * depending on hardware and future implementation of this function.
  */
 static inline int32_t clamp24_from_float(float f) {
-    static const float scale  = (float)(1 << 23);
+    static const float scale = (float)(1 << 23);
     static const float limpos = 0x7fffff / (float)(1 << 23);
     static const float limneg = -0x800000 / (float)(1 << 23);
 
@@ -632,7 +632,7 @@ static inline int32_t clamp24_from_q8_23(int32_t ival) {
  * depending on hardware and future implementation of this function.
  */
 static inline int32_t clampq4_27_from_float(float f) {
-    static const float scale  = (float)(1UL << 27);
+    static const float scale = (float)(1UL << 27);
     static const float limpos = 16.;
     static const float limneg = -16.;
 
@@ -656,7 +656,7 @@ static inline int32_t clampq4_27_from_float(float f) {
  * depending on hardware and future implementation of this function.
  */
 static inline int32_t clamp32_from_float(float f) {
-    static const float scale  = (float)(1UL << 31);
+    static const float scale = (float)(1UL << 31);
     static const float limpos = 1.;
     static const float limneg = -1.;
 
@@ -727,7 +727,7 @@ static inline float float_from_u4_12(uint16_t uval) {
  * depending on hardware and future implementation of this function.
  */
 static inline uint32_t u4_28_from_float(float f) {
-    static const float scale  = (float)(1 << 28);
+    static const float scale = (float)(1 << 28);
     static const float limpos = 16.0f;
 
     if (f <= 0.) {
@@ -749,7 +749,7 @@ static inline uint32_t u4_28_from_float(float f) {
  * depending on hardware and future implementation of this function.
  */
 static inline uint16_t u4_12_from_float(float f) {
-    static const float scale  = (float)(1 << 12);
+    static const float scale = (float)(1 << 12);
     static const float limpos = 0xffff / (float)(1 << 12);
 
     if (f <= 0.) {

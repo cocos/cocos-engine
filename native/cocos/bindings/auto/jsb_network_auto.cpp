@@ -12,13 +12,23 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_network_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_network_getter_return_true)
+#endif
 se::Object* __jsb_cc_network_DownloaderHints_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;  // NOLINT
 
 static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_countOfMaxProcessingTasks : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -33,11 +43,11 @@ static bool js_network_DownloaderHints_set_countOfMaxProcessingTasks(se::State& 
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_set_countOfMaxProcessingTasks : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->countOfMaxProcessingTasks, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_network_DownloaderHints_set_countOfMaxProcessingTasks : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_network_DownloaderHints_set_countOfMaxProcessingTasks)
@@ -45,7 +55,8 @@ SE_BIND_PROP_SET(js_network_DownloaderHints_set_countOfMaxProcessingTasks)
 static bool js_network_DownloaderHints_get_timeoutInSeconds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_timeoutInSeconds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -60,11 +71,11 @@ static bool js_network_DownloaderHints_set_timeoutInSeconds(se::State& s) // NOL
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_set_timeoutInSeconds : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->timeoutInSeconds, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_network_DownloaderHints_set_timeoutInSeconds : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_network_DownloaderHints_set_timeoutInSeconds)
@@ -72,7 +83,8 @@ SE_BIND_PROP_SET(js_network_DownloaderHints_set_timeoutInSeconds)
 static bool js_network_DownloaderHints_get_tempFileNameSuffix(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_tempFileNameSuffix : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -87,11 +99,11 @@ static bool js_network_DownloaderHints_set_tempFileNameSuffix(se::State& s) // N
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_set_tempFileNameSuffix : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->tempFileNameSuffix, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_network_DownloaderHints_set_tempFileNameSuffix : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_network_DownloaderHints_set_tempFileNameSuffix)
@@ -186,6 +198,9 @@ bool js_register_network_DownloaderHints(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("DownloaderHints", obj, nullptr, _SE(js_network_DownloaderHints_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_network_getter_return_true), nullptr);
+#endif
     cls->defineProperty("countOfMaxProcessingTasks", _SE(js_network_DownloaderHints_get_countOfMaxProcessingTasks), _SE(js_network_DownloaderHints_set_countOfMaxProcessingTasks));
     cls->defineProperty("timeoutInSeconds", _SE(js_network_DownloaderHints_get_timeoutInSeconds), _SE(js_network_DownloaderHints_set_timeoutInSeconds));
     cls->defineProperty("tempFileNameSuffix", _SE(js_network_DownloaderHints_get_tempFileNameSuffix), _SE(js_network_DownloaderHints_set_tempFileNameSuffix));
@@ -203,15 +218,16 @@ bool js_register_network_DownloaderHints(se::Object* obj) // NOLINT(readability-
 se::Object* __jsb_cc_network_Downloader_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_network_Downloader_class = nullptr;  // NOLINT
 
-static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_network_Downloader_setOnProgress(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskProgress : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (const cc::network::DownloadTask &, long long, long long, long long)>, true> arg0 = {};
+        HolderType<std::function<void (const cc::network::DownloadTask &, unsigned int, unsigned int, unsigned int)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
@@ -219,7 +235,7 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(read
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto * thisObj = s.thisObject();
-                auto lambda = [=](const cc::network::DownloadTask & larg0, int64_t larg1, int64_t larg2, int64_t larg3) -> void {
+                auto lambda = [=](const cc::network::DownloadTask & larg0, unsigned int larg1, unsigned int larg2, unsigned int larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -245,7 +261,59 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(read
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnTaskProgress : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setOnProgress(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_network_Downloader_setOnProgress)
+
+static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::function<void (const cc::network::DownloadTask &, unsigned int, unsigned int, unsigned int)>, true> arg0 = {};
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
+                auto lambda = [=](const cc::network::DownloadTask & larg0, unsigned int larg1, unsigned int larg2, unsigned int larg3) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(4);
+                    ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
+                    ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
+                    ok &= nativevalue_to_se(larg2, args[2], nullptr /*ctx*/);
+                    ok &= nativevalue_to_se(larg3, args[3], nullptr /*ctx*/);
+                    se::Value rval;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0.data = lambda;
+            }
+            else
+            {
+                arg0.data = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOnTaskProgress(arg0.value());
         return true;
     }
@@ -293,6 +361,10 @@ bool js_register_network_Downloader(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("Downloader", obj, nullptr, _SE(js_network_Downloader_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_network_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("onProgress", nullptr, _SE(js_network_Downloader_setOnProgress_asSetter));
     cls->defineFunction("setOnTaskProgress", _SE(js_network_Downloader_setOnTaskProgress));
     cls->defineFinalizeFunction(_SE(js_cc_network_Downloader_finalize));
     cls->install();

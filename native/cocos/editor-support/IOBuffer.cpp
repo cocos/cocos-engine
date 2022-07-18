@@ -30,14 +30,15 @@ MIDDLEWARE_BEGIN
 void IOBuffer::resize(std::size_t newLen, bool needCopy) {
     if (_bufferSize < newLen) {
         auto *newBuffer = new uint8_t[newLen];
+        memset(newBuffer, 0, newLen);
         if (needCopy) {
             memcpy(newBuffer, _buffer, _bufferSize);
         }
 
         delete[] _buffer;
-        _buffer     = newBuffer;
+        _buffer = newBuffer;
         _bufferSize = newLen;
-        _outRange   = false;
+        _outRange = false;
     }
 }
 

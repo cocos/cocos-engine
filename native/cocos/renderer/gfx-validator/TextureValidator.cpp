@@ -54,24 +54,24 @@ TextureValidator::~TextureValidator() {
 }
 
 void TextureValidator::doInit(const TextureInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
-    CCASSERT(info.width && info.height && info.depth, "zero-sized texture?");
+    CC_ASSERT(info.width && info.height && info.depth);
 
     FormatFeature ff = FormatFeature::NONE;
     if (hasAnyFlags(info.usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT)) ff |= FormatFeature::RENDER_TARGET;
     if (hasAnyFlags(info.usage, TextureUsageBit::SAMPLED)) ff |= FormatFeature::SAMPLED_TEXTURE;
     if (hasAnyFlags(info.usage, TextureUsageBit::STORAGE)) ff |= FormatFeature::STORAGE_TEXTURE;
     if (ff != FormatFeature::NONE) {
-        CCASSERT(hasAllFlags(DeviceValidator::getInstance()->getFormatFeatures(info.format), ff), "Format not supported for the specified features");
+        CC_ASSERT(hasAllFlags(DeviceValidator::getInstance()->getFormatFeatures(info.format), ff));
     }
 
     if (hasFlag(info.flags, TextureFlagBit::GEN_MIPMAP)) {
-        CCASSERT(info.levelCount > 1, "Generating mipmaps with level count 1?");
+        CC_ASSERT(info.levelCount > 1);
 
         bool isCompressed = GFX_FORMAT_INFOS[static_cast<int>(info.format)].isCompressed;
-        CCASSERT(!isCompressed, "Generating mipmaps for compressed image?");
+        CC_ASSERT(!isCompressed);
     }
 
     /////////// execute ///////////
@@ -80,30 +80,30 @@ void TextureValidator::doInit(const TextureInfo &info) {
 }
 
 void TextureValidator::doInit(const TextureViewInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
-    _inited        = true;
+    CC_ASSERT(!isInited());
+    _inited = true;
     _isTextureView = true;
-    CCASSERT(info.texture && static_cast<TextureValidator *>(info.texture)->isInited(), "alread destroyed?");
+    CC_ASSERT(info.texture && static_cast<TextureValidator *>(info.texture)->isInited());
 
     /////////// execute ///////////
 
     TextureViewInfo actorInfo = info;
-    actorInfo.texture         = static_cast<TextureValidator *>(info.texture)->getActor();
+    actorInfo.texture = static_cast<TextureValidator *>(info.texture)->getActor();
 
     _actor->initialize(actorInfo);
 }
 
 void TextureValidator::doInit(const SwapchainTextureInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
     CC_UNUSED_PARAM(info); // workaround tidy issue
-    CCASSERT(info.swapchain && static_cast<SwapchainValidator *>(info.swapchain)->isInited(), "alread destroyed?");
+    CC_ASSERT(info.swapchain && static_cast<SwapchainValidator *>(info.swapchain)->isInited());
 
     // the actor is already initialized
 }
 
 void TextureValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
@@ -112,9 +112,10 @@ void TextureValidator::doDestroy() {
 }
 
 void TextureValidator::doResize(uint32_t width, uint32_t height, uint32_t /*size*/) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
-    CCASSERT(!_isTextureView, "Cannot resize texture views");
+    // Cannot resize texture views.
+    CC_ASSERT(!_isTextureView);
 
     /////////// execute ///////////
 
@@ -122,7 +123,7 @@ void TextureValidator::doResize(uint32_t width, uint32_t height, uint32_t /*size
 }
 
 void TextureValidator::sanityCheck() {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     uint64_t cur = DeviceValidator::getInstance()->currentFrame();
 

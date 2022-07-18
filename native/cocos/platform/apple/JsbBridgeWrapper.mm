@@ -26,6 +26,8 @@
 #include "base/std/container/string.h"
 #include "JsbBridge.h"
 #include "JsbBridgeWrapper.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;
@@ -33,13 +35,14 @@
 }
 
 static JsbBridgeWrapper* instance = nil;
-static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
+static ICallback cb = ^void(NSString* _event, NSString* _arg) {
     [[JsbBridgeWrapper sharedInstance] triggerEvent:_event arg:_arg];
 };
 + (instancetype)sharedInstance {
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
+        NSAssert(instance != nil, @"alloc or init failed");
     });
     return instance;
 }
@@ -72,7 +75,7 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
         listener(arg);
     }
 }
-- (void)removeAllListenersForEvent:(NSString *)eventName {
+- (void)removeAllListenersForEvent:(NSString*)eventName {
     if (![cbDictionnary objectForKey:eventName]) {
         return;
     }
@@ -99,10 +102,22 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
     [jb sendToScript:eventName];
 }
 - (id)init {
-    self          = [super init];
-    cbDictionnary = [NSMutableDictionary new];
-    jb = [JsbBridge sharedInstance];
-    [jb setCallback:cb];
+    if (self = [super init]) {
+        cbDictionnary = [NSMutableDictionary new];
+        if (cbDictionnary == nil) {
+            [self release];
+            return nil;
+        }
+        jb = [JsbBridge sharedInstance];
+        if (jb == nil) {
+            [self release];
+            return nil;
+        }
+        [jb setCallback:cb];
+        cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
+            [[JsbBridge sharedInstance] release];
+        });
+    }
     return self;
 }
 - (void)dealloc {
@@ -113,4 +128,3 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
     [super dealloc];
 }
 @end
-

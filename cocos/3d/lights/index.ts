@@ -24,7 +24,6 @@
  THE SOFTWARE.
 */
 
-
 export { DirectionalLight } from './directional-light-component';
 export { Light } from './light-component';
 export { SphereLight } from './sphere-light-component';

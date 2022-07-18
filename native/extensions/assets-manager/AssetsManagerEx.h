@@ -70,8 +70,8 @@ public:
     const static std::string MANIFEST_ID;
 
     using VersionCompareHandle = std::function<int(const std::string &, const std::string &)>;
-    using VerifyCallback       = std::function<bool(const std::string &, Manifest::Asset)>;
-    using EventCallback        = std::function<void(EventAssetsManagerEx *)>;
+    using VerifyCallback = std::function<bool(const std::string &, Manifest::Asset)>;
+    using EventCallback = std::function<void(EventAssetsManagerEx *)>;
 
     /** @brief Create function for creating a new AssetsManagerEx
      @param manifestUrl   The url for the local manifest file
@@ -267,9 +267,9 @@ protected:
      * @lua NA
      */
     virtual void onError(const network::DownloadTask &task,
-                         int                          errorCode,
-                         int                          errorCodeInternal,
-                         const std::string &          errorStr);
+                         int errorCode,
+                         int errorCodeInternal,
+                         const std::string &errorStr);
 
     /** @brief  Call back function for recording downloading percent of the current asset,
      the progression will then be reported to user's listener registed in addUpdateProgressEventListener

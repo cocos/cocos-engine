@@ -41,11 +41,11 @@ class Texture;
 class DataPoolManager;
 
 struct BakedJointInfo {
-    IntrusivePtr<gfx::Buffer>                   buffer;
-    Float32Array                                jointTextureInfo;
-    cc::optional<IJointTextureHandle *>         texture;
-    IAnimInfo                                   animInfo;
-    ccstd::vector<cc::optional<geometry::AABB>> boundsInfo;
+    IntrusivePtr<gfx::Buffer> buffer;
+    Float32Array jointTextureInfo;
+    ccstd::optional<IJointTextureHandle *> texture;
+    IAnimInfo animInfo;
+    ccstd::vector<ccstd::optional<geometry::AABB>> boundsInfo;
 };
 
 class BakedSkinningModel final : public MorphModel {
@@ -56,12 +56,12 @@ public:
 
     void destroy() override;
 
-    ccstd::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
-    void                               updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) override;
-    void                               updateTransform(uint32_t stamp) override;
-    void                               updateUBOs(uint32_t stamp) override;
-    void                               updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
-    void                               updateInstancedJointTextureInfo();
+    ccstd::vector<scene::IMacroPatch> getMacroPatches(index_t subModelIndex) override;
+    void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) override;
+    void updateTransform(uint32_t stamp) override;
+    void updateUBOs(uint32_t stamp) override;
+    void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
+    void updateInstancedJointTextureInfo();
     // void                             uploadAnimation(AnimationClip *anim); // TODO(xwx): AnimationClip not define
 
     void bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *mesh);
@@ -75,26 +75,26 @@ public:
     }
 
     void syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Array &data, Uint8Array &dirty);
-    void syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
-                       const cc::optional<geometry::AABB> &               modelBound,
-                       float                                              jointTextureInfo0,
-                       float                                              jointTextureInfo1,
-                       float                                              jointTextureInfo2,
-                       float                                              jointTextureInfo3,
-                       gfx::Texture *                                     tex,
-                       const Float32Array &                               animInfoData);
+    void syncDataForJS(const ccstd::vector<ccstd::optional<geometry::AABB>> &boundsInfo,
+                       const ccstd::optional<geometry::AABB> &modelBound,
+                       float jointTextureInfo0,
+                       float jointTextureInfo1,
+                       float jointTextureInfo2,
+                       float jointTextureInfo3,
+                       gfx::Texture *tex,
+                       const Float32Array &animInfoData);
 
     void setUploadedAnimForJS(bool value) { _isUploadedAnim = value; }
 
 protected:
-    void applyJointTexture(const cc::optional<IJointTextureHandle *> &texture);
+    void applyJointTexture(const ccstd::optional<IJointTextureHandle *> &texture);
 
 private:
     BakedJointInfo _jointMedium;
-    index_t        _instAnimInfoIdx{CC_INVALID_INDEX};
+    index_t _instAnimInfoIdx{CC_INVALID_INDEX};
     //    IntrusivePtr<DataPoolManager> _dataPoolManager;
     IntrusivePtr<Skeleton> _skeleton;
-    IntrusivePtr<Mesh>     _mesh;
+    IntrusivePtr<Mesh> _mesh;
     // AnimationClip* uploadedAnim;
     bool _isUploadedAnim{false};
 

@@ -24,12 +24,10 @@
  ****************************************************************************/
 
 #include "scene/Skybox.h"
-#include "3d/assets/Mesh.h"
 #include "3d/misc/CreateMesh.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
 #include "core/Root.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "core/platform/Debug.h"
 #include "core/scene-graph/SceneGlobals.h"
 #include "pipeline/GlobalDescriptorSetManager.h"
 #include "primitive/Primitive.h"
@@ -41,15 +39,11 @@
 #include "scene/Ambient.h"
 #include "scene/Model.h"
 
-namespace {
-cc::Mesh *    skyboxMesh{nullptr}; // TODO(cjh): How to release ?
-cc::Material *skyboxMaterial{nullptr};
-} // namespace
 namespace cc {
 namespace scene {
 
 SkyboxInfo::SkyboxInfo(/* args */) = default;
-SkyboxInfo::~SkyboxInfo()          = default;
+SkyboxInfo::~SkyboxInfo() = default;
 
 void SkyboxInfo::setEnabled(bool val) {
     _enabled = val;
@@ -70,16 +64,24 @@ void SkyboxInfo::setApplyDiffuseMap(bool val) const {
     }
 }
 void SkyboxInfo::setEnvLightingType(EnvironmentLightingType val) {
-    if (EnvironmentLightingType::HEMISPHERE_DIFFUSE == val) {
+    if (!getEnvmap() && EnvironmentLightingType::HEMISPHERE_DIFFUSE != val) {
         setUseIBL(false);
-    } else if (EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION == val) {
-        setUseIBL(true);
         setApplyDiffuseMap(false);
-    } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
-        setUseIBL(true);
-        setApplyDiffuseMap(true);
+        _envLightingType = EnvironmentLightingType::HEMISPHERE_DIFFUSE;
+        debug::warnID(15001);
+    } else {
+        if (EnvironmentLightingType::HEMISPHERE_DIFFUSE == val) {
+            setUseIBL(false);
+            setApplyDiffuseMap(false);
+        } else if (EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION == val) {
+            setUseIBL(true);
+            setApplyDiffuseMap(false);
+        } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
+            setUseIBL(true);
+            setApplyDiffuseMap(true);
+        }
+        _envLightingType = val;
     }
-    _envLightingType = val;
 }
 void SkyboxInfo::setUseHDR(bool val) {
     Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(val);
@@ -90,8 +92,14 @@ void SkyboxInfo::setUseHDR(bool val) {
         setEnvmap(_resource->getEnvmap());
         setDiffuseMap(_resource->getDiffuseMap());
 
-        if (getDiffuseMap() == nullptr) {
-            setApplyDiffuseMap(false);
+        if (_envLightingType == EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION) {
+            auto *diffuseMap = getDiffuseMap();
+            if (!diffuseMap) {
+                _envLightingType = EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                debug::warnID(15000);
+            } else if (diffuseMap->isDefault()) {
+                debug::warnID(15002);
+            }
         }
     }
 
@@ -113,11 +121,16 @@ void SkyboxInfo::setEnvmap(TextureCube *val) {
         _envmapLDR = val;
     }
 
-    if (!_envmapHDR) {
-        _diffuseMapHDR = nullptr;
+    if (!val) {
+        if (isHDR) {
+            _diffuseMapHDR = nullptr;
+        } else {
+            _diffuseMapLDR = nullptr;
+        }
         setApplyDiffuseMap(false);
         setUseIBL(false);
         setEnvLightingType(EnvironmentLightingType::HEMISPHERE_DIFFUSE);
+        debug::warnID(15001);
     }
 
     if (_resource) {
@@ -153,11 +166,12 @@ TextureCube *SkyboxInfo::getDiffuseMap() const {
 
 void SkyboxInfo::activate(Skybox *resource) {
     _resource = resource; // weak reference
-    setEnvLightingType(this->_envLightingType);
     if (_resource != nullptr) {
         _resource->initialize(*this);
+        setEnvLightingType(this->_envLightingType);
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
+        _resource->setSkyboxMaterial(_editableMaterial);
         _resource->activate(); // update global DS first
     }
 }
@@ -181,6 +195,14 @@ bool Skybox::isRGBE() const {
     return envmap != nullptr ? envmap->isRGBE : false;
 }
 
+bool Skybox::isUsingConvolutionMap() const {
+    auto *envmap = getEnvmap();
+    if (envmap) {
+        return envmap->isUsingOfflineMipmaps();
+    }
+    return false;
+}
+
 TextureCube *Skybox::getDiffuseMap() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     return isHDR ? _diffuseMapHDR : _diffuseMapLDR;
@@ -195,15 +217,16 @@ void Skybox::setDiffuseMap(TextureCube *val) {
 }
 
 void Skybox::initialize(const SkyboxInfo &skyboxInfo) {
-    _enabled       = skyboxInfo.isEnabled();
-    _useIBL        = skyboxInfo.isUseIBL();
+    _activated = false;
+    _enabled = skyboxInfo.isEnabled();
+    _useIBL = skyboxInfo.isUseIBL();
     _useDiffuseMap = skyboxInfo.isApplyDiffuseMap();
-    _useHDR        = skyboxInfo.isUseHDR();
+    _useHDR = skyboxInfo.isUseHDR();
 }
 
 void Skybox::setEnvMaps(TextureCube *envmapHDR, TextureCube *envmapLDR) {
-    _envmapHDR       = envmapHDR;
-    _envmapLDR       = envmapLDR;
+    _envmapHDR = envmapHDR;
+    _envmapLDR = envmapLDR;
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         if (envmapHDR) {
@@ -224,10 +247,14 @@ void Skybox::setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapL
     updatePipeline();
 }
 
+void Skybox::setSkyboxMaterial(Material *skyboxMat) {
+    _editableMaterial = skyboxMat;
+}
+
 void Skybox::activate() {
-    auto *pipeline   = Root::getInstance()->getPipeline();
+    auto *pipeline = Root::getInstance()->getPipeline();
     _globalDSManager = pipeline->getGlobalDSManager();
-    _default         = BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+    _default = BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
 
     if (!_model) {
         _model = Root::getInstance()->createModel<scene::Model>();
@@ -235,37 +262,34 @@ void Skybox::activate() {
         _model->initWorldBoundDescriptors(CC_INVALID_INDEX);
     }
     auto *envmap = getEnvmap();
-    bool  isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
+    bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
-    if (!skyboxMaterial) {
-        auto *        mat = new Material();
-        MacroRecord   defines{{"USE_RGBE_CUBEMAP", isRGBE}};
+    bool isUseConvolutionMap = envmap != nullptr ? envmap->isUsingOfflineMipmaps() : _default->isUsingOfflineMipmaps();
+    if (!_material) {
+        auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
+        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
-        matInfo.effectName = ccstd::string{"skybox"};
-        matInfo.defines    = IMaterialInfo::DefinesType{defines};
+        matInfo.effectName = ccstd::string{"pipeline/skybox"};
+        matInfo.defines = IMaterialInfo::DefinesType{defines};
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
         matInstInfo.parent = mat;
-        skyboxMaterial     = new MaterialInstance(matInstInfo);
-        skyboxMaterial->addRef();
-        EventDispatcher::addCustomEventListener(EVENT_CLOSE, [](const CustomEvent & /*unused*/) {
-            skyboxMaterial->release();
-            skyboxMaterial = nullptr;
-        });
+        _material = ccnew MaterialInstance(matInstInfo);
     }
 
     if (_enabled) {
-        if (!skyboxMesh) {
+        if (!_mesh) {
             IBoxOptions options;
-            options.width  = 2;
+            options.width = 2;
             options.height = 2;
             options.length = 2;
-            skyboxMesh     = MeshUtils::createMesh(
+
+            _mesh = MeshUtils::createMesh(
                 createGeometry(
                     PrimitiveType::BOX,
                     PrimitiveOptions{options}));
         }
-        _model->initSubModel(0, skyboxMesh->getRenderingSubMeshes()[0], skyboxMaterial);
+        _model->initSubModel(0, _mesh->getRenderingSubMeshes()[0], _material);
     }
 
     if (!getEnvmap()) {
@@ -278,57 +302,82 @@ void Skybox::activate() {
 
     updateGlobalBinding();
     updatePipeline();
+
+    _activated = true;
 }
 
 void Skybox::updatePipeline() const {
-    if (isEnabled() && skyboxMaterial != nullptr) {
-        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
+    if (isEnabled() && _material != nullptr) {
+        _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
     }
 
-    if (_model != nullptr && skyboxMaterial != nullptr) {
-        _model->setSubModelMaterial(0, skyboxMaterial);
+    if (_model != nullptr && _material != nullptr) {
+        _model->setSubModelMaterial(0, _material);
     }
 
-    Root *root     = Root::getInstance();
+    Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
-    const bool    useRGBE            = isRGBE();
-    const int32_t useIBLValue        = isUseIBL() ? (useRGBE ? 2 : 1) : 0;
+    const bool useRGBE = isRGBE();
+    const int32_t useIBLValue = isUseIBL() ? (useRGBE ? 2 : 1) : 0;
     const int32_t useDiffuseMapValue = (isUseIBL() && isUseDiffuseMap() && getDiffuseMap() != nullptr) ? (useRGBE ? 2 : 1) : 0;
-    const bool    useHDRValue        = isUseHDR();
+    const bool useHDRValue = isUseHDR();
+    const bool useConvMapValue = isUsingConvolutionMap();
 
     bool valueChanged = false;
-    auto iter         = pipeline->getMacros().find("CC_USE_IBL");
+    auto iter = pipeline->getMacros().find("CC_USE_IBL");
     if (iter != pipeline->getMacros().end()) {
-        const MacroValue &macroIBL    = iter->second;
-        const int32_t *   macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
+        const MacroValue &macroIBL = iter->second;
+        const int32_t *macroIBLPtr = ccstd::get_if<int32_t>(&macroIBL);
         if (macroIBLPtr != nullptr && (*macroIBLPtr != useIBLValue)) {
             pipeline->setValue("CC_USE_IBL", useIBLValue);
             valueChanged = true;
         }
+    } else {
+        pipeline->setValue("CC_USE_IBL", useIBLValue);
+        valueChanged = true;
     }
 
     auto iterDiffuseMap = pipeline->getMacros().find("CC_USE_DIFFUSEMAP");
     if (iterDiffuseMap != pipeline->getMacros().end()) {
-        const MacroValue &macroDIFFUSEMAP    = iterDiffuseMap->second;
-        const int32_t *   macroDIFFUSEMAPPtr = cc::get_if<int32_t>(&macroDIFFUSEMAP);
+        const MacroValue &macroDIFFUSEMAP = iterDiffuseMap->second;
+        const int32_t *macroDIFFUSEMAPPtr = ccstd::get_if<int32_t>(&macroDIFFUSEMAP);
         if (macroDIFFUSEMAPPtr != nullptr && ((*macroDIFFUSEMAPPtr != 0) != useDiffuseMapValue)) {
             pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
             valueChanged = true;
         }
+    } else {
+        pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
+        valueChanged = true;
     }
 
     auto iterUseHDR = pipeline->getMacros().find("CC_USE_HDR");
     if (iterUseHDR != pipeline->getMacros().end()) {
-        const MacroValue &macroHDR    = iterUseHDR->second;
-        const int32_t *   macroHDRPtr = cc::get_if<int32_t>(&macroHDR);
-        if (macroHDRPtr != nullptr && ((*macroHDRPtr != 0) != useHDRValue)) {
+        const MacroValue &macroHDR = iterUseHDR->second;
+        const bool *macroHDRPtr = ccstd::get_if<bool>(&macroHDR);
+        if (macroHDRPtr != nullptr && (*macroHDRPtr != useHDRValue)) {
             pipeline->setValue("CC_USE_HDR", useHDRValue);
             valueChanged = true;
         }
+    } else {
+        pipeline->setValue("CC_USE_HDR", useHDRValue);
+        valueChanged = true;
     }
 
-    if (valueChanged) {
+    auto iterUseConvMap = pipeline->getMacros().find("CC_IBL_CONVOLUTED");
+    if (iterUseConvMap != pipeline->getMacros().end()) {
+        const MacroValue &macroConvMap = iterUseConvMap->second;
+        const bool *macroConvMaptr = ccstd::get_if<bool>(&macroConvMap);
+        if (macroConvMaptr != nullptr && (*macroConvMaptr != useConvMapValue)) {
+            pipeline->setValue("CC_IBL_CONVOLUTED", useConvMapValue);
+            valueChanged = true;
+        }
+    } else {
+        pipeline->setValue("CC_IBL_CONVOLUTED", useConvMapValue);
+        valueChanged = true;
+    }
+
+    if (valueChanged && _activated) {
         root->onGlobalPipelineStateChanged();
     }
 }

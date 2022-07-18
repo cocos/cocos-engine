@@ -25,31 +25,35 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include "platform/android/FileUtils-android.h"
+#include <android/log.h>
+#include <sys/stat.h>
+#include <cstdlib>
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
+#include "base/Log.h"
+#include "base/ZipUtils.h"
+#include "base/memory/Memory.h"
+#include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/JniImp.h"
 
-    #include "platform/android/FileUtils-android.h"
-    #include <sys/stat.h>
-    #include <cstdlib>
-    #include "android/asset_manager.h"
-    #include "android/asset_manager_jni.h"
-    #include "base/Log.h"
-    #include "base/ZipUtils.h"
-    #include "platform/java/jni/JniHelper.h"
-    #include "platform/java/jni/JniImp.h"
+#define LOG_TAG   "FileUtils-android.cpp"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
-    #define LOG_TAG   "FileUtils-android.cpp"
-    #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define ASSETS_FOLDER_NAME "@assets/"
 
-    #define ASSETS_FOLDER_NAME "@assets/"
-
-    #ifndef JCLS_HELPER
-        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
-    #endif
+#ifndef JCLS_HELPER
+    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+#endif
 
 namespace cc {
 
 AAssetManager *FileUtilsAndroid::assetmanager = nullptr;
-ZipFile *      FileUtilsAndroid::obbfile      = nullptr;
+ZipFile *FileUtilsAndroid::obbfile = nullptr;
+
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsAndroid();
+}
 
 void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
@@ -60,25 +64,12 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     cc::FileUtilsAndroid::assetmanager = a;
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsAndroid();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtilsAndroid::FileUtilsAndroid() {
+    init();
 }
 
-FileUtilsAndroid::FileUtilsAndroid() = default;
-
 FileUtilsAndroid::~FileUtilsAndroid() {
-    if (obbfile) {
-        delete obbfile;
-        obbfile = nullptr;
-    }
+    CC_SAFE_DELETE(obbfile);
 }
 
 bool FileUtilsAndroid::init() {
@@ -86,7 +77,7 @@ bool FileUtilsAndroid::init() {
 
     ccstd::string assetsPath(getObbFilePathJNI());
     if (assetsPath.find("/obb/") != ccstd::string::npos) {
-        obbfile = new ZipFile(assetsPath);
+        obbfile = ccnew ZipFile(assetsPath);
     }
 
     return FileUtils::init();
@@ -186,7 +177,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const ccstd::string &filename, R
     }
 
     ccstd::string relativePath;
-    size_t        position = fullPath.find(ASSETS_FOLDER_NAME);
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
@@ -241,5 +232,3 @@ ccstd::string FileUtilsAndroid::getWritablePath() const {
 }
 
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_ANDROID

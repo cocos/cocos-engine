@@ -1,0 +1,14 @@
+
+vec4 GetLightMapColor(sampler2D lightingMap, vec2 luv, float lum)
+{
+    vec4 lightmap = texture(lightingMap, luv);
+    lightmap.rgb *= lum;
+
+#if CC_USE_HDR
+    // convert from standard camera exposure parameters to current exposure value
+    // baked in LDR scene still regarded as exposured with standard camera parameters
+    lightmap.rgb *= cc_exposure.w * cc_exposure.x;
+#endif
+
+    return lightmap;
+}

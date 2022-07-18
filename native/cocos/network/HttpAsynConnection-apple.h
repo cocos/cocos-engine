@@ -28,7 +28,7 @@
 #define __HTTPASYNCONNECTION_H__
 /// @cond DO_NOT_SHOW
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS) || (CC_PLATFORM == CC_PLATFORM_IOS)
 
     #import <Foundation/Foundation.h>
     #import <Security/Security.h>
@@ -65,7 +65,7 @@
 
 @end
 
-#endif // #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#endif // #if (CC_PLATFORM == CC_PLATFORM_MACOS) || (CC_PLATFORM == CC_PLATFORM_IOS)
 
 /// @endcond
 #endif //__HTTPASYNCONNECTION_H__

@@ -68,6 +68,8 @@ This is all you have to do to setup engine development environment.
   npm run build
   ```
 
+Please refer to [native readme](native/README.md) if want to develop native applications.
+
 ## Example Project
 
 - [Example Cases](https://github.com/cocos/cocos-example-projects): Simple yet expressive demo scenes for baseline testing and topic-specific case study.

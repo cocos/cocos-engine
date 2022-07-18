@@ -34,7 +34,6 @@
 
 #include "v8.h"
 
-#include <assert.h>
 #include <string.h>  // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
 #include <algorithm> // for std::find
 #include <chrono>
@@ -46,5 +45,5 @@
 #include "HelperMacros.h"
 
 namespace se {
-using V8FinalizeFunc = void (*)(PrivateObjectBase *nativeObj);
+using V8FinalizeFunc = void (*)(Object *seObj);
 } // namespace se

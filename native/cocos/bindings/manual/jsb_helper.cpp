@@ -25,17 +25,16 @@
 
 #include "jsb_helper.h"
 #include "base/DeferredReleasePool.h"
+#include "base/memory/Memory.h"
 
 /* static */
 void CleanupTask::pushTaskToAutoReleasePool(const std::function<void()> &cb) {
-    auto *ret = new (std::nothrow) CleanupTask();
-    ret->_cb  = cb;
+    auto *ret = ccnew CleanupTask;
+    ret->_cb = cb;
     cc::DeferredReleasePool::add(ret);
 }
 
-CleanupTask::CleanupTask()
-: _cb(nullptr) {
-}
+CleanupTask::CleanupTask() = default;
 
 CleanupTask::~CleanupTask() {
     if (_cb != nullptr) {

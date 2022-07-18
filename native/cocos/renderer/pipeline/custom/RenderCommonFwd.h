@@ -30,7 +30,7 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
+#include "cocos/base/std/variant.h"
 
 namespace cc {
 
@@ -54,6 +54,7 @@ struct BufferTag;
 struct TextureTag;
 
 enum class TaskType;
+enum class SceneFlags : uint32_t;
 
 } // namespace render
 

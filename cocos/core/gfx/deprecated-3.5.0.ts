@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { Device } from './base/device';
 import { Feature, ColorAttachment, DepthStencilAttachment } from './base/define';

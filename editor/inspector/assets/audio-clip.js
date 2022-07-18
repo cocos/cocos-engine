@@ -27,7 +27,7 @@ exports.update = function(assetList, metaList) {
             html += `<div>${asset.name}</div>`;
         }
 
-        html += `<audio class="audio" controls="controls" src="${asset.file}"></audio>`;
+        html += `<audio class="audio" controls="controls" src="${asset.file}?v=${Date.now()}"></audio>`;
     });
 
     this.$.constainer.innerHTML = html;

@@ -29,5 +29,7 @@ module.exports = {
             change_children: 'Yes, change children',
             change_self: 'No, this object only',
         },
+
+        missScriptTip: 'Script compilation fails, please check the error message and correct it, the component will be automatically restored after correction.',
     },
 };

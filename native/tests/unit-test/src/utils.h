@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "gtest/gtest.h"
 
 static std::string logLabel;
-static bool        IsEqualF(float l, float r) {
+static bool IsEqualF(float l, float r) {
     return cc::math::IsEqualF(l, r);
 };
 static void ExpectEq(bool lf, bool rt) {

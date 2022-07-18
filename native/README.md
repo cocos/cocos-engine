@@ -1,40 +1,32 @@
-engine-native
+cocos-engine native part
 ==========================
 
-<a href="https://travis-ci.org/cocos-creator/engine-native"><img src="https://travis-ci.org/cocos-creator/engine-native.svg?branch=develop " alt="Build Status"></a>
-
-It is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). It works on `iOS`, `Android`, `Mac OS` and `Windows`.
+It is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). It works on `iOS`, `Android`, `macOS` and `Windows`.
 
 Coding format and coding style
 ---------------------------------
 
-The coding format file is `.clang-format`, and the coding style fomat file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before commiting codes. See the [linter auto-fix guide](docs/LINTER_AUTOFIX_GUIDE.md) for more information.
+The coding format file is `.clang-format`, and the coding style format file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before committing codes. See the [linter auto-fix guide](docs/LINTER_AUTOFIX_GUIDE.md) for more information.
 
-Documentations
---------------------------------
-* [Online documentation](https://docs.cocos.com/creator/3.0/manual/en/)
-
-How to start a new game
---------------------------------
-You can refer to [the documentation](https://docs.cocos.com/creator/3.0/manual/en/getting-started/) to start a new game.
 
 Build Requirements
 --------------------------------
-- macOS 10.14+, Xcode 11.5+ to build mac games
-- with iOS 12.0+ to build iOS games
-- or Windows 7+, Visual Studio 2017 15.7+ / Visual Studio 2019 to build win32 games
-- NDK 18-21 is required to build Android games (22+ is not supported)
-- Python 2.7+ (includes Python 3) is needed to run scripts
+- Xcode 11.5+ to build mac games
+- or Visual Studio 2017 15.7+ / Visual Studio 2019 to build win64 games
+- NDK 21-22 is required to build Android games (23+ is not supported)
 - Cmake 3.8+ is required
 
-Where to get help
+System Requirements
 --------------------------------
+- macOS 10.14+
+- iOS 11.0+
+- 64-bit Windows 7+ 
+  - with vulkan 1.0 to 1.2 if want to run with vulkan
+- Android 4.4+
+  - Android 7+ if want to run with vulkan
 
-* [English Forum](https://discuss.cocos2d-x.org/)
-* [Twitter](http://www.twitter.com/cocos2dx)
-* [中文社区](https://forum.cocos.org/c/Creator/58)
-
-Contributing to the Project
+C++ related
 --------------------------------
-
-engine-native is licensed under the [MIT License](https://opensource.org/licenses/MIT). We welcome participation!
+- use C++17, but can only use these C++17 features
+  - std::string_view
+  - [constexpr if](https://www.codingame.com/playgrounds/2205/7-features-of-c17-that-will-simplify-your-code/constexpr-if)

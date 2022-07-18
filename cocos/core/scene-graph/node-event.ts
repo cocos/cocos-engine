@@ -1,3 +1,32 @@
+/*
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @en All event types which [[Node]] could emit
+ * @zh 所有 [[Node]] 可能派发的事件类型
+ */
 export enum NodeEventType {
     /**
      * @en
@@ -115,10 +144,10 @@ export enum NodeEventType {
 
     /**
      * @en
-     * The event type for position, rotation, scale changed.Use the type parameter as [[Node.TransformBit]] to check which part is changed
+     * The event type for position, rotation, scale changed.Use the type parameter as `Node.TransformBit` to check which part is changed
      *
      * @zh
-     * 节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 [[Node.TransformBit]] 中的哪一个来获取
+     * 节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 `Node.TransformBit` 中的哪一个来获取
      * @example
      * ```
      * this.node.on(Node.EventType.TRANSFORM_CHANGED, (type)=>{
@@ -222,4 +251,20 @@ export enum NodeEventType {
      * 注意：此节点激活时，此事件仅从最顶部的节点发出。
      */
     ACTIVE_IN_HIERARCHY_CHANGED = 'active-in-hierarchy-changed',
+
+    /**
+     * @en
+     * The event occur when node add a new component.
+     * @zh
+     * 当节点上增加组件时触发的事件
+     */
+    COMPONENT_ADDED = 'component-added',
+
+    /**
+     * @en
+     * The event occur when node remove a component.
+     * @zh
+     * 当节点上移除组件时触发的事件
+     */
+    COMPONENT_REMOVED = 'component-removed',
 }

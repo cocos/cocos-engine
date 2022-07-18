@@ -37,16 +37,16 @@ Shader::Shader()
 Shader::~Shader() = default;
 
 void Shader::initialize(const ShaderInfo &info) {
-    _name            = info.name;
-    _stages          = info.stages;
-    _attributes      = info.attributes;
-    _blocks          = info.blocks;
-    _buffers         = info.buffers;
+    _name = info.name;
+    _stages = info.stages;
+    _attributes = info.attributes;
+    _blocks = info.blocks;
+    _buffers = info.buffers;
     _samplerTextures = info.samplerTextures;
-    _samplers        = info.samplers;
-    _textures        = info.textures;
-    _images          = info.images;
-    _subpassInputs   = info.subpassInputs;
+    _samplers = info.samplers;
+    _textures = info.textures;
+    _images = info.images;
+    _subpassInputs = info.subpassInputs;
 
     doInit(info);
 }

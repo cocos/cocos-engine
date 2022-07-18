@@ -50,21 +50,16 @@ public:
 
     /**
      @brief Dispatch event.
-     @param type : event type
-     @param type : event information
+     @param type : Abstract event
      */
     void dispatchEvent(const OSEvent &ev);
     /**
      @brief Dispatch touch event.
-     @param type : event type
+     @param type : Touch event
      */
-    void dispatchTouchEvent(const OSEvent &ev);
-
-    //enum class InterfaceType {
-    //};
+    void dispatchTouchEvent(const TouchEvent &ev);
 
 protected:
-    // InterfaceType _type;
     IEventDispatch *_evDispatchInterface{nullptr};
 
 private:

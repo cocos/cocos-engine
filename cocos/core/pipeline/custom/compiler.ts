@@ -175,22 +175,19 @@ class CompilerContext {
 export class Compiler {
     private _resourceGraph: ResourceGraph;
     private _pipeline: Pipeline;
-    private _renderGraph: RenderGraph;
     private _layoutGraph: LayoutGraphData;
     constructor (pipeline: Pipeline,
         resGraph: ResourceGraph,
-        renderGraph: RenderGraph,
         layoutGraph: LayoutGraphData) {
         this._pipeline = pipeline;
         this._resourceGraph = resGraph;
-        this._renderGraph = renderGraph;
         this._layoutGraph = layoutGraph;
     }
-    compile () {
+    compile (rg: RenderGraph) {
         const context = new CompilerContext(
             this._pipeline,
             this._resourceGraph,
-            this._renderGraph,
+            rg,
             this._layoutGraph,
         );
         const resVisitor = new ResourceVisitor(context);

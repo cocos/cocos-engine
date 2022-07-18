@@ -41,7 +41,7 @@ void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
     const auto descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const auto bindingCount = gpuDescriptorSetLayout->bindings.size();
 
-    _gpuDescriptorSet = CC_NEW(CCMTLGPUDescriptorSet);
+    _gpuDescriptorSet = ccnew CCMTLGPUDescriptorSet;
     _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (auto i = 0u, k = 0u; i < bindingCount; i++) {
@@ -69,23 +69,28 @@ void CCMTLDescriptorSet::update() {
                     _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer *>(_buffers[i]);
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if(!_textures[i] && !_samplers[i])
+                if (!_textures[i] && !_samplers[i])
                     continue;
-                    
-                Texture* tex = _textures[i];
-                if(!tex)
+
+                Texture *tex = _textures[i];
+                if (!tex)
                     tex = CCMTLTexture::getDefaultTexture();
                 _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture *>(tex);
-            
-                Sampler* sampler = _samplers[i];
-                if(!sampler)
+
+                Sampler *sampler = _samplers[i];
+                if (!sampler)
                     sampler = CCMTLSampler::getDefaultSampler();
                 _gpuDescriptorSet->gpuDescriptors[i].sampler = static_cast<CCMTLSampler *>(sampler);
-                
             }
         }
         _isDirty = false;
     }
 }
+
+void CCMTLDescriptorSet::forceUpdate() {
+    _isDirty = true;
+    update();
 }
-}
+
+} // namespace gfx
+} // namespace cc

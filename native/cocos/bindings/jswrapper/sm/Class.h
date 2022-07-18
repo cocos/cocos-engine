@@ -134,20 +134,20 @@ private:
     static void onTraceCallback(JSTracer *trc, JSObject *obj);
 
     const char *_name;
-    Object *    _parent;
-    Object *    _proto;
-    Object *    _parentProto;
+    Object *_parent;
+    Object *_proto;
+    Object *_parentProto;
 
     JSNative _ctor;
 
-    JSClass    _jsCls;
+    JSClass _jsCls;
     JSClassOps _classOps;
 
     ccstd::vector<JSFunctionSpec> _funcs;
     ccstd::vector<JSFunctionSpec> _staticFuncs;
     ccstd::vector<JSPropertySpec> _properties;
     ccstd::vector<JSPropertySpec> _staticProperties;
-    JSFinalizeOp                  _finalizeOp;
+    JSFinalizeOp _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import { Buffer } from './buffer';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { Attribute, GFXObject, ObjectType, InputAssemblerInfo, DrawInfo } from './define';

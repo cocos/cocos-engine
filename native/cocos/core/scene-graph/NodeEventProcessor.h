@@ -26,8 +26,9 @@
 #pragma once
 
 #include <functional>
+#include "base/memory/Memory.h"
+#include "base/std/any.h"
 #include "base/std/container/string.h"
-#include "cocos/base/Any.h"
 #include "core/event/CallbacksInvoker.h"
 //#include "core/event/Event.h"
 #include "core/scene-graph/NodeEvent.h"
@@ -56,8 +57,8 @@ public:
     ~NodeEventProcessor();
 
     inline Node *getNode() { return _node; }
-    void         reattach();
-    void         destroy();
+    void reattach();
+    void destroy();
 
     /**
      * @zh
@@ -199,12 +200,12 @@ void NodeEventProcessor::onDispatch(const CallbacksInvoker::KeyType &type, std::
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -218,12 +219,12 @@ void NodeEventProcessor::onDispatch(const CallbacksInvoker::KeyType &type, std::
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -237,12 +238,12 @@ void NodeEventProcessor::onDispatch(const CallbacksInvoker::KeyType &type, void 
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -259,7 +260,7 @@ void NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, std::function
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, std::forward<std::function<void(Args...)>>(callback), cbID);
     }
@@ -273,7 +274,7 @@ void NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, std::function
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, std::forward<std::function<void(Args...)>>(callback), cbID);
     }
@@ -288,7 +289,7 @@ NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, LambdaType &&callb
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, callback, target, cbID);
     }
@@ -303,7 +304,7 @@ NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, LambdaType &&callb
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, callback, cbID);
     }
@@ -318,7 +319,7 @@ void NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, void (Target:
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, memberFn, target);
     }
@@ -334,12 +335,12 @@ void NodeEventProcessor::once(const CallbacksInvoker::KeyType &type, void (Targe
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -354,12 +355,12 @@ void NodeEventProcessor::once(const CallbacksInvoker::KeyType &type, std::functi
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }

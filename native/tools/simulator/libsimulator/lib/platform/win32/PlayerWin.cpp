@@ -23,66 +23,51 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #include "PlayerWin.h"
 
 using namespace std;
 PLAYER_NS_BEGIN
 
 PlayerWin::PlayerWin()
-    : PlayerProtocol()
-    , _messageBoxService(nullptr)
-    , _menuService(nullptr)
-    , _editboxService(nullptr)
-    , _taskService(nullptr)
-    , _hwnd(NULL)
-{
+: PlayerProtocol(), _messageBoxService(nullptr), _menuService(nullptr), _editboxService(nullptr), _taskService(nullptr), _hwnd(NULL) {
 }
 
-PlayerWin::~PlayerWin()
-{
+PlayerWin::~PlayerWin() {
     CC_SAFE_DELETE(_menuService);
     CC_SAFE_DELETE(_messageBoxService);
     CC_SAFE_DELETE(_fileDialogService);
 }
 
-PlayerWin *PlayerWin::createWithHwnd(HWND hWnd)
-{
+PlayerWin *PlayerWin::createWithHwnd(HWND hWnd) {
     auto instance = new PlayerWin();
     instance->_hwnd = hWnd;
     instance->initServices();
     return instance;
 }
 
-PlayerFileDialogServiceProtocol *PlayerWin::getFileDialogService()
-{
+PlayerFileDialogServiceProtocol *PlayerWin::getFileDialogService() {
     return _fileDialogService;
 }
 
-PlayerMessageBoxServiceProtocol *PlayerWin::getMessageBoxService()
-{
+PlayerMessageBoxServiceProtocol *PlayerWin::getMessageBoxService() {
     return _messageBoxService;
 }
 
-PlayerMenuServiceProtocol *PlayerWin::getMenuService()
-{
+PlayerMenuServiceProtocol *PlayerWin::getMenuService() {
     return _menuService;
 }
 
-PlayerEditBoxServiceProtocol *PlayerWin::getEditBoxService()
-{
+PlayerEditBoxServiceProtocol *PlayerWin::getEditBoxService() {
     return _editboxService;
 }
 
-PlayerTaskServiceProtocol *PlayerWin::getTaskService()
-{
+PlayerTaskServiceProtocol *PlayerWin::getTaskService() {
     return _taskService;
 }
 
 // services
-void PlayerWin::initServices()
-{
-    CCASSERT(_menuService == nullptr, "CAN'T INITIALIZATION SERVICES MORE THAN ONCE");
+void PlayerWin::initServices() {
+    CC_ASSERT(_menuService == nullptr); // Can't initialize services again.
     _menuService = new PlayerMenuServiceWin(_hwnd);
     _messageBoxService = new PlayerMessageBoxServiceWin(_hwnd);
     _fileDialogService = new PlayerFileDialogServiceWin(_hwnd);

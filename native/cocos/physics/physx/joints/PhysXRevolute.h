@@ -32,7 +32,9 @@ namespace physics {
 
 class PhysXRevolute final : public PhysXJoint, public IRevoluteJoint {
 public:
-    PhysXRevolute();
+    PhysXRevolute() : _mPivotA(physx::PxZero),
+                      _mPivotB(physx::PxZero),
+                      _mAxis(physx::PxZero) {}
     ~PhysXRevolute() override = default;
     void setPivotA(float x, float y, float z) override;
     void setPivotB(float x, float y, float z) override;
@@ -41,8 +43,8 @@ public:
     void updateScale1() override;
 
 private:
-    void          onComponentSet() override;
-    void          updatePose();
+    void onComponentSet() override;
+    void updatePose();
     physx::PxVec3 _mPivotA;
     physx::PxVec3 _mPivotB;
     physx::PxVec3 _mAxis;

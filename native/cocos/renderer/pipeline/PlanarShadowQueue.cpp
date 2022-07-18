@@ -44,7 +44,7 @@ namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
 : _pipeline(pipeline) {
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _instancedQueue = ccnew RenderInstancedQueue;
 }
 
 PlanarShadowQueue::~PlanarShadowQueue() = default;
@@ -52,14 +52,14 @@ PlanarShadowQueue::~PlanarShadowQueue() = default;
 void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     clear();
 
-    const PipelineSceneData *sceneData  = _pipeline->getPipelineSceneData();
-    const scene::Shadows *   shadowInfo = sceneData->getShadows();
+    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
+    const scene::Shadows *shadowInfo = sceneData->getShadows();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }
 
-    const auto *scene         = camera->getScene();
-    const bool  shadowVisible = camera->getVisibility() & static_cast<uint>(LayerList::DEFAULT);
+    const auto *scene = camera->getScene();
+    const bool shadowVisible = camera->getVisibility() & static_cast<uint32_t>(LayerList::DEFAULT);
     if (!scene->getMainLight() || !shadowVisible) {
         return;
     }
@@ -75,7 +75,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         }
     }
 
-    const auto &     passes          = *shadowInfo->getInstancingMaterial()->getPasses();
+    const auto &passes = *shadowInfo->getInstancingMaterial()->getPasses();
     InstancedBuffer *instancedBuffer = passes[0]->getInstancedBuffer();
 
     geometry::AABB ab;
@@ -107,9 +107,9 @@ void PlanarShadowQueue::clear() {
     if (_instancedQueue) _instancedQueue->clear();
 }
 
-void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    const PipelineSceneData *sceneData  = _pipeline->getPipelineSceneData();
-    const auto *             shadowInfo = sceneData->getShadows();
+void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, uint32_t subpassID) {
+    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo = sceneData->getShadows();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }
@@ -126,8 +126,8 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
     for (const auto *model : _pendingModels) {
         for (const auto &subModel : model->getSubModels()) {
             auto *const shader = subModel->getPlanarShader();
-            auto *const ia     = subModel->getInputAssembler();
-            auto *const pso    = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
+            auto *const ia = subModel->getInputAssembler();
+            auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass, subpassID);
 
             cmdBuffer->bindPipelineState(pso);
             cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());

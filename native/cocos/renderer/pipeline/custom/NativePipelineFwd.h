@@ -30,15 +30,22 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
+#include "cocos/base/std/variant.h"
 #include "cocos/renderer/frame-graph/FrameGraph.h"
-#include "cocos/renderer/pipeline/custom/RenderCompilerFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
 
 namespace render {
 
+class NativeLayoutGraphBuilder;
+class NativeRasterQueueBuilder;
+class NativeRasterPassBuilder;
+class NativeComputeQueueBuilder;
+class NativeComputePassBuilder;
+class NativeMovePassBuilder;
+class NativeCopyPassBuilder;
+class NativeSceneTransversal;
 class NativePipeline;
 
 } // namespace render

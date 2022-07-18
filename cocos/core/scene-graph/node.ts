@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
@@ -50,61 +45,9 @@ const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const dirtyNodes: any[] = [];
-const view_tmp:[Uint32Array, number] = [] as any;
-class BookOfChange {
-    private _chunks: Uint32Array[] = [];
-    private _freelists: number[][] = [];
-
-    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
-    private static CAPACITY_PER_CHUNK = 256;
-
-    constructor () {
-        this._createChunk();
-    }
-
-    public alloc () {
-        const chunkCount = this._freelists.length;
-        for (let i = 0; i < chunkCount; ++i) {
-            if (!this._freelists[i].length) continue;
-            return this._createView(i);
-        }
-        this._createChunk();
-        return this._createView(chunkCount);
-    }
-
-    public free (view: Uint32Array, idx: number) {
-        const chunkCount = this._freelists.length;
-        for (let i = 0; i < chunkCount; ++i) {
-            if (this._chunks[i] !== view) continue;
-            this._freelists[i].push(idx);
-            return;
-        }
-    }
-
-    public clear () {
-        const chunkCount = this._chunks.length;
-        for (let i = 0; i < chunkCount; ++i) {
-            this._chunks[i].fill(0);
-        }
-    }
-
-    private _createChunk () {
-        this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
-        const freelist: number[] = [];
-        for (let i = BookOfChange.CAPACITY_PER_CHUNK - 1; i >= 0; i--) freelist.push(i);
-        this._freelists.push(freelist);
-    }
-
-    private _createView (chunkIdx: number): [Uint32Array, number] {
-        view_tmp[0] = this._chunks[chunkIdx];
-        view_tmp[1] = this._freelists[chunkIdx].pop()!;
-        return view_tmp;
-    }
-}
-
-const bookOfChange = new BookOfChange();
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
+let globalFlagChangeVersion = 0;
 
 /**
  * @zh
@@ -156,12 +99,12 @@ export class Node extends BaseNode implements CustomSerializable {
     public static TransformBit = TransformBit;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -173,7 +116,7 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearRound = 1000;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _static = false;
 
@@ -205,19 +148,12 @@ export class Node extends BaseNode implements CustomSerializable {
 
     private _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
-    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
-    protected declare _hasChangedFlagsOffset: number;
-    protected declare _hasChangedFlags: Uint32Array;
+
+    protected _flagChangeVersion = 0;
+    protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
         super(name);
-
-        const [chunk, offset] = bookOfChange.alloc();
-        this._hasChangedFlagsChunk = chunk;
-        this._hasChangedFlagsOffset = offset;
-        const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
-        this._hasChangedFlags = flagBuffer;
-
         this._pos = new Vec3();
         this._rot = new Quat();
         this._scale = new Vec3(1, 1, 1);
@@ -233,9 +169,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     protected _onPreDestroy () {
-        const result = this._onPreDestroyBase();
-        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
-        return result;
+        return this._onPreDestroyBase();
     }
 
     /**
@@ -434,13 +368,17 @@ export class Node extends BaseNode implements CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
+        return this._flagChangeVersion === globalFlagChangeVersion ? this._hasChangedFlags : 0;
     }
 
     set hasChangedFlags (val: number) {
-        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
+        this._flagChangeVersion = globalFlagChangeVersion;
+        this._hasChangedFlags = val;
     }
 
+    /**
+     * @internal
+     */
     public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
         if (!EDITOR) {
             serializationOutput.writeThis();
@@ -469,6 +407,9 @@ export class Node extends BaseNode implements CustomSerializable {
                 serializationOutput.writeProperty('_objFlags', this._objFlags);
                 serializationOutput.writeProperty('_parent', this._parent);
                 serializationOutput.writeProperty('_prefab', this._prefab);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
                 // TODO: editorExtrasTag may be a symbol in the future
                 serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
             } else {
@@ -495,7 +436,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
@@ -528,7 +469,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         this.hasChangedFlags = TransformBit.TRS;
@@ -541,7 +482,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -549,7 +490,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onPostActivated (active: boolean) {
         if (active) { // activated
@@ -644,10 +585,6 @@ export class Node extends BaseNode implements CustomSerializable {
         this.setWorldRotation(q_a);
     }
 
-    protected _setDirtyNode (idx: number, currNode: this) {
-        dirtyNodes[idx] = currNode;
-    }
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -659,45 +596,24 @@ export class Node extends BaseNode implements CustomSerializable {
         let j = 0;
         let l = 0;
         let cur: this;
-        let c : this;
-        let flag = 0;
         let children:this[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
-        // NOTE: inflate function
-        // ```
-        // this._setDirtyNode(0, this);
-        // ```
         dirtyNodes[0] = this;
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            hasChangedFlags = cur._hasChangedFlags[0];
-            flag =  cur._dirtyFlags;
-            if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                // NOTE: inflate procedure
-                // ```
-                // cur._dirtyFlags |= dirtyBit;
-                // ```
-                flag |= dirtyBit;
-                cur._dirtyFlags = flag;
+            hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._dirtyFlags |= dirtyBit;
 
-                // NOTE: inflate attribute accessor
-                // ```
-                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
-                // ```
-                cur._hasChangedFlags[0] = hasChangedFlags | dirtyBit;
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
                 l = children.length;
                 for (j = 0; j < l; j++) {
-                    c = children[j];
-                    // NOTE: inflate function
-                    // ```
-                    // this._setDirtyNode(0, c);
-                    // ```
-                    dirtyNodes[++i] = c;
+                    dirtyNodes[++i] = children[j];
                 }
             }
             dirtyBit = childDirtyBit;
@@ -716,7 +632,7 @@ export class Node extends BaseNode implements CustomSerializable {
         let i = 0;
         while (cur && cur._dirtyFlags) {
             // top level node
-            this._setDirtyNode(i++, cur);
+            dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
         let child: this; let dirtyBits = 0;
@@ -815,15 +731,17 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @en Set rotation in local coordinate system with a quaternion representing the rotation
-     * @zh 用四元数设置本地旋转
+     * @en Set rotation in local coordinate system with a quaternion representing the rotation.
+     * Please make sure the rotation is normalized.
+     * @zh 用四元数设置本地旋转, 请确保设置的四元数已归一化。
      * @param rotation Rotation in quaternion
      */
     public setRotation (rotation: Readonly<Quat>): void;
 
     /**
-     * @en Set rotation in local coordinate system with a quaternion representing the rotation
-     * @zh 用四元数设置本地旋转
+     * @en Set rotation in local coordinate system with a quaternion representing the rotation.
+     * Please make sure the rotation is normalized.
+     * @zh 用四元数设置本地旋转, 请确保设置的四元数已归一化。
      * @param x X value in quaternion
      * @param y Y value in quaternion
      * @param z Z value in quaternion
@@ -950,7 +868,7 @@ export class Node extends BaseNode implements CustomSerializable {
         let cur = this;
         let i = 0;
         while (cur._parent) {
-            this._setDirtyNode(i++, cur);
+            dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
         while (i >= 0) {
@@ -1258,7 +1176,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * 清除所有节点的脏标记。
      */
     public static resetHasChangedFlags () {
-        bookOfChange.clear();
+        globalFlagChangeVersion += 1;
     }
 
     /**

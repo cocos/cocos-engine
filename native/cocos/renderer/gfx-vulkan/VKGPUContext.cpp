@@ -35,15 +35,17 @@ constexpr uint32_t FORCE_MINOR_VERSION = 0; // 0 for default version, otherwise 
 #define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 1
 
+using ccstd::vector;
+
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
-constexpr uint32_t             DISABLE_VALIDATION_ASSERTIONS = 1; // 0 for default behavior, otherwise assertions will be disabled
+constexpr uint32_t DISABLE_VALIDATION_ASSERTIONS = 1; // 0 for default behavior, otherwise assertions will be disabled
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
                                                            void * /*userData*/) {
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        CC_ASSERT(DISABLE_VALIDATION_ASSERTIONS);
         return VK_FALSE;
     }
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
@@ -72,7 +74,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
                                                    void * /*userData*/) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", layerPrefix, message);
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        CC_ASSERT(DISABLE_VALIDATION_ASSERTIONS);
         return VK_FALSE;
     }
     if (flags & (VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)) {
@@ -149,7 +151,7 @@ bool CCVKGPUContext::initialize() {
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
     // Determine the optimal validation layers to enable that are necessary for useful debugging
-    vector<vector<const char *>> validationLayerPriorityList{
+    ccstd::vector<ccstd::vector<const char *>> validationLayerPriorityList{
         // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
         {"VK_LAYER_KHRONOS_validation"},
 
@@ -168,7 +170,7 @@ bool CCVKGPUContext::initialize() {
         // Otherwise as a last resort we fallback to attempting to enable the LunarG core layer
         {"VK_LAYER_LUNARG_core_validation"},
     };
-    for (vector<const char *> &validationLayers : validationLayerPriorityList) {
+    for (ccstd::vector<const char *> &validationLayers : validationLayerPriorityList) {
         bool found = true;
         for (const char *layer : validationLayers) {
             if (!isLayerSupported(layer, supportedLayers)) {
@@ -206,14 +208,14 @@ bool CCVKGPUContext::initialize() {
 
     VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     app.pEngineName = "Cocos Creator";
-    app.apiVersion  = apiVersion;
+    app.apiVersion = apiVersion;
 
     VkInstanceCreateInfo instanceInfo{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
-    instanceInfo.pApplicationInfo        = &app;
-    instanceInfo.enabledExtensionCount   = utils::toUint(extensions.size());
+    instanceInfo.pApplicationInfo = &app;
+    instanceInfo.enabledExtensionCount = utils::toUint(extensions.size());
     instanceInfo.ppEnabledExtensionNames = extensions.data();
-    instanceInfo.enabledLayerCount       = utils::toUint(layers.size());
-    instanceInfo.ppEnabledLayerNames     = layers.data();
+    instanceInfo.enabledLayerCount = utils::toUint(layers.size());
+    instanceInfo.ppEnabledLayerNames = layers.data();
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
     VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
@@ -223,7 +225,7 @@ bool CCVKGPUContext::initialize() {
                                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
                                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
-        debugUtilsCreateInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugUtilsCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         debugUtilsCreateInfo.pfnUserCallback = debugUtilsMessengerCallback;
 
         instanceInfo.pNext = &debugUtilsCreateInfo;
@@ -289,7 +291,7 @@ bool CCVKGPUContext::initialize() {
         deviceIndex = 0;
     }
 
-    physicalDevice           = physicalDeviceHandles[deviceIndex];
+    physicalDevice = physicalDeviceHandles[deviceIndex];
     physicalDeviceProperties = physicalDevicePropertiesList[deviceIndex];
     vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
 
@@ -297,9 +299,9 @@ bool CCVKGPUContext::initialize() {
     minorVersion = VK_VERSION_MINOR(physicalDeviceProperties.apiVersion);
 
     if (minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
-        physicalDeviceFeatures2.pNext        = &physicalDeviceVulkan11Features;
+        physicalDeviceFeatures2.pNext = &physicalDeviceVulkan11Features;
         physicalDeviceVulkan11Features.pNext = &physicalDeviceVulkan12Features;
-        physicalDeviceProperties2.pNext      = &physicalDeviceDepthStencilResolveProperties;
+        physicalDeviceProperties2.pNext = &physicalDeviceDepthStencilResolveProperties;
         if (minorVersion >= 1) {
             vkGetPhysicalDeviceProperties2(physicalDevice, &physicalDeviceProperties2);
             vkGetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);

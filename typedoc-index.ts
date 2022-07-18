@@ -5,6 +5,7 @@ export * from './exports/3d';
 export * from './exports/animation';
 export * from './exports/audio';
 export * from './exports/base';
+export * from './exports/native';
 export * from './exports/dragon-bones';
 export * from './exports/gfx-empty';
 export * from './exports/intersection-2d';

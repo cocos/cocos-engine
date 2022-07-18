@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
 import { bt } from './instantiated';

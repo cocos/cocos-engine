@@ -43,15 +43,15 @@ class Downloader;
 
 class CC_DLL DownloadTask final {
 public:
-    const static int ERROR_NO_ERROR       = 0;
-    const static int ERROR_INVALID_PARAMS = -1;
-    const static int ERROR_FILE_OP_FAILED = -2;
-    const static int ERROR_IMPL_INTERNAL  = -3;
-    const static int ERROR_ABORT          = -4;
+    static const int ERROR_NO_ERROR = 0;
+    static const int ERROR_INVALID_PARAMS = -1;
+    static const int ERROR_FILE_OP_FAILED = -2;
+    static const int ERROR_IMPL_INTERNAL = -3;
+    static const int ERROR_ABORT = -4;
 
-    ccstd::string                                      identifier;
-    ccstd::string                                      requestURL;
-    ccstd::string                                      storagePath;
+    ccstd::string identifier;
+    ccstd::string requestURL;
+    ccstd::string storagePath;
     ccstd::unordered_map<ccstd::string, ccstd::string> header;
 
     DownloadTask();
@@ -63,9 +63,9 @@ private:
 };
 
 struct CC_DLL DownloaderHints {
-    uint32_t      countOfMaxProcessingTasks;
-    uint32_t      timeoutInSeconds;
-    ccstd::string tempFileNameSuffix;
+    uint32_t countOfMaxProcessingTasks{6};
+    uint32_t timeoutInSeconds{45};
+    ccstd::string tempFileNameSuffix{".tmp"};
 };
 
 class CC_DLL Downloader final {
@@ -74,41 +74,47 @@ public:
     explicit Downloader(const DownloaderHints &hints);
     ~Downloader();
 
-    std::function<void(const DownloadTask &                task,
+    std::function<void(const DownloadTask &task,
                        const ccstd::vector<unsigned char> &data)>
         onDataTaskSuccess;
 
     std::function<void(const DownloadTask &task)> onFileTaskSuccess;
 
     std::function<void(const DownloadTask &task,
-                       int64_t             bytesReceived,
-                       int64_t             totalBytesReceived,
-                       int64_t             totalBytesExpected)>
+                       uint32_t bytesReceived,
+                       uint32_t totalBytesReceived,
+                       uint32_t totalBytesExpected)>
         onTaskProgress;
 
-    std::function<void(const DownloadTask & task,
-                       int                  errorCode,
-                       int                  errorCodeInternal,
+    std::function<void(const DownloadTask &task,
+                       int errorCode,
+                       int errorCodeInternal,
                        const ccstd::string &errorStr)>
         onTaskError;
 
-    void setOnFileTaskSuccess(const std::function<void(const DownloadTask &task)> &callback) { onFileTaskSuccess = callback; };
+    void setOnSuccess(const std::function<void(const DownloadTask &task)> &callback) { onFileTaskSuccess = callback; };
 
+    void setOnProgress(const std::function<void(const DownloadTask &task,
+                                                uint32_t bytesReceived,
+                                                uint32_t totalBytesReceived,
+                                                uint32_t totalBytesExpected)> &callback) { onTaskProgress = callback; };
+
+    void setOnError(const std::function<void(const DownloadTask &task,
+                                             int errorCode,
+                                             int errorCodeInternal,
+                                             const ccstd::string &errorStr)> &callback) { onTaskError = callback; };
+
+    // CC_DEPRECATED(3.6, "Use setOnProgress instead") // needed for bindings, so not uncomment this line
     void setOnTaskProgress(const std::function<void(const DownloadTask &task,
-                                                    int64_t             bytesReceived,
-                                                    int64_t             totalBytesReceived,
-                                                    int64_t             totalBytesExpected)> &callback) { onTaskProgress = callback; };
+                                                    uint32_t bytesReceived,
+                                                    uint32_t totalBytesReceived,
+                                                    uint32_t totalBytesExpected)> &callback) { onTaskProgress = callback; };
 
-    void setOnTaskError(const std::function<void(const DownloadTask & task,
-                                                 int                  errorCode,
-                                                 int                  errorCodeInternal,
-                                                 const ccstd::string &errorStr)> &callback) { onTaskError = callback; };
+    std::shared_ptr<const DownloadTask> createDataTask(const ccstd::string &srcUrl, const ccstd::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadDataTask(const ccstd::string &srcUrl, const ccstd::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::string &identifier = "");
-
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::unordered_map<ccstd::string, ccstd::string> &header, const ccstd::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::unordered_map<ccstd::string, ccstd::string> &header, const ccstd::string &identifier = "");
 
     void abort(const DownloadTask &task);
 

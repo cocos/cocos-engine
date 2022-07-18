@@ -59,3 +59,6 @@ if (!GameGlobal.__isAdapterInjected) {
 
 // overwrite global WebAssembly
 global.WebAssembly = global.WXWebAssembly
+
+require('../../../../common/xmldom/dom-parser');
+require('../unify');

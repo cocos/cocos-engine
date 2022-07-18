@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import { BUILD, DEV, EDITOR } from 'internal:constants';
 import { Asset } from '..';
 import { hasNativeDep, isCompiledJson, parseUuidDependencies } from '../data/deserialize';
@@ -46,15 +43,15 @@ export interface IDependencies {
 
 /**
  * @en
- * Control asset's dependency list, it is a singleton. All member can be accessed with `cc.assetManager.dependUtil`
+ * Control asset's dependency list, it is a singleton. All member can be accessed with `assetManager.dependUtil`
  *
  * @zh
- * 控制资源的依赖列表，这是一个单例, 所有成员能通过 `cc.assetManager.dependUtil` 访问
+ * 控制资源的依赖列表，这是一个单例, 所有成员能通过 `assetManager.dependUtil` 访问
  *
  */
 export class DependUtil {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
 

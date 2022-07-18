@@ -25,7 +25,9 @@
 
 #include "ForwardStage.h"
 #include "../BatchedBuffer.h"
-#include "../GeometryRenderer.h"
+#if CC_USE_GEOMETRY_RENDERER
+    #include "../GeometryRenderer.h"
+#endif
 #include "../InstancedBuffer.h"
 #include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
@@ -48,16 +50,16 @@ namespace pipeline {
 
 RenderStageInfo ForwardStage::initInfo = {
     "ForwardStage",
-    static_cast<uint>(ForwardStagePriority::FORWARD),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(ForwardStagePriority::FORWARD),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
     {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
      {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::initInfo; }
 
 ForwardStage::ForwardStage() {
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _uiPhase        = CC_NEW(UIPhase);
+    _batchedQueue = ccnew RenderBatchedQueue;
+    _instancedQueue = ccnew RenderInstancedQueue;
+    _uiPhase = ccnew UIPhase;
 }
 
 ForwardStage::~ForwardStage() = default;
@@ -65,7 +67,7 @@ ForwardStage::~ForwardStage() = default;
 bool ForwardStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID                = getPhaseID("default");
+    _phaseID = getPhaseID("default");
     return true;
 }
 
@@ -73,14 +75,14 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint                  phase    = convertPhase(descriptor.stages);
-        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        uint32_t phase = convertPhase(descriptor.stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 
-    _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
-    _planarShadowQueue  = CC_NEW(PlanarShadowQueue(_pipeline));
+    _additiveLightQueue = ccnew RenderAdditiveLightQueue(_pipeline);
+    _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
     _uiPhase->activate(pipeline);
 }
 
@@ -97,7 +99,7 @@ void ForwardStage::dispenseRenderObject2Queues() {
     _instancedQueue->clear();
     _batchedQueue->clear();
 
-    const auto *sceneData     = _pipeline->getPipelineSceneData();
+    const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto &renderObjects = sceneData->getRenderObjects();
 
     for (auto *queue : _renderQueues) {
@@ -105,22 +107,22 @@ void ForwardStage::dispenseRenderObject2Queues() {
     }
 
     for (const auto &ro : renderObjects) {
-        const auto *const model         = ro.model;
-        const auto &      subModels     = model->getSubModels();
-        const auto        subModelCount = subModels.size();
-        for (uint subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto &subModel  = subModels[subModelIdx];
-            const auto &passes    = subModel->getPasses();
-            const auto  passCount = passes.size();
-            for (uint passIdx = 0; passIdx < passCount; ++passIdx) {
+        const auto *const model = ro.model;
+        const auto &subModels = model->getSubModels();
+        const auto subModelCount = subModels.size();
+        for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+            const auto &subModel = subModels[subModelIdx];
+            const auto &passes = subModel->getPasses();
+            const auto passCount = passes.size();
+            for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                    auto *instancedBuffer = InstancedBuffer::get(pass);
+                    auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(model, subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                    auto *batchedBuffer = BatchedBuffer::get(pass);
+                    auto *batchedBuffer = pass->getBatchedBuffer();
                     batchedBuffer->merge(subModel, passIdx, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
@@ -131,6 +133,8 @@ void ForwardStage::dispenseRenderObject2Queues() {
             }
         }
     }
+
+    _instancedQueue->sort();
 
     for (auto *queue : _renderQueues) {
         queue->sort();
@@ -143,7 +147,7 @@ void ForwardStage::render(scene::Camera *camera) {
         framegraph::TextureHandle outputTex;
         framegraph::TextureHandle depth;
     };
-    auto *      pipeline  = static_cast<ForwardPipeline *>(_pipeline);
+    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
     auto *const sceneData = _pipeline->getPipelineSceneData();
 
     float shadingScale{sceneData->getShadingScale()};
@@ -167,18 +171,18 @@ void ForwardStage::render(scene::Camera *camera) {
         // color
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-        colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT;
-        colorTexInfo.width  = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
-        colorTexInfo.height = static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
+        colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+        colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+        colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
         if (shadingScale != 1.F) {
             colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
         }
         data.outputTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
-        colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
-        auto clearFlags                = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
+        colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
+        auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
             if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
@@ -195,17 +199,17 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
             gfx::Format::DEPTH_STENCIL,
-            static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
-            static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-        depthAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
-        depthAttachmentInfo.clearDepth    = camera->getClearDepth();
-        depthAttachmentInfo.clearStencil  = camera->getClearStencil();
+        depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
+        depthAttachmentInfo.clearDepth = camera->getClearDepth();
+        depthAttachmentInfo.clearStencil = camera->getClearStencil();
         depthAttachmentInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
-        depthAttachmentInfo.endAccesses   = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        depthAttachmentInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
         if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH) || !hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL))) {
             depthAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }
@@ -215,10 +219,10 @@ void ForwardStage::render(scene::Camera *camera) {
         builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
-    auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    auto offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
     auto forwardExec = [this, camera, offset, pipeline](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
         auto *renderPass = table.getRenderPass();
-        auto *cmdBuff    = _pipeline->getCommandBuffers()[0];
+        auto *cmdBuff = _pipeline->getCommandBuffers()[0];
         cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
         if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
             _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
@@ -231,14 +235,22 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
-        camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
+
+#if CC_USE_GEOMETRY_RENDERER
+        if (camera->getGeometryRenderer()) {
+            camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
+        }
+#endif
+
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
+#if CC_USE_DEBUG_RENDERER
         renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
+#endif
     };
 
     // add pass
-    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
+    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
     pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
 }
 

@@ -35,62 +35,62 @@
 namespace cc {
 
 int Device::getDPI() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr, "Screen interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDPI();
 }
 
 float Device::getDevicePixelRatio() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr, "Screen interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDevicePixelRatio();
 }
 
 void Device::setKeepScreenOn(bool keepScreenOn) {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr, "Screen interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IScreen)->setKeepScreenOn(keepScreenOn);
 }
 
 void Device::setAccelerometerEnabled(bool isEnabled) {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr, "Accelerometer interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IAccelerometer)->setAccelerometerEnabled(isEnabled);
 }
 
 void Device::setAccelerometerInterval(float interval) {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr, "Accelerometer interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IAccelerometer)->setAccelerometerInterval(interval);
 }
 
 const IAccelerometer::MotionValue &Device::getDeviceMotionValue() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr, "Accelerometer interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IAccelerometer)->getDeviceMotionValue();
 }
 
 IScreen::Orientation Device::getDeviceOrientation() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr, "Screen interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDeviceOrientation();
 }
 
 ccstd::string Device::getDeviceModel() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(ISystem) != nullptr, "System interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystem) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(ISystem)->getDeviceModel();
 }
 
 void Device::vibrate(float duration) {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IVibrator) != nullptr, "Vibrator interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IVibrator) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IVibrator)->vibrate(duration);
 }
 
 float Device::getBatteryLevel() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IBattery) != nullptr, "Battery interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IBattery) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IBattery)->getBatteryLevel();
 }
 
 INetwork::NetworkType Device::getNetworkType() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(INetwork) != nullptr, "Network interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(INetwork) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(INetwork)->getNetworkType();
 }
 
 Vec4 Device::getSafeAreaEdge() {
-    CCASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr, "Screen interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getSafeAreaEdge();
 }
 

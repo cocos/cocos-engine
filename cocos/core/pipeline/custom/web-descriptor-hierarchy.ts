@@ -25,19 +25,17 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../assets';
-import { DescriptorHierarchy } from './pipeline';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorIndex, LayoutGraph, LayoutGraphValue, RenderPhase, UniformBlockDB } from './layout-graph';
-import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, UBOForwardLight, UBOLocalBatched, UBOMorph } from '../define';
 
-export class WebDescriptorHierarchy extends DescriptorHierarchy {
+export class WebDescriptorHierarchy {
     constructor () {
-        super();
         this._layoutGraph = new LayoutGraph();
     }
 
-    private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorIndex, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
+    private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
         const blockIndex: DescriptorBlockIndex = new DescriptorBlockIndex(freq, paraType, descType, vis);
         const key = JSON.stringify(blockIndex);
         if (descriptorDB.blocks.get(key) === undefined) {
@@ -60,17 +58,17 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
 
-    private getUniformBlock (blockName: string, targetBlock: DescriptorBlock): UniformBlockDB {
+    private getUniformBlock (blockName: string, targetBlock: DescriptorBlock): UniformBlock {
         if (targetBlock.uniformBlocks.get(blockName) === undefined) {
-            const uniformDB: UniformBlockDB = new UniformBlockDB();
+            const uniformDB: UniformBlock = new UniformBlock();
             targetBlock.uniformBlocks.set(blockName, uniformDB);
         }
-        return targetBlock.uniformBlocks.get(blockName) as UniformBlockDB;
+        return targetBlock.uniformBlocks.get(blockName) as UniformBlock;
     }
 
-    private setUniform (uniformDB: UniformBlockDB, name: string, type: Type, count: number) {
+    private setUniform (uniformDB: UniformBlock, name: string, type: Type, count: number) {
         const uniform: Uniform = new Uniform(name, type, count);
-        uniformDB.values.set(uniform.name, uniform);
+        // uniformDB.values.set(uniform.name, uniform);
     }
 
     private setDescriptor (targetBlock: DescriptorBlock, name: string, type: Type) {
@@ -99,13 +97,14 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 if (count > 0) {
                     const mergedDescriptor: Descriptor = new Descriptor(type);
                     mergedDescriptor.count = count;
-                    block.merged.set(type, mergedDescriptor);
+                    // block.merged.set(type, mergedDescriptor);
                 }
             }
         }
     }
 
     private mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
+        /*
         for (let i = 0; i < descriptorDBs.length; ++i) {
             const db: DescriptorDB = descriptorDBs[i];
             for (const e of db.blocks) {
@@ -132,6 +131,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 }
             }
         }
+        */
     }
 
     private sort (descriptorDB: DescriptorDB) {
@@ -142,16 +142,8 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
         }
     }
 
-    public addEffect (asset: EffectAsset): void {
+    public addEffect (asset: EffectAsset, parent: number): void {
         const sz = asset.shaders.length;
-
-        let hasCCGlobal = false;
-        let hasCCCamera = false;
-        let hasCCShadow = false;
-        let hasShadowmap = false;
-        let hasEnv = false;
-        let hasDiffuse = false;
-        let hasSpot = false;
 
         const dbsToMerge: DescriptorDB[] = [];
 
@@ -163,104 +155,106 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             for (let k = 0; k < shader.blocks.length; ++k) {
                 const blockInfo: EffectAsset.IBlockInfo = shader.blocks[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                    ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, blockInfo.stageFlags, queueDB);
-                const uniformDB: UniformBlockDB = this.getUniformBlock(blockInfo.name, targetBlock);
+                    ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, blockInfo.stageFlags, queueDB);
+                const uniformDB: UniformBlock = this.getUniformBlock(blockInfo.name, targetBlock);
                 for (let kk = 0; kk < blockInfo.members.length; ++kk) {
                     const uniform: Uniform = blockInfo.members[kk];
-                    uniformDB.values.set(uniform.name, uniform);
+                    // uniformDB.values.set(uniform.name, uniform);
                 }
             }
 
             for (let k = 0; k < shader.buffers.length; ++k) {
                 const bufferInfo: EffectAsset.IBufferInfo = shader.buffers[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.STORAGE_BUFFER, bufferInfo.stageFlags, queueDB);
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
+                    ParameterType.TABLE, DescriptorTypeOrder.STORAGE_BUFFER, bufferInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, bufferInfo.name, Type.UNKNOWN);
             }
 
             for (let k = 0; k < shader.images.length; ++k) {
                 const imageInfo: EffectAsset.IImageInfo = shader.images[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.STORAGE_TEXTURE, imageInfo.stageFlags, queueDB);
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
+                    ParameterType.TABLE, DescriptorTypeOrder.STORAGE_IMAGE, imageInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, imageInfo.name, imageInfo.type);
             }
 
             for (let k = 0; k < shader.samplerTextures.length; ++k) {
                 const samplerTexInfo: EffectAsset.ISamplerTextureInfo = shader.samplerTextures[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                    ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, samplerTexInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, samplerTexInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, samplerTexInfo.name, samplerTexInfo.type);
             }
 
             for (let k = 0; k < shader.samplers.length; ++k) {
                 const samplerInfo: EffectAsset.ISamplerInfo = shader.samplers[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.SAMPLER, samplerInfo.stageFlags, queueDB);
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
+                    ParameterType.TABLE, DescriptorTypeOrder.SAMPLER, samplerInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, samplerInfo.name, Type.SAMPLER);
             }
 
             for (let k = 0; k < shader.textures.length; ++k) {
                 const texInfo: EffectAsset.ITextureInfo = shader.textures[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.TEXTURE, texInfo.stageFlags, queueDB);
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
+                    ParameterType.TABLE, DescriptorTypeOrder.TEXTURE, texInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, texInfo.name, texInfo.type);
             }
 
             for (let k = 0; k < shader.subpassInputs.length; ++k) {
                 const subpassInfo: EffectAsset.IInputAttachmentInfo = shader.subpassInputs[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.SUBPASS_INPUT, subpassInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.INPUT_ATTACHMENT, subpassInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, subpassInfo.name, Type.SUBPASS_INPUT);
             }
 
             // Add queue layout from define.ts
             const localUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.VERTEX, queueDB);
-            const localLightTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.FRAGMENT, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
+            const localLightTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
+                ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.FRAGMENT, queueDB);
+            const localUITarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
+                ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
             const localModelTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE, queueDB);
             const localSamplerVertTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.VERTEX, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.VERTEX, queueDB);
             const localSamplerFragTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, queueDB);
             const localSamplerCompTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.COMPUTE, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.COMPUTE, queueDB);
 
             for (let k = 0; k < shader.builtins.locals.blocks.length; ++k) {
                 const blockName: string = shader.builtins.locals.blocks[k].name;
                 if (blockName === 'CCMorph') {
-                    const morphDB: UniformBlockDB = this.getUniformBlock('CCMorph', localUniformTarget);
+                    const morphDB: UniformBlock = this.getUniformBlock('CCMorph', localUniformTarget);
                     this.setUniform(morphDB, 'cc_displacementWeights', Type.FLOAT4, UBOMorph.MAX_MORPH_TARGET_COUNT / 4);
                     this.setUniform(morphDB, 'cc_displacementTextureInfo', Type.FLOAT4, 1);
                 } else if (blockName === 'CCSkinningTexture') {
-                    const skinningTexDB: UniformBlockDB = this.getUniformBlock('CCSkinningTexture', localUniformTarget);
+                    const skinningTexDB: UniformBlock = this.getUniformBlock('CCSkinningTexture', localUniformTarget);
                     this.setUniform(skinningTexDB, 'cc_jointTextureInfo', Type.FLOAT4, 1);
                 } else if (blockName === 'CCSkinningAnimation') {
-                    const skinningAnimDB: UniformBlockDB = this.getUniformBlock('CCSkinningAnimation', localUniformTarget);
+                    const skinningAnimDB: UniformBlock = this.getUniformBlock('CCSkinningAnimation', localUniformTarget);
                     this.setUniform(skinningAnimDB, 'cc_jointAnimInfo', Type.FLOAT4, 1);
                 } else if (blockName === 'CCSkinning') {
-                    const skinningDB: UniformBlockDB = this.getUniformBlock('CCSkinning', localUniformTarget);
+                    const skinningDB: UniformBlock = this.getUniformBlock('CCSkinning', localUniformTarget);
                     this.setUniform(skinningDB, 'cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3);
                 } else if (blockName === 'CCUILocal') {
-                    const uiDB: UniformBlockDB = this.getUniformBlock('CCUILocal', localUniformTarget);
+                    const uiDB: UniformBlock = this.getUniformBlock('CCUILocal', localUITarget);
                     this.setUniform(uiDB, 'cc_local_data', Type.FLOAT4, 1);
                 } else if (blockName === 'CCForwardLight') {
-                    const lightDB: UniformBlockDB = this.getUniformBlock('CCForwardLight', localLightTarget);
+                    const lightDB: UniformBlock = this.getUniformBlock('CCForwardLight', localLightTarget);
                     this.setUniform(lightDB, 'cc_lightPos', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                     this.setUniform(lightDB, 'cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                     this.setUniform(lightDB, 'cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                     this.setUniform(lightDB, 'cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS);
                 } else if (blockName === 'CCLocal') {
-                    const localDB: UniformBlockDB = this.getUniformBlock('CCLocal', localModelTarget);
+                    const localDB: UniformBlock = this.getUniformBlock('CCLocal', localModelTarget);
                     this.setUniform(localDB, 'cc_matWorld', Type.MAT4, 1);
                     this.setUniform(localDB, 'cc_matWorldIT', Type.MAT4, 1);
                     this.setUniform(localDB, 'cc_lightingMapUVParam', Type.FLOAT4, 1);
                 } else if (blockName === 'CCLocalBatched') {
-                    const batchDB: UniformBlockDB = this.getUniformBlock('CCLocalBatched', localModelTarget);
+                    const batchDB: UniformBlock = this.getUniformBlock('CCLocalBatched', localModelTarget);
                     this.setUniform(batchDB, 'cc_matWorlds', Type.MAT4, UBOLocalBatched.BATCHING_COUNT);
                 } else if (blockName === 'CCWorldBound') {
-                    const boundDB: UniformBlockDB = this.getUniformBlock('CCWorldBound', localModelTarget);
+                    const boundDB: UniformBlock = this.getUniformBlock('CCWorldBound', localModelTarget);
                     this.setUniform(boundDB, 'cc_worldBoundCenter', Type.FLOAT4, 1);
                     this.setUniform(boundDB, 'cc_worldBoundHalfExtents', Type.FLOAT4, 1);
                 }
@@ -294,53 +288,33 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
 
             const phase: RenderPhase = new RenderPhase();
             phase.shaders.add(shader.name);
-            this._layoutGraph.addVertex<LayoutGraphValue.RenderPhase>(LayoutGraphValue.RenderPhase, phase, shader.name, queueDB);
-
-            for (let k = 0; k < shader.builtins.globals.blocks.length; ++k) {
-                const blockName = shader.builtins.globals.blocks[k].name;
-                if (blockName === 'CCGlobal') {
-                    hasCCGlobal = true;
-                } else if (blockName === 'CCCamera') {
-                    hasCCCamera = true;
-                } else if (blockName === 'CCShadow') {
-                    hasCCShadow = true;
-                }
-            }
-
-            for (let k = 0; k < shader.builtins.globals.samplerTextures.length; ++k) {
-                const samplerName = shader.builtins.globals.samplerTextures[k].name;
-                if (samplerName === 'cc_shadowMap') {
-                    hasShadowmap = true;
-                } else if (samplerName === 'cc_environment') {
-                    hasEnv = true;
-                } else if (samplerName === 'cc_diffuseMap') {
-                    hasDiffuse = true;
-                } else if (samplerName === 'cc_spotLightingMap') {
-                    hasSpot = true;
-                }
-            }
+            this._layoutGraph.addVertex<LayoutGraphValue.RenderPhase>(LayoutGraphValue.RenderPhase, phase, shader.name, queueDB, parent);
 
             this.merge(queueDB);
             this.sort(queueDB);
             dbsToMerge.push(queueDB);
         }
+    }
+
+    public addGlobal (vName: string, hasCCGlobal, hasCCCamera, hasCCShadow, hasShadowmap, hasEnv, hasDiffuse, hasSpot): number {
+        const dbsToMerge: DescriptorDB[] = [];
 
         const passDB: DescriptorDB = new DescriptorDB();
         // Add pass layout from define.ts
         const globalUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.ALL, passDB);
+            ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.ALL, passDB);
         const globalSamplerTexTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
+            ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
 
         if (hasCCGlobal) {
-            const globalDB: UniformBlockDB = this.getUniformBlock('CCGlobal', globalUniformTarget);
+            const globalDB: UniformBlock = this.getUniformBlock('CCGlobal', globalUniformTarget);
             this.setUniform(globalDB, 'cc_time', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_screenSize', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_nativeSize', Type.FLOAT4, 1);
         }
 
         if (hasCCCamera) {
-            const cameraDB: UniformBlockDB = this.getUniformBlock('CCCamera', globalUniformTarget);
+            const cameraDB: UniformBlock = this.getUniformBlock('CCCamera', globalUniformTarget);
             this.setUniform(cameraDB, 'cc_matView', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matViewInv', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matProj', Type.MAT4, 1);
@@ -363,7 +337,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
         }
 
         if (hasCCShadow) {
-            const shadowDB: UniformBlockDB = this.getUniformBlock('CCShadow', globalUniformTarget);
+            const shadowDB: UniformBlock = this.getUniformBlock('CCShadow', globalUniformTarget);
             this.setUniform(shadowDB, 'cc_matLightPlaneProj', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightView', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightViewProj', Type.MAT4, 1);
@@ -386,14 +360,18 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             this.setDescriptor(globalSamplerTexTarget, 'cc_diffuseMap', Type.SAMPLER_CUBE);
         }
         if (hasSpot) {
-            this.setDescriptor(globalSamplerTexTarget, 'cc_spotLightingMap', Type.SAMPLER2D);
+            this.setDescriptor(globalSamplerTexTarget, 'cc_spotShadowMap', Type.SAMPLER2D);
         }
 
-        this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, asset.name, passDB);
+        const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, LayoutGraphValue.RenderStage, vName, passDB);
 
-        this.mergeDBs(dbsToMerge, passDB);
+        //this.mergeDBs(dbsToMerge, passDB);
+        this.merge(passDB);
         this.sort(passDB);
+
+        return vid;
     }
+
     private _layoutGraph: LayoutGraph;
 
     public get layoutGraph () {

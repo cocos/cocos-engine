@@ -21,12 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec2.h"
-#include "cocos/math/Math.h"
-#include "cocos/math/Geometry.h"
-#include "utils.h"
 #include <math.h>
+#include "cocos/math/Geometry.h"
+#include "cocos/math/Math.h"
+#include "cocos/math/Vec2.h"
+#include "gtest/gtest.h"
+#include "utils.h"
 
 TEST(mathGeometryTest, test7) {
     // setSize
@@ -80,12 +80,11 @@ TEST(mathGeometryTest, test7) {
     rect = rect.unionWithRect(unionWithRect);
     cc::Vec2 equalTar(0, 0);
     size.setSize(160, 70);
-    ExpectEq(rect.origin.equals(equalTar) && rect.size.equals(size), true);
+    ExpectEq(equalTar.equals(cc::Vec2{rect.x, rect.y}) && size.equals(cc::Size{rect.width, rect.height}), true);
     // merge
     logLabel = "test the geometry_rect merge function";
     cc::Rect merge(30, 10, 200, 180);
     rect.merge(merge);
     size.setSize(230, 190);
-    ExpectEq(rect.size.equals(size), true);
+    ExpectEq(size.equals(cc::Size{rect.width, rect.height}), true);
 }
-

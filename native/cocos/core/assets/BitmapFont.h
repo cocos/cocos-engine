@@ -34,17 +34,17 @@ namespace cc {
 class BitmapFontFace : public FontFace {
 public:
     explicit BitmapFontFace(Font *font);
-    ~BitmapFontFace() override             = default;
+    ~BitmapFontFace() override = default;
     BitmapFontFace(const BitmapFontFace &) = delete;
-    BitmapFontFace(BitmapFontFace &&)      = delete;
+    BitmapFontFace(BitmapFontFace &&) = delete;
     BitmapFontFace &operator=(const BitmapFontFace &) = delete;
     BitmapFontFace &operator=(BitmapFontFace &&) = delete;
 
     const FontGlyph *getGlyph(uint32_t code) override;
-    float            getKerning(uint32_t prevCode, uint32_t nextCode) override;
+    float getKerning(uint32_t prevCode, uint32_t nextCode) override;
 
 private:
-    void                 doInit(const FontFaceInfo &info) override;
+    void doInit(const FontFaceInfo &info) override;
     static gfx::Texture *loadTexture(const ccstd::string &path);
 
     friend class BitmapFont;
@@ -56,9 +56,9 @@ private:
 class BitmapFont : public Font {
 public:
     explicit BitmapFont(const ccstd::string &path);
-    ~BitmapFont() override         = default;
+    ~BitmapFont() override = default;
     BitmapFont(const BitmapFont &) = delete;
-    BitmapFont(BitmapFont &&)      = delete;
+    BitmapFont(BitmapFont &&) = delete;
     BitmapFont &operator=(const BitmapFont &) = delete;
     BitmapFont &operator=(BitmapFont &&) = delete;
 

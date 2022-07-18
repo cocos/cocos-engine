@@ -37,9 +37,9 @@ class RenderPipeline;
 class RenderStage;
 
 struct CC_DLL RenderFlowInfo {
-    ccstd::string   name;
-    uint            priority = 0;
-    uint            tag      = 0;
+    ccstd::string name;
+    uint32_t priority = 0;
+    uint32_t tag = 0;
     RenderStageList stages;
 };
 
@@ -54,16 +54,17 @@ public:
     virtual void destroy();
 
     inline const ccstd::string &getName() const { return _name; }
-    inline uint                 getPriority() const { return _priority; }
-    inline uint                 getTag() const { return _tag; }
-    RenderStage *               getRenderstageByName(const ccstd::string &name) const;
+    inline uint32_t getPriority() const { return _priority; }
+    inline uint32_t getTag() const { return _tag; }
+    RenderStage *getRenderstageByName(const ccstd::string &name) const;
 
 protected:
     RenderStageList _stages;
-    ccstd::string   _name;
-    RenderPipeline *_pipeline = nullptr;
-    uint            _priority = 0;
-    uint            _tag      = 0;
+    ccstd::string _name;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    uint32_t _priority{0};
+    uint32_t _tag{0};
 };
 
 } // namespace pipeline

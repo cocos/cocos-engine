@@ -10,13 +10,11 @@ const char* DataParser::DATA_VERSION_5_0 = "5.0";
 const char* DataParser::DATA_VERSION_5_5 = "5.5";
 const char* DataParser::DATA_VERSION = DataParser::DATA_VERSION_5_5;
 
-const std::vector<std::string> DataParser::DATA_VERSIONS
-{ 
+const std::vector<std::string> DataParser::DATA_VERSIONS{
     DataParser::DATA_VERSION_4_0,
     DataParser::DATA_VERSION_4_5,
     DataParser::DATA_VERSION_5_0,
-    DataParser::DATA_VERSION_5_5
-};
+    DataParser::DATA_VERSION_5_5};
 
 const char* DataParser::TEXTURE_ATLAS = "TextureAtlas";
 const char* DataParser::SUB_TEXTURE = "SubTexture";
@@ -130,186 +128,120 @@ const char* DataParser::GOTO_AND_PLAY = "gotoAndPlay";
 
 const char* DataParser::DEFAULT_NAME = "default";
 
-TextureFormat DataParser::_getTextureFormat(const std::string& value)
-{
+TextureFormat DataParser::_getTextureFormat(const std::string& value) {
     auto lower = value;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    if (lower == "rgba8888")
-    {
+    if (lower == "rgba8888") {
         return TextureFormat::RGBA8888;
-    }
-    else if (lower == "bgra8888")
-    {
+    } else if (lower == "bgra8888") {
         return TextureFormat::BGRA8888;
-    }
-    else if (lower == "rgba4444")
-    {
+    } else if (lower == "rgba4444") {
         return TextureFormat::RGBA4444;
-    }
-    else if (lower == "rgb888")
-    {
+    } else if (lower == "rgb888") {
         return TextureFormat::RGB888;
-    }
-    else if (lower == "rgb565")
-    {
+    } else if (lower == "rgb565") {
         return TextureFormat::RGB565;
-    }
-    else if (lower == "rgba5551")
-    {
+    } else if (lower == "rgba5551") {
         return TextureFormat::RGBA5551;
     }
 
     return TextureFormat::DEFAULT;
 }
 
-ArmatureType DataParser::_getArmatureType(const std::string& value)
-{
+ArmatureType DataParser::_getArmatureType(const std::string& value) {
     auto lower = value;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    if (lower == "armature")
-    {
+    if (lower == "armature") {
         return ArmatureType::Armature;
-    }
-    else if (lower == "movieClip")
-    {
+    } else if (lower == "movieClip") {
         return ArmatureType::MovieClip;
-    }
-    else if (lower == "stage")
-    {
+    } else if (lower == "stage") {
         return ArmatureType::Stage;
     }
 
     return ArmatureType::Armature;
 }
 
-DisplayType DataParser::_getDisplayType(const std::string& value)
-{
+DisplayType DataParser::_getDisplayType(const std::string& value) {
     auto lower = value;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    if (lower == "image")
-    {
+    if (lower == "image") {
         return DisplayType::Image;
-    }
-    else if (lower == "armature")
-    {
+    } else if (lower == "armature") {
         return DisplayType::Armature;
-    }
-    else if (lower == "mesh")
-    {
+    } else if (lower == "mesh") {
         return DisplayType::Mesh;
-    }
-    else if (lower == "boundingbox")
-    {
+    } else if (lower == "boundingbox") {
         return DisplayType::BoundingBox;
     }
 
     return DisplayType::Image;
 }
 
-BoundingBoxType DataParser::_getBoundingBoxType(const std::string & value)
-{
+BoundingBoxType DataParser::_getBoundingBoxType(const std::string& value) {
     auto lower = value;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    if (lower == "rectangle")
-    {
+    if (lower == "rectangle") {
         return BoundingBoxType::Rectangle;
-    }
-    else if (lower == "ellipse")
-    {
+    } else if (lower == "ellipse") {
         return BoundingBoxType::Ellipse;
-    }
-    else if (lower == "polygon")
-    {
+    } else if (lower == "polygon") {
         return BoundingBoxType::Polygon;
     }
 
     return BoundingBoxType::Rectangle;
 }
 
-ActionType DataParser::_getActionType(const std::string& value)
-{
+ActionType DataParser::_getActionType(const std::string& value) {
     auto lower = value;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    if (lower == "play")
-    {
+    if (lower == "play") {
         return ActionType::Play;
-    }
-    else if (lower == "frame")
-    {
+    } else if (lower == "frame") {
         return ActionType::Frame;
-    }
-    else if (lower == "sound")
-    {
+    } else if (lower == "sound") {
         return ActionType::Sound;
     }
 
     return ActionType::Play;
 }
 
-BlendMode DataParser::_getBlendMode(const std::string& value)
-{
+BlendMode DataParser::_getBlendMode(const std::string& value) {
     auto lower = value;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    if (lower == "normal")
-    {
+    if (lower == "normal") {
         return BlendMode::Normal;
-    }
-    else if (lower == "add")
-    {
+    } else if (lower == "add") {
         return BlendMode::Add;
-    }
-    else if (lower == "alpha")
-    {
+    } else if (lower == "alpha") {
         return BlendMode::Alpha;
-    }
-    else if (lower == "darken")
-    {
+    } else if (lower == "darken") {
         return BlendMode::Darken;
-    }
-    else if (lower == "difference")
-    {
+    } else if (lower == "difference") {
         return BlendMode::Difference;
-    }
-    else if (lower == "erase")
-    {
+    } else if (lower == "erase") {
         return BlendMode::Erase;
-    }
-    else if (lower == "hardlight")
-    {
+    } else if (lower == "hardlight") {
         return BlendMode::HardLight;
-    }
-    else if (lower == "invert")
-    {
+    } else if (lower == "invert") {
         return BlendMode::Invert;
-    }
-    else if (lower == "layer")
-    {
+    } else if (lower == "layer") {
         return BlendMode::Layer;
-    }
-    else if (lower == "lighten")
-    {
+    } else if (lower == "lighten") {
         return BlendMode::Lighten;
-    }
-    else if (lower == "multiply")
-    {
+    } else if (lower == "multiply") {
         return BlendMode::Multiply;
-    }
-    else if (lower == "overlay")
-    {
+    } else if (lower == "overlay") {
         return BlendMode::Overlay;
-    }
-    else if (lower == "screen")
-    {
+    } else if (lower == "screen") {
         return BlendMode::Screen;
-    }
-    else if (lower == "subtract")
-    {
+    } else if (lower == "subtract") {
         return BlendMode::Subtract;
     }
 

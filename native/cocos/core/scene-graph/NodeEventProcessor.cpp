@@ -33,8 +33,8 @@
 
 namespace {
 ccstd::vector<cc::Node *> cachedArray(16);
-cc::Node *                currentHovered = nullptr;
-cc::Vec2                  pos;
+cc::Node *currentHovered = nullptr;
+cc::Vec2 pos;
 
 //bool touchStartHandler(cc::event::EventListener *listener, cc::event::Touch *touch, cc::event::Event *event) {
 //    auto *touchEvent = static_cast<cc::event::EventTouch *>(event);

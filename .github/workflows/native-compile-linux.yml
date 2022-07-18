@@ -1,19 +1,37 @@
 name: <Native> Linux
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'templates/**'
+    - 'native/**'
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   compile_linux:
     name: "Linux-Ubuntu"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
       - name: Generate bindings
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           python3 -m pip install PyYAML==5.4.1 Cheetah3
           python3 ./native/tools/tojs/genbindings.py
@@ -27,9 +45,9 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Linux ... "
-          cd  $COCOS2DX_ROOT/templates/linux
+          cd  $GITHUB_WORKSPACE/templates/linux
           mkdir -p build-linux/proj
           touch build-linux/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-linux/proj/cfg.cmake
@@ -41,8 +59,8 @@ jobs:
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-linux/proj/cfg.cmake
           mkdir build-linux/assets
 
-          RES_DIR=$COCOS2DX_ROOT/templates/linux/build-linux
+          RES_DIR=$GITHUB_WORKSPACE/templates/linux/build-linux
           cd build-linux
-          cmake ../ -GNinja -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          cmake ../ -GNinja -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
           set +e
           cmake --build . 

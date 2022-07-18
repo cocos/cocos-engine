@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
 import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
 import type { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
@@ -64,7 +59,7 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.ClickEvent')
 export class EventHandler {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _componentName () {
         this._genCompIdIfNeeded();
@@ -100,8 +95,8 @@ export class EventHandler {
      * @zh
      * 事件响应组件和函数所在节点
      */
-    @serializable
-    @type(legacyCC.Node)
+    // @type(Node) should be removed for avoid circle reference error
+    // the type definition of it deal with in the file './component-event-handler.schema.ts'
     @serializable
     @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
@@ -118,7 +113,7 @@ export class EventHandler {
     public component = '';
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _componentId = '';
@@ -164,7 +159,7 @@ export class EventHandler {
         if (!legacyCC.isValid(target)) { return; }
 
         this._genCompIdIfNeeded();
-        const compType = legacyCC.js._getClassById(this._componentId);
+        const compType = legacyCC.js.getClassById(this._componentId);
 
         const comp = target!.getComponent(compType);
         if (!legacyCC.isValid(comp)) { return; }
@@ -182,11 +177,11 @@ export class EventHandler {
 
     private _compName2Id (compName) {
         const comp = legacyCC.js.getClassByName(compName);
-        return legacyCC.js._getClassId(comp);
+        return legacyCC.js.getClassId(comp);
     }
 
     private _compId2Name (compId) {
-        const comp = legacyCC.js._getClassById(compId);
+        const comp = legacyCC.js.getClassById(compId);
         return legacyCC.js.getClassName(comp);
     }
 

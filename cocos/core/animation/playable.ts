@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { getError } from '../platform/debug';
 
 export class Playable {

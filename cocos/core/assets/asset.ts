@@ -24,21 +24,16 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, serializable } from 'cc.decorator';
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
-import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
 import { debug, getError, warn } from '../platform/debug';
+import { CCObject } from '../data/object';
 
 /**
  * @en
@@ -62,9 +57,10 @@ import { debug, getError, warn } from '../platform/debug';
  * @extends CCObject
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventify(GCObject) {
+export class Asset extends Eventify(CCObject) {
     /**
      * 应 AssetDB 要求提供这个方法。
+     * @internal
      * @method deserialize
      * @param {String} data
      * @return {Asset}
@@ -85,10 +81,13 @@ export class Asset extends Eventify(GCObject) {
     public loaded = true;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public declare _uuid: string;
 
+    /**
+     * @internal
+     */
     public declare isDefault: boolean;
 
     /**
@@ -98,12 +97,12 @@ export class Asset extends Eventify(GCObject) {
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _native = '';
     /**
-     * @legacyPublic
+     * @internal
      */
     public _nativeUrl = '';
 
@@ -146,7 +145,7 @@ export class Asset extends Eventify(GCObject) {
      * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
      * 如果`_native`可用，则此属性将由加载器初始化。
      * @default null
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @property
     get _nativeAsset () {
@@ -157,7 +156,7 @@ export class Asset extends Eventify(GCObject) {
         this._file = obj;
     }
 
-    constructor (...args: ConstructorParameters<typeof GCObject>) {
+    constructor (...args: ConstructorParameters<typeof CCObject>) {
         super(...args);
 
         Object.defineProperty(this, '_uuid', {
@@ -219,7 +218,7 @@ export class Asset extends Eventify(GCObject) {
      *
      * @param filename
      * @param inLibrary
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setRawAsset (filename: string, inLibrary = true) {
         if (inLibrary !== false) {
@@ -240,7 +239,7 @@ export class Asset extends Eventify(GCObject) {
     public createNode? (callback: CreateNodeCallback): void;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public get _nativeDep () {
         if (this._native) {

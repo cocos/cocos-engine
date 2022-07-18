@@ -35,7 +35,7 @@ VkQueryType mapVkQueryType(QueryType type) {
         case QueryType::PIPELINE_STATISTICS: return VK_QUERY_TYPE_PIPELINE_STATISTICS;
         case QueryType::TIMESTAMP: return VK_QUERY_TYPE_TIMESTAMP;
         default: {
-            CCASSERT(false, "Unsupported query type, convert to VkQueryType failed.");
+            CC_ASSERT(false);
             return VK_QUERY_TYPE_OCCLUSION;
         }
     }
@@ -163,7 +163,7 @@ VkFormat mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice) {
         case Format::ASTC_SRGBA_12X12: return VK_FORMAT_ASTC_12x12_SRGB_BLOCK;
 
         default: {
-            CCASSERT(false, "Unsupported Format, convert to VkFormat failed.");
+            CC_ASSERT(false);
             return VK_FORMAT_B8G8R8A8_UNORM;
         }
     }
@@ -175,7 +175,7 @@ VkAttachmentLoadOp mapVkLoadOp(LoadOp loadOp) {
         case LoadOp::LOAD: return VK_ATTACHMENT_LOAD_OP_LOAD;
         case LoadOp::DISCARD: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         default: {
-            CCASSERT(false, "Unsupported LoadOp, convert to VkLoadOp failed.");
+            CC_ASSERT(false);
             return VK_ATTACHMENT_LOAD_OP_LOAD;
         }
     }
@@ -186,7 +186,7 @@ VkAttachmentStoreOp mapVkStoreOp(StoreOp storeOp) {
         case StoreOp::STORE: return VK_ATTACHMENT_STORE_OP_STORE;
         case StoreOp::DISCARD: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
         default: {
-            CCASSERT(false, "Unsupported StoreOp, convert to VkStoreOp failed.");
+            CC_ASSERT(false);
             return VK_ATTACHMENT_STORE_OP_STORE;
         }
     }
@@ -213,7 +213,7 @@ VkImageType mapVkImageType(TextureType type) {
         case TextureType::TEX2D_ARRAY: return VK_IMAGE_TYPE_2D;
         case TextureType::TEX3D: return VK_IMAGE_TYPE_3D;
         default: {
-            CCASSERT(false, "Unsupported TextureType, convert to VkImageType failed.");
+            CC_ASSERT(false);
             return VK_IMAGE_TYPE_2D;
         }
     }
@@ -244,7 +244,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageAspectFlags mapVkImageAspectFlags(Format format) {
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    const FormatInfo & info       = GFX_FORMAT_INFOS[toNumber(format)];
+    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(format)];
     if (info.hasDepth) aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     if (info.hasStencil) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
     return aspectMask;
@@ -269,7 +269,7 @@ VkImageViewType mapVkImageViewType(TextureType viewType) {
         case TextureType::TEX3D: return VK_IMAGE_VIEW_TYPE_3D;
         case TextureType::CUBE: return VK_IMAGE_VIEW_TYPE_CUBE;
         default: {
-            CCASSERT(false, "Unsupported TextureViewType, convert to VkImageViewType failed.");
+            CC_ASSERT(false);
             return VK_IMAGE_VIEW_TYPE_2D;
         }
     }
@@ -280,7 +280,7 @@ VkCommandBufferLevel mapVkCommandBufferLevel(CommandBufferType type) {
         case CommandBufferType::PRIMARY: return VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         case CommandBufferType::SECONDARY: return VK_COMMAND_BUFFER_LEVEL_SECONDARY;
         default: {
-            CCASSERT(false, "Unsupported CommandBufferType, convert to VkCommandBufferLevel failed.");
+            CC_ASSERT(false);
             return VK_COMMAND_BUFFER_LEVEL_SECONDARY;
         }
     }
@@ -298,7 +298,7 @@ VkDescriptorType mapVkDescriptorType(DescriptorType type) {
         case DescriptorType::STORAGE_IMAGE: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         case DescriptorType::INPUT_ATTACHMENT: return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
         default: {
-            CCASSERT(false, "Unsupported DescriptorType, convert to VkDescriptorType failed.");
+            CC_ASSERT(false);
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
     }
@@ -322,7 +322,7 @@ VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage) {
         case ShaderStageFlagBit::FRAGMENT: return VK_SHADER_STAGE_FRAGMENT_BIT;
         case ShaderStageFlagBit::COMPUTE: return VK_SHADER_STAGE_COMPUTE_BIT;
         default: {
-            CCASSERT(false, "Unsupported ShaderStageFlagBit, convert to VkShaderStageFlagBits failed.");
+            CC_ASSERT(false);
             return VK_SHADER_STAGE_VERTEX_BIT;
         }
     }
@@ -497,7 +497,7 @@ const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[] = {
 const VkSampleCountFlags VK_SAMPLE_COUNT_FLAGS[] = {
     VK_SAMPLE_COUNT_1_BIT,
     VK_SAMPLE_COUNT_2_BIT,
-#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_IOS
     VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
 #else // desktop platforms
     VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,

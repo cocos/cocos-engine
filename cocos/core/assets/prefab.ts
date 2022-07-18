@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { compile } from '../data/instantiate-jit';

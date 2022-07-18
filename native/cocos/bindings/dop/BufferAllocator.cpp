@@ -40,7 +40,7 @@ BufferAllocator::~BufferAllocator() {
     _buffers.clear();
 }
 
-se::Object *BufferAllocator::alloc(uint index, uint bytes) {
+se::Object *BufferAllocator::alloc(uint32_t index, uint32_t bytes) {
     if (_buffers.count(index)) {
         se::Object *oldObj = _buffers[index];
         oldObj->decRef();
@@ -50,13 +50,13 @@ se::Object *BufferAllocator::alloc(uint index, uint bytes) {
     _buffers[index] = obj;
 
     uint8_t *ret = nullptr;
-    size_t   len;
+    size_t len;
     obj->getArrayBufferData(static_cast<uint8_t **>(&ret), &len);
 
     return obj;
 }
 
-void BufferAllocator::free(uint index) {
+void BufferAllocator::free(uint32_t index) {
     if (_buffers.count(index)) {
         se::Object *oldObj = _buffers[index];
         oldObj->decRef();

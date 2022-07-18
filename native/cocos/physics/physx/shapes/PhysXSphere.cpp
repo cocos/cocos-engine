@@ -31,8 +31,7 @@
 namespace cc {
 namespace physics {
 
-PhysXSphere::PhysXSphere() : _mRadius(0.5F),
-                             PhysXShape(){};
+PhysXSphere::PhysXSphere() : _mRadius(0.5F) {}
 
 void PhysXSphere::setRadius(float r) {
     _mRadius = r;
@@ -53,10 +52,10 @@ void PhysXSphere::updateScale() {
 
 void PhysXSphere::updateGeometry() {
     physx::PxVec3 scale;
-    auto *        node = getSharedBody().getNode();
+    auto *node = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale, node->getWorldScale());
-    auto &geo  = getPxGeometry<physx::PxSphereGeometry>();
+    auto &geo = getPxGeometry<physx::PxSphereGeometry>();
     geo.radius = physx::PxMax(_mRadius * scale.abs().maxElement(), PX_NORMALIZATION_EPSILON);
 }
 

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Game, game } from '../../core';
 import { selector } from '../framework/physics-selector';
 import { BulletRigidBody } from './bullet-rigid-body';
@@ -41,7 +39,7 @@ import { BulletPlaneShape } from './shapes/bullet-plane-shape';
 import { BulletP2PConstraint } from './constraints/bullet-p2p-constraint';
 import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('bullet', {
         PhysicsWorld: BulletWorld,
         RigidBody: BulletRigidBody,

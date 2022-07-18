@@ -23,8 +23,7 @@
  THE SOFTWARE.
 */
 
-
-
+import { JSB } from 'internal:constants';
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -32,12 +31,19 @@ import { Color } from '../../core/math';
 import { Pool, RecyclePool } from '../../core/memop';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Renderable2D } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
-import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
-import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { getAttributeStride, vfmtPosUvColor, vfmtPosUvTwoColor } from './vertex-format';
+import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
+import { StencilManager } from './stencil-manager';
+import { Batcher2D } from './batcher-2d';
+import { RenderEntity, RenderEntityType } from './render-entity';
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export interface IRenderData {
     x: number;
     y: number;
@@ -58,10 +64,12 @@ const _dataPool = new Pool(() => ({
     color: Color.WHITE.clone(),
 }), 128);
 
-let _pool: RecyclePool<RenderData> = null!;
+const _pool: RecyclePool<RenderData> = null!;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class BaseRenderData {
-    public material: Material | null = null;
     get vertexCount () {
         return this._vc;
     }
@@ -78,15 +86,66 @@ export class BaseRenderData {
         return this._vertexFormat;
     }
 
+    get drawInfoType () {
+        return this._drawInfoType;
+    }
+    set drawInfoType (type: RenderDrawInfoType) {
+        this._drawInfoType = type;
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setDrawInfoType(type);
+        }
+    }
+
     public chunk: StaticVBChunk = null!;
 
-    public dataHash = 0;
-    public isMeshBuffer = false;
+    // entity for native
+    protected _renderDrawInfo: RenderDrawInfo = null!;
+    public get renderDrawInfo () {
+        return this._renderDrawInfo;
+    }
+
+    protected _material: Material | null = null;
+    get material () {
+        return this._material!;
+    }
+    set material (val: Material | null) {
+        this._material = val;
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setMaterial(val!);
+        }
+    }
+
+    protected _dataHash = 0;
+    get dataHash () {
+        return this._dataHash;
+    }
+    set dataHash (val: number) {
+        this._dataHash = val;
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setDataHash(val);
+        }
+    }
+
+    public _isMeshBuffer = false;
 
     protected _vc = 0;
     protected _ic = 0;
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
+    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+    protected _multiOwner = false;
+    get multiOwner () { return this._multiOwner; }
+    set multiOwner (val) {
+        this._multiOwner = val;
+    }
+
+    protected _batcher: Batcher2D | null = null;
+    get batcher () {
+        if (!this._batcher) {
+            this._batcher = director.root!.batcher2D;
+        }
+        return this._batcher;
+    }
 
     constructor (vertexFormat = vfmtPosUvColor) {
         this._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
@@ -96,14 +155,75 @@ export class BaseRenderData {
     public isValid () {
         return this._ic > 0 && this.chunk.vertexAccessor;
     }
+
+    // it should be invoked at where a render data is allocated.
+    public initRenderDrawInfo (comp: UIRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP) {
+        if (JSB) {
+            const renderEntity: RenderEntity = comp.renderEntity;
+
+            if (renderEntity.renderEntityType === RenderEntityType.STATIC) {
+                if (!this._renderDrawInfo) {
+                    // initialization should be in native
+                    const drawInfo = renderEntity.getStaticRenderDrawInfo();
+                    if (drawInfo) {
+                        this._renderDrawInfo = drawInfo;
+                    }
+                }
+            } else if (this.multiOwner === false) {
+                if (!this._renderDrawInfo) {
+                    this._renderDrawInfo = new RenderDrawInfo();
+                    // for no resize() invoking components
+                    this.setRenderDrawInfoAttributes();
+                    renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
+                }
+            }
+
+            this.drawInfoType = drawInfoType;
+        }
+    }
+
+    public removeRenderDrawInfo (comp: UIRenderer) {
+        if (JSB) {
+            const renderEntity: RenderEntity = comp.renderEntity;
+            if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
+                renderEntity.removeDynamicRenderDrawInfo();
+            }
+        }
+    }
+
+    protected setRenderDrawInfoAttributes () {
+        if (JSB) {
+            if (!this._renderDrawInfo) {
+                return;
+            }
+            if (this.chunk) {
+                this._renderDrawInfo.setBufferId(this.chunk.bufferId);
+                this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
+                this._renderDrawInfo.setVB(this.chunk.vb);
+                this._renderDrawInfo.setIB(this.chunk.ib);
+                if (this.chunk.meshBuffer) {
+                    this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+                    this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+                    this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+                }
+            }
+            this._renderDrawInfo.setVBCount(this._vc);
+            this._renderDrawInfo.setIBCount(this._ic);
+
+            this._renderDrawInfo.setDataHash(this.dataHash);
+            this._renderDrawInfo.setIsMeshBuffer(this._isMeshBuffer);
+            this._renderDrawInfo.setMaterial(this.material!);
+            this._renderDrawInfo.setDrawInfoType(this._drawInfoType);
+        }
+    }
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
-        if (!_pool) {
-            _pool = new RecyclePool(() => new RenderData(), 32);
-        }
-        const rd = _pool.add();
+        const rd = new RenderData(vertexFormat);
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
         if (!accessor) {
@@ -115,14 +235,14 @@ export class RenderData extends BaseRenderData {
     }
 
     public static remove (data: RenderData) {
-        const idx = _pool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
+        // const idx = _pool.data.indexOf(data);
+        // if (idx === -1) {
+        //     return;
+        // }
 
         data.clear();
         data._accessor = null!;
-        _pool.removeAt(idx);
+        // _pool.removeAt(idx);
     }
 
     get dataLength () {
@@ -145,19 +265,65 @@ export class RenderData extends BaseRenderData {
 
             data.length = length;
         }
+
+        this.syncRender2dBuffer();
     }
 
     get data () {
         return this._data;
     }
 
-    public indices: Uint16Array | null = null;
-    public vertDirty = true;
+    public _vertDirty = true;
+    get vertDirty () {
+        return this._vertDirty;
+    }
+    set vertDirty (val: boolean) {
+        this._vertDirty = val;
+        if (this._renderDrawInfo && val) {
+            this._renderDrawInfo.setVertDirty(val);
+        }
+    }
 
-    public frame;
+    protected _textureHash = 0;
+    get textureHash () {
+        return this._textureHash;
+    }
+    set textureHash (val: number) {
+        this._textureHash = val;
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setTextureHash(val);
+        }
+    }
+
+    protected _blendHash = -1;
+    get blendHash () {
+        return this._blendHash;
+    }
+    set blendHash (val: number) {
+        this._blendHash = val;
+        if (this._renderDrawInfo) {
+            this._renderDrawInfo.setBlendHash(val);
+        }
+    }
+
+    public indices: Uint16Array | null = null;
+
+    public set frame (val: SpriteFrame | TextureBase | null) {
+        this._frame = val;
+        if (this._renderDrawInfo) {
+            if (this._frame) {
+                this._renderDrawInfo.setTexture(this._frame.getGFXTexture());
+                this._renderDrawInfo.setSampler(this._frame.getGFXSampler());
+            } else {
+                this._renderDrawInfo.setTexture(null);
+                this._renderDrawInfo.setSampler(null);
+            }
+        }
+    }
+    public get frame () {
+        return this._frame;
+    }
     public layer = 0;
-    public blendHash = -1;
-    public textureHash = 0;
 
     public nodeDirty = true;
     public passDirty = true;
@@ -169,13 +335,16 @@ export class RenderData extends BaseRenderData {
     private _pivotY = 0;
     private _width = 0;
     private _height = 0;
+    private _frame: SpriteFrame | TextureBase | null = null;
     protected _accessor: StaticVBAccessor = null!;
+
+    public vertexRow = 1;
+    public vertexCol = 1;
 
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
         if (!accessor) {
-            const batcher = director.root!.batcher2D;
-            accessor = batcher.switchBufferAccessor(this._vertexFormat);
+            accessor = this.batcher.switchBufferAccessor(this._vertexFormat);
         }
         this._accessor = accessor;
     }
@@ -191,6 +360,67 @@ export class RenderData extends BaseRenderData {
         // renderData always have chunk
         this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
         this.updateHash();
+
+        if (JSB && this.multiOwner === false && this._renderDrawInfo) {
+            // for sync vData and iData address to native
+            this._renderDrawInfo.setDrawInfoType(this._drawInfoType);
+            this._renderDrawInfo.setBufferId(this.chunk.bufferId);
+            this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
+            this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+            this._renderDrawInfo.setVB(this.chunk.vb);
+            this._renderDrawInfo.setIB(this.chunk.ib);
+            this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+            this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            this._renderDrawInfo.setVBCount(this._vc);
+            this._renderDrawInfo.setIBCount(this._ic);
+        }
+    }
+
+    protected setRenderDrawInfoAttributes () {
+        if (JSB) {
+            if (!this._renderDrawInfo) {
+                return;
+            }
+            this._renderDrawInfo.setAccId(this._accessor.id);
+            super.setRenderDrawInfoAttributes();
+            this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
+            this._renderDrawInfo.setTextureHash(this.textureHash);
+            this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
+            this._renderDrawInfo.setBlendHash(this.blendHash);
+        }
+    }
+
+    public fillDrawInfoAttributes (drawInfo: RenderDrawInfo) {
+        if (JSB) {
+            if (!drawInfo) {
+                return;
+            }
+
+            drawInfo.setAccId(this._accessor.id);
+            drawInfo.setDrawInfoType(this._drawInfoType);
+            drawInfo.setBufferId(this.chunk.bufferId);
+            drawInfo.setVertexOffset(this.chunk.vertexOffset);
+            drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+            drawInfo.setVB(this.chunk.vb);
+            drawInfo.setIB(this.chunk.ib);
+            drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+            drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+            drawInfo.setVBCount(this._vc);
+            drawInfo.setIBCount(this._ic);
+            drawInfo.setDataHash(this.dataHash);
+            drawInfo.setIsMeshBuffer(this._isMeshBuffer);
+        }
+    }
+
+    // Initial advance render data for native
+    protected syncRender2dBuffer () {
+        if (JSB && this.multiOwner === false) {
+            if (!this._renderDrawInfo) {
+                return;
+            }
+            this.renderDrawInfo.initRender2dBuffer(this.dataLength, this.floatStride);
+            this.renderDrawInfo.setRender2dBufferToNative();
+        }
     }
 
     public resizeAndCopy (vertexCount: number, indexCount: number) {
@@ -216,14 +446,14 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateNode (comp: Renderable2D) {
+    public updateNode (comp: UIRenderer) {
         this.layer = comp.node.layer;
         this.nodeDirty = false;
         this.hashDirty = true;
     }
 
-    public updatePass (comp: Renderable2D) {
-        this.material = comp.getRenderMaterial(0);
+    public updatePass (comp: UIRenderer) {
+        this.material = comp.getRenderMaterial(0)!;
         this.blendHash = comp.blendHash;
         this.passDirty = false;
         this.hashDirty = true;
@@ -243,9 +473,9 @@ export class RenderData extends BaseRenderData {
         this.hashDirty = false;
     }
 
-    public updateRenderData (comp: Renderable2D, frame: SpriteFrame | TextureBase) {
+    public updateRenderData (comp: UIRenderer, frame: SpriteFrame | TextureBase) {
         if (this.passDirty) {
-            this.material = comp.getRenderMaterial(0);
+            this.material = comp.getRenderMaterial(0)!;
             this.blendHash = comp.blendHash;
             this.passDirty = false;
             this.hashDirty = true;
@@ -267,6 +497,28 @@ export class RenderData extends BaseRenderData {
         }
         if (this.hashDirty) {
             this.updateHash();
+        }
+
+        // Hack Do not update pre frame
+        if (JSB && this.multiOwner === false) {
+            // for sync vData and iData address to native
+            this.setRenderDrawInfoAttributes();
+            // sync shared buffer to native
+            this.copyRenderDataToSharedBuffer();
+        }
+    }
+
+    copyRenderDataToSharedBuffer () {
+        if (JSB) {
+            const entity = this._renderDrawInfo;
+            const sharedBuffer = entity.render2dBuffer;
+
+            if (sharedBuffer.length < this.floatStride * this._data.length) {
+                console.error('Vertex count doesn\'t match.');
+                return;
+            }
+
+            entity.fillRender2dBuffer(this._data);
         }
     }
 
@@ -304,31 +556,45 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
+        if (JSB && this._renderDrawInfo) {
+            this._renderDrawInfo.clear();
+        }
+    }
+    public static createStaticVBAccessor (attributes: Attribute[], vCount?: number, iCount?: number): StaticVBAccessor {
+        const device = director.root!.device;
+        const accessor = new StaticVBAccessor(device, attributes, vCount, iCount);
+        return accessor;
     }
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class MeshRenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor) {
-        const rd = _meshDataPool.add();
+        // const rd = _meshDataPool.add();
+        const rd = new MeshRenderData();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
         return rd;
     }
 
     public static remove (data: MeshRenderData) {
-        const idx = _meshDataPool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
+        // const idx = _meshDataPool.data.indexOf(data);
+        // if (idx === -1) {
+        //     return;
+        // }
 
-        _meshDataPool.data[idx].clear();
-        _meshDataPool.removeAt(idx);
+        // _meshDataPool.data[idx].clear();
+        // _meshDataPool.removeAt(idx);
+
+        data.clear();
     }
 
     /**
      * @deprecated
      */
-    set formatByte (value: number) {}
+    set formatByte (value: number) { }
     get formatByte () { return this.stride; }
 
     get floatStride () { return this._floatStride; }
@@ -338,7 +604,7 @@ export class MeshRenderData extends BaseRenderData {
      */
     get vDataOffset () { return this._byteLength >>> 2; }
 
-    public isMeshBuffer = true;
+    public _isMeshBuffer = true;
     public vData: Float32Array;
     public iData: Uint16Array;
     /**
@@ -360,6 +626,8 @@ export class MeshRenderData extends BaseRenderData {
     // only for graphics
     public lastFilledIndex = 0;
     public lastFilledVertex = 0;
+
+    public frame;
 
     private _byteLength = 0;
     private _vertexBuffers: Buffer[] = [];
@@ -518,7 +786,7 @@ export class MeshRenderData extends BaseRenderData {
                 ));
             }
             this._iaInfo = new InputAssemblerInfo(this._vertexFormat, vbs, this._indexBuffer);
-            this._iaPool =  new RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
+            this._iaPool = new RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
         }
     }
 
@@ -533,6 +801,40 @@ export class MeshRenderData extends BaseRenderData {
         this.iData = new Uint16Array(iCount);
         if (oldIData) {
             this.iData.set(oldIData, 0);
+        }
+    }
+
+    public setRenderDrawInfoAttributes () {
+        if (JSB) {
+            if (!this._renderDrawInfo) {
+                return;
+            }
+            this._renderDrawInfo.setVData(this.vData.buffer);
+            this._renderDrawInfo.setIData(this.iData.buffer);
+            this._renderDrawInfo.setVBCount(this._vc);
+            this._renderDrawInfo.setIBCount(this._ic);
+            this._renderDrawInfo.setVertexOffset(this.vertexStart);
+            this._renderDrawInfo.setIndexOffset(this.indexStart);
+
+            this._renderDrawInfo.setIsMeshBuffer(this._isMeshBuffer);
+            this._renderDrawInfo.setMaterial(this.material!);
+            this._renderDrawInfo.setTexture(this.frame?.getGFXTexture());
+            this._renderDrawInfo.setSampler(this.frame?.getGFXSampler());
+        }
+    }
+
+    //  only for particle2d
+    public particleInitRenderDrawInfo (entity: RenderEntity) {
+        if (JSB) {
+            if (entity.renderEntityType === RenderEntityType.STATIC) {
+                if (!this._renderDrawInfo) {
+                    // initialization should be in native
+                    const drawInfo = entity.getStaticRenderDrawInfo();
+                    if (drawInfo) {
+                        this._renderDrawInfo = drawInfo;
+                    }
+                }
+            }
         }
     }
 }

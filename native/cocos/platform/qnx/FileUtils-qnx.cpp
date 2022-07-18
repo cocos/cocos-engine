@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <fstream>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 #define DECLARE_GUARD std::lock_guard<std::recursive_mutex> mutexGuard(_mutex)
 #ifndef CC_RESOURCE_FOLDER_LINUX
@@ -38,16 +39,12 @@
 
 namespace cc {
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsQNX();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsQNX");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsQNX();
+}
+
+FileUtilsQNX::FileUtilsQNX() {
+    init();
 }
 
 bool FileUtilsQNX::init() {
@@ -66,7 +63,7 @@ bool FileUtilsQNX::init() {
     _defaultResRootPath += CC_RESOURCE_FOLDER_LINUX;
 
     // Set writable path to $XDG_CONFIG_HOME or ~/.config/<app name>/ if $XDG_CONFIG_HOME not exists.
-    const char *  xdg_config_path = getenv("XDG_CONFIG_HOME");
+    const char *xdg_config_path = getenv("XDG_CONFIG_HOME");
     ccstd::string xdgConfigPath;
     if (xdg_config_path == NULL) {
         xdg_config_path = getenv("HOME");

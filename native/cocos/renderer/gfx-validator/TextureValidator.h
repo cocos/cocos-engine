@@ -53,8 +53,8 @@ protected:
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 
     uint64_t _lastUpdateFrame{0U};
-    bool     _ownTheActor{true};
-    bool     _inited{false};
+    bool _ownTheActor{true};
+    bool _inited{false};
 };
 
 } // namespace gfx

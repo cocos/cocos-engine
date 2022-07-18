@@ -385,7 +385,14 @@ public class CocosHelper {
         }
         return new float[]{0, 0, 0, 0};
     }
-
+    public static void finishActivity() {
+        sActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                sActivity.finish();
+            }
+        });
+    }
     public static void setKeepScreenOn(boolean keepScreenOn) {
         if (keepScreenOn) {
             sActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

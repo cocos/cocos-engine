@@ -23,17 +23,12 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { RenderScene } from '../renderer/core/render-scene';
 import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
@@ -75,7 +70,7 @@ export class Scene extends BaseNode {
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _globals = new SceneGlobals();
@@ -151,18 +146,18 @@ export class Scene extends BaseNode {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onHierarchyChanged () { }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            this.children[i]._siblingIndex = i;
+            this._children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
     }
@@ -170,92 +165,146 @@ export class Scene extends BaseNode {
     // transform helpers
 
     /**
+     * @en
      * Refer to [[Node.getPosition]]
+     * @zh
+     * 参考 [[Node.getPosition]]
      */
     public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
 
     /**
+     * @en
      * Refer to [[Node.getRotation]]
+     * @zh
+     * 参考 [[Node.getRotation]]
      */
     public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
 
     /**
+     * @en
      * Refer to [[Node.getScale]]
+     * @zh
+     * 参考 [[Node.getScale]]
      */
     public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
 
     /**
+     * @en
      * Refer to [[Node.getWorldPosition]]
+     * @zh
+     * 参考 [[Node.getWorldPosition]]
      */
     public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
 
     /**
+     * @en
      * Refer to [[Node.getWorldRotation]]
+     * @zh
+     * 参考 [[Node.getWorldRotation]]
      */
     public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
 
     /**
+     * @en
      * Refer to [[Node.getWorldScale]]
+     * @zh
+     * 参考 [[Node.getWorldScale]]
      */
     public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
 
     /**
+     * @en
      * Refer to [[Node.getWorldMatrix]]
+     * @zh
+     * 参考 [[Node.getWorldMatrix]]
      */
     public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
 
     /**
+     * @en
      * Refer to [[Node.getWorldRS]]
+     * @zh
+     * 参考 [[Node.getWorldRS]]
      */
     public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
 
     /**
+     * @en
      * Refer to [[Node.getWorldRT]]
+     * @zh
+     * 参考 [[Node.getWorldRT]]
      */
     public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
 
     /**
+     * @en
      * Refer to [[Node.position]]
+     * @zh
+     * 参考 [[Node.position]]
      */
     public get position (): Readonly<Vec3> { return Vec3.ZERO; }
 
     /**
+     * @en
      * Refer to [[Node.worldPosition]]
+     * @zh
+     * 参考 [[Node.worldPosition]]
      */
     public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
 
     /**
+     * @en
      * Refer to [[Node.rotation]]
+     * @zh
+     * 参考 [[Node.rotation]]
      */
     public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
 
     /**
+     * @en
      * Refer to [[Node.worldRotation]]
+     * @zh
+     * 参考 [[Node.worldRotation]]
      */
     public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
 
     /**
+     * @en
      * Refer to [[Node.scale]]
+     * @zh
+     * 参考 [[Node.scale]]
      */
     public get scale (): Readonly<Vec3> { return Vec3.ONE; }
 
     /**
+     * @en
      * Refer to [[Node.worldScale]]
+     * @zh
+     * 参考 [[Node.worldScale]]
      */
     public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
 
     /**
+     * @en
      * Refer to [[Node.eulerAngles]]
+     * @zh
+     * 参考 [[Node.eulerAngles]]
      */
     public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
 
     /**
+     * @en
      * Refer to [[Node.worldMatrix]]
+     * @zh
+     * 参考 [[Node.worldMatrix]]
      */
     public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
 
     /**
+     * @en
      * Refer to [[Node.updateWorldTransform]]
+     * @zh
+     * 参考 [[Node.updateWorldTransform]]
      */
     public updateWorldTransform () {}
 

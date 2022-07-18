@@ -31,7 +31,7 @@ namespace {
 bool cmp(const std::pair<const char *, std::tuple<int, uint64_t>> &a, const std::pair<const char *, std::tuple<int, uint64_t>> &b) {
     return std::get<1>(a.second) > std::get<1>(b.second);
 }
-unsigned int                                                  __jsbInvocationCount;        // NOLINT(readability-identifier-naming)
+unsigned int __jsbInvocationCount;                                                         // NOLINT(readability-identifier-naming)
 ccstd::unordered_map<char const *, std::tuple<int, uint64_t>> __jsbFunctionInvokedRecords; // NOLINT(readability-identifier-naming)
 } // namespace
 

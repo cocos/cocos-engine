@@ -35,7 +35,7 @@ namespace cc {
 namespace {
 
 uint32_t getMipLevel(uint32_t width, uint32_t height) {
-    uint32_t size  = std::max(width, height);
+    uint32_t size = std::max(width, height);
     uint32_t level = 0;
     while (size) {
         size >>= 1;
@@ -52,9 +52,8 @@ bool canGenerateMipmap(uint32_t w, uint32_t h) {
 
 } // namespace
 
-SimpleTexture::SimpleTexture()= default;
-SimpleTexture::~SimpleTexture()= default;
-
+SimpleTexture::SimpleTexture() = default;
+SimpleTexture::~SimpleTexture() = default;
 
 bool SimpleTexture::destroy() {
     tryDestroyTextureView();
@@ -81,9 +80,9 @@ void SimpleTexture::uploadData(const uint8_t *source, uint32_t level /* = 0 */, 
     }
 
     gfx::BufferTextureCopy region;
-    region.texExtent.width          = _textureWidth >> level;
-    region.texExtent.height         = _textureHeight >> level;
-    region.texSubres.mipLevel       = level;
+    region.texExtent.width = _textureWidth >> level;
+    region.texExtent.height = _textureHeight >> level;
+    region.texSubres.mipLevel = level;
     region.texSubres.baseArrayLayer = arrayIndex;
 
     const uint8_t *buffers[1]{source};
@@ -126,7 +125,7 @@ void SimpleTexture::tryReset() {
         return;
     }
     createTexture(device);
-    createTextureView(device);
+    _gfxTextureView = createTextureView(device);
 }
 
 void SimpleTexture::createTexture(gfx::Device *device) {
@@ -137,7 +136,9 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     auto flags = gfx::TextureFlagBit::NONE;
     if (_mipFilter != Filter::NONE && canGenerateMipmap(_width, _height)) {
         _mipmapLevel = getMipLevel(_width, _height);
-        flags        = gfx::TextureFlagBit::GEN_MIPMAP;
+        if (!isUsingOfflineMipmaps()) {
+            flags = gfx::TextureFlagBit::GEN_MIPMAP;
+        }
     }
 
     auto textureCreateInfo = getGfxTextureCreateInfo(
@@ -150,8 +151,8 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     //        return;
     //    }
 
-    auto *texture  = device->createTexture(textureCreateInfo);
-    _textureWidth  = textureCreateInfo.width;
+    auto *texture = device->createTexture(textureCreateInfo);
+    _textureWidth = textureCreateInfo.width;
     _textureHeight = textureCreateInfo.height;
 
     _gfxTexture = texture;
@@ -159,23 +160,23 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     notifyTextureUpdated();
 }
 
-void SimpleTexture::createTextureView(gfx::Device *device) {
+gfx::Texture *SimpleTexture::createTextureView(gfx::Device *device) {
     if (!_gfxTexture) {
-        return;
+        return nullptr;
     }
+    const uint32_t maxLevel = _maxLevel < _mipmapLevel ? _maxLevel : _mipmapLevel - 1;
     auto textureViewCreateInfo = getGfxTextureViewCreateInfo(
-    _gfxTexture,
-    getGFXFormat(),
-    _baseLevel,
-    _maxLevel - _baseLevel + 1
-    );
+        _gfxTexture,
+        getGFXFormat(),
+        _baseLevel,
+        maxLevel - _baseLevel + 1);
 
     //TODO(minggo)
-//    if (!textureViewCreateInfo) {
-//        return;
-//    }
-    
-    _gfxTextureView = device->createTexture(textureViewCreateInfo);
+    //    if (!textureViewCreateInfo) {
+    //        return;
+    //    }
+
+    return device->createTexture(textureViewCreateInfo);
 }
 
 void SimpleTexture::tryDestroyTexture() {
@@ -191,31 +192,34 @@ void SimpleTexture::tryDestroyTextureView() {
     if (_gfxTextureView != nullptr) {
         _gfxTextureView->destroy();
         _gfxTextureView = nullptr;
-        
+
         //TODO(minggo): should notify JS if the performance is low.
     }
 }
 
 void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
-    debug::warnID(baseLevel <= maxLevel, 3124);
-    
+    debug::assertID(baseLevel <= maxLevel, 3124);
+
     setMipRangeInternal(baseLevel, maxLevel);
-    
+
     auto *device = getGFXDevice();
     if (!device) {
         return;
     }
+    // create a new texture view before the destruction of the previous one to bypass the bug that
+    // vulkan destroys textureview in use. This is a temporary solution, should be fixed later.
+    gfx::Texture *textureView = createTextureView(device);
     tryDestroyTextureView();
-    createTextureView(device);
+    _gfxTextureView = textureView;
 }
 
+bool SimpleTexture::isUsingOfflineMipmaps() {
+    return false;
+}
 
-void SimpleTexture::setMipRangeInternal(uint32_t baseLevel, uint32_t maxLevel){
-    _baseLevel = baseLevel;
-    _baseLevel = _baseLevel < _mipmapLevel ? _baseLevel : _mipmapLevel - 1;
-    
-    _maxLevel = maxLevel < _baseLevel ? _baseLevel : maxLevel;
-    _maxLevel = _maxLevel < _mipmapLevel ? _maxLevel : _mipmapLevel - 1;
+void SimpleTexture::setMipRangeInternal(uint32_t baseLevel, uint32_t maxLevel) {
+    _baseLevel = baseLevel < 1 ? 0 : baseLevel;
+    _maxLevel = _maxLevel < 1 ? 0 : maxLevel;
 }
 
 void SimpleTexture::notifyTextureUpdated() {

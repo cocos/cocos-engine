@@ -24,18 +24,13 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 // @ts-check
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, JSB, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter } from '../gfx';
+import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -287,7 +282,7 @@ export class TextureBase extends Asset {
     // SERIALIZATION
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -299,7 +294,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as string;
@@ -318,10 +313,7 @@ export class TextureBase extends Asset {
     }
 
     protected _getGFXDevice (): Device | null {
-        if (legacyCC.director.root) {
-            return legacyCC.director.root.device as Device;
-        }
-        return null;
+        return deviceManager.gfxDevice;
     }
 
     protected _getGFXFormat () {

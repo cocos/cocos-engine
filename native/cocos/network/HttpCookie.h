@@ -33,9 +33,9 @@
 
 struct CookiesInfo {
     ccstd::string domain;
-    bool          tailmatch;
+    bool tailmatch;
     ccstd::string path;
-    bool          secure;
+    bool secure;
     ccstd::string name;
     ccstd::string value;
     ccstd::string expires;
@@ -49,11 +49,11 @@ public:
     void setCookieFileName(const ccstd::string &fileName);
 
     const ccstd::vector<CookiesInfo> *getCookies() const;
-    const CookiesInfo *               getMatchCookie(const ccstd::string &url) const;
-    void                              updateOrAddCookie(CookiesInfo *cookie);
+    const CookiesInfo *getMatchCookie(const ccstd::string &url) const;
+    void updateOrAddCookie(CookiesInfo *cookie);
 
 private:
-    ccstd::string              _cookieFileName;
+    ccstd::string _cookieFileName;
     ccstd::vector<CookiesInfo> _cookies;
 };
 

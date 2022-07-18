@@ -277,7 +277,7 @@ public:
          */
     bool getAllKeys(ccstd::vector<std::string> *allKeys) const;
 
-    void               setPrivateObject(PrivateObjectBase *data);
+    void setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
 
     /**
@@ -412,10 +412,10 @@ public:
     // Private API used in wrapper
     static Object *_createJSObject(Class *cls, JSObject *obj);
     static Object *_createJSObjectForConstructor(Class *cls, const JS::CallArgs &args);
-    void           _setFinalizeCallback(JSFinalizeOp finalizeCb);
-    bool           _isNativeFunction(JSNative func) const;
-    JSObject *     _getJSObject() const;
-    Class *        _getClass() const { return _cls; }
+    void _setFinalizeCallback(JSFinalizeOp finalizeCb);
+    bool _isNativeFunction(JSNative func) const;
+    JSObject *_getJSObject() const;
+    Class *_getClass() const { return _cls; }
     //
 
 private:
@@ -434,13 +434,13 @@ private:
     void unprotect();
     void reset();
 
-    JS::Heap<JSObject *>       _heap; /* should be untouched if in rooted mode */
+    JS::Heap<JSObject *> _heap;       /* should be untouched if in rooted mode */
     JS::PersistentRootedObject _root; /* should be null if not in rooted mode */
 
-    PrivateObjectBase *    _privateObject{nullptr};
+    PrivateObjectBase *_privateObject{nullptr};
     internal::PrivateData *_internalData{nullptr};
 
-    Class *      _cls{nullptr};
+    Class *_cls{nullptr};
     JSFinalizeOp _finalizeCb{nullptr};
 
     uint32_t _rootCount{0};

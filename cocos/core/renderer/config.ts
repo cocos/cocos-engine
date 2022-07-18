@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 let _stageOffset = 0;
 const _name2stageID = {};
 

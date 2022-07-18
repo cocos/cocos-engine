@@ -38,7 +38,7 @@ void Accelerometer::setAccelerometerInterval(float interval) {
 
 const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
     static MotionValue motionValue;
-    float *            v = getDeviceMotionValueJNI();
+    float *v = getDeviceMotionValueJNI();
 
     if (v) {
         motionValue.accelerationIncludingGravityX = v[0];
@@ -50,7 +50,7 @@ const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
         motionValue.accelerationZ = v[5];
 
         motionValue.rotationRateAlpha = v[6];
-        motionValue.rotationRateBeta  = v[7];
+        motionValue.rotationRateBeta = v[7];
         motionValue.rotationRateGamma = v[8];
     } else {
         memset(&motionValue, 0, sizeof(motionValue));

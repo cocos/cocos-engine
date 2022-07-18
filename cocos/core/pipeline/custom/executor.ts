@@ -30,23 +30,23 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { Buffer, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, Format, Framebuffer,
-    FramebufferInfo, PipelineState, Rect, RenderPass, RenderPassInfo, Swapchain, Texture, TextureInfo,
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, deviceManager, Format, Framebuffer,
+    FramebufferInfo, GeneralBarrierInfo, LoadOp, PipelineState, Rect, RenderPass, RenderPassInfo, StoreOp, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import { assert } from '../../platform';
 import { BatchingSchemes } from '../../renderer';
-import { Camera } from '../../renderer/scene/camera';
+import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
 import { SetIndex } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Pipeline, SceneVisitor } from './pipeline';
 import { AccessType, AttachmentType, Blit, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
-    RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
+    RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { QueueHint, ResourceDimension, ResourceFlags } from './types';
-import { RenderInfo, RenderObject, WebSceneTask } from './web-scene';
+import { PipelineUBO } from './ubos';
+import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 
 class DeviceResource {
@@ -127,24 +127,43 @@ class DeviceBuffer extends DeviceResource {
     }
 }
 class DeviceRenderQueue {
+    private _preSceneTasks: DevicePreSceneTask[] = [];
     private _sceneTasks: DeviceSceneTask[] = [];
+    private _postSceneTasks: DevicePostSceneTask[] = [];
     private _devicePass: DeviceRenderPass;
     private _hint: QueueHint =  QueueHint.NONE;
+    private _phaseID = getPhaseID('default');
+    protected _transversal: DeviceSceneTransversal | null = null;
+    get phaseID (): number { return this._phaseID; }
+
+    private _sceneVisitor: WebSceneVisitor;
     constructor (devicePass: DeviceRenderPass) {
         this._devicePass = devicePass;
+        this._sceneVisitor = new WebSceneVisitor(this._devicePass.context.commandBuffer,
+            this._devicePass.context.pipeline.pipelineSceneData);
     }
     addSceneTask (scene: SceneData) {
-        const task = new DeviceSceneTask(this, scene.camera!,
-            new WebSceneVisitor(this._devicePass.context.commandBuffer,
-                this._devicePass.context.pipeline.pipelineSceneData));
-        this._sceneTasks.push(task);
+        if (!this._transversal) {
+            this._transversal = new DeviceSceneTransversal(this, this.devicePass.context.pipelineSceneData,  scene.camera!);
+        }
+        this._preSceneTasks.push(this._transversal.preRenderPass(this._sceneVisitor));
+        this._sceneTasks.push(this._transversal.transverse(this._sceneVisitor));
     }
     clearTasks () {
         this._sceneTasks.length = 0;
     }
+    get sceneTasks () { return this._sceneTasks; }
     set queueHint (value: QueueHint) { this._hint = value; }
     get queueHint () { return this._hint; }
     get devicePass () { return this._devicePass; }
+    preRecord () {
+        for (const task of this._preSceneTasks) {
+            task.start();
+            task.join();
+            task.submit();
+        }
+    }
+
     record () {
         for (const task of this._sceneTasks) {
             task.start();
@@ -152,27 +171,48 @@ class DeviceRenderQueue {
             task.submit();
         }
     }
+
+    postRecord () {
+        for (const task of this._postSceneTasks) {
+            task.start();
+            task.join();
+            task.submit();
+        }
+    }
+}
+
+class SubmitInfo {
+    public instances = new Set<InstancedBuffer>();
+    public batches = new Set<BatchedBuffer>();
+    public opaqueList: RenderInfo[] = [];
+    public transparentList: RenderInfo[] = [];
 }
 
 class DeviceRenderPass {
     protected _renderPass: RenderPass;
     protected _framebuffer: Framebuffer;
     protected _clearColor: Color[] = [];
-    protected _sceneTasks: DeviceSceneTask[] = [];
     protected _deviceQueues: DeviceRenderQueue[] = [];
     protected _clearDepth = 1;
     protected _clearStencil = 0;
     protected _context: ExecutorContext;
     private _rasterPass: RasterPass;
+    public submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
     constructor (context: ExecutorContext, rasterPass: RasterPass) {
         this._context = context;
         this._rasterPass = rasterPass;
+        const device = context.device;
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.format = Format.DEPTH_STENCIL;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+        ));
         const colors: ColorAttachment[] = [];
         const colorTexs: Texture[] = [];
         let depthTex: Texture | null = null;
-        const device = context.device;
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
         for (const [resName, rasterV] of rasterPass.rasterViews) {
@@ -187,26 +227,41 @@ class DeviceRenderPass {
             resTex = context.deviceTextures.get(resName)!;
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
+            const clearFlag = rasterV.clearFlags & 0xffffffff;
             switch (rasterV.attachmentType) {
             case AttachmentType.RENDER_TARGET:
-                colorTexs.push(resTex.swapchain ? resTex.swapchain.colorTexture : resTex.texture!);
-                this._clearColor.push(rasterV.clearColor);
-                colors.push(new ColorAttachment(
-                    resTex.description!.format,
-                    resTex.description!.sampleCount,
-                    rasterV.loadOp,
-                    rasterV.storeOp,
-                ));
+                {
+                    if (!resTex.swapchain && !resTex.framebuffer) colorTexs.push(resTex.texture!);
+                    const colorAttachment = new ColorAttachment();
+                    colorAttachment.format = resTex.description!.format;
+                    colorAttachment.sampleCount = resTex.description!.sampleCount;
+                    if (!(clearFlag & ClearFlagBit.COLOR)) {
+                        rasterV.clearColor.x = 0;
+                        rasterV.clearColor.y = 0;
+                        rasterV.clearColor.z = 0;
+                        rasterV.clearColor.w = 1;
+                        if (clearFlag & SKYBOX_FLAG) {
+                            colorAttachment.loadOp = LoadOp.DISCARD;
+                        } else {
+                            colorAttachment.loadOp = LoadOp.LOAD;
+                            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                            ));
+                        }
+                    }
+                    this._clearColor.push(rasterV.clearColor);
+                    colors.push(colorAttachment);
+                }
                 break;
             case AttachmentType.DEPTH_STENCIL:
-                depthTex = resTex.swapchain ? resTex.swapchain.depthStencilTexture : resTex.texture!;
+                if (!resTex.swapchain && !resTex.framebuffer) depthTex = resTex.texture!;
+                if ((clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+                    if (!(clearFlag & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+                    if (!(clearFlag & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+                }
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
-                depthStencilAttachment.format = resTex.description!.format;
-                depthStencilAttachment.depthLoadOp = rasterV.loadOp;
-                depthStencilAttachment.depthStoreOp = rasterV.storeOp;
-                depthStencilAttachment.stencilLoadOp = rasterV.loadOp;
-                depthStencilAttachment.stencilStoreOp = rasterV.storeOp;
                 break;
             default:
             }
@@ -229,7 +284,9 @@ class DeviceRenderPass {
             ));
         }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
-        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass, colorTexs, depthTex));
+        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass,
+            swapchain ? [swapchain.colorTexture] : colorTexs,
+            swapchain ? swapchain.depthStencilTexture : depthTex));
     }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
@@ -240,10 +297,16 @@ class DeviceRenderPass {
     get deviceQueues () { return this._deviceQueues; }
     get rasterPass () { return this._rasterPass; }
     addQueue (queue: DeviceRenderQueue) { this._deviceQueues.push(queue); }
+    prePass () {
+        for (const queue of this._deviceQueues) {
+            queue.preRecord();
+        }
+    }
     // record common buffer
     record () {
         const cmdBuff = this._context.commandBuffer;
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(),
+        const tex = this.framebuffer.colorTextures[0]!;
+        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(0, 0, tex.width, tex.height),
             this.clearColor, this.clearDepth, this.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
             this._context.pipeline.globalDSManager.globalDescriptorSet);
@@ -252,78 +315,70 @@ class DeviceRenderPass {
         }
         cmdBuff.endRenderPass();
     }
+    postPass () {
+        this.submitMap.clear();
+        for (const queue of this._deviceQueues) {
+            queue.postRecord();
+        }
+    }
 }
 
-class DeviceSceneTask extends WebSceneTask {
+class DeviceSceneTransversal extends WebSceneTransversal {
     protected _currentQueue: DeviceRenderQueue;
-    private _phaseID = getPhaseID('default');
-    protected _instances = new Set<InstancedBuffer>();
-    protected _batches = new Set<BatchedBuffer>();
-    protected _opaqueList: RenderInfo[] = [];
-    protected _transparentList: RenderInfo[] = [];
-    protected _renderPass: RenderPass;
-    constructor (quque: DeviceRenderQueue, camera: Camera, visitor: SceneVisitor) {
-        super(camera, visitor);
+    constructor (quque: DeviceRenderQueue, sceneData: PipelineSceneData, camera: Camera) {
+        super(camera, sceneData);
         this._currentQueue = quque;
+    }
+    public preRenderPass (visitor: WebSceneVisitor): DevicePreSceneTask {
+        return new DevicePreSceneTask(this._currentQueue, this._camera, visitor);
+    }
+    public transverse (visitor: WebSceneVisitor): DeviceSceneTask {
+        return new DeviceSceneTask(this._currentQueue, this._camera, visitor);
+    }
+    public postRenderPass (visitor: WebSceneVisitor): DevicePostSceneTask {
+        return new DevicePostSceneTask(this._sceneData, this._camera, visitor);
+    }
+}
+
+class DevicePreSceneTask extends WebSceneTask {
+    protected _currentQueue: DeviceRenderQueue;
+    protected _renderPass: RenderPass;
+    protected _submitInfo: SubmitInfo | null = null;
+    private _cmdBuff: CommandBuffer;
+    constructor (queue: DeviceRenderQueue, camera: Camera, visitor: SceneVisitor) {
+        super(queue.devicePass.context.pipelineSceneData, camera, visitor);
+        this._currentQueue = queue;
         this._renderPass = this._currentQueue.devicePass.renderPass;
+        this._cmdBuff = this._currentQueue.devicePass.context.commandBuffer;
     }
-    protected _insertRenderList (ro: RenderObject, subModelIdx: number, passIdx: number, isTransparent = false) {
-        const subModel = ro.model.subModels[subModelIdx];
-        const pass = subModel.passes[passIdx];
-        const shader = subModel.shaders[passIdx];
-        const currTransparent = pass.blendState.targets[0].blend;
-        const phases = getPhaseID('default') | getPhaseID('planarShadow');
-        if (currTransparent !== isTransparent || !(pass.phase & (isTransparent ? phases : this._phaseID))) {
-            return;
-        }
-        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
-        const rp = new RenderInfo();
-        rp.hash = hash;
-        rp.depth = ro.depth || 0;
-        rp.shaderId = shader.typedID;
-        rp.subModel = subModel;
-        rp.passIdx = passIdx;
-        if (isTransparent) this._transparentList.push(rp);
-        else this._opaqueList.push(rp);
-    }
-    protected _clear () {
-        this._instances.clear();
-        this._batches.clear();
-        this._opaqueList.length = 0;
-        this._transparentList.length = 0;
-    }
-    /**
-     * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
-     * @zh 比较排序函数。不透明对象按优先级 -> 深度由前向后 -> Shader ID 顺序排序。
-     */
-    protected _opaqueCompareFn (a: RenderInfo, b: RenderInfo) {
-        return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderId - b.shaderId);
-    }
-    /**
-     * @en Comparison sorting function. Transparent objects are sorted by priority -> depth back to front -> shader ID.
-     * @zh 比较排序函数。半透明对象按优先级 -> 深度由后向前 -> Shader ID 顺序排序。
-     */
-    protected _transparentCompareFn (a: RenderInfo, b: RenderInfo) {
-        return (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
-    }
+
     public start () {
-        super.start();
-        this._clear();
+        const submitMap = this._currentQueue.devicePass.submitMap;
+        if (submitMap.has(this.camera)) {
+            this._submitInfo = submitMap.get(this.camera)!;
+        } else {
+            // culling
+            super.start();
+            this._submitInfo = new SubmitInfo();
+        }
         for (const ro of this.sceneData.renderObjects) {
             const subModels = ro.model.subModels;
             for (const submodel of subModels) {
                 const passes = submodel.passes;
                 for (const p of passes) {
-                    if (p.phase !== this._phaseID) continue;
+                    if (p.phase !== this._currentQueue.phaseID) continue;
                     const batchingScheme = p.batchingScheme;
-                    if (batchingScheme === BatchingSchemes.INSTANCING) {
+                    // If the size of instances is not 0, it has been added
+                    if (batchingScheme === BatchingSchemes.INSTANCING
+                        && !this._submitInfo.instances.size) {
                         const instancedBuffer = p.getInstancedBuffer();
                         instancedBuffer.merge(submodel, ro.model.instancedAttributes, passes.indexOf(p));
-                        this._instances.add(instancedBuffer);
-                    } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
+                        this._submitInfo.instances.add(instancedBuffer);
+                    } else if (batchingScheme === BatchingSchemes.VB_MERGING
+                        && !this._submitInfo.batches.size) {
                         const batchedBuffer = p.getBatchedBuffer();
                         batchedBuffer.merge(submodel, passes.indexOf(p), ro.model);
-                        this._batches.add(batchedBuffer);
+                        this._submitInfo.batches.add(batchedBuffer);
                     } else {
                         switch (this._currentQueue.queueHint) {
                         case QueueHint.NONE:
@@ -343,17 +398,100 @@ class DeviceSceneTask extends WebSceneTask {
                 }
             }
         }
-        this._opaqueList.sort(this._opaqueCompareFn);
-        this._transparentList.sort(this._transparentCompareFn);
+
+        this._submitInfo.opaqueList.sort(this._opaqueCompareFn);
+        this._submitInfo.transparentList.sort(this._transparentCompareFn);
+        if (!submitMap.has(this.camera)) submitMap.set(this.camera, this._submitInfo);
     }
+    protected _insertRenderList (ro: RenderObject, subModelIdx: number, passIdx: number, isTransparent = false) {
+        const subModel = ro.model.subModels[subModelIdx];
+        const pass = subModel.passes[passIdx];
+        const shader = subModel.shaders[passIdx];
+        const currTransparent = pass.blendState.targets[0].blend;
+        const phases = getPhaseID('default') | getPhaseID('planarShadow');
+        if (currTransparent !== isTransparent || !(pass.phase & (isTransparent ? phases : this._currentQueue.phaseID))) {
+            return;
+        }
+        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
+        const rp = new RenderInfo();
+        rp.priority = ro.model.priority;
+        rp.hash = hash;
+        rp.depth = ro.depth || 0;
+        rp.shaderId = shader.typedID;
+        rp.subModel = subModel;
+        rp.passIdx = passIdx;
+        if (isTransparent) this._submitInfo!.transparentList.push(rp);
+        else this._submitInfo!.opaqueList.push(rp);
+    }
+
+    /**
+     * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
+     * @zh 比较排序函数。不透明对象按优先级 -> 深度由前向后 -> Shader ID 顺序排序。
+     */
+    protected _opaqueCompareFn (a: RenderInfo, b: RenderInfo) {
+        return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderId - b.shaderId);
+    }
+    /**
+     * @en Comparison sorting function. Transparent objects are sorted by priority -> depth back to front -> shader ID.
+     * @zh 比较排序函数。半透明对象按优先级 -> 深度由后向前 -> Shader ID 顺序排序。
+     */
+    protected _transparentCompareFn (a: RenderInfo, b: RenderInfo) {
+        return (a.priority - b.priority) || (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
+    }
+
+    private _uploadInstanceBuffers () {
+        const it = this._submitInfo!.instances.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(this._cmdBuff);
+            res = it.next();
+        }
+    }
+
+    private _uploadBatchedBuffers () {
+        const it = this._submitInfo!.batches.values(); let res = it.next();
+        while (!res.done) {
+            for (let b = 0; b < res.value.batches.length; ++b) {
+                const batch = res.value.batches[b];
+                if (!batch.mergeCount) { continue; }
+                for (let v = 0; v < batch.vbs.length; ++v) {
+                    batch.vbs[v].update(batch.vbDatas[v]);
+                }
+                this._cmdBuff.updateBuffer(batch.vbIdx, batch.vbIdxData.buffer);
+                this._cmdBuff.updateBuffer(batch.ubo, batch.uboData);
+            }
+            res = it.next();
+        }
+    }
+
+    public submit () {
+        const ubo = this._currentQueue.devicePass.context.ubo;
+        ubo.updateGlobalUBO(this.camera.window);
+        ubo.updateCameraUBO(this.camera);
+        ubo.updateShadowUBO(this.camera);
+
+        this._uploadInstanceBuffers();
+        this._uploadBatchedBuffers();
+    }
+}
+
+class DeviceSceneTask extends WebSceneTask {
+    protected _currentQueue: DeviceRenderQueue;
+    protected _renderPass: RenderPass;
+    constructor (queue: DeviceRenderQueue, camera: Camera, visitor: SceneVisitor) {
+        super(queue.devicePass.context.pipelineSceneData, camera, visitor);
+        this._currentQueue = queue;
+        this._renderPass = this._currentQueue.devicePass.renderPass;
+    }
+    public start () {}
     protected _recordRenderList (isTransparent: boolean) {
-        const renderList = isTransparent ? this._transparentList : this._opaqueList;
+        const submitMap = this._currentQueue.devicePass.submitMap;
+        const renderList = isTransparent ? submitMap.get(this.camera)!.transparentList : submitMap.get(this.camera)!.opaqueList;
         for (let i = 0; i < renderList.length; ++i) {
             const { subModel, passIdx } = renderList[i];
             const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
             const shader = subModel.shaders[passIdx];
-            const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device,
+            const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice,
                 pass, shader, this._renderPass, inputAssembler);
             this.visitor.bindPipelineState(pso);
             this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
@@ -366,7 +504,8 @@ class DeviceSceneTask extends WebSceneTask {
         this._recordRenderList(false);
     }
     protected _recordInstences () {
-        const it = this._instances.values(); let res = it.next();
+        const submitMap = this._currentQueue.devicePass.submitMap;
+        const it = submitMap.get(this.camera)!.instances.values(); let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
@@ -375,9 +514,9 @@ class DeviceSceneTask extends WebSceneTask {
                 for (let b = 0; b < instances.length; ++b) {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
-                    const shader = instance.shader;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, pass,
-                        shader!, this._renderPass, instance.ia);
+                    const shader = instance.shader!;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass,
+                        shader, this._renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         this.visitor.bindPipelineState(pso);
                         lastPSO = pso;
@@ -392,7 +531,8 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
     protected _recordBatches () {
-        const it = this._batches.values(); let res = it.next();
+        const submitMap = this._currentQueue.devicePass.submitMap;
+        const it = submitMap.get(this.camera)!.batches.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
             for (let b = 0; b < res.value.batches.length; ++b) {
@@ -400,7 +540,7 @@ class DeviceSceneTask extends WebSceneTask {
                 if (!batch.mergeCount) { continue; }
                 if (!boundPSO) {
                     const shader = batch.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, batch.pass,
+                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, batch.pass,
                         shader, this._renderPass, batch.ia);
                     this.visitor.bindPipelineState(pso);
                     this.visitor.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
@@ -412,6 +552,33 @@ class DeviceSceneTask extends WebSceneTask {
                 this.visitor.draw(ia);
             }
             res = it.next();
+        }
+    }
+    protected _recordUI () {
+        const batches = this.camera.scene!.batches;
+        for (let i = 0; i < batches.length; i++) {
+            const batch = batches[i];
+            let visible = false;
+            if (this.camera.visibility & batch.visFlags) {
+                visible = true;
+            }
+
+            if (!visible) continue;
+            // shaders.length always equals actual used passes.length
+            const count = batch.shaders.length;
+            for (let j = 0; j < count; j++) {
+                const pass = batch.passes[j];
+                if (pass.phase !== this._currentQueue.phaseID) continue;
+                const shader = batch.shaders[j];
+                const inputAssembler: any = batch.inputAssembler!;
+                const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader, this._renderPass, inputAssembler);
+                this.visitor.bindPipelineState(pso);
+                this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                const ds = batch.descriptorSet!;
+                this.visitor.bindDescriptorSet(SetIndex.LOCAL, ds);
+                this.visitor.bindInputAssembler(inputAssembler);
+                this.visitor.draw(inputAssembler);
+            }
         }
     }
     protected _recordTransparentList () {
@@ -436,11 +603,15 @@ class DeviceSceneTask extends WebSceneTask {
         this._recordInstences();
         this._recordBatches();
         this._recordTransparentList();
+        this._recordUI();
     }
 }
 
+class DevicePostSceneTask extends WebSceneTask {}
+
 class ExecutorContext {
     constructor (pipeline: Pipeline,
+        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph) {
@@ -451,6 +622,7 @@ class ExecutorContext {
         this.resourceGraph = resourceGraph;
         this.renderGraph = renderGraph;
         this.root = legacyCC.director.root;
+        this.ubo = ubo;
     }
     readonly device: Device;
     readonly pipeline: Pipeline;
@@ -461,6 +633,7 @@ class ExecutorContext {
     readonly deviceTextures: Map<string, DeviceTexture> = new Map<string, DeviceTexture>();
     readonly renderGraph: RenderGraph;
     readonly root: Root;
+    readonly ubo: PipelineUBO;
 }
 
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -515,7 +688,9 @@ class PassVisitor implements RenderGraphVisitor {
                 rg.visitVertex(this, queueID);
             }
         }
+        this._currPass.prePass();
         this._currPass.record();
+        this._currPass.postPass();
     }
     compute (pass: ComputePass) {
 
@@ -555,10 +730,12 @@ class PassVisitor implements RenderGraphVisitor {
 
 export class Executor {
     constructor (pipeline: Pipeline,
+        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph) {
         this._pipeline = pipeline;
         this._device = device;
+        this._ubo = ubo;
         this._commandBuffer = device.commandBuffer;
         this._resourceGraph = resourceGraph;
     }
@@ -566,10 +743,13 @@ export class Executor {
     execute (rg: RenderGraph) {
         const context = new ExecutorContext(
             this._pipeline,
+            this._ubo,
             this._device,
             this._resourceGraph,
             rg,
         );
+        const cmdBuff = context.commandBuffer;
+        cmdBuff.begin();
         const passVisitor = new PassVisitor(context);
         for (const vertID of rg.vertices()) {
             if (rg.numParents(vertID) === 0) {
@@ -578,9 +758,12 @@ export class Executor {
                 rg.visitVertex(passVisitor, vertID);
             }
         }
+        cmdBuff.end();
+        context.device.queue.submit([cmdBuff]);
     }
-    private readonly _pipeline: Pipeline
-    private readonly _device: Device
-    private readonly _commandBuffer: CommandBuffer
-    private readonly _resourceGraph: ResourceGraph
+    private readonly _pipeline: Pipeline;
+    private readonly _device: Device;
+    private readonly _commandBuffer: CommandBuffer;
+    private readonly _resourceGraph: ResourceGraph;
+    private readonly _ubo: PipelineUBO;
 }

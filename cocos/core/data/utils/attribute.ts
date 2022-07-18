@@ -111,17 +111,20 @@ export class PrimitiveType<T> {
 }
 
 /**
+ * @en
+ * Indicates that the editor should treats this property or array element as a Integer value.
+ * @zh
  * 指定编辑器以整数形式对待该属性或数组元素。
- * 例如：
+ * @example
  * ```ts
- * import { CCInteger, _decorator } from "Cocos3D";
+ * import { CCInteger, _decorator } from "cc";
  *
- * // 在 cc 类定义中:
+ * // in class definition:
  *
- * \@_decorator.property({type: CCInteger})
+ * @_decorator.property({type: CCInteger})
  * count = 0;
  *
- * \@_decorator.property({type: [CCInteger]})
+ * @_decorator.property({type: [CCInteger]})
  * array = [];
  * ```
  */
@@ -130,17 +133,20 @@ legacyCC.Integer = CCInteger;
 legacyCC.CCInteger = CCInteger;
 
 /**
+ * @en
+ * Indicates that the editor should treats this property or array element as a Float value.
+ * @zh
  * 指定编辑器以浮点数形式对待该属性或数组元素。
- * 例如：
+ * @example
  * ```ts
- * import { CCFloat, _decorator } from "Cocos3D";
+ * import { CCFloat, _decorator } from "cc";
  *
- * // 在 cc 类定义中:
+ * // in class definition:
  *
- * \@_decorator.property({type: CCFloat})
+ * @_decorator.property({type: CCFloat})
  * x = 0;
  *
- * \@_decorator.property({type: [CCFloat]})
+ * @_decorator.property({type: [CCFloat]})
  * array = [];
  * ```
  */
@@ -156,17 +162,19 @@ if (EDITOR) {
 }
 
 /**
+ * @en
+ * Indicates that the editor should treats this property or array element as a Boolean value.
+ * @zh
  * 指定编辑器以布尔值形式对待该属性或数组元素。
- * 例如：
+ *
+ * @example
  * ```ts
- * import { CCBoolean, _decorator } from "Cocos3D";
- *
- * // 在 cc 类定义中:
- *
- * \@_decorator.property({type: CCBoolean})
+ * import { CCBoolean, _decorator } from "cc";
+ * // in class definition
+ * @_decorator.property({type: CCBoolean})
  * isTrue = false;
  *
- * \@_decorator.property({type: [CCBoolean]})
+ * @_decorator.property({type: [CCBoolean]})
  * array = [];
  * ```
  */
@@ -175,17 +183,20 @@ legacyCC.Boolean = CCBoolean;
 legacyCC.CCBoolean = CCBoolean;
 
 /**
+ * @en
+ * Indicates that the editor should treats this property or array element as a String value.
+ * @zh
  * 指定编辑器以字符串形式对待该属性或数组元素。
- * 例如：
+ * @example
  * ```ts
- * import { CCString, _decorator } from "Cocos3D";
+ * import { CCString, _decorator } from "cc";
  *
- * // 在 cc 类定义中:
+ * // in class definition
  *
- * \@_decorator.property({type: CCString})
+ * @_decorator.property({type: CCString})
  * name = '';
  *
- * \@_decorator.property({type: [CCString]})
+ * @_decorator.property({type: [CCString]})
  * array = [];
  * ```
  */

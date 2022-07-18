@@ -1,7 +1,8 @@
 import { js, Node, Component, Vec3, RealKeyframeValue } from '../../cocos/core';
 import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/core/animation';
-import { ComponentPath, HierarchyPath, IValueProxyFactory, VectorTrack } from '../../cocos/core/animation/animation';
+import { ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, VectorTrack } from '../../cocos/core/animation/animation';
 import { ccclass } from 'cc.decorator';
+import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
 
 test('Common target', () => {
     @ccclass('TestComponent')
@@ -229,4 +230,31 @@ test('animation state', () => {
 test('default animation clip validation', () => {
     const validClip = new AnimationClip('valid');
     expect(validClip.validate()).toEqual(true);
+});
+
+test('Warn on track binding failure', () => {
+    const clip = new AnimationClip();
+    clip.name = 'AnyClip';
+    const track = new RealTrack();
+    track.path.toHierarchy('meow');
+    // Ensure the track is not empty otherwise its instantiation will be skipped.
+    track.channel.curve.assignSorted([0.0], [1.0]);
+    clip.addTrack(track);
+    const node = new Node('AnyRoot');
+
+    const warnIDWatcher = captureWarnIDs();
+    const errorIDWatcher = captureErrorIDs(); // To silence the hierarchy binding error which we don't care.
+    void clip.createEvaluator({
+        target: node,
+    });
+    expect(errorIDWatcher.captured.length).toBe(1); // No further verification -- it doesn't concern.
+    errorIDWatcher.stop();
+    expect(warnIDWatcher.captured.length).toBeGreaterThan(0);
+    const [lastId, ...lastArgs] = warnIDWatcher.captured[warnIDWatcher.captured.length - 1];
+    expect(lastId).toBe(3937);
+    expect(lastArgs).toStrictEqual([
+        clip.name,
+        node.name,
+    ]);
+    warnIDWatcher.stop();
 });

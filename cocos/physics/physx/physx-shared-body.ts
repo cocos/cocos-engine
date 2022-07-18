@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Node, Quat, Vec3 } from '../../core';
 import { PhysXRigidBody } from './physx-rigid-body';
@@ -341,6 +339,7 @@ export class PhysXSharedBody {
     }
 
     setGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word0 = v;
         this.updateFilterData();
     }
@@ -350,17 +349,19 @@ export class PhysXSharedBody {
     }
 
     addGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word0 |= v;
         this.updateFilterData();
     }
 
     removeGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word0 &= ~v;
         this.updateFilterData();
     }
 
     setMask (v: number): void {
-        if (v === -1) v = 0xffffffff;
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word1 = v;
         this.updateFilterData();
     }
@@ -370,11 +371,13 @@ export class PhysXSharedBody {
     }
 
     addMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word1 |= v;
         this.updateFilterData();
     }
 
     removeMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word1 &= ~v;
         this.updateFilterData();
     }

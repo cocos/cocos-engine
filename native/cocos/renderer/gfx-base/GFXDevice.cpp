@@ -62,9 +62,9 @@ bool Device::initialize(const DeviceInfo &info) {
 #endif
 
     bool result = doInit(info);
-    _cmdBuff->addRef();
-    _queue->addRef();
 
+    CC_SAFE_ADD_REF(_cmdBuff);
+    CC_SAFE_ADD_REF(_queue);
     return result;
 }
 
@@ -84,13 +84,17 @@ void Device::destroy() {
     }
     _textureBarriers.clear();
 
+    for (auto pair : _bufferBarriers) {
+        CC_SAFE_DELETE(pair.second);
+    }
+    _bufferBarriers.clear();
+
     doDestroy();
 
     CC_SAFE_DELETE(_onAcquire);
 }
 
 void Device::destroySurface(void *windowHandle) {
-    setRendererAvailable(false);
     for (const auto &swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
@@ -106,7 +110,6 @@ void Device::createSurface(void *windowHandle) {
             break;
         }
     }
-    setRendererAvailable(true);
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
@@ -128,6 +131,13 @@ TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
         _textureBarriers[info] = createTextureBarrier(info);
     }
     return _textureBarriers[info];
+}
+
+BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
+    if (!_bufferBarriers.count(info)) {
+        _bufferBarriers[info] = createBufferBarrier(info);
+    }
+    return _bufferBarriers[info];
 }
 
 } // namespace gfx

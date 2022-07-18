@@ -26,11 +26,6 @@
 import { ScalableContainer } from './scalable-container';
 
 /**
- * @packageDocumentation
- * @module memop
- */
-
-/**
  * @en
  * Cached array is a data structure for objects cache, it's designed for persistent data.
  * Its content array length will keep grow.

@@ -25,16 +25,19 @@
 ****************************************************************************/
 
 #include "MappingUtils.h"
+#include "base/memory/Memory.h"
 
 namespace se {
 
 // NativePtrToObjectMap
-NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr;
+NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr; // NOLINT
+bool NativePtrToObjectMap::__isValid = false;                                      // NOLINT
 
 bool NativePtrToObjectMap::init() {
-    if (__nativePtrToObjectMap == nullptr)
-        __nativePtrToObjectMap = new (std::nothrow) NativePtrToObjectMap::Map();
-
+    if (__nativePtrToObjectMap == nullptr) {
+        __nativePtrToObjectMap = ccnew NativePtrToObjectMap::Map();
+    }
+    __isValid = true;
     return __nativePtrToObjectMap != nullptr;
 }
 
@@ -43,6 +46,11 @@ void NativePtrToObjectMap::destroy() {
         delete __nativePtrToObjectMap;
         __nativePtrToObjectMap = nullptr;
     }
+    __isValid = false;
+}
+
+bool NativePtrToObjectMap::isValid() {
+    return __isValid;
 }
 
 void NativePtrToObjectMap::emplace(void *nativeObj, Object *seObj) {

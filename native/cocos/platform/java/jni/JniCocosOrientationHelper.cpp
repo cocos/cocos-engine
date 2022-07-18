@@ -28,10 +28,14 @@
 #include "platform/interfaces/modules/Device.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include "platform/BasePlatform.h"
+    #include "platform/android/AndroidPlatform.h"
+#endif
 
 extern "C" {
 //NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrientationChanged(JNIEnv *env, jobject thiz, jint rotation) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrientationChanged(JNIEnv *env, jclass thiz, jint rotation) {
     int orientation;
     switch (rotation) {
         case 0: //ROTATION_0
@@ -45,8 +49,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrienta
     }
 
     cc::DeviceEvent ev;
-    ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
+    ev.type = cc::DeviceEvent::Type::ORIENTATION;
     ev.args[0].intVal = orientation;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    auto *platform = cc::BasePlatform::getPlatform();
+    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
+    androidPlatform->dispatchEvent(ev);
+#else
     JNI_NATIVE_GLUE()->dispatchEvent(ev);
+#endif
 }
 }

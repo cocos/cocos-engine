@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { PhysicsSystem } from '../../framework';
 
 export class BuiltinObject {

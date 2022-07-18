@@ -38,8 +38,8 @@ namespace impl {
 
 template <class CharT, class Allocator>
 inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocator> &str) noexcept {
-    using string_t                = std::basic_string<CharT, std::char_traits<CharT>, Allocator>;
-    constexpr CharT slash[]       = {'/', '\0'};
+    using string_t = std::basic_string<CharT, std::char_traits<CharT>, Allocator>;
+    constexpr CharT slash[] = {'/', '\0'};
     constexpr CharT doubleSlash[] = {'/', '/', '\0'};
 
     CC_EXPECTS(!str.empty());
@@ -71,7 +71,7 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
 
     // try remove /..
     constexpr ccstd::array<CharT, 4> previous = {CharT('/'), CharT('.'), CharT('.'), CharT('\0')};
-    auto                             pos      = str.find(previous.data());
+    auto pos = str.find(previous.data());
     while (pos != string_t::npos) {
         if (pos == 0) {
             // root element has not parent path

@@ -2,7 +2,9 @@
 
 #include <cfloat>
 #include <cstdint>
-#include "base/Optional.h"
+
+#include "base/std/container/vector.h"
+#include "base/std/optional.h"
 
 namespace cc {
 namespace geometry {
@@ -109,7 +111,7 @@ struct IRaySubMeshOptions {
      * @zh
      * 用于存储射线检测结果的数组。
      */
-    cc::optional<ccstd::vector<IRaySubMeshResult>> result{};
+    ccstd::optional<ccstd::vector<IRaySubMeshResult>> result{};
 
     /**
      * @en
@@ -133,7 +135,7 @@ struct IRayMeshOptions : public IRaySubMeshOptions {
      * @zh
      * 子网格的索引。
      */
-    cc::optional<ccstd::vector<uint32_t>> subIndices{};
+    ccstd::optional<ccstd::vector<uint32_t>> subIndices{};
 };
 
 /**

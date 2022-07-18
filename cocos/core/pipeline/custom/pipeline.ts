@@ -29,18 +29,19 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
+import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
+import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint, ResourceResidency, TaskType } from './types';
+import { QueueHint, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
-import { RenderScene } from '../../renderer/scene/render-scene';
+import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
-import { Model } from '../../renderer/scene';
+import { Light, Model } from '../../renderer/scene';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
@@ -52,15 +53,15 @@ export abstract class PipelineRuntime {
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
+    public abstract get geometryRenderer(): GeometryRenderer | null;
     public abstract get shadingScale(): number;
     public abstract set shadingScale(scale: number);
+    public abstract setMacroString(name: string, value: string): void;
+    public abstract setMacroInt(name: string, value: number): void;
+    public abstract setMacroBool(name: string, value: boolean): void;
     public abstract onGlobalPipelineStateChanged(): void;
 
     public abstract get macros(): MacroRecord;
-}
-
-export abstract class DescriptorHierarchy {
-    public abstract addEffect(asset: EffectAsset): void;
 }
 
 export abstract class Setter {
@@ -78,9 +79,9 @@ export abstract class Setter {
 }
 
 export abstract class RasterQueueBuilder extends Setter {
-    public abstract addSceneOfCamera(camera: Camera, name: string): void;
-    public abstract addSceneOfCamera(camera: Camera): void;
-    public abstract addScene(name: string): void;
+    public abstract addSceneOfCamera(camera: Camera, light: Light | null, sceneFlags: SceneFlags, name: string): void;
+    public abstract addSceneOfCamera(camera: Camera, light: Light | null, sceneFlags: SceneFlags): void;
+    public abstract addScene(name: string, sceneFlags: SceneFlags): void;
     public abstract addFullscreenQuad(shader: string, name: string): void;
     public abstract addFullscreenQuad(shader: string): void;
 }
@@ -143,6 +144,17 @@ export abstract class SceneTransversal {
     public abstract transverse(visitor: SceneVisitor): SceneTask;
 }
 
+export abstract class LayoutGraphBuilder {
+    public abstract clear(): void;
+    public abstract addRenderStage(name: string): number;
+    public abstract addRenderPhase(name: string, parentID: number): number;
+    public abstract addShader(name: string, parentPhaseID: number): void;
+    public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    public abstract compile(): number;
+    public abstract print(): string;
+}
+
 export abstract class Pipeline extends PipelineRuntime {
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
@@ -157,6 +169,8 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
+    public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
+    public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
 export class Factory {

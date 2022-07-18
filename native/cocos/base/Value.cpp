@@ -39,8 +39,8 @@
 
 namespace cc {
 
-const ValueVector    VALUE_VECTOR_NULL;
-const ValueMap       VALUE_MAP_NULL         = {};
+const ValueVector VALUE_VECTOR_NULL;
+const ValueMap VALUE_MAP_NULL = {};
 const ValueMapIntKey VALUE_MAP_INT_KEY_NULL = {};
 
 const Value Value::VALUE_NULL;
@@ -82,7 +82,7 @@ Value::Value(bool v)
 
 Value::Value(const char *v)
 : _type(Type::STRING) {
-    _field.strVal = new (std::nothrow) ccstd::string();
+    _field.strVal = ccnew ccstd::string();
     if (v) {
         *_field.strVal = v;
     }
@@ -90,43 +90,43 @@ Value::Value(const char *v)
 
 Value::Value(const ccstd::string &v)
 : _type(Type::STRING) {
-    _field.strVal  = new (std::nothrow) ccstd::string();
+    _field.strVal = ccnew ccstd::string();
     *_field.strVal = v;
 }
 
 Value::Value(const ValueVector &v)
 : _type(Type::VECTOR) {
-    _field.vectorVal  = new (std::nothrow) ValueVector();
+    _field.vectorVal = ccnew ValueVector();
     *_field.vectorVal = v;
 }
 
 Value::Value(ValueVector &&v)
 : _type(Type::VECTOR) {
-    _field.vectorVal  = new (std::nothrow) ValueVector();
+    _field.vectorVal = ccnew ValueVector();
     *_field.vectorVal = std::move(v);
 }
 
 Value::Value(const ValueMap &v)
 : _type(Type::MAP) {
-    _field.mapVal  = new (std::nothrow) ValueMap();
+    _field.mapVal = ccnew ValueMap();
     *_field.mapVal = v;
 }
 
 Value::Value(ValueMap &&v)
 : _type(Type::MAP) {
-    _field.mapVal  = new (std::nothrow) ValueMap();
+    _field.mapVal = ccnew ValueMap();
     *_field.mapVal = std::move(v);
 }
 
 Value::Value(const ValueMapIntKey &v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal  = new (std::nothrow) ValueMapIntKey();
+    _field.intKeyMapVal = ccnew ValueMapIntKey();
     *_field.intKeyMapVal = v;
 }
 
 Value::Value(ValueMapIntKey &&v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal  = new (std::nothrow) ValueMapIntKey();
+    _field.intKeyMapVal = ccnew ValueMapIntKey();
     *_field.intKeyMapVal = std::move(v);
 }
 
@@ -169,25 +169,25 @@ Value &Value::operator=(const Value &other) { //NOLINT(misc-no-recursion)
                 break;
             case Type::STRING:
                 if (_field.strVal == nullptr) {
-                    _field.strVal = new ccstd::string();
+                    _field.strVal = ccnew ccstd::string();
                 }
                 *_field.strVal = *other._field.strVal;
                 break;
             case Type::VECTOR:
                 if (_field.vectorVal == nullptr) {
-                    _field.vectorVal = new (std::nothrow) ValueVector();
+                    _field.vectorVal = ccnew ValueVector();
                 }
                 *_field.vectorVal = *other._field.vectorVal;
                 break;
             case Type::MAP:
                 if (_field.mapVal == nullptr) {
-                    _field.mapVal = new (std::nothrow) ValueMap();
+                    _field.mapVal = ccnew ValueMap();
                 }
                 *_field.mapVal = *other._field.mapVal;
                 break;
             case Type::INT_KEY_MAP:
                 if (_field.intKeyMapVal == nullptr) {
-                    _field.intKeyMapVal = new (std::nothrow) ValueMapIntKey();
+                    _field.intKeyMapVal = ccnew ValueMapIntKey();
                 }
                 *_field.intKeyMapVal = *other._field.intKeyMapVal;
                 break;
@@ -361,9 +361,9 @@ bool Value::operator==(const Value &v) const { //NOLINT(misc-no-recursion)
         case Type::FLOAT: return std::abs(v._field.floatVal - this->_field.floatVal) <= FLT_EPSILON;
         case Type::DOUBLE: return std::abs(v._field.doubleVal - this->_field.doubleVal) <= DBL_EPSILON;
         case Type::VECTOR: {
-            const auto &v1   = *(this->_field.vectorVal);
-            const auto &v2   = *(v._field.vectorVal);
-            const auto  size = v1.size();
+            const auto &v1 = *(this->_field.vectorVal);
+            const auto &v2 = *(v._field.vectorVal);
+            const auto size = v1.size();
             if (size == v2.size()) {
                 for (size_t i = 0; i < size; i++) {
                     if (v1[i] != v2[i]) {
@@ -405,7 +405,7 @@ bool Value::operator==(const Value &v) const { //NOLINT(misc-no-recursion)
 
 /// Convert value to a specified type
 unsigned char Value::asByte() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
 
     if (_type == Type::BYTE) {
         return _field.byteVal;
@@ -439,13 +439,13 @@ unsigned char Value::asByte() const {
 }
 
 int Value::asInt() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
     if (_type == Type::INTEGER) {
         return _field.intVal;
     }
 
     if (_type == Type::UNSIGNED) {
-        CCASSERT(_field.unsignedVal < INT_MAX, "Can only convert values < INT_MAX");
+        CC_ASSERT(_field.unsignedVal < INT_MAX);
         return static_cast<int>(_field.unsignedVal);
     }
 
@@ -473,13 +473,13 @@ int Value::asInt() const {
 }
 
 unsigned int Value::asUnsignedInt() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
     if (_type == Type::UNSIGNED) {
         return _field.unsignedVal;
     }
 
     if (_type == Type::INTEGER) {
-        CCASSERT(_field.intVal >= 0, "Only values >= 0 can be converted to unsigned");
+        CC_ASSERT(_field.intVal >= 0);
         return static_cast<unsigned int>(_field.intVal);
     }
 
@@ -508,7 +508,7 @@ unsigned int Value::asUnsignedInt() const {
 }
 
 float Value::asFloat() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
     if (_type == Type::FLOAT) {
         return _field.floatVal;
     }
@@ -541,7 +541,7 @@ float Value::asFloat() const {
 }
 
 double Value::asDouble() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
     if (_type == Type::DOUBLE) {
         return _field.doubleVal;
     }
@@ -574,7 +574,7 @@ double Value::asDouble() const {
 }
 
 bool Value::asBool() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
     if (_type == Type::BOOLEAN) {
         return _field.boolVal;
     }
@@ -607,7 +607,7 @@ bool Value::asBool() const {
 }
 
 ccstd::string Value::asString() const {
-    CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
+    CC_ASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP);
 
     if (_type == Type::STRING) {
         return *_field.strVal;
@@ -641,32 +641,32 @@ ccstd::string Value::asString() const {
 }
 
 ValueVector &Value::asValueVector() {
-    CCASSERT(_type == Type::VECTOR, "The value type isn't Type::VECTOR");
+    CC_ASSERT(_type == Type::VECTOR);
     return *_field.vectorVal;
 }
 
 const ValueVector &Value::asValueVector() const {
-    CCASSERT(_type == Type::VECTOR, "The value type isn't Type::VECTOR");
+    CC_ASSERT(_type == Type::VECTOR);
     return *_field.vectorVal;
 }
 
 ValueMap &Value::asValueMap() {
-    CCASSERT(_type == Type::MAP, "The value type isn't Type::MAP");
+    CC_ASSERT(_type == Type::MAP);
     return *_field.mapVal;
 }
 
 const ValueMap &Value::asValueMap() const {
-    CCASSERT(_type == Type::MAP, "The value type isn't Type::MAP");
+    CC_ASSERT(_type == Type::MAP);
     return *_field.mapVal;
 }
 
 ValueMapIntKey &Value::asIntKeyMap() {
-    CCASSERT(_type == Type::INT_KEY_MAP, "The value type isn't Type::INT_KEY_MAP");
+    CC_ASSERT(_type == Type::INT_KEY_MAP);
     return *_field.intKeyMapVal;
 }
 
 const ValueMapIntKey &Value::asIntKeyMap() const {
-    CCASSERT(_type == Type::INT_KEY_MAP, "The value type isn't Type::INT_KEY_MAP");
+    CC_ASSERT(_type == Type::INT_KEY_MAP);
     return *_field.intKeyMapVal;
 }
 
@@ -746,7 +746,7 @@ static ccstd::string visit(const Value &v, int depth) { //NOLINT[misc-no-recursi
             ret << visitMap(v.asIntKeyMap(), depth);
             break;
         default:
-            CCASSERT(false, "Invalid type!");
+            CC_ASSERT(false);
             break;
     }
 
@@ -809,16 +809,16 @@ void Value::reset(Type type) {
     // Allocate memory for the new value
     switch (type) {
         case Type::STRING:
-            _field.strVal = new (std::nothrow) ccstd::string();
+            _field.strVal = ccnew ccstd::string();
             break;
         case Type::VECTOR:
-            _field.vectorVal = new (std::nothrow) ValueVector();
+            _field.vectorVal = ccnew ValueVector();
             break;
         case Type::MAP:
-            _field.mapVal = new (std::nothrow) ValueMap();
+            _field.mapVal = ccnew ValueMap();
             break;
         case Type::INT_KEY_MAP:
-            _field.intKeyMapVal = new (std::nothrow) ValueMapIntKey();
+            _field.intKeyMapVal = ccnew ValueMapIntKey();
             break;
         default:
             break;

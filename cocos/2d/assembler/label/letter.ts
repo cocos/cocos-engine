@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { addon } from '../../../core/utils/js';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
@@ -56,10 +51,6 @@ export const letter = {
         tempColor.a = node._uiProps.opacity * 255;
         // Fill All
         fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
-    },
-
-    updateColor (comp: Label) {
-
     },
 
     appendQuad: bmfont.appendQuad,

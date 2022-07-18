@@ -60,7 +60,7 @@ public:
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
-    void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
+    void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
     void resetQueryPool(QueryPool *queryPool) override;
@@ -70,6 +70,9 @@ public:
 protected:
     friend class CCVKQueue;
 
+    using ImageBarrierList = ccstd::vector<VkImageMemoryBarrier>;
+    using BufferBarrierList = ccstd::vector<VkBufferMemoryBarrier>;
+
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
@@ -77,25 +80,26 @@ protected:
 
     CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
 
-    CCVKGPUPipelineState *                 _curGPUPipelineState = nullptr;
-    ccstd::vector<CCVKGPUDescriptorSet *>  _curGPUDescriptorSets;
-    ccstd::vector<VkDescriptorSet>         _curVkDescriptorSets;
-    ccstd::vector<uint32_t>                _curDynamicOffsets;
+    CCVKGPUPipelineState *_curGPUPipelineState = nullptr;
+    ccstd::vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
+    ccstd::vector<VkDescriptorSet> _curVkDescriptorSets;
+    ccstd::vector<uint32_t> _curDynamicOffsets;
     ccstd::vector<ccstd::vector<uint32_t>> _curDynamicOffsetsArray;
-    uint32_t                               _firstDirtyDescriptorSet = UINT_MAX;
+    uint32_t _firstDirtyDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
-    CCVKGPUFramebuffer *   _curGPUFBO           = nullptr;
-    CCVKGPURenderPass *    _curGPURenderPass    = nullptr;
+    CCVKGPUFramebuffer *_curGPUFBO = nullptr;
+    CCVKGPURenderPass *_curGPURenderPass = nullptr;
 
     bool _secondaryRP = false;
 
     DynamicStates _curDynamicStates;
 
     // temp storage
-    ccstd::vector<VkImageBlit>          _blitRegions;
-    ccstd::vector<VkImageMemoryBarrier> _imageMemoryBarriers;
-    ccstd::vector<VkCommandBuffer>      _vkCommandBuffers;
+    ccstd::vector<VkImageBlit> _blitRegions;
+    ccstd::vector<VkCommandBuffer> _vkCommandBuffers;
+    ccstd::queue<VkEvent> _availableEvents;
+    ccstd::unordered_map<const GFXObject *, VkEvent> _barrierEvents;
 
     ccstd::queue<VkCommandBuffer> _pendingQueue;
 };

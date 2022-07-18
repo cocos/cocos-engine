@@ -37,12 +37,12 @@ public:
         SegmentData();
         ~SegmentData();
 
-        void                       setTexture(cc::middleware::Texture2D *value);
+        void setTexture(cc::middleware::Texture2D *value);
         cc::middleware::Texture2D *getTexture() const;
 
     public:
-        int         blendMode        = 0;
-        std::size_t indexCount       = 0;
+        int blendMode = 0;
+        std::size_t indexCount = 0;
         std::size_t vertexFloatCount = 0;
 
     private:
@@ -55,7 +55,7 @@ public:
 
     struct ColorData {
         cc::middleware::Color4F color;
-        std::size_t             vertexFloatOffset = 0;
+        std::size_t vertexFloatOffset = 0;
     };
 
     struct FrameData {
@@ -87,8 +87,8 @@ public:
         // if bone data is empty, it will build new one.
         BoneData *buildBoneData(std::size_t index);
 
-        std::vector<BoneData *>    _bones;
-        std::vector<ColorData *>   _colors;
+        std::vector<BoneData *> _bones;
+        std::vector<ColorData *> _colors;
         std::vector<SegmentData *> _segments;
 
     public:
@@ -103,7 +103,7 @@ public:
         ~AnimationData();
         void reset();
 
-        FrameData * getFrameData(std::size_t frameIdx) const;
+        FrameData *getFrameData(std::size_t frameIdx) const;
         std::size_t getFrameCount() const;
 
         bool isComplete() const { return _isComplete; }
@@ -112,7 +112,7 @@ public:
     private:
         // if frame is empty, it will build new one.
         FrameData *buildFrameData(std::size_t frameIdx);
-    
+
         std::string _animationName;
         bool _isComplete = false;
         float _totalTime = 0.0F;
@@ -124,8 +124,8 @@ public:
 
     void updateToFrame(const std::string &animationName, int toFrameIdx = -1);
     // if animation data is empty, it will build new one.
-    AnimationData *    buildAnimationData(const std::string &animationName);
-    AnimationData *    getAnimationData(const std::string &animationName);
+    AnimationData *buildAnimationData(const std::string &animationName);
+    AnimationData *getAnimationData(const std::string &animationName);
     CCArmatureDisplay *getArmatureDisplay();
 
     void resetAllAnimationData();
@@ -136,7 +136,7 @@ private:
     void traverseArmature(Armature *armature, float parentOpacity = 1.0F);
 
 public:
-    static float FrameTime; // NOLINT
+    static float FrameTime;    // NOLINT
     static float MaxCacheTime; // NOLINT
 
 private:

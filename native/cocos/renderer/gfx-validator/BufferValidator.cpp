@@ -50,20 +50,22 @@ BufferValidator::~BufferValidator() {
 }
 
 void BufferValidator::doInit(const BufferInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    // Initialize twice?
+    CC_ASSERT(!isInited());
     _inited = true;
 
-    CCASSERT(info.usage != BufferUsageBit::NONE, "invalid buffer param");
-    CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid buffer param");
-    CCASSERT(info.size, "zero-sized buffer?");
-    CCASSERT(info.size / info.stride * info.stride == info.size, "size is not multiple of stride?");
+    CC_ASSERT(info.usage != BufferUsageBit::NONE);
+    CC_ASSERT(info.memUsage != MemoryUsageBit::NONE);
+    CC_ASSERT(info.size);
+    CC_ASSERT(info.size / info.stride * info.stride == info.size);
 
-    _initStack        = utils::getStacktraceJS();
-    _creationFrame    = DeviceValidator::getInstance()->currentFrame();
+    _initStack = utils::getStacktraceJS();
+    _creationFrame = DeviceValidator::getInstance()->currentFrame();
     _totalUpdateTimes = 0U;
 
     if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
-        CCASSERT(false, "invalid stride for vertex buffer");
+        // Invalid stride for vertex buffer.
+        CC_ASSERT(false);
     }
 
     /////////// execute ///////////
@@ -72,29 +74,35 @@ void BufferValidator::doInit(const BufferInfo &info) {
 }
 
 void BufferValidator::doInit(const BufferViewInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    // Initialize twice?
+    CC_ASSERT(!isInited());
     _inited = true;
 
-    CCASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited(), "already destroyed?");
-    CCASSERT(info.offset + info.range <= info.buffer->getSize(), "invalid range");
-    CCASSERT(info.range, "zero-sized buffer?");
+    // Already been destroyed?
+    CC_ASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited());
+    CC_ASSERT(info.offset + info.range <= info.buffer->getSize());
+    // zero-sized buffer?
+    CC_ASSERT(info.range);
 
     uint32_t stride = info.buffer->getStride();
-    CCASSERT(info.offset / stride * stride == info.offset, "offset is not multiple of stride?");
+    // Offset is not multiple of stride?
+    CC_ASSERT(info.offset / stride * stride == info.offset);
 
     /////////// execute ///////////
 
     BufferViewInfo actorInfo = info;
-    actorInfo.buffer         = static_cast<BufferValidator *>(info.buffer)->getActor();
+    actorInfo.buffer = static_cast<BufferValidator *>(info.buffer)->getActor();
 
     _actor->initialize(actorInfo);
 }
 
 void BufferValidator::doResize(uint32_t size, uint32_t /*count*/) {
-    CCASSERT(isInited(), "alread destroyed?");
+    // Already been destroyed?
+    CC_ASSERT(isInited());
 
-    CCASSERT(!_isBufferView, "cannot resize through buffer views");
-    CCASSERT(size, "invalid size");
+    // Cannot resize through buffer views.
+    CC_ASSERT(!_isBufferView);
+    CC_ASSERT(size);
 
     /////////// execute ///////////
 
@@ -102,7 +110,8 @@ void BufferValidator::doResize(uint32_t size, uint32_t /*count*/) {
 }
 
 void BufferValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    // Be destroyed twice?"
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
@@ -111,19 +120,21 @@ void BufferValidator::doDestroy() {
 }
 
 void BufferValidator::update(const void *buffer, uint32_t size) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
-    CCASSERT(!_isBufferView, "cannot update through buffer views");
-    CCASSERT(size && size <= _size, "invalid size");
-    CCASSERT(buffer, "invalid buffer data");
+    // Cannot update through buffer views.
+    CC_ASSERT(!_isBufferView);
+    CC_ASSERT(size && size <= _size);
+    CC_ASSERT(buffer);
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        const auto * drawInfo      = static_cast<const DrawInfo *>(buffer);
+        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
         const size_t drawInfoCount = size / sizeof(DrawInfo);
-        const bool   isIndexed     = drawInfoCount > 0 && drawInfo->indexCount > 0;
+        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
         for (size_t i = 1U; i < drawInfoCount; ++i) {
             if ((++drawInfo)->indexCount > 0 != isIndexed) {
-                CCASSERT(false, "inconsistent indirect draw infos on using index buffer");
+                // Inconsistent indirect draw infos on using index buffer.
+                CC_ASSERT(false);
             }
         }
     }

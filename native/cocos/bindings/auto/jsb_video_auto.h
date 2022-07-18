@@ -18,6 +18,7 @@ bool js_register_cc_VideoPlayer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_video_VideoPlayer_addEventListener);
 SE_DECLARE_FUNC(js_video_VideoPlayer_currentTime);
+SE_DECLARE_FUNC(js_video_VideoPlayer_destroy);
 SE_DECLARE_FUNC(js_video_VideoPlayer_duration);
 SE_DECLARE_FUNC(js_video_VideoPlayer_isKeepAspectRatioEnabled);
 SE_DECLARE_FUNC(js_video_VideoPlayer_onPlayEvent);

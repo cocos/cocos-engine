@@ -42,10 +42,11 @@ import {
     ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
     RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo,
-    QueueType, API, BufferTextureCopy, SwapchainInfo,
+    BufferBarrierInfo, QueueType, API, BufferTextureCopy, SwapchainInfo,
 } from '../base/define';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
+import { BufferBarrier } from '../base/states/buffer-barrier';
 import { Swapchain } from '../base/swapchain';
 import { EmptyDescriptorSet } from './empty-descriptor-set';
 import { EmptyBuffer } from './empty-buffer';
@@ -192,6 +193,14 @@ export class EmptyDevice extends Device {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
         }
         return this._textureBarriers.get(hash)!;
+    }
+
+    public getBufferBarrier (info: Readonly<BufferBarrierInfo>) {
+        const hash = BufferBarrier.computeHash(info);
+        if (!this._bufferBarriers.has(hash)) {
+            this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
+        }
+        return this._bufferBarriers.get(hash)!;
     }
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}

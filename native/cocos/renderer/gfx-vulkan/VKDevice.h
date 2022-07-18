@@ -83,21 +83,21 @@ public:
         });
     }
 
-    inline CCVKGPUDevice * gpuDevice() const { return _gpuDevice; }
+    inline CCVKGPUDevice *gpuDevice() const { return _gpuDevice; }
     inline CCVKGPUContext *gpuContext() { return _gpuContext; }
 
-    inline CCVKGPUBufferHub *       gpuBufferHub() { return _gpuBufferHub; }
-    inline CCVKGPUTransportHub *    gpuTransportHub() { return _gpuTransportHub; }
-    inline CCVKGPUDescriptorHub *   gpuDescriptorHub() { return _gpuDescriptorHub; }
-    inline CCVKGPUSemaphorePool *   gpuSemaphorePool() { return _gpuSemaphorePool; }
-    inline CCVKGPUBarrierManager *  gpuBarrierManager() { return _gpuBarrierManager; }
-    inline CCVKGPUFramebufferHub *  gpuFramebufferHub() { return _gpuFramebufferHub; }
+    inline CCVKGPUBufferHub *gpuBufferHub() { return _gpuBufferHub; }
+    inline CCVKGPUTransportHub *gpuTransportHub() { return _gpuTransportHub; }
+    inline CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
+    inline CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
+    inline CCVKGPUBarrierManager *gpuBarrierManager() { return _gpuBarrierManager; }
+    inline CCVKGPUFramebufferHub *gpuFramebufferHub() { return _gpuFramebufferHub; }
     inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
 
-    CCVKGPUFencePool *        gpuFencePool();
-    CCVKGPURecycleBin *       gpuRecycleBin();
+    CCVKGPUFencePool *gpuFencePool();
+    CCVKGPURecycleBin *gpuRecycleBin();
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
-    void                      waitAllFences();
+    void waitAllFences();
 
     void updateBackBufferCount(uint32_t backBufferCount);
 
@@ -108,24 +108,24 @@ protected:
 
     CCVKDevice();
 
-    bool                 doInit(const DeviceInfo &info) override;
-    void                 doDestroy() override;
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Queue *              createQueue() override;
-    QueryPool *          createQueryPool() override;
-    Swapchain *          createSwapchain() override;
-    Buffer *             createBuffer() override;
-    Texture *            createTexture() override;
-    Shader *             createShader() override;
-    InputAssembler *     createInputAssembler() override;
-    RenderPass *         createRenderPass() override;
-    Framebuffer *        createFramebuffer() override;
-    DescriptorSet *      createDescriptorSet() override;
+    bool doInit(const DeviceInfo &info) override;
+    void doDestroy() override;
+    CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    QueryPool *createQueryPool() override;
+    Swapchain *createSwapchain() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *     createPipelineLayout() override;
-    PipelineState *      createPipelineState() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info) override;
+    Sampler *createSampler(const SamplerInfo &info) override;
     GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) override;
 
@@ -135,20 +135,20 @@ protected:
 
     void initFormatFeature();
 
-    CCVKGPUDevice *              _gpuDevice  = nullptr;
-    CCVKGPUContext *             _gpuContext = nullptr;
+    CCVKGPUDevice *_gpuDevice = nullptr;
+    CCVKGPUContext *_gpuContext = nullptr;
     ccstd::vector<CCVKTexture *> _depthStencilTextures;
 
-    ccstd::vector<CCVKGPUFencePool *>         _gpuFencePools;
-    ccstd::vector<CCVKGPURecycleBin *>        _gpuRecycleBins;
+    ccstd::vector<CCVKGPUFencePool *> _gpuFencePools;
+    ccstd::vector<CCVKGPURecycleBin *> _gpuRecycleBins;
     ccstd::vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
 
-    CCVKGPUBufferHub *       _gpuBufferHub{nullptr};
-    CCVKGPUTransportHub *    _gpuTransportHub{nullptr};
-    CCVKGPUDescriptorHub *   _gpuDescriptorHub{nullptr};
-    CCVKGPUSemaphorePool *   _gpuSemaphorePool{nullptr};
-    CCVKGPUBarrierManager *  _gpuBarrierManager{nullptr};
-    CCVKGPUFramebufferHub *  _gpuFramebufferHub{nullptr};
+    CCVKGPUBufferHub *_gpuBufferHub{nullptr};
+    CCVKGPUTransportHub *_gpuTransportHub{nullptr};
+    CCVKGPUDescriptorHub *_gpuDescriptorHub{nullptr};
+    CCVKGPUSemaphorePool *_gpuSemaphorePool{nullptr};
+    CCVKGPUBarrierManager *_gpuBarrierManager{nullptr};
+    CCVKGPUFramebufferHub *_gpuFramebufferHub{nullptr};
     CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub{nullptr};
 
     ccstd::vector<const char *> _layers;

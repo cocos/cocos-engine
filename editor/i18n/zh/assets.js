@@ -4,10 +4,12 @@ module.exports = {
         cancel: '取消',
         warn: '警告',
     },
+
     inspector: {
         cloneToEdit: '克隆出新资源，使用并编辑',
         cloneToDirectoryIllegal: '保存路径请限制在当前项目 /assets 路径内',
     },
+
     assets: {
         reset: '重置',
         save: '保存',
@@ -24,9 +26,9 @@ module.exports = {
             StartChar: 'Start Char',
             FontSize: 'Font Size',
         },
-        particle:{
-            spriteFrame:'Sprite Frame',
-            spriteFrameTip:'Sprite Frame',
+        particle: {
+            spriteFrame: 'Sprite Frame',
+            spriteFrameTip: 'Sprite Frame',
         },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
@@ -41,6 +43,7 @@ module.exports = {
             mipFilterTip: 'Mip Filter',
             wrapModeSTip: 'Wrap Mode S',
             wrapModeTTip: 'Wrap Mode T',
+            bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
                 title:
@@ -85,8 +88,8 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
-            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
-            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
+            // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            // bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
@@ -96,7 +99,7 @@ module.exports = {
         },
         spriteFrame: {
             packable: 'Packable',
-            packableTip: '是否参与动态合图',
+            packableTip: '是否参与动态合图或者自动图集的构建处理',
             rotated: 'Rotated',
             rotatedTip: 'TexturePacker 中的子资源是否被旋转',
             offsetX: 'Offset X',
@@ -125,6 +128,14 @@ module.exports = {
             borderRightTip: '九宫格右边距',
             edit: 'Edit',
             editTip: '编辑',
+            meshType: 'Mesh Type',
+            meshTypeTip: 'SpriteFrame 生成的网格类型',
+            pixelsToUnit: 'Pixels To Unit',
+            pixelsToUnitTip: 'SpriteFrame 像素对应世界空间内单位长度的比例尺',
+            pivotX: 'Pivot X',
+            pivotXTip: 'SpriteFrame 本地坐标系原点的 X 轴位置',
+            pivotY: 'Pivot Y',
+            pivotYTip: 'SpriteFrame 本地坐标系原点的 Y 轴位置',
         },
         texture: {
             anisotropy: 'Anisotropy',
@@ -149,8 +160,8 @@ module.exports = {
             modelPreview: '模型预览',
             material: '材质',
             fbx: 'FBX',
-            no_model_tips:'没有模型可供预览',
-            drag_model_tips:'可将模型拖到这里进行预览',
+            no_model_tips: '没有模型可供预览',
+            drag_model_tips: '可将模型拖到这里进行预览',
             GlTFUserData: {
                 normals: {
                     name: '法线',
@@ -242,7 +253,7 @@ module.exports = {
                 original: '原始',
             },
             limitMaterialDumpDir: '提取的路径需要限定在项目路径范围内',
-            legacyOptions:'旧版本遗留',
+            legacyOptions: '旧版本遗留',
             legacyFbxImporter: {
                 name: '与 1.* 版本兼容',
                 title: '此导入器是否应该与其在 Cocos Creator 1.* 之前版本的导入方式兼容。',
@@ -257,6 +268,12 @@ module.exports = {
                     'useBakedAnimation 选项未勾选时)，可以勾选此项以提升性能。<br>' +
                     '但注意改变此选项会影响生成的 prefab 内容，需要对应更新场景中的引用。<br>' +
                     '后续重构会移除此流程。',
+            },
+            allowMeshDataAccess: {
+                name: '允许数据访问',
+                title:
+                    '标识此模型中的所有网格的数据是否可被读写，此接口只对静态网格资源生效，<br> ' +
+                    '若不勾选，网格数据被提交到 GPU 后会被自动释放。<br>',
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
@@ -305,12 +322,17 @@ module.exports = {
                 auto: '自动',
             },
             promoteSingleRootNode: {
-                name: '提升单一根结点',
-                title: '若开启并且 FBX 场景仅有一个根节点，那么当转换该 FBX 场景为 Cocos Creator 预制体时，<br>以该根节点作为预制体的根节点，否则以该 FBX 场景的根节点作为预制体的根节点。',
+                name: '提升单一根节点',
+                title: '若开启并且模型场景顶部仅有一个根节点，那么该节点就作为预制体的根节点。<br>否则，场景的所有根节点作为预制体的子节点。',
             },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
-                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。<br>若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+            },
+            smartMaterialEnabled: {
+                name: '材质智能转换',
+                title: '将 DCC 材质转化为引擎材质, 并匹对 DCC 材质的光照模型',
+                warn: '项目设置里的模型配置 "材质智能转换" 已关闭，请启用此项功能来修改模型级别设置。',
             },
         },
         textureCube: {
@@ -327,7 +349,7 @@ module.exports = {
             wrapModeT: 'Wrap Mode T',
             wrapModeTTip: 'Wrap Mode T',
             modeWarn:
-            '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
+                '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
         },
         material: {
             'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',
@@ -341,7 +363,7 @@ module.exports = {
             clearAllNodes: '清空',
             clearAllNodesWarn: '确定清空所有遮罩数据吗？',
             illegalFbx: '导入骨骼失败：此 fbx 文件不含有 prefab 子资源。',
-            nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
+            nodeEnableTip: '是否启用该节点及其子孙节点<br>按住 Alt + 点击，只切换自身的状态。',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
         check_is_saved: {

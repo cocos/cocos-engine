@@ -1,6 +1,7 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
+import legacyCC from '../../../predefine';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
@@ -156,6 +157,15 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
+        if (this.browserType === BrowserType.SAFARI) {
+            const result = / version\/(\d+)/.exec(ua)?.[1];
+            if (typeof result === 'string') {
+                if (Number.parseInt(result) >= 14) {
+                    // safari 14+ support webp, but canvas.toDataURL is not supported by default
+                    supportWebp = true;
+                }
+            }
+        }
         let supportImageBitmap = false;
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
             _tmpCanvas1.width = _tmpCanvas1.height = 2;
@@ -165,8 +175,8 @@ class SystemInfo extends EventTarget {
             }).catch((err) => {});
         }
 
-        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
-        const supportMouse = !EDITOR && document.documentElement.onmouseup !== undefined;
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
+        const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,
@@ -175,7 +185,7 @@ class SystemInfo extends EventTarget {
             [Feature.SAFE_AREA]: false,
 
             [Feature.INPUT_TOUCH]: supportTouch,
-            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),

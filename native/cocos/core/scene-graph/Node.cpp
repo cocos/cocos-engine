@@ -24,16 +24,11 @@
  ****************************************************************************/
 
 #include "core/scene-graph/Node.h"
-#include "base/CachedArray.h"
 #include "base/StringUtil.h"
-// #include "core/Director.h"
-// #include "core/Game.h"
 #include "core/data/Object.h"
-//#include "core/scene-graph/Find.h"
-//#include "core/scene-graph/NodeActivator.h"
+#include "core/memop/CachedArray.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/NodeEnum.h"
-//#include "core/scene-graph/NodeUIProperties.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
 
@@ -41,24 +36,21 @@ namespace cc {
 
 // static variables
 
-uint32_t                             Node::clearFrame{0};
-uint32_t                             Node::clearRound{1000};
-bool                                 Node::isStatic{false};
-const uint32_t                       Node::TRANSFORM_ON{1 << 0};
-const uint32_t                       Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
-const uint32_t                       Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
-const uint32_t                       Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
-index_t                              Node::stackId{0};
-ccstd::vector<ccstd::vector<Node *>> Node::stacks;
+uint32_t Node::clearFrame{0};
+uint32_t Node::clearRound{1000};
+const uint32_t Node::TRANSFORM_ON{1 << 0};
+const uint32_t Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
+const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
+const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
+uint32_t Node::globalFlagChangeVersion{0};
 //
 
 namespace {
-CachedArray<Node *> allNodes{128}; //cjh how to clear ?
 const ccstd::string EMPTY_NODE_NAME;
-IDGenerator         idGenerator("Node");
+IDGenerator idGenerator("Node");
 
 ccstd::vector<Node *> dirtyNodes;
-CC_FORCE_INLINE void  setDirtyNode(const index_t idx, Node *node) {
+CC_FORCE_INLINE void setDirtyNode(const index_t idx, Node *node) {
     if (idx >= dirtyNodes.size()) {
         if (idx >= dirtyNodes.capacity()) {
             size_t minCapacity = std::max((idx + 1) * 2, 32);
@@ -72,6 +64,9 @@ CC_FORCE_INLINE void  setDirtyNode(const index_t idx, Node *node) {
 }
 
 CC_FORCE_INLINE Node *getDirtyNode(const index_t idx) {
+    if (idx < 0 || idx >= dirtyNodes.size()) {
+        return nullptr;
+    }
     return dirtyNodes[idx];
 }
 
@@ -81,19 +76,21 @@ Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
 Node::Node(const ccstd::string &name) {
+#define NODE_SHARED_MEMORY_BYTE_LENGTH (20)
+    static_assert(offsetof(Node, _padding) + sizeof(_padding) - offsetof(Node, _eventMask) == NODE_SHARED_MEMORY_BYTE_LENGTH, "Wrong shared memory size");
+    _sharedMemoryActor.initialize(&_eventMask, NODE_SHARED_MEMORY_BYTE_LENGTH);
+#undef NODE_SHARED_MEMORY_BYTE_LENGTH
+
     _id = idGenerator.getNewId();
     if (name.empty()) {
         _name.append("New Node");
     } else {
         _name = name;
     }
-    allNodes.push(this);
-    _eventProcessor = new NodeEventProcessor(this);
+    _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
-    uint32_t index = allNodes.indexOf(this);
-    allNodes.fastRemove(index);
     CC_SAFE_DELETE(_eventProcessor);
 }
 
@@ -132,17 +129,17 @@ Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
 
 void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-parameters)
     Node *newParent = _parent;
-    auto *scene     = dynamic_cast<Scene *>(newParent);
+    auto *scene = dynamic_cast<Scene *>(newParent);
     if (isPersistNode() && scene == nullptr) {
         emit(EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE);
-#ifdef CC_EDITOR
+#if CC_EDITOR
         debug::warnID(1623);
 #endif
     }
-#ifdef CC_EDITOR
-    auto *     curScene             = getScene();
+#if CC_EDITOR
+    auto *curScene = getScene();
     const bool inCurrentSceneBefore = oldParent && oldParent->isChildOf(curScene);
-    const bool inCurrentSceneNow    = newParent && newParent->isChildOf(curScene);
+    const bool inCurrentSceneNow = newParent && newParent->isChildOf(curScene);
     if (!inCurrentSceneBefore && inCurrentSceneNow) {
         // attached
         this->notifyEditorAttached(true);
@@ -154,7 +151,7 @@ void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-param
     // _Scene.DetectConflict.afterAddChild(this);
 #endif
 
-    bool shouldActiveNow = _active && !!(newParent && newParent->isActiveInHierarchy());
+    bool shouldActiveNow = isActive() && !!(newParent && newParent->isActiveInHierarchy());
     if (isActiveInHierarchy() != shouldActiveNow) {
         // Director::getInstance()->getNodeActivator()->activateNode(this, shouldActiveNow); // TODO(xwx): use TS temporarily
         emit(EventTypesToJS::NODE_ACTIVE_NODE, shouldActiveNow);
@@ -217,8 +214,9 @@ void Node::targetOff(const CallbacksInvoker::KeyType &type) {
 }
 
 void Node::setActive(bool isActive) {
-    if (_active != isActive) {
-        _active      = isActive;
+    uint8_t isActiveU8 = isActive ? 1 : 0;
+    if (_active != isActiveU8) {
+        _active = isActiveU8;
         Node *parent = _parent;
         if (parent) {
             bool couldActiveInScene = parent->isActiveInHierarchy();
@@ -246,7 +244,7 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
         debug::errorID(3821);
     }
 #endif
-    _parent       = newParent;
+    _parent = newParent;
     _siblingIndex = 0;
     onSetParent(oldParent, isKeepWorld);
     emit(NodeEventType::PARENT_CHANGED, oldParent);
@@ -273,7 +271,7 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
         }
 #endif
         newParent->_children.emplace_back(this);
-        _siblingIndex = static_cast<int32_t>(newParent->_children.size() - 1);
+        _siblingIndex = static_cast<index_t>(newParent->_children.size() - 1);
         newParent->emit(NodeEventType::CHILD_ADDED, this);
     }
     onHierarchyChanged(oldParent);
@@ -283,94 +281,24 @@ Scene *Node::getScene() const {
     return _scene;
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc) {
+void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc) {
-    index_t                                  index{1};
-    index_t                                  i{0};
-    const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
-    Node *                                   curr{nullptr};
-    auto                                     stacksCount = static_cast<index_t>(Node::stacks.size());
-    if (stackId >= stacksCount) {
-        stacks.resize(stackId + 1);
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { //NOLINT(misc-no-recursion)
+    if (preFunc) {
+        preFunc(this);
     }
-    auto stack = stacks[stackId];
-    stackId++;
 
-    stack.clear();
-    stack.resize(1);
-    stack[0] = this;
-    Node *parent{nullptr};
-    bool  afterChildren{false};
-    while (index) {
-        index--;
-        auto stackCount = static_cast<index_t>(stack.size());
-        if (index >= stackCount) {
-            continue;
-        }
-        curr = stack[index];
-        if (curr == nullptr) {
-            continue;
-        }
-        if (!afterChildren && preFunc != nullptr) {
-            // pre call
-            preFunc(curr);
-        } else if (afterChildren && postFunc != nullptr) {
-            // post call
-            postFunc(curr);
-        }
-        stack[index] = nullptr;
-        if (afterChildren) {
-            if (parent == _parent) {
-                break;
-            }
-            afterChildren = false;
-        } else {
-            if (static_cast<index_t>(curr->_children.size()) > 0) {
-                parent       = curr;
-                children     = &curr->_children;
-                i            = 0;
-                stack[index] = (*children)[i];
-                stack.resize(++index);
-            } else {
-                stack[index] = curr;
-                stack.resize(++index);
-                afterChildren = true;
-            }
-            continue;
-        }
-
-        if (children != nullptr && !children->empty()) {
-            i++;
-            if (i < children->size() && children->at(i) != nullptr) {
-                stack[index] = children->at(i);
-                stack.resize(++index);
-            } else if (parent) {
-                stack[index] = parent;
-                stack.resize(++index);
-                afterChildren = true;
-                if (parent->_parent != nullptr) {
-                    children    = &parent->_parent->_children;
-                    index_t idx = getIdxOfChild(*children, parent);
-                    if (idx != CC_INVALID_INDEX) {
-                        i = idx;
-                    }
-                    parent = parent->_parent;
-                } else {
-                    // At root
-                    parent   = nullptr;
-                    children = nullptr;
-                }
-                if (i < 0) {
-                    break;
-                }
-            }
+    for (const auto &child : _children) {
+        if (child) {
+            child->walk(preFunc, postFunc);
         }
     }
-    stack.clear();
-    stackId--;
+
+    if (postFunc) {
+        postFunc(this);
+    }
 }
 
 //Component *Node::addComponent(Component *comp) {
@@ -395,7 +323,7 @@ bool Node::onPreDestroyBase() {
     Flags destroyingFlag = Flags::DESTROYING;
     _objFlags |= destroyingFlag;
     bool destroyByParent = (!!_parent) && (!!(_parent->_objFlags & destroyingFlag));
-#ifdef CC_EDITOR
+#if CC_EDITOR
     if (!destroyByParent) {
         this->notifyEditorAttached(false);
     }
@@ -415,12 +343,16 @@ bool Node::onPreDestroyBase() {
             _parent->emit(NodeEventType::CHILD_REMOVED, this);
         }
     }
-    emit(NodeEventType::NODE_DESTROYED, this);
-    for (const auto &child : _children) {
-        child->destroyImmediate();
-    }
 
-    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+    //NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
+    // and the logic will be done in TS.
+    //    emit(NodeEventType::NODE_DESTROYED, this);
+    //    for (const auto &child : _children) {
+    //        child->destroyImmediate();
+    //    }
+    //
+    //    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+
     _eventProcessor->destroy();
     return destroyByParent;
 }
@@ -450,6 +382,7 @@ void Node::updateScene() {
     emit(EventTypesToJS::NODE_SCENE_UPDATED, _scene);
 }
 
+/* static */
 index_t Node::getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &child, Node *target) {
     auto iteChild = std::find(child.begin(), child.end(), target);
     if (iteChild != child.end()) {
@@ -471,8 +404,8 @@ Node *Node::getChildByUuid(const ccstd::string &uuid) const {
     return nullptr;
 }
 
-bool Node::isChildOf(Node *parent) {
-    Node *child = this;
+bool Node::isChildOf(Node *parent) const {
+    const Node *child = this;
     do {
         if (child == parent) {
             return true;
@@ -500,8 +433,8 @@ void Node::setSiblingIndex(index_t index) {
         return;
     }
     ccstd::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
-    index                                       = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
-    index_t oldIdx                              = getIdxOfChild(siblings, this);
+    index = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
+    index_t oldIdx = getIdxOfChild(siblings, this);
     if (index != oldIdx) {
         if (oldIdx != CC_INVALID_INDEX) {
             siblings.erase(siblings.begin() + oldIdx);
@@ -519,9 +452,9 @@ void Node::setSiblingIndex(index_t index) {
 }
 
 Node *Node::getChildByPath(const ccstd::string &path) const {
-    size_t                       end      = 0;
+    size_t end = 0;
     ccstd::vector<ccstd::string> segments = StringUtil::split(path, "/");
-    auto *                       lastNode = const_cast<Node *>(this);
+    auto *lastNode = const_cast<Node *>(this);
     for (const ccstd::string &segment : segments) {
         if (segment.empty()) {
             continue;
@@ -543,7 +476,6 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 }
 
 //
-
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
@@ -602,16 +534,16 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
         return;
     }
 
-    index_t    i    = 0;
-    Node *     curr = this;
-    Mat3       mat3;
-    Mat3       m43;
+    index_t i = 0;
+    Node *curr = this;
+    Mat3 mat3;
+    Mat3 m43;
     Quaternion quat;
     while (curr && curr->getDirtyFlag()) {
         setDirtyNode(i++, curr);
         curr = curr->getParent();
     }
-    Node *   child{nullptr};
+    Node *child{nullptr};
     uint32_t dirtyBits = 0;
     while (i) {
         child = getDirtyNode(--i);
@@ -682,7 +614,7 @@ Mat4 Node::getWorldRT() {
 }
 
 void Node::invalidateChildren(TransformBit dirtyBit) {
-    auto           curDirtyBit{static_cast<uint32_t>(dirtyBit)};
+    auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t childDirtyBit{curDirtyBit | static_cast<uint32_t>(TransformBit::POSITION)};
     setDirtyNode(0, this);
     int i{0};
@@ -695,7 +627,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) {
         const uint32_t hasChangedFlags = cur->getChangedFlags();
         if (cur->isValid() && (cur->getDirtyFlag() & hasChangedFlags & curDirtyBit) != curDirtyBit) {
             cur->setDirtyFlag(cur->getDirtyFlag() | curDirtyBit);
-            cur->_uiTransformDirty[0] = 1; // UIOnly TRS dirty
             cur->setChangedFlags(hasChangedFlags | curDirtyBit);
 
             for (Node *curChild : cur->getChildren()) {
@@ -841,7 +772,7 @@ void Node::rotate(const Quaternion &rot, NodeSpace ns /* = NodeSpace::LOCAL*/, b
         qTempB = qTempA * _worldRotation;
         qTempA = _worldRotation;
         qTempA.inverse();
-        qTempB         = qTempA * qTempB;
+        qTempB = qTempA * qTempB;
         _localRotation = _localRotation * qTempB;
     }
     _eulerDirty = true;
@@ -856,7 +787,7 @@ void Node::rotate(const Quaternion &rot, NodeSpace ns /* = NodeSpace::LOCAL*/, b
 }
 
 void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
-    Vec3       vTemp = getWorldPosition();
+    Vec3 vTemp = getWorldPosition();
     Quaternion qTemp{Quaternion::identity()};
     vTemp -= pos;
     vTemp.normalize();
@@ -864,9 +795,10 @@ void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
     setWorldRotation(qTemp);
 }
 
-void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
+Vec3 Node::inverseTransformPoint(const Vec3 &p) {
+    Vec3 out;
     out.set(p.x, p.y, p.z);
-    Node *  cur{this};
+    Node *cur{this};
     index_t i{0};
     while (cur != nullptr && cur->getParent()) {
         setDirtyNode(i++, cur);
@@ -875,8 +807,9 @@ void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
     while (i >= 0) {
         Vec3::transformInverseRTS(out, cur->getRotation(), cur->getPosition(), cur->getScale(), &out);
         --i;
-        cur = dirtyNodes[i];
+        cur = getDirtyNode(i);
     }
+    return out;
 }
 
 void Node::setMatrix(const Mat4 &val) {
@@ -913,7 +846,7 @@ void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFr
     if (rot) {
         dirtyBit |= static_cast<uint32_t>(TransformBit::ROTATION);
         _localRotation = *rot;
-        _eulerDirty    = true;
+        _eulerDirty = true;
     }
     if (pos) {
         _localPosition = *pos;
@@ -937,9 +870,7 @@ void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFr
 }
 
 void Node::resetChangedFlags() {
-    for (uint32_t i = 0, len = allNodes.size(); i < len; ++i) {
-        allNodes[i]->setChangedFlags(0);
-    }
+    globalFlagChangeVersion++;
 }
 
 void Node::clearNodeArray() {

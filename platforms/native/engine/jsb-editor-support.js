@@ -26,11 +26,13 @@
 // @ts-expect-error jsb polyfills
 (function () {
     if (!window.middleware) return;
+    const RenderDrawInfoType_IA = 2;
     const middleware = window.middleware;
     const middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
     const director = cc.director;
     const game = cc.game;
+    const _accessors = [];
 
     const nativeXYZUVC = middleware.vfmtPosUvColor = 9;
     const nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
@@ -63,14 +65,17 @@
         if (reference === 0) {
             const uvcBuffers = renderInfoLookup[nativeXYZUVC];
             for (let i = 0; i < uvcBuffers.length; i++) {
-                cc.UI.MeshRenderData.remove(uvcBuffers[i]);
+                cc.UI.RenderData.remove(uvcBuffers[i]);
             }
             uvcBuffers.length = 0;
             const uvccBuffers = renderInfoLookup[nativeXYZUVCC];
             for (let i = 0; i < uvccBuffers.length; i++) {
-                cc.UI.MeshRenderData.remove(uvccBuffers[i]);
+                cc.UI.RenderData.remove(uvccBuffers[i]);
             }
             uvccBuffers.length = 0;
+            _accessors.forEach((accessor) => {
+                accessor.destroy();
+            });
         }
     };
 
@@ -83,18 +88,26 @@
             const vbBytesLength = middlewareMgr.getVBTypedArrayLength(nativeFormat, i);
             const srcIndicesCount = ibBytesLength / 2; // USHORT
             const srcVertexCount = vbBytesLength  / nativeFormat / 4;
+            const srcVertexFloatCount = srcVertexCount * nativeFormat;
 
             let buffer = renderInfoLookup[nativeFormat][i];
             if (!buffer)  {
-                buffer = cc.UI.MeshRenderData.add(jsFormat);
+                if (!_accessors[jsFormat]) {
+                    _accessors[jsFormat] = cc.UI.RenderData.createStaticVBAccessor(jsFormat, 65535);
+                }
+                buffer = cc.UI.RenderData.add(jsFormat, _accessors[jsFormat]);
+                buffer.multiOwner = true;
+                buffer.drawInfoType = RenderDrawInfoType_IA;
             }
 
             const srcVBuf = middlewareMgr.getVBTypedArray(nativeFormat, i);
             const srcIBuf = middlewareMgr.getIBTypedArray(nativeFormat, i);
 
-            buffer.vData = srcVBuf;
-            buffer.iData = srcIBuf;
             buffer.resize(srcVertexCount, srcIndicesCount);
+            const vData = buffer.chunk.vb;
+            const iData = buffer.chunk.meshBuffer.iData;
+            vData.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
+            iData.set(srcIBuf.subarray(0, srcIndicesCount), 0);
 
             renderInfoLookup[nativeFormat][i] = buffer;
         }
@@ -115,6 +128,10 @@
         const batcher2D = director.root.batcher2D;
         CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
         CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
+        const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
+        skeletonSystem.prepareRenderData();
+        const armaSystem = cc.internal.ArmatureSystem.getInstance();
+        armaSystem.prepareRenderData();
     });
 
     const renderInfoMgr = middlewareMgr.getRenderInfoMgr();

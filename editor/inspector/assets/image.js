@@ -12,10 +12,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.flipVertical" tooltip="i18n:ENGINE.assets.image.flipVerticalTip"></ui-label>
         <ui-checkbox slot="content" class="flipVertical-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-prop>
+    <!--ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.image.bakeOfflineMipmaps" tooltip="i18n:ENGINE.assets.image.bakeOfflineMipmapsTip"></ui-label>
         <ui-checkbox slot="content" class="bakeOfflineMipmaps-checkbox"></ui-checkbox>
-    </ui-prop>
+    </ui-prop-->
     <ui-prop  class="fixATAProp">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifacts" tooltip="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifactsTip"></ui-label>
         <ui-checkbox slot="content" class="fixAlphaTransparencyArtifacts-checkbox"></ui-checkbox>
@@ -26,8 +26,13 @@ exports.template = `
     </ui-prop>
 
     <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
-        <ui-label class="sub-panel-name" slot="header"></ui-label>
-        <ui-panel class="sub-panel"></ui-panel>
+        <ui-label slot="header"></ui-label>
+        <ui-panel></ui-panel>
+    </ui-section>
+
+    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
+        <ui-label slot="header"></ui-label>
+        <ui-panel></ui-panel>
     </ui-section>
 </div>
 `;
@@ -45,9 +50,8 @@ exports.style = `
 `;
 
 exports.$ = {
-    panel: '.sub-panel',
     panelSection: '.sub-panel-section',
-    panelName: '.sub-panel-name',
+    texturePanelSection: '.sub-texture-panel-section',
 
     container: '.asset-image',
     typeSelect: '.type-select',
@@ -57,7 +61,7 @@ exports.$ = {
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
 
-    bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
+    // bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
 };
 
 /**
@@ -77,6 +81,7 @@ const Elements = {
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
+                panel.updatePanel();
             });
         },
         update() {
@@ -115,26 +120,26 @@ const Elements = {
             panel.updateReadonly(panel.$.flipVerticalCheckbox);
         },
     },
-    bakeOfflineMipmaps: {
-        ready() {
-            const panel = this;
+    // bakeOfflineMipmaps: {
+    //     ready() {
+    //         const panel = this;
 
-            panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
-                panel.metaList.forEach((meta) => {
-                    meta.userData.bakeOfflineMipmaps = event.target.value;
-                });
-                panel.dispatch('change');
-            });
-        },
-        update() {
-            const panel = this;
+    //         panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
+    //             panel.metaList.forEach((meta) => {
+    //                 meta.userData.bakeOfflineMipmaps = event.target.value;
+    //             });
+    //             panel.dispatch('change');
+    //         });
+    //     },
+    //     update() {
+    //         const panel = this;
 
-            panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
+    //         panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
 
-            panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
-            panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
-        },
-    },
+    //         panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
+    //         panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
+    //     },
+    // },
 
     fixAlphaTransparencyArtifacts: {
         ready() {
@@ -226,7 +231,10 @@ exports.ready = function() {
             element.ready.call(this);
         }
     }
-    this.$.panel.addEventListener('change', () => {
+    this.$.panelSection.addEventListener('change', () => {
+        this.dispatch('change');
+    });
+    this.$.texturePanelSection.addEventListener('change', () => {
         this.dispatch('change');
     });
 };
@@ -252,7 +260,7 @@ exports.methods = {
         }
     },
 
-    async updatePanel() {
+    async _updatePanel($section, type) {
         const assetList = [];
         const metaList = [];
 
@@ -264,7 +272,7 @@ exports.methods = {
             'texture cube': 'erp-texture-cube',
         };
 
-        const imageImporter = imageTypeToImporter[this.meta.userData.type];
+        const imageImporter = imageTypeToImporter[type];
 
         this.assetList.forEach((asset) => {
             if (!asset) {
@@ -305,15 +313,26 @@ exports.methods = {
         });
 
         if (!assetList.length || !metaList.length) {
-            this.$.panelSection.style.display = 'none';
+            $section.style.display = 'none';
             return;
         } else {
-            this.$.panelSection.style.display = 'block';
+            $section.style.display = 'block';
         }
 
         const asset = assetList[0];
-        this.$.panelName.setAttribute('value', this.meta.userData.type);
-        this.$.panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
-        this.$.panel.update(assetList, metaList);
+        const $label = $section.querySelector('ui-label');
+        $label.setAttribute('value', type);
+        const $panel = $section.querySelector('ui-panel');
+        $panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
+        $panel.update(assetList, metaList);
+    },
+
+    async updatePanel() {
+        this._updatePanel(this.$.panelSection, this.meta.userData.type);
+        if (this.meta.userData.type === 'sprite-frame') {
+            this._updatePanel(this.$.texturePanelSection, 'texture');
+        } else {
+            this.$.texturePanelSection.style.display = 'none';
+        }
     },
 };
