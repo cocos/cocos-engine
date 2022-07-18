@@ -203,7 +203,7 @@ public:
         return _mipmaps.empty() ? nullptr : &_mipmaps[0];
     }
 
-    void setImage(const ITextureCubeMipmap &value);
+    void setImage(const ITextureCubeMipmap *value);
 
     /**
      * @en Reset the current texture with given size, pixel format and mipmap images.
