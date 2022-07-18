@@ -677,7 +677,7 @@ Object.defineProperties(cc, {
             if (CC_DEBUG) {
                 if (onceWarns.loader) {
                     onceWarns.loader = false;
-                    cc.log('cc.loader is deprecated, use cc.assetManager instead please. See https://docs.cocos.com/creator/manual/zh/release-notes/asset-manager-upgrade-guide.html');
+                    cc.log('cc.loader is deprecated, use cc.assetManager instead please. See https://docs.cocos.com/creator/2.4/manual/zh/release-notes/asset-manager-upgrade-guide.html');
                 }
             }
             return loader;
