@@ -136,6 +136,10 @@ void RenderDrawInfo::setDrawInfoType(uint32_t type) {
     _drawInfoType = static_cast<RenderDrawInfoType>(type);
 }
 
+void RenderDrawInfo::setSubNode(Node *node) {
+    _subNode = node;
+}
+
 void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) { // NOLINT(bugprone-easily-swappable-parameters)
     _stride = stride;
     _size = size;

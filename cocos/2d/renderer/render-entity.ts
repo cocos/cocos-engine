@@ -11,6 +11,7 @@ import { Stage } from './stencil-manager';
 export enum RenderEntityType {
     STATIC,
     DYNAMIC,
+    CROSSED,
 }
 
 export enum RenderEntityFloatSharedBufferView {

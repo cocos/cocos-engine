@@ -38,7 +38,8 @@ class Batcher2d;
 
 enum class RenderEntityType {
     STATIC,
-    DYNAMIC
+    DYNAMIC,
+    CROSSED,
 };
 
 struct EntityAttrLayout {

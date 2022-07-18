@@ -104,6 +104,8 @@ public:
     void setModel(scene::Model* model);
     inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
     void setDrawInfoType(uint32_t type);
+    inline Node* getSubNode() const { return _subNode; }
+    void setSubNode(Node *node);
 
     inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
 
@@ -176,6 +178,7 @@ private:
     uint32_t _textureHash{0};
     // weak reference
     gfx::Sampler* _sampler{nullptr};
+    Node* _subNode{nullptr};
 
     uint32_t _blendHash{0};
 
