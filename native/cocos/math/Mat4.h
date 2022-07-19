@@ -24,6 +24,7 @@
 #define MATH_MAT4_H
 
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 #include "math/Vec3.h"
 #include "math/Vec4.h"

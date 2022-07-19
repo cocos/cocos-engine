@@ -27,6 +27,7 @@ import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { js } from '../utils/js';
 import './simple-texture';
+import { EDITOR, TEST } from 'internal:constants';
 
 const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
@@ -67,6 +68,9 @@ enum MipmapMode {
 }
 textureCubeProto.createNode = null!;
 
+declare const jsb: any;
+
+// @ts-expect-error jsb.TextureCube is exported from cpp
 export type TextureCube = jsb.TextureCube;
 export const TextureCube: any = jsb.TextureCube;
 
