@@ -33,7 +33,7 @@ import * as impl from './graph';
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
-import { Vec4 } from '../../math';
+import { Rect } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 import { Light } from '../../renderer/scene';
 
@@ -1074,33 +1074,15 @@ export class RaytracePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
-export const enum CommandType {
-    VIEWPORT,
-    CLEAR,
-}
-
-export function getCommandTypeName (e: CommandType): string {
-    switch (e) {
-    case CommandType.VIEWPORT:
-        return 'VIEWPORT';
-    case CommandType.CLEAR:
-        return 'CLEAR';
-    default:
-        return '';
+export class ClearAttachment {
+    constructor (slotName = '', clearFlags: ClearFlagBit = gfx.ClearFlagBit.ALL, clearColor: Color = new Color()) {
+        this.slotName = slotName;
+        this.clearFlags = clearFlags;
+        this.clearColor = clearColor;
     }
-}
-
-export class Command {
-    constructor (type: CommandType = CommandType.VIEWPORT, value: Vec4 = new Vec4()) {
-        this.type = type;
-        this.value = value;
-    }
-    type: CommandType;
-    readonly value: Vec4;
-}
-
-export class CommandList {
-    readonly commands: Command[] = [];
+    slotName: string;
+    clearFlags: ClearFlagBit;
+    readonly clearColor: Color;
 }
 
 export class RenderQueue {
@@ -1191,7 +1173,8 @@ export const enum RenderGraphValue {
     Scene,
     Blit,
     Dispatch,
-    CommandList,
+    Clear,
+    Viewport,
 }
 
 export function getRenderGraphValueName (e: RenderGraphValue): string {
@@ -1206,7 +1189,8 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
     case RenderGraphValue.Scene: return 'Scene';
     case RenderGraphValue.Blit: return 'Blit';
     case RenderGraphValue.Dispatch: return 'Dispatch';
-    case RenderGraphValue.CommandList: return 'CommandList';
+    case RenderGraphValue.Clear: return 'Clear';
+    case RenderGraphValue.Viewport: return 'Viewport';
     default: return '';
     }
 }
@@ -1222,7 +1206,8 @@ interface RenderGraphValueType {
     [RenderGraphValue.Scene]: SceneData
     [RenderGraphValue.Blit]: Blit
     [RenderGraphValue.Dispatch]: Dispatch
-    [RenderGraphValue.CommandList]: CommandList
+    [RenderGraphValue.Clear]: ClearAttachment[]
+    [RenderGraphValue.Viewport]: Rect
 }
 
 export interface RenderGraphVisitor {
@@ -1236,7 +1221,8 @@ export interface RenderGraphVisitor {
     scene(value: SceneData): unknown;
     blit(value: Blit): unknown;
     dispatch(value: Dispatch): unknown;
-    commandList(value: CommandList): unknown;
+    clear(value: ClearAttachment[]): unknown;
+    viewport(value: Rect): unknown;
 }
 
 type RenderGraphObject = RasterPass
@@ -1249,7 +1235,8 @@ type RenderGraphObject = RasterPass
 | SceneData
 | Blit
 | Dispatch
-| CommandList;
+| ClearAttachment[]
+| Rect;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1690,8 +1677,10 @@ export class RenderGraph implements impl.BidirectionalGraph
             return visitor.blit(vert._object as Blit);
         case RenderGraphValue.Dispatch:
             return visitor.dispatch(vert._object as Dispatch);
-        case RenderGraphValue.CommandList:
-            return visitor.commandList(vert._object as CommandList);
+        case RenderGraphValue.Clear:
+            return visitor.clear(vert._object as ClearAttachment[]);
+        case RenderGraphValue.Viewport:
+            return visitor.viewport(vert._object as Rect);
         default:
             throw Error('polymorphic type not found');
         }
@@ -1766,9 +1755,16 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    getCommandList (v: number): CommandList {
-        if (this._vertices[v]._id === RenderGraphValue.CommandList) {
-            return this._vertices[v]._object as CommandList;
+    getClear (v: number): ClearAttachment[] {
+        if (this._vertices[v]._id === RenderGraphValue.Clear) {
+            return this._vertices[v]._object as ClearAttachment[];
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getViewport (v: number): Rect {
+        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
+            return this._vertices[v]._object as Rect;
         } else {
             throw Error('value id not match');
         }
@@ -1843,9 +1839,16 @@ export class RenderGraph implements impl.BidirectionalGraph
             return null;
         }
     }
-    tryGetCommandList (v: number): CommandList | null {
-        if (this._vertices[v]._id === RenderGraphValue.CommandList) {
-            return this._vertices[v]._object as CommandList;
+    tryGetClear (v: number): ClearAttachment[] | null {
+        if (this._vertices[v]._id === RenderGraphValue.Clear) {
+            return this._vertices[v]._object as ClearAttachment[];
+        } else {
+            return null;
+        }
+    }
+    tryGetViewport (v: number): Rect | null {
+        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
+            return this._vertices[v]._object as Rect;
         } else {
             return null;
         }

@@ -37,7 +37,7 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
-#include "cocos/math/Vec4.h"
+#include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
@@ -618,39 +618,28 @@ struct SceneTag {};
 struct DispatchTag {};
 struct BlitTag {};
 struct PresentTag {};
-struct CommandListTag {};
+struct ClearTag {};
+struct ViewportTag {};
 
-enum class CommandType {
-    VIEWPORT,
-    CLEAR,
-};
-
-struct Command {
-    Command() = default;
-    Command(CommandType typeIn, Vec4 valueIn) noexcept
-    : type(typeIn),
-      value(std::move(valueIn)) {}
-
-    CommandType type{CommandType::VIEWPORT};
-    Vec4        value;
-};
-
-struct CommandList {
+struct ClearAttachment {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {commands.get_allocator().resource()};
+        return {slotName.get_allocator().resource()};
     }
 
-    CommandList(const allocator_type& alloc) noexcept; // NOLINT
-    CommandList(CommandList&& rhs, const allocator_type& alloc);
-    CommandList(CommandList const& rhs, const allocator_type& alloc);
+    ClearAttachment(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    ClearAttachment(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ClearAttachment(ClearAttachment&& rhs, const allocator_type& alloc);
+    ClearAttachment(ClearAttachment const& rhs, const allocator_type& alloc);
 
-    CommandList(CommandList&& rhs) noexcept = default;
-    CommandList(CommandList const& rhs)     = delete;
-    CommandList& operator=(CommandList&& rhs) = default;
-    CommandList& operator=(CommandList const& rhs) = default;
+    ClearAttachment(ClearAttachment&& rhs) noexcept = default;
+    ClearAttachment(ClearAttachment const& rhs)     = delete;
+    ClearAttachment& operator=(ClearAttachment&& rhs) = default;
+    ClearAttachment& operator=(ClearAttachment const& rhs) = default;
 
-    ccstd::pmr::vector<Command> commands;
+    ccstd::pmr::string slotName;
+    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color         clearColor;
 };
 
 struct RenderQueue {
@@ -895,9 +884,9 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, CommandListTag>;
-    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, CommandList*>;
-    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const CommandList*>;
+    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
+    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearAttachment>*, Rect*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearAttachment>*, const Rect*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
@@ -909,7 +898,8 @@ struct RenderGraph {
         impl::ValueHandle<SceneTag, vertex_descriptor>,
         impl::ValueHandle<BlitTag, vertex_descriptor>,
         impl::ValueHandle<DispatchTag, vertex_descriptor>,
-        impl::ValueHandle<CommandListTag, vertex_descriptor>>;
+        impl::ValueHandle<ClearTag, vertex_descriptor>,
+        impl::ValueHandle<ViewportTag, vertex_descriptor>>;
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -973,17 +963,18 @@ struct RenderGraph {
     ccstd::pmr::vector<RenderData>         data;
     ccstd::pmr::vector<bool>               valid;
     // PolymorphicGraph
-    ccstd::pmr::vector<RasterPass>   rasterPasses;
-    ccstd::pmr::vector<ComputePass>  computePasses;
-    ccstd::pmr::vector<CopyPass>     copyPasses;
-    ccstd::pmr::vector<MovePass>     movePasses;
-    ccstd::pmr::vector<PresentPass>  presentPasses;
-    ccstd::pmr::vector<RaytracePass> raytracePasses;
-    ccstd::pmr::vector<RenderQueue>  renderQueues;
-    ccstd::pmr::vector<SceneData>    scenes;
-    ccstd::pmr::vector<Blit>         blits;
-    ccstd::pmr::vector<Dispatch>     dispatches;
-    ccstd::pmr::vector<CommandList>  commandLists;
+    ccstd::pmr::vector<RasterPass>                          rasterPasses;
+    ccstd::pmr::vector<ComputePass>                         computePasses;
+    ccstd::pmr::vector<CopyPass>                            copyPasses;
+    ccstd::pmr::vector<MovePass>                            movePasses;
+    ccstd::pmr::vector<PresentPass>                         presentPasses;
+    ccstd::pmr::vector<RaytracePass>                        raytracePasses;
+    ccstd::pmr::vector<RenderQueue>                         renderQueues;
+    ccstd::pmr::vector<SceneData>                           scenes;
+    ccstd::pmr::vector<Blit>                                blits;
+    ccstd::pmr::vector<Dispatch>                            dispatches;
+    ccstd::pmr::vector<ccstd::pmr::vector<ClearAttachment>> clearAttachments;
+    ccstd::pmr::vector<Rect>                                viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
 };

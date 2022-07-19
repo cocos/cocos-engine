@@ -74,12 +74,9 @@ struct SceneTag;
 struct DispatchTag;
 struct BlitTag;
 struct PresentTag;
-struct CommandListTag;
-
-enum class CommandType;
-
-struct Command;
-struct CommandList;
+struct ClearTag;
+struct ViewportTag;
+struct ClearAttachment;
 struct RenderQueue;
 struct LightInfo;
 struct SceneData;

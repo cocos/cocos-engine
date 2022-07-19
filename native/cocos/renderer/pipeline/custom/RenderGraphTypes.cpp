@@ -318,14 +318,23 @@ RaytracePass::RaytracePass(RaytracePass&& rhs, const allocator_type& alloc)
 RaytracePass::RaytracePass(RaytracePass const& rhs, const allocator_type& alloc)
 : computeViews(rhs.computeViews, alloc) {}
 
-CommandList::CommandList(const allocator_type& alloc) noexcept
-: commands(alloc) {}
+ClearAttachment::ClearAttachment(const allocator_type& alloc) noexcept
+: slotName(alloc) {}
 
-CommandList::CommandList(CommandList&& rhs, const allocator_type& alloc)
-: commands(std::move(rhs.commands), alloc) {}
+ClearAttachment::ClearAttachment(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
+: slotName(std::move(slotNameIn), alloc),
+  clearFlags(clearFlagsIn),
+  clearColor(clearColorIn) {}
 
-CommandList::CommandList(CommandList const& rhs, const allocator_type& alloc)
-: commands(rhs.commands, alloc) {}
+ClearAttachment::ClearAttachment(ClearAttachment&& rhs, const allocator_type& alloc)
+: slotName(std::move(rhs.slotName), alloc),
+  clearFlags(rhs.clearFlags),
+  clearColor(rhs.clearColor) {}
+
+ClearAttachment::ClearAttachment(ClearAttachment const& rhs, const allocator_type& alloc)
+: slotName(rhs.slotName, alloc),
+  clearFlags(rhs.clearFlags),
+  clearColor(rhs.clearColor) {}
 
 SceneData::SceneData(const allocator_type& alloc) noexcept
 : name(alloc),
@@ -410,7 +419,8 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   scenes(alloc),
   blits(alloc),
   dispatches(alloc),
-  commandLists(alloc),
+  clearAttachments(alloc),
+  viewports(alloc),
   index(alloc) {}
 
 RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
@@ -430,7 +440,8 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   scenes(std::move(rhs.scenes), alloc),
   blits(std::move(rhs.blits), alloc),
   dispatches(std::move(rhs.dispatches), alloc),
-  commandLists(std::move(rhs.commandLists), alloc),
+  clearAttachments(std::move(rhs.clearAttachments), alloc),
+  viewports(std::move(rhs.viewports), alloc),
   index(std::move(rhs.index), alloc) {}
 
 // ContinuousContainer

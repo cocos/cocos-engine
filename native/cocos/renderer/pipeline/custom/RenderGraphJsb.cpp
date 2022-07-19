@@ -154,6 +154,23 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
     return true;
 }
 
+bool nativevalue_to_se(const cc::render::ClearAttachment &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.slotName, tmp, ctx);
+    obj->setProperty("slotName", tmp);
+
+    nativevalue_to_se(from.clearFlags, tmp, ctx);
+    obj->setProperty("clearFlags", tmp);
+
+    nativevalue_to_se(from.clearColor, tmp, ctx);
+    obj->setProperty("clearColor", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
 bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
@@ -320,6 +337,28 @@ bool sevalue_to_native<cc::render::MovePair>(const se::Value &from, cc::render::
     obj->getProperty("targetPlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
+    }
+    return ok;
+}
+
+template <>
+bool sevalue_to_native<cc::render::ClearAttachment>(const se::Value &from, cc::render::ClearAttachment *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ClearAttachment failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("slotName", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->slotName), ctx);
+    }
+    obj->getProperty("clearFlags", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->clearFlags), ctx);
+    }
+    obj->getProperty("clearColor", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->clearColor), ctx);
     }
     return ok;
 }

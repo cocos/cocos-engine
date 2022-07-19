@@ -86,16 +86,9 @@ inline const char* getName(const SceneTag& /*v*/) noexcept { return "Scene"; }
 inline const char* getName(const DispatchTag& /*v*/) noexcept { return "Dispatch"; }
 inline const char* getName(const BlitTag& /*v*/) noexcept { return "Blit"; }
 inline const char* getName(const PresentTag& /*v*/) noexcept { return "Present"; }
-inline const char* getName(const CommandListTag& /*v*/) noexcept { return "CommandList"; }
-inline const char* getName(CommandType e) noexcept {
-    switch (e) {
-        case CommandType::VIEWPORT: return "VIEWPORT";
-        case CommandType::CLEAR: return "CLEAR";
-    }
-    return "";
-}
-inline const char* getName(const Command& /*v*/) noexcept { return "Command"; }
-inline const char* getName(const CommandList& /*v*/) noexcept { return "CommandList"; }
+inline const char* getName(const ClearTag& /*v*/) noexcept { return "Clear"; }
+inline const char* getName(const ViewportTag& /*v*/) noexcept { return "Viewport"; }
+inline const char* getName(const ClearAttachment& /*v*/) noexcept { return "ClearAttachment"; }
 inline const char* getName(const RenderQueue& /*v*/) noexcept { return "RenderQueue"; }
 inline const char* getName(const LightInfo& /*v*/) noexcept { return "LightInfo"; }
 inline const char* getName(const SceneData& /*v*/) noexcept { return "SceneData"; }
