@@ -153,7 +153,6 @@ private:
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
-    uint32_t _stencilStage{0};
     // weak reference
     Material* _material{nullptr};
     // weak reference
