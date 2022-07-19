@@ -247,7 +247,19 @@ function packTexture (data, width, height) {
     return texture;
 }
 
-export function packCurveRangeZ (samples:number, cr: CurveRange, discrete?: boolean) {
+function updateTexture(tex: Texture2D | null, data, width, height): Texture2D {
+    if (tex === null || width !== tex.width || height !== tex.height) {
+        if (tex) {
+            tex.destroy();
+        }
+        tex = packTexture(data, width, height);
+    } else {
+        tex.uploadData(data);
+    }
+    return tex;
+}
+
+export function packCurveRangeZ (tex: Texture2D | null, samples:number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
     const data = new Float32Array(samples * height * 4);
     const interval = 1.0 / (samples - 1);
@@ -269,9 +281,9 @@ export function packCurveRangeZ (samples:number, cr: CurveRange, discrete?: bool
             offset += 4;
         }
     }
-    return packTexture(data, samples, height);
+    return updateTexture(tex, data, samples, height);
 }
-export function packCurveRangeN (samples:number, cr: CurveRange, discrete?: boolean) {
+export function packCurveRangeN (tex: Texture2D | null, samples:number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
     const data = new Float32Array(samples * height * 4);
     const interval = 1.0 / (samples - 1);
@@ -294,10 +306,10 @@ export function packCurveRangeN (samples:number, cr: CurveRange, discrete?: bool
             offset += 4;
         }
     }
-    return packTexture(data, samples, height);
+    return updateTexture(tex, data, samples, height);
 }
 
-export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange, discrete?: boolean) {
+export function packCurveRangeXY (tex: Texture2D | null, samples: number, x: CurveRange, y: CurveRange, discrete?: boolean) {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y));
     const data = new Float32Array(samples * height * 4);
     const curves: CurveRange[] = [x, y];
@@ -320,10 +332,10 @@ export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange,
             }
         }
     }
-    return packTexture(data, samples, height);
+    return updateTexture(tex, data, samples, height);
 }
 
-export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean) {
+export function packCurveRangeXYZ (tex: Texture2D | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean) {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
     const data = new Float32Array(samples * height * 4);
     const curves: CurveRange[] = [x, y, z];
@@ -346,10 +358,10 @@ export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange
             }
         }
     }
-    return packTexture(data, samples, height);
+    return updateTexture(tex, data, samples, height);
 }
 
-export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean) {
+export function packCurveRangeXYZW (tex: Texture2D | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean) {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z), evaluateHeight(w));
     const data = new Float32Array(samples * height * 4);
     const curves: CurveRange[] = [x, y, z, w];
@@ -372,5 +384,5 @@ export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRang
             }
         }
     }
-    return packTexture(data, samples, height);
+    return updateTexture(tex, data, samples, height);
 }
