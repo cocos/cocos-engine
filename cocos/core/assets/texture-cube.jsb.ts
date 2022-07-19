@@ -200,7 +200,9 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
     this.isRGBE = data.rgbe;
-    this._mipmapMode = parseInt(data.mipmapMode);
+    if (data.mipmapMode != undefined) {
+        this._mipmapMode = data.mipmapMode;
+    }
     if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
         const mipmapAtlas = data.mipmapAtlas;
         const mipmapLayout = data.mipmapLayout;
