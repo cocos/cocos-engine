@@ -123,13 +123,12 @@ void ShadowMapBatchedQueue::clear() {
 }
 
 void ShadowMapBatchedQueue::add(const scene::Model *model) {
-    // this assumes light pass index is the same for all subModels
-    const auto shadowPassIdx = getShadowPassIndex(model);
-    if (shadowPassIdx == -1) {
-        return;
-    }
-
     for (const auto &subModel : model->getSubModels()) {
+        const auto shadowPassIdx = getShadowPassIndex(subModel);
+        if (shadowPassIdx == -1) {
+            continue;
+        }
+
         const auto *pass = subModel->getPass(shadowPassIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
@@ -174,15 +173,13 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_instancedQueue)
 }
 
-int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
-    for (const auto &subModel : model->getSubModels()) {
-        int i = 0;
-        for (const auto &pass : subModel->getPasses()) {
-            if (pass->getPhase() == _phaseID) {
-                return i;
-            }
-            ++i;
+int ShadowMapBatchedQueue::getShadowPassIndex(const scene::SubModel *subModel) const {
+    int i = 0;
+    for (const auto &pass : subModel->getPasses()) {
+        if (pass->getPhase() == _phaseID) {
+            return i;
         }
+        ++i;
     }
     return -1;
 }

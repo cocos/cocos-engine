@@ -25,7 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { DEBUG, JSB } from 'internal:constants';
 import { ModelRenderer } from '../../core/components/model-renderer';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
@@ -241,7 +241,9 @@ export class UIMeshRenderer extends Component {
     }
 
     get renderEntity () {
-        assert(this._renderEntity);
+        if (DEBUG) {
+            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+        }
         return this._renderEntity;
     }
 

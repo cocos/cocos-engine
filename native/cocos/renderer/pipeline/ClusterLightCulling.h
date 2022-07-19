@@ -78,7 +78,7 @@ private:
 
     static bool isProjMatChange(const Mat4 &curProj, const Mat4 &oldProj) {
         for (uint32_t i = 0; i < sizeof(curProj.m) / sizeof(float); i++) {
-            if (math::IsNotEqualF(curProj.m[i], oldProj.m[i])) {
+            if (math::isNotEqualF(curProj.m[i], oldProj.m[i])) {
                 return true;
             }
         }

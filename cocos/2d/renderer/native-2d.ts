@@ -4,10 +4,7 @@ import { Node } from '../../core/scene-graph';
 import { Model } from '../../core/renderer/scene';
 
 export declare class NativeRenderDrawInfo {
-    constructor(batcher: NativeBatcher2d);
-
-    // get batcher ():NativeBatcher2d { return new NativeBatcher2d(); }
-    // set batcher (batcher: NativeBatcher2d) {}
+    constructor();
 
     get accId(): number;
     set accId(accId: number);
@@ -60,22 +57,21 @@ export declare class NativeRenderDrawInfo {
     get sampler(): Sampler | null;
     set sampler(sampler: Sampler | null);
 
-    get blendHash(): number;
-    set blendHash(blendHash: number);
-
     get model(): Model | null;
     set model(model: Model | null);
 
     get drawInfoType(): number;
     set drawInfoType(drawInfoType: number);
 
+    get subNode(): Node;
+    set subNode(node: Node);
+
     setRender2dBufferToNative(data: TypedArray, stride: number, size: number);
     syncSharedBufferToNative(data: TypedArray);
-    getAttrSharedBufferForJS(): ArrayBufferLike;
 }
 
 export declare class NativeRenderEntity {
-    constructor(batcher: NativeBatcher2d);
+    constructor();
 
     addDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo);
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);

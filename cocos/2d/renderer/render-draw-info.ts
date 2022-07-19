@@ -36,19 +36,18 @@ export class RenderDrawInfo {
     protected _texture: Texture | null = null;
     protected _textureHash: number | undefined;
     protected _sampler: Sampler | null = null;
-    protected _blendHash: number | undefined;
+    //protected _blendHash: number | undefined;
 
     protected _model: Model | undefined;
 
     protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
 
+    protected _subNode: Node | null = null;
+
     protected declare _nativeObj: NativeRenderDrawInfo;
 
     // SharedBuffer of pos/uv/color
     protected declare _render2dBuffer: Float32Array;
-
-    // SharedBuffer of extra attributes
-    protected declare _sharedBuffer: Int32Array;
 
     protected _vertexCount = 0;
     protected _stride = 0;
@@ -74,11 +73,9 @@ export class RenderDrawInfo {
                 this._nativeObj = nativeDrawInfo;
             }
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderDrawInfo(director.root!.batcher2D.nativeObj);
+                this._nativeObj = new NativeRenderDrawInfo();
             }
         }
-
-        this.initSharedBuffer();
     }
 
     public clear () {
@@ -213,15 +210,6 @@ export class RenderDrawInfo {
         this._sampler = sampler;
     }
 
-    public setBlendHash (blendHash: number) {
-        if (JSB) {
-            if (this._blendHash !== blendHash) {
-                this._nativeObj.blendHash = blendHash;
-            }
-        }
-        this._blendHash = blendHash;
-    }
-
     public setModel (model: Model) {
         if (JSB) {
             if (this._model !== model) {
@@ -237,6 +225,15 @@ export class RenderDrawInfo {
             }
         }
         this._drawInfoType = drawInfoType;
+    }
+
+    public setSubNode (node : Node) {
+        if (JSB) {
+            if (this._subNode !== node) {
+                this._nativeObj.subNode = node;
+            }
+        }
+        this._subNode = node;
     }
 
     public initRender2dBuffer (vertexCount: number, stride: number) {
@@ -279,13 +276,6 @@ export class RenderDrawInfo {
     public setRender2dBufferToNative () {
         if (JSB) {
             this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride);
-        }
-    }
-
-    private initSharedBuffer () {
-        if (JSB) {
-            //this._sharedBuffer = new Int32Array(RenderDrawInfoSharedBufferView.count);
-            this._sharedBuffer = new Int32Array(this._nativeObj.getAttrSharedBufferForJS());
         }
     }
 }
