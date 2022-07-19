@@ -63,6 +63,7 @@ set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
 
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
+    set(CC_USE_METAL OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
     add_definitions(-DCC_SERVER_MODE)
@@ -492,7 +493,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.cpp
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h
 )
-if(USE_SERVER_MODE)
+if(USE_SERVER_MODE AND (NOT MACOSX))
     cocos_source_files(
         cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.cpp
         cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.h
