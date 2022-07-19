@@ -42,6 +42,8 @@ export class RenderDrawInfo {
 
     protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
 
+    protected _subNode: Node | null = null;
+
     protected declare _nativeObj: NativeRenderDrawInfo;
 
     // SharedBuffer of pos/uv/color
@@ -223,6 +225,15 @@ export class RenderDrawInfo {
             }
         }
         this._drawInfoType = drawInfoType;
+    }
+
+    public setSubNode (node : Node) {
+        if (JSB) {
+            if (this._subNode !== node) {
+                this._nativeObj.subNode = node;
+            }
+        }
+        this._subNode = node;
     }
 
     public initRender2dBuffer (vertexCount: number, stride: number) {
