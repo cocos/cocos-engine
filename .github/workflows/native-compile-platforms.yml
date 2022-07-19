@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: gen files
-          path: ${{ github.workspace }}/.conan
+          path: ${{ github.workspace }}/conan_home
       - name: Download external libraries
         shell: bash
         run: |
