@@ -3,9 +3,6 @@
 out highp vec4 v_shadowPos;
 
 #include <builtin/uniforms/cc-shadow>
-#if CC_SUPPORT_CASCADED_SHADOW_MAP
-  #include <builtin/uniforms/cc-csm>
-#endif
 #include <legacy/shadow-map-base>
 
 #pragma define CC_SHADOW_POSITION v_shadowPos
