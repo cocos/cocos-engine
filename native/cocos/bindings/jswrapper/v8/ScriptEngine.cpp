@@ -438,14 +438,11 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
         ss << stackStr << std::endl;
     }
     //Check event immediately, for certain case throw exception.
-    const char *eventName;
     switch (event) {
         case v8::kPromiseRejectWithNoHandler:
-            eventName = "unhandledRejectedPromise";
             getInstance()->pushPromiseExeception(msg.GetPromise(), "unhandledRejectedPromise", ss.str().c_str());
             break;
         case v8::kPromiseHandlerAddedAfterReject:
-            eventName = "handlerAddedAfterPromiseRejected";
             getInstance()->pushPromiseExeception(msg.GetPromise(), "handlerAddedAfterPromiseRejected", ss.str().c_str());
             break;
         case v8::kPromiseRejectAfterResolved:

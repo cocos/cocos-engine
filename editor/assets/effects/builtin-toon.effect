@@ -309,11 +309,11 @@ CCProgram shadow-caster-fs %{
 
   vec4 frag () {
     vec4 baseColor = baseColor;
-    #if USE_BASE_COLOR_MAP
-      baseColor *= texture(baseColorMap, v_uv);
-    #endif
 
     #if USE_ALPHA_TEST
+      #if USE_BASE_COLOR_MAP
+        baseColor *= texture(baseColorMap, v_uv);
+      #endif
       if (baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
     #endif
 

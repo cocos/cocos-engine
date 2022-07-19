@@ -3,8 +3,9 @@ in highp vec2 v_clip_depth;
 layout(location = 0) out vec4 fragColorX;
 
 void main () {
-  // for alpha clip
-  SurfacesFragmentModifyBaseColorAndTransparency();
+  // better performance than SurfacesFragmentModifyBaseColorAndTransparency
+  SurfacesFragmentAlphaClipOnly();
+  
 
   highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
   // spot use linear

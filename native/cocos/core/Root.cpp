@@ -221,7 +221,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         if (!_pipeline->activate(_mainWindow->getSwapchain())) {
             if (isCreateDefaultPipeline) {
-                CC_SAFE_DESTROY_AND_DELETE(_pipeline);
+                CC_SAFE_DESTROY(_pipeline);
             }
 
             _pipeline = nullptr;

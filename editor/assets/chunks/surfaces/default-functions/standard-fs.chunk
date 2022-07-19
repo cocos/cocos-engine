@@ -5,6 +5,13 @@ vec4 SurfacesFragmentModifyBaseColorAndTransparency()
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// for base shape without color usage, such as render-to-shadow
+void SurfacesFragmentAlphaClipOnly()
+{
+}
+#endif
+
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
 vec3 SurfacesFragmentModifyWorldNormal()

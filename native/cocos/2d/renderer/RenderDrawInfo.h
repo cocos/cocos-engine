@@ -45,11 +45,7 @@ struct Render2dLayout {
     Vec4 color;
 };
 
-struct DrawInfoAttrLayout {
-    uint32_t enabledIndex{1};
-};
-
-enum class RenderDrawInfoType {
+enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
     IA
@@ -58,8 +54,7 @@ enum class RenderDrawInfoType {
 class Batcher2d;
 class RenderDrawInfo final {
 public:
-    RenderDrawInfo();
-    explicit RenderDrawInfo(Batcher2d* batcher);
+    RenderDrawInfo() = default;
     RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
     ~RenderDrawInfo();
 
@@ -98,20 +93,16 @@ public:
     void setTextureHash(uint32_t textureHash);
     inline gfx::Sampler* getSampler() const { return _sampler; }
     void setSampler(gfx::Sampler* sampler);
-    inline uint32_t getBlendHash() const { return _blendHash; }
-    void setBlendHash(uint32_t blendHash);
     inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
     inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
     void setDrawInfoType(uint32_t type);
+    inline Node* getSubNode() const { return _subNode; }
+    void setSubNode(Node *node);
 
     inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
-
-    inline Batcher2d* getBatcher() const { return _batcher; }
-    void setBatcher(Batcher2d* batcher);
-    se::Object* getAttrSharedBufferForJS() const;
 
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
@@ -129,17 +120,9 @@ private:
     void destroy();
 
     gfx::InputAssembler* initIAInfo(gfx::Device* device);
-
-    // weak reference
-    Batcher2d* _batcher{nullptr};
-
     // weak reference
     uint8_t* _sharedBuffer{nullptr};
-    uint8_t _stride{0};
     uint32_t _size{0};
-
-    DrawInfoAttrLayout _drawInfoAttrLayout;
-    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
 
     index_t _bufferId{0};
     index_t _accId{0};
@@ -161,14 +144,15 @@ private:
     uint32_t _vbCount{0};
     uint32_t _ibCount{0};
 
+    uint8_t _stride{0};
     bool _vertDirty{false};
+    bool _isMeshBuffer{false};
+    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
 
     // weak reference
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
-    uint32_t _stencilStage{0};
-    bool _isMeshBuffer{false};
     // weak reference
     Material* _material{nullptr};
     // weak reference
@@ -176,26 +160,17 @@ private:
     uint32_t _textureHash{0};
     // weak reference
     gfx::Sampler* _sampler{nullptr};
+    Node* _subNode{nullptr};
 
-    uint32_t _blendHash{0};
-
-    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
-
-    gfx::InputAssemblerInfo _iaInfo;
-    ccstd::vector<gfx::Attribute> _attributes{
-        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-    };
-    uint32_t _vertexFormatBytes = 9 * sizeof(float); // Affected by _attributes // magic Number
-
-    //TODO(): it is not a good way to cache IA here.
-    // manage memory manually
-    ccstd::vector<gfx::InputAssembler*> _iaPool;
     uint32_t _nextFreeIAHandle{0};
     // weak reference
     gfx::Buffer* _vbGFXBuffer{nullptr};
     // weak reference
     gfx::Buffer* _ibGFXBuffer{nullptr};
+
+    gfx::InputAssemblerInfo* _iaInfo{nullptr};
+    //TODO(): it is not a good way to cache IA here.
+    // manage memory manually
+    ccstd::vector<gfx::InputAssembler*> _iaPool;
 };
 } // namespace cc
