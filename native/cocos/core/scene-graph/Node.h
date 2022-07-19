@@ -63,19 +63,14 @@ public:
     public:
         ~UserData() override = default;
 
-    protected:
         UserData() = default;
     };
 
     using Super = BaseNode;
 
     static const uint32_t TRANSFORM_ON;
-    static const uint32_t DESTROYING;
-    static const uint32_t DEACTIVATING;
-    static const uint32_t DONT_DESTROY;
 
     static Node *instantiate(Node *cloned, bool isSyncedNode);
-
     static void setScene(Node *);
 
     /**
@@ -103,6 +98,8 @@ public:
     Node();
     explicit Node(const ccstd::string &name);
     ~Node() override;
+
+    virtual void onPostActivated(bool active) {}
 
     void setParent(Node *parent, bool isKeepWorld = false);
 
@@ -255,7 +252,6 @@ public:
         _activeInHierarchy = (v ? 1 : 0);
     }
 
-    virtual void onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
     inline Node *getParent() const { return _parent; }
     inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
@@ -622,30 +618,20 @@ public:
     bool onPreDestroy() override;
     bool onPreDestroyBase();
 
-protected:
-    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
-
-    void onSetParent(Node *oldParent, bool keepWorldTransform);
-
-    virtual void updateScene();
-
-    void onHierarchyChanged(Node *);
-    void onHierarchyChangedBase(Node *oldParent);
-
-    virtual void onBatchCreated(bool dontChildPrefab);
-
-#if CC_EDITOR
-    inline void notifyEditorAttached(bool attached) {
-        emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
-    }
-#endif
-
-    static uint32_t clearFrame;
-    static uint32_t clearRound;
+    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
+    // For deserialization
+    ccstd::string _id;
+    Node *_parent{nullptr};
 
 private:
-    // increase on every frame, used to identify the frame
-    static uint32_t globalFlagChangeVersion;
+    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
+
+    virtual void onBatchCreated(bool dontChildPrefab);
+    virtual void updateScene();
+
+    void onSetParent(Node *oldParent, bool keepWorldTransform);
+    void onHierarchyChanged(Node *);
+    void onHierarchyChangedBase(Node *oldParent);
 
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
@@ -666,40 +652,35 @@ private:
              _localScale.x, _localScale.y, _localScale.z);
     }
 
-protected:
+#if CC_EDITOR
+    inline void notifyEditorAttached(bool attached) {
+        emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
+    }
+#endif
+
+    // increase on every frame, used to identify the frame
+    static uint32_t globalFlagChangeVersion;
+
+    static uint32_t clearFrame;
+    static uint32_t clearRound;
+
     Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
+    IntrusivePtr<UserData> _userData;
 
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
-    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
-    * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
-    */
-    uint32_t _hasChangedFlagsVersion{0};
-    uint32_t _hasChangedFlags{0};
-
-    bool _eulerDirty{false};
-
-public:
-    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    // For deserialization
-    ccstd::string _id;
-    Node *_parent{nullptr};
-
-private:
     ccstd::vector<IntrusivePtr<Node>> _children;
+    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
     // local transform
     Vec3 _localPosition{Vec3::ZERO};
-    Quaternion _localRotation{Quaternion::identity()};
     Vec3 _localScale{Vec3::ONE};
+    Quaternion _localRotation{Quaternion::identity()};
     // world transform
     Vec3 _worldPosition{Vec3::ZERO};
-    Quaternion _worldRotation{Quaternion::identity()};
     Vec3 _worldScale{Vec3::ONE};
-    //
     Vec3 _euler{0, 0, 0};
-
-    IntrusivePtr<UserData> _userData;
+    Quaternion _worldRotation{Quaternion::identity()};
 
     // Shared memory with JS
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
@@ -712,9 +693,14 @@ private:
     uint8_t _isStatic{0};                                               // Uint8: 2
     uint8_t _padding{0};                                                // Uint8: 3
 
-    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
+    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
+     * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
+     */
+    uint32_t _hasChangedFlagsVersion{0};
+    uint32_t _hasChangedFlags{0};
 
-    //
+    bool _eulerDirty{false};
+
     friend class NodeActivator;
     friend class Scene;
 
