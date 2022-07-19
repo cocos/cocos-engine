@@ -54,62 +54,168 @@ enum class RenderDrawInfoType: uint8_t {
 class Batcher2d;
 class RenderDrawInfo final {
 public:
-    RenderDrawInfo() = default;
-    RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
+    RenderDrawInfo();
     ~RenderDrawInfo();
 
-    inline index_t getAccId() const { return _accId; }
-    void setAccId(index_t id);
-    inline index_t getBufferId() const { return _bufferId; }
-    void setBufferId(index_t bufferId);
-    inline uint32_t getVertexOffset() const { return _vertexOffset; }
-    void setVertexOffset(uint32_t vertexOffset);
-    inline uint32_t getIndexOffset() const { return _indexOffset; }
-    void setIndexOffset(uint32_t indexOffset);
-    inline UIMeshBuffer* getMeshBuffer() const { return _meshBuffer; };
-    inline float* getVbBuffer() const { return _vbBuffer; }
-    void setVbBuffer(float* vbBuffer);
-    inline uint16_t* getIbBuffer() const { return _ibBuffer; }
-    void setIbBuffer(uint16_t* ibBuffer);
-    inline float* getVDataBuffer() const { return _vDataBuffer; }
-    void setVDataBuffer(float* vDataBuffer);
-    inline uint16_t* getIDataBuffer() const { return _iDataBuffer; }
-    void setIDataBuffer(uint16_t* iDataBuffer);
-    inline uint32_t getVbCount() const { return _vbCount; }
-    void setVbCount(uint32_t vbCount);
-    inline uint32_t getIbCount() const { return _ibCount; }
-    void setIbCount(uint32_t ibCount);
-    inline bool getVertDirty() const { return _vertDirty; }
-    void setVertDirty(bool val);
-    inline ccstd::hash_t getDataHash() const { return _dataHash; }
-    void setDataHash(ccstd::hash_t dataHash);
-    inline bool getIsMeshBuffer() const { return _isMeshBuffer; }
-    void setIsMeshBuffer(bool isMeshBuffer);
-    inline Material* getMaterial() const { return _material; }
-    void setMaterial(Material* material);
-    inline gfx::Texture* getTexture() const { return _texture; }
-    void setTexture(gfx::Texture* texture);
-    inline uint32_t getTextureHash() const { return _textureHash; }
-    void setTextureHash(uint32_t textureHash);
-    inline gfx::Sampler* getSampler() const { return _sampler; }
-    void setSampler(gfx::Sampler* sampler);
-    inline scene::Model* getModel() const { return _model; }
-    void setModel(scene::Model* model);
-    inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
-    void setDrawInfoType(uint32_t type);
-    inline Node* getSubNode() const { return _subNode; }
-    void setSubNode(Node *node);
-
-    inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
-
-    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
-
-    inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
-        return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
+    inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(drawInfoAttrs._drawInfoType); }
+    inline void setDrawInfoType(uint32_t type) {
+        drawInfoAttrs._drawInfoType = static_cast<RenderDrawInfoType>(type);
     }
 
-    inline uint8_t getStride() const { return _stride; }
-    inline uint32_t getSize() const { return _size; }
+    inline uint16_t getAccId() const { return drawInfoAttrs._accId; }
+    inline void setAccId(uint16_t id) {
+        drawInfoAttrs._accId = id;
+    }
+
+    inline uint16_t getBufferId() const { return drawInfoAttrs._bufferId; }
+    inline void setBufferId(uint16_t bufferId) {
+        drawInfoAttrs._bufferId = bufferId;
+    }
+
+    inline uint32_t getVertexOffset() const { return drawInfoAttrs._vertexOffset; }
+    inline void setVertexOffset(uint32_t vertexOffset) {
+        drawInfoAttrs._vertexOffset = vertexOffset;
+    }
+
+    inline uint32_t getIndexOffset() const { return drawInfoAttrs._indexOffset; }
+    inline void setIndexOffset(uint32_t indexOffset) {
+        drawInfoAttrs._indexOffset = indexOffset;
+    }
+
+    inline uint32_t getVbCount() const { return drawInfoAttrs._vbCount; }
+    inline void setVbCount(uint32_t vbCount) {
+        drawInfoAttrs._vbCount = vbCount;
+    }
+
+    inline uint32_t getIbCount() const { return drawInfoAttrs._ibCount; }
+    inline void setIbCount(uint32_t ibCount) {
+        drawInfoAttrs._ibCount = ibCount;
+    }
+
+    inline bool getVertDirty() const { return drawInfoAttrs._vertDirty; }
+    inline void setVertDirty(bool val) {
+        drawInfoAttrs._vertDirty = val;
+    }
+
+    inline ccstd::hash_t getDataHash() const { return drawInfoAttrs._dataHash; }
+    inline void setDataHash(ccstd::hash_t dataHash) {
+        drawInfoAttrs._dataHash = dataHash;
+    }
+
+    inline bool getIsMeshBuffer() const { return drawInfoAttrs._isMeshBuffer; }
+    inline void setIsMeshBuffer(bool isMeshBuffer) {
+        drawInfoAttrs._isMeshBuffer = isMeshBuffer;
+    }
+
+    inline uint8_t getStride() const { return drawInfoAttrs._stride; }
+    inline void setStride(uint8_t stride) {
+        drawInfoAttrs._stride = stride;
+    }
+
+    inline Material* getMaterial() const { return _material; }
+    inline void setMaterial(Material* material) {
+        _material = material;
+    }
+
+    inline UIMeshBuffer* getMeshBuffer() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        return _compAttrs._meshBuffer;
+    }
+
+    inline float* getVbBuffer() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+        return _compAttrs._vbBuffer;
+    }
+
+    inline void setVbBuffer(float* vbBuffer) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+        _compAttrs._vbBuffer = vbBuffer;
+    }
+
+    inline uint16_t* getIbBuffer() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+        return _compAttrs._ibBuffer;
+    }
+
+    inline void setIbBuffer(uint16_t* ibBuffer) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+        _compAttrs._ibBuffer = ibBuffer;
+    }
+
+    inline gfx::Texture* getTexture() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        return _compAttrs._texture;
+    }
+
+    inline void setTexture(gfx::Texture* texture) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        _compAttrs._texture = texture;
+    }
+
+    inline uint32_t getTextureHash() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        return drawInfoAttrs._textureHash;
+    }
+
+    inline void setTextureHash(uint32_t textureHash) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        drawInfoAttrs._textureHash = textureHash;
+    }
+
+    inline gfx::Sampler* getSampler() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        return _compAttrs._sampler;
+    }
+
+    inline void setSampler(gfx::Sampler* sampler) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+        _compAttrs._sampler = sampler;
+    }
+
+    inline scene::Model* getModel() const {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
+        return _model;
+    }
+
+    inline void setModel(scene::Model* model) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
+        _model = model;
+    }
+
+    inline float* getVDataBuffer() const {
+        return _vDataBuffer;
+    }
+    inline void setVDataBuffer(float* vDataBuffer) {
+        _vDataBuffer = vDataBuffer;
+    }
+    inline uint16_t* getIDataBuffer() const {
+        return _iDataBuffer;
+    }
+
+    inline void setIDataBuffer(uint16_t* iDataBuffer) {
+        _iDataBuffer = iDataBuffer;
+    }
+
+    inline Node* getSubNode() const { return _subNode; }
+    inline void setSubNode(Node* node) {
+        _subNode = node;
+    }
+
+    void changeMeshBuffer();
+
+    inline RenderDrawInfoType getEnumDrawInfoType() const { return drawInfoAttrs._drawInfoType; }
+
+    inline void setRender2dBufferToNative(uint8_t* buffer) { // NOLINT(bugprone-easily-swappable-parameters)
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+        _compAttrs._sharedBuffer = buffer;
+    }
+
+    inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+        return reinterpret_cast<Render2dLayout*>(_compAttrs._sharedBuffer + dataOffset * sizeof(float));
+    }
+
+    inline se::Object* getAttrSharedBufferForJS() const { return _attrSharedBufferActor.getSharedArrayBufferObject(); }
 
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
@@ -120,57 +226,62 @@ private:
     void destroy();
 
     gfx::InputAssembler* initIAInfo(gfx::Device* device);
-    // weak reference
-    uint8_t* _sharedBuffer{nullptr};
-    uint32_t _size{0};
 
-    index_t _bufferId{0};
-    index_t _accId{0};
-    uint32_t _vertexOffset{0};
+    struct DrawInfoAttrs {
+        RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
+        bool _vertDirty{false};
+        bool _isMeshBuffer{false};
+        uint8_t _stride{0};
+        uint16_t _bufferId{0};
+        uint16_t _accId{0};
+        uint32_t _vertexOffset{0};
+        uint32_t _indexOffset{0};
+        uint32_t _vbCount{0};
+        uint32_t _ibCount{0};
+        uint32_t _textureHash{0};
+        ccstd::hash_t _dataHash{0};
+    } drawInfoAttrs;
 
-    uint32_t _indexOffset{0};
-
+    bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
     // weak reference
-    float* _vbBuffer{nullptr};
-    // weak reference
-    uint16_t* _ibBuffer{nullptr};
+    Material* _material{nullptr};
     // weak reference
     float* _vDataBuffer{nullptr};
     // weak reference
     uint16_t* _iDataBuffer{nullptr};
-    // weak reference
-    UIMeshBuffer* _meshBuffer{nullptr};
+    
+    union {
+        struct CompAttrs {
+            // weak reference
+            UIMeshBuffer* _meshBuffer{nullptr};
+            // weak reference
+            gfx::Texture* _texture{nullptr};
+            // weak reference
+            gfx::Sampler* _sampler{nullptr};
+            // weak reference
+            uint8_t* _sharedBuffer{nullptr};
+            // weak reference
+            float* _vbBuffer{nullptr};
+            // weak reference
+            uint16_t* _ibBuffer{nullptr};
+        } _compAttrs;
 
-    uint32_t _vbCount{0};
-    uint32_t _ibCount{0};
+        struct IAAttr {
+            // weak reference
+            UIMeshBuffer* _meshBuffer{nullptr};
+            // weak reference
+            gfx::Texture* _texture{nullptr};
+            // weak reference
+            gfx::Sampler* _sampler{nullptr};
+            gfx::InputAssemblerInfo* _iaInfo{nullptr};
+            //TODO(): it is not a good way to cache IA here.
+            // manage memory manually
+            ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
+            uint16_t _nextFreeIAHandle{0};
+        } _iaAttrs;
 
-    uint8_t _stride{0};
-    bool _vertDirty{false};
-    bool _isMeshBuffer{false};
-    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
-
-    // weak reference
-    scene::Model* _model{nullptr};
-
-    ccstd::hash_t _dataHash{0};
-    // weak reference
-    Material* _material{nullptr};
-    // weak reference
-    gfx::Texture* _texture{nullptr};
-    uint32_t _textureHash{0};
-    // weak reference
-    gfx::Sampler* _sampler{nullptr};
-    Node* _subNode{nullptr};
-
-    uint32_t _nextFreeIAHandle{0};
-    // weak reference
-    gfx::Buffer* _vbGFXBuffer{nullptr};
-    // weak reference
-    gfx::Buffer* _ibGFXBuffer{nullptr};
-
-    gfx::InputAssemblerInfo* _iaInfo{nullptr};
-    //TODO(): it is not a good way to cache IA here.
-    // manage memory manually
-    ccstd::vector<gfx::InputAssembler*> _iaPool;
+        Node* _subNode{nullptr};
+        scene::Model* _model;
+    };
 };
 } // namespace cc

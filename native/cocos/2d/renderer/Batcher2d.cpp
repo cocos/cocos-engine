@@ -57,11 +57,11 @@ Batcher2d::~Batcher2d() { // NOLINT
     _attributes.clear();
 }
 
-void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
+void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
     _meshBuffersMap[accId] = std::move(buffers);
 }
 
-UIMeshBuffer* Batcher2d::getMeshBuffer(uint32_t accId, uint32_t bufferId) { // NOLINT(bugprone-easily-swappable-parameters)
+UIMeshBuffer* Batcher2d::getMeshBuffer(uint16_t accId, uint16_t bufferId) { // NOLINT(bugprone-easily-swappable-parameters)
     const auto& map = _meshBuffersMap[accId];
     return map[bufferId];
 }
