@@ -76,7 +76,7 @@ struct BlitTag;
 struct PresentTag;
 struct ClearTag;
 struct ViewportTag;
-struct ClearAttachment;
+struct ClearView;
 struct RenderQueue;
 struct LightInfo;
 struct SceneData;

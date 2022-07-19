@@ -1074,7 +1074,7 @@ export class RaytracePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
-export class ClearAttachment {
+export class ClearView {
     constructor (slotName = '', clearFlags: ClearFlagBit = gfx.ClearFlagBit.ALL, clearColor: Color = new Color()) {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
@@ -1206,7 +1206,7 @@ interface RenderGraphValueType {
     [RenderGraphValue.Scene]: SceneData
     [RenderGraphValue.Blit]: Blit
     [RenderGraphValue.Dispatch]: Dispatch
-    [RenderGraphValue.Clear]: ClearAttachment[]
+    [RenderGraphValue.Clear]: ClearView[]
     [RenderGraphValue.Viewport]: Rect
 }
 
@@ -1221,7 +1221,7 @@ export interface RenderGraphVisitor {
     scene(value: SceneData): unknown;
     blit(value: Blit): unknown;
     dispatch(value: Dispatch): unknown;
-    clear(value: ClearAttachment[]): unknown;
+    clear(value: ClearView[]): unknown;
     viewport(value: Rect): unknown;
 }
 
@@ -1235,7 +1235,7 @@ type RenderGraphObject = RasterPass
 | SceneData
 | Blit
 | Dispatch
-| ClearAttachment[]
+| ClearView[]
 | Rect;
 
 //-----------------------------------------------------------------
@@ -1678,7 +1678,7 @@ export class RenderGraph implements impl.BidirectionalGraph
         case RenderGraphValue.Dispatch:
             return visitor.dispatch(vert._object as Dispatch);
         case RenderGraphValue.Clear:
-            return visitor.clear(vert._object as ClearAttachment[]);
+            return visitor.clear(vert._object as ClearView[]);
         case RenderGraphValue.Viewport:
             return visitor.viewport(vert._object as Rect);
         default:
@@ -1755,9 +1755,9 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    getClear (v: number): ClearAttachment[] {
+    getClear (v: number): ClearView[] {
         if (this._vertices[v]._id === RenderGraphValue.Clear) {
-            return this._vertices[v]._object as ClearAttachment[];
+            return this._vertices[v]._object as ClearView[];
         } else {
             throw Error('value id not match');
         }
@@ -1839,9 +1839,9 @@ export class RenderGraph implements impl.BidirectionalGraph
             return null;
         }
     }
-    tryGetClear (v: number): ClearAttachment[] | null {
+    tryGetClear (v: number): ClearView[] | null {
         if (this._vertices[v]._id === RenderGraphValue.Clear) {
-            return this._vertices[v]._object as ClearAttachment[];
+            return this._vertices[v]._object as ClearView[];
         } else {
             return null;
         }

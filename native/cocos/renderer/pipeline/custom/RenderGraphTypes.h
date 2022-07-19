@@ -621,21 +621,21 @@ struct PresentTag {};
 struct ClearTag {};
 struct ViewportTag {};
 
-struct ClearAttachment {
+struct ClearView {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {slotName.get_allocator().resource()};
     }
 
-    ClearAttachment(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ClearAttachment(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    ClearAttachment(ClearAttachment&& rhs, const allocator_type& alloc);
-    ClearAttachment(ClearAttachment const& rhs, const allocator_type& alloc);
+    ClearView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ClearView(ClearView&& rhs, const allocator_type& alloc);
+    ClearView(ClearView const& rhs, const allocator_type& alloc);
 
-    ClearAttachment(ClearAttachment&& rhs) noexcept = default;
-    ClearAttachment(ClearAttachment const& rhs)     = delete;
-    ClearAttachment& operator=(ClearAttachment&& rhs) = default;
-    ClearAttachment& operator=(ClearAttachment const& rhs) = default;
+    ClearView(ClearView&& rhs) noexcept = default;
+    ClearView(ClearView const& rhs)     = delete;
+    ClearView& operator=(ClearView&& rhs) = default;
+    ClearView& operator=(ClearView const& rhs) = default;
 
     ccstd::pmr::string slotName;
     gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
@@ -885,8 +885,8 @@ struct RenderGraph {
 
     // PolymorphicGraph
     using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
-    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearAttachment>*, Rect*>;
-    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearAttachment>*, const Rect*>;
+    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, Rect*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const Rect*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
@@ -963,18 +963,18 @@ struct RenderGraph {
     ccstd::pmr::vector<RenderData>         data;
     ccstd::pmr::vector<bool>               valid;
     // PolymorphicGraph
-    ccstd::pmr::vector<RasterPass>                          rasterPasses;
-    ccstd::pmr::vector<ComputePass>                         computePasses;
-    ccstd::pmr::vector<CopyPass>                            copyPasses;
-    ccstd::pmr::vector<MovePass>                            movePasses;
-    ccstd::pmr::vector<PresentPass>                         presentPasses;
-    ccstd::pmr::vector<RaytracePass>                        raytracePasses;
-    ccstd::pmr::vector<RenderQueue>                         renderQueues;
-    ccstd::pmr::vector<SceneData>                           scenes;
-    ccstd::pmr::vector<Blit>                                blits;
-    ccstd::pmr::vector<Dispatch>                            dispatches;
-    ccstd::pmr::vector<ccstd::pmr::vector<ClearAttachment>> clearAttachments;
-    ccstd::pmr::vector<Rect>                                viewports;
+    ccstd::pmr::vector<RasterPass>                    rasterPasses;
+    ccstd::pmr::vector<ComputePass>                   computePasses;
+    ccstd::pmr::vector<CopyPass>                      copyPasses;
+    ccstd::pmr::vector<MovePass>                      movePasses;
+    ccstd::pmr::vector<PresentPass>                   presentPasses;
+    ccstd::pmr::vector<RaytracePass>                  raytracePasses;
+    ccstd::pmr::vector<RenderQueue>                   renderQueues;
+    ccstd::pmr::vector<SceneData>                     scenes;
+    ccstd::pmr::vector<Blit>                          blits;
+    ccstd::pmr::vector<Dispatch>                      dispatches;
+    ccstd::pmr::vector<ccstd::pmr::vector<ClearView>> clearViews;
+    ccstd::pmr::vector<Rect>                          viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
 };

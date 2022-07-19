@@ -154,7 +154,7 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
     return true;
 }
 
-bool nativevalue_to_se(const cc::render::ClearAttachment &from, se::Value &to, se::Object *ctx) { // NOLINT
+bool nativevalue_to_se(const cc::render::ClearView &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
 
@@ -342,8 +342,8 @@ bool sevalue_to_native<cc::render::MovePair>(const se::Value &from, cc::render::
 }
 
 template <>
-bool sevalue_to_native<cc::render::ClearAttachment>(const se::Value &from, cc::render::ClearAttachment *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ClearAttachment failed !");
+bool sevalue_to_native<cc::render::ClearView>(const se::Value &from, cc::render::ClearView *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ClearView failed !");
 
     auto *obj = const_cast<se::Object *>(from.toObject());
     bool ok = true;

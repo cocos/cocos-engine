@@ -2251,7 +2251,7 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
                 return RenderGraph::VertexValue{&g.dispatches[h.value]};
             },
             [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.clearAttachments[h.value]};
+                return RenderGraph::VertexValue{&g.clearViews[h.value]};
             },
             [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.viewports[h.value]};
@@ -2295,7 +2295,7 @@ value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
                 return RenderGraph::VertexConstValue{&g.dispatches[h.value]};
             },
             [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.clearAttachments[h.value]};
+                return RenderGraph::VertexConstValue{&g.clearViews[h.value]};
             },
             [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.viewports[h.value]};
@@ -2489,7 +2489,7 @@ holds_alternative<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph&
 
 template <>
 inline bool
-holds_alternative<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+holds_alternative<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -2598,12 +2598,12 @@ get<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-inline ccstd::pmr::vector<ClearAttachment>&
-get<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+inline ccstd::pmr::vector<ClearView>&
+get<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.clearAttachments[handle.value];
+    return g.clearViews[handle.value];
 }
 
 template <>
@@ -2710,12 +2710,12 @@ get<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-inline const ccstd::pmr::vector<ClearAttachment>&
-get<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+inline const ccstd::pmr::vector<ClearView>&
+get<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.clearAttachments[handle.value];
+    return g.clearViews[handle.value];
 }
 
 template <>
@@ -2807,12 +2807,12 @@ get(DispatchTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.dispatches[handle.value];
 }
 
-inline ccstd::pmr::vector<ClearAttachment>&
+inline ccstd::pmr::vector<ClearView>&
 get(ClearTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.clearAttachments[handle.value];
+    return g.clearViews[handle.value];
 }
 
 inline Rect&
@@ -2903,12 +2903,12 @@ get(DispatchTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g)
     return g.dispatches[handle.value];
 }
 
-inline const ccstd::pmr::vector<ClearAttachment>&
+inline const ccstd::pmr::vector<ClearView>&
 get(ClearTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.clearAttachments[handle.value];
+    return g.clearViews[handle.value];
 }
 
 inline const Rect&
@@ -3094,9 +3094,9 @@ get_if<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept
 }
 
 template <>
-inline ccstd::pmr::vector<ClearAttachment>*
-get_if<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
-    ccstd::pmr::vector<ClearAttachment>* ptr = nullptr;
+inline ccstd::pmr::vector<ClearView>*
+get_if<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    ccstd::pmr::vector<ClearView>* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -3105,7 +3105,7 @@ get_if<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, Re
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
-        ptr = &g.clearAttachments[pHandle->value];
+        ptr = &g.clearViews[pHandle->value];
     }
     return ptr;
 }
@@ -3302,9 +3302,9 @@ get_if<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) no
 }
 
 template <>
-inline const ccstd::pmr::vector<ClearAttachment>*
-get_if<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
-    const ccstd::pmr::vector<ClearAttachment>* ptr = nullptr;
+inline const ccstd::pmr::vector<ClearView>*
+get_if<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const ccstd::pmr::vector<ClearView>* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -3313,7 +3313,7 @@ get_if<ccstd::pmr::vector<ClearAttachment>>(RenderGraph::vertex_descriptor v, co
         impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
-        ptr = &g.clearAttachments[pHandle->value];
+        ptr = &g.clearViews[pHandle->value];
     }
     return ptr;
 }
@@ -3478,8 +3478,8 @@ inline void remove_vertex_value_impl(const RenderGraph::VertexHandle& h, RenderG
                 impl::reindexVectorHandle<DispatchTag>(g.vertices, h.value);
             },
             [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
-                g.clearAttachments.erase(g.clearAttachments.begin() + std::ptrdiff_t(h.value));
-                if (h.value == g.clearAttachments.size()) {
+                g.clearViews.erase(g.clearViews.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.clearViews.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<ClearTag>(g.vertices, h.value);
@@ -3601,10 +3601,10 @@ void addVertexImpl( // NOLINT
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ccstd::pmr::vector<ClearAttachment>>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ccstd::pmr::vector<ClearView>>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>{
-        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearAttachments.size())};
-    g.clearAttachments.emplace_back(std::forward<ValueT>(val));
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearViews.size())};
+    g.clearViews.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class ValueT>
@@ -3755,8 +3755,8 @@ void addVertexImpl(ClearTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::V
     invoke_hpp::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>{
-                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearAttachments.size())};
-            g.clearAttachments.emplace_back(std::forward<decltype(args)>(args)...);
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearViews.size())};
+            g.clearViews.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }

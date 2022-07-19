@@ -42,7 +42,7 @@ bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Obje
 
 bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Object *ctx); // NOLINT
 
-bool nativevalue_to_se(const cc::render::ClearAttachment &from, se::Value &to, se::Object *ctx); // NOLINT
+bool nativevalue_to_se(const cc::render::ClearView &from, se::Value &to, se::Object *ctx); // NOLINT
 
 bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Object *ctx); // NOLINT
 
@@ -60,7 +60,7 @@ template <>
 bool sevalue_to_native(const se::Value &from, cc::render::MovePair *to, se::Object *ctx); // NOLINT
 
 template <>
-bool sevalue_to_native(const se::Value &from, cc::render::ClearAttachment *to, se::Object *ctx); // NOLINT
+bool sevalue_to_native(const se::Value &from, cc::render::ClearView *to, se::Object *ctx); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &from, cc::render::LightInfo *to, se::Object *ctx); // NOLINT
