@@ -267,9 +267,6 @@ CCProgram shadow-caster-vs %{
   #include <legacy/local-batch>
   #include <shared-ubos>
   #include <builtin/uniforms/cc-shadow>
-  #if CC_SUPPORT_CASCADED_SHADOW_MAP
-    #include <builtin/uniforms/cc-csm>
-  #endif
 
   out vec2 v_uv;
   out vec4 v_worldPos;
