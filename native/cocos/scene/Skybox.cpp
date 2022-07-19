@@ -166,6 +166,7 @@ TextureCube *SkyboxInfo::getDiffuseMap() const {
 
 void SkyboxInfo::activate(Skybox *resource) {
     _resource = resource; // weak reference
+    Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(_useHDR);
     if (_resource != nullptr) {
         _resource->initialize(*this);
         setEnvLightingType(this->_envLightingType);
