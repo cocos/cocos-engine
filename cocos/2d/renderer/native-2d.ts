@@ -66,6 +66,9 @@ export declare class NativeRenderDrawInfo {
     get drawInfoType(): number;
     set drawInfoType(drawInfoType: number);
 
+    get subNode(): Node;
+    set subNode(node: Node);
+
     setRender2dBufferToNative(data: TypedArray, stride: number, size: number);
     syncSharedBufferToNative(data: TypedArray);
 }
