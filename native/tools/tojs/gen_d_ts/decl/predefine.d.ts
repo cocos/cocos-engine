@@ -13,7 +13,8 @@ declare namespace jsb {
     type Rect                = any;
     type Color               = any;
     type NativeDep           = any;
-    type RenderableComponent = any;
+    type Renderer            = any;
+    type ModelRenderer       = any;
     type ResizableBuffer     = any;
     type Size                = any;
     type DataPoolManager     = any;

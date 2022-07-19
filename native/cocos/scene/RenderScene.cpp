@@ -51,7 +51,7 @@ RenderScene::~RenderScene() = default;
 
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
-    _octree               = sceneData->getOctree();
+    _octree = sceneData->getOctree();
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
@@ -79,6 +79,7 @@ void RenderScene::update(uint32_t stamp) {
         if (model->isEnabled()) {
             model->updateTransform(stamp);
             model->updateUBOs(stamp);
+            model->updateOctree();
         }
     }
 
@@ -102,6 +103,7 @@ void RenderScene::addCamera(Camera *camera) {
 void RenderScene::removeCamera(Camera *camera) {
     auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
+        (*iter)->detachFromScene();
         _cameras.erase(iter);
     }
 }
@@ -109,6 +111,7 @@ void RenderScene::removeCamera(Camera *camera) {
 void RenderScene::removeCameras() {
     for (const auto &camera : _cameras) {
         camera->detachFromScene();
+        camera->destroy();
     }
     _cameras.clear();
 }
@@ -188,14 +191,6 @@ void RenderScene::addModel(Model *model) {
     if (_octree && _octree->isEnabled()) {
         _octree->insert(model);
     }
-}
-
-void RenderScene::removeModel(index_t idx) {
-    if (idx >= static_cast<index_t>(_models.size())) {
-        CC_LOG_WARNING("Try to remove invalid model.");
-        return;
-    }
-    _models.erase(_models.begin() + idx);
 }
 
 void RenderScene::removeModel(Model *model) {

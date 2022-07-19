@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
 import './deprecated-3.5.0';
@@ -50,3 +45,4 @@ export * from './base/shader';
 export * from './base/texture';
 export * from './base/states/general-barrier';
 export * from './base/states/texture-barrier';
+export * from './device-manager';

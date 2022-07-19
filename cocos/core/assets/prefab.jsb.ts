@@ -23,13 +23,9 @@
  THE SOFTWARE.
 */
 import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Enum } from '../value-types';
+import './asset';
 
 export const Prefab = jsb.Prefab;
 export type Prefab = jsb.Prefab;
@@ -62,35 +58,7 @@ const OptimizationPolicy = Enum({
     MULTI_INSTANCE: 2,
 });
 
-const clsDecorator = ccclass('cc.Prefab');
-
 const prefabProto: any = Prefab.prototype;
-
-const _class2$B = Prefab;
-const _descriptor$v = _applyDecoratedDescriptor(_class2$B.prototype, 'data', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
-const _descriptor2$o = _applyDecoratedDescriptor(_class2$B.prototype, 'optimizationPolicy', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return OptimizationPolicy.AUTO;
-    },
-});
-const _descriptor2$p = _applyDecoratedDescriptor(_class2$B.prototype, 'persistent', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return false;
-    },
-});
 
 prefabProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -98,6 +66,14 @@ prefabProto._ctor = function () {
     // _initializerDefineProperty(_this, 'optimizationPolicy', _descriptor2$o, _assertThisInitialized(_this));
 };
 
-clsDecorator(Prefab);
-
 legacyCC.Prefab = Prefab;
+
+// handle meta data, it is generated automatically
+const PrefabProto = Prefab.prototype;
+editable(PrefabProto, 'data');
+serializable(PrefabProto, 'data');
+editable(PrefabProto, 'optimizationPolicy');
+serializable(PrefabProto, 'optimizationPolicy');
+editable(PrefabProto, 'persistent');
+serializable(PrefabProto, 'persistent');
+ccclass('cc.Prefab')(Prefab);

@@ -29,51 +29,10 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdint> // To include uint8_t, uint16_t and so on.
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include <BaseTsd.h>
-    #if !defined(__SSIZE_T) && !defined(_SSIZE_T_)
-        #define __SSIZE_T
-typedef SSIZE_T ssize_t;
-        #ifndef _SSIZE_T_
-            #define _SSIZE_T_
-        #endif
-        #ifndef _SSIZE_T_DEFINED
-            #define _SSIZE_T_DEFINED
-        #endif
-    #endif // __SSIZE_T
-#endif
-
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include <android/log.h>
-    #define CC_ASSERT(cond)                                        \
-        if (!(cond)) {                                             \
-            __android_log_print(ANDROID_LOG_ERROR,                 \
-                                "assert",                          \
-                                "%s function:%s line:%d",          \
-                                __FILE__, __FUNCTION__, __LINE__); \
-        }
-#elif (CC_PLATFORM == CC_PLATFORM_OHOS)
-    #include <hilog/log.h>
-    #define CC_ASSERT(cond)                                                      \
-        if (!(cond)) {                                                           \
-            HILOG_ERROR(LOG_APP,                                                 \
-                        "assert %{public}s function:%{public}s line:%{public}d", \
-                        __FILE__, __FUNCTION__, __LINE__);                       \
-        }
-#elif (CC_PLATFORM == CC_PLATFORM_EMSCRIPTEN)
-    #include <assert.h>
-    #include <cstdarg>
-    #include <cstddef>
-    #define CC_ASSERT(cond) \
-        if (!(cond)) {      \
-            assert(cond);   \
-        }
-#else
-    #include <assert.h>
-    #define CC_ASSERT(cond) assert(cond)
-#endif
+#include <cassert>
+#define CC_ASSERT(cond) assert(cond)
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #if defined(CC_STATIC)
@@ -89,17 +48,6 @@ typedef SSIZE_T ssize_t;
     #define CC_DLL
 #endif
 
-#ifndef CCASSERT
-    #if CC_DEBUG > 0
-        #define CCASSERT(cond, msg) CC_ASSERT(cond)
-    // #endif
-    #else
-        #define CCASSERT(cond, msg)
-    #endif
-
-    #define GP_ASSERT(cond) CCASSERT(cond, "")
-#endif // CCASSERT
-
 /** @def CC_DEGREES_TO_RADIANS
  converts degrees to radians
  */
@@ -113,9 +61,6 @@ typedef SSIZE_T ssize_t;
 #ifndef FLT_EPSILON
     #define FLT_EPSILON 1.192092896e-07F
 #endif // FLT_EPSILON
-
-#define CC_MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define CC_MAX(a, b) (((a) < (b)) ? (b) : (a))
 
 /**
 Helper macros which converts 4-byte little/big endian
@@ -170,14 +115,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_UNUSED_PARAM(unusedparam) (void)unusedparam
 
-#ifndef NULL
-    #ifdef __cplusplus
-        #define NULL 0
-    #else
-        #define NULL ((void *)0)
-    #endif
-#endif
-
 /** @def CC_FORMAT_PRINTF(formatPos, argPos)
  * Only certain compiler support __attribute__((format))
  *
@@ -219,52 +156,57 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 // Compiler type and version recognition
 #if defined(_MSC_VER)
     #define CC_COMPILER CC_COMPILER_MSVC
-    #if _MSC_VER >= 1900
-        #define CC_COMPILER_VERSION 130
-    #elif _MSC_VER >= 1800
-        #define CC_COMPILER_VERSION 120
-    #elif _MSC_VER >= 1700
-        #define CC_COMPILER_VERSION 110
-    #elif _MSC_VER >= 1600
-        #define CC_COMPILER_VERSION 100
-    #elif _MSC_VER >= 1500
-        #define CC_COMPILER_VERSION 90
-    #elif _MSC_VER >= 1400
-        #define CC_COMPILER_VERSION 80
-    #elif _MSC_VER >= 1300
-        #define CC_COMPILER_VERSION 70
-    #endif
 #elif defined(__clang__)
-    #define CC_COMPILER         CC_COMPILER_CLANG
-    #define CC_COMPILER_VERSION (((__clang_major__)*100) + (__clang_minor__ * 10) + __clang_patchlevel__)
+    #define CC_COMPILER CC_COMPILER_CLANG
 #elif defined(__GNUC__)
-    #define CC_COMPILER         CC_COMPILER_GNUC
-    #define CC_COMPILER_VERSION (((__GNUC__)*100) + (__GNUC_MINOR__ * 10) + __GNUC_PATCHLEVEL__)
+    #define CC_COMPILER CC_COMPILER_GNUC
 #else
     #error "Unknown compiler. Abort!"
-#endif
-
-// CPU architecture type recognition
-#if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
-    #define CC_CPU CC_CPU_X86
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX && CC_ENDIAN == CC_ENDIAN_BIG
-    #define CC_CPU CC_CPU_PPC
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    #define CC_CPU CC_CPU_X86
-#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS && (defined(__i386__) || defined(__x86_64__))
-    #define CC_CPU CC_CPU_X86
-#elif defined(__arm__) || defined(_M_ARM) || defined(__arm64__) || defined(_aarch64_)
-    #define CC_CPU CC_CPU_ARM
-#elif defined(__mips64) || defined(__mips64_)
-    #define CC_CPU CC_CPU_MIPS
-#else
-    #define CC_CPU CC_CPU_UNKNOWN
 #endif
 
 #if INTPTR_MAX == INT32_MAX
     #define CC_CPU_ARCH CC_CPU_ARCH_32
 #else
     #define CC_CPU_ARCH CC_CPU_ARCH_64
+#endif
+
+#if defined(__arm64__) || defined(__aarch64__)
+    #define CC_ARCH_ARM64 1
+#else
+    #define CC_ARCH_ARM64 0
+#endif
+
+// CC_HAS_ARM64_FP16 set to 1 if the architecture provides an IEEE compliant ARM fp16 type
+#if CC_ARCH_ARM64
+    #ifndef CC_HAS_ARM64_FP16
+        #if defined(__ARM_FP16_FORMAT_IEEE)
+            #define CC_HAS_ARM64_FP16 1
+        #else
+            #define CC_HAS_ARM64_FP16 0
+        #endif
+    #endif
+#endif
+
+// CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC set to 1 if the architecture supports Neon vector intrinsics for fp16.
+#if CC_ARCH_ARM64
+    #ifndef CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC
+        #if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
+            #define CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC 1
+        #else
+            #define CC_HAS_ARM64_FP16_VECTOR_ARITHMETIC 0
+        #endif
+    #endif
+#endif
+
+// CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC set to 1 if the architecture supports Neon scalar intrinsics for fp16.
+#if CC_ARCH_ARM64
+    #ifndef CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC
+        #if defined(__ARM_FEATURE_FP16_SCALAR_ARITHMETIC)
+            #define CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC 1
+        #else
+            #define CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC 0
+        #endif
+    #endif
 #endif
 
 // Disable MSVC warning
@@ -315,7 +257,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_DISALLOW_COPY_MOVE_ASSIGN(TypeName) \
     TypeName(const TypeName &) = delete;       \
-    TypeName(TypeName &&)      = delete;       \
+    TypeName(TypeName &&) = delete;            \
     CC_DISALLOW_ASSIGN(TypeName)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
@@ -412,14 +354,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #else
     #error "Unsupported compiler!"
-#endif
-
-#define CC_SIMD_ALIGNMENT 16
-
-#if (CC_COMPILER == CC_COMPILER_MSVC)
-    #define CC_DECL_MALLOC __declspec(restrict) __declspec(noalias)
-#else
-    #define CC_DECL_MALLOC __attribute__((malloc))
 #endif
 
 /* Stack-alignment

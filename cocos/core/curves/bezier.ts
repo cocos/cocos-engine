@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { legacyCC } from '../global-exports';
 
 export type BezierControlPoints = [ number, number, number, number ];

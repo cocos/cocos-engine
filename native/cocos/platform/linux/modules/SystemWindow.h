@@ -29,6 +29,7 @@
 
 #include "platform/interfaces/modules/ISystemWindow.h"
 
+struct SDL_Window;
 namespace cc {
 class SDLHelper;
 class CC_DLL SystemWindow : public ISystemWindow {
@@ -36,18 +37,24 @@ public:
     explicit SystemWindow(IEventDispatch* delegate);
     ~SystemWindow() override;
 
-    int       init();
-    void      swapWindow();
-    void      pollEvent(bool* quit);
+    int init();
+    void swapWindow();
+    void pollEvent(bool* quit);
 
-    bool      createWindow(const char* title, 
-                           int w, int h, int flags) override;
-    bool      createWindow(const char* title,
-                           int x, int y, int w,
-                           int h, int flags) override;
-    uintptr_t getWindowHandler() const override;
+    bool createWindow(const char* title,
+                      int w, int h, int flags) override;
+    bool createWindow(const char* title,
+                      int x, int y, int w,
+                      int h, int flags) override;
+    void closeWindow() override;
+    uintptr_t getWindowHandle() const override;
+    SDL_Window* getSDLWindowHandle() const;
     uintptr_t getDisplay() const;
     Size getViewSize() const override;
+    void setViewSize(uint32_t w, uint32_t h) override {
+        _width = w;
+        _height = h;
+    }
     /*
      @brief enable/disable(lock) the cursor, default is enabled
      */

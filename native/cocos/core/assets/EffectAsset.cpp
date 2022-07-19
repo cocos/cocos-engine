@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "core/assets/EffectAsset.h"
+#include "cocos.h"
 #include "core/Root.h"
+#include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
 
 namespace cc {
@@ -34,14 +36,14 @@ IPassStates::IPassStates(const IPassInfoFull &o) {
 }
 
 IPassStates &IPassStates::operator=(const IPassInfoFull &o) {
-    priority          = o.priority;
-    primitive         = o.primitive;
-    stage             = o.stage;
-    rasterizerState   = o.rasterizerState;
+    priority = o.priority;
+    primitive = o.primitive;
+    stage = o.stage;
+    rasterizerState = o.rasterizerState;
     depthStencilState = o.depthStencilState;
-    blendState        = o.blendState;
-    dynamicStates     = o.dynamicStates;
-    phase             = o.phase;
+    blendState = o.blendState;
+    dynamicStates = o.dynamicStates;
+    phase = o.phase;
     return *this;
 }
 
@@ -73,6 +75,7 @@ void IPassStates::overrides(const IPassInfoFull &o) {
 }
 
 EffectAsset::RegisteredEffectAssetMap EffectAsset::effects;
+bool EffectAsset::layoutValid = true;
 
 /* static */
 void EffectAsset::registerAsset(EffectAsset *asset) {
@@ -81,6 +84,7 @@ void EffectAsset::registerAsset(EffectAsset *asset) {
     }
 
     EffectAsset::effects.emplace(asset->getName(), asset);
+    layoutValid = false;
 }
 
 /* static */
@@ -134,9 +138,15 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
 void EffectAsset::onLoaded() {
     ProgramLib::getInstance()->registerEffect(this);
     EffectAsset::registerAsset(this);
-    //cjh TODO:    if (!EDITOR){
-    //cjh    legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this);
-    // }
+#if !CC_EDITOR
+    if (CC_CURRENT_ENGINE()->isInited()) {
+        precompile();
+    } else {
+        CC_CURRENT_ENGINE()->on(BaseEngine::ON_START, [this]() {
+            this->precompile();
+        });
+    }
+#endif
 }
 
 bool EffectAsset::destroy() {
@@ -144,13 +154,13 @@ bool EffectAsset::destroy() {
     return Super::destroy();
 }
 
-void EffectAsset::initDefault(const cc::optional<ccstd::string> &uuid) {
+void EffectAsset::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    const auto *effect = EffectAsset::get("unlit");
-    _name              = "unlit";
-    _shaders           = effect->_shaders;
-    _combinations      = effect->_combinations;
-    _techniques        = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
+    const auto *effect = EffectAsset::get("builtin-unlit");
+    _name = "builtin-unlit";
+    _shaders = effect->_shaders;
+    _combinations = effect->_combinations;
+    _techniques = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
 }
 
 bool EffectAsset::validate() const {
@@ -170,7 +180,6 @@ void EffectAsset::precompile() {
             continue;
         }
 
-        // TODO(minggo): do unit test
         ccstd::vector<MacroRecord> defines = EffectAsset::doCombine(ccstd::vector<MacroRecord>(), combination, combination.begin());
         for (auto &define : defines) {
             ProgramLib::getInstance()->getGFXShader(root->getDevice(), shader.name, define, root->getPipeline());
@@ -186,7 +195,7 @@ USE_TEXTURE: [true, false],
 COLOR_MODE: [0, 1, 2, 3],
 ROUGHNESS_CHANNEL: ['r', 'g', 'b'],
 };
- 
+
 // output
 
 const defines = [
@@ -219,7 +228,7 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     }
 
     const IPreCompileInfoValueType &values = iter->second;
-    const ccstd::string &           key    = iter->first;
+    const ccstd::string &key = iter->first;
 
     ccstd::vector<MacroRecord> records;
     if (cur.empty()) {
@@ -231,21 +240,21 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     return EffectAsset::doCombine(records, info, ++iter);
 }
 
-ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value) {
+ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &infoValue) {
     ccstd::vector<MacroRecord> ret;
-    if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&value)) {
+    if (const auto *boolValues = ccstd::get_if<ccstd::vector<bool>>(&infoValue)) {
         for (const bool value : *boolValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&value)) {
+    } else if (const auto *intValues = ccstd::get_if<ccstd::vector<int32_t>>(&infoValue)) {
         for (const int32_t value : *intValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&value)) {
+    } else if (const auto *stringValues = ccstd::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
         for (const ccstd::string &value : *stringValues) {
             MacroRecord record;
             record[key] = value;
@@ -259,26 +268,26 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key
 }
 
 ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                        const ccstd::string &             key,
-                                                        const IPreCompileInfoValueType &  value) {
+                                                        const ccstd::string &key,
+                                                        const IPreCompileInfoValueType &infoValue) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {
-        if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&value)) {
+        if (const auto *boolValues = ccstd::get_if<ccstd::vector<bool>>(&infoValue)) {
             for (const bool value : *boolValues) {
                 MacroRecord tmpRecord = record;
-                tmpRecord[key]        = value;
+                tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&value)) {
+        } else if (const auto *intValues = ccstd::get_if<ccstd::vector<int32_t>>(&infoValue)) {
             for (const int32_t value : *intValues) {
                 MacroRecord tmpRecord = record;
-                tmpRecord[key]        = value;
+                tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&value)) {
+        } else if (const auto *stringValues = ccstd::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
             for (const ccstd::string &value : *stringValues) {
                 MacroRecord tmpRecord = record;
-                tmpRecord[key]        = value;
+                tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
         } else {

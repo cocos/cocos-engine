@@ -1,0 +1,76 @@
+struct LightingIntermediateData
+{
+  vec3 N, H, L, V; // normalized
+  float distToLight, distToLightSqr; // (pos->light)^2
+  float distToCamera, distToCameraSqr; // pos->camera
+
+  float NoL, NoV, NoH;//, VoH;
+  float NoLSat, NoVSat, NoHSat;//, VoHSat; // clamped to 0-1
+  float NoVAbsSat; // abs and clamped to 1
+
+  // for advanced material
+  vec3 T, B;
+
+  // material data
+  float specularParam; // roughness or specular power
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  float anisotropyShape;
+#endif
+
+  // #if CC_SURFACES_LIGHTING_SPECULAR_2ND
+  // float specularParam2nd, specularIntensity2nd, specularRotation2nd; // for hair
+  // vec3 specularColor2nd;
+  // #endif
+  // #if CC_SURFACES_LIGHTING_CLEAR_COAT
+  // float ior;
+  // float roughnessClearCoat; // for clear coat or multi-layer pbr
+  // #endif
+};
+
+// add overrided functions for difference shading-models in <surfaces/module-functions/>
+void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateData data, vec3 worldNormal, vec3 worldPos, vec3 worldTangent, vec3 worldBinormal
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+    , float anisotropyShape    
+#endif
+)
+{
+  // N V
+  data.N = worldNormal;
+
+  data.V = cc_cameraPos.xyz - worldPos;
+  data.distToCameraSqr = dot(data.V, data.V);
+  data.distToCamera = sqrt(data.distToCameraSqr);
+  data.V /= data.distToCamera;
+
+  data.NoV = dot(data.N, data.V);
+  data.NoVSat = max(data.NoV, 0.0);
+  data.NoVAbsSat = max(abs(data.NoV), 0.0);
+
+  data.T = worldTangent;
+  data.B = worldBinormal;
+
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  data.anisotropyShape = anisotropyShape;
+#endif
+}
+
+void CCSurfacesLightingGetIntermediateData_PerLight(inout LightingIntermediateData data, vec3 lightDirWithDist)
+{
+  // L H
+  data.L = lightDirWithDist;
+  data.distToLightSqr = dot(data.L, data.L);
+  data.distToLight = sqrt(data.distToLightSqr);
+  
+  data.L /= data.distToLight;
+
+  data.H = normalize(data.L + data.V);
+
+  // dot
+  data.NoL = dot(data.N, data.L);
+  data.NoH = dot(data.N, data.H);
+  // data.VoH = dot(data.V, data.H);
+  
+  data.NoLSat = max(data.NoL, 0.0);
+  data.NoHSat = max(data.NoH, 0.0);
+  // data.VoHSat = max(data.VoH, 0.0);
+}

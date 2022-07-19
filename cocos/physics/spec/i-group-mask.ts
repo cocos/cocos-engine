@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export interface IGroupMask {
     setGroup (v: number): void;
     getGroup (): number;

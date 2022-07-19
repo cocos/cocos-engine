@@ -53,8 +53,8 @@ System::LanguageType System::getCurrentLanguage() const {
 }
 
 ccstd::string System::getCurrentLanguageCode() const {
-    static char code[3]       = {0};
-    char *      pLanguageName = getenv("LANG");
+    static char code[3] = {0};
+    char *pLanguageName = getenv("LANG");
     if (!pLanguageName) {
         return "en";
     }

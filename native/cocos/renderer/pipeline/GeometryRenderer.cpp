@@ -34,6 +34,7 @@
 #include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
+#include "core/geometry/Spline.h"
 #include "math/Mat4.h"
 #include "math/Math.h"
 #include "profiler/Profiler.h"
@@ -49,19 +50,19 @@ namespace pipeline {
  * [0]: no depthTest
  * [1]: depthTest 
  */
-constexpr uint32_t GEOMETRY_DEPTH_TYPE_COUNT       = 2U;
+constexpr uint32_t GEOMETRY_DEPTH_TYPE_COUNT = 2U;
 constexpr uint32_t GEOMETRY_NO_DEPTH_TEST_PASS_NUM = 1U;
-constexpr uint32_t GEOMETRY_DEPTH_TEST_PASS_NUM    = 2U;
-constexpr uint32_t GEOMETRY_VERTICES_PER_LINE      = 2U;
-constexpr uint32_t GEOMETRY_VERTICES_PER_TRIANGLE  = 3U;
-constexpr uint32_t GEOMETRY_MAX_LINES              = 10000U;
-constexpr uint32_t GEOMETRY_MAX_DASHED_LINES       = 10000U;
-constexpr uint32_t GEOMETRY_MAX_TRIANGLES          = 10000U;
+constexpr uint32_t GEOMETRY_DEPTH_TEST_PASS_NUM = 2U;
+constexpr uint32_t GEOMETRY_VERTICES_PER_LINE = 2U;
+constexpr uint32_t GEOMETRY_VERTICES_PER_TRIANGLE = 3U;
+constexpr uint32_t GEOMETRY_MAX_LINES = 30000U;
+constexpr uint32_t GEOMETRY_MAX_DASHED_LINES = 10000U;
+constexpr uint32_t GEOMETRY_MAX_TRIANGLES = 10000U;
 
 enum class GeometryType {
-    LINE        = 0,
+    LINE = 0,
     DASHED_LINE = 1,
-    TRIANGLE    = 2,
+    TRIANGLE = 2,
 };
 
 struct PosColorVertex {
@@ -69,7 +70,7 @@ struct PosColorVertex {
     PosColorVertex(const Vec3 &pos, gfx::Color clr)
     : position(pos), color(clr) {}
 
-    Vec3       position;
+    Vec3 position;
     gfx::Color color;
 };
 
@@ -78,8 +79,8 @@ struct PosNormColorVertex {
     PosNormColorVertex(const Vec3 &pos, const Vec4 &norm, gfx::Color clr)
     : position(pos), normal(norm), color(clr) {}
 
-    Vec3       position;
-    Vec4       normal; // xyz: normal, w:unlit
+    Vec3 position;
+    Vec4 normal; // xyz: normal, w:unlit
     gfx::Color color;
 };
 
@@ -88,7 +89,7 @@ class GeometryVertexBuffer {
 private:
     inline void init(gfx::Device *device, uint32_t maxVertices, const gfx::AttributeList &attributes) {
         _maxVertices = maxVertices;
-        _buffer      = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+        _buffer = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
                                         gfx::MemoryUsageBit::DEVICE,
                                         static_cast<uint32_t>(maxVertices * sizeof(T)),
                                         static_cast<uint32_t>(sizeof(T))});
@@ -101,13 +102,13 @@ private:
     }
 
     inline uint32_t getCount() const { return std::min(static_cast<uint32_t>(_vertices.size()), _maxVertices); }
-    inline bool     empty() const { return _vertices.empty(); }
-    inline void     reset() { _vertices.clear(); }
+    inline bool empty() const { return _vertices.empty(); }
+    inline void reset() { _vertices.clear(); }
 
     inline void update() {
         if (!empty()) {
             const auto count = getCount();
-            const auto size  = static_cast<uint32_t>(count * sizeof(T));
+            const auto size = static_cast<uint32_t>(count * sizeof(T));
             _buffer->update(&_vertices[0], size);
         }
     }
@@ -119,17 +120,17 @@ private:
         CC_PROFILE_MEMORY_DEC(GeometryVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(T)));
     }
 
-    uint32_t             _maxVertices{0};
-    ccstd::vector<T>     _vertices;
-    gfx::Buffer *        _buffer{nullptr};
+    uint32_t _maxVertices{0};
+    ccstd::vector<T> _vertices;
+    gfx::Buffer *_buffer{nullptr};
     gfx::InputAssembler *_inputAssembler{nullptr};
 
     friend class GeometryRenderer;
 };
 
 struct GeometryVertexBuffers {
-    ccstd::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT>     lines;
-    ccstd::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT>     dashedLines;
+    ccstd::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT> lines;
+    ccstd::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT> dashedLines;
     ccstd::array<GeometryVertexBuffer<PosNormColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT> triangles;
 };
 
@@ -138,7 +139,7 @@ GeometryRendererInfo::GeometryRendererInfo()
 }
 
 GeometryRenderer::GeometryRenderer() {
-    _buffers = new GeometryVertexBuffers();
+    _buffers = ccnew GeometryVertexBuffers();
 }
 
 GeometryRenderer::~GeometryRenderer() {
@@ -165,12 +166,10 @@ void GeometryRenderer::activate(gfx::Device *device, const GeometryRendererInfo 
 }
 
 void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData) {
-    update();
-
-    const auto &passes  = sceneData->getGeometryRendererPasses();
+    const auto &passes = sceneData->getGeometryRendererPasses();
     const auto &shaders = sceneData->getGeometryRendererShaders();
 
-    uint32_t       offset                               = 0U;
+    uint32_t offset = 0U;
     const uint32_t passCount[GEOMETRY_DEPTH_TYPE_COUNT] = {GEOMETRY_NO_DEPTH_TEST_PASS_NUM, GEOMETRY_DEPTH_TEST_PASS_NUM};
 
     /**
@@ -190,9 +189,9 @@ void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *c
             drawInfo.vertexCount = lines.getCount();
 
             for (auto p = 0U; p < passCount[i]; p++) {
-                auto *pass   = passes[offset + p];
+                auto *pass = passes[offset + p];
                 auto *shader = shaders[offset + p];
-                auto *pso    = PipelineStateManager::getOrCreatePipelineState(pass, shader, lines._inputAssembler, renderPass);
+                auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, lines._inputAssembler, renderPass);
                 cmdBuff->bindPipelineState(pso);
                 cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
                 cmdBuff->bindInputAssembler(lines._inputAssembler);
@@ -210,9 +209,9 @@ void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *c
             drawInfo.vertexCount = dashedLines.getCount();
 
             for (auto p = 0U; p < passCount[i]; p++) {
-                auto *pass   = passes[offset + p];
+                auto *pass = passes[offset + p];
                 auto *shader = shaders[offset + p];
-                auto *pso    = PipelineStateManager::getOrCreatePipelineState(pass, shader, dashedLines._inputAssembler, renderPass);
+                auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, dashedLines._inputAssembler, renderPass);
                 cmdBuff->bindPipelineState(pso);
                 cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
                 cmdBuff->bindInputAssembler(dashedLines._inputAssembler);
@@ -230,9 +229,9 @@ void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *c
             drawInfo.vertexCount = triangles.getCount();
 
             for (auto p = 0U; p < passCount[i]; p++) {
-                auto *pass   = passes[offset + p];
+                auto *pass = passes[offset + p];
                 auto *shader = shaders[offset + p];
-                auto *pso    = PipelineStateManager::getOrCreatePipelineState(pass, shader, triangles._inputAssembler, renderPass);
+                auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, triangles._inputAssembler, renderPass);
                 cmdBuff->bindPipelineState(pso);
                 cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
                 cmdBuff->bindInputAssembler(triangles._inputAssembler);
@@ -253,6 +252,18 @@ void GeometryRenderer::destroy() {
         _buffers->dashedLines[i].destroy();
         _buffers->triangles[i].destroy();
     }
+}
+
+bool GeometryRenderer::empty() const {
+    for (auto i = 0U; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
+        if (!_buffers->lines[i].empty() ||
+            !_buffers->dashedLines[i].empty() ||
+            !_buffers->triangles[i].empty()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void GeometryRenderer::update() {
@@ -311,7 +322,7 @@ void GeometryRenderer::addTriangle(const Vec3 &v0, const Vec3 &v1, const Vec3 &v
     if (!unlit) {
         const Vec3 dist1 = v1 - v0;
         const Vec3 dist2 = v2 - v0;
-        Vec3       norm;
+        Vec3 norm;
         Vec3::crossProduct(dist1, dist2, &norm);
         norm.normalize();
         normal.set(norm.x, norm.y, norm.z, 1.0F);
@@ -425,10 +436,10 @@ void GeometryRenderer::addFrustum(const geometry::Frustum &frustum, gfx::Color c
 }
 
 void GeometryRenderer::addCapsule(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segmentsU, uint32_t hemiSegmentsV, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto deltaPhi   = math::PI_2 / static_cast<float>(segmentsU);
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segmentsU);
     const auto deltaTheta = math::PI_DIV2 / static_cast<float>(hemiSegmentsV);
-    Vec3       bottomCenter{center.x, center.y - height / 2.0F, center.z};
-    Vec3       topCenter{center.x, center.y + height / 2.0F, center.z};
+    Vec3 bottomCenter{center.x, center.y - height / 2.0F, center.z};
+    Vec3 topCenter{center.x, center.y + height / 2.0F, center.z};
 
     using CircleList = ccstd::vector<Vec3>;
     ccstd::vector<CircleList> bottomPoints;
@@ -438,15 +449,15 @@ void GeometryRenderer::addCapsule(const Vec3 &center, float radius, float height
         CircleList bottomList;
         CircleList topList;
 
-        float theta    = static_cast<float>(i) * deltaTheta;
+        float theta = static_cast<float>(i) * deltaTheta;
         float sinTheta = sinf(theta);
         float cosTheta = cosf(theta);
 
         for (auto j = 0U; j < segmentsU + 1; j++) {
-            float phi    = static_cast<float>(j) * deltaPhi;
+            float phi = static_cast<float>(j) * deltaPhi;
             float sinPhi = sinf(phi);
             float cosPhi = cosf(phi);
-            Vec3  p{radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi};
+            Vec3 p{radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi};
 
             bottomList.emplace_back(bottomCenter + Vec3(p.x, -p.y, p.z));
             topList.emplace_back(topCenter + p);
@@ -476,7 +487,7 @@ void GeometryRenderer::addCapsule(const Vec3 &center, float radius, float height
     }
 
     CircleList &bottomCircle = bottomPoints[hemiSegmentsV];
-    CircleList &topCircle    = topPoints[hemiSegmentsV];
+    CircleList &topCircle = topPoints[hemiSegmentsV];
     for (auto j = 0U; j < segmentsU; j++) {
         addTriangle(topCircle[j], bottomCircle[j + 1], bottomCircle[j], color, wireframe, depthTest, unlit);
         addTriangle(topCircle[j], topCircle[j + 1], bottomCircle[j + 1], color, wireframe, depthTest, unlit);
@@ -484,15 +495,15 @@ void GeometryRenderer::addCapsule(const Vec3 &center, float radius, float height
 }
 
 void GeometryRenderer::addCylinder(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
-    Vec3                bottomCenter{center.x, center.y - height / 2.0F, center.z};
-    Vec3                topCenter{center.x, center.y + height / 2.0F, center.z};
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segments);
+    Vec3 bottomCenter{center.x, center.y - height / 2.0F, center.z};
+    Vec3 topCenter{center.x, center.y + height / 2.0F, center.z};
     ccstd::vector<Vec3> bottomPoints;
     ccstd::vector<Vec3> topPoints;
 
     for (auto i = 0U; i < segments + 1; i++) {
         float phi = static_cast<float>(i) * deltaPhi;
-        Vec3  p{radius * cosf(phi), 0.0F, radius * sinf(phi)};
+        Vec3 p{radius * cosf(phi), 0.0F, radius * sinf(phi)};
         bottomPoints.emplace_back(p + bottomCenter);
         topPoints.emplace_back(p + topCenter);
     }
@@ -517,9 +528,9 @@ void GeometryRenderer::addCylinder(const Vec3 &center, float radius, float heigh
 }
 
 void GeometryRenderer::addCone(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
-    Vec3                bottomCenter{center.x, center.y - height / 2.0F, center.z};
-    Vec3                topCenter{center.x, center.y + height / 2.0F, center.z};
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segments);
+    Vec3 bottomCenter{center.x, center.y - height / 2.0F, center.z};
+    Vec3 topCenter{center.x, center.y + height / 2.0F, center.z};
     ccstd::vector<Vec3> bottomPoints;
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -543,7 +554,7 @@ void GeometryRenderer::addCone(const Vec3 &center, float radius, float height, g
 }
 
 void GeometryRenderer::addCircle(const Vec3 &center, float radius, gfx::Color color, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
-    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -563,9 +574,9 @@ void GeometryRenderer::addCircle(const Vec3 &center, float radius, gfx::Color co
 }
 
 void GeometryRenderer::addArc(const Vec3 &center, float radius, gfx::Color color, float startAngle, float endAngle, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
-    float               startRadian = math::DEG_TO_RAD * startAngle;
-    float               endRadian   = math::DEG_TO_RAD * endAngle;
-    const auto          deltaPhi    = (endRadian - startRadian) / static_cast<float>(segments);
+    float startRadian = math::DEG_TO_RAD * startAngle;
+    float endRadian = math::DEG_TO_RAD * endAngle;
+    const auto deltaPhi = (endRadian - startRadian) / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -593,9 +604,9 @@ void GeometryRenderer::addPolygon(const Vec3 &center, float radius, gfx::Color c
 }
 
 void GeometryRenderer::addDisc(const Vec3 &center, float radius, gfx::Color color, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
-    Vec3                newCenter = center;
+    Vec3 newCenter = center;
 
     for (auto i = 0U; i < segments + 1; i++) {
         Vec3 point{radius * cosf(static_cast<float>(i) * deltaPhi), 0.0F, radius * sinf(static_cast<float>(i) * deltaPhi)};
@@ -623,11 +634,11 @@ void GeometryRenderer::addDisc(const Vec3 &center, float radius, gfx::Color colo
 }
 
 void GeometryRenderer::addSector(const Vec3 &center, float radius, gfx::Color color, float startAngle, float endAngle, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    float               startRadian = math::DEG_TO_RAD * startAngle;
-    float               endRadian   = math::DEG_TO_RAD * endAngle;
-    const auto          deltaPhi    = (endRadian - startRadian) / static_cast<float>(segments);
+    float startRadian = math::DEG_TO_RAD * startAngle;
+    float endRadian = math::DEG_TO_RAD * endAngle;
+    const auto deltaPhi = (endRadian - startRadian) / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
-    Vec3                newCenter = center;
+    Vec3 newCenter = center;
 
     for (auto i = 0U; i < segments + 1; i++) {
         Vec3 point{radius * cosf(static_cast<float>(i) * deltaPhi), 0.0F, radius * sinf(static_cast<float>(i) * deltaPhi)};
@@ -655,7 +666,7 @@ void GeometryRenderer::addSector(const Vec3 &center, float radius, gfx::Color co
 }
 
 void GeometryRenderer::addSphere(const Vec3 &center, float radius, gfx::Color color, uint32_t segmentsU, uint32_t segmentsV, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto deltaPhi   = math::PI_2 / static_cast<float>(segmentsU);
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segmentsU);
     const auto deltaTheta = math::PI / static_cast<float>(segmentsV);
 
     using CircleList = ccstd::vector<Vec3>;
@@ -663,15 +674,15 @@ void GeometryRenderer::addSphere(const Vec3 &center, float radius, gfx::Color co
 
     for (auto i = 0U; i < segmentsV + 1; i++) {
         CircleList list;
-        float      theta    = static_cast<float>(i) * deltaTheta;
-        float      sinTheta = sinf(theta);
-        float      cosTheta = cosf(theta);
+        float theta = static_cast<float>(i) * deltaTheta;
+        float sinTheta = sinf(theta);
+        float cosTheta = cosf(theta);
 
         for (auto j = 0U; j < segmentsU + 1; j++) {
-            float phi    = static_cast<float>(j) * deltaPhi;
+            float phi = static_cast<float>(j) * deltaPhi;
             float sinPhi = sinf(phi);
             float cosPhi = cosf(phi);
-            Vec3  p{radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi};
+            Vec3 p{radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi};
 
             list.emplace_back(center + p);
         }
@@ -696,7 +707,7 @@ void GeometryRenderer::addSphere(const Vec3 &center, float radius, gfx::Color co
 }
 
 void GeometryRenderer::addTorus(const Vec3 &center, float bigRadius, float radius, gfx::Color color, uint32_t segmentsU, uint32_t segmentsV, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto deltaPhi   = math::PI_2 / static_cast<float>(segmentsU);
+    const auto deltaPhi = math::PI_2 / static_cast<float>(segmentsU);
     const auto deltaTheta = math::PI_2 / static_cast<float>(segmentsV);
 
     using CircleList = ccstd::vector<Vec3>;
@@ -704,15 +715,15 @@ void GeometryRenderer::addTorus(const Vec3 &center, float bigRadius, float radiu
 
     for (auto i = 0U; i < segmentsU + 1; i++) {
         CircleList list;
-        float      phi    = static_cast<float>(i) * deltaPhi;
-        float      sinPhi = sinf(phi);
-        float      cosPhi = cosf(phi);
+        float phi = static_cast<float>(i) * deltaPhi;
+        float sinPhi = sinf(phi);
+        float cosPhi = cosf(phi);
 
         for (auto j = 0U; j < segmentsV + 1; j++) {
-            float theta    = static_cast<float>(j) * deltaTheta;
+            float theta = static_cast<float>(j) * deltaTheta;
             float sinTheta = sinf(theta);
             float cosTheta = cosf(theta);
-            Vec3  p{(bigRadius + radius * cosTheta) * cosPhi, radius * sinTheta, (bigRadius + radius * cosTheta) * sinPhi};
+            Vec3 p{(bigRadius + radius * cosTheta) * cosPhi, radius * sinTheta, (bigRadius + radius * cosTheta) * sinPhi};
 
             list.emplace_back(center + p);
         }
@@ -780,7 +791,7 @@ void GeometryRenderer::addOctahedron(const Vec3 &center, float radius, gfx::Colo
 }
 
 void GeometryRenderer::addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
-    const auto          deltaT = 1.0F / static_cast<float>(segments);
+    const auto deltaT = 1.0F / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
 
     Vec3 newV0 = v0;
@@ -807,6 +818,25 @@ void GeometryRenderer::addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2,
 
     for (auto i = 0U; i < segments; i++) {
         addLine(points[i], points[i + 1], color, depthTest);
+    }
+}
+
+void GeometryRenderer::addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index, float knotSize, uint32_t segments, bool depthTest) {
+    const auto numPoints = segments + 1;
+    auto points = spline.getPoints(numPoints, index);
+
+    for (auto i = 0U; i < segments; i++) {
+        addLine(points[i], points[i + 1], color, depthTest);
+    }
+
+    if (knotSize > 0.0F && index == geometry::SPLINE_WHOLE_INDEX) {
+        const gfx::Color crossColor{1.0F - color.x, 1.0F - color.y, 1.0F - color.z, color.w};
+        const auto numKnots = spline.getKnotCount();
+        const auto &knots = spline.getKnots();
+
+        for (auto i = 0U; i < numKnots; i++) {
+            addCross(knots[i], knotSize, crossColor, depthTest);
+        }
     }
 }
 

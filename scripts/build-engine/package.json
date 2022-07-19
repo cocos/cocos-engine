@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.2.21-beta.7",
+  "version": "4.3.10",
   "description": "",
   "repository": {
     "type": "git",
@@ -9,7 +9,8 @@
   },
   "main": "dist/index.js",
   "files": [
-    "dist/"
+    "dist/",
+    "static/"
   ],
   "dependencies": {
     "@babel/core": "^7.13.10",
@@ -32,7 +33,7 @@
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^7.0.2",
     "semver": "^7.3.2",
-    "tfig": "^3.2.4",
+    "tfig": "^3.2.5",
     "typescript": "^4.3.5",
     "yargs": "^15.1.0"
   },
@@ -41,11 +42,14 @@
     "@types/babel__preset-env": "^7.9.1",
     "@types/dedent": "^0.7.0",
     "@types/fs-extra": "^8.0.1",
+    "@types/jest": "^28.1.1",
     "@types/json5": "0.0.30",
     "@types/node": "^13.1.7",
     "@types/resolve": "^1.17.1",
     "@types/semver": "^7.3.4",
-    "@types/yargs": "^15.0.4"
+    "@types/yargs": "^15.0.4",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4"
   },
   "peerDependencies": {
     "typescript": "^3.7.2"
@@ -53,7 +57,8 @@
   "scripts": {
     "build": "npx tsc",
     "clear": "node ./scripts/clear.mjs",
-    "prepublishOnly": "npm run clear & npm run build"
+    "prepublishOnly": "npm run clear & npm run build",
+    "test": "jest"
   },
   "author": "",
   "license": "MIT",

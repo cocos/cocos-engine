@@ -52,7 +52,7 @@ namespace cc {
 
 // Implement DictMaker
 
-#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM != CC_PLATFORM_IOS) && (CC_PLATFORM != CC_PLATFORM_MACOS)
 
 using SAXState = enum {
     SAX_NONE = 0,
@@ -72,20 +72,20 @@ using SAXResult = enum {
 
 class DictMaker : public SAXDelegator {
 public:
-    SAXResult   _resultType{SAX_RESULT_NONE};
-    ValueMap    _rootDict;
+    SAXResult _resultType{SAX_RESULT_NONE};
+    ValueMap _rootDict;
     ValueVector _rootArray;
 
     ccstd::string _curKey;   ///< parsed key
     ccstd::string _curValue; // parsed value
-    SAXState      _state{SAX_NONE};
+    SAXState _state{SAX_NONE};
 
-    ValueMap *   _curDict;
+    ValueMap *_curDict;
     ValueVector *_curArray;
 
-    std::stack<ValueMap *>    _dictStack;
+    std::stack<ValueMap *> _dictStack;
     std::stack<ValueVector *> _arrayStack;
-    std::stack<SAXState>      _stateStack;
+    std::stack<SAXState> _stateStack;
 
     DictMaker() = default;
 
@@ -95,7 +95,7 @@ public:
         _resultType = SAX_RESULT_DICT;
         SAXParser parser;
 
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
+        CC_ASSERT(parser.init("UTF-8"));
         parser.setDelegator(this);
 
         parser.parse(fileName);
@@ -106,7 +106,7 @@ public:
         _resultType = SAX_RESULT_DICT;
         SAXParser parser;
 
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
+        CC_ASSERT(parser.init("UTF-8"));
         parser.setDelegator(this);
 
         parser.parse(filedata, filesize);
@@ -117,7 +117,7 @@ public:
         _resultType = SAX_RESULT_ARRAY;
         SAXParser parser;
 
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
+        CC_ASSERT(parser.init("UTF-8"));
         parser.setDelegator(this);
 
         parser.parse(fileName);
@@ -146,10 +146,10 @@ public:
                 _curDict = &(_curArray->rbegin())->asValueMap();
             } else if (SAX_DICT == preState) {
                 // add a new dictionary into the pre dictionary
-                CCASSERT(!_dictStack.empty(), "The state is wrong!");
-                ValueMap *preDict   = _dictStack.top();
+                CC_ASSERT(!_dictStack.empty()); // The state is wrong.
+                ValueMap *preDict = _dictStack.top();
                 (*preDict)[_curKey] = Value(ValueMap());
-                _curDict            = &(*preDict)[_curKey].asValueMap();
+                _curDict = &(*preDict)[_curKey].asValueMap();
             }
 
             // record the dict state
@@ -176,9 +176,9 @@ public:
 
             if (preState == SAX_DICT) {
                 (*_curDict)[_curKey] = Value(ValueVector());
-                _curArray            = &(*_curDict)[_curKey].asValueVector();
+                _curArray = &(*_curDict)[_curKey].asValueVector();
             } else if (preState == SAX_ARRAY) {
-                CCASSERT(!_arrayStack.empty(), "The state is wrong!");
+                CC_ASSERT(!_arrayStack.empty()); // The state is wrong!
                 ValueVector *preArray = _arrayStack.top();
                 preArray->push_back(Value(ValueVector()));
                 _curArray = &(_curArray->rbegin())->asValueVector();
@@ -193,7 +193,7 @@ public:
 
     void endElement(void *ctx, const char *name) override {
         CC_UNUSED_PARAM(ctx);
-        SAXState            curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
+        SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
         const ccstd::string sName(const_cast<char *>(name));
         if (sName == "dict") {
             _stateStack.pop();
@@ -250,8 +250,8 @@ public:
             return;
         }
 
-        SAXState            curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
-        const ccstd::string text     = ccstd::string(const_cast<char *>(ch), len);
+        SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
+        const ccstd::string text = ccstd::string(const_cast<char *>(ch), len);
 
         switch (_state) {
             case SAX_KEY:
@@ -261,7 +261,8 @@ public:
             case SAX_REAL:
             case SAX_STRING: {
                 if (curState == SAX_DICT) {
-                    CCASSERT(!_curKey.empty(), "key not found : <integer/real>");
+                    // "key not found : <integer/real>"
+                    CC_ASSERT(!_curKey.empty());
                 }
 
                 _curValue.append(text);
@@ -290,7 +291,7 @@ ValueMap FileUtils::getValueMapFromData(const char *filedata, int filesize) {
 
 ValueVector FileUtils::getValueVectorFromFile(const ccstd::string &filename) {
     const ccstd::string fullPath = fullPathForFilename(filename);
-    DictMaker           tMaker;
+    DictMaker tMaker;
     return tMaker.arrayWithContentsOfFile(fullPath);
 }
 
@@ -308,7 +309,7 @@ bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath)
 }
 
 bool FileUtils::writeValueMapToFile(const ValueMap &dict, const ccstd::string &fullPath) {
-    auto *doc = new (std::nothrow) tinyxml2::XMLDocument();
+    auto *doc = ccnew tinyxml2::XMLDocument();
     if (nullptr == doc) {
         return false;
     }
@@ -345,7 +346,7 @@ bool FileUtils::writeValueMapToFile(const ValueMap &dict, const ccstd::string &f
 }
 
 bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const ccstd::string &fullPath) {
-    auto *doc = new (std::nothrow) tinyxml2::XMLDocument();
+    auto *doc = ccnew tinyxml2::XMLDocument();
     if (nullptr == doc) {
         return false;
     }
@@ -387,29 +388,29 @@ bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const ccstd::
 static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxml2::XMLDocument *doc) { // NOLINT(misc-no-recursion)
     // object is String
     if (value.getType() == Value::Type::STRING) {
-        tinyxml2::XMLElement *node    = doc->NewElement("string");
-        tinyxml2::XMLText *   content = doc->NewText(value.asString().c_str());
+        tinyxml2::XMLElement *node = doc->NewElement("string");
+        tinyxml2::XMLText *content = doc->NewText(value.asString().c_str());
         node->LinkEndChild(content);
         return node;
     }
 
     // object is integer
     if (value.getType() == Value::Type::INTEGER) {
-        tinyxml2::XMLElement *node    = doc->NewElement("integer");
-        tinyxml2::XMLText *   content = doc->NewText(value.asString().c_str());
+        tinyxml2::XMLElement *node = doc->NewElement("integer");
+        tinyxml2::XMLText *content = doc->NewText(value.asString().c_str());
         node->LinkEndChild(content);
         return node;
     }
 
     // object is real
     if (value.getType() == Value::Type::FLOAT || value.getType() == Value::Type::DOUBLE) {
-        tinyxml2::XMLElement *node    = doc->NewElement("real");
-        tinyxml2::XMLText *   content = doc->NewText(value.asString().c_str());
+        tinyxml2::XMLElement *node = doc->NewElement("real");
+        tinyxml2::XMLText *content = doc->NewText(value.asString().c_str());
         node->LinkEndChild(content);
         return node;
     }
 
-    //object is bool
+    // object is bool
     if (value.getType() == Value::Type::BOOLEAN) {
         tinyxml2::XMLElement *node = doc->NewElement(value.asString().c_str());
         return node;
@@ -467,18 +468,21 @@ static tinyxml2::XMLElement *generateElementForArray(const ValueVector &array, t
 #else
 
 /* The subclass FileUtilsApple should override these two method. */
-ValueMap    FileUtils::getValueMapFromFile(const ccstd::string &filename) { return ValueMap(); }
-ValueMap    FileUtils::getValueMapFromData(const char *filedata, int filesize) { return ValueMap(); }
+ValueMap FileUtils::getValueMapFromFile(const ccstd::string &filename) { return ValueMap(); }
+ValueMap FileUtils::getValueMapFromData(const char *filedata, int filesize) { return ValueMap(); }
 ValueVector FileUtils::getValueVectorFromFile(const ccstd::string &filename) { return ValueVector(); }
-bool        FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath) { return false; }
+bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath) { return false; }
 
-#endif /* (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX) */
+#endif /* (CC_PLATFORM != CC_PLATFORM_IOS) && (CC_PLATFORM != CC_PLATFORM_MACOS) */
 
 // Implement FileUtils
 FileUtils *FileUtils::sharedFileUtils = nullptr;
 
+FileUtils *FileUtils::getInstance() {
+    return FileUtils::sharedFileUtils;
+}
+
 void FileUtils::destroyInstance() {
-    CC_SAFE_DELETE(FileUtils::sharedFileUtils);
 }
 
 void FileUtils::setDelegate(FileUtils *delegate) {
@@ -486,14 +490,18 @@ void FileUtils::setDelegate(FileUtils *delegate) {
     FileUtils::sharedFileUtils = delegate;
 }
 
-FileUtils::FileUtils() = default;
+FileUtils::FileUtils() {
+    FileUtils::sharedFileUtils = this;
+}
 
-FileUtils::~FileUtils() = default;
+FileUtils::~FileUtils() {
+    FileUtils::sharedFileUtils = nullptr;
+}
 
 bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::string &fullPath) {
-    Data  data;
-    char *dataP = const_cast<char *>(dataStr.data());
-    data.fastSet(reinterpret_cast<unsigned char *>(dataP), dataStr.size());
+    Data data;
+    auto *dataP = const_cast<char *>(dataStr.data());
+    data.fastSet(reinterpret_cast<unsigned char *>(dataP), static_cast<uint32_t>(dataStr.size()));
 
     bool rv = writeDataToFile(data, fullPath);
 
@@ -503,10 +511,10 @@ bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::str
 }
 
 bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath) {
-    size_t      size = 0;
+    size_t size = 0;
     const char *mode = "wb";
 
-    CCASSERT(!fullPath.empty() && data.getSize() != 0, "Invalid parameters.");
+    CC_ASSERT(!fullPath.empty() && data.getSize() != 0);
 
     auto *fileutils = FileUtils::getInstance();
     do {
@@ -526,6 +534,8 @@ bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath)
 }
 
 bool FileUtils::init() {
+    addSearchPath("Resources", true);
+    addSearchPath("data", true);
     _searchPathArray.push_back(_defaultResRootPath);
     return true;
 }
@@ -587,10 +597,10 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
     return Status::OK;
 }
 
-unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, ssize_t *size) {
+unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {
     unsigned char *buffer = nullptr;
-    unzFile        file   = nullptr;
-    *size                 = 0;
+    unzFile file = nullptr;
+    *size = 0;
 
     do {
         CC_BREAK_IF(zipFilePath.empty());
@@ -602,7 +612,7 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
         int ret = unzLocateFile(file, filename.c_str(), nullptr);
         CC_BREAK_IF(UNZ_OK != ret);
 
-        char          filePathA[260];
+        char filePathA[260];
         unz_file_info fileInfo;
         ret = unzGetCurrentFileInfo(file, &fileInfo, filePathA, sizeof(filePathA), nullptr, 0, nullptr, 0);
         CC_BREAK_IF(UNZ_OK != ret);
@@ -610,9 +620,9 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
         ret = unzOpenCurrentFile(file);
         CC_BREAK_IF(UNZ_OK != ret);
 
-        buffer                   = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
+        buffer = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
         int CC_UNUSED readedSize = unzReadCurrentFile(file, buffer, static_cast<unsigned>(fileInfo.uncompressed_size));
-        CCASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
+        CC_ASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size);
 
         *size = fileInfo.uncompressed_size;
         unzCloseCurrentFile(file);
@@ -628,10 +638,10 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
 ccstd::string FileUtils::getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const {
     ccstd::string file{filename};
     ccstd::string filePath;
-    size_t        pos = filename.find_last_of('/');
+    size_t pos = filename.find_last_of('/');
     if (pos != ccstd::string::npos) {
         filePath = filename.substr(0, pos + 1);
-        file     = filename.substr(pos + 1);
+        file = filename.substr(pos + 1);
     }
 
     // searchPath + file_path
@@ -709,7 +719,7 @@ void FileUtils::setDefaultResourceRootPath(const ccstd::string &path) {
 
 void FileUtils::setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths) {
     bool existDefaultRootPath = false;
-    _originalSearchPaths      = searchPaths;
+    _originalSearchPaths = searchPaths;
 
     _fullPathCache.clear();
     _searchPathArray.clear();
@@ -732,7 +742,7 @@ void FileUtils::setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths) 
     }
 
     if (!existDefaultRootPath) {
-        //CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
+        // CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
         _searchPathArray.push_back(_defaultResRootPath);
     }
 }
@@ -785,7 +795,7 @@ bool FileUtils::isAbsolutePath(const ccstd::string &path) const {
 }
 
 bool FileUtils::isDirectoryExist(const ccstd::string &dirPath) const {
-    CCASSERT(!dirPath.empty(), "Invalid path");
+    CC_ASSERT(!dirPath.empty());
 
     if (isAbsolutePath(dirPath)) {
         return isDirectoryExistInternal(normalizePath(dirPath));
@@ -810,7 +820,7 @@ bool FileUtils::isDirectoryExist(const ccstd::string &dirPath) const {
 }
 
 ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) const {
-    ccstd::string                fullpath = fullPathForFilename(dirPath);
+    ccstd::string fullpath = fullPathForFilename(dirPath);
     ccstd::vector<ccstd::string> files;
     if (isDirectoryExist(fullpath)) {
         tinydir_dir dir;
@@ -834,7 +844,7 @@ ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) 
 
 #ifdef UNICODE
                 std::wstring path = file.path;
-                length            = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
+                length = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
                 ccstd::string filepath;
                 if (length > 0) {
                     filepath.resize(length);
@@ -883,7 +893,7 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 
 #ifdef UNICODE
                 std::wstring path = file.path;
-                length            = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
+                length = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
                 ccstd::string filepath;
                 if (length > 0) {
                     filepath.resize(length);
@@ -915,42 +925,50 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
 // windows os implement should override in platform specific FileUtiles class
 bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
-    CCASSERT(false, "FileUtils not support isDirectoryExistInternal");
+    // FileUtils not support isDirectoryExistInternal.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {
-    CCASSERT(false, "FileUtils not support createDirectory");
+    // FileUtils not support createDirectory.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {
-    CCASSERT(false, "FileUtils not support removeDirectory");
+    // FileUtils not support removeDirectory.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::removeFile(const ccstd::string &path) {
-    CCASSERT(false, "FileUtils not support removeFile");
+    // FileUtils not support removeFile.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
-    CCASSERT(false, "FileUtils not support renameFile");
+    // FileUtils not support renameFile.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
-    CCASSERT(false, "FileUtils not support renameFile");
+    // FileUtils not support renameFile.
+    CC_ASSERT(false);
     return false;
 }
 
 ccstd::string FileUtils::getSuitableFOpen(const ccstd::string &filenameUtf8) const {
-    CCASSERT(false, "getSuitableFOpen should be override by platform FileUtils");
+    // getSuitableFOpen should be override by platform FileUtils
+    CC_ASSERT(false);
     return filenameUtf8;
 }
 
 long FileUtils::getFileSize(const ccstd::string &filepath) {
-    CCASSERT(false, "getFileSize should be override by platform FileUtils");
+    // getFileSize should be override by platform FileUtils
+    CC_ASSERT(false);
     return 0;
 }
 
@@ -974,16 +992,16 @@ bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
 
     if (isDirectoryExist(path)) {
         return true;
     }
 
     // Split the path
-    size_t                       start = 0;
-    size_t                       found = path.find_first_of("/\\", start);
-    ccstd::string                subpath;
+    size_t start = 0;
+    size_t found = path.find_first_of("/\\", start);
+    ccstd::string subpath;
     ccstd::vector<ccstd::string> dirs;
 
     if (found != ccstd::string::npos) {
@@ -1043,21 +1061,15 @@ int unlinkCb(const char *fpath, const struct stat * /*sb*/, int /*typeflag*/, st
 } // namespace
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {
-    #if !defined(CC_TARGET_OS_TVOS)
-
-        #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     return nftw(path.c_str(), unlinkCb, 64, FTW_DEPTH | FTW_PHYS) != -1;
-        #else
+    #else
     ccstd::string command = "rm -r ";
     // Path may include space.
     command += "\"" + path + "\"";
 
     return (system(command.c_str()) >= 0);
-        #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
-
-    #else
-    return false;
-    #endif // !defined(CC_TARGET_OS_TVOS)
+    #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
 }
 
 bool FileUtils::removeFile(const ccstd::string &path) {
@@ -1065,8 +1077,8 @@ bool FileUtils::removeFile(const ccstd::string &path) {
 }
 
 bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
-    CCASSERT(!oldfullpath.empty(), "Invalid path");
-    CCASSERT(!newfullpath.empty(), "Invalid path");
+    CC_ASSERT(!oldfullpath.empty());
+    CC_ASSERT(!newfullpath.empty());
 
     int errorCode = rename(oldfullpath.c_str(), newfullpath.c_str());
 
@@ -1078,7 +1090,7 @@ bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string
 }
 
 bool FileUtils::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
     ccstd::string oldPath = path + oldname;
     ccstd::string newPath = path + name;
 
@@ -1090,7 +1102,7 @@ ccstd::string FileUtils::getSuitableFOpen(const ccstd::string &filenameUtf8) con
 }
 
 long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-runtime-int)
-    CCASSERT(!filepath.empty(), "Invalid path");
+    CC_ASSERT(!filepath.empty());
 
     ccstd::string fullpath{filepath};
     if (!isAbsolutePath(filepath)) {
@@ -1109,13 +1121,13 @@ long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-run
         // Failed
         return -1;
     }
-    return static_cast<long>(info.st_size); //NOLINT(google-runtime-int)
+    return static_cast<long>(info.st_size); // NOLINT(google-runtime-int)
 }
 #endif
 
 ccstd::string FileUtils::getFileExtension(const ccstd::string &filePath) const {
     ccstd::string fileExtension;
-    size_t        pos = filePath.find_last_of('.');
+    size_t pos = filePath.find_last_of('.');
     if (pos != ccstd::string::npos) {
         fileExtension = filePath.substr(pos, filePath.length());
 
@@ -1131,9 +1143,9 @@ void FileUtils::valueMapCompact(ValueMap &valueMap) {
 void FileUtils::valueVectorCompact(ValueVector &valueVector) {
 }
 
-ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
+ccstd::string FileUtils::getFileDir(const ccstd::string &path) const {
     ccstd::string ret;
-    size_t        pos = path.rfind('/');
+    size_t pos = path.rfind('/');
     if (pos != ccstd::string::npos) {
         ret = path.substr(0, pos);
     }
@@ -1143,7 +1155,7 @@ ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
     return ret;
 }
 
-ccstd::string FileUtils::normalizePath(const ccstd::string &path) {
+ccstd::string FileUtils::normalizePath(const ccstd::string &path) const {
     ccstd::string ret;
     // Normalize: remove . and ..
     ret = std::regex_replace(path, std::regex("/\\./"), "/");

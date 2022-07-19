@@ -40,7 +40,7 @@ public:
     explicit CCMTLTexture();
     ~CCMTLTexture();
     CCMTLTexture(const CCMTLTexture &) = delete;
-    CCMTLTexture(CCMTLTexture &&)      = delete;
+    CCMTLTexture(CCMTLTexture &&) = delete;
     CCMTLTexture &operator=(const CCMTLTexture &) = delete;
     CCMTLTexture &operator=(CCMTLTexture &&) = delete;
 
@@ -48,32 +48,32 @@ public:
         return _isTextureView ? _mtlTextureView : _mtlTexture;
     }
     inline Format getConvertedFormat() const { return _convertedFormat; }
-    inline bool   isArray() const { return _isArray; }
-    inline bool   isPVRTC() const { return _isPVRTC; }
+    inline bool isArray() const { return _isArray; }
+    inline bool isPVRTC() const { return _isPVRTC; }
 
     //update drawable from swapchain.
     void update();
 
     const TextureInfo &textureInfo();
-    CCMTLSwapchain *   swapChain();
+    CCMTLSwapchain *swapChain();
 
     static CCMTLTexture *getDefaultTexture();
-    static void          deleteDefaultTexture();
+    static void deleteDefaultTexture();
 
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint width, uint height, uint size) override;
+    void doResize(uint32_t width, uint32_t height, uint32_t size) override;
     void doInit(const SwapchainTextureInfo &info) override;
 
     bool createMTLTexture();
 
     Format _convertedFormat = Format::UNKNOWN;
-    bool   _isArray         = false;
-    bool   _isPVRTC         = false;
+    bool _isArray = false;
+    bool _isPVRTC = false;
 
-    id<MTLTexture> _mtlTexture     = nil;
+    id<MTLTexture> _mtlTexture = nil;
     id<MTLTexture> _mtlTextureView = nil;
 };
 

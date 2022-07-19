@@ -20,9 +20,9 @@ CCEffect %{
 
 CCProgram post-process-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <common>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
 
   out vec2 v_uv;
 
@@ -38,8 +38,8 @@ CCProgram post-process-vs %{
 
 CCProgram post-process-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <anti-aliasing>
+  #include <builtin/uniforms/cc-global>
+  #include <post-process/anti-aliasing>
   in vec2 v_uv;
 
   layout(binding = 0) uniform sampler2D outputResultMap;

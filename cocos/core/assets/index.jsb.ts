@@ -24,10 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 import './deprecation';
 
 export { Asset } from './asset';

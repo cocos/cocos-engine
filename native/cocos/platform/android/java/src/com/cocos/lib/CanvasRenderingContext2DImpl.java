@@ -165,27 +165,22 @@ public class CanvasRenderingContext2DImpl {
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
 
-        String key = fontName;
-        if (enableBold) {
-            key += "-Bold";
+        int style = Typeface.NORMAL;
+        if (enableBold && enableItalic) {
             paint.setFakeBoldText(true);
-        }
-        if (enableItalic) {
-            key += "-Italic";
+            style = Typeface.BOLD_ITALIC;
+        } else if (enableBold) {
+            paint.setFakeBoldText(true);
+            style = Typeface.BOLD;
+        } else if (enableItalic) {
+            style = Typeface.ITALIC;
         }
 
-        Typeface typeFace;
-        if (sTypefaceCache.containsKey(key)) {
-            typeFace = sTypefaceCache.get(key);
+        Typeface typeFace = null;
+        if (sTypefaceCache.containsKey(fontName)) {
+            typeFace = sTypefaceCache.get(fontName);
+            typeFace = Typeface.create(typeFace, style);
         } else {
-            int style = Typeface.NORMAL;
-            if (enableBold && enableItalic) {
-                style = Typeface.BOLD_ITALIC;
-            } else if (enableBold) {
-                style = Typeface.BOLD;
-            } else if (enableItalic) {
-                style = Typeface.ITALIC;
-            }
             typeFace = Typeface.create(fontName, style);
         }
         paint.setTypeface(typeFace);

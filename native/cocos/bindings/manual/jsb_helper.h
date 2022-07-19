@@ -37,5 +37,5 @@ public:
     ~CleanupTask() override;
 
 private:
-    std::function<void()> _cb;
+    std::function<void()> _cb{nullptr};
 };

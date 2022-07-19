@@ -34,18 +34,18 @@ public:
     template <typename T>
     static void registerClass(se::Class *cls) {
         const char *typeName = typeid(T).name();
-        assert(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
+        CC_ASSERT(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
         jsbClassTypeMap.emplace(typeName, cls);
     }
 
     template <typename T>
     static se::Class *findClass(const T *nativeObj) {
-        bool          found    = false;
+        bool found = false;
         ccstd::string typeName = typeid(*nativeObj).name();
-        auto          iter     = jsbClassTypeMap.find(typeName);
+        auto iter = jsbClassTypeMap.find(typeName);
         if (iter == jsbClassTypeMap.end()) {
             typeName = typeid(T).name();
-            iter     = jsbClassTypeMap.find(typeName);
+            iter = jsbClassTypeMap.find(typeName);
             if (iter != jsbClassTypeMap.end()) {
                 found = true;
             }

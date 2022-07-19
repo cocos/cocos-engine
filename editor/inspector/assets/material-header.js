@@ -184,4 +184,7 @@ exports.close = function() {
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);
     Editor.Message.removeBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
+    // clear the canvas on close hook
+    const context = panel.$.canvas.getContext('2d');
+    context.clearRect(0, 0, panel.$.canvas.width, panel.$.canvas.height);
 };

@@ -29,22 +29,31 @@
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
+namespace gfx {
+class Device;
+class RenderPass;
+class CommandBuffer;
+class DescriptorSet;
+} // namespace gfx
+
 namespace pipeline {
 
 class BatchedBuffer;
 
 class CC_DLL RenderBatchedQueue final {
 public:
-    RenderBatchedQueue()  = default;
+    RenderBatchedQueue() = default;
     ~RenderBatchedQueue() = default;
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                             gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0, const ccstd::vector<uint32_t> *dynamicOffsets = nullptr);
     void add(BatchedBuffer *batchedBuffer);
-    bool empty() { return _queues.empty(); }
+    bool empty() const { return _queues.empty(); }
 
 private:
+    // weak reference
     ccstd::unordered_set<BatchedBuffer *> _queues;
 };
 

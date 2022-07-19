@@ -38,13 +38,13 @@ extern "C" {
         (!defined(_MSC_VER) || _MSC_VER < 1600) && !defined(__WINE__)
         #include <BaseTsd.h>
         #include <stddef.h>
-typedef __int8           int8_t;
-typedef unsigned __int8  uint8_t;
-typedef __int16          int16_t;
+typedef __int8 int8_t;
+typedef unsigned __int8 uint8_t;
+typedef __int16 int16_t;
 typedef unsigned __int16 uint16_t;
-typedef __int32          int32_t;
+typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
-typedef __int64          int64_t;
+typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
     #else
         #include <cstdint>
@@ -68,7 +68,7 @@ typedef unsigned __int64 uint64_t;
         #define HTTP_MAX_HEADER_SIZE (80 * 1024)
     #endif
 
-using http_parser          = struct http_parser;
+using http_parser = struct http_parser;
 using http_parser_settings = struct http_parser_settings;
 
 /* Callbacks should return non-zero to indicate an error. The parser will
@@ -90,7 +90,7 @@ using http_parser_settings = struct http_parser_settings;
  * each providing just a few characters more data.
  */
 using http_data_cb = int (*)(http_parser *, const char *, size_t);
-using http_cb      = int (*)(http_parser *);
+using http_cb = int (*)(http_parser *);
 
     /* Request Methods */
     #define HTTP_METHOD_MAP(XX)          \
@@ -146,14 +146,14 @@ enum http_parser_type { HTTP_REQUEST, //NOLINT(readability-identifier-naming)
                         HTTP_BOTH };
 
 /* Flag values for http_parser.flags field */
-enum flags { F_CHUNKED               = 1 << 0, //NOLINT(readability-identifier-naming)
+enum flags { F_CHUNKED = 1 << 0, //NOLINT(readability-identifier-naming)
              F_CONNECTION_KEEP_ALIVE = 1 << 1,
-             F_CONNECTION_CLOSE      = 1 << 2,
-             F_CONNECTION_UPGRADE    = 1 << 3,
-             F_TRAILING              = 1 << 4,
-             F_UPGRADE               = 1 << 5,
-             F_SKIPBODY              = 1 << 6,
-             F_CONTENTLENGTH         = 1 << 7
+             F_CONNECTION_CLOSE = 1 << 2,
+             F_CONNECTION_UPGRADE = 1 << 3,
+             F_TRAILING = 1 << 4,
+             F_UPGRADE = 1 << 5,
+             F_SKIPBODY = 1 << 6,
+             F_CONTENTLENGTH = 1 << 7
 };
 
     /* Map for errno-related constants
@@ -228,11 +228,11 @@ struct http_parser {
     uint64_t content_length; /* # bytes in body (0 if no Content-Length header) */
 
     /** READ-ONLY **/
-    unsigned short http_major;       //NOLINT(google-runtime-int)
-    unsigned short http_minor;       //NOLINT(google-runtime-int)
-    unsigned int   status_code : 16; /* responses only */
-    unsigned int   method : 8;       /* requests only */
-    unsigned int   http_errno : 7;
+    unsigned short http_major;     //NOLINT(google-runtime-int)
+    unsigned short http_minor;     //NOLINT(google-runtime-int)
+    unsigned int status_code : 16; /* responses only */
+    unsigned int method : 8;       /* requests only */
+    unsigned int http_errno : 7;
 
     /* 1 = Upgrade header was present and the parser has exited because of that.
    * 0 = No upgrade header present.
@@ -246,14 +246,14 @@ struct http_parser {
 };
 
 struct http_parser_settings {
-    http_cb      on_message_begin;
+    http_cb on_message_begin;
     http_data_cb on_url;
     http_data_cb on_status;
     http_data_cb on_header_field;
     http_data_cb on_header_value;
-    http_cb      on_headers_complete;
+    http_cb on_headers_complete;
     http_data_cb on_body;
-    http_cb      on_message_complete;
+    http_cb on_message_complete;
     /* When on_chunk_header is called, the current chunk length is stored
    * in parser->content_length.
    */
@@ -261,14 +261,14 @@ struct http_parser_settings {
     http_cb on_chunk_complete;
 };
 
-enum http_parser_url_fields { UF_SCHEMA   = 0, //NOLINT(readability-identifier-naming)
-                              UF_HOST     = 1,
-                              UF_PORT     = 2,
-                              UF_PATH     = 3,
-                              UF_QUERY    = 4,
+enum http_parser_url_fields { UF_SCHEMA = 0, //NOLINT(readability-identifier-naming)
+                              UF_HOST = 1,
+                              UF_PORT = 2,
+                              UF_PATH = 3,
+                              UF_QUERY = 4,
                               UF_FRAGMENT = 5,
                               UF_USERINFO = 6,
-                              UF_MAX      = 7
+                              UF_MAX = 7
 };
 
 /* Result structure for http_parser_parse_url().
@@ -308,10 +308,10 @@ void http_parser_settings_init(http_parser_settings *settings); //NOLINT(readabi
 
 /* Executes the parser. Returns number of parsed bytes. Sets
  * `parser->http_errno` on error. */
-size_t http_parser_execute(http_parser *               parser, //NOLINT(readability-identifier-naming)
+size_t http_parser_execute(http_parser *parser, //NOLINT(readability-identifier-naming)
                            const http_parser_settings *settings,
-                           const char *                data,
-                           size_t                      len);
+                           const char *data,
+                           size_t len);
 
 /* If http_should_keep_alive() in the on_headers_complete or
  * on_message_complete callback returns 0, then this should be
@@ -334,8 +334,8 @@ const char *http_errno_description(enum http_errno err); //NOLINT(readability-id
 void http_parser_url_init(struct http_parser_url *u); //NOLINT(readability-identifier-naming)
 
 /* Parse a URL; return nonzero on failure */
-int http_parser_parse_url(const char *buf, size_t buflen,     //NOLINT(readability-identifier-naming)
-                          int                     is_connect, //NOLINT(readability-identifier-naming)
+int http_parser_parse_url(const char *buf, size_t buflen, //NOLINT(readability-identifier-naming)
+                          int is_connect,                 //NOLINT(readability-identifier-naming)
                           struct http_parser_url *u);
 
 /* Pause or un-pause the parser; a nonzero value pauses */

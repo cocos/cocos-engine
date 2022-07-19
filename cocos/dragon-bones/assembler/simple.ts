@@ -1,10 +1,30 @@
-/**
- * @packageDocumentation
- * @module dragonBones
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Node, Texture2D, Vec3, director } from '../../core';
+import { Color, Mat4, Node, Texture2D, director } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
@@ -12,7 +32,7 @@ import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
-import { ArmatureDisplay, ArmatureDisplayDrawData } from '../ArmatureDisplay';
+import { ArmatureDisplay } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
@@ -94,8 +114,6 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
         dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
-
-    // const useModel = !_comp!.enableBatch;
     _comp!.setBlendHash();
     return _comp!.getMaterialForBlend(src, dst);
 }
@@ -426,11 +444,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     }
 
     let worldMat: Mat4 | undefined;
-    if (_comp._enableBatch) {
-        worldMat = _node.worldMatrix as Mat4;
-        _mustFlush = false;
-        _handleVal |= NEED_BATCH;
-    }
 
     _vertexFloatCount = 0;
     _vertexOffset = 0;

@@ -49,10 +49,10 @@ ccstd::unordered_map<ccstd::string, DataView::IntWritter> DataView::intWritterMa
 };
 
 int32_t DataView::readInt(ReaderVariant &readerVariant, uint32_t offset) {
-    return cc::visit([offset, this](auto &reader) {
+    return ccstd::visit([offset, this](auto &reader) {
         return static_cast<int32_t>((this->*reader)(offset));
     },
-                     readerVariant);
+                        readerVariant);
 }
 
 DataView::DataView(ArrayBuffer *buffer) : DataView(buffer, 0) {}
@@ -75,7 +75,7 @@ void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset) {
 void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset, uint32_t byteLength) {
     CC_ASSERT(buffer != nullptr);
     CC_ASSERT(byteLength > 0);
-    _buffer     = buffer;
+    _buffer = buffer;
     _byteOffset = byteOffset;
     _byteEndPos = byteLength + byteOffset;
     CC_ASSERT(_byteEndPos <= buffer->_byteLength);

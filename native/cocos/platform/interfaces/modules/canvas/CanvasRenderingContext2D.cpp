@@ -37,7 +37,7 @@
     #include "platform/win32/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
     #include "platform/apple/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
@@ -45,28 +45,8 @@
     #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
 #endif
 
-using Vec2    = ccstd::array<float, 2>;
+using Vec2 = ccstd::array<float, 2>;
 using Color4F = ccstd::array<float, 4>;
-
-namespace {
-void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
-
-    uint32_t y0 = y;
-    uint32_t y1 = y + height;
-    uint8_t *p;
-    for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
-        for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {
-            p    = buf + (totalWidth * offsetY + offsetX) * 4;
-            *p++ = r;
-            *p++ = g;
-            *p++ = b;
-            *p++ = a;
-        }
-    }
-}
-} // namespace
 
 namespace cc {
 //using Size    = ccstd::array<float, 2>;
@@ -83,7 +63,7 @@ void CanvasGradient::addColorStop(float offset, const ccstd::string &color) {
 CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : _width(width),
   _height(height) {
-    _delegate = new CanvasRenderingContext2DDelegate();
+    _delegate = ccnew CanvasRenderingContext2DDelegate();
     //SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
 }
 
@@ -182,14 +162,14 @@ void CanvasRenderingContext2D::fetchData() {
 void CanvasRenderingContext2D::setWidth(float width) {
     //SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     if (math::IsEqualF(width, _width)) return;
-    _width             = width;
+    _width = width;
     _isBufferSizeDirty = true;
 }
 
 void CanvasRenderingContext2D::setHeight(float height) {
     //SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     if (math::IsEqualF(height, _height)) return;
-    _height            = height;
+    _height = height;
     _isBufferSizeDirty = true;
 }
 
@@ -234,21 +214,22 @@ void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
 }
 
 void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
+    recreateBufferIfNeeded();
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     if (_font != font) {
         _font = font;
 
         ccstd::string boldStr;
-        ccstd::string fontName    = "Arial";
+        ccstd::string fontName = "Arial";
         ccstd::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex                                        re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
-            boldStr     = results[1].str();
+            boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName    = results[5].str();
+            fontName = results[5].str();
         }
 
         auto fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
@@ -260,16 +241,16 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         _font = font;
 
         ccstd::string boldStr;
-        ccstd::string fontName    = "Arial";
+        ccstd::string fontName = "Arial";
         ccstd::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex                                        re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
-            boldStr     = results[1].str();
+            boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName    = results[5].str();
+            fontName = results[5].str();
         }
         bool isItalic = font.find("italic", 0) != ccstd::string::npos;
         auto fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
@@ -280,9 +261,9 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
     if (_font != font) {
         _font = font;
 
-        ccstd::string                                     fontName    = "sans-serif";
-        ccstd::string                                     fontSizeStr = "30";
-        std::regex                                        re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
+        ccstd::string fontName = "sans-serif";
+        ccstd::string fontSizeStr = "30";
+        std::regex re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             fontSizeStr = results[2].str();
@@ -290,25 +271,25 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
             // support get font name contain space,example `times new roman`
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
             std::match_results<ccstd::string::const_iterator> fontResults;
-            std::regex                                        fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
-            ccstd::string                                     tmp(results[4].str());
+            std::regex fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
+            ccstd::string tmp(results[4].str());
             if (std::regex_match(tmp, fontResults, fontRe)) {
                 //fontName = results[4].str();
             }
         }
 
-        bool  isBold   = font.find("bold", 0) != ccstd::string::npos;
-        bool  isItalic = font.find("italic", 0) != ccstd::string::npos;
+        bool isBold = font.find("bold", 0) != ccstd::string::npos;
+        bool isItalic = font.find("italic", 0) != ccstd::string::npos;
         float fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, !boldStr.empty());
         _delegate->updateFont(fontName, fontSize, isBold, isItalic, false, false);
     }
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     if (_font != font) {
-        _font                                                         = font;
-        ccstd::string                                     fontName    = "sans-serif";
-        ccstd::string                                     fontSizeStr = "30";
-        std::regex                                        re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
+        _font = font;
+        ccstd::string fontName = "sans-serif";
+        ccstd::string fontSizeStr = "30";
+        std::regex re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             fontSizeStr = results[2].str();
@@ -316,41 +297,41 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
             // support get font name contain space,example `times new roman`
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
             std::match_results<ccstd::string::const_iterator> fontResults;
-            std::regex                                        fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
-            ccstd::string                                     tmp(results[4].str());
+            std::regex fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
+            ccstd::string tmp(results[4].str());
             if (std::regex_match(tmp, fontResults, fontRe)) {
                 fontName = results[4].str();
             }
         }
 
-        double fontSize    = atof(fontSizeStr.c_str());
-        bool   isBold      = font.find("bold", 0) != ccstd::string::npos;
-        bool   isItalic    = font.find("italic", 0) != ccstd::string::npos;
-        bool   isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos;
-        bool   isOblique   = font.find("oblique", 0) != ccstd::string::npos;
+        double fontSize = atof(fontSizeStr.c_str());
+        bool isBold = font.find("bold", 0) != ccstd::string::npos;
+        bool isItalic = font.find("italic", 0) != ccstd::string::npos;
+        bool isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos;
+        bool isOblique = font.find("oblique", 0) != ccstd::string::npos;
         //font-style: italic, oblique, normal
         //font-weight: normal, bold
         //font-variant: normal, small-caps
         _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, isItalic, isOblique, isSmallCaps);
     }
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#elif CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS
     if (_font != font) {
         _font = font;
 
         ccstd::string boldStr;
-        ccstd::string fontName    = "Arial";
+        ccstd::string fontName = "Arial";
         ccstd::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex                                        re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
-            boldStr     = results[1].str();
+            boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName    = results[5].str();
+            fontName = results[5].str();
         }
         float fontSize = atof(fontSizeStr.c_str());
-        bool  isBold   = !boldStr.empty();
+        bool isBold = !boldStr.empty();
         _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, false, false, false);
     }
 #endif
@@ -359,29 +340,29 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
 void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
     //SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
-        _delegate->setTextAlign(CanvasTextAlign::LEFT);
+        _delegate->setTextAlign(TextAlign::LEFT);
     } else if (textAlign == "center" || textAlign == "middle") {
-        _delegate->setTextAlign(CanvasTextAlign::CENTER);
+        _delegate->setTextAlign(TextAlign::CENTER);
     } else if (textAlign == "right") {
-        _delegate->setTextAlign(CanvasTextAlign::RIGHT);
+        _delegate->setTextAlign(TextAlign::RIGHT);
     } else {
-        assert(false);
+        CC_ASSERT(false);
     }
 }
 
 void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline) {
     //SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
-        _delegate->setTextBaseline(CanvasTextBaseline::TOP);
+        _delegate->setTextBaseline(TextBaseline::TOP);
     } else if (textBaseline == "middle") {
-        _delegate->setTextBaseline(CanvasTextBaseline::MIDDLE);
+        _delegate->setTextBaseline(TextBaseline::MIDDLE);
     } else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
-        _delegate->setTextBaseline(CanvasTextBaseline::BOTTOM);
+        _delegate->setTextBaseline(TextBaseline::BOTTOM);
     } else if (textBaseline == "alphabetic") {
-        _delegate->setTextBaseline(CanvasTextBaseline::ALPHABETIC);
+        _delegate->setTextBaseline(TextBaseline::ALPHABETIC);
     } else {
-        assert(false);
+        CC_ASSERT(false);
     }
 }
 

@@ -37,7 +37,7 @@ MessagePipe::MessagePipe() {
         LOGV("Can not create pipe: %s", strerror(errno));
     }
 
-    _pipeRead  = messagePipe[0];
+    _pipeRead = messagePipe[0];
     _pipeWrite = messagePipe[1];
 
     if (fcntl(_pipeRead, F_SETFL, O_NONBLOCK) < 0) {
@@ -60,7 +60,7 @@ int MessagePipe::readCommand(int8_t &cmd) const {
 
 int MessagePipe::readCommandWithTimeout(void *msg, int32_t size, int delayMS) {
     if (delayMS > 0) {
-        static fd_set  fdSet;
+        static fd_set fdSet;
         static timeval timeout;
 
         timeout = {delayMS / 1000, (delayMS % 1000) * 1000};

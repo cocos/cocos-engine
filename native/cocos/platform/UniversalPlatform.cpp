@@ -27,8 +27,8 @@
 
 #include "platform/interfaces/OSInterface.h"
 
-extern int  cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
-extern void cocos_destory();                         // NOLINT(readability-identifier-naming)
+extern int cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
+extern void cocos_destory();                        // NOLINT(readability-identifier-naming)
 
 namespace cc {
 UniversalPlatform::OSType UniversalPlatform::getOSType() const {
@@ -51,7 +51,12 @@ void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
     }
 }
 
-void UniversalPlatform::dispatchTouchEvent(const OSEvent& ev) {
+void UniversalPlatform::dispatchTouchEvent(const TouchEvent& ev) {
+    if (_handleTouchEventCallback) {
+        _handleTouchEventCallback(ev);
+    } else {
+        dispatchEvent(ev);
+    }
 }
 
 void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
@@ -60,6 +65,10 @@ void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
 
 void UniversalPlatform::setHandleEventCallback(HandleEventCallback cb) {
     _handleEventCallback = cb;
+}
+
+void UniversalPlatform::setHandleTouchEventCallback(HandleTouchEventCallback cb) {
+    _handleTouchEventCallback = cb;
 }
 
 void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
@@ -107,7 +116,7 @@ void UniversalPlatform::onResume() {
 void UniversalPlatform::onClose() {
 }
 
-void UniversalPlatform::onDestory() {
+void UniversalPlatform::onDestroy() {
     cocos_destory();
 }
 

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Quat, Vec3 } from '../../../core';
 import cylinder from '../../../primitive/cylinder';
 import { CylinderCollider, EAxisDirection } from '../../framework';

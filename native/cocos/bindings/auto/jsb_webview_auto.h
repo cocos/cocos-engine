@@ -18,6 +18,7 @@ bool js_register_cc_WebView(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_webview_WebView_canGoBack);
 SE_DECLARE_FUNC(js_webview_WebView_canGoForward);
+SE_DECLARE_FUNC(js_webview_WebView_destroy);
 SE_DECLARE_FUNC(js_webview_WebView_evaluateJS);
 SE_DECLARE_FUNC(js_webview_WebView_getOnDidFailLoading);
 SE_DECLARE_FUNC(js_webview_WebView_getOnDidFinishLoading);

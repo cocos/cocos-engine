@@ -8,9 +8,9 @@ namespace cc {
 
 namespace mathutils {
 
-constexpr auto EPSILON     = 0.000001;
-constexpr auto D2R         = M_PI / 180.0;
-constexpr auto R2D         = 180.0 / M_PI;
+constexpr auto EPSILON = 0.000001;
+constexpr auto D2R = M_PI / 180.0;
+constexpr auto R2D = 180.0 / M_PI;
 constexpr auto HALF_TO_RAD = 0.5 * D2R;
 /**
  * @en Tests whether or not the arguments have approximately the same value, within an absolute<br/>
@@ -55,8 +55,8 @@ typename std::enable_if<std::is_arithmetic<F>::value, F>::type
 clamp(F val, F min, F max) {
     if (min > max) {
         const auto temp = min;
-        min             = max;
-        max             = temp;
+        min = max;
+        max = temp;
     }
 
     return val < min ? min : val > max ? max

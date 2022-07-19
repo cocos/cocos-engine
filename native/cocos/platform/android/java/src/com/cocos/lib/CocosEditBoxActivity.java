@@ -260,17 +260,38 @@ public class CocosEditBoxActivity extends Activity {
                         ViewGroup.LayoutParams.MATCH_PARENT);
         RelativeLayout frameLayout = new RelativeLayout(this);
         frameLayout.setLayoutParams(frameLayoutParams);
+        frameLayout.setClickable(true);
+        frameLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CocosEditBoxActivity.this.hide();
+            }
+        });
         setContentView(frameLayout);
 
         this.addItems(frameLayout);
 
-        Bundle extras = getIntent().getExtras();
-        show(extras.getString("defaultValue"),
+        Intent intent = getIntent();
+        Bundle extras = null;
+        if (null != intent) {
+            extras = intent.getExtras();
+        }
+        if(extras == null){
+            show("",
+                10,
+                false,
+                false,
+                "done",
+                "text"
+                );
+        } else {
+            show(extras.getString("defaultValue"),
                 extras.getInt("maxLength"),
                 extras.getBoolean("isMultiline"),
                 extras.getBoolean("confirmHold"),
                 extras.getString("confirmType"),
                 extras.getString("inputType"));
+        }
     }
 
     /***************************************************************************************

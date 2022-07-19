@@ -23,15 +23,10 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp } from '../math/utils';
-import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format } from '../gfx';
+import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
@@ -75,6 +70,11 @@ export class RenderTexture extends TextureBase {
         return this._window;
     }
 
+    /**
+     * @en Initialize the render texture. Using IRenderTextureCreateInfo.
+     * @zh 初始化渲染贴图。设置渲染贴图的名称、尺寸、渲染通道信息。
+     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
+     */
     public initialize (info: IRenderTextureCreateInfo) {
         this._name = info.name || '';
         this._width = info.width;
@@ -82,10 +82,19 @@ export class RenderTexture extends TextureBase {
         this._initWindow(info);
     }
 
+    /**
+     * @en Reset the render texture. User may change the name, size or render pass info of the render texture.
+     * @zh 重新初始化渲染贴图。用户可以更改渲染贴图的名称、尺寸、渲染通道信息。
+     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
+     */
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
     }
 
+    /**
+     * @en Destroy the render texture.
+     * @zh 销毁渲染贴图。
+     */
     public destroy () {
         if (this._window) {
             const root = legacyCC.director.root as Root;
@@ -112,7 +121,7 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -122,7 +131,7 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData;
@@ -134,17 +143,26 @@ export class RenderTexture extends TextureBase {
 
     // To be compatible with material property interface
     /**
-     * @en Gets the related [[Texture]] resource, it's also the color attachment for the render window
+     * @en Gets the related [[gfx.Texture]] resource, it's also the color attachment for the render window
      * @zh 获取渲染贴图的 GFX 资源，同时也是渲染窗口所指向的颜色缓冲贴图资源
      */
     public getGFXTexture (): Texture | null {
         return this._window && this._window.framebuffer.colorTextures[0];
     }
 
+    /**
+     * @en Callback function after render texture is loaded in [[CCLoader]]. Initialize the render texture.
+     * @zh 通过 [[CCLoader]] 加载完成时的回调，初始化渲染贴图。
+     */
     public onLoaded () {
         this._initWindow();
     }
 
+    /**
+     * @en Implementation of the render texture initialization.
+     * @zh 初始化渲染贴图的具体实现。
+     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
+     */
     protected _initWindow (info?: IRenderTextureCreateInfo) {
         const root = legacyCC.director.root as Root;
 
@@ -153,41 +171,45 @@ export class RenderTexture extends TextureBase {
         _windowInfo.height = this._height;
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
 
-        _colorAttachment.barrier = root.device.getGeneralBarrier(new GeneralBarrierInfo(
+        _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
         ));
 
         if (this._window) {
             this._window.destroy();
-            this._window.initialize(root.device, _windowInfo);
+            this._window.initialize(deviceManager.gfxDevice, _windowInfo);
         } else {
             this._window = root.createWindow(_windowInfo);
         }
     }
 
+    /**
+     * @en Initialize the render texture with uuid. The default size is 1x1.
+     * @zh 初始化渲染贴图。使用uuid进行初始化，贴图的尺寸为 1x1。
+     * @param uuid @en asset uuid @zh 资源 uuid
+     */
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this._width = this._height = 1;
         this._initWindow();
     }
 
+    /**
+     * @en Validate the correctness of the render texture.
+     * @zh 验证渲染贴图的正确性。
+     */
     public validate () {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
     }
 
     /**
-     * @en Read pixel buffer from render texture
-     * @param x The location on x axis
-     * @param y The location on y axis
-     * @param width The pixel width
-     * @param height The pixel height
-     * @zh 从 render texture 读取像素数据
-     * @param x 起始位置X轴坐标
-     * @param y 起始位置Y轴坐标
-     * @param width 像素宽度
-     * @param height 像素高度
-     * @param buffer 像素缓存
+     * @en Read pixel buffer from render texture @zh 从 render texture 读取像素数据
+     * @param x @en The location on x axis @zh 起始位置X轴坐标
+     * @param y @en The location on y axis @zh 起始位置Y轴坐标
+     * @param width @en The pixel width @zh 像素宽度
+     * @param height @en The pixel height @zh 像素高度
+     * @param buffer @en The buffer to hold pixel data @zh 像素缓存
      */
     public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array) : Uint8Array | null {
         width = width || this.width;

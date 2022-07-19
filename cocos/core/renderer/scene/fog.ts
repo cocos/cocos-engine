@@ -76,6 +76,10 @@ export const FogType = Enum({
 
 const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
+/**
+ * @en The fog representation in the render scene.
+ * @zh 渲染场景中的全局雾效配置
+ */
 export class Fog {
     /**
      * @zh 是否启用全局雾效
@@ -226,8 +230,10 @@ export class Fog {
     protected _fogAtten = 5;
     protected _fogTop = 1.5;
     protected _fogRange = 1.2;
+    protected _activated = false;
 
     public initialize (fogInfo : FogInfo) {
+        this._activated = false;
         this.fogColor = fogInfo.fogColor;
         this._enabled = fogInfo.enabled;
         this._type = this.enabled ? fogInfo.type : FOG_TYPE_NONE;
@@ -242,6 +248,7 @@ export class Fog {
 
     public activate () {
         this._updatePipeline();
+        this._activated = true;
     }
 
     protected _updatePipeline () {
@@ -254,7 +261,9 @@ export class Fog {
         }
         pipeline.macros.CC_USE_FOG = value;
         pipeline.macros.CC_USE_ACCURATE_FOG = accurateValue;
-        root.onGlobalPipelineStateChanged();
+        if (this._activated) {
+            root.onGlobalPipelineStateChanged();
+        }
     }
 }
 

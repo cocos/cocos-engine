@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
@@ -129,6 +124,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
+    // eslint-disable-next-line max-len
     public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
@@ -200,7 +196,7 @@ export default class TrailModule {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _enable = false;
@@ -225,7 +221,7 @@ export default class TrailModule {
     public lifeTime = new CurveRange();
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _minParticleDistance = 0.1;
@@ -307,6 +303,15 @@ export default class TrailModule {
     public colorOvertime = new GradientRange();
 
     /**
+     * @en Get trail model
+     * @zh 获取拖尾模型
+     * @return Model of this trail and type is scene.Model
+     */
+    public getModel () {
+        return this._trailModel;
+    }
+
+    /**
      * 轨迹设定时的坐标系。
      */
     @type(Space)
@@ -380,7 +385,7 @@ export default class TrailModule {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _attachToScene () {
         if (this._trailModel) {
@@ -392,7 +397,7 @@ export default class TrailModule {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _detachFromScene () {
         if (this._trailModel && this._trailModel.scene) {

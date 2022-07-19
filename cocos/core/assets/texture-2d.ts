@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
@@ -79,7 +74,7 @@ export interface ITexture2DCreateInfo {
     /**
      * @en The selected maximum mipmap level
      * @zh 选择使用的最大 mipmap 层级。
-     * @default 1
+     * @default 1000
      */
     maxLevel?: number;
 }
@@ -143,7 +138,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
@@ -169,8 +164,8 @@ export class Texture2D extends SimpleTexture {
         this._setGFXFormat(info.format);
         const mipLevels = info.mipmapLevel === undefined ? 1 : info.mipmapLevel;
         this._setMipmapLevel(mipLevels);
-        const minLod = info.baseLevel || 0;
-        const maxLod = info.maxLevel === undefined ? (mipLevels - 1) : info.maxLevel;
+        const minLod = info.baseLevel === undefined ? 0 : info.baseLevel;
+        const maxLod = info.maxLevel === undefined ? 1000 : info.maxLevel;
         this._setMipRange(minLod, maxLod);
         this._tryReset();
     }
@@ -188,7 +183,7 @@ export class Texture2D extends SimpleTexture {
      * @param maxLevel Mipmap maximum level
      * @deprecated since v1.0 please use [[reset]] instead
      */
-    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1, baseLevel = 0, maxLevel = 0) {
+    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1, baseLevel = 0, maxLevel = 1000) {
         this.reset({
             width,
             height,
@@ -223,7 +218,7 @@ export class Texture2D extends SimpleTexture {
      * @en If the level 0 mipmap image is a HTML element, then return it, otherwise return null.
      * @zh 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
      * @returns HTML element or `null`
-     * @deprecated Please use [[image.data]] instead
+     * @deprecated Please use [[ImageAsset.data]] instead
      */
     public getHtmlElementObj () {
         return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data : null;
@@ -258,7 +253,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any) {
         if (EDITOR || TEST) {
@@ -280,7 +275,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as ITexture2DSerializeData;
@@ -294,7 +289,7 @@ export class Texture2D extends SimpleTexture {
                 continue;
             }
             const mipmapUUID = data.mipmaps[i];
-            handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
+            handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js.getClassId(ImageAsset));
         }
     }
 

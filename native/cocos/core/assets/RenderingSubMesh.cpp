@@ -35,36 +35,48 @@
 
 namespace cc {
 
-RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
+RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                                    const gfx::AttributeList &attributes,
-                                   gfx::PrimitiveMode        primitiveMode)
-: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, nullptr, nullptr) {
+                                   gfx::PrimitiveMode primitiveMode)
+: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, nullptr, nullptr, true) {
 }
 
-RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
+RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                                    const gfx::AttributeList &attributes,
-                                   gfx::PrimitiveMode        primitiveMode,
-                                   gfx::Buffer *             indexBuffer)
-: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, indexBuffer, nullptr) {
+                                   gfx::PrimitiveMode primitiveMode,
+                                   gfx::Buffer *indexBuffer)
+: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, indexBuffer, nullptr, true) {
 }
 
-RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
+RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                                    const gfx::AttributeList &attributes,
-                                   gfx::PrimitiveMode        primitiveMode,
-                                   gfx::Buffer *             indexBuffer /* = nullptr*/,
-                                   gfx::Buffer *             indirectBuffer /* = nullptr*/)
+                                   gfx::PrimitiveMode primitiveMode,
+                                   gfx::Buffer *indexBuffer,
+                                   gfx::Buffer *indirectBuffer)
+: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, indexBuffer, indirectBuffer, true) {
+}
+
+RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
+                                   const gfx::AttributeList &attributes,
+                                   gfx::PrimitiveMode primitiveMode,
+                                   gfx::Buffer *indexBuffer,
+                                   gfx::Buffer *indirectBuffer,
+                                   bool isOwnerOfIndexBuffer)
 : _vertexBuffers(vertexBuffers),
   _attributes(attributes),
   _primitiveMode(primitiveMode),
   _indexBuffer(indexBuffer),
-  _indirectBuffer(indirectBuffer) {
-    _iaInfo.attributes     = attributes;
-    _iaInfo.vertexBuffers  = vertexBuffers;
-    _iaInfo.indexBuffer    = indexBuffer;
+  _indirectBuffer(indirectBuffer),
+  _isOwnerOfIndexBuffer(isOwnerOfIndexBuffer) {
+    _iaInfo.attributes = attributes;
+    _iaInfo.vertexBuffers = vertexBuffers;
+    _iaInfo.indexBuffer = indexBuffer;
     _iaInfo.indirectBuffer = indirectBuffer;
 }
 
-RenderingSubMesh::~RenderingSubMesh() = default;
+RenderingSubMesh::~RenderingSubMesh() {
+    destroy();
+}
 
 const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
     if (_geometricInfo.has_value()) {
@@ -83,9 +95,9 @@ const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
     auto index = static_cast<index_t>(_subMeshIdx.value());
 
     const auto &positionsVar = _mesh->readAttribute(index, gfx::ATTR_NAME_POSITION);
-    const auto *pPositions   = cc::get_if<Float32Array>(&positionsVar);
+    const auto *pPositions = ccstd::get_if<Float32Array>(&positionsVar);
     if (pPositions != nullptr) {
-        const auto &positions  = *pPositions;
+        const auto &positions = *pPositions;
         const auto &indicesVar = _mesh->readIndices(index);
 
         Vec3 max;
@@ -95,7 +107,7 @@ const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
             return element.name == gfx::ATTR_NAME_POSITION;
         });
         if (iter != _attributes.cend()) {
-            const auto &   attri = *iter;
+            const auto &attri = *iter;
             const uint32_t count = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attri.format)].count;
             if (count == 2) {
                 max.set(positions[0], positions[1], 0);
@@ -122,8 +134,8 @@ const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
             }
 
             IGeometricInfo info;
-            info.positions       = positions;
-            info.indices         = indicesVar;
+            info.positions = positions;
+            info.indices = indicesVar;
             info.boundingBox.max = max;
             info.boundingBox.min = min;
 
@@ -140,19 +152,19 @@ void RenderingSubMesh::genFlatBuffers() {
         return;
     }
 
-    uint32_t    idxCount = 0;
-    const auto &prim     = _mesh->getStruct().primitives[_subMeshIdx.value()];
+    uint32_t idxCount = 0;
+    const auto &prim = _mesh->getStruct().primitives[_subMeshIdx.value()];
     if (prim.indexView.has_value()) {
         idxCount = prim.indexView.value().count;
     }
     for (size_t i = 0; i < prim.vertexBundelIndices.size(); i++) {
-        const uint32_t             bundleIdx    = prim.vertexBundelIndices[i];
+        const uint32_t bundleIdx = prim.vertexBundelIndices[i];
         const Mesh::IVertexBundle &vertexBundle = _mesh->getStruct().vertexBundles[bundleIdx];
-        const uint32_t             vbCount      = prim.indexView.has_value() ? prim.indexView.value().count : vertexBundle.view.count;
-        const uint32_t             vbStride     = vertexBundle.view.stride;
-        const uint32_t             vbSize       = vbStride * vbCount;
-        Uint8Array                 view(_mesh->getData().buffer(), vertexBundle.view.offset, vertexBundle.view.length);
-        Uint8Array                 sharedView(prim.indexView.has_value() ? vbSize : vertexBundle.view.length);
+        const uint32_t vbCount = prim.indexView.has_value() ? prim.indexView.value().count : vertexBundle.view.count;
+        const uint32_t vbStride = vertexBundle.view.stride;
+        const uint32_t vbSize = vbStride * vbCount;
+        Uint8Array view(_mesh->getData().buffer(), vertexBundle.view.offset, vertexBundle.view.length);
+        Uint8Array sharedView(prim.indexView.has_value() ? vbSize : vertexBundle.view.length);
 
         if (!prim.indexView.has_value()) {
             sharedView.set(_mesh->getData().subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
@@ -163,8 +175,8 @@ void RenderingSubMesh::genFlatBuffers() {
         IBArray ibView = _mesh->readIndices(static_cast<int>(_subMeshIdx.value()));
         // transform to flat buffer
         for (uint32_t n = 0; n < idxCount; ++n) {
-            auto     idx       = getIBArrayValue<int32_t>(ibView, static_cast<int>(n));
-            uint32_t offset    = n * vbStride;
+            auto idx = getIBArrayValue<int32_t>(ibView, static_cast<int>(n));
+            uint32_t offset = n * vbStride;
             uint32_t srcOffset = idx * vbStride;
             for (uint32_t m = 0; m < vbStride; ++m) {
                 sharedView[static_cast<int>(offset + m)] = view[static_cast<int>(srcOffset + m)];
@@ -179,14 +191,14 @@ void RenderingSubMesh::enableVertexIdChannel(gfx::Device *device) {
         return;
     }
 
-    const auto streamIndex    = static_cast<uint32_t>(_vertexBuffers.size());
+    const auto streamIndex = static_cast<uint32_t>(_vertexBuffers.size());
     const auto attributeIndex = static_cast<uint32_t>(_attributes.size());
 
     gfx::Buffer *vertexIdBuffer = allocVertexIdBuffer(device);
     _vertexBuffers.pushBack(vertexIdBuffer);
     _attributes.push_back({"a_vertexId", gfx::Format::R32F, false, streamIndex, false, 0});
 
-    _iaInfo.attributes    = _attributes;
+    _iaInfo.attributes = _attributes;
     _iaInfo.vertexBuffers = _vertexBuffers.get();
 
     _vertexIdChannel = VertexIdChannel{
@@ -201,11 +213,14 @@ bool RenderingSubMesh::destroy() {
     }
     _vertexBuffers.clear();
 
-    CC_SAFE_DESTROY_NULL(_indexBuffer);
+    if (_indexBuffer && _isOwnerOfIndexBuffer) {
+        _indexBuffer->destroy();
+        _indexBuffer = nullptr;
+    }
 
     if (!_jointMappedBuffers.empty() && !_jointMappedBufferIndices.empty()) {
         for (uint32_t index : _jointMappedBufferIndices) {
-            _jointMappedBuffers.at(static_cast<int>(index))->destroy();
+            _jointMappedBuffers.at(index)->destroy();
         }
         _jointMappedBuffers.clear();
         _jointMappedBufferIndices.clear();
@@ -229,18 +244,18 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
     }
 
     const auto &structInfo = _mesh->getStruct();
-    const auto &prim       = structInfo.primitives[_subMeshIdx.value()];
+    const auto &prim = structInfo.primitives[_subMeshIdx.value()];
     if (!structInfo.jointMaps.has_value() || !prim.jointMapIndex.has_value() || structInfo.jointMaps.value()[prim.jointMapIndex.value()].empty()) {
         _jointMappedBuffers = _vertexBuffers;
         return _jointMappedBuffers.get();
     }
-    gfx::Format  jointFormat = gfx::Format::UNKNOWN;
-    int32_t      jointOffset = 0;
-    gfx::Device *device      = gfx::Device::getInstance();
+    gfx::Format jointFormat = gfx::Format::UNKNOWN;
+    int32_t jointOffset = 0;
+    gfx::Device *device = gfx::Device::getInstance();
     for (size_t i = 0; i < prim.vertexBundelIndices.size(); i++) {
         const auto &bundle = structInfo.vertexBundles[prim.vertexBundelIndices[i]];
-        jointOffset        = 0;
-        jointFormat        = gfx::Format::UNKNOWN;
+        jointOffset = 0;
+        jointFormat = gfx::Format::UNKNOWN;
         for (const auto &attr : bundle.attributes) {
             if (attr.name == gfx::ATTR_NAME_JOINTS) {
                 jointFormat = attr.format;
@@ -249,13 +264,13 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
             jointOffset += static_cast<int32_t>(gfx::GFX_FORMAT_INFOS[static_cast<int32_t>(attr.format)].size);
         }
         if (jointFormat != gfx::Format::UNKNOWN) {
-            Uint8Array  data{_mesh->getData().buffer(), bundle.view.offset, bundle.view.length};
-            DataView    dataView(data.slice().buffer());
+            Uint8Array data{_mesh->getData().buffer(), bundle.view.offset, bundle.view.length};
+            DataView dataView(data.slice().buffer());
             const auto &idxMap = structInfo.jointMaps.value()[prim.jointMapIndex.value()];
 
             mapBuffer(
                 dataView, [&](const DataVariant &cur, uint32_t /*idx*/, const DataView & /*view*/) -> DataVariant {
-                    auto iter = std::find(idxMap.begin(), idxMap.end(), cc::get<0>(cur));
+                    auto iter = std::find(idxMap.begin(), idxMap.end(), ccstd::get<0>(cur));
                     if (iter != idxMap.end()) {
                         return static_cast<int32_t>(iter - idxMap.begin());
                     }
@@ -274,7 +289,7 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
             buffers.pushBack(buffer);
             indices.emplace_back(i);
         } else {
-            buffers.pushBack(_vertexBuffers.at(static_cast<int32_t>(prim.vertexBundelIndices[i])));
+            buffers.pushBack(_vertexBuffers.at(prim.vertexBundelIndices[i]));
         }
     }
 
@@ -297,8 +312,8 @@ gfx::Buffer *RenderingSubMesh::allocVertexIdBuffer(gfx::Device *device) {
         vertexIds[iVertex] = static_cast<float>(iVertex) + 0.5F;
     }
 
-    uint32_t     vertexIdxByteLength = sizeof(float) * vertexCount;
-    gfx::Buffer *vertexIdBuffer      = device->createBuffer({
+    uint32_t vertexIdxByteLength = sizeof(float) * vertexCount;
+    gfx::Buffer *vertexIdBuffer = device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::DEVICE,
         vertexIdxByteLength,

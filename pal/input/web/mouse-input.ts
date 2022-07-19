@@ -1,4 +1,4 @@
-import { TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { MouseCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
@@ -15,14 +15,37 @@ export class MouseInputSource {
     private _isPressed = false;
     private _preMousePos: Vec2 = new Vec2();
 
+    // @ts-expect-error maybe not initialized
+    private _handleMouseDown: (event: MouseEvent) => void;
+    // @ts-expect-error maybe not initialized
+    private _handleMouseMove: (event: MouseEvent) => void;
+    // @ts-expect-error maybe not initialized
+    private _handleMouseUp: (event: MouseEvent) => void;
+
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas && !TEST) {
+            if (!this._canvas && !TEST && !EDITOR) {
                 console.warn('failed to access canvas');
             }
-            this._registerEvent();
+
+            this._handleMouseDown = this._createCallback(InputEventType.MOUSE_DOWN);
+            this._handleMouseMove = this._createCallback(InputEventType.MOUSE_MOVE);
+            this._handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
+            // In Editor, we receive mouse event from manually event dispatching.
+            if (!EDITOR) {
+                this._registerEvent();
+            }
         }
+    }
+
+    public dispatchMouseDownEvent (nativeMouseEvent: any) { this._handleMouseDown(nativeMouseEvent); }
+    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._handleMouseMove(nativeMouseEvent); }
+    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._handleMouseUp(nativeMouseEvent); }
+    public dispatchScrollEvent (nativeMouseEvent: WheelEvent) { this._handleMouseWheel(nativeMouseEvent); }
+
+    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
+        this._eventTarget.on(eventType, callback, target);
     }
 
     private _getCanvasRect (): Rect {
@@ -49,15 +72,14 @@ export class MouseInputSource {
         window.addEventListener('mousedown', () => {
             this._isPressed = true;
         });
-        this._canvas?.addEventListener('mousedown', this._createCallback(InputEventType.MOUSE_DOWN));
+        this._canvas?.addEventListener('mousedown', this._handleMouseDown);
 
         // register mouse move event
-        this._canvas?.addEventListener('mousemove', this._createCallback(InputEventType.MOUSE_MOVE));
+        this._canvas?.addEventListener('mousemove', this._handleMouseMove);
 
         // register mouse up event
-        const handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
-        window.addEventListener('mouseup', handleMouseUp);
-        this._canvas?.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mouseup', this._handleMouseUp);
+        this._canvas?.addEventListener('mouseup', this._handleMouseUp);
 
         // register wheel event
         this._canvas?.addEventListener('wheel', this._handleMouseWheel.bind(this));
@@ -85,7 +107,8 @@ export class MouseInputSource {
     private _createCallback (eventType: InputEventType) {
         return (mouseEvent: MouseEvent) => {
             const location = this._getLocation(mouseEvent);
-            let button = mouseEvent.button;
+            const { button, buttons } = mouseEvent;
+            let targetButton = button;
             switch (eventType) {
             case InputEventType.MOUSE_DOWN:
                 this._canvas?.focus();
@@ -95,8 +118,16 @@ export class MouseInputSource {
                 this._isPressed = false;
                 break;
             case InputEventType.MOUSE_MOVE:
-                if (!this._isPressed) {
-                    button = EventMouse.BUTTON_MISSING;
+                // mouseEvent.button doesn't work well in mouse move event
+                // now we don't support multiple buttons in one mouse event
+                if (1 & buttons) {
+                    targetButton = EventMouse.BUTTON_LEFT;
+                } else if (2 & buttons) {
+                    targetButton = EventMouse.BUTTON_RIGHT;
+                } else if (4 & buttons) {
+                    targetButton = EventMouse.BUTTON_MIDDLE;
+                } else {
+                    targetButton = EventMouse.BUTTON_MISSING;
                 }
                 break;
             default:
@@ -105,7 +136,7 @@ export class MouseInputSource {
 
             const eventMouse = new EventMouse(eventType, false, this._preMousePos);
             eventMouse.setLocation(location.x, location.y);
-            eventMouse.setButton(button);
+            eventMouse.setButton(targetButton);
             eventMouse.movementX = mouseEvent.movementX;
             eventMouse.movementY = mouseEvent.movementY;
 
@@ -139,9 +170,5 @@ export class MouseInputSource {
             mouseEvent.preventDefault();
         }
         this._eventTarget.emit(eventType, eventMouse);
-    }
-
-    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
-        this._eventTarget.on(eventType, callback, target);
     }
 }

@@ -25,11 +25,12 @@
 
 #include "Font.h"
 #include <algorithm>
-#include <boost/functional/hash.hpp>
+#include <cctype>
 #include "base/Data.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "base/memory/Memory.h"
+#include "base/std/hash/hash.h"
 #include "gfx-base/GFXTexture.h"
 #include "math/Math.h"
 #include "platform/FileUtils.h"
@@ -37,10 +38,10 @@
 
 namespace cc {
 
-std::size_t KerningHash::operator()(const KerningPair &k) const {
-    size_t seed = 2;
-    boost::hash_combine(seed, k.prevCode);
-    boost::hash_combine(seed, k.nextCode);
+ccstd::hash_t KerningHash::operator()(const KerningPair &k) const {
+    ccstd::hash_t seed = 2;
+    ccstd::hash_combine(seed, k.prevCode);
+    ccstd::hash_combine(seed, k.nextCode);
     return seed;
 }
 
@@ -52,7 +53,7 @@ FontFaceInfo::FontFaceInfo(uint32_t size)
 
 FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height)
 : fontSize(size), textureWidth(width), textureHeight(height) {
-    CCASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height), "Font texture size must be power of 2.");
+    CC_ASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height)); // Font texture size must be power of 2.
 
     // preload digit & alphabet characters by default
     for (auto i = 0U; i < 128; i++) {
@@ -64,7 +65,7 @@ FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height)
 
 FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, ccstd::vector<uint32_t> chars)
 : fontSize(size), textureWidth(width), textureHeight(height), preLoadedCharacters(std::move(chars)) {
-    CCASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height), "Font texture size must be power of 2.");
+    CC_ASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height)); // Font texture size must be power of 2.
 }
 
 /**

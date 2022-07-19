@@ -25,15 +25,15 @@
 
 #include <thread>
 
-#include "platform/ohos/OhosPlatform.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/Vibrator.h"
-#include "modules/Screen.h"
-#include "modules/System.h"
+#include "platform/ohos/OhosPlatform.h"
 
 namespace cc {
 OhosPlatform::OhosPlatform() {
@@ -59,7 +59,7 @@ int32_t OhosPlatform::run(int argc, const char **argv) {
     std::thread mainLogicThread([this, argc, argv]() {
         waitWindowInitialized();
         UniversalPlatform::run(argc, argv);
-        onDestory();
+        onDestroy();
     });
     mainLogicThread.detach();
     _jniNativeGlue->waitRunning();
@@ -70,7 +70,7 @@ void OhosPlatform::waitWindowInitialized() {
     _jniNativeGlue->setRunning(true);
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        NativeWindowType *wndHandle = _jniNativeGlue->getWindowHandler();
+        NativeWindowType *wndHandle = _jniNativeGlue->getWindowHandle();
         if (wndHandle != nullptr) {
             break;
         }

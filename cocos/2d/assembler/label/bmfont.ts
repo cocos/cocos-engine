@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { SpriteFrame } from '../../assets/sprite-frame';
 import * as js from '../../../core/utils/js';
 import { Color, Rect } from '../../../core/math';
@@ -116,10 +111,6 @@ export const bmfont: IAssembler = {
         dataList[dataOffset + 2].y = y;
         dataList[dataOffset + 3].x = x + rectWidth * scale;
         dataList[dataOffset + 3].y = y;
-    },
-
-    updateColor (comp: Label) {
-
     },
 };
 

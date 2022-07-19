@@ -75,6 +75,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassDependency);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPassInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::GeneralBarrierInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrierInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::BufferBarrierInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::FramebufferInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSetLayoutBinding);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSetLayoutInfo);
@@ -105,6 +106,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPass);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Shader);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Swapchain);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::BufferBarrier);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::GeneralBarrier);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Sampler);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrier);
@@ -490,6 +492,15 @@ template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureBarrierInfo *, se::Object *ctx); //NOLINT
 SE_DECLARE_FUNC(js_gfx_TextureBarrierInfo_copy);
 
+extern se::Object *__jsb_cc_gfx_BufferBarrierInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_gfx_BufferBarrierInfo_class; // NOLINT
+
+bool js_register_cc_gfx_BufferBarrierInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::gfx::BufferBarrierInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BufferBarrierInfo_copy);
+
 extern se::Object *__jsb_cc_gfx_FramebufferInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_FramebufferInfo_class; // NOLINT
 
@@ -677,11 +688,6 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endQuery);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endRenderPass);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumDrawCalls);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumInstances);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_nextSubpass);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_pipelineBarrier);
@@ -834,6 +840,16 @@ SE_DECLARE_FUNC(js_gfx_Swapchain_initialize);
 SE_DECLARE_FUNC(js_gfx_Swapchain_resize);
 SE_DECLARE_FUNC(js_gfx_Swapchain_Swapchain);
 
+extern se::Object *__jsb_cc_gfx_BufferBarrier_proto; // NOLINT
+extern se::Class * __jsb_cc_gfx_BufferBarrier_class; // NOLINT
+
+bool js_register_cc_gfx_BufferBarrier(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_gfx_BufferBarrier_getHash);
+SE_DECLARE_FUNC(js_gfx_BufferBarrier_getInfo);
+SE_DECLARE_FUNC(js_gfx_BufferBarrier_computeHash);
+SE_DECLARE_FUNC(js_gfx_BufferBarrier_BufferBarrier);
+
 extern se::Object *__jsb_cc_gfx_GeneralBarrier_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_GeneralBarrier_class; // NOLINT
 
@@ -885,6 +901,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_createSwapchain);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommands);
+SE_DECLARE_FUNC(js_gfx_Device_getBufferBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getFormatFeatures);
 SE_DECLARE_FUNC(js_gfx_Device_getGeneralBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
@@ -900,9 +917,5 @@ extern se::Class * __jsb_cc_gfx_DeviceManager_class; // NOLINT
 
 bool js_register_cc_gfx_DeviceManager(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_getGFXName);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_isDetachDeviceThread);
 // clang-format on

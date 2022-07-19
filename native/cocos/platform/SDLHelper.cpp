@@ -180,15 +180,15 @@ void SDLHelper::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
             break;
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
-            ev.type   = WindowEvent::Type::SIZE_CHANGED;
-            ev.width  = wevent.data1;
+            ev.type = WindowEvent::Type::SIZE_CHANGED;
+            ev.width = wevent.data1;
             ev.height = wevent.data2;
             _delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESIZED: {
-            ev.type   = WindowEvent::Type::RESIZED;
-            ev.width  = wevent.data1;
+            ev.type = WindowEvent::Type::RESIZED;
+            ev.width = wevent.data1;
             ev.height = wevent.data2;
             _delegate->dispatchEvent(ev);
             break;
@@ -216,8 +216,8 @@ void SDLHelper::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
 }
 
 void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
-    cc::TouchEvent    touch;
-    cc::MouseEvent    mouse;
+    cc::TouchEvent touch;
+    cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
     switch (sdlEvent.type) {
         case SDL_QUIT: {
@@ -234,88 +234,88 @@ void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
             break;
         }
         case SDL_MOUSEBUTTONDOWN: {
-            int width  = 0;
+            int width = 0;
             int height = 0;
             SDL_GetWindowSize(_handle, &width, &height);
             const SDL_MouseButtonEvent &event = sdlEvent.button;
             if (0 > event.x || event.x > width || 0 > event.y || event.y > height) {
                 break;
             }
-            mouse.type   = MouseEvent::Type::DOWN;
-            mouse.x      = static_cast<float>(event.x);
-            mouse.y      = static_cast<float>(event.y);
+            mouse.type = MouseEvent::Type::DOWN;
+            mouse.x = static_cast<float>(event.x);
+            mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
             _delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_MOUSEBUTTONUP: {
             const SDL_MouseButtonEvent &event = sdlEvent.button;
-            mouse.type                        = MouseEvent::Type::UP;
-            mouse.x                           = static_cast<float>(event.x);
-            mouse.y                           = static_cast<float>(event.y);
-            mouse.button                      = event.button - 1;
+            mouse.type = MouseEvent::Type::UP;
+            mouse.x = static_cast<float>(event.x);
+            mouse.y = static_cast<float>(event.y);
+            mouse.button = event.button - 1;
             _delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_MOUSEMOTION: {
             const SDL_MouseMotionEvent &event = sdlEvent.motion;
-            mouse.type                        = MouseEvent::Type::MOVE;
-            mouse.x                           = static_cast<float>(event.x);
-            mouse.y                           = static_cast<float>(event.y);
-            mouse.button                      = 0;
+            mouse.type = MouseEvent::Type::MOVE;
+            mouse.x = static_cast<float>(event.x);
+            mouse.y = static_cast<float>(event.y);
+            mouse.button = 0;
             _delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_MOUSEWHEEL: {
             const SDL_MouseWheelEvent &event = sdlEvent.wheel;
-            mouse.type                       = MouseEvent::Type::WHEEL;
-            mouse.x                          = static_cast<float>(event.x);
-            mouse.y                          = static_cast<float>(event.y);
-            mouse.button                     = 0; //TODO: direction
+            mouse.type = MouseEvent::Type::WHEEL;
+            mouse.x = static_cast<float>(event.x);
+            mouse.y = static_cast<float>(event.y);
+            mouse.button = 0; //TODO: direction
             _delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_FINGERUP: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
-            touch.type                        = TouchEvent::Type::ENDED;
-            touch.touches                     = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchEvent(touch);
+            touch.type = TouchEvent::Type::ENDED;
+            touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
+            _delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERDOWN: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
-            touch.type                        = TouchEvent::Type::BEGAN;
-            touch.touches                     = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchEvent(touch);
+            touch.type = TouchEvent::Type::BEGAN;
+            touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
+            _delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERMOTION: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
-            touch.type                        = TouchEvent::Type::MOVED;
-            touch.touches                     = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchEvent(touch);
+            touch.type = TouchEvent::Type::MOVED;
+            touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
+            _delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_KEYDOWN: {
             const SDL_KeyboardEvent &event = sdlEvent.key;
-            auto                     mode  = event.keysym.mod;
-            keyboard.action                = KeyboardEvent::Action::PRESS;
-            keyboard.key                   = sdlKeycodeToCocosCode(event.keysym.sym, mode);
-            keyboard.altKeyActive          = mode & KMOD_ALT;
-            keyboard.ctrlKeyActive         = mode & KMOD_CTRL;
-            keyboard.shiftKeyActive        = mode & KMOD_SHIFT;
+            auto mode = event.keysym.mod;
+            keyboard.action = KeyboardEvent::Action::PRESS;
+            keyboard.key = sdlKeycodeToCocosCode(event.keysym.sym, mode);
+            keyboard.altKeyActive = mode & KMOD_ALT;
+            keyboard.ctrlKeyActive = mode & KMOD_CTRL;
+            keyboard.shiftKeyActive = mode & KMOD_SHIFT;
             //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
             _delegate->dispatchEvent(keyboard);
             break;
         }
         case SDL_KEYUP: {
             const SDL_KeyboardEvent &event = sdlEvent.key;
-            auto                     mode  = event.keysym.mod;
-            keyboard.action                = KeyboardEvent::Action::RELEASE;
-            keyboard.key                   = sdlKeycodeToCocosCode(event.keysym.sym, mode);
-            keyboard.altKeyActive          = mode & KMOD_ALT;
-            keyboard.ctrlKeyActive         = mode & KMOD_CTRL;
-            keyboard.shiftKeyActive        = mode & KMOD_SHIFT;
+            auto mode = event.keysym.mod;
+            keyboard.action = KeyboardEvent::Action::RELEASE;
+            keyboard.key = sdlKeycodeToCocosCode(event.keysym.sym, mode);
+            keyboard.altKeyActive = mode & KMOD_ALT;
+            keyboard.ctrlKeyActive = mode & KMOD_CTRL;
+            keyboard.shiftKeyActive = mode & KMOD_SHIFT;
             _delegate->dispatchEvent(keyboard);
             break;
         }
@@ -326,9 +326,12 @@ void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
 
 void SDLHelper::pollEvent(bool *quit) {
     SDL_Event sdlEvent;
-    int       cnt = 0;
+    int cnt = 0;
     while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
         dispatchSDLEvent(sdlEvent, quit);
+        if (*quit) {
+            break;
+        }
     }
 }
 
@@ -354,7 +357,7 @@ bool SDLHelper::createWindow(const char *title,
     }
     // Create window
     int sdlFlags = windowFlagsToSDLWindowFlag(flags);
-    _handle      = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
+    _handle = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
     if (_handle == nullptr) {
         // Display error message
         CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -381,7 +384,7 @@ uintptr_t SDLHelper::getDisplay() const {
 }
 #endif
 
-uintptr_t SDLHelper::getWindowHandler() const {
+uintptr_t SDLHelper::getWindowHandle() const {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(_handle, &wmInfo);
@@ -391,8 +394,12 @@ uintptr_t SDLHelper::getWindowHandler() const {
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.window);
 #endif
-    CCASSERT(false, "Only valid in windows, linux");
+    CC_ASSERT(false);
     return 0;
+}
+
+SDL_Window *SDLHelper::getSDLWindowHandle() const {
+    return _handle;
 }
 
 } // namespace cc

@@ -17,6 +17,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::geometry::Frustum);
 JSB_REGISTER_OBJECT_TYPE(cc::geometry::Line);
 JSB_REGISTER_OBJECT_TYPE(cc::geometry::Ray);
 JSB_REGISTER_OBJECT_TYPE(cc::geometry::Sphere);
+JSB_REGISTER_OBJECT_TYPE(cc::geometry::Spline);
 JSB_REGISTER_OBJECT_TYPE(cc::geometry::Triangle);
 
 
@@ -64,7 +65,6 @@ extern se::Class * __jsb_cc_geometry_Frustum_class; // NOLINT
 
 bool js_register_cc_geometry_Frustum(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_geometry_Frustum_clone);
 SE_DECLARE_FUNC(js_geometry_Frustum_createOrtho);
 SE_DECLARE_FUNC(js_geometry_Frustum_setAccurate);
 SE_DECLARE_FUNC(js_geometry_Frustum_transform);
@@ -131,6 +131,26 @@ SE_DECLARE_FUNC(js_geometry_Sphere_mergeAABB);
 SE_DECLARE_FUNC(js_geometry_Sphere_mergePoint);
 SE_DECLARE_FUNC(js_geometry_Sphere_set);
 SE_DECLARE_FUNC(js_geometry_Sphere_Sphere);
+
+extern se::Object *__jsb_cc_geometry_Spline_proto; // NOLINT
+extern se::Class * __jsb_cc_geometry_Spline_class; // NOLINT
+
+bool js_register_cc_geometry_Spline(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_geometry_Spline_addKnot);
+SE_DECLARE_FUNC(js_geometry_Spline_clearKnots);
+SE_DECLARE_FUNC(js_geometry_Spline_getKnot);
+SE_DECLARE_FUNC(js_geometry_Spline_getKnotCount);
+SE_DECLARE_FUNC(js_geometry_Spline_getPoint);
+SE_DECLARE_FUNC(js_geometry_Spline_getPoints);
+SE_DECLARE_FUNC(js_geometry_Spline_insertKnot);
+SE_DECLARE_FUNC(js_geometry_Spline_removeKnot);
+SE_DECLARE_FUNC(js_geometry_Spline_setKnot);
+SE_DECLARE_FUNC(js_geometry_Spline_setModeAndKnots);
+SE_DECLARE_FUNC(js_geometry_Spline_clone);
+SE_DECLARE_FUNC(js_geometry_Spline_copy);
+SE_DECLARE_FUNC(js_geometry_Spline_create);
+SE_DECLARE_FUNC(js_geometry_Spline_Spline);
 
 extern se::Object *__jsb_cc_geometry_Triangle_proto; // NOLINT
 extern se::Class * __jsb_cc_geometry_Triangle_class; // NOLINT

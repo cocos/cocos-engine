@@ -25,8 +25,8 @@
 
 #include "scene/Fog.h"
 #include "core/Root.h"
-#include "renderer/pipeline/helper/Utils.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "renderer/pipeline/helper/Utils.h"
 
 namespace cc {
 namespace scene {
@@ -96,7 +96,7 @@ void FogInfo::setFogTop(float val) {
 void FogInfo::setFogRange(float val) {
     _fogRange = val;
     if (_resource != nullptr) {
-        _resource->setfogRange(_fogRange);
+        _resource->setFogRange(_fogRange);
     }
 }
 
@@ -108,36 +108,39 @@ void FogInfo::activate(Fog *resource) {
 
 //
 void Fog::initialize(const FogInfo &fogInfo) {
+    _activated = false;
     setFogColor(fogInfo.getFogColor());
-    _enabled    = fogInfo.isEnabled();
-    _accurate   = fogInfo.isAccurate();
-    _type       = _enabled ? fogInfo.getType() : FogType::NONE;
+    _enabled = fogInfo.isEnabled();
+    _accurate = fogInfo.isAccurate();
+    _type = _enabled ? fogInfo.getType() : FogType::NONE;
     _fogDensity = fogInfo.getFogDensity();
-    _fogStart   = fogInfo.getFogStart();
-    _fogEnd     = fogInfo.getFogEnd();
-    _fogAtten   = fogInfo.getFogAtten();
-    _fogTop     = fogInfo.getFogTop();
-    _fogRange   = fogInfo.getFogRange();
+    _fogStart = fogInfo.getFogStart();
+    _fogEnd = fogInfo.getFogEnd();
+    _fogAtten = fogInfo.getFogAtten();
+    _fogTop = fogInfo.getFogTop();
+    _fogRange = fogInfo.getFogRange();
 }
 
 void Fog::updatePipeline() {
-    auto *        root                 = Root::getInstance();
-    const FogType value                = _enabled ? _type : FogType::NONE;
-    const int32_t accurateValue        = isAccurate() ? 1 : 0;
-    auto *        pipeline             = root->getPipeline();
-    auto          iterMacroFog         = pipeline->getMacros().find("CC_USE_FOG");
-    auto          iterMacroAccurateFog = pipeline->getMacros().find("CC_USE_ACCURATE_FOG");
+    auto *root = Root::getInstance();
+    const FogType value = _enabled ? _type : FogType::NONE;
+    const int32_t accurateValue = isAccurate() ? 1 : 0;
+    auto *pipeline = root->getPipeline();
+    auto iterMacroFog = pipeline->getMacros().find("CC_USE_FOG");
+    auto iterMacroAccurateFog = pipeline->getMacros().find("CC_USE_ACCURATE_FOG");
     if (iterMacroFog != pipeline->getMacros().end() && iterMacroAccurateFog != pipeline->getMacros().end()) {
-        const MacroValue &macroFog            = iterMacroFog->second;
-        const MacroValue &macroAccurateFog    = iterMacroAccurateFog->second;
-        const int32_t *   macroFogPtr         = cc::get_if<int32_t>(&macroFog);
-        const int32_t *   macroAccurateFogPtr = cc::get_if<int32_t>(&macroAccurateFog);
+        const MacroValue &macroFog = iterMacroFog->second;
+        const MacroValue &macroAccurateFog = iterMacroAccurateFog->second;
+        const int32_t *macroFogPtr = ccstd::get_if<int32_t>(&macroFog);
+        const int32_t *macroAccurateFogPtr = ccstd::get_if<int32_t>(&macroAccurateFog);
         if (macroFogPtr != nullptr && *macroFogPtr == static_cast<int32_t>(value) && macroAccurateFogPtr != nullptr && *macroAccurateFogPtr == accurateValue) return;
     }
 
     pipeline->setValue("CC_USE_FOG", static_cast<int32_t>(value));
     pipeline->setValue("CC_USE_ACCURATE_FOG", accurateValue);
-    root->onGlobalPipelineStateChanged();
+    if (_activated) {
+        root->onGlobalPipelineStateChanged();
+    }
 }
 
 void Fog::setFogColor(const Color &val) {

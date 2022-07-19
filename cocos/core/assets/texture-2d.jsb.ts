@@ -23,17 +23,13 @@
  THE SOFTWARE.
 */
 import { ccclass, type } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { ImageAsset } from './image-asset';
 import { SimpleTexture } from './simple-texture';
 import { TextureBase } from './texture-base.jsb';
 import { js } from '../utils/js';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import './simple-texture';
 
 const texture2DProto: any = jsb.Texture2D.prototype;
 
@@ -51,29 +47,10 @@ export interface ITexture2DSerializeData {
     mipmaps: string[];
 }
 
-const clsDecorator = ccclass('cc.Texture2D');
-
-const _class2$c = Texture2D;
-const _dec2$6 = type([ImageAsset]); // xwx: jsb.ImageAsset?
-
-const _descriptor$a = _applyDecoratedDescriptor(_class2$c.prototype, '_mipmaps', [_dec2$6], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
 texture2DProto._ctor = function () {
     SimpleTexture.prototype._ctor.apply(this, arguments);
     this._mipmaps = [];
-    // for deserialization
-    // _initializerDefineProperty(_this, 'isRGBE', _descriptor$b, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, '_mipmaps', _descriptor2$7, _assertThisInitialized(_this));
 };
-
-clsDecorator(Texture2D);
 
 texture2DProto._serialize = function (ctxForExporting: any) {
     if (EDITOR || TEST) {
@@ -107,7 +84,7 @@ texture2DProto._deserialize = function (serializedData: any, handle: any) {
             continue;
         }
         const mipmapUUID = data.mipmaps[i];
-        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
+        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js.getClassId(ImageAsset));
     }
 };
 
@@ -144,3 +121,8 @@ Object.defineProperty(texture2DProto, 'mipmaps', {
 });
 
 legacyCC.Texture2D = jsb.Texture2D;
+
+// handle meta data, it is generated automatically
+const Texture2DProto = Texture2D.prototype;
+type([ImageAsset])(Texture2DProto, '_mipmaps');
+ccclass('cc.Texture2D')(Texture2D);

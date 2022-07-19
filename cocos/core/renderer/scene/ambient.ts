@@ -27,8 +27,22 @@ import { Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
 
+/**
+ * @en Ambient lighting representation in the render scene.
+ * The initial data is setup in [[SceneGlobals.ambient]].
+ * @zh 渲染场景中的环境光照设置。
+ * 初始值是由 [[SceneGlobals.ambient]] 设置的。
+ */
 export class Ambient {
+    /**
+     * @en Default sun illuminance
+     * @zh 默认太阳亮度
+     */
     public static SUN_ILLUM = 65000.0;
+    /**
+     * @en Default sky illuminance
+     * @zh 默认天空亮度
+     */
     public static SKY_ILLUM = 20000.0;
 
     /**
@@ -53,7 +67,6 @@ export class Ambient {
             return this._skyColorLDR;
         }
     }
-
     set skyColor (color: Vec4) {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -75,7 +88,6 @@ export class Ambient {
             return this._skyIllumLDR;
         }
     }
-
     set skyIllum (illum: number) {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -96,7 +108,6 @@ export class Ambient {
             return this._groundAlbedoLDR;
         }
     }
-
     set groundAlbedo (color: Vec4) {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -104,14 +115,6 @@ export class Ambient {
         } else {
             this._groundAlbedoLDR.set(color);
         }
-    }
-
-    get mipmapCount (): number {
-        return this._mipmapCount;
-    }
-
-    set mipmapCount (count : number) {
-        this._mipmapCount = count;
     }
 
     protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);

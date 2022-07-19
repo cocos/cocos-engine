@@ -22,12 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
+import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';
@@ -82,7 +77,11 @@ export const graphicsAssembler: IAssembler = {
     useModel: true,
 
     updateRenderData (graphics: Graphics) {
-
+        if (JSB) {
+            if (graphics.renderData) {
+                graphics.renderData.material = graphics.getMaterialInstance(0);
+            }
+        }
     },
 
     fillBuffers (graphics: Graphics, renderer: IBatcher) {

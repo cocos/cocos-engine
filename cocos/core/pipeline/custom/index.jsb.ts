@@ -23,19 +23,19 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module custom-pipeline
- */
-
 declare const render: any;
 
-import { DescriptorHierarchy, Pipeline } from './pipeline';
+import { Pipeline } from './pipeline';
+import { rebuildLayoutGraph } from './effect';
+import { legacyCC } from '../../global-exports';
 
 export function createCustomPipeline (): Pipeline {
     return render.Factory.createPipeline();
 }
 
-export function createDescriptorHierarchy (): DescriptorHierarchy {
-    return render.Factory.createDescriptorHierarchy();
+export function registerRebuildLayoutGraph() {
+    const director = legacyCC.director;
+    if (director.root.usesCustomPipeline) {
+        director.on(legacyCC.Director.EVENT_BEFORE_DRAW, rebuildLayoutGraph);
+    }
 }

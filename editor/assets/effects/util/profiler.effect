@@ -20,7 +20,7 @@ CCEffect %{
 
 CCProgram profiler-vs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   #pragma define ROWS 8 // multiple of 4
   #pragma define COLS 10
@@ -63,7 +63,7 @@ CCProgram profiler-vs %{
 
 CCProgram profiler-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 v_uv;
   uniform sampler2D mainTexture;

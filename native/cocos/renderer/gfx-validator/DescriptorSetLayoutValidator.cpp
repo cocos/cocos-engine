@@ -45,7 +45,8 @@ DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
 }
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    // Initialize twice?
+    CC_ASSERT(!isInited());
     _inited = true;
 
     DescriptorSetLayoutBindingList bindings{info.bindings};
@@ -68,13 +69,13 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
     _typeCounts.resize(DESCRIPTOR_TYPE_ORDERS[utils::getBitPosition(toNumber(DescriptorType::INPUT_ATTACHMENT))] + 1);
     uint32_t lastType{0};
     for (const auto &binding : bindings) {
-        CCASSERT(binding.binding != INVALID_BINDING, "Invalid binding");
-        CCASSERT(binding.descriptorType != DescriptorType::UNKNOWN, "Invalid binding type");
-        CCASSERT(math::IsPowerOfTwo(toNumber(binding.descriptorType)), "Invalid binding type");
-        CCASSERT(binding.count, "Invalid binding count");
-        CCASSERT(binding.stageFlags != ShaderStageFlagBit::NONE, "Invalid binding stage flags");
+        CC_ASSERT(binding.binding != INVALID_BINDING);
+        CC_ASSERT(binding.descriptorType != DescriptorType::UNKNOWN);
+        CC_ASSERT(math::IsPowerOfTwo(toNumber(binding.descriptorType)));
+        CC_ASSERT(binding.count);
+        CC_ASSERT(binding.stageFlags != ShaderStageFlagBit::NONE);
         for (const Sampler *sampler : binding.immutableSamplers) {
-            CCASSERT(sampler, "Invalid immutable sampler");
+            CC_ASSERT(sampler);
         }
         /**
          * Descriptors should be defined strictly in the following order,
@@ -88,7 +89,8 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
          * * SubpassInput
          */
         uint32_t type{DESCRIPTOR_TYPE_ORDERS[utils::getBitPosition(toNumber(binding.descriptorType))]};
-        CCASSERT(lastType <= type, "Illegal binding order");
+        // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
+        // CC_ASSERT(lastType <= type);
         lastType = type;
         ++_typeCounts[type];
     }
@@ -99,7 +101,7 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
 }
 
 void DescriptorSetLayoutValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

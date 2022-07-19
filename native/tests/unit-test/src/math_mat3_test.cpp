@@ -104,7 +104,7 @@ TEST(mathMat3Test, test4) {
     ExpectEq(copyMat.m[0] == 3 && copyMat.m[3] == 6 && copyMat.m[4] == 7, true);
     // fromQuat
     logLabel = "test the mat3 fromQuat function";
-    cc::Mat3       fromQuat;
+    cc::Mat3 fromQuat;
     cc::Quaternion quat(0, 0, 3, 1);
     cc::Mat3::fromQuat(quat, &fromQuat);
     ExpectEq(copyMat.m[0] == 3 && copyMat.m[3] == 6 && copyMat.m[4] == 7, true);

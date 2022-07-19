@@ -36,8 +36,8 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_nativeOnSizeChanged(JNIEnv *env, jobject thiz, jint width,
                                                                                jint height) {
     cc::WindowEvent ev;
-    ev.type   = cc::WindowEvent::Type::SIZE_CHANGED;
-    ev.width  = width;
+    ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
+    ev.width = width;
     ev.height = height;
     JNI_NATIVE_GLUE()->dispatchEvent(ev);
 }

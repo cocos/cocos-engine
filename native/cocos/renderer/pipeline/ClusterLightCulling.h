@@ -40,43 +40,28 @@ struct ShaderStrings {
 
 class ClusterLightCulling {
 public:
-    explicit ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline){};
+    explicit ClusterLightCulling(RenderPipeline *pipeline);
     ~ClusterLightCulling();
 
-    static constexpr uint CLUSTERS_X = 16;
-    static constexpr uint CLUSTERS_Y = 8;
-    static constexpr uint CLUSTERS_Z = 24;
+    static constexpr uint32_t CLUSTERS_X = 16;
+    static constexpr uint32_t CLUSTERS_Y = 8;
+    static constexpr uint32_t CLUSTERS_Z = 24;
 
     // z threads varies to meet limit number of threads
-    static constexpr uint CLUSTERS_X_THREADS = 16;
-    static constexpr uint CLUSTERS_Y_THREADS = 8;
+    static constexpr uint32_t CLUSTERS_X_THREADS = 16;
+    static constexpr uint32_t CLUSTERS_Y_THREADS = 8;
 
-    uint clusterZThreads = 1;
+    uint32_t clusterZThreads = 1;
 
-    static constexpr uint CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
+    static constexpr uint32_t CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
 
-    static constexpr uint MAX_LIGHTS_PER_CLUSTER = 100;
+    static constexpr uint32_t MAX_LIGHTS_PER_CLUSTER = 100;
 
-    static constexpr uint MAX_LIGHTS_GLOBAL = 1000;
+    static constexpr uint32_t MAX_LIGHTS_GLOBAL = 1000;
 
     void initialize(gfx::Device *dev);
 
     void clusterLightCulling(scene::Camera *camera);
-
-    inline const gfx::DescriptorSet *getBuildingDescriptorSet() const { return _buildingDescriptorSet; }
-    inline const gfx::PipelineState *getBuildingPipelineState() const { return _buildingPipelineState; }
-    inline const gfx::DescriptorSet *getResetCounterDescriptorSet() const { return _resetCounterDescriptorSet; }
-    inline const gfx::PipelineState *getResetCounterPipelineState() const { return _resetCounterPipelineState; }
-    inline const gfx::DescriptorSet *getCullingDescriptorSet() const { return _cullingDescriptorSet; }
-    inline const gfx::PipelineState *getCullingPipelineState() const { return _cullingPipelineState; }
-
-    inline const gfx::Buffer *getConstantsBuffer() const { return _constantsBuffer; }
-
-    inline const gfx::DispatchInfo &getBuildingDispatchInfo() const { return _buildingDispatchInfo; }
-    inline const gfx::DispatchInfo &getResetCounterDispatchInfo() const { return _resetDispatchInfo; }
-    inline const gfx::DispatchInfo &getCullingDispatchInfo() const { return _cullingDispatchInfo; }
-
-    inline bool isInitialized() const { return _initialized; }
 
 private:
     ccstd::string &getShaderSource(ShaderStrings &sources);
@@ -92,7 +77,7 @@ private:
     void updateLights();
 
     static bool isProjMatChange(const Mat4 &curProj, const Mat4 &oldProj) {
-        for (uint i = 0; i < sizeof(curProj.m) / sizeof(float); i++) {
+        for (uint32_t i = 0; i < sizeof(curProj.m) / sizeof(float); i++) {
             if (math::IsNotEqualF(curProj.m[i], oldProj.m[i])) {
                 return true;
             }
@@ -100,52 +85,56 @@ private:
         return false;
     }
 
-    gfx::Device *   _device{nullptr};
-    scene::Camera * _camera{nullptr};
+    // weak reference
+    gfx::Device *_device{nullptr};
+    IntrusivePtr<scene::Camera> _camera;
+    // weak reference
     RenderPipeline *_pipeline{nullptr};
 
-    gfx::Shader *             _buildingShader{nullptr};
-    gfx::DescriptorSetLayout *_buildingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _buildingPipelineLayout{nullptr};
-    gfx::PipelineState *      _buildingPipelineState{nullptr};
-    gfx::DescriptorSet *      _buildingDescriptorSet{nullptr};
+    IntrusivePtr<gfx::Shader> _buildingShader;
+    IntrusivePtr<gfx::DescriptorSetLayout> _buildingDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> _buildingPipelineLayout;
+    IntrusivePtr<gfx::PipelineState> _buildingPipelineState;
+    IntrusivePtr<gfx::DescriptorSet> _buildingDescriptorSet;
 
-    gfx::Shader *             _resetCounterShader{nullptr};
-    gfx::DescriptorSetLayout *_resetCounterDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _resetCounterPipelineLayout{nullptr};
-    gfx::PipelineState *      _resetCounterPipelineState{nullptr};
-    gfx::DescriptorSet *      _resetCounterDescriptorSet{nullptr};
+    IntrusivePtr<gfx::Shader> _resetCounterShader;
+    IntrusivePtr<gfx::DescriptorSetLayout> _resetCounterDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> _resetCounterPipelineLayout;
+    IntrusivePtr<gfx::PipelineState> _resetCounterPipelineState;
+    IntrusivePtr<gfx::DescriptorSet> _resetCounterDescriptorSet;
 
-    gfx::Shader *             _cullingShader{nullptr};
-    gfx::DescriptorSetLayout *_cullingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _cullingPipelineLayout{nullptr};
-    gfx::PipelineState *      _cullingPipelineState{nullptr};
-    gfx::DescriptorSet *      _cullingDescriptorSet{nullptr};
+    IntrusivePtr<gfx::Shader> _cullingShader;
+    IntrusivePtr<gfx::DescriptorSetLayout> _cullingDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> _cullingPipelineLayout;
+    IntrusivePtr<gfx::PipelineState> _cullingPipelineState;
+    IntrusivePtr<gfx::DescriptorSet> _cullingDescriptorSet;
 
-    static constexpr uint NEAR_FAR_OFFSET     = 0;
-    static constexpr uint VIEW_PORT_OFFSET    = 4;
-    static constexpr uint MAT_VIEW_OFFSET     = 8;
-    static constexpr uint MAT_PROJ_INV_OFFSET = 24;
+    static constexpr uint32_t NEAR_FAR_OFFSET = 0;
+    static constexpr uint32_t VIEW_PORT_OFFSET = 4;
+    static constexpr uint32_t MAT_VIEW_OFFSET = 8;
+    static constexpr uint32_t MAT_PROJ_INV_OFFSET = 24;
 
     ccstd::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
-    gfx::Buffer *                                                              _constantsBuffer{nullptr};
+    IntrusivePtr<gfx::Buffer> _constantsBuffer;
 
+    // weak reference
     ccstd::vector<scene::Light *> _validLights;
-    ccstd::vector<float>          _lightBufferData;
+    ccstd::vector<float> _lightBufferData;
 
+    // weak reference
     gfx::GeneralBarrier *_resetBarrier{nullptr};
 
     gfx::DispatchInfo _buildingDispatchInfo;
     gfx::DispatchInfo _resetDispatchInfo;
     gfx::DispatchInfo _cullingDispatchInfo;
 
-    bool  _lightBufferResized{false};
-    uint  _lightBufferStride{0};
-    uint  _lightBufferCount{0};
+    bool _lightBufferResized{false};
+    uint32_t _lightBufferStride{0};
+    uint32_t _lightBufferCount{0};
     float _lightMeterScale{10000.0F};
 
     // only rebuild clusters when camera project matrix changed
-    bool                _rebuildClusters{false};
+    bool _rebuildClusters{false};
     ccstd::vector<Mat4> _oldCamProjMats;
 
     bool _initialized{false};

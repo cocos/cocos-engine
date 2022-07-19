@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Color } from '../../core/math';
@@ -32,6 +30,7 @@ import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { legacyCC } from '../../core/global-exports';
 
 const SerializableTable = EDITOR && [
     ['_mode', 'color'],
@@ -60,7 +59,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());
@@ -139,7 +138,7 @@ export default class GradientRange {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props: any): any {
         return SerializableTable[this._mode];

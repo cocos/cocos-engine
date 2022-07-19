@@ -72,19 +72,15 @@ exports.ready = function() {
 
                 for (let index = 0; index < dump.enumList.length; index++) {
                     const element = dump.enumList[index];
-                    const image = document.createElement('ui-image');
+                    const image = document.createElement('ui-icon');
                     const button = document.createElement('ui-button');
                     const iconName = element.name.toLocaleLowerCase();
                     if (iconName === 'center') {
-                        image.setAttribute('value', `packages://scene/static/icons/align-h-${iconName}.png`);
+                        image.setAttribute('value', `align-h-${iconName}`);
                     } else {
-                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
+                        image.setAttribute('value', `align-${iconName}`);
                     }
-                    image.style.height = '20px';
-                    image.style.width = '22px';
-                    image.style.verticalAlign = 'middle';
-                    image.setAttribute('fill', true);
-                    setTooltip(image, dump);
+                    setTooltip(image, { tooltip: `${dump.tooltip}_${iconName}` });
                     image.setAttribute('readonly', true);
                     button.appendChild(image);
                     content.appendChild(button);
@@ -123,20 +119,15 @@ exports.ready = function() {
 
                 for (let index = 0; index < dump.enumList.length; index++) {
                     const element = dump.enumList[index];
-                    const image = document.createElement('ui-image');
+                    const image = document.createElement('ui-icon');
                     const button = document.createElement('ui-button');
                     const iconName = element.name.toLocaleLowerCase();
                     if (iconName === 'center') {
-                        image.setAttribute('value', `packages://scene/static/icons/align-v-${iconName}.png`);
+                        image.setAttribute('value', `align-v-${iconName}`);
                     } else {
-                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
+                        image.setAttribute('value', `align-${iconName}`);
                     }
-                    image.style.height = '20px';
-                    image.style.width = '22px';
-                    image.style.verticalAlign = 'middle';
-                    image.setAttribute('fill', true);
-                    image.setAttribute('tooltip', dump.tooltip);
-                    image.setAttribute('readonly', true);
+                    setTooltip(image, { tooltip: `${dump.tooltip}_${iconName}` });
                     button.appendChild(image);
                     content.appendChild(button);
                 }

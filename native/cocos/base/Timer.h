@@ -34,15 +34,15 @@ namespace utils {
 
 class CC_DLL Timer {
 public:
-    using Clock     = std::chrono::high_resolution_clock;
+    using Clock = std::chrono::high_resolution_clock;
     using TimePoint = Clock::time_point;
 
     explicit Timer(bool doReset = true);
 
-    void    reset();
+    void reset();
     int64_t getMicroseconds() const;
     int64_t getMilliseconds() const;
-    float   getSeconds(bool highPrecision = false) const;
+    float getSeconds(bool highPrecision = false) const;
 
 private:
     TimePoint _startTime;

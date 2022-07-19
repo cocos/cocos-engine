@@ -42,8 +42,12 @@ PoolTest *createTest() {
     return new PoolTest(tagValue++);
 }
 
+void destroyTest(PoolTest *obj) {
+    delete obj;
+}
+
 const int32_t ARRAY_SIZE = 10;
-auto *        pool       = new memop::Pool<PoolTest>(createTest, ARRAY_SIZE);
+auto *pool = new memop::Pool<PoolTest>(createTest, destroyTest, ARRAY_SIZE);
 
 } // namespace
 
@@ -62,7 +66,7 @@ TEST(PoolTest, free) {
 }
 
 TEST(PoolTest, freeArray) {
-    const int32_t           TEST_SIZE = 5;
+    const int32_t TEST_SIZE = 5;
     std::vector<PoolTest *> tmpArr(TEST_SIZE);
     for (int32_t i = 0; i < TEST_SIZE; ++i) {
         PoolTest *a = createTest();

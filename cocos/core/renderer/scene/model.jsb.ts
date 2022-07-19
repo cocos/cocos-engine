@@ -23,9 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Attribute } from '../../gfx';
+import { Attribute, deviceManager } from '../../gfx';
 import { Vec3 } from '../../math';
-import { legacyCC } from '../../global-exports';
 
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
@@ -47,7 +46,7 @@ export const Model = jsb.Model;
 const modelProto: any = Model.prototype;
 
 modelProto._ctor = function () {
-    this._device = legacyCC.director.root.device;
+    this._device = deviceManager.gfxDevice;
 };
 
 const oldCreateBoundingShape = modelProto.createBoundingShape;

@@ -36,8 +36,8 @@ MIDDLEWARE_BEGIN
 struct Color4B {
     Color4B(uint32_t r, uint32_t g, uint32_t b, uint32_t a);
     Color4B();
-    bool     operator==(const Color4B &right) const;
-    bool     operator!=(const Color4B &right) const;
+    bool operator==(const Color4B &right) const;
+    bool operator!=(const Color4B &right) const;
     Color4B &operator=(const Color4B &right);
 
     uint32_t r = 0;
@@ -53,8 +53,8 @@ struct Color4F {
     Color4F();
     bool operator==(const Color4F &right) const;
     bool operator!=(const Color4F &right) const;
-    Color4F& operator=(const Color4B &right);
-    
+    Color4F &operator=(const Color4B &right);
+
     float r = 0.0F;
     float g = 0.0F;
     float b = 0.0F;
@@ -144,7 +144,7 @@ public:
     /**
      * set texture param callback
      */
-    using texParamCallback = std::function<void (int32_t, uint32_t, uint32_t, uint32_t, uint32_t)>;
+    using texParamCallback = std::function<void(int32_t, uint32_t, uint32_t, uint32_t, uint32_t)>;
 
     /** Sets the min filter, mag filter, wrap s and wrap t texture parameters.
      If the texture size is NPOT (non power of 2), then in can only use GL_CLAMP_TO_EDGE in GL_TEXTURE_WRAP_{S,T}.
@@ -227,11 +227,11 @@ public:
     void setTexture(Texture2D *pobTexture);
 
 protected:
-    cc::Vec2   _anchorPoint;
-    cc::Rect   _rectInPixels;
-    bool       _rotated = false;
-    cc::Vec2   _offsetInPixels;
-    cc::Size   _originalSizeInPixels;
+    cc::Vec2 _anchorPoint;
+    cc::Rect _rectInPixels;
+    bool _rotated = false;
+    cc::Vec2 _offsetInPixels;
+    cc::Size _originalSizeInPixels;
     Texture2D *_texture = nullptr;
 };
 MIDDLEWARE_END

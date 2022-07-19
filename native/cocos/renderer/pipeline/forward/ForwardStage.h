@@ -51,16 +51,20 @@ public:
     void render(scene::Camera *camera) override;
 
 private:
-    void                      dispenseRenderObject2Queues();
-    static RenderStageInfo    initInfo;
-    ForwardPipeline *         _forwrdPipeline     = nullptr;
-    PlanarShadowQueue *       _planarShadowQueue  = nullptr;
-    RenderBatchedQueue *      _batchedQueue       = nullptr;
-    RenderInstancedQueue *    _instancedQueue     = nullptr;
-    RenderAdditiveLightQueue *_additiveLightQueue = nullptr;
-    UIPhase *                 _uiPhase            = nullptr;
-    gfx::Rect                 _renderArea;
-    uint                      _phaseID = 0;
+    void dispenseRenderObject2Queues();
+    static RenderStageInfo initInfo;
+    // manage memory manually
+    PlanarShadowQueue *_planarShadowQueue{nullptr};
+    // manage memory manually
+    RenderBatchedQueue *_batchedQueue{nullptr};
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // manage memory manually
+    RenderAdditiveLightQueue *_additiveLightQueue{nullptr};
+    // manage memory manually
+    UIPhase *_uiPhase{nullptr};
+    gfx::Rect _renderArea;
+    uint32_t _phaseID{0};
 };
 
 } // namespace pipeline

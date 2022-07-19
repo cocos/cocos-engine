@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import './data-pool-manager';
 
 export * from './skeletal-animation-data-hub';

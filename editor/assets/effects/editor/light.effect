@@ -20,9 +20,9 @@ CCEffect %{
 
 CCProgram light-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
-  #include <common>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -36,7 +36,7 @@ CCProgram light-vs %{
 
 CCProgram light-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   uniform Constant {
     vec4 mainColor;

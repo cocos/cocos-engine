@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { removeProperty, replaceProperty } from '../core/utils/x-deprecated';
 import Burst from './burst';
 import { ParticleSystem } from './particle-system';

@@ -39,7 +39,7 @@ public:
     SDLHelper(IEventDispatch* delegate);
     ~SDLHelper();
 
-    int  init();
+    int init();
     void swapWindow();
     bool createWindow(const char* title,
                       int w, int h, int flags);
@@ -47,18 +47,19 @@ public:
                       int x, int y, int w,
                       int h, int flags);
 
-    void      pollEvent(bool* quit);
-    uintptr_t getWindowHandler() const;
+    void pollEvent(bool* quit);
+    uintptr_t getWindowHandle() const;
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
     uintptr_t getDisplay() const;
 #endif
     void setCursorEnabled(bool value);
+    SDL_Window* getSDLWindowHandle() const;
 
 private:
-    void               dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);
-    void               dispatchWindowEvent(const SDL_WindowEvent& wevent);
-    bool               _isWindowCreated{false};
-    IEventDispatch*    _delegate{nullptr};
+    void dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);
+    void dispatchWindowEvent(const SDL_WindowEvent& wevent);
+    bool _isWindowCreated{false};
+    IEventDispatch* _delegate{nullptr};
     struct SDL_Window* _handle{nullptr};
 };
 } // namespace cc

@@ -275,14 +275,6 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    const _updateBatch = skeleton._updateBatch;
-    skeleton._updateBatch = function () {
-        _updateBatch.call(this);
-        if (this._nativeSkeleton) {
-            this._nativeSkeleton.setBatchEnabled(this.enableBatch);
-        }
-    };
-
     skeleton.setSkeletonData = function (skeletonData) {
         if (skeletonData.width != null && skeletonData.height != null) {
             const uiTrans = this.node._uiProps.uiTransformComp;
@@ -613,14 +605,20 @@ const cacheManager = require('./jsb-cache-manager');
         const strName = name.toString();
         this._animationName = strName;
         this._playTimes = loop ? 0 : 1;
+        let res = null;
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
-                return this._nativeSkeleton.setAnimation(strName, loop);
+                res = this._nativeSkeleton.setAnimation(strName, loop);
             } else {
-                return this._nativeSkeleton.setAnimation(trackIndex, strName, loop);
+                res = this._nativeSkeleton.setAnimation(trackIndex, strName, loop);
             }
+            /**
+             * note: since native spine animation update called after Director.EVENT_BEFORE_UPDATE
+             * and before setAnimation. it's need to update native animation to first frame directly.
+             */
+            this._nativeSkeleton.update(0);
         }
-        return null;
+        return res;
     };
 
     skeleton.addAnimation = function (trackIndex, name, loop, delay) {
@@ -777,6 +775,7 @@ const cacheManager = require('./jsb-cache-manager');
             this.skeletonData.init();
             this.setSkeletonData(this.skeletonData);
 
+            this._indexBoneSockets();
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
@@ -802,7 +801,6 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     const _tempAttachMat4 = cc.mat4();
-    const _identityTrans = new cc.Node();
     let _tempVfmt; let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
     skeleton._render = function (ui) {
@@ -811,6 +809,8 @@ const cacheManager = require('./jsb-cache-manager');
 
         const node = this.node;
         if (!node) return;
+        const entity = this.renderEntity;
+        entity.clearDynamicRenderDrawInfos();
 
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
@@ -884,8 +884,20 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
-            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
+            const meshBuffer = renderData.chunk.meshBuffer;
+            meshBuffer.setDirty();
+            const drawInfo = this.requestDrawInfo(index);
+            drawInfo.setTexture(realTexture.getGFXTexture());
+            drawInfo.setTextureHash(realTexture.getHash());
+            drawInfo.setSampler(realTexture.getGFXSampler());
+            drawInfo.setBlendHash(this.blendHash);
+            drawInfo.setMaterial(this.material);
+            renderData.fillDrawInfoAttributes(drawInfo);
+
+            drawInfo.setIndexOffset(_tempIndicesOffset);
+            drawInfo.setIBCount(_tempIndicesCount);
+
+            entity.setDynamicRenderDrawInfo(drawInfo, index);
             this.material = mat;
         }
     };
@@ -898,7 +910,8 @@ const cacheManager = require('./jsb-cache-manager');
     assembler.createData = function (comp) {
     };
 
-    assembler.updateRenderData = function () {
+    assembler.updateRenderData = function (comp) {
+        comp._render();
     };
 
     // eslint-disable-next-line no-unused-vars

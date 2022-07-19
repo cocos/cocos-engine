@@ -36,9 +36,8 @@
 #include "base/Log.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
-#include "base/TypeDef.h"
 #include "base/memory/Memory.h"
-#include "core/TypedArray.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -166,6 +165,8 @@ public:
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other);
+        // NOTE: The reference count of T in ccstd::vector may be 0 so we need to retain all elements in ccstd::vector.
+        addRefForAllObjects();
     }
 
     /** Copy assignment operator. */
@@ -179,7 +180,18 @@ public:
         return *this;
     }
 
-    /** Copy assignment operator with std::move semantic. */
+    RefVector<T> &operator=(const ccstd::vector<T> &other) {
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        if (&_data != &other) {
+            //        CC_LOG_INFO("In the copy assign operator!");
+            clear();
+            _data = other;
+            addRefForAllObjects();
+        }
+        return *this;
+    }
+
+    /** Move assignment operator with std::move semantic. */
     RefVector<T> &operator=(RefVector<T> &&other) noexcept {
         if (this != &other) {
             //            CC_LOG_INFO("In the move assignment operator!");
@@ -188,6 +200,35 @@ public:
         }
         return *this;
     }
+
+    RefVector<T> &operator=(ccstd::vector<T> &&other) noexcept {
+        if (&_data != &other) {
+            //            CC_LOG_INFO("In the move assignment operator!");
+            clear();
+            _data = std::move(other);
+            // NOTE: The reference count of T in ccstd::vector may be 0 so we need to retain all elements in ccstd::vector.
+            addRefForAllObjects();
+        }
+        return *this;
+    }
+
+    RefVector<T> &operator=(std::initializer_list<T> list) {
+        clear();
+        for (auto &element : list) {
+            pushBack(element);
+        }
+        return *this;
+    }
+
+    // Can not return reference, or it can use like this
+    // refVector[i] = val;
+    // Then, reference count will be wrong. In order to correct reference count, should:
+    // - dec refVector[i] reference count
+    // - add `val` reference count.
+    // It is hard to use, so delete it.
+    T &operator[](uint32_t idx) = delete;
+    // As non const version is disabled, disable const version too.
+    const T &operator[](uint32_t idx) const = delete;
 
     /**
      * Requests that the vector capacity be at least enough to contain n elements.
@@ -255,7 +296,12 @@ public:
     }
 
     /** Returns the element at position 'index' in the Vector. */
-    T at(uint32_t index) const {
+    const T &at(uint32_t index) const {
+        CC_ASSERT(index < size());
+        return _data[index];
+    }
+
+    T &at(uint32_t index) {
         CC_ASSERT(index < size());
         return _data[index];
     }

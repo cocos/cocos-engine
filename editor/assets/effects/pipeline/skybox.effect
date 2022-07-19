@@ -13,8 +13,8 @@ CCEffect %{
 
 CCProgram sky-vs %{
   precision highp float;
-  #include <cc-global>
-  #include <decode>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode>
 
   out mediump vec4 viewDir;
 
@@ -48,19 +48,20 @@ CCProgram sky-vs %{
 
 CCProgram sky-fs %{
   precision mediump float;
-  #include <cc-global>
-  #include <cc-environment>
-  #include <unpack>
-  #include <gamma>
-  #include <output-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-environment>
+  #include <common/texture/texture-lod>
+  #include <common/data/unpack>
+  #include <common/color/gamma>
+  #include <legacy/output-standard>
 
   in mediump vec4 viewDir;
 
   vec4 frag () {
     #if USE_RGBE_CUBEMAP
-      vec3 c = unpackRGBE(texture(cc_environment, viewDir.xyz));
+      vec3 c = unpackRGBE(fragTextureLod(cc_environment, viewDir.xyz, 0.0));
     #else
-      vec3 c = SRGBToLinear(texture(cc_environment, viewDir.xyz).rgb);
+      vec3 c = SRGBToLinear(fragTextureLod(cc_environment, viewDir.xyz, 0.0).rgb);
     #endif
     return CCFragOutput(vec4(c * cc_ambientSky.w, 1.0));
   }

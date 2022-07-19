@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module ui
- */
 import { Mask } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';
@@ -38,6 +34,7 @@ import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
+import { replaceProperty } from '../../core/utils';
 
 /**
  * Alias of [[Mask]]
@@ -101,3 +98,12 @@ js.setClassAlias(UIStaticBatch, 'cc.UIStaticBatchComponent');
  */
 export { UIOpacity as UIOpacityComponent };
 js.setClassAlias(UIOpacity, 'cc.UIOpacityComponent');
+
+replaceProperty(Mask.prototype, 'Mask', [
+    {
+        name: 'graphics',
+        newName: 'subComp',
+        target: Mask.prototype,
+        targetName: 'Mask',
+    },
+]);

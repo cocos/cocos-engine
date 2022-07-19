@@ -7,7 +7,7 @@ if (!tsConfig.config) {
 }
 const { compilerOptions } = tsConfig.config;
 module.exports = {
-    testEnvironment: 'jsdom',
+    testEnvironment: './tests/test-environment.ts',
     testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
     moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
     transformIgnorePatterns: [
@@ -17,6 +17,7 @@ module.exports = {
     ],
     setupFilesAfterEnv: [
         "./tests/setup-after-env.ts",
+        "./tests/utils/log-capture-setup-after-env.ts"
     ],
     setupFiles: [
         './tests/init.ts',

@@ -32,7 +32,7 @@
 
 namespace cc {
 
-Texture2D::Texture2D()  = default;
+Texture2D::Texture2D() = default;
 Texture2D::~Texture2D() = default;
 
 void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
@@ -43,14 +43,14 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
-        ImageAsset *         imageAsset = _mipmaps[0];
+        ImageAsset *imageAsset = _mipmaps[0];
         ITexture2DCreateInfo info;
-        info.width       = imageAsset->getWidth();
-        info.height      = imageAsset->getHeight();
-        info.format      = imageAsset->getFormat();
+        info.width = imageAsset->getWidth();
+        info.height = imageAsset->getHeight();
+        info.format = imageAsset->getFormat();
         info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
-        info.baseLevel   = _baseLevel;
-        info.maxLevel    = _maxLevel;
+        info.baseLevel = _baseLevel;
+        info.maxLevel = _maxLevel;
         reset(info);
 
         for (size_t i = 0, len = _mipmaps.size(); i < len; ++i) {
@@ -59,11 +59,11 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
 
     } else {
         ITexture2DCreateInfo info;
-        info.width       = 0;
-        info.height      = 0;
+        info.width = 0;
+        info.height = 0;
         info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
-        info.baseLevel   = _baseLevel;
-        info.maxLevel    = _maxLevel;
+        info.baseLevel = _baseLevel;
+        info.maxLevel = _maxLevel;
         reset(info);
     }
 }
@@ -77,29 +77,27 @@ void Texture2D::onLoaded() {
 }
 
 void Texture2D::reset(const ITexture2DCreateInfo &info) {
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    
+
     uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
     setMipmapLevel(mipLevels);
 
     uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
-    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
 
     tryReset();
 }
 
 void Texture2D::create(uint32_t width, uint32_t height, PixelFormat format /* = PixelFormat::RGBA8888*/, uint32_t mipmapLevel /* = 1*/, uint32_t baseLevel, uint32_t maxLevel) {
-    reset({
-        width,
-        height,
-        format,
-        mipmapLevel,
-        baseLevel,
-        maxLevel
-    });
+    reset({width,
+           height,
+           format,
+           mipmapLevel,
+           baseLevel,
+           maxLevel});
 }
 
 ccstd::string Texture2D::toString() const {
@@ -125,10 +123,6 @@ void Texture2D::updateMipmaps(uint32_t firstLevel, uint32_t count) {
     }
 }
 
-HTMLElement *Texture2D::getHtmlElementObj() { //NOLINT
-    return nullptr;                           //cjh TODO: remove this?
-}
-
 bool Texture2D::destroy() {
     _mipmaps.clear();
     return Super::destroy();
@@ -136,7 +130,7 @@ bool Texture2D::destroy() {
 
 ccstd::string Texture2D::description() const {
     std::stringstream ret;
-    ccstd::string     url;
+    ccstd::string url;
     if (!_mipmaps.empty()) {
         url = _mipmaps[0]->getUrl();
     }
@@ -148,7 +142,7 @@ void Texture2D::releaseTexture() {
     destroy();
 }
 
-cc::any Texture2D::serialize(const cc::any & /*ctxForExporting*/) {
+ccstd::any Texture2D::serialize(const ccstd::any & /*ctxForExporting*/) {
     //    if (EDITOR || TEST) {
     //        return {
     //            base: super._serialize(ctxForExporting),
@@ -167,8 +161,8 @@ cc::any Texture2D::serialize(const cc::any & /*ctxForExporting*/) {
     return nullptr;
 }
 
-void Texture2D::deserialize(const cc::any &serializedData, const cc::any &handle) {
-    const auto *data = cc::any_cast<ITexture2DSerializeData>(&serializedData);
+void Texture2D::deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {
+    const auto *data = ccstd::any_cast<ITexture2DSerializeData>(&serializedData);
     if (data == nullptr) {
         CC_LOG_WARNING("serializedData is not ITexture2DSerializeData");
         return;
@@ -178,24 +172,24 @@ void Texture2D::deserialize(const cc::any &serializedData, const cc::any &handle
     _mipmaps.resize(data->mipmaps.size());
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
         // Prevent resource load failed
-        _mipmaps[i] = new ImageAsset();
+        _mipmaps[i] = ccnew ImageAsset();
         if (data->mipmaps[i].empty()) {
             continue;
         }
         ccstd::string mipmapUUID = data->mipmaps[i];
-        //cjh TODO:        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
+        //cjh TODO:        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js.getClassId(ImageAsset));
     }
 }
 
 gfx::TextureInfo Texture2D::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) {
     gfx::TextureInfo texInfo;
-    texInfo.type       = gfx::TextureType::TEX2D;
-    texInfo.width      = _width;
-    texInfo.height     = _height;
-    texInfo.usage      = usage;
-    texInfo.format     = format;
+    texInfo.type = gfx::TextureType::TEX2D;
+    texInfo.width = _width;
+    texInfo.height = _height;
+    texInfo.usage = usage;
+    texInfo.format = format;
     texInfo.levelCount = levelCount;
-    texInfo.flags      = flags;
+    texInfo.flags = flags;
     return texInfo;
 }
 
@@ -209,10 +203,10 @@ gfx::TextureViewInfo Texture2D::getGfxTextureViewCreateInfo(gfx::Texture *textur
     return texViewInfo;
 }
 
-void Texture2D::initDefault(const cc::optional<ccstd::string> &uuid) {
+void Texture2D::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    auto *imageAsset = new ImageAsset();
-    imageAsset->initDefault(cc::nullopt);
+    auto *imageAsset = ccnew ImageAsset();
+    imageAsset->initDefault(ccstd::nullopt);
     setImage(imageAsset);
 }
 

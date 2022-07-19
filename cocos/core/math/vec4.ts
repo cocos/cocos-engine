@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
@@ -538,7 +533,7 @@ export class Vec4 extends ValueType {
      * @param other Specified vector
      * @returns `this`
      */
-    public set (other: Vec4);
+    public set (other: Vec4): Vec4;
 
     /**
      * @en Set the value of each component of the current vector.
@@ -549,7 +544,7 @@ export class Vec4 extends ValueType {
      * @param w w value
      * @returns `this`
      */
-    public set (x?: number, y?: number, z?: number, w?: number);
+    public set (x?: number, y?: number, z?: number, w?: number): Vec4;
 
     public set (x?: number | Vec4, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {

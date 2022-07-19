@@ -26,8 +26,8 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "base/TypeDef.h"
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
+#include "bindings/utils/BindingUtils.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -47,7 +47,6 @@ namespace cc {
 
 class Scene;
 class NodeEventProcessor;
-//class NodeUiProperties;
 
 /**
  * Event types emitted by Node
@@ -76,14 +75,8 @@ public:
     static const uint32_t DONT_DESTROY;
 
     static Node *instantiate(Node *cloned, bool isSyncedNode);
-    // for walk
-    static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t                              stackId;
 
-    static void    setScene(Node *);
-    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
-
-    static bool isStatic; // cjh TODO: add getter / setter
+    static void setScene(Node *);
 
     /**
      * @en Finds a node by hierarchy path, the path is case-sensitive.
@@ -115,8 +108,9 @@ public:
 
     Scene *getScene() const;
 
-    void walk(const std::function<void(Node *)> &preFunc);
-    void walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc);
+    using WalkCallback = std::function<void(Node *)>;
+    void walk(const WalkCallback &preFunc);
+    void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
@@ -236,7 +230,7 @@ public:
         }
     }
     void removeAllChildren();
-    bool isChildOf(Node *parent);
+    bool isChildOf(Node *parent) const;
 
     void setActive(bool isActive);
 
@@ -254,32 +248,33 @@ public:
         return _id;
     }
 
-    inline bool isActive() const { return _active; }
+    inline bool isActive() const { return _active != 0; }
 
-    inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
-    inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
-    inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
+    inline bool isActiveInHierarchy() const { return _activeInHierarchy != 0; }
+    inline void setActiveInHierarchy(bool v) {
+        _activeInHierarchy = (v ? 1 : 0);
+    }
 
-    virtual void                                    onPostActivated(bool active) {}
+    virtual void onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
-    inline Node *                                   getParent() const { return _parent; }
-    inline NodeEventProcessor *                     getEventProcessor() const { return _eventProcessor; }
+    inline Node *getParent() const { return _parent; }
+    inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
 
-    Node *           getChildByUuid(const ccstd::string &) const;
-    Node *           getChildByName(const ccstd::string &) const;
-    Node *           getChildByPath(const ccstd::string &) const;
-    inline index_t   getSiblingIndex() const { return _siblingIndex; }
+    Node *getChildByUuid(const ccstd::string &uuid) const;
+    Node *getChildByName(const ccstd::string &name) const;
+    Node *getChildByPath(const ccstd::string &path) const;
+    inline index_t getSiblingIndex() const { return _siblingIndex; }
     inline UserData *getUserData() { return _userData.get(); }
-    inline void      setUserData(UserData *data) { _userData = data; }
-    inline void      insertChild(Node *child, index_t siblingIndex) {
+    inline void setUserData(UserData *data) { _userData = data; }
+    inline void insertChild(Node *child, index_t siblingIndex) {
         child->setParent(this);
         child->setSiblingIndex(siblingIndex);
     }
 
     void invalidateChildren(TransformBit dirtyBit);
 
-    void        translate(const Vec3 &, NodeSpace ns = NodeSpace::LOCAL);
-    void        rotate(const Quaternion &rot, NodeSpace ns = NodeSpace::LOCAL, bool calledFromJS = false);
+    void translate(const Vec3 &, NodeSpace ns = NodeSpace::LOCAL);
+    void rotate(const Quaternion &rot, NodeSpace ns = NodeSpace::LOCAL, bool calledFromJS = false);
     inline void rotateForJS(float x, float y, float z, float w, NodeSpace ns = NodeSpace::LOCAL) {
         rotate(Quaternion(x, y, z, w), ns, true);
     }
@@ -301,7 +296,7 @@ public:
     inline void setPosition(float x, float y) { setPosition(x, y, _localPosition.z); }
     inline void setPosition(float x, float y, float z) { setPositionInternal(x, y, z, false); }
     inline void setPositionInternal(float x, float y, bool calledFromJS) { setPositionInternal(x, y, _localPosition.z, calledFromJS); }
-    void        setPositionInternal(float x, float y, float z, bool calledFromJS);
+    void setPositionInternal(float x, float y, float z, bool calledFromJS);
     inline void setPositionForJS(float x, float y, float z) { _localPosition.set(x, y, z); }
     /**
      * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -318,13 +313,13 @@ public:
      */
     inline void setRotation(const Quaternion &rotation) { setRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
     inline void setRotation(float x, float y, float z, float w) { setRotationInternal(x, y, z, w, false); }
-    void        setRotationInternal(float x, float y, float z, float w, bool calledFromJS);
+    void setRotationInternal(float x, float y, float z, float w, bool calledFromJS);
     inline void setRotationForJS(float x, float y, float z, float w) { _localRotation.set(x, y, z, w); }
 
     inline void setEulerAngles(const Vec3 &val) { setRotationFromEuler(val.x, val.y, val.z); }
     inline void setRotationFromEuler(const Vec3 &val) { setRotationFromEuler(val.x, val.y, val.z); }
     inline void setRotationFromEuler(float x, float y) { setRotationFromEuler(x, y, _euler.z); }
-    void        setRotationFromEuler(float x, float y, float z);
+    void setRotationFromEuler(float x, float y, float z);
     inline void setRotationFromEulerForJS(float x, float y, float z) { _euler.set(x, y, z); }
     /**
      * @en Get rotation as quaternion in local coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
@@ -343,7 +338,7 @@ public:
     inline void setScale(float x, float y) { setScale(x, y, _localScale.z); }
     inline void setScale(float x, float y, float z) { setScaleInternal(x, y, z, false); }
     inline void setScaleInternal(float x, float y, bool calledFromJS) { setScaleInternal(x, y, _localScale.z, calledFromJS); }
-    void        setScaleInternal(float x, float y, float z, bool calledFromJS);
+    void setScaleInternal(float x, float y, float z, bool calledFromJS);
     inline void setScaleForJS(float x, float y, float z) { _localScale.set(x, y, z); }
     /**
      * @en Get scale in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -356,10 +351,10 @@ public:
     /**
      * @en Inversely transform a point from world coordinate system to local coordinate system.
      * @zh 逆向变换一个空间点，一般用于将世界坐标转换到本地坐标系中。
-     * @param out The result point in local coordinate system will be stored in this vector
      * @param p A position in world coordinate system
+     * @return The result point in local coordinate system will be stored in this vector
      */
-    void inverseTransformPoint(Vec3 &out, const Vec3 &p);
+    Vec3 inverseTransformPoint(const Vec3 &p);
 
     /**
      * @en Set position in world coordinate system
@@ -367,7 +362,7 @@ public:
      * @param position Target position
      */
     inline void setWorldPosition(const Vec3 &pos) { setWorldPosition(pos.x, pos.y, pos.z); }
-    void        setWorldPosition(float x, float y, float z);
+    void setWorldPosition(float x, float y, float z);
 
     /**
      * @en Get position in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -383,7 +378,7 @@ public:
      * @param rotation Rotation in quaternion
      */
     inline void setWorldRotation(const Quaternion &rotation) { setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
-    void        setWorldRotation(float x, float y, float z, float w);
+    void setWorldRotation(float x, float y, float z, float w);
     /**
      * @en Get rotation as quaternion in world coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
      * @zh 获取世界坐标系下的旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
@@ -400,7 +395,7 @@ public:
      * @param z Z axis rotation
      */
     inline void setWorldScale(const Vec3 &scale) { setWorldScale(scale.x, scale.y, scale.z); }
-    void        setWorldScale(float x, float y, float z);
+    void setWorldScale(float x, float y, float z);
 
     /**
      * @en Get scale in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -455,13 +450,13 @@ public:
      * @param pos The position
      * @param scale The scale
      */
-    void        setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
+    void setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
     inline void setRTS(Quaternion *rot, Vec3 *pos, Vec3 *scale) { setRTSInternal(rot, pos, scale, false); }
 
     inline void setForward(const Vec3 &dir) {
-        const float len    = dir.length();
-        Vec3        v3Temp = dir * (-1.F / len);
-        Quaternion  qTemp{Quaternion::identity()};
+        const float len = dir.length();
+        Vec3 v3Temp = dir * (-1.F / len);
+        Quaternion qTemp{Quaternion::identity()};
         Quaternion::fromViewUp(v3Temp, &qTemp);
         setWorldRotation(qTemp);
     }
@@ -479,43 +474,53 @@ public:
         return _euler.z;
     }
 
-    inline Vec3 getForward() {
+    inline Vec3 getForward() const {
         Vec3 forward{0, 0, -1};
         forward.transformQuat(_worldRotation);
         return forward;
     }
 
-    inline Vec3 getUp() {
+    inline Vec3 getUp() const {
         Vec3 up{0, 1, 0};
         up.transformQuat(_worldRotation);
         return up;
     }
 
-    inline Vec3 getRight() {
+    inline Vec3 getRight() const {
         Vec3 right{1, 0, 0};
         right.transformQuat(_worldRotation);
         return right;
+    }
+
+    inline bool isStatic() const {
+        return _isStatic != 0;
+    }
+
+    inline void setStatic(bool v) {
+        _isStatic = v ? 1 : 0;
     }
 
     /**
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    inline uint32_t getChangedFlags() const { return _flagChange; }
-    inline void     setChangedFlags(uint32_t value) { _flagChange = value; }
+    inline uint32_t getChangedFlags() const {
+        return _hasChangedFlagsVersion == globalFlagChangeVersion ? _hasChangedFlags : 0;
+    }
+    inline void setChangedFlags(uint32_t value) {
+        _hasChangedFlagsVersion = globalFlagChangeVersion;
+        _hasChangedFlags = value;
+    }
 
-    inline void     setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
+    inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
-    inline void     setLayer(uint32_t layer) {
-        _layerArr[0] = layer;
+    inline void setLayer(uint32_t layer) {
+        _layer = layer;
         emit(NodeEventType::LAYER_CHANGED, layer);
     }
-    inline uint32_t getLayer() const { return _layerArr[0]; }
-    inline void     setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
+    inline uint32_t getLayer() const { return _layer; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
-
-    inline void setUIPropsTransformDirtyPtr(uint32_t *pDirty) { _uiTransformDirty = pDirty; }
 
     //    // ------------------  Component code start -----------------------------
     //    // TODO(Lenovo):
@@ -611,12 +616,14 @@ public:
     //    void     _setChildrenSize(uint32_t size);
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
-    // For JS wrapper.
-    inline uint32_t getEventMask() const { return _eventMask; }
-    inline void     setEventMask(uint32_t mask) { _eventMask = mask; }
+
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
+
+    bool onPreDestroy() override;
+    bool onPreDestroyBase();
 
 protected:
-    bool onPreDestroy() override;
+    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
 
     void onSetParent(Node *oldParent, bool keepWorldTransform);
 
@@ -627,9 +634,7 @@ protected:
 
     virtual void onBatchCreated(bool dontChildPrefab);
 
-    bool onPreDestroyBase();
-
-#ifdef CC_EDITOR
+#if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {
         emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
     }
@@ -639,6 +644,9 @@ protected:
     static uint32_t clearRound;
 
 private:
+    // increase on every frame, used to identify the frame
+    static uint32_t globalFlagChangeVersion;
+
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
     }
@@ -659,53 +667,56 @@ private:
     }
 
 protected:
-    Scene *             _scene{nullptr};
+    Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
 
-    uint32_t _eventMask{0};
+    Mat4 _worldMatrix{Mat4::IDENTITY};
 
-    Mat4     _rtMat{Mat4::IDENTITY};
-    cc::Mat4 _worldMatrix{Mat4::IDENTITY};
-
-    uint32_t _flagChange{0};
-    uint32_t _dirtyFlag{0};
+    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
+    * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
+    */
+    uint32_t _hasChangedFlagsVersion{0};
+    uint32_t _hasChangedFlags{0};
 
     bool _eulerDirty{false};
-    //    IntrusivePtr<NodeUiProperties> _uiProps;
-    //    bool _activeInHierarchy{false};
-    // Shared memory with JS.
-    uint8_t * _activeInHierarchyArr{nullptr};
-    uint32_t *_layerArr{nullptr};
 
 public:
     std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    index_t                      _siblingIndex{0};
     // For deserialization
-    ccstd::string                     _id;
-    ccstd::vector<IntrusivePtr<Node>> _children;
-    Node *                            _parent{nullptr};
-    bool                              _active{true};
+    ccstd::string _id;
+    Node *_parent{nullptr};
 
 private:
+    ccstd::vector<IntrusivePtr<Node>> _children;
     // local transform
-    cc::Vec3       _localPosition{Vec3::ZERO};
-    cc::Quaternion _localRotation{Quaternion::identity()};
-    cc::Vec3       _localScale{Vec3::ONE};
+    Vec3 _localPosition{Vec3::ZERO};
+    Quaternion _localRotation{Quaternion::identity()};
+    Vec3 _localScale{Vec3::ONE};
     // world transform
-    cc::Vec3       _worldPosition{Vec3::ZERO};
-    cc::Quaternion _worldRotation{Quaternion::identity()};
-    cc::Vec3       _worldScale{Vec3::ONE};
+    Vec3 _worldPosition{Vec3::ZERO};
+    Quaternion _worldRotation{Quaternion::identity()};
+    Vec3 _worldScale{Vec3::ONE};
     //
     Vec3 _euler{0, 0, 0};
 
-    //
-
     IntrusivePtr<UserData> _userData;
+
+    // Shared memory with JS
+    // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
+    uint32_t _eventMask{0};                                             // Uint32: 0
+    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
+    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    index_t _siblingIndex{0};                                           // Int32: 0
+    uint8_t _activeInHierarchy{0};                                      // Uint8: 0
+    uint8_t _active{1};                                                 // Uint8: 1
+    uint8_t _isStatic{0};                                               // Uint8: 2
+    uint8_t _padding{0};                                                // Uint8: 3
+
+    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
+
+    //
     friend class NodeActivator;
     friend class Scene;
-
-    // Used to shared memory of Node._uiProps._uiTransformDirty.
-    uint32_t *_uiTransformDirty{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Node);
 };

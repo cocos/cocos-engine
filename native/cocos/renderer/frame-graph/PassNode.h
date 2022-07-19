@@ -41,52 +41,52 @@ class FrameGraph;
 class PassNode final {
 public:
     PassNode(PassInsertPoint inserPoint, StringHandle name, const ID &id, Executable *pass);
-    ~PassNode()                    = default;
+    ~PassNode() = default;
     PassNode(PassNode &&) noexcept = default;
-    PassNode(const PassNode &)     = delete;
+    PassNode(const PassNode &) = delete;
     PassNode &operator=(const PassNode &) = delete;
     PassNode &operator=(PassNode &&) noexcept = delete;
 
-    Handle      read(FrameGraph &graph, const Handle &input);
-    Handle      write(FrameGraph &graph, const Handle &output);
-    void        createRenderTargetAttachment(RenderTargetAttachment &&attachment);
+    Handle read(FrameGraph &graph, const Handle &input);
+    Handle write(FrameGraph &graph, const Handle &output);
+    void createRenderTargetAttachment(RenderTargetAttachment &&attachment);
     inline void sideEffect();
     inline void subpass(bool end, bool clearActionIgnorable);
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor);
 
 private:
-    bool                    canMerge(const FrameGraph &graph, const PassNode &passNode) const;
+    bool canMerge(const FrameGraph &graph, const PassNode &passNode) const;
     RenderTargetAttachment *getRenderTargetAttachment(const Handle &handle);
     RenderTargetAttachment *getRenderTargetAttachment(const FrameGraph &graph, const VirtualResource *resource);
-    void                    requestTransientResources();
-    void                    releaseTransientResources();
-    void                    setDevicePassId(ID id);
-    Handle                  getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *resource) const;
+    void requestTransientResources();
+    void releaseTransientResources();
+    void setDevicePassId(ID id);
+    Handle getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *resource) const;
 
-    std::unique_ptr<Executable>           _pass{nullptr};
-    ccstd::vector<Handle>                 _reads{};
-    ccstd::vector<Handle>                 _writes{};
+    std::unique_ptr<Executable> _pass{nullptr};
+    ccstd::vector<Handle> _reads{};
+    ccstd::vector<Handle> _writes{};
     ccstd::vector<RenderTargetAttachment> _attachments{};
-    ccstd::vector<VirtualResource *>      _resourceRequestArray{};
-    ccstd::vector<VirtualResource *>      _resourceReleaseArray{};
-    const StringHandle                    _name;
-    uint32_t                              _refCount{0};
-    PassNode *                            _head{nullptr};
-    PassNode *                            _next{nullptr};
-    uint16_t                              _distanceToHead{0};
-    uint16_t                              _usedRenderTargetSlotMask{0};
-    ID const                              _id{0};
-    ID                                    _devicePassId{0};
-    const PassInsertPoint                 _insertPoint{0};
-    bool                                  _sideEffect{false};
-    bool                                  _subpass{false};
-    bool                                  _subpassEnd{false};
-    bool                                  _hasClearedAttachment{false};
-    bool                                  _clearActionIgnorable{false};
+    ccstd::vector<VirtualResource *> _resourceRequestArray{};
+    ccstd::vector<VirtualResource *> _resourceReleaseArray{};
+    const StringHandle _name;
+    uint32_t _refCount{0};
+    PassNode *_head{nullptr};
+    PassNode *_next{nullptr};
+    uint16_t _distanceToHead{0};
+    uint16_t _usedRenderTargetSlotMask{0};
+    ID const _id{0};
+    ID _devicePassId{0};
+    const PassInsertPoint _insertPoint{0};
+    bool _sideEffect{false};
+    bool _subpass{false};
+    bool _subpassEnd{false};
+    bool _hasClearedAttachment{false};
+    bool _clearActionIgnorable{false};
 
-    bool          _customViewport{false};
+    bool _customViewport{false};
     gfx::Viewport _viewport;
-    gfx::Rect     _scissor;
+    gfx::Rect _scissor;
 
     friend class FrameGraph;
     friend class DevicePass;
@@ -100,15 +100,15 @@ void PassNode::sideEffect() {
 }
 
 void PassNode::subpass(bool end, bool clearActionIgnorable) {
-    _subpass              = true;
-    _subpassEnd           = end;
+    _subpass = true;
+    _subpassEnd = end;
     _clearActionIgnorable = clearActionIgnorable;
 }
 
 void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) {
     _customViewport = true;
-    _viewport       = viewport;
-    _scissor        = scissor;
+    _viewport = viewport;
+    _scissor = scissor;
 }
 
 } // namespace framegraph

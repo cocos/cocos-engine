@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute, API } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API, deviceManager } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -66,6 +66,7 @@ const VELOCITY_OVER_TIME_MODULE_ENABLE = 'VELOCITY_OVER_TIME_MODULE_ENABLE';
 const FORCE_OVER_TIME_MODULE_ENABLE = 'FORCE_OVER_TIME_MODULE_ENABLE';
 const TEXTURE_ANIMATION_MODULE_ENABLE = 'TEXTURE_ANIMATION_MODULE_ENABLE';
 const USE_VK_SHADER = 'USE_VK_SHADER';
+const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
 
 const _vert_attr_name = {
     POSITION_STARTTIME: 'a_position_starttime',
@@ -74,6 +75,9 @@ const _vert_attr_name = {
     COLOR: 'a_color',
     DIR_LIFE: 'a_dir_life',
     RANDOM_SEED: 'a_rndSeed',
+    VERT_SIZE_FID: 'a_size_fid',
+    VERT_ROTATION: 'a_rotation',
+    VERT_UV: 'a_uv',
 };
 
 const _gpu_vert_attr = [
@@ -96,6 +100,29 @@ const _gpu_vert_attr_mesh = [
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
     new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
+];
+
+const _gpu_vert_attr_ins = [
+    new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
+    new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_UV, Format.RGB32F, false, 1),
+];
+
+const _gpu_vert_attr_mesh_ins = [
+    new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
+    new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),      // mesh uv
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),     // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),         // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true, 1),           // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -207,7 +234,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum++;
     }
 
-    public getDefaultMaterial(): Material | null {
+    public getDefaultMaterial (): Material | null {
         return this._defaultMat;
     }
 
@@ -235,7 +262,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -269,7 +296,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
@@ -442,7 +469,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             pass.setUniform(infoHandle, _tempVec4);
         }
 
-        this._defines[USE_VK_SHADER] = legacyCC.game._gfxDevice.gfxAPI === API.VULKAN;
+        this._defines[USE_VK_SHADER] = deviceManager.gfxDevice.gfxAPI === API.VULKAN;
+        this._defines[INSTANCE_PARTICLE] = this._useInstance;
     }
 
     public getParticleCount (): number {
@@ -463,15 +491,32 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     private _setVertexAttrib () {
+        if (!this._useInstance) {
+            switch (this._renderInfo!.renderMode) {
+            case RenderMode.StrecthedBillboard:
+                this._vertAttrs = _gpu_vert_attr.slice();
+                break;
+            case RenderMode.Mesh:
+                this._vertAttrs = _gpu_vert_attr_mesh.slice();
+                break;
+            default:
+                this._vertAttrs = _gpu_vert_attr.slice();
+            }
+        } else {
+            this._setVertexAttribIns();
+        }
+    }
+
+    private _setVertexAttribIns () {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
-            this._vertAttrs = _gpu_vert_attr.slice();
+            this._vertAttrs = _gpu_vert_attr_ins.slice();
             break;
         case RenderMode.Mesh:
-            this._vertAttrs = _gpu_vert_attr_mesh.slice();
+            this._vertAttrs = _gpu_vert_attr_mesh_ins.slice();
             break;
         default:
-            this._vertAttrs = _gpu_vert_attr.slice();
+            this._vertAttrs = _gpu_vert_attr_ins.slice();
         }
     }
 
@@ -484,7 +529,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (shareMaterial !== null) {
             const effectName = shareMaterial._effectAsset._name;
             this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
-            if (effectName.indexOf('particle-gpu') === -1) {
+            if (effectName.indexOf('builtin-particle-gpu') === -1) {
                 this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
                 // reset material
                 this._particleSystem.setMaterial(null, 0);
@@ -545,5 +590,21 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (this._model) {
             this._model.updateMaterial(mat!);
         }
+    }
+
+    public setUseInstance (value: boolean) {
+        if (this._useInstance === value) {
+            return;
+        }
+        this._useInstance = value;
+        if (this._model) {
+            this._model.useInstance = value;
+            this._model.doDestroy();
+        }
+        this.updateRenderMode();
+    }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+
     }
 }

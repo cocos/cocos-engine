@@ -46,24 +46,24 @@ PipelineStateValidator::~PipelineStateValidator() {
 }
 
 void PipelineStateValidator::doInit(const PipelineStateInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
-    CCASSERT(info.shader && static_cast<ShaderValidator *>(info.shader)->isInited(), "already destroyed?");
-    CCASSERT(info.pipelineLayout && static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->isInited(), "already destroyed?");
-    CCASSERT(!info.renderPass || static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
+    CC_ASSERT(info.shader && static_cast<ShaderValidator *>(info.shader)->isInited());
+    CC_ASSERT(info.pipelineLayout && static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->isInited());
+    CC_ASSERT(!info.renderPass || static_cast<RenderPassValidator *>(info.renderPass)->isInited());
 
     /////////// execute ///////////
 
     PipelineStateInfo actorInfo = info;
-    actorInfo.shader            = static_cast<ShaderValidator *>(info.shader)->getActor();
-    actorInfo.pipelineLayout    = static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->getActor();
+    actorInfo.shader = static_cast<ShaderValidator *>(info.shader)->getActor();
+    actorInfo.pipelineLayout = static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->getActor();
     if (info.renderPass) actorInfo.renderPass = static_cast<RenderPassValidator *>(info.renderPass)->getActor();
 
     _actor->initialize(actorInfo);
 }
 
 void PipelineStateValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

@@ -28,6 +28,7 @@
 // #include "core/Director.h"
 #include "core/Root.h"
 //#include "core/scene-graph/NodeActivator.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
 namespace cc {
 
@@ -36,7 +37,7 @@ Scene::Scene(const ccstd::string &name)
     // _activeInHierarchy is initalized to 'false', so doesn't need to set it to false again
     //    _activeInHierarchy = false;
     _renderScene = Root::getInstance()->createScene({});
-    _globals     = new SceneGlobals();
+    _globals = ccnew SceneGlobals();
 }
 
 Scene::Scene() : Scene("") {}
@@ -46,9 +47,10 @@ Scene::~Scene() = default;
 void Scene::setSceneGlobals(SceneGlobals *globals) { _globals = globals; }
 
 void Scene::load() {
+    EventDispatcher::dispatchSceneLoadEvent();
     if (!_inited) {
         //cjh        if (TEST) {
-        //            assert(!_activeInHierarchy, 'Should deactivate ActionManager by default');
+        //            CC_ASSERT(!_activeInHierarchy, 'Should deactivate ActionManager by default');
         //        }
         // expandNestedPrefabInstanceNode(this); // TODO(xwx): expandNestedPrefabInstanceNode not implement yet
         // applyTargetOverrides(this); // TODO(xwx): applyTargetOverrides not implement yet
@@ -62,7 +64,7 @@ void Scene::load() {
 }
 
 void Scene::activate(bool active /* = true */) { // NOLINT(misc-unused-parameters)
-#ifdef CC_EDITOR
+#if CC_EDITOR
     this->notifyEditorAttached(active);
 #endif
     //cjh

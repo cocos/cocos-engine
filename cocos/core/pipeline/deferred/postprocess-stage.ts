@@ -28,8 +28,8 @@
  */
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
-import { SetIndex } from '../define';
-import { Color, Rect, PipelineState, ClearFlagBit } from '../../gfx';
+import { SetIndex, UBOLocal } from '../define';
+import { Color, Rect, PipelineState, ClearFlagBit, DescriptorSetInfo, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from '../enum';
 import { Material } from '../../assets/material';
@@ -66,7 +66,8 @@ export class PostProcessStage extends RenderStage {
 
     private _renderArea = new Rect();
     private declare _uiPhase: UIPhase;
-
+    private _stageDesc;
+    private _localUBO;
     constructor () {
         super();
         this._uiPhase = new UIPhase();
@@ -85,7 +86,6 @@ export class PostProcessStage extends RenderStage {
 
     public destroy () {
     }
-
     public render (camera: Camera) {
         const pipeline = this._pipeline;
         const device = pipeline.device;
@@ -126,8 +126,6 @@ export class PostProcessStage extends RenderStage {
         pass.descriptorSet.bindSampler(0, renderData.sampler);
         pass.descriptorSet.update();
 
-        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-
         const inputAssembler = camera.window.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
         let pso: PipelineState | null = null;
         if (pass != null && shader != null && inputAssembler != null) {
@@ -136,7 +134,20 @@ export class PostProcessStage extends RenderStage {
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
         if (pso != null && renderObjects.length > 0) {
+            if (!this._stageDesc) {
+                this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+                this._localUBO = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
+                    UBOLocal.SIZE,
+                    UBOLocal.SIZE,
+                ));
+                this._stageDesc.bindBuffer(UBOLocal.BINDING, this._localUBO);
+            }
+            this._stageDesc.update();
             cmdBuff.bindPipelineState(pso);
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._stageDesc);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }

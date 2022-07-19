@@ -15,7 +15,6 @@ import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
 import * as rollup from 'rollup';
 // @ts-expect-error: No typing
 import rpProgress from 'rollup-plugin-progress';
-// @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
@@ -30,6 +29,8 @@ import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 import { codeAsset } from './rollup-plugins/code-asset';
 
+export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants } from './constant-manager';
+export { StatsQuery };
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
 function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {

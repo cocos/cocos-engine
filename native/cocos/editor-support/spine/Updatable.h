@@ -35,19 +35,19 @@
 
 namespace spine {
 class SP_API Updatable : public SpineObject {
-RTTI_DECL
+    RTTI_DECL
 
 public:
-	Updatable();
+    Updatable();
 
-	virtual ~Updatable();
+    virtual ~Updatable();
 
-	virtual void update() = 0;
+    virtual void update() = 0;
 
-	virtual bool isActive() = 0;
+    virtual bool isActive() = 0;
 
-	virtual void setActive(bool inValue) = 0;
+    virtual void setActive(bool inValue) = 0;
 };
-}
+} // namespace spine
 
 #endif /* Spine_Updatable_h */

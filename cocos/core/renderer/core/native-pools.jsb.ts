@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 declare const jsb: any;
 
 export const NativeBufferPool = jsb.NativeBufferPool;

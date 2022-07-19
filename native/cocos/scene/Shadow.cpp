@@ -62,17 +62,17 @@ void ShadowsInfo::setShadowColor(const Color &val) {
     }
 }
 
-void ShadowsInfo::setNormal(const Vec3 &val) {
+void ShadowsInfo::setPlaneDirection(const Vec3 &val) {
     _normal = val;
     if (_resource != nullptr) {
         _resource->setNormal(val);
     }
 }
 
-void ShadowsInfo::setDistance(float val) {
+void ShadowsInfo::setPlaneHeight(float val) {
     _distance = val;
     if (_resource != nullptr) {
-        _resource->setDistance(val);
+        _resource->setDistance(-val);
     }
 }
 
@@ -91,9 +91,9 @@ void ShadowsInfo::setShadowMapSize(float value) {
     }
 }
 
-void ShadowsInfo::setPlaneFromNode(Node *node) {
+void ShadowsInfo::setPlaneFromNode(const Node *node) {
     const auto &qt = node->getWorldRotation();
-    _normal        = Vec3::UNIT_Y;
+    _normal = Vec3::UNIT_Y;
     _normal.transformQuat(qt);
     _distance = _normal.dot(node->getWorldPosition());
 }
@@ -110,12 +110,15 @@ const float Shadows::COEFFICIENT_OF_EXPANSION{2.0F * std::sqrt(3.0F)};
 void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setEnabled(shadowsInfo.isEnabled());
     setType(shadowsInfo.getType());
-    setNormal(shadowsInfo.getNormal());
-    setDistance(shadowsInfo.getDistance());
+    setNormal(shadowsInfo.getPlaneDirection());
+    setDistance(shadowsInfo.getPlaneHeight());
     setMaxReceived(shadowsInfo.getMaxReceived());
-    setSize(shadowsInfo.getSize());
+    if (fabsf(shadowsInfo.getShadowMapSize() - _size.x) > 0.1F) {
+        setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
+        _shadowMapDirty = true;
+    }
+
     setShadowColor(shadowsInfo.getShadowColor());
-    _shadowMapDirty = false;
 }
 
 void Shadows::destroy() {
@@ -166,20 +169,20 @@ void Shadows::updatePlanarInfo() {
 }
 
 void Shadows::createInstanceMaterial() {
-    _instancingMaterial = new Material();
+    _instancingMaterial = ccnew Material();
 
     IMaterialInfo materialInfo;
-    materialInfo.effectName = "planar-shadow";
+    materialInfo.effectName = "pipeline/planar-shadow";
     MacroRecord microRecord{{"USE_INSTANCING", true}};
     materialInfo.defines = microRecord;
     _instancingMaterial->initialize(materialInfo);
 }
 
 void Shadows::createMaterial() {
-    _material = new Material();
+    _material = ccnew Material();
 
     IMaterialInfo materialInfo;
-    materialInfo.effectName = "planar-shadow";
+    materialInfo.effectName = "pipeline/planar-shadow";
     _material->initialize(materialInfo);
 }
 

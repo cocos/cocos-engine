@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';

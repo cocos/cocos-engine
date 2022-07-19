@@ -10,16 +10,25 @@ import { getEasingFn } from './easing-method';
 import { bezierByTime } from './bezier';
 
 /**
- * The method used for interpolation between values of a keyframe and its next keyframe.
+ * @en
+ * The method used for interpolation between values of a quaternion keyframe and its next keyframe.
+ * @zh
+ * 在某四元数关键帧（前一帧）和其下一帧之间插值时使用的插值方式。
  */
 export enum QuatInterpolationMode {
     /**
-     * Perform spherical linear interpolation.
+     * @en
+     * Perform spherical linear interpolation between previous keyframe value and next keyframe value.
+     * @zh
+     * 在前一帧和后一帧之间执行球面线性插值。
      */
     SLERP,
 
     /**
+     * @en
      * Always use the value from this keyframe.
+     * @zh
+     * 永远使用前一帧的值。
      */
     CONSTANT,
 
@@ -41,19 +50,26 @@ export enum QuatInterpolationMode {
 @uniquelyReferenced
 class QuatKeyframeValue {
     /**
-     * Interpolation method used for this keyframe.
+     * @en
+     * When perform interpolation, the interpolation method should be taken
+     * when for this keyframe is used as starting keyframe.
+     * @zh
+     * 在执行插值时，当以此关键帧作为起始关键帧时应当使用的插值方式。
      */
     @serializable
     public interpolationMode: QuatInterpolationMode = QuatInterpolationMode.SLERP;
 
     /**
-      * Value of the keyframe.
-      */
+     * @en
+     * Value of the keyframe.
+     * @zh
+     * 该关键帧的值。
+     */
     @serializable
     public value: IQuatLike = Quat.clone(Quat.IDENTITY);
 
     /**
-     * @deprecated Reserved for backward compatibility. Will be removed in future.
+     * @internal Reserved for backward compatibility. Will be removed in future.
      */
     @serializable
     public easingMethod: EasingMethod | [number, number, number, number] = EasingMethod.LINEAR;
@@ -79,6 +95,12 @@ export type { QuatKeyframeValue };
  * For unspecified components, default values are taken:
  * - Interpolation mode: slerp
  * - Value: Identity quaternion
+ * @zh
+ * 用于描述实数关键帧值的参数。
+ * 若是部分关键帧的形式，关键帧值的每个分量都是从该参数中取得。
+ * 对于未指定的分量，使用默认值：
+ * - 插值模式：球面线性插值
+ * - 值：单位四元数
  */
 type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
 
@@ -87,29 +109,43 @@ function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
 }
 
 /**
+ * @en
  * Quaternion curve.
+ * @zh
+ * 四元数曲线
  */
 @ccclass('cc.QuatCurve')
 export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
-     * Gets or sets the operation should be taken
-     * if input time is less than the time of first keyframe when evaluating this curve.
+     * @en
+     * Gets or sets the pre-extrapolation-mode of this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
+     * @zh
+     * 获取或设置此曲线的前向外推模式。
+     * 默认为 `ExtrapolationMode.CLAMP`。
      */
     @serializable
     public preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
-     * Gets or sets the operation should be taken
-     * if input time is greater than the time of last keyframe when evaluating this curve.
+     * @en
+     * Gets or sets the post-extrapolation-mode of this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
+     * @zh
+     * 获取或设置此曲线的后向外推模式。
+     * 默认为 `ExtrapolationMode.CLAMP`。
      */
     @serializable
     public postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
+     * @en
      * Evaluates this curve at specified time.
+     * @zh
+     * 计算此曲线在指定时间上的值。
      * @param time Input time.
+     * @param quat If specified, this value will be filled and returned.
+     * Otherwise a new quaternion object will be filled and returned.
      * @returns Result value.
      */
     public evaluate (time: number, quat?: Quat): Quat {
@@ -235,6 +271,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         }
     }
 
+    /**
+     * @internal
+     */
     public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
         if (!context.toCCON) {
             output.writeThis();
@@ -328,6 +367,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         output.writeProperty('bytes', bytes);
     }
 
+    /**
+     * @internal
+     */
     public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
         if (!context.fromCCON) {
             input.readThis();

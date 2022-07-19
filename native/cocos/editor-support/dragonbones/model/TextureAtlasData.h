@@ -37,8 +37,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class TextureAtlasData : public BaseObject
-{
+class TextureAtlasData : public BaseObject {
     ABSTRACT_CLASS(TextureAtlasData);
 
 public:
@@ -100,8 +99,7 @@ public:
     /**
      * @private
      */
-    inline TextureData* getTexture(const std::string& textureName) const
-    {
+    inline TextureData* getTexture(const std::string& textureName) const {
         return mapFind(textures, textureName);
     }
 
@@ -114,8 +112,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class TextureData : public BaseObject
-{
+class TextureData : public BaseObject {
 public:
     static Rectangle* createRectangle();
 
@@ -126,9 +123,7 @@ public:
     Rectangle* frame;
     TextureAtlasData* parent;
 
-    TextureData() :
-        frame(nullptr)
-    {}
+    TextureData() : frame(nullptr) {}
     virtual ~TextureData() = 0;
 
     void copyFrom(const TextureData& value);

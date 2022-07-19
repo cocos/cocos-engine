@@ -1,0 +1,95 @@
+{
+  "_from": "xcode",
+  "_id": "xcode@3.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-kCz5k7J7XbJtjABOvkc5lJmkiDh8VhjVCGNiqdKCscmVpdVUpEAyXv1xmCLkQJ5dsHqx3IPO4XW+NTDhU/fatA==",
+  "_location": "/xcode",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "xcode",
+    "name": "xcode",
+    "escapedName": "xcode",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://repo.huaweicloud.com/repository/npm/xcode/-/xcode-3.0.1.tgz",
+  "_shasum": "3efb62aac641ab2c702458f9a0302696146aa53c",
+  "_spec": "xcode",
+  "_where": "/Users/pt/Github/test-cases-3d/build/mac/proj",
+  "author": {
+    "name": "Apache Software Foundation"
+  },
+  "bugs": {
+    "url": "https://github.com/apache/cordova-node-xcode/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Andrew Lunny",
+      "email": "alunny@gmail.com"
+    },
+    {
+      "name": "Anis Kadri"
+    },
+    {
+      "name": "Mike Reinstein"
+    },
+    {
+      "name": "Filip Maj"
+    },
+    {
+      "name": "Brett Rudd",
+      "email": "goya@apache.org"
+    },
+    {
+      "name": "Bob Easterday"
+    }
+  ],
+  "dependencies": {
+    "simple-plist": "^1.1.0",
+    "uuid": "^7.0.3"
+  },
+  "deprecated": false,
+  "description": "parser for xcodeproj/project.pbxproj files",
+  "devDependencies": {
+    "nodeunit": "^0.11.3",
+    "nyc": "^15.0.0",
+    "pegjs": "^0.10.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "homepage": "https://github.com/apache/cordova-node-xcode#readme",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "name": "xcode",
+  "nyc": {
+    "all": true,
+    "exclude": [
+      "coverage/",
+      "test/"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apache/cordova-node-xcode.git"
+  },
+  "scripts": {
+    "cover": "nyc npm run test:unit",
+    "pegjs": "pegjs lib/parser/pbxproj.pegjs",
+    "test": "npm run cover",
+    "test:unit": "nodeunit test/parser test"
+  },
+  "version": "3.0.1"
+}

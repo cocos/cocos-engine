@@ -24,14 +24,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { ccclass, inspector, editorOnly, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { _getClassById } from '../utils/js';
+import { getClassById } from '../utils/js';
 import { BUILTIN_CLASSID_RE } from '../utils/misc';
 import { Component } from './component';
 import { legacyCC } from '../global-exports';
@@ -61,7 +56,7 @@ export default class MissingScript extends Component {
      * @return {function} constructor
      */
     public static safeFindClass (id: string) {
-        const cls = _getClassById(id);
+        const cls = getClassById(id);
         if (cls) {
             return cls;
         }
@@ -72,7 +67,7 @@ export default class MissingScript extends Component {
 
     // the serialized data for original script object
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     @editorOnly

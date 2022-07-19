@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 export class NativeBufferPool {
     private _arrayBuffers: ArrayBuffer[] = [];
     private _chunkSize: number;
