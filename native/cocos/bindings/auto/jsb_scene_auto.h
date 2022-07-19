@@ -499,7 +499,6 @@ SE_DECLARE_FUNC(js_scene_Pass_getPassInfoFull);
 SE_DECLARE_FUNC(js_scene_Pass_getRootBlock);
 SE_DECLARE_FUNC(js_scene_Pass_getShaderVariant);
 SE_DECLARE_FUNC(js_scene_Pass_getUniform);
-SE_DECLARE_FUNC(js_scene_Pass_initPassFromTarget);
 SE_DECLARE_FUNC(js_scene_Pass_initialize);
 SE_DECLARE_FUNC(js_scene_Pass_overridePipelineStates);
 SE_DECLARE_FUNC(js_scene_Pass_resetTexture);
