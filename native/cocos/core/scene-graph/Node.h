@@ -63,6 +63,7 @@ public:
     public:
         ~UserData() override = default;
 
+    protected:
         UserData() = default;
     };
 
