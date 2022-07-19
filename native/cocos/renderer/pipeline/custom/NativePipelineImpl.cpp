@@ -191,6 +191,8 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     RasterPass pass(renderGraph.get_allocator());
     pass.width = width;
     pass.height = height;
+    pass.viewport.width = width;
+    pass.viewport.height = height;
 
     auto passID = addVertex(
         RasterTag{},
