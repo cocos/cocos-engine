@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.LocaleList;
 import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.util.Log;
