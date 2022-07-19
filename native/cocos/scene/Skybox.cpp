@@ -307,15 +307,14 @@ void Skybox::activate() {
     _activated = true;
 }
 
+void Skybox::setUseHDR(bool val) {
+    Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(val);
+    _useHDR = val;
+    setEnvMaps(_envmapHDR, _envmapLDR);
+}
+
 void Skybox::updatePipeline() const {
-    if (isEnabled() && _material != nullptr) {
-        _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
-    }
-
-    if (_model != nullptr && _material != nullptr) {
-        _model->setSubModelMaterial(0, _material);
-    }
-
+    
     Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
@@ -376,6 +375,15 @@ void Skybox::updatePipeline() const {
     } else {
         pipeline->setValue("CC_IBL_CONVOLUTED", useConvMapValue);
         valueChanged = true;
+    }
+
+    //set the macro value first before update the material
+    if (isEnabled() && _material != nullptr) {
+        _material->recompileShaders({ {"USE_RGBE_CUBEMAP", isRGBE()} });
+    }
+
+    if (_model != nullptr && _material != nullptr) {
+        _model->setSubModelMaterial(0, _material);
     }
 
     if (valueChanged && _activated) {
