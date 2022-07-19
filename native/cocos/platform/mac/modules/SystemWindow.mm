@@ -47,7 +47,9 @@ bool SystemWindow::createWindow(const char *title,
     _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
+#if !defined(CC_SERVER_MODE)
     [delegate createLeftBottomWindow:aString width:w height:h];
+#endif
     return true;
 }
 
@@ -62,7 +64,9 @@ bool SystemWindow::createWindow(const char *title,
     _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
+#if !defined(CC_SERVER_MODE)
     [delegate createWindow:aString xPos:x yPos:y width:w height:h];
+#endif
     return true;
 }
 void SystemWindow::closeWindow() {

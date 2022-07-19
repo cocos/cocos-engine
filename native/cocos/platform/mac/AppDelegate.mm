@@ -44,7 +44,6 @@
 }
 
 - (void)createWindow:(NSString*)title xPos:(int)x yPos:(int)y width:(int)w height:(int)h {
-#if !defined(CC_SERVER_MODE)
     _window.title = title;
     NSRect rect = NSMakeRect(x, y, w, h);
     _window = [[NSWindow alloc] initWithContentRect:rect
@@ -72,7 +71,6 @@
                                              selector:@selector(windowWillCloseNotification)
                                                  name:NSWindowWillCloseNotification
                                                object:_window];
-#endif
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
