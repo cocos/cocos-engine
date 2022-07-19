@@ -20,10 +20,13 @@
 ****************************************************************************/
 
 #include "CSMLayers.h"
+
+#include "core/Root.h"
 #include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
 #include "pipeline/PipelineSceneData.h"
 #include "pipeline/RenderPipeline.h"
+#include "pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 
@@ -39,6 +42,7 @@ ShadowTransformInfo::ShadowTransformInfo(uint32_t level):_level(level) {
 void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
     const float invisibleOcclusionRange = dirLight->getShadowInvisibleOcclusionRange();
     const gfx::Device *device = gfx::Device::getInstance();
+    const Root *root = Root::getInstance();
     geometry::Frustum::copy(&_lightViewFrustum, splitFrustum);
     const float projectionSinY = device->getCapabilities().clipSpaceSignY;
     const float clipSpaceMinZ = device->getCapabilities().clipSpaceMinZ;
@@ -64,9 +68,10 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
     }
 
-    if (dirLight->getCSMLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getCSMOptimizationMode() ==
+    const auto csmLevel = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ? dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
+    if (csmLevel != scene::CSMLevel::LEVEL_1 && dirLight->getCSMOptimizationMode() ==
         scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
-        if (_level >= static_cast<uint32_t>(dirLight->getCSMLevel()) - 1U) {
+        if (_level >= static_cast<uint32_t>(csmLevel) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
             _maxLayerPosz = _castLightViewBoundingBox.center.z;
         } else {
@@ -168,11 +173,13 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     const scene::Shadows *shadowInfo = sceneData->getShadows();
     const scene::RenderScene *const scene = camera->getScene();
+    const Root *root = Root::getInstance();
     scene::DirectionalLight *dirLight = scene->getMainLight();
 
     CC_ASSERT(dirLight);
 
-    const auto levelCount = static_cast<uint32_t>(dirLight->getCSMLevel());
+    const auto levelCount = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ?
+        static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
     CC_ASSERT(levelCount <= static_cast<uint32_t>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
 
@@ -220,10 +227,12 @@ void CSMLayers::updateFixedArea(const scene::DirectionalLight *dirLight) const {
 }
 
 void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
+    const Root *root = Root::getInstance();
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const auto level = static_cast<uint32_t>(dirLight->getCSMLevel());
+    const auto level = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ?
+        static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
     const float lambda = dirLight->getCSMLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
     for (uint32_t i = 1; i < level; ++i) {
@@ -242,7 +251,9 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 }
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
-    const auto level = dirLight->getCSMLevel();
+    const Root *root = Root::getInstance();
+    const auto level = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ?
+        dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
     const float shadowMapWidth = level !=  scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
     if (shadowMapWidth < 0.999F) {

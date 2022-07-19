@@ -8,6 +8,9 @@
 // UBO
 #include <builtin/uniforms/cc-global>
 #include <builtin/uniforms/cc-shadow>
+#if CC_SUPPORT_CASCADED_SHADOW_MAP
+  #include <builtin/uniforms/cc-csm>
+#endif
 
 #include <common/common-define>
 

@@ -83,6 +83,8 @@ public:
     inline void clearValidPunctualLights() { _validPunctualLights.clear(); }
     inline float getShadingScale() const { return _shadingScale; }
     inline void setShadingScale(float val) { _shadingScale = val; }
+    inline bool isSupportCSM() const { return _isSupportCSM; }
+    inline void setIsSupportCSM(bool val) { _isSupportCSM = val; }
 
 protected:
     void initOcclusionQuery();
@@ -126,6 +128,7 @@ protected:
     CSMLayers *_csmLayers{nullptr};
     bool _isHDR{true};
     float _shadingScale{1.0F};
+    bool _isSupportCSM{true};
 
     ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::Framebuffer>> _shadowFrameBufferMap;
 };

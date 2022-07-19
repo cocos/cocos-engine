@@ -44,6 +44,11 @@ namespace cc {
 namespace pipeline {
 ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> ShadowFlow::renderPassHashMap;
 
+// csm uniform used vectors count
+const uint32_t csmUniformVectors = 61U;
+// all global uniform used vectors count
+const uint32_t globalUniformVectors = 64U;
+
 RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",
     static_cast<uint32_t>(ForwardFlowPriority::SHADOW),
@@ -76,6 +81,13 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
     const int32_t isLinear = 0;
     pipeline->setValue("CC_SHADOWMAP_USE_LINEAR_DEPTH", isLinear);
+
+    // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
+    const auto uniformVectors = std::min(pipeline->getDevice()->getCapabilities().maxVertexUniformVectors,
+                                         pipeline->getDevice()->getCapabilities().maxFragmentUniformVectors);
+    const auto isSupportCSM = uniformVectors >= (csmUniformVectors + globalUniformVectors);
+    pipeline->getPipelineSceneData()->setIsSupportCSM(isSupportCSM);
+    pipeline->setValue("CC_SUPPORT_CASCADED_SHADOW_MAP", isSupportCSM);
 
     pipeline->onGlobalPipelineStateChanged();
 }
@@ -117,7 +129,8 @@ void ShadowFlow::render(scene::Camera *camera) {
         if (mainLight->isShadowFixedArea()) {
             renderStage(globalDS, camera, mainLight, shadowFrameBuffer);
         } else {
-            for (uint32_t i = 0; i < static_cast<uint32_t>(mainLight->getCSMLevel()); ++i) {
+            const auto level = _pipeline->getPipelineSceneData()->isSupportCSM() ? static_cast<uint32_t>(mainLight->getCSMLevel()) : 1U;
+            for (uint32_t i = 0; i < level; ++i) {
                 renderStage(globalDS, camera, mainLight, shadowFrameBuffer, i);
             }
         }

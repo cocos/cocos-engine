@@ -30,6 +30,9 @@ CCProgram planar-shadow-vs %{
   #include <legacy/decode-base>
   #include <legacy/local-batch>
   #include <builtin/uniforms/cc-shadow>
+  #if CC_SUPPORT_CASCADED_SHADOW_MAP
+    #include <builtin/uniforms/cc-csm>
+  #endif
 
   out float v_dist;
 
@@ -61,6 +64,9 @@ CCProgram planar-shadow-vs %{
 CCProgram planar-shadow-fs %{
   precision highp float;
   #include <builtin/uniforms/cc-shadow>
+  #if CC_SUPPORT_CASCADED_SHADOW_MAP
+    #include <builtin/uniforms/cc-csm>
+  #endif
   #include <legacy/output>
 
   in float v_dist;

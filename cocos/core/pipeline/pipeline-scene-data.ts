@@ -55,6 +55,13 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
+    public get isSupportCSM () {
+        return this._isSupportCSM;
+    }
+    public set isSupportCSM (val: boolean) {
+        this._isSupportCSM = val;
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
@@ -85,6 +92,7 @@ export class PipelineSceneData {
     protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = true;
     protected _shadingScale = 1.0;
+    protected _isSupportCSM = true;
 
     constructor () {
         this._shadingScale = 1.0;

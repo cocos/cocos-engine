@@ -118,7 +118,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   #if CC_RECEIVE_SHADOW
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
-        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+        #if CC_SUPPORT_CASCADED_SHADOW_MAP //todo: && CC_USE_CASCADED_SHADOW_MAP
+          shadow = CCCSMFactorBase(position, N, s.shadowBias);
+        #endif
       } else {
         shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
       }

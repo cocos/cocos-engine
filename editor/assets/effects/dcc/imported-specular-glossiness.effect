@@ -392,6 +392,9 @@ CCProgram shadow-caster-vs %{
   #include <legacy/local-batch>
   #include <shared-ubos>
   #include <builtin/uniforms/cc-shadow>
+  #if CC_SUPPORT_CASCADED_SHADOW_MAP
+    #include <builtin/uniforms/cc-csm>
+  #endif
 
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;

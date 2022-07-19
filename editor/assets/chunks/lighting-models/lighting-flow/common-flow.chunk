@@ -71,7 +71,9 @@
       if (cc_mainLitDir.w > 0.0) {
         if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
           if (cc_shadowLPNNInfo.w > 0.0) {
-            lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+            #if CC_SUPPORT_CASCADED_SHADOW_MAP //todo: && CC_USE_CASCADED_SHADOW_MAP
+              lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+            #endif
           } else {
             vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
             lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
