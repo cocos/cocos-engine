@@ -293,6 +293,7 @@ public:
     inline void setPosition(float x, float y, float z) { setPositionInternal(x, y, z, false); }
     inline void setPositionInternal(float x, float y, bool calledFromJS) { setPositionInternal(x, y, _localPosition.z, calledFromJS); }
     void setPositionInternal(float x, float y, float z, bool calledFromJS);
+    // It is invoked after deserialization. It only sets position value, not triggers other logic.
     inline void setPositionForJS(float x, float y, float z) { _localPosition.set(x, y, z); }
     /**
      * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -668,8 +669,6 @@ private:
     NodeEventProcessor *_eventProcessor{nullptr};
     IntrusivePtr<UserData> _userData;
 
-    Mat4 _worldMatrix{Mat4::IDENTITY};
-
     ccstd::vector<IntrusivePtr<Node>> _children;
     bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
     // local transform
@@ -681,6 +680,7 @@ private:
     Vec3 _worldScale{Vec3::ONE};
     Vec3 _euler{0, 0, 0};
     Quaternion _worldRotation{Quaternion::identity()};
+    Mat4 _worldMatrix{Mat4::IDENTITY};
 
     // Shared memory with JS
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
