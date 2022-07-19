@@ -88,9 +88,8 @@ export class ShadowFlow extends RenderFlow {
         pipeline.macros.CC_SHADOWMAP_USE_LINEAR_DEPTH = isLinear;
 
         // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
-        const uniformVectors = Math.min(pipeline.device.capabilities.maxVertexUniformVectors,
-            pipeline.device.capabilities.maxFragmentUniformVectors);
-        pipeline.pipelineSceneData.isSupportCSM = uniformVectors >= (_csmUniformVectors + _globalUniformVectors);
+        pipeline.pipelineSceneData.isSupportCSM = pipeline.device.capabilities.maxFragmentUniformVectors
+        >= (_csmUniformVectors + _globalUniformVectors);
         pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.isSupportCSM;
 
         pipeline.onGlobalPipelineStateChanged();

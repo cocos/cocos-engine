@@ -296,7 +296,7 @@ globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
 /**
  * @en The uniform buffer object only for dir csm shadow(level: 1 ~ 4)
- * @zh 阴影 UBO。
+ * @zh 级联阴影使用的UBO
  */
 export class UBOCSM {
     public static readonly CSM_LEVEL_COUNT = 4;

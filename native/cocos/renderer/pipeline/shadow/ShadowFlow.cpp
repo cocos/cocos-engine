@@ -83,9 +83,8 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     pipeline->setValue("CC_SHADOWMAP_USE_LINEAR_DEPTH", isLinear);
 
     // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
-    const auto uniformVectors = std::min(pipeline->getDevice()->getCapabilities().maxVertexUniformVectors,
-                                         pipeline->getDevice()->getCapabilities().maxFragmentUniformVectors);
-    const auto isSupportCSM = uniformVectors >= (csmUniformVectors + globalUniformVectors);
+    const auto isSupportCSM = pipeline->getDevice()->getCapabilities().maxFragmentUniformVectors >=
+        csmUniformVectors + globalUniformVectors;
     pipeline->getPipelineSceneData()->setIsSupportCSM(isSupportCSM);
     pipeline->setValue("CC_SUPPORT_CASCADED_SHADOW_MAP", isSupportCSM);
 
