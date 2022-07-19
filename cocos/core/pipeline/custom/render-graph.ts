@@ -32,8 +32,7 @@
 import * as impl from './graph';
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
-import { Rect } from '../../math';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 import { Light } from '../../renderer/scene';
 
@@ -1207,7 +1206,7 @@ interface RenderGraphValueType {
     [RenderGraphValue.Blit]: Blit
     [RenderGraphValue.Dispatch]: Dispatch
     [RenderGraphValue.Clear]: ClearView[]
-    [RenderGraphValue.Viewport]: Rect
+    [RenderGraphValue.Viewport]: Viewport
 }
 
 export interface RenderGraphVisitor {
@@ -1222,7 +1221,7 @@ export interface RenderGraphVisitor {
     blit(value: Blit): unknown;
     dispatch(value: Dispatch): unknown;
     clear(value: ClearView[]): unknown;
-    viewport(value: Rect): unknown;
+    viewport(value: Viewport): unknown;
 }
 
 type RenderGraphObject = RasterPass
@@ -1236,7 +1235,7 @@ type RenderGraphObject = RasterPass
 | Blit
 | Dispatch
 | ClearView[]
-| Rect;
+| Viewport;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1680,7 +1679,7 @@ export class RenderGraph implements impl.BidirectionalGraph
         case RenderGraphValue.Clear:
             return visitor.clear(vert._object as ClearView[]);
         case RenderGraphValue.Viewport:
-            return visitor.viewport(vert._object as Rect);
+            return visitor.viewport(vert._object as Viewport);
         default:
             throw Error('polymorphic type not found');
         }
@@ -1762,9 +1761,9 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    getViewport (v: number): Rect {
+    getViewport (v: number): Viewport {
         if (this._vertices[v]._id === RenderGraphValue.Viewport) {
-            return this._vertices[v]._object as Rect;
+            return this._vertices[v]._object as Viewport;
         } else {
             throw Error('value id not match');
         }
@@ -1846,9 +1845,9 @@ export class RenderGraph implements impl.BidirectionalGraph
             return null;
         }
     }
-    tryGetViewport (v: number): Rect | null {
+    tryGetViewport (v: number): Viewport | null {
         if (this._vertices[v]._id === RenderGraphValue.Viewport) {
-            return this._vertices[v]._object as Rect;
+            return this._vertices[v]._object as Viewport;
         } else {
             return null;
         }

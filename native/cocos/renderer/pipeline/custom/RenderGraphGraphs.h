@@ -2497,7 +2497,7 @@ holds_alternative<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor 
 
 template <>
 inline bool
-holds_alternative<Rect>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+holds_alternative<gfx::Viewport>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -2607,8 +2607,8 @@ get<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, RenderGraph
 }
 
 template <>
-inline Rect&
-get<Rect>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+inline gfx::Viewport&
+get<gfx::Viewport>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -2719,8 +2719,8 @@ get<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const Rende
 }
 
 template <>
-inline const Rect&
-get<Rect>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+inline const gfx::Viewport&
+get<gfx::Viewport>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -2815,7 +2815,7 @@ get(ClearTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.clearViews[handle.value];
 }
 
-inline Rect&
+inline gfx::Viewport&
 get(ViewportTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
@@ -2911,7 +2911,7 @@ get(ClearTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.clearViews[handle.value];
 }
 
-inline const Rect&
+inline const gfx::Viewport&
 get(ViewportTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
@@ -3111,9 +3111,9 @@ get_if<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, RenderGr
 }
 
 template <>
-inline Rect*
-get_if<Rect>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
-    Rect* ptr = nullptr;
+inline gfx::Viewport*
+get_if<gfx::Viewport>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    gfx::Viewport* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -3319,9 +3319,9 @@ get_if<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const Re
 }
 
 template <>
-inline const Rect*
-get_if<Rect>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
-    const Rect* ptr = nullptr;
+inline const gfx::Viewport*
+get_if<gfx::Viewport>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const gfx::Viewport* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -3610,7 +3610,7 @@ void addVertexImpl( // NOLINT
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, Rect>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, gfx::Viewport>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>{
         gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.viewports.size())};
     g.viewports.emplace_back(std::forward<ValueT>(val));

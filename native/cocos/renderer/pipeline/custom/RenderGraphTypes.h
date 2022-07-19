@@ -885,8 +885,8 @@ struct RenderGraph {
 
     // PolymorphicGraph
     using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
-    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, Rect*>;
-    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const Rect*>;
+    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
@@ -974,7 +974,7 @@ struct RenderGraph {
     ccstd::pmr::vector<Blit>                          blits;
     ccstd::pmr::vector<Dispatch>                      dispatches;
     ccstd::pmr::vector<ccstd::pmr::vector<ClearView>> clearViews;
-    ccstd::pmr::vector<Rect>                          viewports;
+    ccstd::pmr::vector<gfx::Viewport>                 viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
 };
