@@ -162,13 +162,13 @@ void RenderDrawInfo::destroy() {
 
     //TODO(): Should use _iaPool to delete vb, ib.
     if (_iaInfo != nullptr) {
-        delete _iaInfo->indexBuffer;
+        CC_SAFE_DELETE(_iaInfo->indexBuffer);
         if (!_iaInfo->vertexBuffers.empty()) {
             // only one vb
-            delete _iaInfo->vertexBuffers[0];
+            CC_SAFE_DELETE(_iaInfo->vertexBuffers[0]);
             _iaInfo->vertexBuffers.clear();
         }
-        delete _iaInfo;
+        CC_SAFE_DELETE(_iaInfo);
     }
 
     for (auto* ia : _iaPool) {
@@ -176,7 +176,7 @@ void RenderDrawInfo::destroy() {
         //        delete ia->getIndexBuffer();
         //        // only one vertex buffer
         //        delete ia->getVertexBuffers()[0];
-        delete ia;
+        CC_SAFE_DELETE(ia);
     }
     _iaPool.clear();
 }
