@@ -68,6 +68,7 @@ extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 
 bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_2d_Batcher2d_getDefaultAttribute);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handleColor);
 SE_DECLARE_FUNC(js_2d_Batcher2d_handlePostRender);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
