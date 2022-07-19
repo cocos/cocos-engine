@@ -163,18 +163,6 @@ private:
     gfx::Sampler* _sampler{nullptr};
     Node* _subNode{nullptr};
 
-    gfx::InputAssemblerInfo _iaInfo;
-    ccstd::vector<gfx::Attribute> _attributes{
-        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-    };
-    uint32_t _vertexFormatBytes = 9 * sizeof(float); // Affected by _attributes // magic Number
-
-    //TODO(): it is not a good way to cache IA here.
-    // manage memory manually
-    ccstd::vector<gfx::InputAssembler*> _iaPool;
-
     uint32_t _nextFreeIAHandle{0};
     // weak reference
     gfx::Buffer* _vbGFXBuffer{nullptr};
