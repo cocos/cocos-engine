@@ -20,7 +20,6 @@
 ****************************************************************************/
 
 #include "CSMLayers.h"
-
 #include "core/Root.h"
 #include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
