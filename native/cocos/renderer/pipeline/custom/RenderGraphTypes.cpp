@@ -318,6 +318,15 @@ RaytracePass::RaytracePass(RaytracePass&& rhs, const allocator_type& alloc)
 RaytracePass::RaytracePass(RaytracePass const& rhs, const allocator_type& alloc)
 : computeViews(rhs.computeViews, alloc) {}
 
+CommandList::CommandList(const allocator_type& alloc) noexcept
+: commands(alloc) {}
+
+CommandList::CommandList(CommandList&& rhs, const allocator_type& alloc)
+: commands(std::move(rhs.commands), alloc) {}
+
+CommandList::CommandList(CommandList const& rhs, const allocator_type& alloc)
+: commands(rhs.commands, alloc) {}
+
 SceneData::SceneData(const allocator_type& alloc) noexcept
 : name(alloc),
   scenes(alloc) {}
@@ -401,6 +410,7 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   scenes(alloc),
   blits(alloc),
   dispatches(alloc),
+  commandLists(alloc),
   index(alloc) {}
 
 RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
@@ -420,6 +430,7 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   scenes(std::move(rhs.scenes), alloc),
   blits(std::move(rhs.blits), alloc),
   dispatches(std::move(rhs.dispatches), alloc),
+  commandLists(std::move(rhs.commandLists), alloc),
   index(std::move(rhs.index), alloc) {}
 
 // ContinuousContainer

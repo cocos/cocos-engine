@@ -74,6 +74,12 @@ struct SceneTag;
 struct DispatchTag;
 struct BlitTag;
 struct PresentTag;
+struct CommandListTag;
+
+enum class CommandType;
+
+struct Command;
+struct CommandList;
 struct RenderQueue;
 struct LightInfo;
 struct SceneData;

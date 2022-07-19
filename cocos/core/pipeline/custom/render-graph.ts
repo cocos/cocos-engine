@@ -33,6 +33,7 @@ import * as impl from './graph';
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
+import { Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 import { Light } from '../../renderer/scene';
 
@@ -1073,6 +1074,35 @@ export class RaytracePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
+export const enum CommandType {
+    VIEWPORT,
+    CLEAR,
+}
+
+export function getCommandTypeName (e: CommandType): string {
+    switch (e) {
+    case CommandType.VIEWPORT:
+        return 'VIEWPORT';
+    case CommandType.CLEAR:
+        return 'CLEAR';
+    default:
+        return '';
+    }
+}
+
+export class Command {
+    constructor (type: CommandType = CommandType.VIEWPORT, value: Vec4 = new Vec4()) {
+        this.type = type;
+        this.value = value;
+    }
+    type: CommandType;
+    readonly value: Vec4;
+}
+
+export class CommandList {
+    readonly commands: Command[] = [];
+}
+
 export class RenderQueue {
     constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE) {
         this.hint = hint;
@@ -1161,6 +1191,7 @@ export const enum RenderGraphValue {
     Scene,
     Blit,
     Dispatch,
+    CommandList,
 }
 
 export function getRenderGraphValueName (e: RenderGraphValue): string {
@@ -1175,6 +1206,7 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
     case RenderGraphValue.Scene: return 'Scene';
     case RenderGraphValue.Blit: return 'Blit';
     case RenderGraphValue.Dispatch: return 'Dispatch';
+    case RenderGraphValue.CommandList: return 'CommandList';
     default: return '';
     }
 }
@@ -1190,6 +1222,7 @@ interface RenderGraphValueType {
     [RenderGraphValue.Scene]: SceneData
     [RenderGraphValue.Blit]: Blit
     [RenderGraphValue.Dispatch]: Dispatch
+    [RenderGraphValue.CommandList]: CommandList
 }
 
 export interface RenderGraphVisitor {
@@ -1203,6 +1236,7 @@ export interface RenderGraphVisitor {
     scene(value: SceneData): unknown;
     blit(value: Blit): unknown;
     dispatch(value: Dispatch): unknown;
+    commandList(value: CommandList): unknown;
 }
 
 type RenderGraphObject = RasterPass
@@ -1214,7 +1248,8 @@ type RenderGraphObject = RasterPass
 | RenderQueue
 | SceneData
 | Blit
-| Dispatch;
+| Dispatch
+| CommandList;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1655,6 +1690,8 @@ export class RenderGraph implements impl.BidirectionalGraph
             return visitor.blit(vert._object as Blit);
         case RenderGraphValue.Dispatch:
             return visitor.dispatch(vert._object as Dispatch);
+        case RenderGraphValue.CommandList:
+            return visitor.commandList(vert._object as CommandList);
         default:
             throw Error('polymorphic type not found');
         }
@@ -1729,6 +1766,13 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
+    getCommandList (v: number): CommandList {
+        if (this._vertices[v]._id === RenderGraphValue.CommandList) {
+            return this._vertices[v]._object as CommandList;
+        } else {
+            throw Error('value id not match');
+        }
+    }
     tryGetRaster (v: number): RasterPass | null {
         if (this._vertices[v]._id === RenderGraphValue.Raster) {
             return this._vertices[v]._object as RasterPass;
@@ -1795,6 +1839,13 @@ export class RenderGraph implements impl.BidirectionalGraph
     tryGetDispatch (v: number): Dispatch | null {
         if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
             return this._vertices[v]._object as Dispatch;
+        } else {
+            return null;
+        }
+    }
+    tryGetCommandList (v: number): CommandList | null {
+        if (this._vertices[v]._id === RenderGraphValue.CommandList) {
+            return this._vertices[v]._object as CommandList;
         } else {
             return null;
         }
