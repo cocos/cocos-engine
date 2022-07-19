@@ -143,12 +143,12 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 
 void RenderDrawInfo::uploadBuffers() {
     if (_vbCount == 0 || _ibCount == 0) return;
-    auto size = _vbCount * 9 * sizeof(float);// magic Number
+    uint32_t size = _vbCount * 9 * sizeof(float);// magic Number
     gfx::Buffer* vBuffer = _vbGFXBuffer;
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
     gfx::Buffer* iBuffer = _ibGFXBuffer;
-    auto iSize = _ibCount * 2;
+    uint32_t iSize = _ibCount * 2;
     iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
@@ -168,7 +168,7 @@ void RenderDrawInfo::destroy() {
             delete _iaInfo->vertexBuffers[0];
             _iaInfo->vertexBuffers.clear();
         }
-        _iaInfo = nullptr;
+        delete _iaInfo;
     }
 
     for (auto* ia : _iaPool) {
