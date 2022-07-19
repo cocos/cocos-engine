@@ -45,10 +45,6 @@ struct Render2dLayout {
     Vec4 color;
 };
 
-struct DrawInfoAttrLayout {
-    uint32_t enabledIndex{1};
-};
-
 enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
@@ -97,8 +93,6 @@ public:
     void setTextureHash(uint32_t textureHash);
     inline gfx::Sampler* getSampler() const { return _sampler; }
     void setSampler(gfx::Sampler* sampler);
-    inline uint32_t getBlendHash() const { return _blendHash; }
-    void setBlendHash(uint32_t blendHash);
     inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
     inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
@@ -159,7 +153,6 @@ private:
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
-    uint32_t _stencilStage{0};
     // weak reference
     Material* _material{nullptr};
     // weak reference
@@ -168,8 +161,6 @@ private:
     // weak reference
     gfx::Sampler* _sampler{nullptr};
     Node* _subNode{nullptr};
-
-    uint32_t _blendHash{0};
 
     uint32_t _nextFreeIAHandle{0};
     // weak reference

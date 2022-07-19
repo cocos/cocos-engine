@@ -1512,7 +1512,6 @@ export class TiledLayer extends UIRenderer {
                     drawInfo.setTexture(td.texture.getGFXTexture());
                     drawInfo.setTextureHash(td.texture.getHash());
                     drawInfo.setSampler(td.texture.getGFXSampler());
-                    drawInfo.setBlendHash(this.blendHash);
                     drawInfo.setMaterial(this.getRenderMaterial(0)!);
                     this.fillIndicesBuffer(td.renderData!, drawInfo);
                     entity.setDynamicRenderDrawInfo(drawInfo, idx);
