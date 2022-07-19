@@ -629,14 +629,14 @@ void Pass::syncBatchingScheme() {
     }
 }
 
-void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor) {
+void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor) {
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;
     _dynamicStates = target->_dynamicStates;
-    _blendState = bs; // cjh lifecycle?
+    _blendState = *target->getBlendState();
     _depthStencilState = dss;
     _descriptorSet = target->_descriptorSet;
     _rs = *target->getRasterizerState();

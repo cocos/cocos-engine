@@ -47,7 +47,7 @@ public:
     ~DrawBatch2D() override = default;
 
     void clear();
-    void fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, const ccstd::vector<IMacroPatch> *patches = nullptr);
+    void fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const ccstd::vector<IMacroPatch> *patches = nullptr);
 
     inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
