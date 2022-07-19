@@ -25,10 +25,10 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager } from '../../gfx/index';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager, Viewport } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { LightingMode, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, LightInfo, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
+import { AccessType, AttachmentType, Blit, ClearView, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, LightInfo, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
@@ -170,6 +170,18 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, sceneFlags, camera),
             'CameraQuad', '', new RenderData(), false, this._vertID,
+        );
+    }
+    clearRenderTarget (name: string, color: Color) {
+        this._renderGraph.addVertex<RenderGraphValue.Clear>(
+            RenderGraphValue.Clear, [new ClearView(name, ClearFlagBit.COLOR, color)],
+            'ClearRenderTarget', '', new RenderData(), false, this._vertID,
+        );
+    }
+    setViewport (viewport: Viewport) {
+        this._renderGraph.addVertex<RenderGraphValue.Viewport>(
+            RenderGraphValue.Viewport, viewport,
+            'Viewport', '', new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;

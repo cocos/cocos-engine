@@ -78,6 +78,8 @@ public:
     void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
+    void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
+    void setViewport(const gfx::Viewport &viewport) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;

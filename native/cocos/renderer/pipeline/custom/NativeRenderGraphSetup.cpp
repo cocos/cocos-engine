@@ -2,7 +2,9 @@
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
 #include "RenderGraphGraphs.h"
+#include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonTypes.h"
+#include "pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {
 
@@ -101,6 +103,30 @@ void NativeRasterQueueBuilder::addCameraQuad(
 void NativeRasterQueueBuilder::addCameraQuad(
     scene::Camera *camera, cc::Material *material, SceneFlags sceneFlags) {
     addCameraQuad(camera, material, sceneFlags, "CameraQuad");
+}
+
+void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
+    auto clearID = addVertex(
+        ClearTag{},
+        std::forward_as_tuple("ClearRenderTarget"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(name, gfx::ClearFlagBit::COLOR, color),
+        *renderGraph, queueID);
+    CC_ENSURES(clearID != RenderGraph::null_vertex());
+}
+
+void NativeRasterQueueBuilder::setViewport(const gfx::Viewport &viewport) {
+    auto viewportID = addVertex(
+        ViewportTag{},
+        std::forward_as_tuple("Viewport"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(viewport),
+        *renderGraph, queueID);
+    CC_ENSURES(viewportID != RenderGraph::null_vertex());
 }
 
 namespace {

@@ -91,6 +91,8 @@ export abstract class RasterQueueBuilder extends Setter {
     public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags): void;
     public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags, name: string): void;
     public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags): void;
+    public abstract clearRenderTarget(name: string, color: Color): void;
+    public abstract setViewport(viewport: Viewport): void;
 }
 
 export abstract class RasterPassBuilder extends Setter {
