@@ -992,6 +992,7 @@ export class RasterPass {
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
     width = 0;
     height = 0;
+    readonly viewport: Viewport = new Viewport();
 }
 
 export class ComputePass {

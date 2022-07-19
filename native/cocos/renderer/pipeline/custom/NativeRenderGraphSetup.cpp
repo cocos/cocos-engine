@@ -5,6 +5,7 @@
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/RenderGraphFwd.h"
+#include "pipeline/custom/RenderGraphTypes.h"
 
 namespace cc {
 
@@ -106,13 +107,16 @@ void NativeRasterQueueBuilder::addCameraQuad(
 }
 
 void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
+    ccstd::pmr::vector<ClearView> clears(renderGraph->get_allocator());
+    clears.emplace_back(name.c_str(), gfx::ClearFlagBit::COLOR, color);
+
     auto clearID = addVertex(
         ClearTag{},
         std::forward_as_tuple("ClearRenderTarget"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(name, gfx::ClearFlagBit::COLOR, color),
+        std::forward_as_tuple(std::move(clears)),
         *renderGraph, queueID);
     CC_ENSURES(clearID != RenderGraph::null_vertex());
 }
@@ -338,6 +342,11 @@ void NativeRasterPassBuilder::addCameraQuad(
 void NativeRasterPassBuilder::addCameraQuad(
     scene::Camera *camera, cc::Material *material, SceneFlags sceneFlags) {
     return addCameraQuad(camera, material, sceneFlags, "CameraQuad");
+}
+
+void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
+    auto& pass = get(RasterTag{}, passID, *renderGraph);
+    pass.viewport = viewport;
 }
 
 void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {

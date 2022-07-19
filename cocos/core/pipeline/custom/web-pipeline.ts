@@ -248,6 +248,9 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             name, '', new RenderData(), false, queueId,
         );
     }
+    setViewport(viewport: Viewport): void {
+        this._pass.viewport.copy(viewport);
+    }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
     private readonly _layoutID: number;
@@ -643,6 +646,9 @@ export class WebPipeline extends Pipeline {
 
     addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
         const pass = new RasterPass();
+        pass.viewport.width = width;
+        pass.viewport.height = height;
+
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
             RenderGraphValue.Raster, pass, name, layoutName, data, false,

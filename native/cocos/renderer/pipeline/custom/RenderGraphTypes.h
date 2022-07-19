@@ -486,6 +486,7 @@ struct RasterPass {
     SubpassGraph                                                           subpassGraph;
     uint32_t                                                               width{0};
     uint32_t                                                               height{0};
+    gfx::Viewport                                                          viewport;
 };
 
 struct ComputePass {
