@@ -69,8 +69,6 @@ CC_FORCE_INLINE Node *getDirtyNode(const index_t idx) {
 } // namespace
 
 Node::Node() : Node(EMPTY_NODE_NAME) {
-    auto size = sizeof(Node);
-    printf("...");
 }
 
 Node::Node(const ccstd::string &name) {
