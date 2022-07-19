@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: gen files
-          path: $CONAN_USER_HOME
+          path: ${{ github.workspace }}/.conan
       #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
         shell: bash
