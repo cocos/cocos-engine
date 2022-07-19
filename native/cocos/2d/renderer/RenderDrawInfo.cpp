@@ -147,12 +147,12 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 
 void RenderDrawInfo::uploadBuffers() {
     if (_vbCount == 0 || _ibCount == 0) return;
-    auto size = _vbCount * _vertexFormatBytes;
+    uint32_t size = _vbCount * 9 * sizeof(float);// magic Number
     gfx::Buffer* vBuffer = _vbGFXBuffer;
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
     gfx::Buffer* iBuffer = _ibGFXBuffer;
-    auto iSize = _ibCount * 2;
+    uint32_t iSize = _ibCount * 2;
     iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
@@ -163,14 +163,16 @@ void RenderDrawInfo::resetMeshIA() {
 
 void RenderDrawInfo::destroy() {
     _nextFreeIAHandle = 0;
-    _attributes.clear();
 
     //TODO(): Should use _iaPool to delete vb, ib.
-    delete _iaInfo.indexBuffer;
-    if (!_iaInfo.vertexBuffers.empty()) {
-        // only one vb
-        delete _iaInfo.vertexBuffers[0];
-        _iaInfo.vertexBuffers.clear();
+    if (_iaInfo != nullptr) {
+        CC_SAFE_DELETE(_iaInfo->indexBuffer);
+        if (!_iaInfo->vertexBuffers.empty()) {
+            // only one vb
+            CC_SAFE_DELETE(_iaInfo->vertexBuffers[0]);
+            _iaInfo->vertexBuffers.clear();
+        }
+        CC_SAFE_DELETE(_iaInfo);
     }
 
     for (auto* ia : _iaPool) {
@@ -178,24 +180,25 @@ void RenderDrawInfo::destroy() {
         //        delete ia->getIndexBuffer();
         //        // only one vertex buffer
         //        delete ia->getVertexBuffers()[0];
-        delete ia;
+        CC_SAFE_DELETE(ia);
     }
     _iaPool.clear();
 }
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = _vertexFormatBytes; // hack
+        _iaInfo = new gfx::InputAssemblerInfo();
+        uint32_t vbStride = 9 * sizeof(float);// magic Number
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
         auto* indexBuffer = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });
@@ -203,11 +206,11 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
         _vbGFXBuffer = vertexBuffer;
         _ibGFXBuffer = indexBuffer;
 
-        _iaInfo.attributes = _attributes;
-        _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
-        _iaInfo.indexBuffer = indexBuffer;
+        _iaInfo->attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        _iaInfo->vertexBuffers.emplace_back(vertexBuffer);
+        _iaInfo->indexBuffer = indexBuffer;
     }
-    auto* ia = device->createInputAssembler(_iaInfo);
+    auto* ia = device->createInputAssembler(*_iaInfo);
     _iaPool.emplace_back(ia);
 
     return ia;

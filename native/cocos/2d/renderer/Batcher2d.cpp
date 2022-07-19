@@ -54,6 +54,7 @@ Batcher2d::~Batcher2d() { // NOLINT
     for (auto* drawBatch : _batches) {
         delete drawBatch;
     }
+    _attributes.clear();
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
