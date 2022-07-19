@@ -302,9 +302,6 @@ export class RenderData extends BaseRenderData {
     }
     set blendHash (val: number) {
         this._blendHash = val;
-        if (this._renderDrawInfo) {
-            this._renderDrawInfo.setBlendHash(val);
-        }
     }
 
     public indices: Uint16Array | null = null;
@@ -387,7 +384,6 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
             this._renderDrawInfo.setTextureHash(this.textureHash);
             this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
-            this._renderDrawInfo.setBlendHash(this.blendHash);
         }
     }
 
@@ -483,7 +479,6 @@ export class RenderData extends BaseRenderData {
 
             if (this._renderDrawInfo) {
                 this._renderDrawInfo.setMaterial(this.material);
-                this._renderDrawInfo.setBlendHash(this.blendHash);
             }
         }
         if (this.nodeDirty) {
