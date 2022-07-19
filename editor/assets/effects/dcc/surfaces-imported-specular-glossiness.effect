@@ -53,7 +53,7 @@ CCEffect %{
         cullMode: front
       properties:
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, editor: { displayName: Albedo, type: color } }
         albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
         alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
@@ -81,7 +81,6 @@ CCEffect %{
 CCProgram shared-ubos %{
   uniform Constants {
     vec4  tilingOffset;
-    vec4  albedo;
     vec4  diffuseColor;
     vec4  specularColor;
     vec4  emissive;
@@ -221,22 +220,17 @@ CCProgram surface-fragment %{
     return vec4(inSpecular, specularFactor);
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
-  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
-  {
-    //diffuse
-    vec4 baseColor = diffuseColor;
-    #if USE_TRANSPARENCY_MAP
-        baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
-    #endif
-    return baseColor;
-  }
-
   #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
   void SurfacesFragmentAlphaClipOnly()
   {
       #if USE_ALPHA_TEST
-      float alpha = 1.0;
+        float alpha = diffuseColor.a;
+        #if USE_VERTEX_COLOR
+          alpha *= FSInput_vertexColor.a;
+        #endif
+        #if USE_ALBEDO_MAP
+          alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
         #if USE_TRANSPARENCY_MAP
           alpha = texture(transparencyMap, TEXTURE_UV).a;
         #endif
@@ -270,7 +264,7 @@ CCProgram surface-fragment %{
   #include <surfaces/data-structures/standard>
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
-      vec4 baseColor = surfaceData.baseColor;
+      vec4 baseColor = diffuseColor;
       #if USE_VERTEX_COLOR
         baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
         baseColor.a *= FSInput_vertexColor.a;
@@ -279,9 +273,13 @@ CCProgram surface-fragment %{
         vec4 texColor = texture(albedoMap, TEXTURE_UV);
         texColor.rgb = SRGBToLinear(texColor.rgb);
         texColor.a *= transparencyFactor;
-        baseColor = texColor;
+        baseColor *= texColor;
       #else
         baseColor.rgb *= diffuseFactor;
+      #endif
+
+      #if USE_TRANSPARENCY_MAP
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
       #endif
 
       #if USE_ALPHA_TEST
@@ -322,7 +320,7 @@ CCProgram surface-fragment %{
       #endif
       baseColor.rgb = albedo;
 
-      surfaceData.baseColor.rgb = baseColor.rgb;
+      surfaceData.baseColor = baseColor;
       surfaceData.specularIntensity = inSpecularIntensity * 0.5;
       surfaceData.roughness = 1.0 - inGlossiness;
       surfaceData.metallic = inMetallic;
