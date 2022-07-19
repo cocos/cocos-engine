@@ -781,7 +781,7 @@ const cacheManager = require('./jsb-cache-manager');
             drawInfo.setTexture(realTexture.getGFXTexture());
             drawInfo.setTextureHash(realTexture.getHash());
             drawInfo.setSampler(realTexture.getGFXSampler());
-            drawInfo.setBlendHash(this.blendHash);
+            //drawInfo.setBlendHash(this.blendHash);
             drawInfo.setMaterial(this.material);
             renderData.fillDrawInfoAttributes(drawInfo);
 
