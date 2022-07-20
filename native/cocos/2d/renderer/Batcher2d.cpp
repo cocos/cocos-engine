@@ -93,39 +93,47 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
     }
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
-    if (entity && entity->isEnabled()) {
-        RenderEntityType entityType = entity->getRenderEntityType();
+    if (entity) {
+        if (entity->getColorDirty()) {
+            float localOpacity = entity->getLocalOpacity();
+            float localColorAlpha = entity->getColorAlpha();
+            entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
+        }
+        if (entity->isEnabled()) {
+            RenderEntityType entityType = entity->getRenderEntityType();
 
-        // when filling buffers, we should distinguish common components and other complex components like middleware
-        if (entityType == RenderEntityType::STATIC) {
-            std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-            for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
-                handleDrawInfo(entity, &(drawInfos[i]), node, parentOpacity);
-            }
-        } else if (entityType == RenderEntityType::DYNAMIC) {
-            ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-            for (auto* drawInfo : drawInfos) {
-                handleDrawInfo(entity, drawInfo, node, parentOpacity);
-            }
-        } else if (entityType == RenderEntityType::CROSSED) {
-            //for tiledmap
-            ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-            for (auto* drawInfo : drawInfos) {
-                if (drawInfo->getSubNode()) {
-                    walk(drawInfo->getSubNode(), entity->getOpacity());
-                } else {
+            // when filling buffers, we should distinguish common components and other complex components like middleware
+            if (entityType == RenderEntityType::STATIC) {
+                std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
+                for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
+                    handleDrawInfo(entity, &(drawInfos[i]), node, parentOpacity);
+                }
+            } else if (entityType == RenderEntityType::DYNAMIC) {
+                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
+                for (auto* drawInfo : drawInfos) {
                     handleDrawInfo(entity, drawInfo, node, parentOpacity);
                 }
-                
+            } else if (entityType == RenderEntityType::CROSSED) {
+                //for tiledmap
+                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
+                for (auto* drawInfo : drawInfos) {
+                    if (drawInfo->getSubNode()) {
+                        walk(drawInfo->getSubNode(), entity->getOpacity());
+                    } else {
+                        handleDrawInfo(entity, drawInfo, node, parentOpacity);
+                    }
+                }
+                breakWalk = true;
             }
-            breakWalk = true;
         }
+        entity->setColorDirty(false);
     }
+    
     if (!breakWalk) {
         const auto& children = node->getChildren();
+        float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
         for (const auto& child : children) {
             // we should find parent opacity recursively upwards if it doesn't have an entity.
-            float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
             walk(child, thisOpacity);
         }
     }
@@ -203,7 +211,10 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
                 fillVertexBuffers(entity, drawInfo);
                 drawInfo->setVertDirty(false);
             }
-            handleColor(entity, drawInfo, parentOpacity);
+            if (entity->getColorDirty()) {
+                fillColors(entity, drawInfo);
+            }
+            
             fillIndexBuffers(drawInfo);
         }
 
@@ -222,8 +233,6 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             //Mask node
             _stencilManager->pushMask();
             _stencilManager->clear(entity);
-
-            handleColor(entity, drawInfo, parentOpacity);
 
         } else if (isSubMask) {
             //Mask Comp
@@ -309,7 +318,6 @@ void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, floa
         float localOpacity = entity->getLocalOpacity();
         float localColorAlpha = entity->getColorAlpha();
         entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
-        fillColors(entity, drawInfo);
         entity->setColorDirty(false);
     }
 }

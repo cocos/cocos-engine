@@ -99,7 +99,7 @@ void RenderDrawInfo::destroy() {
     CC_SAFE_DELETE(_iaAttrs._iaPool);
 }
 
-RenderDrawInfo::initialize () {
+void RenderDrawInfo::initialize () {
     switch (drawInfoAttrs._drawInfoType)
     {
     case RenderDrawInfoType::COMP:

@@ -178,8 +178,10 @@ public:
     }
 
     inline void setTexture(gfx::Texture* texture) {
-        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-        _compAttrs._texture = texture;
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA || !texture);
+        if (drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA) {
+            _compAttrs._texture = texture;
+        }
     }
 
     inline uint32_t getTextureHash() const {
@@ -198,8 +200,10 @@ public:
     }
 
     inline void setSampler(gfx::Sampler* sampler) {
-        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-        _compAttrs._sampler = sampler;
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA || !sampler);
+        if (drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA) {
+            _compAttrs._sampler = sampler;
+        }
     }
 
     inline scene::Model* getModel() const {
@@ -208,8 +212,10 @@ public:
     }
 
     inline void setModel(scene::Model* model) {
-        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
-        _model = model;
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL || !model);
+        if (drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL) {
+            _model = model;
+        }
     }
 
     inline float* getVDataBuffer() const {
@@ -237,8 +243,10 @@ public:
     inline RenderDrawInfoType getEnumDrawInfoType() const { return drawInfoAttrs._drawInfoType; }
 
     inline void setRender2dBufferToNative(uint8_t* buffer) { // NOLINT(bugprone-easily-swappable-parameters)
-        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
-        _compAttrs._sharedBuffer = buffer;
+        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || !buffer);
+        if (drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP) {
+            _compAttrs._sharedBuffer = buffer;
+        }
     }
 
     inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {

@@ -178,8 +178,8 @@ export class BaseRenderData {
                 }
             }
 
-            this.setRenderDrawInfoAttributes();
             this.drawInfoType = drawInfoType;
+            this.setRenderDrawInfoAttributes();
         }
     }
 
