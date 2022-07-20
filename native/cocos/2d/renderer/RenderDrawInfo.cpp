@@ -93,14 +93,35 @@ void RenderDrawInfo::destroy() {
     }
 
     for (auto* ia : *_iaAttrs._iaPool) {
-        //TODO(): should use these codes to delete all ib, vb.
-        //        delete ia->getIndexBuffer();
-        //        // only one vertex buffer
-        //        delete ia->getVertexBuffers()[0];
         CC_SAFE_DELETE(ia);
     }
     _iaAttrs._iaPool -> clear();
     CC_SAFE_DELETE(_iaAttrs._iaPool);
+}
+
+RenderDrawInfo::initialize () {
+    switch (drawInfoAttrs._drawInfoType)
+    {
+    case RenderDrawInfoType::COMP:
+        _compAttrs._ibBuffer = nullptr;
+        _compAttrs._meshBuffer = nullptr;
+        _compAttrs._sampler = nullptr;
+        _compAttrs._sharedBuffer = nullptr;
+        _compAttrs._texture = nullptr;
+        _compAttrs._vbBuffer = nullptr;
+        break;
+    case RenderDrawInfoType::IA:
+        _iaAttrs._iaInfo = nullptr;
+        _iaAttrs._meshBuffer = nullptr;
+        _iaAttrs._sampler = nullptr;
+        _iaAttrs._iaPool = nullptr;
+        _iaAttrs._texture = nullptr;
+        _iaAttrs._nextFreeIAHandle = 0;
+        break;
+    default:
+        _model = nullptr;
+        break;
+    }
 }
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {

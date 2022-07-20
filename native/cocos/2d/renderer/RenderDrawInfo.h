@@ -52,6 +52,36 @@ enum class RenderDrawInfoType: uint8_t {
 };
 
 class Batcher2d;
+
+struct CompAttrs {
+    // weak reference
+    UIMeshBuffer* _meshBuffer{nullptr};
+    // weak reference
+    gfx::Texture* _texture{nullptr};
+    // weak reference
+    gfx::Sampler* _sampler{nullptr};
+    // weak reference
+    uint8_t* _sharedBuffer{nullptr};
+    // weak reference
+    float* _vbBuffer{nullptr};
+    // weak reference
+    uint16_t* _ibBuffer{nullptr};
+};
+
+struct IAAttrs {
+    // weak reference
+    UIMeshBuffer* _meshBuffer{nullptr};
+    // weak reference
+    gfx::Texture* _texture{nullptr};
+    // weak reference
+    gfx::Sampler* _sampler{nullptr};
+    gfx::InputAssemblerInfo* _iaInfo{nullptr};
+    //TODO(): it is not a good way to cache IA here.
+    // manage memory manually
+    ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
+    uint16_t _nextFreeIAHandle{0};
+};
+
 class RenderDrawInfo final {
 public:
     RenderDrawInfo();
@@ -202,6 +232,7 @@ public:
     }
 
     void changeMeshBuffer();
+    void initialize();
 
     inline RenderDrawInfoType getEnumDrawInfoType() const { return drawInfoAttrs._drawInfoType; }
 
@@ -251,35 +282,8 @@ private:
     uint16_t* _iDataBuffer{nullptr};
     
     union {
-        struct CompAttrs {
-            // weak reference
-            UIMeshBuffer* _meshBuffer{nullptr};
-            // weak reference
-            gfx::Texture* _texture{nullptr};
-            // weak reference
-            gfx::Sampler* _sampler{nullptr};
-            // weak reference
-            uint8_t* _sharedBuffer{nullptr};
-            // weak reference
-            float* _vbBuffer{nullptr};
-            // weak reference
-            uint16_t* _ibBuffer{nullptr};
-        } _compAttrs;
-
-        struct IAAttr {
-            // weak reference
-            UIMeshBuffer* _meshBuffer{nullptr};
-            // weak reference
-            gfx::Texture* _texture{nullptr};
-            // weak reference
-            gfx::Sampler* _sampler{nullptr};
-            gfx::InputAssemblerInfo* _iaInfo{nullptr};
-            //TODO(): it is not a good way to cache IA here.
-            // manage memory manually
-            ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
-            uint16_t _nextFreeIAHandle{0};
-        } _iaAttrs;
-
+        CompAttrs _compAttrs;
+        IAAttrs _iaAttrs;
         Node* _subNode{nullptr};
         scene::Model* _model;
     };
