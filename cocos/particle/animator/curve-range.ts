@@ -284,7 +284,7 @@ export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | nul
             offset += 4;
         }
     }
-    return {texture: updateTexture(tex, data, samples, height), data: data};
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples:number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
@@ -312,7 +312,7 @@ export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | nul
             offset += 4;
         }
     }
-    return {texture: updateTexture(tex, data, samples, height), data: data};
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
 // eslint-disable-next-line max-len
@@ -342,7 +342,7 @@ export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | nu
             }
         }
     }
-    return {texture: updateTexture(tex, data, samples, height), data: data};
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
 // eslint-disable-next-line max-len
@@ -372,7 +372,7 @@ export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | n
             }
         }
     }
-    return {texture: updateTexture(tex, data, samples, height), data: data};
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
 // eslint-disable-next-line max-len
@@ -402,5 +402,5 @@ export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | 
             }
         }
     }
-    return {texture: updateTexture(tex, data, samples, height), data: data};
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }

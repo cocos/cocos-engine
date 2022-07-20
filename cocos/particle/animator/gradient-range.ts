@@ -202,5 +202,5 @@ export function packGradientRange (tex: Texture2D | null, data: Uint8Array | nul
     }
     tex.uploadData(data);
 
-    return {texture: tex, data: data};
+    return { texture: tex, texdata: data };
 }
