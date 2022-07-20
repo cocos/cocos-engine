@@ -202,7 +202,7 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   subpassGraph(std::move(rhs.subpassGraph), alloc),
   width(rhs.width),
   height(rhs.height),
-  viewport(std::move(rhs.viewport)) {}
+  viewport(rhs.viewport) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : isValid(rhs.isValid),
