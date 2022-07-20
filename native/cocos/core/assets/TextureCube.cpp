@@ -168,10 +168,14 @@ void TextureCube::setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value) {
     _mipmapAtlas = value;
 }
 
-void TextureCube::setImage(const ITextureCubeMipmap &value) {
-    _mipmaps.clear();
-    _mipmaps.emplace_back(value);
+void TextureCube::setImage(const ITextureCubeMipmap *value) {
+    if (value != nullptr) {
+        setMipmaps({*value});
+    } else {
+        setMipmaps({});
+    }
 }
+
 void TextureCube::reset(const ITextureCubeCreateInfo &info) {
     _width = info.width;
     _height = info.height;
