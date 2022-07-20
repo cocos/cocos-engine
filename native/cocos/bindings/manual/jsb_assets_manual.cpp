@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "bindings/auto/jsb_assets_auto.h"
+#include "core/data/JSBNativeDataHolder.h"
 #include "core/event/EventTypesToJS.h"
 #include "jsb_scene_manual.h"
 
