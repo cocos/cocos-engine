@@ -891,7 +891,8 @@ export declare namespace native {
     export namespace reflection{
         /**
          * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html
-         * call OBJC/Java static methods
+         * @en call OBJC/Java static methods
+         * @zh 调用 OBJC/Java 静态方法
          *
          * @param className
          * @param methodName
@@ -900,41 +901,80 @@ export declare namespace native {
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
     }
+    /**
+     * @en
+     * The API to listen and dispatch events
+     * on Objc/JAVA without reflection, can only override onNative function once by time.
+     * @zh
+     * 不使用反射机制来调用和监听Objc/JAVA事件的接口
+     * 同一时间只能重载一个onNative函数
+     */
     export namespace bridge{
         /**
-         * send to native with at least one argument.
+         * @en send to native with at least one argument.
+         * @zh 向原生发送一个参数以上的消息
          */
         export function sendToNative(arg0: string, arg1?: string): void;
         /**
+         * @en
          * save your own callback controller with a js function,
          * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
+         * @zh
+         * 使用 jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
+         * 来保存自己的回调控制器，
          * @param args : received from native
          */
         export function onNative(arg0: string, arg1?: string|null): void;
     }
     /**
+     * @en
      * Listener for jsbBridgeWrapper's event.
      * It takes one argument as string which is transferred by jsbBridge.
+     * @zh
+     * jsbBridgeWrapper 的事件监听器，
+     * 它接受一个字符串参数，这个参数是通过 jsbBridge 进行传递的。
      */
     export type OnNativeEventListener = (arg: string) => void;
+    /**
+     * @en
+     * A high level API to call Objc/JAVA methods.
+     * Use bridge to implement it. If use jsbBridgeWrapper, bridge should not be used.
+     * @zh
+     * 高级 API，用于调用 Objc/JAVA 方法。
+     * 该方法封装在bridge之上，如果使用 jsbBridgeWrapper，bridge 不应该被使用。
+     */
     export namespace jsbBridgeWrapper {
-        /** If there's no event registered, the wrapper will create one  */
+        /**
+         * @en
+         * Register one listener on the event with eventName
+         * If there's no event with name, the wrapper will create one
+         * @zh
+         * 向指定名称的事件注册一个监听
+         * 如果没有指定名称的事件，wrapper会创建一个新的事件
+        */
         export function addNativeEventListener(eventName: string, listener: OnNativeEventListener);
         /**
+         * @en
          * Dispatch the event registered on Objective-C, Java etc.
          * No return value in JS to tell you if it works.
+         * @zh
+         * 调用 Objective-C、Java 等的注册的事件。
+         * JS 中没有返回值，以此来表示事件是否被调用。
          */
         export function dispatchEventToNative(eventName: string, arg?: string);
         /**
-         * Remove all listeners relative.
+         * @en Remove all listeners relative.
+         * @zh 移除所有相关的事件监听器。
          */
         export function removeAllListenersForEvent(eventName: string);
         /**
-         * Remove the listener specified
+         * @en Remove the listener specified
+         * @zh 移除指定的事件监听器
          */
         export function removeNativeEventListener(eventName: string, listener: OnNativeEventListener);
         /**
-         * Remove all events, use it carefully!
+         * @en Remove all events, use it carefully!
+         * @zh 移除所有事件，请小心使用！
          */
         export function removeAllListeners();
     }
