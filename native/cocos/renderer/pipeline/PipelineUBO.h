@@ -69,6 +69,13 @@ private:
     RenderPipeline *_pipeline{nullptr};
     // weak reference
     gfx::Device *_device{nullptr};
+    // weak reference, it is recorded in _ubos
+    gfx::Buffer *_cameraBuffer{nullptr};
+
+    uint32_t _currentCameraUBOOffset{0};
+    uint32_t _alignedCameraUBOSize{0};
+
+    bool _shadowUBOUpdated{false};
 
     ccstd::array<float, UBOGlobal::COUNT> _globalUBO;
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO;
@@ -77,12 +84,6 @@ private:
     // manage memory manually
     ccstd::vector<gfx::Buffer *> _ubos;
     ccstd::vector<float> _cameraUBOs;
-
-    // weak reference, it is recorded in _ubos
-    gfx::Buffer *_cameraBuffer{nullptr};
-    uint32_t _currentCameraUBOOffset{0};
-    uint32_t _alignedCameraUBOSize{0};
-    bool _shadowUBOUpdated{false};
 };
 
 } // namespace pipeline
