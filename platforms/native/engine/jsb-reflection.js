@@ -22,19 +22,24 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./jsb-reflection.js');
-require('./jsb-bridge.js');
-require('./jsb-bridge-wrapper.js');
-require('./jsb-assets-manager.js');
 
-require('./jsb-game.js');
-require('./jsb-gfx.js');
-require('./jsb-loader.js');
-require('./jsb-videoplayer.js');
-require('./jsb-webview.js');
-require('./jsb-editbox.js');
-require('./jsb-editor-support.js');
-require('./jsb-spine-skeleton.js');
-require('./jsb-dragonbones.js');
-
-if (cc.physics && cc.physics.PhysicsSystem.PHYSICS_PHYSX) { require('./jsb-physics.js'); }
+// JS to Native bridges
+// set to lazy
+Object.defineProperty(jsb, 'reflection', {
+    get () {
+        if (jsb.__bridge !== undefined) return jsb.__bridge;
+        if (window.JavascriptJavaBridge && (cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.OHOS)) {
+            jsb.__bridge = new JavascriptJavaBridge();
+        } else if (window.JavaScriptObjCBridge && (cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX)) {
+            jsb.__bridge = new JavaScriptObjCBridge();
+        } else   {
+            jsb.__bridge = null;
+        }
+        return jsb.__bridge;
+    },
+    enumerable: true,
+    configurable: true,
+    set (value) {
+        jsb.__bridge = value;
+    },
+});
