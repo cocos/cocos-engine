@@ -20,7 +20,7 @@ jsbPhy.OBJECT = {
 };
 
 jsbPhy.CONFIG = {
-    heightScale: 1 / 5000,
+    heightScale: 1 / 512,
 };
 
 const books = jsbPhy.OBJECT.books;
