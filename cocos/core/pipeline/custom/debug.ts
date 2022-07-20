@@ -14,11 +14,11 @@ class PrePrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
     }
-    clear(value: ClearView[]): unknown {
-        throw new Error('Method not implemented.');
+    clear(value: ClearView[]) {
+        // do nothing
     }
-    viewport(value: Viewport): unknown {
-        throw new Error('Method not implemented.');
+    viewport(value: Viewport) {
+        // do nothing
     }
     raster (value: RasterPass) {
         oss += `${space}width = ${value.width}\n`;
@@ -125,11 +125,11 @@ class PostPrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
     }
-    clear(value: ClearView[]): unknown {
-        throw new Error('Method not implemented.');
+    clear(value: ClearView[]) {
+        // do nothing
     }
-    viewport(value: Viewport): unknown {
-        throw new Error('Method not implemented.');
+    viewport(value: Viewport) {
+        // do nothing
     }
     raster (value: RasterPass) {
         // post raster pass
