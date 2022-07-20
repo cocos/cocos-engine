@@ -622,12 +622,9 @@ export class Skeleton extends UIRenderer {
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
     private _drawInfoList : RenderDrawInfo[] = [];
 
-    private requestDrawInfo (idx: number) {
-        if (!this._drawInfoList[idx]) {
-            const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo();
-        }
-        return this._drawInfoList[idx];
+    private createDrawInfo () {
+        const drawInfo = new RenderDrawInfo();
+        return drawInfo;
     }
     // CONSTRUCTOR
     constructor () {

@@ -777,15 +777,17 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
-            const drawInfo = this.requestDrawInfo(index);
-            drawInfo.setTexture(realTexture.getGFXTexture());
-            drawInfo.setTextureHash(realTexture.getHash());
-            drawInfo.setSampler(realTexture.getGFXSampler());
-            drawInfo.setMaterial(this.material);
-            renderData.fillDrawInfoAttributes(drawInfo);
-
-            drawInfo.setIndexOffset(_tempIndicesOffset);
-            drawInfo.setIBCount(_tempIndicesCount);
+            if (!this._drawInfoList[index]) {
+                this._drawInfoList[index] = this.createDrawInfo();
+                renderData.fillInitDrawInfoAttributes(this._drawInfoList[index]);
+            }
+            const drawInfo = this._drawInfoList[index];
+            drawInfo.setAttributesForIA(realTexture.getGFXTexture(),
+                realTexture.getGFXSampler(),
+                this.material,
+                renderData.chunk.bufferId,
+                _tempIndicesOffset,
+                _tempIndicesCount);
 
             entity.setDynamicRenderDrawInfo(drawInfo, index);
             this.material = mat;

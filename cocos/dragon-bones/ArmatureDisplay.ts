@@ -514,12 +514,9 @@ export class ArmatureDisplay extends UIRenderer {
 
     private _inited;
     private _drawInfoList : RenderDrawInfo[] = [];
-    private requestDrawInfo (idx: number) {
-        if (!this._drawInfoList[idx]) {
-            const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo();
-        }
-        return this._drawInfoList[idx];
+    private createDrawInfo () {
+        const drawInfo = new RenderDrawInfo();
+        return drawInfo;
     }
 
     constructor () {

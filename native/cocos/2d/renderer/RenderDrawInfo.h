@@ -114,7 +114,8 @@ public:
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
     void resetMeshIA();
-
+    void setAttributesForIA(gfx::Texture* texture, gfx::Sampler* sampler,
+            Material* material, uint32_t bufferId, uint32_t iOffset, uint32_t iCount);
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
     void destroy();

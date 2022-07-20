@@ -68,6 +68,7 @@ export declare class NativeRenderDrawInfo {
 
     setRender2dBufferToNative(data: TypedArray, stride: number, size: number);
     syncSharedBufferToNative(data: TypedArray);
+    setAttributesForIA(tex : Texture, sampler: Sampler, mat: Material, bufferId: number, iOffset: number, iCount: number);
 }
 
 export declare class NativeRenderEntity {

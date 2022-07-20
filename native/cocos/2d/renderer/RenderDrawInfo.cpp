@@ -211,4 +211,14 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
 
     return ia;
 }
+void RenderDrawInfo::setAttributesForIA(gfx::Texture* texture, gfx::Sampler* sampler,
+    Material* material, uint32_t bufferId, uint32_t iOffset, uint32_t iCount) {
+    _texture = texture;
+    _sampler = sampler;
+    _material = material;
+    _bufferId = bufferId;
+    _indexOffset = iOffset;
+    _ibCount = iCount;
+    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(_accId, _bufferId);
+}
 } // namespace cc

@@ -278,4 +278,8 @@ export class RenderDrawInfo {
             this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride);
         }
     }
+
+    public setAttributesForIA (tex : Texture, sampler: Sampler, mat: Material, id, iOffset, iCount) {
+        this._nativeObj.setAttributesForIA(tex, sampler, mat, id, iOffset, iCount);
+    }
 }

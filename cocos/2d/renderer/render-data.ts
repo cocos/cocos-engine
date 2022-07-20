@@ -387,26 +387,32 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public fillDrawInfoAttributes (drawInfo: RenderDrawInfo) {
-        if (JSB) {
-            if (!drawInfo) {
-                return;
-            }
+    public fillInitDrawInfoAttributes (drawInfo: RenderDrawInfo) {
+        drawInfo.setAccId(this._accessor.id);
+        drawInfo.setDrawInfoType(this._drawInfoType);
+        drawInfo.setIsMeshBuffer(this._isMeshBuffer);
+    }
 
-            drawInfo.setAccId(this._accessor.id);
-            drawInfo.setDrawInfoType(this._drawInfoType);
-            drawInfo.setBufferId(this.chunk.bufferId);
-            drawInfo.setVertexOffset(this.chunk.vertexOffset);
-            drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-            drawInfo.setVB(this.chunk.vb);
-            drawInfo.setIB(this.chunk.ib);
-            drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
-            drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
-            drawInfo.setVBCount(this._vc);
-            drawInfo.setIBCount(this._ic);
-            drawInfo.setDataHash(this.dataHash);
-            drawInfo.setIsMeshBuffer(this._isMeshBuffer);
-        }
+    public fillDrawInfoAttributes (drawInfo: RenderDrawInfo) {
+        // if (JSB) {
+        //     if (!drawInfo) {
+        //         return;
+        //     }
+
+        //     drawInfo.setAccId(this._accessor.id);
+        //     drawInfo.setDrawInfoType(this._drawInfoType);
+        //     drawInfo.setBufferId(this.chunk.bufferId);
+        //     drawInfo.setVertexOffset(this.chunk.vertexOffset);
+        //     drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+        //     drawInfo.setVB(this.chunk.vb);
+        //     drawInfo.setIB(this.chunk.ib);
+        //     drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
+        //     drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
+        //     drawInfo.setVBCount(this._vc);
+        //     drawInfo.setIBCount(this._ic);
+        //     drawInfo.setDataHash(this.dataHash);
+        //     drawInfo.setIsMeshBuffer(this._isMeshBuffer);
+        // }
     }
 
     // Initial advance render data for native

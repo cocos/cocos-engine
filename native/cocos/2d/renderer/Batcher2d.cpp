@@ -259,10 +259,8 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         }
     } else if (drawInfoType == RenderDrawInfoType::IA) {
         generateBatch(_currEntity, _currDrawInfo);
-        uint32_t dataHash = drawInfo->getDataHash();
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
         auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
-        _currHash = dataHash;
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
         _currLayer = entity->getNode()->getLayer();
@@ -274,9 +272,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
 
         // if(frame)
         _currTexture = drawInfo->getTexture();
-        _currTextureHash = drawInfo->getTextureHash();
         _currSampler = drawInfo->getSampler();
-        _currSamplerHash = _currSampler->getHash();
         setIndexRange(drawInfo);
 
         UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
