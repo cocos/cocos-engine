@@ -55,12 +55,6 @@ class Batcher2d;
 
 struct CompAttrs {
     // weak reference
-    UIMeshBuffer* _meshBuffer{nullptr};
-    // weak reference
-    gfx::Texture* _texture{nullptr};
-    // weak reference
-    gfx::Sampler* _sampler{nullptr};
-    // weak reference
     uint8_t* _sharedBuffer{nullptr};
     // weak reference
     float* _vbBuffer{nullptr};
@@ -69,12 +63,6 @@ struct CompAttrs {
 };
 
 struct IAAttrs {
-    // weak reference
-    UIMeshBuffer* _meshBuffer{nullptr};
-    // weak reference
-    gfx::Texture* _texture{nullptr};
-    // weak reference
-    gfx::Sampler* _sampler{nullptr};
     gfx::InputAssemblerInfo* _iaInfo{nullptr};
     //TODO(): it is not a good way to cache IA here.
     // manage memory manually
@@ -149,7 +137,7 @@ public:
 
     inline UIMeshBuffer* getMeshBuffer() const {
         CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-        return _compAttrs._meshBuffer;
+        return _meshBuffer;
     }
 
     inline float* getVbBuffer() const {
@@ -174,14 +162,12 @@ public:
 
     inline gfx::Texture* getTexture() const {
         CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-        return _compAttrs._texture;
+        return _texture;
     }
 
     inline void setTexture(gfx::Texture* texture) {
         CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA || !texture);
-        if (drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA) {
-            _compAttrs._texture = texture;
-        }
+        _texture = texture;
     }
 
     inline uint32_t getTextureHash() const {
@@ -196,14 +182,11 @@ public:
 
     inline gfx::Sampler* getSampler() const {
         CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-        return _compAttrs._sampler;
+        return _sampler;
     }
 
     inline void setSampler(gfx::Sampler* sampler) {
-        CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA || !sampler);
-        if (drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA) {
-            _compAttrs._sampler = sampler;
-        }
+        _sampler = sampler;
     }
 
     inline scene::Model* getModel() const {
@@ -288,6 +271,12 @@ private:
     float* _vDataBuffer{nullptr};
     // weak reference
     uint16_t* _iDataBuffer{nullptr};
+    // weak reference
+    UIMeshBuffer* _meshBuffer{nullptr};
+    // weak reference
+    gfx::Texture* _texture{nullptr};
+    // weak reference
+    gfx::Sampler* _sampler{nullptr};
     
     union {
         CompAttrs _compAttrs;

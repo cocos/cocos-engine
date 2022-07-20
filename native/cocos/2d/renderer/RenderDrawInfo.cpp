@@ -41,8 +41,7 @@ RenderDrawInfo::~RenderDrawInfo() {
 
 void RenderDrawInfo::changeMeshBuffer() {
     CC_ASSERT(Root::getInstance()->getBatcher2D());
-    CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP || drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-    _compAttrs._meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(drawInfoAttrs._accId, drawInfoAttrs._bufferId);
+    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(drawInfoAttrs._accId, drawInfoAttrs._bufferId);
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
@@ -104,18 +103,12 @@ void RenderDrawInfo::initialize () {
     {
     case RenderDrawInfoType::COMP:
         _compAttrs._ibBuffer = nullptr;
-        _compAttrs._meshBuffer = nullptr;
-        _compAttrs._sampler = nullptr;
         _compAttrs._sharedBuffer = nullptr;
-        _compAttrs._texture = nullptr;
         _compAttrs._vbBuffer = nullptr;
         break;
     case RenderDrawInfoType::IA:
         _iaAttrs._iaInfo = nullptr;
-        _iaAttrs._meshBuffer = nullptr;
-        _iaAttrs._sampler = nullptr;
         _iaAttrs._iaPool = nullptr;
-        _iaAttrs._texture = nullptr;
         _iaAttrs._nextFreeIAHandle = 0;
         break;
     default:
