@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { DEV, HTML5, TEST } from 'internal:constants';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { DebugView } from './pipeline/debug-view';
@@ -38,7 +39,6 @@ import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
 import { warn, warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
-import { createCustomPipeline } from './pipeline/custom';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
 import { settings, Settings } from './settings';
@@ -119,7 +119,7 @@ export class Root {
      * 启用自定义渲染管线
      */
     public get usesCustomPipeline (): boolean {
-        return this._usesCustomPipeline;
+        return this._usesCustomPipeline && !DEV && (HTML5 || TEST);
     }
 
     /**
