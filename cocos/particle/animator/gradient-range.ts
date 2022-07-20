@@ -171,9 +171,12 @@ function evaluateHeight (gr: GradientRange) {
         return 1;
     }
 }
-export function packGradientRange (tex: Texture2D | null, samples: number, gr: GradientRange) {
+export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange) {
     const height = evaluateHeight(gr);
-    const data = new Uint8Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Uint8Array(samples * height * 4);
+    }
     const interval = 1.0 / (samples - 1);
     let offset = 0;
 
@@ -199,5 +202,5 @@ export function packGradientRange (tex: Texture2D | null, samples: number, gr: G
     }
     tex.uploadData(data);
 
-    return tex;
+    return {texture: tex, data: data};
 }

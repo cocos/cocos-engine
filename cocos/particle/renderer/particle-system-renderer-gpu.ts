@@ -147,6 +147,12 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _rotationTexture: Texture2D | null = null;
     private _sizeTexture: Texture2D | null = null;
     private _animTexture: Texture2D | null = null;
+    private _colorData: Uint8Array | null = null;
+    private _forceData: Float32Array | null = null;
+    private _velocityData: Float32Array | null = null;
+    private _rotationData: Float32Array | null = null;
+    private _sizeData: Float32Array | null = null;
+    private _animData: Float32Array | null = null;
     private _uTimeHandle = 0;
     private _uRotHandle = 0;
     private _uNodeRotHandle = 0;
@@ -207,6 +213,12 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (this._sizeTexture) this._sizeTexture.destroy();
         if (this._rotationTexture) this._rotationTexture.destroy();
         if (this._animTexture) this._animTexture.destroy();
+        this._forceData = null;
+        this._velocityData = null;
+        this._colorData = null;
+        this._sizeData = null;
+        this._rotationData = null;
+        this._animData = null;
     }
 
     public enableModule (name: string, val: boolean, pm: IParticleModule) {
@@ -368,7 +380,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = forceModule && forceModule.enable;
         this._defines[FORCE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._forceTexture = packCurveRangeXYZ(this._forceTexture, _sample_num, forceModule.x, forceModule.y, forceModule.z);
+            const packed = packCurveRangeXYZ(this._forceTexture, this._forceData, _sample_num, forceModule.x, forceModule.y, forceModule.z);
+            this._forceTexture = packed.texture;
+            this._forceData = packed.data;
             const handle = pass.getHandle('force_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._forceTexture.getGFXSampler()!);
@@ -384,8 +398,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = velocityModule && velocityModule.enable;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._velocityTexture = packCurveRangeXYZW(this._velocityTexture, _sample_num, velocityModule.x, velocityModule.y,
+            const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule.x, velocityModule.y,
                 velocityModule.z, velocityModule.speedModifier);
+            this._velocityTexture = packed.texture;
+            this._velocityData = packed.data;
             const handle = pass.getHandle('velocity_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
@@ -401,7 +417,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = colorModule && colorModule.enable;
         this._defines[COLOR_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            this._colorTexture = packGradientRange(this._colorTexture, _sample_num, colorModule.color);
+            const packed = packGradientRange(this._colorTexture, this._colorData, _sample_num, colorModule.color);
+            this._colorTexture = packed.texture;
+            this._colorData = packed.data;
             const handle = pass.getHandle('color_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._colorTexture.getGFXSampler()!);
@@ -415,17 +433,23 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = roationModule && roationModule.enable;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
+            let packed;
             if (roationModule.separateAxes) {
-                this._rotationTexture = packCurveRangeXYZ(this._rotationTexture, _sample_num, roationModule.x, roationModule.y, roationModule.z);
+                // eslint-disable-next-line max-len
+                packed = packCurveRangeXYZ(this._rotationTexture, this._rotationData, _sample_num, roationModule.x, roationModule.y, roationModule.z);
             } else {
-                this._rotationTexture = packCurveRangeZ(this._rotationTexture, _sample_num, roationModule.z);
+                packed = packCurveRangeZ(this._rotationTexture, this._rotationData, _sample_num, roationModule.z);
             }
-            const handle = pass.getHandle('rotation_over_time_tex0');
-            const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, this._rotationTexture.getGFXSampler()!);
-            pass.bindTexture(binding, this._rotationTexture.getGFXTexture()!);
-            const modeHandle = pass.getHandle('u_rotation_mode');
-            pass.setUniform(modeHandle, this._rotationTexture.height);
+            this._rotationTexture = packed.texture;
+            this._rotationData = packed.data;
+            if (this._rotationTexture) {
+                const handle = pass.getHandle('rotation_over_time_tex0');
+                const binding = Pass.getBindingFromHandle(handle);
+                pass.bindSampler(binding, this._rotationTexture.getGFXSampler()!);
+                pass.bindTexture(binding, this._rotationTexture.getGFXTexture()!);
+                const modeHandle = pass.getHandle('u_rotation_mode');
+                pass.setUniform(modeHandle, this._rotationTexture.height);
+            }
         }
 
         // size module
@@ -433,17 +457,22 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = sizeModule && sizeModule.enable;
         this._defines[SIZE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
+            let packed;
             if (sizeModule.separateAxes) {
-                this._sizeTexture = packCurveRangeXYZ(this._sizeTexture, _sample_num, sizeModule.x, sizeModule.y, sizeModule.z, true);
+                packed = packCurveRangeXYZ(this._sizeTexture, this._sizeData, _sample_num, sizeModule.x, sizeModule.y, sizeModule.z, true);
             } else {
-                this._sizeTexture = packCurveRangeN(this._sizeTexture, _sample_num, sizeModule.size, true);
+                packed = packCurveRangeN(this._sizeTexture, this._sizeData, _sample_num, sizeModule.size, true);
             }
-            const handle = pass.getHandle('size_over_time_tex0');
-            const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, this._sizeTexture.getGFXSampler()!);
-            pass.bindTexture(binding, this._sizeTexture.getGFXTexture()!);
-            const modeHandle = pass.getHandle('u_size_mode');
-            pass.setUniform(modeHandle, this._sizeTexture.height);
+            this._sizeTexture = packed.texture;
+            this._sizeData = packed.data;
+            if (this._sizeTexture) {
+                const handle = pass.getHandle('size_over_time_tex0');
+                const binding = Pass.getBindingFromHandle(handle);
+                pass.bindSampler(binding, this._sizeTexture.getGFXSampler()!);
+                pass.bindTexture(binding, this._sizeTexture.getGFXTexture()!);
+                const modeHandle = pass.getHandle('u_size_mode');
+                pass.setUniform(modeHandle, this._sizeTexture.height);
+            }
         }
 
         // texture module
@@ -451,7 +480,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = textureModule && textureModule.enable;
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
-            this._animTexture = packCurveRangeXY(this._animTexture, _sample_num, textureModule.startFrame, textureModule.frameOverTime);
+            // eslint-disable-next-line max-len
+            const packed = packCurveRangeXY(this._animTexture, this._animData, _sample_num, textureModule.startFrame, textureModule.frameOverTime);
+            this._animTexture = packed.texture;
+            this._animData = packed.data;
             const handle = pass.getHandle('texture_animation_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._animTexture.getGFXSampler()!);
