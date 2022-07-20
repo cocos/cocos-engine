@@ -805,8 +805,8 @@ export class ShadowsInfo {
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     @tooltip('i18n:shadow.planeHeight')
     set planeHeight (val: number) {
-        this._distance = -val;
-        if (this._resource) { this._resource.distance = -val; }
+        this._distance = val;
+        if (this._resource) { this._resource.distance = val; }
     }
     get planeHeight () {
         return this._distance;
