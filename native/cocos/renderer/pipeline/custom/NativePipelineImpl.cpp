@@ -299,6 +299,14 @@ gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::st
     return nullptr;
 }
 
+gfx::DescriptorSet *NativePipeline::getDescriptorSet() const {
+    return globalDSManager->getGlobalDescriptorSet();
+}
+
+ccstd::vector<gfx::CommandBuffer*> NativePipeline::getCommandBuffers() const {
+    return ccstd::vector<gfx::CommandBuffer*>(1, device->getCommandBuffer());
+}
+
 namespace {
 
 void generateConstantMacros(

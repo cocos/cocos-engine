@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API } from '../../gfx/index';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { LightingMode, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ClearView, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, LightInfo, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
@@ -444,6 +444,7 @@ export class WebPipeline extends Pipeline {
         return true;
     }
     public destroy (): boolean {
+        this._globalDSManager?.globalDescriptorSet.destroy();
         this._globalDSManager?.destroy();
         this._pipelineSceneData?.destroy();
         return true;
@@ -459,6 +460,9 @@ export class WebPipeline extends Pipeline {
     }
     public get descriptorSet (): DescriptorSet {
         return this._globalDSManager.globalDescriptorSet;
+    }
+    public get commandBuffers (): CommandBuffer[] {
+        return [this._device.commandBuffer];
     }
     public get pipelineSceneData (): PipelineSceneData {
         return this._pipelineSceneData;

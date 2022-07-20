@@ -32,7 +32,7 @@
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, Color, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
+import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
@@ -51,6 +51,8 @@ export abstract class PipelineRuntime {
     public abstract get device(): Device;
     public abstract get globalDSManager(): GlobalDSManager;
     public abstract get descriptorSetLayout(): DescriptorSetLayout;
+    public abstract get descriptorSet(): DescriptorSet;
+    public abstract get commandBuffers(): CommandBuffer[];
     public abstract get pipelineSceneData(): PipelineSceneData;
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;

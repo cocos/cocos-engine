@@ -84,6 +84,8 @@ public:
     virtual const MacroRecord &getMacros() const = 0;
     virtual pipeline::GlobalDSManager *getGlobalDSManager() const = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout() const = 0;
+    virtual gfx::DescriptorSet *getDescriptorSet() const = 0;
+    virtual ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const = 0;
     virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
     virtual const ccstd::string &getConstantMacros() const = 0;
     virtual scene::Model *getProfiler() const = 0;

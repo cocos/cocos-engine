@@ -28,7 +28,7 @@ import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, API } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
-import { RenderPipeline } from './render-pipeline';
+import { PipelineRuntime } from './custom/pipeline';
 import { legacyCC } from '../global-exports';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
@@ -87,7 +87,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
+    public static updateCameraUBOView (pipeline: PipelineRuntime, bufferView: Float32Array,
         camera: Camera) {
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
@@ -201,7 +201,7 @@ export class PipelineUBO {
         return 0.0;
     }
 
-    public static updateShadowUBOView (pipeline: RenderPipeline, shadowBufferView: Float32Array, camera: Camera) {
+    public static updateShadowUBOView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, camera: Camera) {
         const device = pipeline.device;
         const mainLight = camera.scene!.mainLight;
         const sceneData = pipeline.pipelineSceneData;
@@ -287,7 +287,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateShadowUBOLightView (pipeline: RenderPipeline, shadowBufferView: Float32Array, light: Light, level: number) {
+    public static updateShadowUBOLightView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, light: Light, level: number) {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
@@ -390,7 +390,7 @@ export class PipelineUBO {
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
     static _combineSignY = 0;
     protected declare _device: Device;
-    protected declare _pipeline: RenderPipeline;
+    protected declare _pipeline: PipelineRuntime;
 
     /**
      *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends |
@@ -409,7 +409,7 @@ export class PipelineUBO {
         PipelineUBO._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
+    public activate (device: Device, pipeline: PipelineRuntime) {
         this._device = device;
         this._pipeline = pipeline;
         const ds = this._pipeline.descriptorSet;

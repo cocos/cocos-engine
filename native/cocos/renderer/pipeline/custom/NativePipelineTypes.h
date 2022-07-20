@@ -277,6 +277,8 @@ public:
     const MacroRecord &getMacros() const override;
     pipeline::GlobalDSManager *getGlobalDSManager() const override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout() const override;
+    gfx::DescriptorSet *getDescriptorSet() const override;
+    ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const override;
     pipeline::PipelineSceneData *getPipelineSceneData() const override;
     const ccstd::string &getConstantMacros() const override;
     scene::Model *getProfiler() const override;
