@@ -162,16 +162,30 @@ CommandBuffer *CCWGPUDevice::createCommandBuffer(const CommandBufferInfo &info, 
     return ccnew CCWGPUCommandBuffer;
 }
 
-void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+// const BufferTextureCopyList &regions
+void CCWGPUDevice::copyBuffersToTexture(const emscripten::val &v, Texture *dst, emscripten::val vals) {
+    auto regions = ems::vecFromEMS<BufferTextureCopy>(vals);
+    uint32_t len = v["length"].as<unsigned>();
+    std::vector<std::vector<uint8_t>> lifeProlonger(len);
+    std::vector<const uint8_t *> buffers;
+    for (size_t i = 0; i < len; i++) {
+        lifeProlonger[i] = EMSArraysToU8Vec(v, i);
+        buffers.push_back(lifeProlonger[i].data());
+    }
+
+    return copyBuffersToTexture(buffers.data(), dst, regions.data(), regions.size());
+}
+
+void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     Format dstFormat = dst->getFormat();
-    uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint32_t>(dstFormat)].size;
+    uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint>(dstFormat)].size;
     auto *texture = static_cast<CCWGPUTexture *>(dst);
 
     for (size_t i = 0; i < count; i++) {
         uint32_t bufferSize = pxSize * regions[i].texExtent.width * regions[i].texExtent.height;
 
         uint32_t bytesPerRow = pxSize * regions[i].texExtent.width;
-        //it's buffer data layout
+        // it's buffer data layout
         WGPUTextureDataLayout texDataLayout = {
             .offset = 0,
             .bytesPerRow = bytesPerRow,
@@ -314,9 +328,9 @@ void CCWGPUDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     }
 }
 
-Shader *CCWGPUDevice::createShader(const SPVShaderInfoInstance &info) {
+Shader *CCWGPUDevice::createShader(const ShaderInfo &info) {
     CCWGPUShader *shader = ccnew CCWGPUShader;
-    shader->initialize(info);
+    // shader->initialize(info);
     return shader;
 }
 

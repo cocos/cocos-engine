@@ -25,6 +25,7 @@
 
 #pragma once
 #include <emscripten/bind.h>
+#include "WGPUDef.h"
 #include "gfx-base/GFXTexture.h"
 
 namespace cc {
@@ -52,6 +53,9 @@ public:
 
     // resource handler changed?
     inline bool internalChanged() const { return _internalChanged; }
+
+    // ems export
+    ems::Format::type getEMSFormat() const { return static_cast<ems::Format::type>(Texture::getFormat()); }
 
 protected:
     void doInit(const TextureInfo &info) override;

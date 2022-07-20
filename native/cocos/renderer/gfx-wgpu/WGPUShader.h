@@ -42,7 +42,7 @@ public:
 
     inline CCWGPUShaderObject *gpuShaderObject() { return _gpuShaderObject; }
 
-    void initialize(const SPVShaderInfoInstance &info);
+    void initialize(const ShaderInfo &info);
 
 protected:
     void doInit(const ShaderInfo &info) override;

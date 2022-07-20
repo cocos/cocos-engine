@@ -46,6 +46,8 @@ public:
 
     void update() override;
 
+    void forceUpdate() override{};
+
     uint8_t dynamicOffsetCount() const;
 
     void prepare();

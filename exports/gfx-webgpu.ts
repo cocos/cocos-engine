@@ -29,11 +29,11 @@
  */
 
 import { BUILD } from 'internal:constants';
-// import { WebGPUDevice } from '../cocos/core/gfx';
 import { legacyCC } from '../cocos/core/global-exports';
+import { gfx } from '../cocos/webgpu/instantiated';
+import { WebGPUDevice } from '../cocos/core/gfx';
 
-const WebGPUDevice = null;
+legacyCC.WebGPUDevice = gfx.WebGPUDevice;
+legacyCC.gfx = gfx;
+
 export { WebGPUDevice };
-if (BUILD) {
-    legacyCC.WebGPUDevice = WebGPUDevice;
-}

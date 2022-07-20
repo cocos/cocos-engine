@@ -44,14 +44,13 @@ struct CCWGPUDeviceObject;
 class CCWGPUSwapchain;
 class CCWGPUTexture;
 
-using namespace emscripten;
-
-class CCWGPUDevice final : public wrapper<Device> {
+class CCWGPUDevice final : public emscripten::wrapper<Device> {
 public:
     EMSCRIPTEN_WRAPPER(CCWGPUDevice);
 
     static CCWGPUDevice *getInstance();
 
+    CCWGPUDevice();
     ~CCWGPUDevice();
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
@@ -68,72 +67,80 @@ public:
     }
 
     // ems export override
-    Swapchain *createSwapchain(const SwapchainInfoInstance &info) {
+    bool hasFeature(ems::Feature::type feature) const {
+        return Device::hasFeature(Feature(feature));
+    };
+
+    void initialize(const ems::DeviceInfo &info) {
+        Device::initialize(static_cast<const DeviceInfo &>(info));
+    }
+
+    Swapchain *createSwapchain(const ems::SwapchainInfo &info) {
         return Device::createSwapchain(static_cast<const SwapchainInfo &>(info));
     }
 
-    Framebuffer *createFramebuffer(const FramebufferInfoInstance &info) {
+    Framebuffer *createFramebuffer(const ems::FramebufferInfo &info) {
         return Device::createFramebuffer(static_cast<const FramebufferInfo &>(info));
     }
 
-    Texture *createTexture(const TextureInfoInstance &info) {
+    Texture *createTexture(const ems::TextureInfo &info) {
         return Device::createTexture(static_cast<const TextureInfo &>(info));
     }
 
-    Texture *createTexture(const TextureViewInfoInstance &info) {
+    Texture *createTexture(const ems::TextureViewInfo &info) {
         return Device::createTexture(static_cast<const TextureViewInfo &>(info));
     }
 
-    Buffer *createBuffer(const BufferInfoInstance &info) {
+    Buffer *createBuffer(const ems::BufferInfo &info) {
         return Device::createBuffer(static_cast<const BufferInfo &>(info));
     }
 
-    Buffer *createBuffer(const BufferViewInfoInstance &info) {
+    Buffer *createBuffer(const ems::BufferViewInfo &info) {
         return Device::createBuffer(static_cast<const BufferViewInfo &>(info));
     }
 
-    DescriptorSet *createDescriptorSet(const DescriptorSetInfoInstance &info) {
+    DescriptorSet *createDescriptorSet(const ems::DescriptorSetInfo &info) {
         return Device::createDescriptorSet(static_cast<const DescriptorSetInfo &>(info));
     }
 
-    DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfoInstance &info) {
+    DescriptorSetLayout *createDescriptorSetLayout(const ems::DescriptorSetLayoutInfo &info) {
         return Device::createDescriptorSetLayout(static_cast<const DescriptorSetLayoutInfo &>(info));
     }
 
-    InputAssembler *createInputAssembler(const InputAssemblerInfoInstance &info) {
+    PipelineLayout *createPipelineLayout(const ems::PipelineLayoutInfo &info) {
+        return Device::createPipelineLayout(static_cast<const PipelineLayoutInfo &>(info));
+    }
+
+    InputAssembler *createInputAssembler(const ems::InputAssemblerInfo &info) {
         return Device::createInputAssembler(static_cast<const InputAssemblerInfo &>(info));
     }
 
-    PipelineState *createPipelineState(const PipelineStateInfoInstance &info) {
+    PipelineState *createPipelineState(const ems::PipelineStateInfo &info) {
         return Device::createPipelineState(static_cast<const PipelineStateInfo &>(info));
     }
 
-    CommandBuffer *createCommandBuffer(const CommandBufferInfoInstance &info) {
+    CommandBuffer *createCommandBuffer(const ems::CommandBufferInfo &info) {
         return Device::createCommandBuffer(static_cast<const CommandBufferInfo &>(info));
+    }
+
+    RenderPass *createRenderPass(const ems::RenderPassInfo &info) {
+        return Device::createRenderPass(static_cast<const RenderPassInfo &>(info));
     }
 
     emscripten::val copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions);
 
-    Shader *createShader(const SPVShaderInfoInstance &spvInfo);
+    Shader *createShader(const ShaderInfo &info);
 
-    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const BufferTextureCopyList &regions) {
-        uint32_t len = v["length"].as<unsigned>();
-        ccstd::vector<ccstd::vector<uint8_t>> lifeProlonger(len);
-        ccstd::vector<const uint8_t *> buffers;
-        for (size_t i = 0; i < len; i++) {
-            lifeProlonger[i] = EMSArraysToU8Vec(v, i);
-            buffers.push_back(lifeProlonger[i].data());
-        }
+    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, emscripten::val regions);
 
-        return copyBuffersToTexture(buffers.data(), dst, regions.data(), regions.size());
+    Sampler *getSampler(const ems::SamplerInfo &info) {
+        return Device::getSampler(static_cast<const SamplerInfo &>(info));
     }
 
     void debug();
 
 protected:
     static CCWGPUDevice *instance;
-
-    CCWGPUDevice();
 
     bool doInit(const DeviceInfo &info) override;
     void doDestroy() override;

@@ -127,6 +127,7 @@ export class DeviceManager {
                 }
 
                 const deviceCtors: Constructor<Device>[] = [];
+                deviceCtors.push(legacyCC.WebGPUDevice);
                 if (useWebGL2 && legacyCC.WebGL2Device) {
                     deviceCtors.push(legacyCC.WebGL2Device);
                 }

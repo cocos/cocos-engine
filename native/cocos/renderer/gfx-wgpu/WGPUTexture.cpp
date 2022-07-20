@@ -156,6 +156,12 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         printf("Resize is not support on texture view!");
         return;
     }
+    // swapchain color tex using canvas
+    if (_swapchain && _info.format != Format::DEPTH && _info.format != Format::DEPTH_STENCIL) {
+        auto *swapchain          = static_cast<CCWGPUSwapchain *>(_swapchain);
+        _gpuTextureObj->selfView = wgpuSwapChainGetCurrentTextureView(swapchain->gpuSwapchainObject()->wgpuSwapChain);
+        return;
+    }
     if (_gpuTextureObj->wgpuTexture) {
         wgpuTextureDestroy(_gpuTextureObj->wgpuTexture);
         wgpuTextureRelease(_gpuTextureObj->wgpuTexture);

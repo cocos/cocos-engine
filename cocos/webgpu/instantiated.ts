@@ -24,6 +24,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { EDITOR } from 'internal:constants';
 import { game } from '../core/game';
 // import glslangURL from '@cocos/webgpu/glslang.wasmurl';
 // import webgpuURL from '@cocos/webgpu/webgpu_wasm.wasmurl';
@@ -45,29 +46,28 @@ export const webgpuAdapter: any = {
 };
 
 export function waitForWebGPUInstantiation () {
-    return new Promise<void>((resolve) => {
-        void Promise.resolve(
-            Promise.all([
-                new Promise<void>((resolve) => {
-                    fetch('192.168.0.1:7456/webgpu_wasm.wasm').then((response) => {
-                        response.arrayBuffer().then((buffer) => {
-                            gfx.wasmBinary = buffer;
-                            wasmDevice(gfx).then(resolve);
-                        });
-                    });
-                }),
-                new Promise<void>((resolve) => {
-                    (navigator as any).gpu.requestAdapter().then((adapter) => {
-                        adapter.requestDevice().then((device) => {
-                            webgpuAdapter.adapter = adapter;
-                            webgpuAdapter.device = device;
-                            console.log(gfx);
-                            resolve();
-                        });
-                    });
-                }),
-            ]),
-        );
-    });
+    return Promise.all([
+        new Promise<void>((resolve) => {
+            //http://192.168.52.147:7456
+            fetch('./webgpu_wasm.wasm').then((response) => {
+                response.arrayBuffer().then((buffer) => {
+                    gfx.wasmBinary = buffer;
+                    wasmDevice(gfx).then(resolve);
+                });
+            });
+        }),
+        new Promise<void>((resolve) => {
+            (navigator as any).gpu.requestAdapter().then((adapter) => {
+                adapter.requestDevice().then((device) => {
+                    webgpuAdapter.adapter = adapter;
+                    webgpuAdapter.device = device;
+                    console.log(gfx);
+                    resolve();
+                });
+            });
+        }),
+    ]).then(() => Promise.resolve());
 }
-game.onPreInfrastructureInitDelegate.add(waitForWebGPUInstantiation);
+if (!EDITOR) {
+    game.onPreInfrastructureInitDelegate.add(waitForWebGPUInstantiation);
+}

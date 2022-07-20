@@ -28,7 +28,9 @@
 
 #pragma once
 
-#include <sys/types.h>
+#ifndef CC_WGPU_WASM // type alias redefinition
+    #include <sys/types.h>
+#endif
 #include <algorithm> // for std::find
 #include <cstdint>
 #include <functional>
@@ -228,7 +230,7 @@ public:
     // It is hard to use, so delete it.
     T &operator[](uint32_t idx) = delete;
     // As non const version is disabled, disable const version too.
-    const T&operator[](uint32_t idx) const = delete;
+    const T &operator[](uint32_t idx) const = delete;
 
     /**
      * Requests that the vector capacity be at least enough to contain n elements.

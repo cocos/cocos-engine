@@ -54,6 +54,10 @@ public:
         ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         update(reinterpret_cast<const void *>(buffer.data()), size);
     }
+    void update(const emscripten::val& v) {
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        update(reinterpret_cast<const void*>(buffer.data()), buffer.size());
+    }
 
     void update(const DrawInfoList &drawInfos);
 

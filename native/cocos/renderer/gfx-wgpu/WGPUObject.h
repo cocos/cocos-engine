@@ -29,6 +29,7 @@
 #include "WGPUDef.h"
 #include "base/Utils.h"
 #include "base/std/container/map.h"
+#include "base/std/container/set.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDef.h"
@@ -42,7 +43,7 @@ namespace gfx {
 
 constexpr uint8_t CC_WGPU_MAX_ATTACHMENTS = 16;
 
-constexpr uint8_t CC_WGPU_MAX_STREAM = 256; //not sure
+constexpr uint8_t CC_WGPU_MAX_STREAM = 256; // not sure
 
 constexpr decltype(nullptr) wgpuDefaultHandle = nullptr;
 
@@ -95,14 +96,14 @@ struct CCWGPUTextureObject {
     WGPUTextureView selfView = wgpuDefaultHandle;
 };
 
-//The indirect drawIndexed parameters encoded in the buffer must be a tightly packed block
-//of five 32-bit unsigned integer values (20 bytes total), given in the same order as the arguments for drawIndexed().
-// let drawIndexedIndirectParameters = new Uint32Array(5);
-// drawIndexedIndirectParameters[0] = indexCount;
-// drawIndexedIndirectParameters[1] = instanceCount;
-// drawIndexedIndirectParameters[2] = firstIndex;
-// drawIndexedIndirectParameters[3] = baseVertex;
-// drawIndexedIndirectParameters[4] = 0; // firstInstance. Must be 0.
+// The indirect drawIndexed parameters encoded in the buffer must be a tightly packed block
+// of five 32-bit unsigned integer values (20 bytes total), given in the same order as the arguments for drawIndexed().
+//  let drawIndexedIndirectParameters = new Uint32Array(5);
+//  drawIndexedIndirectParameters[0] = indexCount;
+//  drawIndexedIndirectParameters[1] = instanceCount;
+//  drawIndexedIndirectParameters[2] = firstIndex;
+//  drawIndexedIndirectParameters[3] = baseVertex;
+//  drawIndexedIndirectParameters[4] = 0; // firstInstance. Must be 0.
 struct CCWGPUDrawIndexedIndirectObject {
     uint32_t indexCount = 0;
     uint32_t instanceCount = 0;
@@ -112,8 +113,8 @@ struct CCWGPUDrawIndexedIndirectObject {
 };
 static_assert(sizeof(CCWGPUDrawIndexedIndirectObject) == 20, "WGPU drawIndexedIndirect structure validation failed!");
 
-//The indirect draw parameters encoded in the buffer must be a tightly packed block
-//of four 32-bit unsigned integer values (16 bytes total), given in the same order as the arguments for draw().
+// The indirect draw parameters encoded in the buffer must be a tightly packed block
+// of four 32-bit unsigned integer values (16 bytes total), given in the same order as the arguments for draw().
 
 // let drawIndirectParameters = new Uint32Array(4);
 // drawIndirectParameters[0]  = vertexCount;
