@@ -44,7 +44,7 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
-import { PipelineUBO } from './ubos';
+import { PipelineUBO } from '../pipeline-ubo';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';

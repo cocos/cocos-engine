@@ -60,7 +60,7 @@ import { AccessType, AttachmentType, Blit, ClearView, ComputePass, ComputeView, 
     RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
-import { PipelineUBO } from './ubos';
+import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 import { stringify, parse } from './utils';
@@ -908,7 +908,8 @@ class DevicePreSceneTask extends WebSceneTask {
     }
 
     public submit () {
-        const ubo = this._currentQueue.devicePass.context.ubo;
+        const context = this._currentQueue.devicePass.context;
+        const ubo = context.ubo;
         if (this.graphScene.blit) {
             const blitCam = this.graphScene.blit.camera;
             if (blitCam) this._updateUbo(blitCam);
@@ -916,7 +917,8 @@ class DevicePreSceneTask extends WebSceneTask {
             return;
         }
         if (this._isShadowMap()) {
-            ubo.updateShadowUBOLight(this.graphScene.scene!.light.light!, this.graphScene.scene!.light.level);
+            ubo.updateShadowUBOLight(context.pipeline.descriptorSet,
+                this.graphScene.scene!.light.light!, this.graphScene.scene!.light.level);
             return;
         }
         this._updateUbo(this.camera!);
