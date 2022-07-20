@@ -313,15 +313,6 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
     }
 }
 
-void Batcher2d::handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity) {
-    if (entity->getColorDirty()) {
-        float localOpacity = entity->getLocalOpacity();
-        float localColorAlpha = entity->getColorAlpha();
-        entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
-        entity->setColorDirty(false);
-    }
-}
-
 void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     if (drawInfo == nullptr || _currMaterial == nullptr) {
         return;
