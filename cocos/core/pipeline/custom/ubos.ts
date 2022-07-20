@@ -93,6 +93,7 @@ export class PipelineUBO {
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
+        const skybox = pipeline.pipelineSceneData.skybox;
         const fog = sceneData.fog;
         const shadowInfo = sceneData.shadows;
         const cv = bufferView;
@@ -108,7 +109,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET] = exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 2] = isHDR ? 1.0 : 0.0;
-        cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
+        cv[UBOCamera.EXPOSURE_OFFSET + 3] = 1.0 / Camera.standardExposureValue;
 
         if (mainLight) {
             const shadowEnable = (mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
@@ -147,7 +148,6 @@ export class PipelineUBO {
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 0] = ambient.groundAlbedo.x;
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 1] = ambient.groundAlbedo.y;
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 2] = ambient.groundAlbedo.z;
-        const skybox = pipeline.pipelineSceneData.skybox;
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = skybox.envmap ? skybox.envmap?.mipmapLevel : 1.0;
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
@@ -159,6 +159,8 @@ export class PipelineUBO {
         Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
+
+        cv[UBOCamera.SURFACE_TRANSFORM_OFFSET] = camera.surfaceTransform;
 
         const colorTempRGB = fog.colorArray;
         cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET] = colorTempRGB.x;
@@ -208,7 +210,7 @@ export class PipelineUBO {
         const sv = shadowBufferView;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
 
-        if (shadowInfo.enabled && mainLight) {
+        if (mainLight && shadowInfo.enabled) {
             if (shadowInfo.type === ShadowType.ShadowMap) {
                 if (mainLight.shadowEnabled) {
                     if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
@@ -291,6 +293,7 @@ export class PipelineUBO {
         const shadowInfo = sceneData.shadows;
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
+        const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         switch (light.type) {
         case LightType.DIRECTIONAL: {
@@ -343,7 +346,7 @@ export class PipelineUBO {
 
                     Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                    _vec4ShadowInfo.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
+                    _vec4ShadowInfo.set(near, far, linear, 1.0 - mainLight.shadowSaturation);
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
                     _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, levelCount);
@@ -366,7 +369,7 @@ export class PipelineUBO {
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                _vec4ShadowInfo.set(0.01, (light as SpotLight).range, 0.0, 0.0);
+                _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
                 Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
                 _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
