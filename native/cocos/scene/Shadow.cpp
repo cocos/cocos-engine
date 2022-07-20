@@ -138,8 +138,8 @@ gfx::Shader *Shadows::getPlanarShader(const ccstd::vector<IMacroPatch> &patches)
         createMaterial();
     }
 
-    const auto &passes = *_material->getPasses();
-    return passes[0]->getShaderVariant(patches);
+    const auto &passes = _material->getPasses();
+    return passes && !passes->empty() ? passes->at(0)->getShaderVariant(patches) : nullptr;
 }
 
 gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches) {
@@ -147,8 +147,8 @@ gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &
         createInstanceMaterial();
     }
 
-    const auto &passes = *_instancingMaterial->getPasses();
-    return passes[0]->getShaderVariant(patches);
+    const auto &passes = _instancingMaterial->getPasses();
+    return passes && !passes->empty() ? passes->at(0)->getShaderVariant(patches) : nullptr;
 }
 
 void Shadows::activate() {

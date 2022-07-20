@@ -346,7 +346,8 @@ export class Shadows {
             this._material.initialize({ effectName: 'pipeline/planar-shadow' });
         }
 
-        return this._material.passes[0].getShaderVariant(patches);
+        const passes = this._material.passes;
+        return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
     }
 
     /**
@@ -361,7 +362,8 @@ export class Shadows {
             this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
 
-        return this._instancingMaterial.passes[0].getShaderVariant(patches);
+        const passes = this._instancingMaterial.passes;
+        return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
