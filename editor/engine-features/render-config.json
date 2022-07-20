@@ -224,7 +224,7 @@
             "category": "animation"
         },
         "custom-pipeline": {
-            "default": ["marionette"],
+            "default": ["custom-pipeline"],
             "label": "i18n:ENGINE.features.custom_pipeline.label",
             "description": "i18n:ENGINE.features.custom_pipeline.description",
             "wechatPlugin": false
