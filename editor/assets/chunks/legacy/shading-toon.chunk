@@ -103,9 +103,7 @@ struct ToonSurface {
     #if CC_RECEIVE_SHADOW
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
-        #if CC_SUPPORT_CASCADED_SHADOW_MAP //todo: && CC_USE_CASCADED_SHADOW_MAP
-          shadow = CCCSMFactorBase(position, N, s.shadowBias);
-        #endif
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
       } else {
         shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
       }

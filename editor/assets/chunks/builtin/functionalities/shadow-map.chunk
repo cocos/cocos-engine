@@ -260,5 +260,15 @@ float CCGetLinearDepth(vec3 worldPos) {
       }
       return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
     }
+  #else
+    int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec4 matShadowViewLine0, out vec4 matShadowViewLine1, out vec4 matShadowViewLine2, out vec4 matShadowViewLine3, vec3 worldPos) {
+      return -1;
+    }
+
+    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias) {
+      vec4 shadowPos = cc_matLightViewProj * vec4(worldPos, 1.0);
+      return CCShadowFactorBase(shadowPos, N, shadowBias);
+    }
   #endif
+
 #endif
