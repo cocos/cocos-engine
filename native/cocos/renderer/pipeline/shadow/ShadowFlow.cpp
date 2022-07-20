@@ -79,7 +79,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 
     // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
     const auto isSupportCSM = pipeline->getDevice()->getCapabilities().maxFragmentUniformVectors >=
-                              CSM_UNIFORM_VECTORS + GLPBAL_UNIFORM_VECTORS;
+                              CSM_UNIFORM_VECTORS + GLOBAL_UNIFORM_VECTORS;
     pipeline->getPipelineSceneData()->setIsSupportCSM(isSupportCSM);
     pipeline->setValue("CC_SUPPORT_CASCADED_SHADOW_MAP", isSupportCSM);
 
