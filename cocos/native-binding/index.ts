@@ -1,27 +1,3 @@
-/*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
-
- https://www.cocos.com/
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- */
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import type { Color } from '../core/math/color';
@@ -871,7 +847,7 @@ export declare namespace native {
      * @en DebugRenderer class used to output debug text on screen
      * @zh 用于输出屏幕调试文字的调试渲染器类
      */
-    export class DebugRenderer {
+     export class DebugRenderer {
         /**
          * @en get DebugRenderer instance
          * @zh 获取调试渲染器实例
@@ -887,55 +863,5 @@ export declare namespace native {
          * @param info @en the output text information @zh 输出的文本属性
          */
         addText(text:string, screenPos: Vec2, info?: DebugTextInfo): void;
-    }
-    export namespace reflection{
-        /**
-         * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html
-         * call OBJC/Java static methods
-         *
-         * @param className
-         * @param methodName
-         * @param methodSignature
-         * @param parameters
-         */
-        export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
-    }
-    export namespace bridge{
-        /**
-         * send to native with at least one argument.
-         */
-        export function sendToNative(arg0: string, arg1?: string): void;
-        /**
-         * save your own callback controller with a js function,
-         * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
-         * @param args : received from native
-         */
-        export function onNative(arg0: string, arg1?: string|null): void;
-    }
-    /**
-     * Listener for jsbBridgeWrapper's event.
-     * It takes one argument as string which is transferred by jsbBridge.
-     */
-    export type OnNativeEventListener = (arg: string) => void;
-    export namespace jsbBridgeWrapper {
-        /** If there's no event registered, the wrapper will create one  */
-        export function addNativeEventListener(eventName: string, listener: OnNativeEventListener);
-        /**
-         * Dispatch the event registered on Objective-C, Java etc.
-         * No return value in JS to tell you if it works.
-         */
-        export function dispatchEventToNative(eventName: string, arg?: string);
-        /**
-         * Remove all listeners relative.
-         */
-        export function removeAllListenersForEvent(eventName: string);
-        /**
-         * Remove the listener specified
-         */
-        export function removeNativeEventListener(eventName: string, listener: OnNativeEventListener);
-        /**
-         * Remove all events, use it carefully!
-         */
-        export function removeAllListeners();
-    }
+     }
 }
