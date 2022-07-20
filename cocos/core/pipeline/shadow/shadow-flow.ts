@@ -42,9 +42,9 @@ import { SpotLight } from '../../renderer/scene/spot-light';
 
 const _validLights: Light[] = [];
 // csm uniform used vectors count
-const _csmUniformVectors = 61;
+const CSM_UNIFORM_VECTORS = 61;
 // all global uniform used vectors count
-const _globalUniformVectors = 64;
+const GLPBAL_UNIFORM_VECTORS = 64;
 
 /**
  * @en Shadow map render flow
@@ -89,7 +89,7 @@ export class ShadowFlow extends RenderFlow {
 
         // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
         pipeline.pipelineSceneData.isSupportCSM = pipeline.device.capabilities.maxFragmentUniformVectors
-        >= (_csmUniformVectors + _globalUniformVectors);
+        >= (CSM_UNIFORM_VECTORS + GLPBAL_UNIFORM_VECTORS);
         pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.isSupportCSM;
 
         pipeline.onGlobalPipelineStateChanged();
