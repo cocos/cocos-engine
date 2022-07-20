@@ -583,7 +583,9 @@ export class RichText extends Component {
                 if (thisPartSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
-                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
+                    // if it is not the first element, it is right behind a "\n", so we should reset the lineOffsetX as 0.
+                    const currOffsetX = i === 0 ? this._lineOffsetX : 0;
+                    const thisPartSplitResultArr = this.splitLongStringOver2048(multilineTexts[i], styleIndex, currOffsetX);
                     partStringArr.push(...thisPartSplitResultArr);
                 }
             }
@@ -594,7 +596,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+    protected splitLongStringOver2048 (text: string, styleIndex: number, lineOffsetX) {
         const partStringArr: string[] = [];
         const longStr = text;
 
@@ -611,7 +613,7 @@ export class RichText extends Component {
 
         // it does influence the first element of splitted array,
         // the element should put into the left space in current line
-        sizeForThisPart -= this._lineOffsetX;
+        sizeForThisPart -= lineOffsetX;
 
         // divide text into some pieces of which the size is less than sizeForOnePart
         while (curStringSizeX > sizeForThisPart) {
