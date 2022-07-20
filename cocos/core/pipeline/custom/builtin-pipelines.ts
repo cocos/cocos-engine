@@ -1,84 +1,135 @@
 import { Material } from '../../assets';
-import { ClearFlagBit, Color, Format, LoadOp, StoreOp } from '../../gfx';
-import { assert, macro } from '../../platform';
-import { Camera, Light, LightType, ShadowType, SKYBOX_FLAG } from '../../renderer/scene';
+import { intersect, Sphere } from '../../geometry';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
+import { macro } from '../../platform';
+import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../renderer/scene';
 import { supportsR32FloatTexture } from '../define';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, AttachmentType, ComputeView, LightInfo, RasterView } from './render-graph';
 import { QueueHint, ResourceResidency, SceneFlags } from './types';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
-export function pickSpotLights (pplScene: Readonly<PipelineSceneData>): Array<Light> {
-    const validPunctualLights = pplScene.validPunctualLights;
-    const shadows = pplScene.shadows;
-    const validLights = new Array<Light>();
-
-    // pick spot lights
-    let numSpotLights = 0;
-    for (let i = 0; numSpotLights < shadows.maxReceived && i < validPunctualLights.length; ++i) {
-        const light = validPunctualLights[i];
-        if (light.type === LightType.SPOT) {
-            validLights.push(light);
-            ++numSpotLights;
+function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0): Rect {
+    const out = new Rect();
+    const vp = camera.viewport;
+    const w = width;
+    const h = height;
+    out.x = vp.x * w;
+    out.y = vp.y * h;
+    out.width = vp.width * w;
+    out.height = vp.height * h;
+    if (light) {
+        switch (light.type) {
+        case LightType.DIRECTIONAL: {
+            const mainLight = light as DirectionalLight;
+            if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
+                out.x = 0;
+                out.y = 0;
+                out.width = w;
+                out.height = h;
+            } else {
+                out.x = level % 2 * 0.5 * w;
+                out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
+                out.width = 0.5 * w;
+                out.height = 0.5 * h;
+            }
+            break;
+        }
+        case LightType.SPOT: {
+            out.x = 0;
+            out.y = 0;
+            out.width = w;
+            out.height = h;
+            break;
+        }
+        default:
         }
     }
-    return validLights;
+    return out;
 }
 
-export function buildShadowPass (passName: Readonly<string>,
+function buildShadowPass (passName: Readonly<string>,
     ppl: Pipeline,
-    camera: Camera, light: Light,
+    camera: Camera, light: Light, level: number,
     width: Readonly<number>, height: Readonly<number>) {
     const device = ppl.device;
     const shadowMapName = passName;
     if (!ppl.containsResource(shadowMapName)) {
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
         ppl.addRenderTarget(shadowMapName, format, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const pass = ppl.addRasterPass(width, height, 'default', passName);
     pass.addRasterView(shadowMapName, new RasterView('_',
         AccessType.WRITE, AttachmentType.RENDER_TARGET,
         LoadOp.CLEAR, StoreOp.STORE,
         ClearFlagBit.COLOR,
-        new Color(0, 0, 0, 0)));
+        new Color(1, 1, 1, camera.clearColor.w)));
+    pass.addRasterView(`${shadowMapName}Depth`, new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        LoadOp.CLEAR, StoreOp.DISCARD,
+        ClearFlagBit.DEPTH_STENCIL,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0)));
+    const rect = getRenderArea(camera, width, height, light, level);
+    pass.setViewport(new Viewport(rect.x, rect.y, rect.width, rect.height));
     const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
-    queue.addSceneOfCamera(camera, new LightInfo(light),
-        SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.SHADOW_CASTER);
+    queue.addSceneOfCamera(camera, new LightInfo(light, level),
+        SceneFlags.SHADOW_CASTER);
 }
 
 class CameraInfo {
     shadowEnabled = false;
-    mainLightShadowName = '';
+    mainLightShadowNames = new Array<string>();
     spotLightShadowNames = new Array<string>();
 }
 
-export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipeline): CameraInfo {
-    const pplScene = ppl.pipelineSceneData;
-    const shadows = ppl.pipelineSceneData.shadows;
+function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipeline): CameraInfo {
+    const pipeline = ppl;
+    const shadowInfo = pipeline.pipelineSceneData.shadows;
+    const validPunctualLights = ppl.pipelineSceneData.validPunctualLights;
     const cameraInfo = new CameraInfo();
-    if (!shadows.enabled || shadows.type !== ShadowType.ShadowMap) {
-        return cameraInfo;
-    }
+    const shadows = ppl.pipelineSceneData.shadows;
+    if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return cameraInfo; }
     cameraInfo.shadowEnabled = true;
+    const _validLights: Light[] = [];
+    let n = 0;
+    let m = 0;
+    for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
+        const light = validPunctualLights[m];
+        if (light.type === LightType.SPOT) {
+            const spotLight = light as SpotLight;
+            if (spotLight.shadowEnabled) {
+                _validLights.push(light);
+                n++;
+            }
+        }
+        m++;
+    }
 
+    const { mainLight } = camera.scene!;
     // build shadow map
     const mapWidth = shadows.size.x;
     const mapHeight = shadows.size.y;
-    const mainLight = camera.scene!.mainLight;
-    // main light
-    if (mainLight) {
-        cameraInfo.mainLightShadowName = `MainLightShadow${cameraName}`;
-        buildShadowPass(cameraInfo.mainLightShadowName, ppl,
-            camera, mainLight, mapWidth, mapHeight);
+    if (mainLight && mainLight.shadowEnabled) {
+        cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
+        if (mainLight.shadowFixedArea) {
+            buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
+                camera, mainLight, 0, mapWidth, mapHeight);
+        } else {
+            for (let i = 0; i < mainLight.csmLevel; i++) {
+                cameraInfo.mainLightShadowNames[i] = `MainLightShadow${cameraName}`;
+                buildShadowPass(cameraInfo.mainLightShadowNames[i], ppl,
+                    camera, mainLight, i, mapWidth, mapHeight);
+            }
+        }
     }
-    // spot lights
-    const validLights = pickSpotLights(pplScene);
-    for (let i = 0; i !== validLights.length; ++i) {
-        const passName = `SpotLightShadow${i.toString()}${cameraName}`;
-        cameraInfo.spotLightShadowNames[i] = passName;
+
+    for (let l = 0; l < _validLights.length; l++) {
+        const light = _validLights[l];
+        const passName = `SpotLightShadow${l.toString()}${cameraName}`;
+        cameraInfo.spotLightShadowNames[l] = passName;
         buildShadowPass(passName, ppl,
-            camera, validLights[i], mapWidth, mapHeight);
+            camera, light, 0, mapWidth, mapHeight);
     }
     return cameraInfo;
 }
@@ -117,6 +168,7 @@ export class ForwardPipelineBuilder extends PipelineBuilder {
             if (camera.scene === null) {
                 continue;
             }
+            validPunctualLightsCulling(ppl, camera);
             const cameraID = getCameraUniqueID(camera);
             const cameraName = `Camera${cameraID}`;
             const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
@@ -130,10 +182,11 @@ export class ForwardPipelineBuilder extends PipelineBuilder {
                 ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
             }
             const forwardPass = ppl.addRasterPass(width, height, 'default', `CameraForwardPass${cameraID}`);
-            if (cameraInfo.mainLightShadowName) {
-                assert(ppl.containsResource(cameraInfo.mainLightShadowName));
-                const computeView = new ComputeView();
-                forwardPass.addComputeView(cameraInfo.mainLightShadowName, computeView);
+            for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+                if (ppl.containsResource(dirShadowName)) {
+                    const computeView = new ComputeView();
+                    forwardPass.addComputeView(dirShadowName, computeView);
+                }
             }
             for (const spotShadowName of cameraInfo.spotLightShadowNames) {
                 if (ppl.containsResource(spotShadowName)) {
@@ -157,7 +210,7 @@ export class ForwardPipelineBuilder extends PipelineBuilder {
             forwardPass.addRasterView(forwardPassDSName, passDSView);
             forwardPass
                 .addQueue(QueueHint.RENDER_OPAQUE)
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.DEFAULT_LIGHTING);
             forwardPass
                 .addQueue(QueueHint.RENDER_TRANSPARENT)
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI);
@@ -201,6 +254,37 @@ class DeferredData {
     _antiAliasing: AntiAliasing = AntiAliasing.NONE;
 }
 
+function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
+    const sceneData = pipeline.pipelineSceneData;
+    const validPunctualLights = sceneData.validPunctualLights;
+    validPunctualLights.length = 0;
+    const _sphere = Sphere.create(0, 0, 0, 1);
+    const { spotLights } = camera.scene!;
+    for (let i = 0; i < spotLights.length; i++) {
+        const light = spotLights[i];
+        if (light.baked) {
+            continue;
+        }
+
+        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { sphereLights } = camera.scene!;
+    for (let i = 0; i < sphereLights.length; i++) {
+        const light = sphereLights[i];
+        if (light.baked) {
+            continue;
+        }
+        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+}
+
 export class DeferredPipelineBuilder extends PipelineBuilder {
     public setup (cameras: Camera[], ppl: Pipeline): void {
         for (let i = 0; i < cameras.length; ++i) {
@@ -208,6 +292,7 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
+            validPunctualLightsCulling(ppl, camera);
             const cameraID = getCameraUniqueID(camera);
             const cameraName = `Camera${cameraID}`;
             const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
@@ -227,11 +312,7 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
             }
             // gbuffer pass
             const gbufferPass = ppl.addRasterPass(width, height, 'Geometry', `CameraGbufferPass${cameraID}`);
-            if (cameraInfo.mainLightShadowName) {
-                assert(ppl.containsResource(cameraInfo.mainLightShadowName));
-                const computeView = new ComputeView();
-                gbufferPass.addComputeView(cameraInfo.mainLightShadowName, computeView);
-            }
+
             const rtColor = new Color(0, 0, 0, 0);
             if (camera.clearFlag & ClearFlagBit.COLOR) {
                 if (ppl.pipelineSceneData.isHDR) {
@@ -277,6 +358,18 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
             }
             // lighting pass
             const lightingPass = ppl.addRasterPass(width, height, 'Lighting', `CameraLightingPass${cameraID}`);
+            for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+                if (ppl.containsResource(dirShadowName)) {
+                    const computeView = new ComputeView();
+                    lightingPass.addComputeView(dirShadowName, computeView);
+                }
+            }
+            for (const spotShadowName of cameraInfo.spotLightShadowNames) {
+                if (ppl.containsResource(spotShadowName)) {
+                    const computeView = new ComputeView();
+                    lightingPass.addComputeView(spotShadowName, computeView);
+                }
+            }
             if (ppl.containsResource(deferredGbufferPassRTName)) {
                 const computeView = new ComputeView();
                 computeView.name = 'gbuffer_albedoMap';

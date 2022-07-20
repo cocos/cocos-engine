@@ -22,11 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Framebuffer, Texture } from '../../gfx';
+import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { AccessType, Blit, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass,
+import { AccessType, Blit, ClearView, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass,
     PresentPass, RasterPass, RasterView, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { ResourceResidency } from './types';
@@ -41,6 +41,12 @@ class PassVisitor implements RenderGraphVisitor {
     protected _sceneID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
         this._context = context;
+    }
+    clear (value: ClearView[]): unknown {
+        throw new Error('Method not implemented.');
+    }
+    viewport (value: Viewport): unknown {
+        throw new Error('Method not implemented.');
     }
     raster (pass: RasterPass) {
         // Since the pass is valid, there is no need to continue traversing.

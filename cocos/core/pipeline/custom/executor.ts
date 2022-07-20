@@ -56,7 +56,7 @@ import { PipelineInputAssemblerData } from '../render-pipeline';
 import { ShadowLayerVolume } from '../shadow/csm-layers';
 import { LayoutGraph, LayoutGraphData, LayoutGraphDataVisitor, LayoutGraphVisitor, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
-import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
+import { AccessType, AttachmentType, Blit, ClearView, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
     RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
@@ -64,6 +64,8 @@ import { PipelineUBO } from './ubos';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 import { stringify, parse } from './utils';
+import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
+import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -449,7 +451,8 @@ class SubmitInfo {
     public batches = new Set<BatchedBuffer>();
     public opaqueList: RenderInfo[] = [];
     public transparentList: RenderInfo[] = [];
-    public shadowMap: ShadowMap | null = null;
+    public shadowMap: RenderShadowMapBatchedQueue | null = null;
+    public additiveLight: RenderAdditiveLightQueue | null = null;
 }
 
 class RenderPassLayoutInfo {
@@ -520,6 +523,7 @@ class DeviceRenderPass {
     protected _clearDepth = 1;
     protected _clearStencil = 0;
     protected _context: ExecutorContext;
+    protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
     public submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
@@ -533,10 +537,7 @@ class DeviceRenderPass {
         depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
-        depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
-            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
-        ));
+
         const colors: ColorAttachment[] = [];
         const colorTexs: Texture[] = [];
         let depthTex: Texture | null = null;
@@ -570,12 +571,10 @@ class DeviceRenderPass {
                     colorAttachment.sampleCount = resTex.description!.sampleCount;
                     colorAttachment.loadOp = rasterV.loadOp;
                     colorAttachment.storeOp = rasterV.storeOp;
-                    if (rasterV.loadOp === LoadOp.LOAD) {
-                        colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
-                            AccessFlagBit.COLOR_ATTACHMENT_WRITE,
-                            AccessFlagBit.COLOR_ATTACHMENT_WRITE,
-                        ));
-                    }
+                    colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                        rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                        rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    ));
                     this._clearColor.push(rasterV.clearColor);
                     colors.push(colorAttachment);
                 }
@@ -585,6 +584,10 @@ class DeviceRenderPass {
                 depthStencilAttachment.stencilStoreOp = rasterV.storeOp;
                 depthStencilAttachment.depthLoadOp = rasterV.loadOp;
                 depthStencilAttachment.stencilLoadOp = rasterV.loadOp;
+                depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                    rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                    rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
+                ));
                 if (!resTex.swapchain && !resTex.framebuffer) depthTex = resTex.texture!;
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
@@ -623,7 +626,7 @@ class DeviceRenderPass {
     get clearStencil () { return this._clearStencil; }
     get deviceQueues () { return this._deviceQueues; }
     get rasterPassInfo () { return this._rasterInfo; }
-
+    get viewport () { return this._viewport; }
     addQueue (queue: DeviceRenderQueue) { this._deviceQueues.push(queue); }
     prePass () {
         for (const queue of this._deviceQueues) {
@@ -689,11 +692,23 @@ class DeviceRenderPass {
         return vbData;
     }
 
+    protected _applyViewport (frameTex: Texture) {
+        this._viewport = null;
+        const viewport = this._rasterInfo.pass.viewport;
+        if (viewport.left !== 0 || viewport.top !== 0
+            || viewport.width !== frameTex.width
+            || viewport.height !== frameTex.height) {
+            this._viewport = viewport;
+        }
+    }
     // record common buffer
     record () {
-        const cmdBuff = this._context.commandBuffer;
         const tex = this.framebuffer.colorTextures[0]!;
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(0, 0, tex.width, tex.height),
+        this._applyViewport(tex);
+        const cmdBuff = this._context.commandBuffer;
+        const renderArea = this._viewport ? new Rect(this._viewport.left, this._viewport.top, this._viewport.width, this._viewport.height)
+            :  new Rect(0, 0, tex.width, tex.height);
+        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderArea,
             this.clearColor, this.clearDepth, this.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
             this._context.pipeline.globalDSManager.globalDescriptorSet);
@@ -768,22 +783,23 @@ class DevicePreSceneTask extends WebSceneTask {
             this._submitInfo = submitMap.get(this.camera)!;
         } else {
             // culling
-            super.start();
+            if (!this._isShadowMap() || (this._isShadowMap() && this.graphScene.scene!.light.level === 0)) super.start();
             this._submitInfo = new SubmitInfo();
             submitMap.set(this.camera, this._submitInfo);
         }
         // shadowmap
         if (this._isShadowMap() && !this._submitInfo.shadowMap) {
-            this._submitInfo.shadowMap = new ShadowMap(this._currentQueue.devicePass.context);
-            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light!, this._cmdBuff, ShadowMap.level);
+            assert(this.graphScene.scene!.light.light);
+            this._submitInfo.shadowMap = new RenderShadowMapBatchedQueue(this._currentQueue.devicePass.context.pipeline);
+            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light.light, this._cmdBuff, this.graphScene.scene!.light.level);
+            this.sceneData.shadowFrameBufferMap.set(this.graphScene.scene!.light.light, this._currentQueue.devicePass.framebuffer);
             return;
         }
-
+        const sceneFlag = this._graphScene.scene!.flags;
         for (const ro of this.sceneData.renderObjects) {
             const subModels = ro.model.subModels;
             for (const submodel of subModels) {
                 const passes = submodel.passes;
-                const sceneFlag = this._graphScene.scene!.flags;
                 for (const p of passes) {
                     if (p.phase !== this._currentQueue.phaseID) continue;
                     const batchingScheme = p.batchingScheme;
@@ -810,7 +826,11 @@ class DevicePreSceneTask extends WebSceneTask {
                 }
             }
         }
-
+        if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
+            const pipeline = this._currentQueue.devicePass.context.pipeline;
+            this._submitInfo.additiveLight = new RenderAdditiveLightQueue(pipeline);
+            this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff);
+        }
         this._submitInfo.opaqueList.sort(this._opaqueCompareFn);
         this._submitInfo.transparentList.sort(this._transparentCompareFn);
     }
@@ -880,19 +900,26 @@ class DevicePreSceneTask extends WebSceneTask {
             && this.graphScene.scene!.flags & SceneFlags.SHADOW_CASTER;
     }
 
+    protected _updateUbo (camera: Camera) {
+        const ubo = this._currentQueue.devicePass.context.ubo;
+        ubo.updateGlobalUBO(camera.window);
+        ubo.updateCameraUBO(camera);
+        ubo.updateShadowUBO(camera);
+    }
+
     public submit () {
+        const ubo = this._currentQueue.devicePass.context.ubo;
         if (this.graphScene.blit) {
+            const blitCam = this.graphScene.blit.camera;
+            if (blitCam) this._updateUbo(blitCam);
             this._currentQueue.blitDesc!.update();
             return;
         }
-        const ubo = this._currentQueue.devicePass.context.ubo;
         if (this._isShadowMap()) {
-            ubo.updateShadowUBOLight(this.graphScene.scene!.light!, ShadowMap.level);
+            ubo.updateShadowUBOLight(this.graphScene.scene!.light.light!, this.graphScene.scene!.light.level);
             return;
         }
-        ubo.updateGlobalUBO(this.camera!.window);
-        ubo.updateCameraUBO(this.camera!);
-        ubo.updateShadowUBO(this.camera!);
+        this._updateUbo(this.camera!);
 
         this._uploadInstanceBuffers();
         this._uploadBatchedBuffers();
@@ -1017,7 +1044,7 @@ class DeviceSceneTask extends WebSceneTask {
         const context = this._currentQueue.devicePass.context;
         const submitMap = this._currentQueue.devicePass.submitMap;
         submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
-            this.visitor, this._renderPass);
+            this._renderPass, context.commandBuffer);
     }
     protected _generateRenderArea (): Rect {
         const out = new Rect();
@@ -1029,8 +1056,9 @@ class DeviceSceneTask extends WebSceneTask {
         out.y = vp.y * h;
         out.width = vp.width * w;
         out.height = vp.height * h;
-        if (this._isShadowMap() && this.graphScene.scene!.light) {
-            const light = this.graphScene.scene!.light;
+        if (this._isShadowMap() && this.graphScene.scene!.light.light) {
+            const light = this.graphScene.scene!.light.light;
+            const level = this.graphScene.scene!.light.level;
             switch (light.type) {
             case LightType.DIRECTIONAL: {
                 const mainLight = light as DirectionalLight;
@@ -1040,8 +1068,8 @@ class DeviceSceneTask extends WebSceneTask {
                     out.width = w;
                     out.height = h;
                 } else {
-                    out.x = ShadowMap.level % 2 * 0.5 * w;
-                    out.y = (1 - Math.floor(ShadowMap.level / 2)) * 0.5 * h;
+                    out.x = level % 2 * 0.5 * w;
+                    out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
                     out.width = 0.5 * w;
                     out.height = 0.5 * h;
                 }
@@ -1087,10 +1115,20 @@ class DeviceSceneTask extends WebSceneTask {
             this.visitor.draw(screenIa);
         }
     }
+    private _recordAdditiveLights () {
+        const devicePass = this._currentQueue.devicePass;
+        const submitMap = devicePass.submitMap;
+        const context = devicePass.context;
+        submitMap.get(this.camera!)?.additiveLight?.recordCommandBuffer(context.device,
+            this._renderPass,
+            devicePass.context.commandBuffer);
+    }
     public submit () {
         const area = this._generateRenderArea();
-        this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
-        this.visitor.setScissor(area);
+        if (!this._currentQueue.devicePass.viewport) {
+            this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+            this.visitor.setScissor(area);
+        }
         // Currently processing blit and camera first
         if (this.graphScene.blit) {
             this._recordBlit();
@@ -1103,6 +1141,7 @@ class DeviceSceneTask extends WebSceneTask {
         this._recordOpaqueList();
         this._recordInstences();
         this._recordBatches();
+        this._recordAdditiveLights();
         this._recordTransparentList();
         if (this.graphScene.scene!.flags & SceneFlags.UI) {
             this._recordUI();
@@ -1147,276 +1186,6 @@ class ExecutorContext {
     readonly height: number;
     renderGraph: RenderGraph;
 }
-
-class ShadowMap {
-    private _context: ExecutorContext;
-    private _subModelsArray: SubModel[] = [];
-    private _passArray: Pass[] = [];
-    private _shaderArray: Shader[] = [];
-    private _instances = new Set<InstancedBuffer>();
-    private _batches = new Set<BatchedBuffer>();
-    private static matShadowView = new Mat4();
-    private static matShadowProj = new Mat4();
-    private static matShadowViewProj = new Mat4();
-    private static ab = new AABB();
-
-    private static phaseID = getPhaseID('shadow-caster');
-    private static shadowPassIndices: number[] = [];
-    public static level = 0;
-    public constructor (context: ExecutorContext) {
-        this._context = context;
-    }
-
-    shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
-        const scene = camera.scene!;
-        const mainLight = scene.mainLight!;
-        const csmLayers = sceneData.csmLayers;
-        const csmLayerObjects = csmLayers.layerObjects;
-        const dirLightFrustum = layer.validFrustum;
-        const dirShadowObjects = layer.shadowObjects;
-        dirShadowObjects.length = 0;
-        const visibility = camera.visibility;
-
-        for (let i = csmLayerObjects.length; i >= 0; i--) {
-            const csmLayerObject = csmLayerObjects.array[i];
-            if (csmLayerObject) {
-                const model = csmLayerObject.model;
-                // filter model by view visibility
-                if (model.enabled) {
-                    if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
-                        // shadow render Object
-                        if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
-                            // frustum culling
-                            // eslint-disable-next-line no-lonely-if
-                            const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
-                            if (accurate) {
-                                dirShadowObjects.push(csmLayerObject);
-                                if (layer.level < mainLight.csmLevel) {
-                                    if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
-                                        && intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
-                                        csmLayerObjects.fastRemove(i);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
-        this.clear();
-
-        const sceneData = this._context.pipelineSceneData;
-        const shadowInfo = sceneData.shadows;
-        if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            switch (light.type) {
-            case LightType.DIRECTIONAL:
-                if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-                    const dirLight = light as DirectionalLight;
-                    if (dirLight.shadowEnabled) {
-                        const csmLayers = sceneData.csmLayers;
-                        let layer;
-                        if (dirLight.shadowFixedArea) {
-                            layer = csmLayers.specialLayer;
-                        } else {
-                            layer = csmLayers.layers[level];
-                        }
-                        this.shadowCulling(camera, sceneData, layer);
-                        const dirShadowObjects = layer.shadowObjects;
-                        if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
-                        for (let i = 0; i < dirShadowObjects.length; i++) {
-                            const ro = dirShadowObjects[i];
-                            const model = ro.model;
-                            if (!this.getShadowPassIndex(model.subModels, ShadowMap.shadowPassIndices)) { continue; }
-                            this.add(model, ShadowMap.shadowPassIndices);
-                        }
-                    }
-                }
-
-                break;
-            case LightType.SPOT:
-                // eslint-disable-next-line no-case-declarations
-                const spotLight = light as SpotLight;
-                if (spotLight.shadowEnabled) {
-                    Mat4.invert(ShadowMap.matShadowView, light.node!.getWorldMatrix());
-                    Mat4.perspective(ShadowMap.matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
-                    Mat4.multiply(ShadowMap.matShadowViewProj, ShadowMap.matShadowProj, ShadowMap.matShadowView);
-                    const castShadowObjects = sceneData.csmLayers.castShadowObjects;
-                    for (let i = 0; i < castShadowObjects.length; i++) {
-                        const ro = castShadowObjects[i];
-                        const model = ro.model;
-                        if (!this.getShadowPassIndex(model.subModels, ShadowMap.shadowPassIndices)) { continue; }
-                        if (model.worldBounds) {
-                            AABB.transform(ShadowMap.ab, model.worldBounds, ShadowMap.matShadowViewProj);
-                            if (!intersect.aabbFrustum(ShadowMap.ab, camera.frustum)) { continue; }
-                        }
-
-                        this.add(model, ShadowMap.shadowPassIndices);
-                    }
-                }
-                break;
-            default:
-            }
-            this._uploadInstanceBuffers(cmdBuff);
-            this._uploadBatchedBuffers(cmdBuff);
-        }
-    }
-
-    private _uploadInstanceBuffers (cmdBuff: CommandBuffer) {
-        const it = this._instances.values(); let res = it.next();
-        while (!res.done) {
-            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
-            res = it.next();
-        }
-    }
-
-    private _uploadBatchedBuffers (cmdBuff: CommandBuffer) {
-        const it = this._batches.values(); let res = it.next();
-        while (!res.done) {
-            for (let b = 0; b < res.value.batches.length; ++b) {
-                const batch = res.value.batches[b];
-                if (!batch.mergeCount) { continue; }
-                for (let v = 0; v < batch.vbs.length; ++v) {
-                    batch.vbs[v].update(batch.vbDatas[v]);
-                }
-                cmdBuff.updateBuffer(batch.vbIdx, batch.vbIdxData.buffer);
-                cmdBuff.updateBuffer(batch.ubo, batch.uboData);
-            }
-            res = it.next();
-        }
-    }
-
-    /**
-     * @zh
-     * clear light-Batched-Queue
-     */
-    public clear () {
-        this._subModelsArray.length = 0;
-        this._shaderArray.length = 0;
-        this._passArray.length = 0;
-        this._instances.clear();
-        this._batches.clear();
-    }
-
-    getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[]) {
-        shadowPassIndices.length = 0;
-        let hasShadowPass = false;
-        for (let j = 0; j < subModels.length; j++) {
-            const { passes } = subModels[j];
-            let shadowPassIndex = -1;
-            for (let k = 0; k < passes.length; k++) {
-                if (passes[k].phase === ShadowMap.phaseID) {
-                    shadowPassIndex = k;
-                    hasShadowPass = true;
-                    break;
-                }
-            }
-            shadowPassIndices.push(shadowPassIndex);
-        }
-        return hasShadowPass;
-    }
-
-    public add (model: Model, _shadowPassIndices: number[]) {
-        const subModels = model.subModels;
-        for (let j = 0; j < subModels.length; j++) {
-            const subModel = subModels[j];
-            const shadowPassIdx = _shadowPassIndices[j];
-            const pass = subModel.passes[shadowPassIdx];
-            const batchingScheme = pass.batchingScheme;
-
-            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = pass.getInstancedBuffer();
-                buffer.merge(subModel, model.instancedAttributes, shadowPassIdx);
-                this._instances.add(buffer);
-            } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                const buffer = pass.getBatchedBuffer();
-                buffer.merge(subModel, shadowPassIdx, model);
-                this._batches.add(buffer);
-            } else {
-                const shader = subModel.shaders[shadowPassIdx];
-                this._subModelsArray.push(subModel);
-                if (shader) this._shaderArray.push(shader);
-                this._passArray.push(pass);
-            }
-        }
-    }
-
-    protected _recordInstences (visitor: SceneVisitor, renderPass: RenderPass) {
-        const it = this._instances.values(); let res = it.next();
-        while (!res.done) {
-            const { instances, pass, hasPendingModels } = res.value;
-            if (hasPendingModels) {
-                visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-                let lastPSO: PipelineState | null = null;
-                for (let b = 0; b < instances.length; ++b) {
-                    const instance = instances[b];
-                    if (!instance.count) { continue; }
-                    const shader = instance.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, pass,
-                        shader, renderPass, instance.ia);
-                    if (lastPSO !== pso) {
-                        visitor.bindPipelineState(pso);
-                        lastPSO = pso;
-                    }
-                    const ia: any = instance.ia;
-                    visitor.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
-                    visitor.bindInputAssembler(ia);
-                    visitor.draw(ia);
-                }
-            }
-            res = it.next();
-        }
-    }
-    protected _recordBatches (visitor: SceneVisitor, renderPass: RenderPass) {
-        const it = this._batches.values(); let res = it.next();
-        while (!res.done) {
-            let boundPSO = false;
-            for (let b = 0; b < res.value.batches.length; ++b) {
-                const batch = res.value.batches[b];
-                if (!batch.mergeCount) { continue; }
-                if (!boundPSO) {
-                    const shader = batch.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(legacyCC.director.root.device, batch.pass,
-                        shader, renderPass, batch.ia);
-                    visitor.bindPipelineState(pso);
-                    visitor.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
-                    boundPSO = true;
-                }
-                const ia: any = batch.ia;
-                visitor.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
-                visitor.bindInputAssembler(ia);
-                visitor.draw(ia);
-            }
-            res = it.next();
-        }
-    }
-
-    /**
-     * @zh
-     * record CommandBuffer
-     */
-    public recordCommandBuffer (device: Device, visitor: SceneVisitor, renderPass: RenderPass) {
-        this._recordInstences(visitor, renderPass);
-        this._recordBatches(visitor, renderPass);
-
-        for (let i = 0; i < this._subModelsArray.length; ++i) {
-            const subModel = this._subModelsArray[i];
-            const shader = this._shaderArray[i];
-            const pass = this._passArray[i];
-            const ia: any = subModel.inputAssembler;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
-            const descriptorSet = pass.descriptorSet;
-
-            visitor.bindPipelineState(pso);
-            visitor.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
-            visitor.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
-            visitor.bindInputAssembler(ia);
-            visitor.draw(ia);
-        }
-    }
-}
 class ResourceVisitor implements ResourceGraphVisitor {
     private _context: ExecutorContext;
     name: string;
@@ -1453,6 +1222,12 @@ class PassVisitor implements RenderGraphVisitor {
     private _currQueue: DeviceRenderQueue | null = null;
     constructor (context: ExecutorContext) {
         this._context = context;
+    }
+    clear (value: ClearView[]): unknown {
+        throw new Error('Method not implemented.');
+    }
+    viewport (value: Viewport): unknown {
+        throw new Error('Method not implemented.');
     }
     raster (pass: RasterPass) {
         if (!pass.isValid) {

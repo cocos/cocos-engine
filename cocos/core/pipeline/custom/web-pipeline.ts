@@ -25,13 +25,13 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager, Viewport } from '../../gfx/index';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { LightingMode, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ClearView, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, LightInfo, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
+import { Model, Camera, Light } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -41,7 +41,7 @@ import { macro } from '../../platform/macro';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
+import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from './ubos';
@@ -248,7 +248,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             name, '', new RenderData(), false, queueId,
         );
     }
-    setViewport(viewport: Viewport): void {
+    setViewport (viewport: Viewport): void {
         this._pass.viewport.copy(viewport);
     }
     private readonly _renderGraph: RenderGraph;
@@ -421,6 +421,11 @@ export class WebPipeline extends Pipeline {
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
+        const isFloat = supportsR32FloatTexture(this._device) ? 0 : 1;
+        this.setMacroInt('CC_SHADOWMAP_FORMAT', isFloat);
+        // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
+        const isLinear = this._device.gfxAPI === API.WEBGL ? 1 : 0;
+        this.setMacroInt('CC_SHADOWMAP_USE_LINEAR_DEPTH', isLinear);
         const root = legacyCC.director.root;
         // enable the deferred pipeline
         if (root.useDeferredPipeline) {
@@ -618,6 +623,7 @@ export class WebPipeline extends Pipeline {
             this._height = newHeight;
         }
     }
+
     private _width = 0;
     private _height = 0;
     get width () { return this._width; }

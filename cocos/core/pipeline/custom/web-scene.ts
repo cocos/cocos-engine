@@ -23,9 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-import { AABB, Frustum, intersect, Sphere } from '../../geometry';
-import { legacyCC } from '../../global-exports';
-import { Mat4, Vec2, Vec3 } from '../../math';
+import { Frustum, intersect } from '../../geometry';
+import { Mat4, Vec3 } from '../../math';
 import { RenderScene } from '../../renderer';
 import { Camera, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
 import { IRenderObject, IRenderPass, UBOShadow } from '../define';
