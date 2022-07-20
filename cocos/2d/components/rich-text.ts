@@ -674,17 +674,19 @@ export class RichText extends Component {
             curEnd += partStep;
 
             curString = longStr.substring(curStart, curEnd);
+            curStringSize = this._calculateSize(styleIndex, curString);
             leftString = longStr.substring(curEnd);
             leftStringSize = this._calculateSize(styleIndex, leftString);
 
             leftTryTimes--;
 
             // Exit: If the left part string size is less than 2048, the method will finish.
-            if (leftStringSize.x < 2048) {
+            if (curStringSize.x < 2048 && leftStringSize.x < 2048) {
                 curStart = text.length;
                 curEnd = text.length;
-                curString = leftString;
                 partStringArr.push(curString);
+                partStringArr.push(leftString);
+                curString = leftString;
                 break;
             } else {
                 curStringSize = this._calculateSize(styleIndex, curString);
