@@ -44,7 +44,7 @@ const _validLights: Light[] = [];
 // csm uniform used vectors count
 const CSM_UNIFORM_VECTORS = 61;
 // all global uniform used vectors count
-const GLPBAL_UNIFORM_VECTORS = 64;
+const GLOBAL_UNIFORM_VECTORS = 64;
 
 /**
  * @en Shadow map render flow
@@ -89,7 +89,7 @@ export class ShadowFlow extends RenderFlow {
 
         // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
         pipeline.pipelineSceneData.isSupportCSM = pipeline.device.capabilities.maxFragmentUniformVectors
-        >= (CSM_UNIFORM_VECTORS + GLPBAL_UNIFORM_VECTORS);
+        >= (CSM_UNIFORM_VECTORS + GLOBAL_UNIFORM_VECTORS);
         pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.isSupportCSM;
 
         pipeline.onGlobalPipelineStateChanged();
