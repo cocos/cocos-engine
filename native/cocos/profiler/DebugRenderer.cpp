@@ -285,6 +285,10 @@ void DebugRenderer::destroy() {
     }
 }
 
+void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos) {
+    addText(text, screenPos, DebugTextInfo());
+}
+
 void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
     uint32_t index = getFontIndex(info.bold, info.italic);
     auto &fontInfo = _fonts[index];

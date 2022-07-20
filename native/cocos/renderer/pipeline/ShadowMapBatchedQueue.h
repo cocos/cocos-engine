@@ -52,7 +52,7 @@ public:
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:
-    int getShadowPassIndex(const scene::Model *model) const;
+    int getShadowPassIndex(const scene::SubModel *subModel) const;
 
     // weak reference
     RenderPipeline *_pipeline{nullptr};

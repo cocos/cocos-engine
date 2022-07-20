@@ -93,7 +93,7 @@ public:
      * @param name Layer's name
      * @param bitNum Layer's bit position
      */
-    static void addLayer(const ccstd::string &name, uint32_t bitNum);
+    static void addLayer(const std::string &name, uint32_t bitNum);
 
     /**
      * @en Remove a layer, user can remove layers from bit position 0 to 19, other bits are reserved.
@@ -107,14 +107,14 @@ public:
      * @zh 给定层名称，返回由标记和层管理器中的内置层或用户层定义的层索引。
      * @param name layer's name
      */
-    static uint32_t nameToLayer(const ccstd::string &name);
+    static uint32_t nameToLayer(const std::string &name);
 
     /**
      * @en Given a layer number, returns the name of the layer as defined in either a Builtin or a User Layer in the Tags and Layers manager.
      * @zh 给定层数，返回在标记和层管理器中的内置层或用户层中定义的层名称。
      * @param bitNum layer's value
      */
-    static ccstd::string layerToName(uint32_t bitNum);
+    static std::string layerToName(uint32_t bitNum);
 };
 
 CC_ENUM_BITWISE_OPERATORS(Layers::LayerList);

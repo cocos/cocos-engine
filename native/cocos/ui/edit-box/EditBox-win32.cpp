@@ -58,11 +58,11 @@ HWND getCurrentWindowHwnd() {
     if (!systemWindowIntf) {
         return nullptr;
     }
-    return reinterpret_cast<HWND>(systemWindowIntf->getWindowHandler());
+    return reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
 }
 
 int getCocosWindowHeight() {
-    // HWND parent = cc_get_application_view()->getWindowHandler();
+    // HWND parent = cc_get_application_view()->getWindowHandle();
     HWND parent = getCurrentWindowHwnd();
     RECT rect;
     GetClientRect(parent, &rect);
@@ -117,7 +117,6 @@ std::wstring str2ws(const ccstd::string &text) {
 }
 
 LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    auto order = SendMessage(getCurrentWindowHwnd(), EM_GETEVENTMASK, 0, 0);
     switch (msg) {
         case WM_LBUTTONDOWN:
             EditBox::complete();

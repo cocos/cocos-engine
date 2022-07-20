@@ -57,6 +57,9 @@
     ViewController* viewController = [[ViewController alloc] initWithSize:rect];
     _window.contentViewController = viewController;
     _window.contentView = viewController.view;
+    [viewController release];
+    viewController = nil;
+    
     [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
     [_window makeKeyAndOrderFront:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -99,7 +102,7 @@
     //    delete _game;
     //FIXME: will crash if relase it here.
     // [_window release];
-    _platform->onDestory();
+    _platform->onDestroy();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication {

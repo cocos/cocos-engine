@@ -2,7 +2,7 @@ import { ccclass } from 'cc.decorator';
 import { warnID } from '../../cocos/core';
 import { float, property } from '../../cocos/core/data/class-decorator';
 import * as requiringFrame from '../../cocos/core/data/utils/requiring-frame';
-import { getClassName, unregisterClass, _getClassId } from '../../cocos/core/utils/js-typed';
+import { getClassName, unregisterClass, getClassId } from '../../cocos/core/utils/js-typed';
 import { Component } from '../../cocos/core/components/component'
 
 /**
@@ -130,7 +130,7 @@ describe('Class id & class name', () => {
 
         try {
             expect(getClassName(Cls_)).toBe(expectedName);
-            expect(_getClassId(Cls_)).toStrictEqual(expectedId);
+            expect(getClassId(Cls_)).toStrictEqual(expectedId);
         } finally {
             unregisterClass(Cls_);
         }

@@ -53,14 +53,14 @@ PlayerEditBoxServiceWin::~PlayerEditBoxServiceWin()
 
 void PlayerEditBoxServiceWin::showSingleLineEditBox(const cc::Rect &rect)
 {
-    MoveWindow(_hwndSingle, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, TRUE);
+    MoveWindow(_hwndSingle, rect.x, rect.y, rect.width, rect.height, TRUE);
     ShowWindow(_hwndSingle, SW_SHOW);
     SetFocus(_hwndSingle);
 }
 
 void PlayerEditBoxServiceWin::showMultiLineEditBox(const cc::Rect &rect)
 {
-    MoveWindow(_hwndMulti, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, TRUE);
+    MoveWindow(_hwndMulti, rect.x, rect.y, rect.width, rect.height, TRUE);
     ShowWindow(_hwndMulti, SW_SHOW);
     SetFocus(_hwndMulti);
 }

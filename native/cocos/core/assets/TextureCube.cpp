@@ -103,7 +103,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     }
 }
 
-void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
+void TextureCube::setMipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
     if (value.layout.empty()) {
         return;
     }
@@ -168,10 +168,14 @@ void TextureCube::setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value) {
     _mipmapAtlas = value;
 }
 
-void TextureCube::setImage(const ITextureCubeMipmap &value) {
-    _mipmaps.clear();
-    _mipmaps.emplace_back(value);
+void TextureCube::setImage(const ITextureCubeMipmap *value) {
+    if (value != nullptr) {
+        setMipmaps({*value});
+    } else {
+        setMipmaps({});
+    }
 }
+
 void TextureCube::reset(const ITextureCubeCreateInfo &info) {
     _width = info.width;
     _height = info.height;
@@ -215,7 +219,7 @@ bool TextureCube::isUsingOfflineMipmaps() {
 
 void TextureCube::initialize() {
     if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
-        setmipmapAtlas(_mipmapAtlas);
+        setMipmapAtlas(_mipmapAtlas);
     } else {
         setMipmaps(_mipmaps);
     }
@@ -278,7 +282,7 @@ void TextureCube::deserialize(const ccstd::any &serializedData, const ccstd::any
         _mipmaps[i] = mipmap;
         //        auto* mipmap = data->mipmaps[i];
 
-        //cjh TODO: what's handle.result??        const imageAssetClassId = js._getClassId(ImageAsset);
+        //cjh TODO: what's handle.result??        const imageAssetClassId = js.getClassId(ImageAsset);
         //
         //        handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
         //        handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);

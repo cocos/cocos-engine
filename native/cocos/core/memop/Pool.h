@@ -31,7 +31,6 @@
 #include "base/TypeDef.h"
 #include "base/std/container/vector.h"
 
-
 namespace cc {
 
 namespace memop {
@@ -39,15 +38,20 @@ namespace memop {
 template <typename T>
 class Pool final {
 public:
+    using CtorFunc = std::function<T *()>;
+    using DtorFunc = std::function<void(T *)>;
     /**
      * @en Constructor with the allocator of elements and initial pool size
      * @zh 使用元素的构造器和初始大小的构造函数
      * @param ctor The allocator of elements in pool, it's invoked directly without `new`
      * @param elementsPerBatch Initial pool size, this size will also be the incremental size when the pool is overloaded
      */
-    Pool(const std::function<T *()> &ctor, uint32_t elementsPerBatch)
+    Pool(const CtorFunc &ctor, const DtorFunc &dtor, uint32_t elementsPerBatch)
     : _ctor(ctor),
+      _dtor(dtor),
       _elementsPerBatch(std::max(elementsPerBatch, static_cast<uint32_t>(1))) {
+        CC_ASSERT(_ctor);
+        CC_ASSERT(_dtor);
         _nextAvail = static_cast<index_t>(_elementsPerBatch - 1);
 
         for (uint32_t i = 0; i < _elementsPerBatch; ++i) {
@@ -84,7 +88,11 @@ public:
      * @param obj The object to be put back into the pool
      */
     void free(T *obj) {
-        _freepool[++_nextAvail] = obj;
+        ++_nextAvail;
+        if (_nextAvail >= _freepool.size()) {
+            _freepool.resize(_freepool.size() + 1);
+        }
+        _freepool[_nextAvail] = obj;
     }
 
     /**
@@ -104,20 +112,18 @@ public:
      * @zh 释放对象池中所有资源并清空缓存池。
      * @param dtor The destructor function, it will be invoked for all elements in the pool
      */
-    void destroy(const std::function<void(T *)> &dtor) {
-        for (int i = 0; i < _nextAvail; ++i) {
-            dtor(_freepool[i]);
-        }
-        destroy();
-    }
-
     void destroy() {
+        for (int i = 0; i <= _nextAvail; ++i) {
+            _dtor(_freepool[i]);
+        }
         _nextAvail = -1;
         _freepool.clear();
+        _freepool.shrink_to_fit();
     }
 
 private:
-    std::function<T *()> _ctor{nullptr};
+    CtorFunc _ctor{nullptr};
+    DtorFunc _dtor{nullptr};
     uint32_t _elementsPerBatch{0};
     index_t _nextAvail{-1};
     ccstd::vector<T *> _freepool;

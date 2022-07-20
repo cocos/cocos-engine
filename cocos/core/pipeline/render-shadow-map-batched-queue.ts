@@ -40,23 +40,14 @@ import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
 import { shadowCulling } from './scene-culling';
 
 const _phaseID = getPhaseID('shadow-caster');
-const _shadowPassIndices: number[] = [];
-function getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[]) {
-    shadowPassIndices.length = 0;
-    let hasShadowPass = false;
-    for (let j = 0; j < subModels.length; j++) {
-        const { passes } = subModels[j];
-        let shadowPassIndex = -1;
-        for (let k = 0; k < passes.length; k++) {
-            if (passes[k].phase === _phaseID) {
-                shadowPassIndex = k;
-                hasShadowPass = true;
-                break;
-            }
+function getShadowPassIndex (subModel: SubModel) : number {
+    const passes = subModel.passes;
+    for (let k = 0; k < passes.length; k++) {
+        if (passes[k].phase === _phaseID) {
+            return k;
         }
-        shadowPassIndices.push(shadowPassIndex);
     }
-    return hasShadowPass;
+    return -1;
 }
 
 /**
@@ -85,24 +76,22 @@ export class RenderShadowMapBatchedQueue {
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             switch (light.type) {
             case LightType.DIRECTIONAL:
-                if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-                    const dirLight = light as DirectionalLight;
-                    if (dirLight.shadowEnabled) {
-                        const csmLayers = sceneData.csmLayers;
-                        let layer;
-                        if (dirLight.shadowFixedArea) {
-                            layer = csmLayers.specialLayer;
-                        } else {
-                            layer = csmLayers.layers[level];
-                        }
-                        shadowCulling(camera, sceneData, layer);
-                        const dirShadowObjects = layer.shadowObjects;
-                        for (let i = 0; i < dirShadowObjects.length; i++) {
-                            const ro = dirShadowObjects[i];
-                            const model = ro.model;
-                            if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                            this.add(model, _shadowPassIndices);
-                        }
+                // eslint-disable-next-line no-case-declarations
+                const dirLight = light as DirectionalLight;
+                if (dirLight.shadowEnabled) {
+                    const csmLayers = sceneData.csmLayers;
+                    let layer;
+                    if (dirLight.shadowFixedArea) {
+                        layer = csmLayers.specialLayer;
+                    } else {
+                        layer = csmLayers.layers[level];
+                    }
+                    shadowCulling(camera, sceneData, layer);
+                    const dirShadowObjects = layer.shadowObjects;
+                    for (let i = 0; i < dirShadowObjects.length; i++) {
+                        const ro = dirShadowObjects[i];
+                        const model = ro.model;
+                        this.add(model);
                     }
                 }
 
@@ -115,12 +104,11 @@ export class RenderShadowMapBatchedQueue {
                     for (let i = 0; i < castShadowObjects.length; i++) {
                         const ro = castShadowObjects[i];
                         const model = ro.model;
-                        if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                         if (model.worldBounds) {
                             if (!intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
-                        this.add(model, _shadowPassIndices);
+                        this.add(model);
                     }
                 }
                 break;
@@ -144,12 +132,12 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue.clear();
     }
 
-    public add (model: Model, _shadowPassIndices: number[]) {
+    public add (model: Model) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
-            const shadowPassIdx = _shadowPassIndices[j];
-            if (shadowPassIdx < 0) { return; }
+            const shadowPassIdx = getShadowPassIndex(subModel);
+            if (shadowPassIdx < 0) { continue; }
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
 

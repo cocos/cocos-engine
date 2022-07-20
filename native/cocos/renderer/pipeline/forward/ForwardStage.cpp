@@ -118,11 +118,11 @@ void ForwardStage::dispenseRenderObject2Queues() {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                    auto *instancedBuffer = InstancedBuffer::get(pass);
+                    auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(model, subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                    auto *batchedBuffer = BatchedBuffer::get(pass);
+                    auto *batchedBuffer = pass->getBatchedBuffer();
                     batchedBuffer->merge(subModel, passIdx, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
@@ -133,6 +133,8 @@ void ForwardStage::dispenseRenderObject2Queues() {
             }
         }
     }
+
+    _instancedQueue->sort();
 
     for (auto *queue : _renderQueues) {
         queue->sort();
@@ -233,13 +235,13 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
-        
+
 #if CC_USE_GEOMETRY_RENDERER
         if (camera->getGeometryRenderer()) {
             camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
         }
 #endif
-        
+
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
 #if CC_USE_DEBUG_RENDERER

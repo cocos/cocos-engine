@@ -53,7 +53,7 @@ FontFaceInfo::FontFaceInfo(uint32_t size)
 
 FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height)
 : fontSize(size), textureWidth(width), textureHeight(height) {
-    CC_ASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height)); // Font texture size must be power of 2.
+    CC_ASSERT(math::isPowerOfTwo(width) && math::isPowerOfTwo(height)); // Font texture size must be power of 2.
 
     // preload digit & alphabet characters by default
     for (auto i = 0U; i < 128; i++) {
@@ -65,7 +65,7 @@ FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height)
 
 FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, ccstd::vector<uint32_t> chars)
 : fontSize(size), textureWidth(width), textureHeight(height), preLoadedCharacters(std::move(chars)) {
-    CC_ASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height)); // Font texture size must be power of 2.
+    CC_ASSERT(math::isPowerOfTwo(width) && math::isPowerOfTwo(height)); // Font texture size must be power of 2.
 }
 
 /**

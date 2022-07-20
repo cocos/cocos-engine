@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
@@ -41,6 +41,9 @@ import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
+import { director } from '../core/director';
 
 export const timeScale = 1.0;
 
@@ -167,6 +170,8 @@ export class Skeleton extends UIRenderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -615,7 +620,15 @@ export class Skeleton extends UIRenderer {
 
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
+    private _drawInfoList : RenderDrawInfo[] = [];
 
+    private requestDrawInfo (idx: number) {
+        if (!this._drawInfoList[idx]) {
+            const batch2d = director.root!.batcher2D;
+            this._drawInfoList[idx] = new RenderDrawInfo();
+        }
+        return this._drawInfoList[idx];
+    }
     // CONSTRUCTOR
     constructor () {
         super();
@@ -1365,7 +1378,11 @@ export class Skeleton extends UIRenderer {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
+        if (JSB) {
+            inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: false });
+        } else {
+            inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
+        }
         return inst;
     }
 
@@ -1373,7 +1390,6 @@ export class Skeleton extends UIRenderer {
     // call markForUpdateRenderData to make sure renderData will be re-built.
     public onRestore () {
         this.updateMaterial();
-        this._renderFlag = this._canRender();
         this.markForUpdateRenderData();
     }
 
@@ -1416,8 +1432,8 @@ export class Skeleton extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
-        if (this._renderData && this._drawList) {
-            const rd = this._renderData;
+        if (this.renderData && this._drawList) {
+            const rd = this.renderData;
             const chunk = rd.chunk;
             const accessor = chunk.vertexAccessor;
             const meshBuffer = rd.getMeshBuffer()!;
@@ -1489,14 +1505,14 @@ export class Skeleton extends UIRenderer {
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
             // Update render data size if needed
-            if (this._renderData
-                && (this._renderData.vertexCount < frameCache.maxVertexCount
-                || this._renderData.indexCount < frameCache.maxIndexCount)) {
+            if (this.renderData
+                && (this.renderData.vertexCount < frameCache.maxVertexCount
+                || this.renderData.indexCount < frameCache.maxIndexCount)) {
                 this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
                 this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-                this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
-                if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
-                    this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
+                    this.renderData.indices = new Uint16Array(this.maxIndexCount);
                 }
             }
         }
@@ -1725,6 +1741,10 @@ export class Skeleton extends UIRenderer {
             this._materialCache[val].destroy();
         }
         this._materialCache = {};
+    }
+
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

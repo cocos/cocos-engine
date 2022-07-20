@@ -28,6 +28,7 @@
 #include "base/std/hash/hash.h"
 
 #include "GFXDef.h"
+#include "GFXRenderPass.h"
 #include "GFXTexture.h"
 
 namespace cc {
@@ -114,18 +115,19 @@ ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) c
     // render pass is mostly irrelevant
     ccstd::hash_t seed;
     if (info.depthStencilTexture) {
-        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3;
+        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3 + 1;
         ccstd::hash_combine(seed, info.depthStencilTexture);
         ccstd::hash_combine(seed, info.depthStencilTexture->getRaw());
         ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
     } else {
-        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3;
+        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3 + 1;
     }
     for (auto *colorTexture : info.colorTextures) {
         ccstd::hash_combine(seed, colorTexture);
         ccstd::hash_combine(seed, colorTexture->getRaw());
         ccstd::hash_combine(seed, colorTexture->getHash());
     }
+    ccstd::hash_combine(seed, info.renderPass->getHash());
     return seed;
 }
 
@@ -146,6 +148,7 @@ bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
                 break;
             }
         }
+        res = lhs.renderPass->getHash() == rhs.renderPass->getHash();
         if (res) {
             res = lhs.depthStencilTexture->getRaw() == rhs.depthStencilTexture->getRaw() &&
                   lhs.depthStencilTexture->getHash() == rhs.depthStencilTexture->getHash();
@@ -626,6 +629,19 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
     }
 
     return size;
+}
+
+uint32_t gcd(uint32_t a, uint32_t b) {
+    while (b) {
+        uint32_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+uint32_t lcm(uint32_t a, uint32_t b) {
+    return a * b / gcd(a, b);
 }
 
 } // namespace gfx

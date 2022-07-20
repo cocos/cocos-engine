@@ -72,6 +72,7 @@ void CCMTLCommandBuffer::doDestroy() {
     if (_commandBufferBegan) {
         if (_gpuCommandBufferObj && _gpuCommandBufferObj->mtlCommandBuffer) {
             [_gpuCommandBufferObj->mtlCommandBuffer commit];
+            [_gpuCommandBufferObj->mtlCommandBuffer release];
         }
         _commandBufferBegan = false;
     }
@@ -101,7 +102,9 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 id<MTLCommandBuffer> CCMTLCommandBuffer::getMTLCommandBuffer() {
     if (!_gpuCommandBufferObj->mtlCommandBuffer) {
         auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
-        _gpuCommandBufferObj->mtlCommandBuffer = [mtlQueue commandBuffer];
+        // command buffer from device may keep alive between frames,
+        // to get along with NSLoop in UIApplication, retain it.
+        _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
         [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
     }
     return _gpuCommandBufferObj->mtlCommandBuffer;
@@ -313,7 +316,10 @@ void CCMTLCommandBuffer::reset() {
     _gpuCommandBufferObj->fbo = nullptr;
     _gpuCommandBufferObj->inputAssembler = nullptr;
     _gpuCommandBufferObj->pipelineState = nullptr;
-    _gpuCommandBufferObj->mtlCommandBuffer = nil;
+    if(_gpuCommandBufferObj->mtlCommandBuffer) {
+        [_gpuCommandBufferObj->mtlCommandBuffer release];
+        _gpuCommandBufferObj->mtlCommandBuffer = nil;
+    }
 }
 
 void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDescriptor *descriptor) {
@@ -1046,6 +1052,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             _texCopySemaphore->signal();
         }];
         [mtlCommandBuffer commit];
+        [mtlCommandBuffer release];
         _gpuCommandBufferObj->mtlCommandBuffer = nil;
         _texCopySemaphore->wait();
     }
@@ -1090,3 +1097,4 @@ void CCMTLCommandBuffer::completeQueryPool(QueryPool *queryPool) {
 
 } // namespace gfx
 } // namespace cc
+

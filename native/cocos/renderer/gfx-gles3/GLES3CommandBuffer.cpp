@@ -175,8 +175,8 @@ void GLES3CommandBuffer::setViewport(const Viewport &vp) {
         (_curDynamicStates.viewport.top != vp.top) ||
         (_curDynamicStates.viewport.width != vp.width) ||
         (_curDynamicStates.viewport.height != vp.height) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
+        math::isNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
+        math::isNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
         _curDynamicStates.viewport = vp;
         _isStateInvalid = true;
     }
@@ -193,16 +193,16 @@ void GLES3CommandBuffer::setScissor(const Rect &rect) {
 }
 
 void GLES3CommandBuffer::setLineWidth(float width) {
-    if (math::IsNotEqualF(_curDynamicStates.lineWidth, width)) {
+    if (math::isNotEqualF(_curDynamicStates.lineWidth, width)) {
         _curDynamicStates.lineWidth = width;
         _isStateInvalid = true;
     }
 }
 
 void GLES3CommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
-        math::IsNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
-        math::IsNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
+    if (math::isNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
+        math::isNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
+        math::isNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
         _curDynamicStates.depthBiasConstant = constant;
         _curDynamicStates.depthBiasClamp = clamp;
         _curDynamicStates.depthBiasSlope = slope;
@@ -211,10 +211,10 @@ void GLES3CommandBuffer::setDepthBias(float constant, float clamp, float slope) 
 }
 
 void GLES3CommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
+    if (math::isNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
         _curDynamicStates.blendConstant.x = constants.x;
         _curDynamicStates.blendConstant.y = constants.y;
         _curDynamicStates.blendConstant.z = constants.z;
@@ -224,8 +224,8 @@ void GLES3CommandBuffer::setBlendConstants(const Color &constants) {
 }
 
 void GLES3CommandBuffer::setDepthBound(float minBounds, float maxBounds) {
-    if (math::IsNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
-        math::IsNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
+    if (math::isNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
+        math::isNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
         _curDynamicStates.depthMinBounds = minBounds;
         _curDynamicStates.depthMaxBounds = maxBounds;
         _isStateInvalid = true;

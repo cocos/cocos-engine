@@ -223,10 +223,7 @@ public:
      * @zh 是否启用HDR？
      */
     inline bool isUseHDR() const { return _useHDR; }
-    inline void setUseHDR(bool val) {
-        _useHDR = val;
-        setEnvMaps(_envmapHDR, _envmapLDR);
-    }
+    void setUseHDR(bool val);
 
     /**
      * @en Whether use environment lighting
@@ -292,6 +289,7 @@ private:
     bool _useIBL{false};
     bool _useHDR{true};
     bool _useDiffuseMap{false};
+    bool _activated{false};
     IntrusivePtr<Material> _editableMaterial;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);

@@ -23,14 +23,11 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import {
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { js } from '../utils/js';
 import './simple-texture';
+import { EDITOR, TEST } from 'internal:constants';
 
 const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
@@ -71,6 +68,9 @@ enum MipmapMode {
 }
 textureCubeProto.createNode = null!;
 
+declare const jsb: any;
+
+// @ts-expect-error jsb.TextureCube is exported from cpp
 export type TextureCube = jsb.TextureCube;
 export const TextureCube: any = jsb.TextureCube;
 
@@ -204,7 +204,9 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
     this.isRGBE = data.rgbe;
-    this._mipmapMode = parseInt(data.mipmapMode);
+    if (data.mipmapMode != undefined) {
+        this._mipmapMode = data.mipmapMode;
+    }
     if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
         const mipmapAtlas = data.mipmapAtlas;
         const mipmapLayout = data.mipmapLayout;
@@ -221,13 +223,13 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
             bottom: new jsb.ImageAsset(),
         };
         if (mipmapAtlas) {
-            const imageAssetClassId = js._getClassId(jsb.ImageAsset);
+            const imageAssetClassId = js.getClassId(jsb.ImageAsset);
             handle.result.push(this._mipmapAtlas.atlas, `front`, mipmapAtlas.front, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `back`, mipmapAtlas.back, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `left`, mipmapAtlas.left, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `right`, mipmapAtlas.right, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `top`, mipmapAtlas.top, imageAssetClassId);
-            handle.result.push(this._mipmapAtlas.atlas, `bottom`, mipmapAtlas.bottom, imageAssetClassId);   
+            handle.result.push(this._mipmapAtlas.atlas, `bottom`, mipmapAtlas.bottom, imageAssetClassId);
         }
     } else {
         this._mipmaps = new Array(data.mipmaps.length);
@@ -242,7 +244,7 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
                 bottom: new jsb.ImageAsset(),
             };
             const mipmap = data.mipmaps[i];
-            const imageAssetClassId = js._getClassId(jsb.ImageAsset);
+            const imageAssetClassId = js.getClassId(jsb.ImageAsset);
             handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
             handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
             handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);

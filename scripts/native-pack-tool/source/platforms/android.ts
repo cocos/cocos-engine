@@ -72,7 +72,7 @@ export class AndroidPackTool extends NativePackTool {
 
         const projDir: string = this.paths.nativePrjDir;
         if (!fs.existsSync(projDir)) {
-            console.error(`dir ${projDir} not exits`);
+            throw new Error(`dir ${projDir} not exits`);
             return false;
         }
         let gradle = 'gradlew';
@@ -230,12 +230,12 @@ export class AndroidPackTool extends NativePackTool {
         }
         const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
         if (!fs.existsSync(manifestPath)) {
-            console.error(`${manifestPath} not found`);
+            throw new Error(`${manifestPath} not found`);
             return;
         }
         const urlInfo = URL.parse(url);
         if (!urlInfo.host) {
-            console.error(`parse url ${url} fail`);
+            throw new Error(`parse url ${url} fail`);
             return;
         }
         let manifest = fs.readFileSync(manifestPath, 'utf8');
@@ -261,7 +261,7 @@ export class AndroidPackTool extends NativePackTool {
         let apkName = `${this.params.projectName}-${suffix}.apk`;
         let apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
         if (!fs.existsSync(apkPath)) {
-            console.error('apk not found at ', apkPath);
+            throw new Error(`apk not found at ${apkPath}`);
             return false;
         }
         fs.copyFileSync(apkPath, ps.join(destDir, apkName));
@@ -269,7 +269,7 @@ export class AndroidPackTool extends NativePackTool {
             apkName = `instantapp-${suffix}.apk`;
             apkPath = ps.join(this.paths.nativePrjDir, `build/instantapp/outputs/apk/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
-                console.error('instant apk not found at ', apkPath);
+                throw new Error(`instant apk not found at ${apkPath}`);
                 return false;
             }
             fs.copyFileSync(apkPath, ps.join(destDir, apkName));
@@ -279,7 +279,7 @@ export class AndroidPackTool extends NativePackTool {
             apkName = `${this.params.projectName}-${suffix}.aab`;
             apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/bundle/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
-                console.error('instant apk not found at ', apkPath);
+                throw new Error(`instant apk not found at ${apkPath}`);
                 return false;
             }
             fs.copyFileSync(apkPath, ps.join(destDir, apkName));
@@ -315,12 +315,12 @@ export class AndroidPackTool extends NativePackTool {
         const adbPath = this.getAdbPath();
 
         if (!fs.existsSync(apkPath)) {
-            console.error('can not find apk at', apkPath);
+            throw new Error(`can not find apk at ${apkPath}`);
             return false;
         }
 
         if (!fs.existsSync(adbPath)) {
-            console.error('can not find adb at', adbPath);
+            throw new Error(`can not find adb at ${adbPath}`);
             return false;
         }
 

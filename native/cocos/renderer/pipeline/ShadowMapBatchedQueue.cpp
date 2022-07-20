@@ -29,17 +29,17 @@
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "SceneCulling.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
+#include "SceneCulling.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Camera.h"
+#include "scene/DirectionalLight.h"
 #include "scene/Shadow.h"
 #include "scene/SpotLight.h"
-#include "scene/DirectionalLight.h"
 #include "shadow/CSMLayers.h"
 
 namespace cc {
@@ -123,22 +123,21 @@ void ShadowMapBatchedQueue::clear() {
 }
 
 void ShadowMapBatchedQueue::add(const scene::Model *model) {
-    // this assumes light pass index is the same for all subModels
-    const auto shadowPassIdx = getShadowPassIndex(model);
-    if (shadowPassIdx == -1) {
-        return;
-    }
-
     for (const auto &subModel : model->getSubModels()) {
+        const auto shadowPassIdx = getShadowPassIndex(subModel);
+        if (shadowPassIdx == -1) {
+            continue;
+        }
+
         const auto *pass = subModel->getPass(shadowPassIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
         if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
-            auto *instancedBuffer = InstancedBuffer::get(subModel->getPass(shadowPassIdx));
+            auto *instancedBuffer = subModel->getPass(shadowPassIdx)->getInstancedBuffer();
             instancedBuffer->merge(model, subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
         } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = BatchedBuffer::get(subModel->getPass(shadowPassIdx));
+            auto *batchedBuffer = subModel->getPass(shadowPassIdx)->getBatchedBuffer();
             batchedBuffer->merge(subModel, shadowPassIdx, model);
             _batchedQueue->add(batchedBuffer);
         } else { // standard draw
@@ -174,15 +173,13 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_instancedQueue)
 }
 
-int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
-    for (const auto &subModel : model->getSubModels()) {
-        int i = 0;
-        for (const auto &pass : subModel->getPasses()) {
-            if (pass->getPhase() == _phaseID) {
-                return i;
-            }
-            ++i;
+int ShadowMapBatchedQueue::getShadowPassIndex(const scene::SubModel *subModel) const {
+    int i = 0;
+    for (const auto &pass : subModel->getPasses()) {
+        if (pass->getPhase() == _phaseID) {
+            return i;
         }
+        ++i;
     }
     return -1;
 }

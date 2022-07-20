@@ -25,7 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Vec2 } from '../../core/math';
@@ -211,8 +211,7 @@ export class Sprite extends UIRenderer {
 
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
-        // render & update render data flag will be triggered while applying new sprite frame
-        this.markForUpdateRenderData(false);
+        this.markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
@@ -268,8 +267,7 @@ export class Sprite extends UIRenderer {
         if (this._fillType !== value) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
-                this._renderData = null;
-            } else if (this._renderData) {
+            } else if (this.renderData) {
                 this.markForUpdateRenderData(true);
             }
         }
@@ -299,7 +297,7 @@ export class Sprite extends UIRenderer {
     set fillCenter (value) {
         this._fillCenter.x = value.x;
         this._fillCenter.y = value.y;
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
         }
     }
@@ -326,7 +324,7 @@ export class Sprite extends UIRenderer {
 
     set fillStart (value) {
         this._fillStart = clamp(value, 0, 1);
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
             this._updateUVs();
         }
@@ -354,7 +352,7 @@ export class Sprite extends UIRenderer {
     set fillRange (value) {
         // positive: counterclockwise, negative: clockwise
         this._fillRange = clamp(value, -1, 1);
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
             this._updateUVs();
         }
@@ -387,7 +385,7 @@ export class Sprite extends UIRenderer {
 
         this._isTrimmedMode = value;
         if ((this._type === SpriteType.SIMPLE /* || this._type === SpriteType.MESH */)
-            && this._renderData) {
+            && this.renderData) {
             this.markForUpdateRenderData(true);
         }
     }
@@ -488,6 +486,7 @@ export class Sprite extends UIRenderer {
     }
 
     public onDisable () {
+        super.onDisable();
         if (this._spriteFrame && this._type === SpriteType.SLICED) {
             this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
@@ -584,10 +583,10 @@ export class Sprite extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this._renderData) {
+        if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.getRenderMaterial(0);
+                this.renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
                     this._assembler.updateUVs(this);
@@ -606,9 +605,18 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    // hack for mask
+    protected _postRender (render: IBatcher) {
+        if (!this._postAssembler) {
+            return;
+        }
+
+        render.commitComp(this, null, null, this._postAssembler, null);
+    }
+
     private _applySpriteSize () {
         if (this._spriteFrame) {
-            if (!this._spriteFrame.isDefault) {
+            if (BUILD || !this._spriteFrame.isDefault) {
                 if (SizeMode.RAW === this._sizeMode) {
                     const size = this._spriteFrame.originalSize;
                     this.node._uiProps.uiTransformComp!.setContentSize(size);
@@ -656,8 +664,8 @@ export class Sprite extends UIRenderer {
             }
         }
 
-        if (this._renderData) {
-            this._renderData.material = material;
+        if (this.renderData) {
+            this.renderData.material = material;
         }
     }
 
@@ -681,7 +689,7 @@ export class Sprite extends UIRenderer {
                 textureChanged = true;
             }
             if (textureChanged) {
-                if (this._renderData) this._renderData.textureDirty = true;
+                if (this.renderData) this.renderData.textureDirty = true;
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();

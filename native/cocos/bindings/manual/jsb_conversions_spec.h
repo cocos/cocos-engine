@@ -280,6 +280,9 @@ bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /
 
 bool sevalue_to_native(const se::Value &from, cc::Color *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+
 inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
         to->clear();
@@ -521,6 +524,8 @@ bool nativevalue_to_se(const cc::extension::ManifestAsset &from, se::Value &to, 
 
 bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
+bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+
 inline bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     return DownloadTask_to_seval(from, &to);
 }
@@ -560,11 +565,17 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
 #endif
 
-#if CC_USE_MIDDLEWARE
-inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const se::Object *from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setObject(const_cast<se::Object *>(from));
     return true;
 }
+
+inline bool nativevalue_to_se(se::Object *from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    to.setObject(from);
+    return true;
+}
+
+#if CC_USE_MIDDLEWARE
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
 #endif                                                                                                         //CC_USE_MIDDLEWARE
 

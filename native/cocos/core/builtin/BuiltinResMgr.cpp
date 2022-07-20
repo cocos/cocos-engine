@@ -239,7 +239,7 @@ void BuiltinResMgr::initTextureCubeWithUuid(const ccstd::string &uuid, const uin
         mipmap.bottom = ccnew ImageAsset();
         mipmap.bottom->setNativeAsset(imageSource);
 
-        texture->setImage(mipmap);
+        texture->setImage(&mipmap);
 
         texture->initialize();
         _resources.emplace(texture->getUuid(), texture);

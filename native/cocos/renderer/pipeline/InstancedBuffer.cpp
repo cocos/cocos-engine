@@ -33,30 +33,6 @@
 
 namespace cc {
 namespace pipeline {
-ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint32_t, InstancedBuffer *>> InstancedBuffer::buffers;
-InstancedBuffer *InstancedBuffer::get(scene::Pass *pass) {
-    return InstancedBuffer::get(pass, 0);
-}
-InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint32_t extraKey) {
-    auto &record = buffers[pass];
-    auto &buffer = record[extraKey];
-    if (buffer == nullptr) buffer = ccnew InstancedBuffer(pass);
-
-    return buffer;
-}
-
-void InstancedBuffer::destroyInstancedBuffer() {
-    for (auto &pair : InstancedBuffer::buffers) {
-        const ccstd::unordered_map<uint32_t, InstancedBuffer *> &instanceItem = pair.second;
-        for (const auto &item : instanceItem) {
-            InstancedBuffer *instanceBuffer = item.second;
-            if (instanceBuffer) {
-                instanceBuffer->destroy();
-            }
-        }
-    }
-    InstancedBuffer::buffers.clear();
-}
 
 InstancedBuffer::InstancedBuffer(const scene::Pass *pass)
 : _pass(pass),

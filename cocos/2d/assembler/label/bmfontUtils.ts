@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
@@ -76,6 +77,7 @@ let _isWrapText = false;
 let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
+let QUAD_INDICES;
 
 export const bmfontUtils = {
     updateRenderData (comp: Label) {
@@ -95,11 +97,12 @@ export const bmfontUtils = {
 
             _comp.actualFontSize = _fontSize;
             _uiTrans.setContentSize(_contentSize);
-            this.updateUVs(comp);
+            this.updateUVs(comp);// dirty need
+            this.updateColor(comp); // dirty need
 
             _comp.renderData!.vertDirty = false;
             // fix bmfont run updateRenderData twice bug
-            _comp.markForUpdateRenderData(false);
+            // _comp.markForUpdateRenderData(false);
 
             _comp = null;
 
@@ -123,6 +126,29 @@ export const bmfontUtils = {
             vData[vertexOffset] = vert.u;
             vData[vertexOffset + 1] = vert.v;
             vertexOffset += 9;
+        }
+    },
+
+    updateColor (label: Label) {
+        if (JSB) {
+            const renderData = label.renderData!;
+            const vertexCount = renderData.vertexCount;
+            if (vertexCount === 0) return;
+            const vData = renderData.chunk.vb;
+            const stride = renderData.floatStride;
+            let colorOffset = 5;
+            const color = label.color;
+            const colorR = color.r / 255;
+            const colorG = color.g / 255;
+            const colorB = color.b / 255;
+            const colorA = color.a / 255;
+            for (let i = 0; i < vertexCount; i++) {
+                vData[colorOffset] = colorR;
+                vData[colorOffset + 1] = colorG;
+                vData[colorOffset + 2] = colorB;
+                vData[colorOffset + 3] = colorA;
+                colorOffset += stride;
+            }
         }
     },
 
@@ -622,8 +648,29 @@ export const bmfontUtils = {
                 this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appX, py - appY, _bmfontScale);
             }
         }
-
+        const indexCount = renderData.indexCount;
+        this.createQuadIndices(indexCount);
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return ret;
+    },
+
+    createQuadIndices (indexCount) {
+        if (indexCount % 6 !== 0) {
+            console.error('illegal index count!');
+            return;
+        }
+        const quadCount = indexCount / 6;
+        QUAD_INDICES = null;
+        QUAD_INDICES = new Uint16Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < quadCount; i++) {
+            QUAD_INDICES[offset++] = 0 + i * 4;
+            QUAD_INDICES[offset++] = 1 + i * 4;
+            QUAD_INDICES[offset++] = 2 + i * 4;
+            QUAD_INDICES[offset++] = 1 + i * 4;
+            QUAD_INDICES[offset++] = 3 + i * 4;
+            QUAD_INDICES[offset++] = 2 + i * 4;
+        }
     },
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {

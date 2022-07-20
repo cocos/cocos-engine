@@ -60,16 +60,11 @@ exports.methods = {
                 this.$.container.appendChild(this.$[key]);
             }
 
-            this.$[key].render(dump);
-            this.updateReadonly(this.$[key]);
-        }
-    },
+            if (this.asset.readonly) {
+                dump.readonly = true;
+            }
 
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
+            this.$[key].render(dump);
         }
     },
 

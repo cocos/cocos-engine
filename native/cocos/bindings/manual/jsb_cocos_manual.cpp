@@ -356,7 +356,7 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
 //IDEA:  move to auto bindings.
 static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -393,7 +393,7 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                 arg0 = nullptr;
             }
         } while (false);
-        SE_PRECONDITION2(ok, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCanvasBufferUpdatedCallback(arg0);
         return true;
     }
@@ -436,19 +436,19 @@ static void setCanvasRenderingContext2DProps(cc::ICanvasRenderingContext2D *cont
 
 static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_measureText : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         ccstd::string arg0;
         ok &= sevalue_to_native(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
-        SE_PRECONDITION2(args[1].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(args[1].isObject(), false, "no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[1]);
         cc::Size result = cobj->measureText(arg0);
         ok &= nativevalue_to_se(result, s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -458,7 +458,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_measureText) // NOLINT(readabili
 
 static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillRect : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -471,9 +471,9 @@ static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { //
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
         ok &= sevalue_to_native(args[3], &arg3);
-        SE_PRECONDITION2(args[4].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
+        SE_PRECONDITION2(args[4].isObject(), false, "no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[4]);
-        SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_fillRect : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->fillRect(arg0, arg1, arg2, arg3);
         return true;
     }
@@ -484,7 +484,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillRect) // NOLINT(readability-
 
 static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillText : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -496,14 +496,14 @@ static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { //
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
-        SE_PRECONDITION2(args[4].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
+        SE_PRECONDITION2(args[4].isObject(), false, "no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[4]);
         if (args[3].isUndefined()) {
-            SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_fillText : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             cobj->fillText(arg0, arg1, arg2, -1.0F);
         } else {
             ok &= sevalue_to_native(args[3], &arg3);
-            SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_fillText : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             cobj->fillText(arg0, arg1, arg2, arg3);
         }
         return true;
@@ -515,7 +515,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillText) // NOLINT(readability-
 
 static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_strokeText : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     bool ok = true;
@@ -527,14 +527,14 @@ static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { 
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
-        SE_PRECONDITION2(args[4].isObject(), false, "js_engine_CanvasRenderingContext2D_strokeText : no attributes set.");
+        SE_PRECONDITION2(args[4].isObject(), false, "no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[4]);
         if (!args[3].isUndefined()) {
             ok &= sevalue_to_native(args[3], &arg3);
-            SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_strokeText : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             cobj->strokeText(arg0, arg1, arg2, arg3);
         } else {
-            SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_strokeText : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             cobj->strokeText(arg0, arg1, arg2, -1.0F);
         }
 
@@ -601,7 +601,7 @@ static bool register_canvas_context2d(se::Object * /*obj*/) { // NOLINT(readabil
 
 static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::FileUtils *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFilesRecursively : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -609,10 +609,10 @@ static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NO
         ccstd::string arg0;
         ccstd::vector<ccstd::string> arg1;
         ok &= sevalue_to_native(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_listFilesRecursively : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->listFilesRecursively(arg0, &arg1);
         se::Object *list = args[1].toObject();
-        SE_PRECONDITION2(args[1].isObject() && list->isArray(), false, "js_engine_FileUtils_listFilesRecursively : 2nd argument should be an Array");
+        SE_PRECONDITION2(args[1].isObject() && list->isArray(), false, "2nd argument should be an Array");
         for (uint32_t i = 0; i < static_cast<uint32_t>(arg1.size()); i++) {
             list->setArrayElement(i, se::Value(arg1[i]));
         }
@@ -675,7 +675,7 @@ static bool register_se_setExceptionCallback(se::Object *obj) { // NOLINT(readab
 static bool js_engine_Color_get_val(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(cobj, false, "js_engine_Color_get_val : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -694,7 +694,7 @@ static bool js_engine_Color_set_val(se::State &s) // NOLINT(readability-identifi
 {
     const auto &args = s.args();
     auto *cobj = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(cobj, false, "js_engine_Color_set_val : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     uint32_t val{0};
@@ -703,7 +703,7 @@ static bool js_engine_Color_set_val(se::State &s) // NOLINT(readability-identifi
     cobj->g = (val & 0x0000FF00) >> 8;
     cobj->b = (val & 0x00FF0000) >> 16;
     cobj->a = (val & 0xFF000000) >> 24;
-    SE_PRECONDITION2(ok, false, "js_engine_Color_set_val : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_engine_Color_set_val)

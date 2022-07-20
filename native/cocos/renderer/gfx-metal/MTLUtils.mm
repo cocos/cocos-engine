@@ -878,9 +878,9 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
 int mu::toMTLSamplerBorderColor(const Color &color) {
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)
     float diff = color.x - 0.5f;
-    if (math::IsEqualF(color.w, 0.f))
+    if (math::isEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
-    else if (math::IsEqualF(diff, 0.f))
+    else if (math::isEqualF(diff, 0.f))
         return MTLSamplerBorderColorOpaqueBlack;
     else
         return MTLSamplerBorderColorOpaqueWhite;

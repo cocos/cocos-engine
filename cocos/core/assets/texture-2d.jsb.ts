@@ -84,7 +84,7 @@ texture2DProto._deserialize = function (serializedData: any, handle: any) {
             continue;
         }
         const mipmapUUID = data.mipmaps[i];
-        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
+        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js.getClassId(ImageAsset));
     }
 };
 

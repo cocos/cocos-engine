@@ -24,21 +24,21 @@
  ****************************************************************************/
 
 #include "core/Root.h"
+#include "2d/renderer/Batcher2d.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
+#include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/NativePipelineTypes.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
-#include "renderer/pipeline/GeometryRenderer.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
-#include "scene/DrawBatch2D.h"
 #include "scene/SpotLight.h"
 
 namespace cc {
@@ -109,8 +109,8 @@ void Root::destroy() {
     _pipelineRuntime.reset();
 
     CC_SAFE_DESTROY_NULL(_pipeline);
-    // TODO(minggo):
-    //    CC_SAFE_DESTROY(_batcher2D);
+
+    CC_SAFE_DELETE(_batcher);
 
     // TODO(minggo):
     //    this.dataPoolManager.clear();
@@ -161,7 +161,7 @@ public:
     void setProfiler(scene::Model *profiler) override {
         pipeline->setProfiler(profiler);
     }
-    pipeline::GeometryRenderer  *getGeometryRenderer() const override {
+    pipeline::GeometryRenderer *getGeometryRenderer() const override {
         return pipeline->getGeometryRenderer();
     }
     float getShadingScale() const override {
@@ -170,13 +170,13 @@ public:
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
     }
-    void setMacroString(const ccstd::string& name, const ccstd::string& value) override {
+    void setMacroString(const ccstd::string &name, const ccstd::string &value) override {
         pipeline->setValue(name, value);
     }
-    void setMacroInt(const ccstd::string& name, int32_t value) override {
+    void setMacroInt(const ccstd::string &name, int32_t value) override {
         pipeline->setValue(name, value);
     }
-    void setMacroBool(const ccstd::string& name, bool value) override {
+    void setMacroBool(const ccstd::string &name, bool value) override {
         pipeline->setValue(name, value);
     }
     void onGlobalPipelineStateChanged() override {
@@ -221,7 +221,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         if (!_pipeline->activate(_mainWindow->getSwapchain())) {
             if (isCreateDefaultPipeline) {
-                CC_SAFE_DESTROY_AND_DELETE(_pipeline);
+                CC_SAFE_DESTROY(_pipeline);
             }
 
             _pipeline = nullptr;
@@ -245,15 +245,13 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
     onGlobalPipelineStateChanged();
 
-    _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_INIT, this);
-    // TODO(minggo):
-    //    if (!_batcher) {
-    //        _batcher = ccnew Batcher2D(this);
-    //        if (!this._batcher.initialize()) {
-    //            this.destroy();
-    //            return false;
-    //        }
-    //    }
+    if (_batcher == nullptr) {
+        _batcher = ccnew Batcher2d(this);
+        if (!_batcher->initialize()) {
+            destroy();
+            return false;
+        }
+    }
 
     return true;
 }
@@ -275,10 +273,6 @@ void Root::resetCumulativeTime() {
 }
 
 void Root::frameMove(float deltaTime, int32_t totalFrames) {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
-
     CCObject::deferredDestroy();
 
     _frameTime = deltaTime;
@@ -296,12 +290,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         scene->removeBatches();
     }
 
-    _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_UPDATE, this); // cjh added for sync logic in ts.
-
-    // TODO(minggo):
-    //    if (_batcher) {
-    //        _batcher.update();
-    //    }
+    if (_batcher != nullptr) {
+        _batcher->update();
+    }
 
     //
     _cameraList.clear();
@@ -316,10 +307,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
 
-        _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_UPLOAD_BUFFERS, this);
-        //                if (_batcher != nullptr) {
-        //                    _batcher->uploadBuffers();
-        //                }
+        if (_batcher != nullptr) {
+            _batcher->uploadBuffers();
+        }
 
         for (const auto &scene : _scenes) {
             scene->update(stamp);
@@ -333,19 +323,23 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             return a->getPriority() < b->getPriority();
         });
 #if !defined(CC_SERVER_MODE)
+
+    #if CC_USE_GEOMETRY_RENDERER
         for (auto *camera : _cameraList) {
             if (camera->getGeometryRenderer()) {
                 camera->getGeometryRenderer()->update();
             }
         }
+    #endif
 
         _pipelineRuntime->render(_cameraList);
 #endif
         _device->present();
     }
 
-    _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_RESET, this);
-    // cjh TODO:    if (this._batcher) this._batcher.reset();
+    if (_batcher != nullptr) {
+        _batcher->reset();
+    }
 }
 
 scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {

@@ -91,19 +91,14 @@ void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
 
-    // TODO(PatriceJiang): replace with: _messageQueue = ccnew MessageQueue;
-    _messageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue;
+    _messageQueue = ccnew MessageQueue;
     if (device->_multithreaded) _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
-    // TODO(PatriceJiang): replace with:  CC_SAFE_DELETE(_messageQueue);
-    if (_messageQueue) {
-        _messageQueue->~MessageQueue();
-        CC_FREE_ALIGN(_messageQueue);
-        _messageQueue = nullptr;
-    }
+
+    CC_SAFE_DELETE(_messageQueue);
 
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);
 }
@@ -165,9 +160,6 @@ void CommandBufferAgent::end() {
 }
 
 void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
     auto attachmentCount = utils::toUint(renderPass->getColorAttachments().size());
     Color *actorColors = nullptr;
     if (attachmentCount) {
@@ -200,9 +192,6 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 }
 
 void CommandBufferAgent::endRenderPass() {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
     ENQUEUE_MESSAGE_1(
         _messageQueue, CommandBufferEndRenderPass,
         actor, getActor(),
@@ -364,9 +353,6 @@ void CommandBufferAgent::nextSubpass() {
 }
 
 void CommandBufferAgent::draw(const DrawInfo &info) {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferDraw,
         actor, getActor(),

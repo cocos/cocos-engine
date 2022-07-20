@@ -57,6 +57,8 @@ CCEffect %{
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        alphaSource:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap: { value: grey, editor: { parent: USE_OPACITY_MAP } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -223,6 +225,33 @@ CCProgram surface-fragment %{
       if (baseColor.a < albedoScaleAndCutoff.w) discard;
     #endif
     return baseColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+        float alpha = albedo.a;
+        #if USE_ALBEDO_MAP
+          alpha = texture(albedoMap, TEXTURE_UV).a;
+        #endif
+
+        #if ALPHA_SOURCE_IS_OPACITY
+          #if USE_OPACITY_MAP
+            alpha = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+          #else
+            alpha = 1.0 - alphaSource;
+          #endif
+        #else
+          #if USE_OPACITY_MAP
+            alpha = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+          #else
+            alpha = alphaSource;
+          #endif
+        #endif
+
+        if (alpha < albedoScaleAndCutoff.w) discard;
+      #endif
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL

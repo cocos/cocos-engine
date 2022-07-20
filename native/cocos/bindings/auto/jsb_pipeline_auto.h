@@ -223,8 +223,6 @@ bool js_register_cc_pipeline_InstancedBuffer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroy);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_InstancedBuffer);
 
 extern se::Object *__jsb_cc_pipeline_DeferredPipeline_proto; // NOLINT
@@ -324,8 +322,6 @@ SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_getDynamicOffset);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_getPass);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_merge);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_destroyBatchedBuffer);
-SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_BatchedBuffer);
 
 #if CC_USE_GEOMETRY_RENDERER

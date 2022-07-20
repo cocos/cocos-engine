@@ -248,9 +248,9 @@ exports.template = /* html*/`
         <ui-prop class="release" type="dump"></ui-prop>
         <ui-prop class="ambient" type="dump"></ui-prop>
         <ui-section class="skybox" expand>
-            <div slot="header" style="width: 100%;">
+            <div slot="header" style="display: flex;width: 100%;justify-content: space-between;">
                 <span>Skybox</span>
-                <ui-link tooltip="i18n:scene.menu.help_url" style="float: right; margin-right: 1px;">
+                <ui-link tooltip="i18n:scene.menu.help_url">
                     <ui-icon value="help"></ui-icon>
                 </ui-link>
             </div>
@@ -276,10 +276,10 @@ exports.template = /* html*/`
     <ui-section class="component node" expand>
         <header class="component-header" slot="header">
             <span class="name">Node</span>
-            <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
             <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                 <ui-icon value="help"></ui-icon>
             </ui-link>
+            <ui-icon class="menu" value="menu" tooltip="i18n:ENGINE.menu.component"></ui-icon>
         </header>
 
         <ui-prop class="position" type="dump"></ui-prop>
@@ -928,10 +928,10 @@ const Elements = {
                         <ui-drag-item additional='${additional}'>
                             <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
                         </ui-drag-item>
-                        <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
                         <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                             <ui-icon value="help"></ui-icon>
                         </ui-link>
+                         <ui-icon class="menu" value="menu" tooltip="i18n:ENGINE.menu.component"></ui-icon>
                     </header>
                     `;
 
@@ -1187,12 +1187,12 @@ const Elements = {
                     timestamp: rawTimestamp,
                     type: 'add-component',
                     events: {
-                        confirm(id, data) {
+                        confirm(name, data) {
                             Editor.Message.send('scene', 'snapshot');
                             panel.uuidList.forEach((uuid) => {
                                 Editor.Message.send('scene', 'create-component', {
                                     uuid,
-                                    component: data.name,
+                                    component: data.cid,
                                 });
                             });
                         },
@@ -1425,14 +1425,14 @@ exports.methods = {
                     enabled: !isMultiple,
                     async click() {
                         Editor.Clipboard.write('_dump_component_', {
-                            type: dump.type,
+                            cid: dump.cid,
                             dump: JSON.parse(JSON.stringify(dump)),
                         });
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.paste_component_values'),
-                    enabled: !!(clipboardComponentInfo && clipboardComponentInfo.type === dump.type),
+                    enabled: !!(clipboardComponentInfo && clipboardComponentInfo.cid === dump.cid),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1463,7 +1463,7 @@ exports.methods = {
                             const uuid = uuidList[index];
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
-                                component: clipboardComponentInfo.type,
+                                component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值
@@ -1586,7 +1586,7 @@ exports.methods = {
                         uuidList.forEach(async (uuid) => {
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
-                                component: clipboardComponentInfo.type,
+                                component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值

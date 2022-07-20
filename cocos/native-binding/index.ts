@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+
+import type { Color } from '../core/math/color';
+import type { Vec2 } from '../core/math/vec2';
+
 // @ts-expect-error this is a virtual module
 export * from 'internal:native';
 
@@ -809,4 +813,46 @@ export declare namespace native {
          */
         export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):boolean;
     }
+
+    /**
+     * @en DebugTextInfo @zh 调试文本的配置接口
+     * @param color @en text color @zh 文本颜色
+     * @param bold @en bold text @zh 粗体
+     * @param italic @en italic text @zh 斜体
+     * @param shadow @en shadow effect @zh 阴影效果
+     * @param shadowThickness @en shadow thickness @zh 阴影宽度
+     * @param shadowColor @en shadow color @zh 阴影颜色
+     * @param scale @en scale @zh 缩放比例
+     */
+    export interface DebugTextInfo {
+        color: Color;
+        bold: boolean;
+        italic: boolean;
+        shadow: boolean;
+        shadowThickness: number;
+        shadowColor: Color;
+        scale: number;
+    }
+
+    /**
+     * @en DebugRenderer class used to output debug text on screen
+     * @zh 用于输出屏幕调试文字的调试渲染器类
+     */
+     export class DebugRenderer {
+        /**
+         * @en get DebugRenderer instance
+         * @zh 获取调试渲染器实例
+         * @return @en the DebugRenderer instance @zh 返回的调试渲染器实例
+         */
+        static getInstance(): DebugRenderer;
+
+        /**
+         * @en output a text
+         * @zh 输出一个文本
+         * @param text @en the output text @zh 输出的文本
+         * @param screenPos @en the output screen position @zh 输出的屏幕位置
+         * @param info @en the output text information @zh 输出的文本属性
+         */
+        addText(text:string, screenPos: Vec2, info?: DebugTextInfo): void;
+     }
 }

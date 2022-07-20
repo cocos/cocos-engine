@@ -90,7 +90,7 @@ export class cchelper {
                 await this.copyFileAsync(srcDir, dst);
             } catch (e) {
                 await this.delay(10);
-                // console.warn(`error: retry copying ${srcDir} -> to ${dst} ... ${e}`);
+                // console.log(`error: retry copying ${srcDir} -> to ${dst} ... ${e}`);
                 await this.copyFileAsync(srcDir, dst);
             }
         }
@@ -146,7 +146,7 @@ export class cchelper {
                     if (fs.existsSync(srcFile)) {
                         copyAsync(srcFile, ps.join(dstDir, f));
                     } else {
-                        console.warn(`warning: copyFile: ${srcFile} not exists!`);
+                        console.log(`warning: copyFile: ${srcFile} not exists!`);
                     }
                 }
                 if (files.length === 0 && runningTasks === 0) {
@@ -359,14 +359,14 @@ export class cchelper {
 
     static checkJavaHome(): boolean {
         if (!process.env.JAVA_HOME) {
-            console.warn('$JAVA_HOME is not set!');
+            console.log('warning: $JAVA_HOME is not set!');
         }
         const javaPath = cchelper.which('java');
         if (!javaPath) {
             console.error(`'java' is not found in PATH`);
         } else {
             try {
-                const version = execSync(`${javaPath} --version`).toString();
+                const version = execSync(`"${cchelper.fixPath(javaPath)}" -version`).toString();
                 if (/Java\(TM\)/.test(version)) {
                     return true;
                 } else {
@@ -442,10 +442,20 @@ export const toolHelper = {
                 shell: true,
             });
             cp.stdout.on('data', (data: any) => {
-                console.log(`[cmake] ${iconv.decode(data, 'gbk').toString()}`);
+                const msg = iconv.decode(data, 'gbk').toString();
+                if(/warning/i.test(msg)) {
+                    console.warn(`[cmake-warn] ${msg}`);
+                } else {
+                    console.log(`[cmake] ${msg}`);
+                }
             });
             cp.stderr.on('data', (data: any) => {
-                console.error(`[cmake-err] ${iconv.decode(data, 'gbk').toString()}`);
+                const msg = iconv.decode(data, 'gbk').toString();
+                if(/CMake Warning/.test(msg) || /warning/i.test(msg)) {
+                    console.warn(`[cmake-warn] ${msg}`);
+                }else{
+                    console.error(`[cmake-err] ${msg}`);
+                }
             });
             cp.on('close', (code: number, sig: any) => {
                 if (code !== 0) {

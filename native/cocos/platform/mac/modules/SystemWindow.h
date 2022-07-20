@@ -33,7 +33,7 @@ namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
-    SystemWindow();
+    SystemWindow(IEventDispatch *delegate);
     ~SystemWindow() override;
 
     bool createWindow(const char* title,
@@ -41,8 +41,8 @@ public:
                       int h, int flags) override;
     bool createWindow(const char* title,
                       int w, int h, int flags) override;
-
-    uintptr_t getWindowHandler() const override;
+    void closeWindow() override;
+    uintptr_t getWindowHandle() const override;
 
     Size getViewSize() const override;
     void setViewSize(uint32_t w, uint32_t h) override {

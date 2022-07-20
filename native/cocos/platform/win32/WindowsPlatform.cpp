@@ -164,7 +164,7 @@ int32_t WindowsPlatform::loop() {
     if (wTimerRes != 0)
         timeEndPeriod(wTimerRes);
 
-    onDestory();
+    onDestroy();
     return 0;
 }
 

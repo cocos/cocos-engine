@@ -31,9 +31,13 @@ cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
 cc_set_if_undefined(USE_CCACHE               OFF)
 cc_set_if_undefined(USE_PLUGINS              ON)
+cc_set_if_undefined(USE_OCCLUSION_QUERY      ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
 cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
 cc_set_if_undefined(USE_WEBP                 ON)
+cc_set_if_undefined(NET_MODE                  0) # 0 is client
+cc_set_if_undefined(USE_REMOTE_LOG           OFF)
+
 
 add_definitions()
 
@@ -59,9 +63,20 @@ set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
 
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
+    set(CC_USE_METAL OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
     add_definitions(-DCC_SERVER_MODE)
+endif()
+
+
+add_definitions(-DCC_NETMODE_CLIENT=0)
+add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
+add_definitions(-DCC_NETMODE_HOST_SERVER=2)
+if(${NET_MODE} EQUAL "0" OR ${NET_MODE} EQUAL "1" OR ${NET_MODE} EQUAL "2")
+    add_definitions(-DCC_NETMODE=${NET_MODE})
+else()
+    message(FATAL_ERROR "NET_MODE only support setting to 1 2 or 3.")
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -145,6 +160,8 @@ cc_inspect_values(
     USE_CCACHE
     CCACHE_EXECUTABLE
     NODE_EXECUTABLE
+    NET_MODE
+    USE_REMOTE_LOG
 )
 
 ################################# external source code ################################
@@ -367,6 +384,12 @@ cocos_source_files(
     cocos/base/std/container/unordered_map.h
     cocos/base/std/container/unordered_set.h
     cocos/base/std/container/vector.h
+    cocos/base/std/hash/detail/float_functions.hpp
+    cocos/base/std/hash/detail/hash_float.hpp
+    cocos/base/std/hash/detail/limits.hpp
+    cocos/base/std/hash/extensions.hpp
+    cocos/base/std/hash/hash_fwd.hpp
+    cocos/base/std/hash/hash.h
 )
 
 ############ application
@@ -470,7 +493,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.cpp
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h
 )
-if(USE_SERVER_MODE)
+if(USE_SERVER_MODE AND (NOT MACOSX))
     cocos_source_files(
         cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.cpp
         cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.h
@@ -639,6 +662,10 @@ endif()
 cocos_source_files(MODULE cclog
     cocos/base/Log.cpp
     cocos/base/Log.h
+)
+
+cocos_source_files(MODULE cclog
+    cocos/base/LogRemote.cpp
 )
 
 ############ module log
@@ -1243,6 +1270,7 @@ cocos_source_files(
                  cocos/scene/DirectionalLight.h
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
+                 cocos/scene/DrawBatch2D.cpp
                  cocos/scene/Fog.h
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
@@ -1660,10 +1688,20 @@ if(USE_PHYSICS_PHYSX)
 endif()
 
 ##### 2d
-# cocos_source_files(
-#     cocos/2d/framework/UITransform.h
-#     cocos/2d/framework/UITransform.cpp
-# )
+cocos_source_files(
+    cocos/2d/renderer/Batcher2d.h
+    cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/UIModelProxy.h
+    cocos/2d/renderer/UIModelProxy.cpp
+    cocos/2d/renderer/RenderDrawInfo.h
+    cocos/2d/renderer/RenderDrawInfo.cpp
+    cocos/2d/renderer/UIMeshBuffer.h
+    cocos/2d/renderer/UIMeshBuffer.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
+    cocos/2d/renderer/StencilManager.h
+    cocos/2d/renderer/StencilManager.cpp
+)
 
 ##### 3d
 cocos_source_files(
@@ -1960,6 +1998,13 @@ cocos_source_files(MODULE ccgeometry
 )
 
 ##### script bindings
+
+######## utils
+cocos_source_files(
+    cocos/bindings/utils/BindingUtils.cpp
+    cocos/bindings/utils/BindingUtils.h
+)
+
 ######## dop
 cocos_source_files(
                 NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
@@ -1991,6 +2036,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_geometry_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
                             cocos/bindings/auto/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
+                            cocos/bindings/auto/jsb_2d_auto.h
 )
 
 if(USE_AUDIO)
@@ -2469,8 +2516,8 @@ if(USE_SE_SM)
 endif()
 
 cocos_source_files(MODULE ccbindings
-                 cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
+                 cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/HandleObject.cpp
                  cocos/bindings/jswrapper/HandleObject.h
                  cocos/bindings/jswrapper/MappingUtils.cpp
@@ -2850,10 +2897,12 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,CC_USE_JOB_SYSTEM_TBB=1,CC_USE_JOB_SYSTEM_TBB=0>
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
+        $<IF:$<BOOL:${USE_OCCLUSION_QUERY}>,CC_USE_OCCLUSION_QUERY=1,CC_USE_OCCLUSION_QUERY=0>
         $<IF:$<BOOL:${USE_DEBUG_RENDERER}>,CC_USE_DEBUG_RENDERER=1,CC_USE_DEBUG_RENDERER=0>
         $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
         $<IF:$<BOOL:${USE_WEBP}>,CC_USE_WEBP=1,CC_USE_WEBP=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
+        $<$<BOOL:${USE_REMOTE_LOG}>:CC_REMOTE_LOG=1>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
     )
@@ -2873,6 +2922,13 @@ endif()
 
 
 if(MSVC)
+    set(V8_DIR
+        ${CWD}/external/win64/libs/v8
+    )
+    file(GLOB V8_DLLS
+        ${CWD}/external/win64/libs/v8/Release/*.dll
+    )
+    
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll

@@ -243,7 +243,13 @@ module.exports = {
     label: {
         string: 'Text of the Label',
         horizontal_align: 'Horizontal alignment',
+        horizontal_align_left: 'Align Left',
+        horizontal_align_center: 'Align Horizontal Center',
+        horizontal_align_right: 'Align Right',
         vertical_align: 'Vertical alignment',
+        vertical_align_top: 'Align Top',
+        vertical_align_center: 'Align Vertical Center',
+        vertical_align_bottom: 'Align Bottom',
         font_size: 'Font size, in points',
         font_family: 'Font family name',
         line_height: 'Line height, in points',
@@ -611,7 +617,6 @@ module.exports = {
         dstBlendFactor: 'Specify the destination Blend Factor',
         playOnLoad: 'If set to true, the particle system will automatically start playing on load',
         autoRemoveOnFinish: 'Indicate whether the owner node will be auto-removed when it has no particles left',
-        duration: 'How many seconds the emitter wil run. -1 means forever',
         emissionRate: 'Emission rate of the particles',
         life: 'Life and variation of each particle setter',
         totalParticles: 'Maximum particles of the system',
@@ -873,6 +878,10 @@ module.exports = {
         profiler: {
             label: "Running Stats",
             description: "Include various components and tools used to audit and display rendering stats.",
+        },
+        occlusion_query: {
+            label: "Occlusion Query",
+            description: "Hardware based occlusion query.",
         },
         geometry_renderer: {
             label: "Geometry Renderer",

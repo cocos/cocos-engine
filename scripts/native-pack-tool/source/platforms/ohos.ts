@@ -55,7 +55,7 @@ export class OHOSPackTool extends NativePackTool {
         
         // gradle.properties
         await cchelper.replaceInFile([
-            { reg: '^RES_ps.*', text: `RES_PATH=${cchelper.fixPath(this.paths.buildDir)}` },
+            { reg: '^RES_PATH.*', text: `RES_PATH=${cchelper.fixPath(this.paths.buildDir)}` },
             { reg: '^ENGINE_ROOT.*', text: `ENGINE_ROOT=${cchelper.fixPath(cocosXRoot)}` },
             { reg: '^COMMON_DIR.*', text: `COMMON_DIR=${cchelper.fixPath(process.env.COMMON_DIR || '')}` },
         ], ps.join(ohosProjDir, 'gradle.properties'));
@@ -152,13 +152,11 @@ export class OHOSPackTool extends NativePackTool {
         const hapFile = this.selectHap(projectDir, outputMode);
 
         if (!fs.existsSync(hapFile)) {
-            console.error(`File ${hapFile} does not exist!`);
-            return false;
+            throw new Error(`[ohos run] File ${hapFile} does not exist!`);
         }
         const hdc = this.hdcPath;
         if (!hdc) {
-            console.error(`Failed to locate hdc`);
-            return false;
+            throw new Error(`[ohos run] Failed to locate hdc!`);
         }
 
         const tmpdir = `/sdcard/${this.randString(32)}`;

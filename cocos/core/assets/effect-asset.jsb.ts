@@ -25,10 +25,6 @@
 
 import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
-import {
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import './asset';
 
 export type EffectAsset = jsb.EffectAsset;

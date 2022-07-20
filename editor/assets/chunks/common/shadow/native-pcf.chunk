@@ -1,6 +1,3 @@
-#pragma define SHADOWMAP_FORMAT_RGBA8 1
-#pragma define SHADOWMAP_FORMAT_FLOAT 0
-
 // NDC shadowPos applied with normal bias and depth bias
 
 float NativePCFShadowFactorHard (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
@@ -194,16 +191,11 @@ float NativePCFShadowFactorSoft5X (vec3 shadowNDCPos, sampler2D shadowMap, vec2 
   vec2 v3X3 = mix(vec2(block13, block18), vec2(block14, block19), coef.xx);
   vec2 v3X4 = mix(vec2(block14, block19), vec2(block15, block20), coef.xx);
   float v3 = mix(v3X1.x, v3X1.y, coef.y) + mix(v3X2.x, v3X2.y, coef.y) + mix(v3X3.x, v3X3.y, coef.y) + mix(v3X4.x, v3X4.y, coef.y);
-  vec2 v4X1 = mix(vec2(block11, block16), vec2(block12, block17), coef.xx);
-  vec2 v4X2 = mix(vec2(block12, block17), vec2(block13, block18), coef.xx);
-  vec2 v4X3 = mix(vec2(block13, block18), vec2(block14, block19), coef.xx);
-  vec2 v4X4 = mix(vec2(block14, block19), vec2(block15, block20), coef.xx);
+  vec2 v4X1 = mix(vec2(block16, block21), vec2(block17, block22), coef.xx);
+  vec2 v4X2 = mix(vec2(block17, block22), vec2(block18, block23), coef.xx);
+  vec2 v4X3 = mix(vec2(block18, block23), vec2(block19, block24), coef.xx);
+  vec2 v4X4 = mix(vec2(block19, block24), vec2(block20, block25), coef.xx);
   float v4 = mix(v4X1.x, v4X1.y, coef.y) + mix(v4X2.x, v4X2.y, coef.y) + mix(v4X3.x, v4X3.y, coef.y) + mix(v4X4.x, v4X4.y, coef.y);
-  vec2 v5X1 = mix(vec2(block16, block21), vec2(block17, block22), coef.xx);
-  vec2 v5X2 = mix(vec2(block17, block22), vec2(block18, block23), coef.xx);
-  vec2 v5X3 = mix(vec2(block18, block23), vec2(block19, block24), coef.xx);
-  vec2 v5X4 = mix(vec2(block19, block24), vec2(block20, block25), coef.xx);
-  float v5 = mix(v5X1.x, v5X1.y, coef.y) + mix(v5X2.x, v5X2.y, coef.y) + mix(v5X3.x, v5X3.y, coef.y) + mix(v5X4.x, v5X4.y, coef.y);
-  float fAvg = (v1 + v2 + v3 + v4 + v5) * 0.05;
+  float fAvg = (v1 + v2 + v3 + v4) * 0.0625;
   return fAvg;
 }

@@ -27,6 +27,7 @@
 
 #include "base/Ptr.h"
 #include "base/std/any.h"
+#include "bindings/utils/BindingUtils.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -46,7 +47,6 @@ namespace cc {
 
 class Scene;
 class NodeEventProcessor;
-//class NodeUiProperties;
 
 /**
  * Event types emitted by Node
@@ -70,19 +70,9 @@ public:
     using Super = BaseNode;
 
     static const uint32_t TRANSFORM_ON;
-    static const uint32_t DESTROYING;
-    static const uint32_t DEACTIVATING;
-    static const uint32_t DONT_DESTROY;
 
     static Node *instantiate(Node *cloned, bool isSyncedNode);
-    // for walk
-    static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t stackId;
-
     static void setScene(Node *);
-    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
-
-    static bool isStatic; // cjh TODO: add getter / setter
 
     /**
      * @en Finds a node by hierarchy path, the path is case-sensitive.
@@ -109,6 +99,8 @@ public:
     Node();
     explicit Node(const ccstd::string &name);
     ~Node() override;
+
+    virtual void onPostActivated(bool active) {}
 
     void setParent(Node *parent, bool isKeepWorld = false);
 
@@ -190,7 +182,7 @@ public:
     void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
@@ -236,7 +228,7 @@ public:
         }
     }
     void removeAllChildren();
-    bool isChildOf(Node *parent);
+    bool isChildOf(Node *parent) const;
 
     void setActive(bool isActive);
 
@@ -254,13 +246,13 @@ public:
         return _id;
     }
 
-    inline bool isActive() const { return _active; }
+    inline bool isActive() const { return _active != 0; }
 
-    inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
-    inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
-    inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
+    inline bool isActiveInHierarchy() const { return _activeInHierarchy != 0; }
+    inline void setActiveInHierarchy(bool v) {
+        _activeInHierarchy = (v ? 1 : 0);
+    }
 
-    virtual void onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
     inline Node *getParent() const { return _parent; }
     inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
@@ -302,6 +294,7 @@ public:
     inline void setPosition(float x, float y, float z) { setPositionInternal(x, y, z, false); }
     inline void setPositionInternal(float x, float y, bool calledFromJS) { setPositionInternal(x, y, _localPosition.z, calledFromJS); }
     void setPositionInternal(float x, float y, float z, bool calledFromJS);
+    // It is invoked after deserialization. It only sets position value, not triggers other logic.
     inline void setPositionForJS(float x, float y, float z) { _localPosition.set(x, y, z); }
     /**
      * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -479,22 +472,30 @@ public:
         return _euler.z;
     }
 
-    inline Vec3 getForward() {
+    inline Vec3 getForward() const {
         Vec3 forward{0, 0, -1};
         forward.transformQuat(_worldRotation);
         return forward;
     }
 
-    inline Vec3 getUp() {
+    inline Vec3 getUp() const {
         Vec3 up{0, 1, 0};
         up.transformQuat(_worldRotation);
         return up;
     }
 
-    inline Vec3 getRight() {
+    inline Vec3 getRight() const {
         Vec3 right{1, 0, 0};
         right.transformQuat(_worldRotation);
         return right;
+    }
+
+    inline bool isStatic() const {
+        return _isStatic != 0;
+    }
+
+    inline void setStatic(bool v) {
+        _isStatic = v ? 1 : 0;
     }
 
     /**
@@ -512,11 +513,10 @@ public:
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
     inline void setLayer(uint32_t layer) {
-        _layerArr[0] = layer;
+        _layer = layer;
         emit(NodeEventType::LAYER_CHANGED, layer);
     }
-    inline uint32_t getLayer() const { return _layerArr[0]; }
-    inline void setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
+    inline uint32_t getLayer() const { return _layer; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
 
@@ -614,35 +614,26 @@ public:
     //    void     _setChildrenSize(uint32_t size);
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
-    // For JS wrapper.
-    inline uint32_t getEventMask() const { return _eventMask; }
-    inline void setEventMask(uint32_t mask) { _eventMask = mask; }
+
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
 
     bool onPreDestroy() override;
     bool onPreDestroyBase();
 
-protected:
-    void onSetParent(Node *oldParent, bool keepWorldTransform);
-
-    virtual void updateScene();
-
-    void onHierarchyChanged(Node *);
-    void onHierarchyChangedBase(Node *oldParent);
-
-    virtual void onBatchCreated(bool dontChildPrefab);
-
-#if CC_EDITOR
-    inline void notifyEditorAttached(bool attached) {
-        emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
-    }
-#endif
-
-    static uint32_t clearFrame;
-    static uint32_t clearRound;
+    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
+    // For deserialization
+    ccstd::string _id;
+    Node *_parent{nullptr};
 
 private:
-    // increase on every frame, used to identify the frame
-    static uint32_t globalFlagChangeVersion;
+    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
+
+    virtual void onBatchCreated(bool dontChildPrefab);
+    virtual void updateScene();
+
+    void onSetParent(Node *oldParent, bool keepWorldTransform);
+    void onHierarchyChanged(Node *);
+    void onHierarchyChangedBase(Node *oldParent);
 
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
@@ -663,52 +654,54 @@ private:
              _localScale.x, _localScale.y, _localScale.z);
     }
 
-protected:
+#if CC_EDITOR
+    inline void notifyEditorAttached(bool attached) {
+        emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
+    }
+#endif
+
+    // increase on every frame, used to identify the frame
+    static uint32_t globalFlagChangeVersion;
+
+    static uint32_t clearFrame;
+    static uint32_t clearRound;
+
     Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
+    IntrusivePtr<UserData> _userData;
 
-    uint32_t _eventMask{0};
-
-    Mat4 _worldMatrix{Mat4::IDENTITY};
-
-    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
-    * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
-    */
-    uint32_t _hasChangedFlagsVersion{0};
-    uint32_t _hasChangedFlags{0};
-    uint32_t _dirtyFlag{0};
-
-    bool _eulerDirty{false};
-    //    IntrusivePtr<NodeUiProperties> _uiProps;
-    //    bool _activeInHierarchy{false};
-    // Shared memory with JS.
-    uint8_t *_activeInHierarchyArr{nullptr};
-    uint32_t *_layerArr{nullptr};
-
-public:
-    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    index_t _siblingIndex{0};
-    // For deserialization
-    ccstd::string _id;
-    Node *_parent{nullptr};
-    bool _active{true};
-
-private:
     ccstd::vector<IntrusivePtr<Node>> _children;
+    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
     // local transform
     Vec3 _localPosition{Vec3::ZERO};
-    Quaternion _localRotation{Quaternion::identity()};
     Vec3 _localScale{Vec3::ONE};
+    Quaternion _localRotation{Quaternion::identity()};
     // world transform
     Vec3 _worldPosition{Vec3::ZERO};
-    Quaternion _worldRotation{Quaternion::identity()};
     Vec3 _worldScale{Vec3::ONE};
-    //
     Vec3 _euler{0, 0, 0};
+    Quaternion _worldRotation{Quaternion::identity()};
+    Mat4 _worldMatrix{Mat4::IDENTITY};
 
-    //
+    // Shared memory with JS
+    // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
+    uint32_t _eventMask{0};                                             // Uint32: 0
+    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
+    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    index_t _siblingIndex{0};                                           // Int32: 0
+    uint8_t _activeInHierarchy{0};                                      // Uint8: 0
+    uint8_t _active{1};                                                 // Uint8: 1
+    uint8_t _isStatic{0};                                               // Uint8: 2
+    uint8_t _padding{0};                                                // Uint8: 3
 
-    IntrusivePtr<UserData> _userData;
+    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
+     * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
+     */
+    uint32_t _hasChangedFlagsVersion{0};
+    uint32_t _hasChangedFlags{0};
+
+    bool _eulerDirty{false};
+
     friend class NodeActivator;
     friend class Scene;
 
@@ -721,7 +714,7 @@ bool Node::isNode(T *obj) {
 }
 
 template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
+void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
     _eventProcessor->emit(type, std::forward<Args>(args)...);
 }
 

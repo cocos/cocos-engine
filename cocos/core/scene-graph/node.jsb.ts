@@ -220,9 +220,7 @@ const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
-
-            // this._eventMask |= TRANSFORM_ON;
-            this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
+            this._eventMask |= TRANSFORM_ON;
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_TRANSFORM_CHANGED)) {
                 this._registerOnTransformChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
@@ -272,8 +270,7 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
-                // this._eventMask &= ~TRANSFORM_ON;
-                this.setEventMask(this.getEventMask() & ~TRANSFORM_ON);
+                this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
                 break;
@@ -299,10 +296,8 @@ nodeProto.hasEventListener = function (type: string, callback?, target?: unknown
 
 nodeProto.targetOff = function (target: string | unknown) {
     // Check for event mask reset
-    const eventMask = this.getEventMask();
-    if ((eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
-        // this._eventMask &= ~TRANSFORM_ON;
-        this.setEventMask(eventMask & ~TRANSFORM_ON);
+    if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
+        this._eventMask &= ~TRANSFORM_ON;
     }
 };
 
@@ -552,25 +547,11 @@ NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
     return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
 };
 
-const oldSetPosition = nodeProto.setPosition;
-const oldSetRotation = nodeProto.setRotation;
-const oldSetRotationFromEuler = nodeProto.setRotationFromEuler;
-const oldSetScale = nodeProto.setScale;
-const oldGetWorldPosition = nodeProto.getWorldPosition;
-const oldGetWorldRotation = nodeProto.getWorldRotation;
-const oldGetWorldScale = nodeProto.getWorldScale;
-const oldEulerAngles = nodeProto.getEulerAngles;
-const oldGetWorldMatrix = nodeProto.getWorldMatrix;
-const oldGetForward = nodeProto.getForward;
-const oldGetUp = nodeProto.getUp;
-const oldGetRight = nodeProto.getRight;
-const oldSetRTS = nodeProto.setRTS;
 let _tempQuat = new Quat();
-
-nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
+nodeProto.setRTS = function setRTS (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
     if (rot) {
         let val = _tempQuat;
-        if (rot as Quat) {
+        if (rot instanceof Quat) {
             val = rot as Quat;
         } else {
             Quat.fromEuler(val, rot.x, rot.y, rot.z);
@@ -603,10 +584,10 @@ nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
     } else {
         _tempFloatArray[9] = 0;
     }
-    oldSetRTS.call(this);
+    this._setRTS();
 };
 
-nodeProto.getPosition = function (out?: Vec3): Vec3 {
+nodeProto.getPosition = function getPosition (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
     }
@@ -630,10 +611,10 @@ nodeProto.setPosition = function setPosition (val: Readonly<Vec3> | number, y?: 
         this._lpos.y = _tempFloatArray[2] = y as number;
         this._lpos.z = _tempFloatArray[3] = z as number;
     }
-    oldSetPosition.call(this);
+    this._setPosition();
 };
 
-nodeProto.getRotation = function (out?: Quat): Quat {
+nodeProto.getRotation = function getRotation (out?: Quat): Quat {
     const lrot = this._lrot;
     if (out) {
         return Quat.set(out, lrot.x, lrot.y, lrot.z, lrot.w);
@@ -641,7 +622,7 @@ nodeProto.getRotation = function (out?: Quat): Quat {
     return Quat.copy(new Quat(), lrot);
 };
 
-nodeProto.setRotation = function (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
+nodeProto.setRotation = function setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
     if (y === undefined || z === undefined || w === undefined) {
         const rot = val as Readonly<Quat>;
         this._lrot.x = _tempFloatArray[0] = rot.x;
@@ -655,10 +636,10 @@ nodeProto.setRotation = function (val: Readonly<Quat> | number, y?: number, z?: 
         this._lrot.w = _tempFloatArray[3] = w;
     }
 
-    oldSetRotation.call(this);
+    this._setRotation();
 };
 
-nodeProto.setRotationFromEuler = function (val: Vec3 | number, y?: number, zOpt?: number): void {
+nodeProto.setRotationFromEuler = function setRotationFromEuler (val: Vec3 | number, y?: number, zOpt?: number): void {
     const z = zOpt === undefined ? this._euler.z : zOpt;
 
     if (y === undefined) {
@@ -672,17 +653,17 @@ nodeProto.setRotationFromEuler = function (val: Vec3 | number, y?: number, zOpt?
         this._euler.z = _tempFloatArray[2] = z;
     }
 
-    oldSetRotationFromEuler.call(this);
+    this._setRotationFromEuler();
 };
 
-nodeProto.getScale = function (out?: Vec3): Vec3 {
+nodeProto.getScale = function getScale (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
     }
     return Vec3.copy(new Vec3(), this._lscale);
 };
 
-nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
+nodeProto.setScale = function setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
     if (y === undefined && z === undefined) {
         _tempFloatArray[0] = 3;
         const scale = val as Vec3;
@@ -699,70 +680,81 @@ nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: num
         this._lscale.y = _tempFloatArray[2] = y as number;
         this._lscale.z = _tempFloatArray[3] = z;
     }
-    oldSetScale.call(this);
+    this._setScale();
 };
 
-nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
-    const r = oldGetWorldPosition.call(this);
-    if (out) {
-        return Vec3.copy(out, r);
-    }
-    return Vec3.copy(new Vec3(), r);
+nodeProto.getWorldPosition = function getWorldPosition (out?: Vec3): Vec3 {
+    this._getWorldPosition();
+    out = out || new Vec3();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getWorldRotation = function (out?: Quat): Quat {
-    const r = oldGetWorldRotation.call(this);
-    if (out) {
-        return Quat.copy(out, r);
-    }
-    return Quat.copy(new Quat(), r);
+nodeProto.getWorldRotation = function getWorldRotation (out?: Quat): Quat {
+    this._getWorldRotation();
+    out = out || new Quat();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3]);
 };
 
-nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
-    const r = oldGetWorldScale.call(this);
-    if (out) {
-        return Vec3.copy(out, r);
-    }
-    return Vec3.copy(new Vec3(), r);
+nodeProto.getWorldScale = function getWorldScale (out?: Vec3): Vec3 {
+    this._getWorldScale();
+    out = out || new Vec3();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
 nodeProto.getWorldMatrix = function getWorldMatrix (out?: Mat4): Mat4 {
-    oldGetWorldMatrix.call(this);
-    const target = out || new Mat4();
-    fillMat4WithTempFloatArray(target);
-    return target;
+    this._getWorldMatrix();
+    out = out || new Mat4();
+    fillMat4WithTempFloatArray(out);
+    return out;
 };
 
-nodeProto.getEulerAngles = function (out?: Vec3): Vec3 {
-    const r = oldEulerAngles.call(this);
-    if (out) {
-        return Vec3.copy(out, r);
-    }
-    return Vec3.copy(new Vec3(), r);
+nodeProto.getEulerAngles = function getEulerAngles (out?: Vec3): Vec3 {
+    this._getEulerAngles();
+    out = out || new Vec3();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getForward = function (out?: Vec3): Vec3 {
-    const r = oldGetForward.call(this);
-    if (out) {
-        return Vec3.copy(out, r);
-    }
-    return Vec3.copy(new Vec3(), r);
+nodeProto.getForward = function getForward (out?: Vec3): Vec3 {
+    this._getForward();
+    out = out || new Vec3();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getUp = function (out?: Vec3): Vec3 {
-    const r = oldGetUp.call(this);
-    if (out) {
-        return Vec3.copy(out, r);
-    }
-    return Vec3.copy(new Vec3(), r);
+nodeProto.getUp = function getUp (out?: Vec3): Vec3 {
+    this._getUp();
+    out = out || new Vec3();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getRight = function (out?: Vec3): Vec3 {
-    const r = oldGetRight.call(this);
-    if (out) {
-        return Vec3.copy(out, r);
-    }
-    return Vec3.copy(new Vec3(), r);
+nodeProto.getRight = function getRight (out?: Vec3): Vec3 {
+    this._getRight();
+    out = out || new Vec3();
+    return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
+};
+
+nodeProto.inverseTransformPoint = function inverseTransformPoint (out: Vec3, p: Vec3) : Vec3 {
+    _tempFloatArray[0] = p.x;
+    _tempFloatArray[1] = p.y;
+    _tempFloatArray[2] = p.z;
+    this._inverseTransformPoint();
+    out.x = _tempFloatArray[0];
+    out.y = _tempFloatArray[1];
+    out.z = _tempFloatArray[2];
+    return out;
+};
+
+nodeProto.getWorldRT = function getWorldRT (out?: Mat4): Mat4 {
+    out = out || new Mat4();
+    this._getWorldRT();
+    fillMat4WithTempFloatArray(out);
+    return out;
+};
+
+nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
+    out = out || new Mat4();
+    this._getWorldRS();
+    fillMat4WithTempFloatArray(out);
+    return out;
 };
 
 Object.defineProperty(nodeProto, 'position', {
@@ -886,10 +878,10 @@ Object.defineProperty(nodeProto, 'activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Boolean> {
-        return this._activeInHierarchyArr[0] != 0;
+        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
     },
     set (v) {
-        this._activeInHierarchyArr[0] = (v ? 1 : 0);
+        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
     },
 });
 
@@ -897,10 +889,10 @@ Object.defineProperty(nodeProto, '_activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Boolean> {
-        return this._activeInHierarchyArr[0] != 0;
+        return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
     },
     set (v) {
-        this._activeInHierarchyArr[0] = (v ? 1 : 0);
+        this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
     },
 });
 
@@ -908,10 +900,10 @@ Object.defineProperty(nodeProto, 'layer', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._layerArr[0];
+        return this._sharedUint32Arr[1]; // Uint32, 1: layer
     },
     set (v) {
-        this._layerArr[0] = v;
+        this._sharedUint32Arr[1] = v; // Uint32, 1: layer
         if (this._uiProps && this._uiProps.uiComp) {
             this._uiProps.uiComp.setNodeDirty();
             this._uiProps.uiComp.markForUpdateRenderData();
@@ -924,10 +916,80 @@ Object.defineProperty(nodeProto, '_layer', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._layerArr[0];
+        return this._sharedUint32Arr[1]; // Uint32, 1: layer
     },
     set (v) {
-        this._layerArr[0] = v;
+        this._sharedUint32Arr[1] = v; // Uint32, 1: layer
+    },
+});
+
+Object.defineProperty(nodeProto, '_eventMask', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._sharedUint32Arr[0]; // Uint32, 0: eventMask
+    },
+    set (v) {
+        this._sharedUint32Arr[0] = v; // Uint32, 0: eventMask
+    },
+});
+
+Object.defineProperty(nodeProto, '_siblingIndex', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
+    },
+    set (v) {
+        this._sharedInt32Arr[0] = v; // Int32, 0: siblingIndex
+    },
+});
+
+nodeProto.getSiblingIndex = function getSiblingIndex() {
+    return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
+};
+
+Object.defineProperty(nodeProto, '_dirtyFlags', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._sharedUint32Arr[2]; // Uint32, 2: dirtyFlags
+    },
+    set (v) {
+        this._sharedUint32Arr[2] = v; // Uint32, 2: dirtyFlags
+    },
+});
+
+Object.defineProperty(nodeProto, '_active', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+    },
+    set (v) {
+        this._sharedUint8Arr[1] = (v ? 1 : 0); // Uint8, 1: active
+    },
+});
+
+Object.defineProperty(nodeProto, 'active', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
+    },
+    set (v) {
+        this.setActive(!!v);
+    },
+});
+
+Object.defineProperty(nodeProto, '_static', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._sharedUint8Arr[2] != 0;
+    },
+    set (v) {
+        this._sharedUint8Arr[2] = (v ? 1 : 0);
     },
 });
 
@@ -1028,7 +1090,7 @@ nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
     } else {
         _tempFloatArray[0] = 4;
     }
-    this.rotateForJS();
+    this._rotateForJS();
     const lrot = this._lrot;
     lrot.x = _tempFloatArray[0];
     lrot.y = _tempFloatArray[1];
@@ -1185,9 +1247,17 @@ nodeProto._ctor = function (name?: string) {
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
-    this._activeInHierarchyArr = new Uint8Array(jsb.createExternalArrayBuffer(1));
-    this._layerArr = new Uint32Array(jsb.createExternalArrayBuffer(4));
-    this._layerArr[0] = Layers.Enum.DEFAULT;
+
+    const sharedArrayBuffer = this._getSharedArrayBufferObject();
+    // Uint32Array with 3 elements: eventMask, layer, dirtyFlags
+    this._sharedUint32Arr = new Uint32Array(sharedArrayBuffer, 0, 3);
+    // Int32Array with 1 element: siblingIndex
+    this._sharedInt32Arr = new Int32Array(sharedArrayBuffer, 12, 1);
+    // Uint8Array with 3 elements: activeInHierarchy, active, static
+    this._sharedUint8Arr = new Uint8Array(sharedArrayBuffer, 16, 3);
+    //
+
+    this._sharedUint32Arr[1] = Layers.Enum.DEFAULT; // this._sharedUint32Arr[1] is layer
     this._scene = null;
     this._prefab = null;
     // record scene's id when set this node as persist node
@@ -1231,14 +1301,6 @@ nodeProto._ctor = function (name?: string) {
             }
         }
     }
-};
-
-const oldGetWorldRT = nodeProto.getWorldRT;
-nodeProto.getWorldRT = function (out?: Mat4) {
-    const worldRT = oldGetWorldRT.call(this);
-    const target = out || new Mat4();
-    Mat4.copy(target, worldRT);
-    return target;
 };
 
 // handle meta data, it is generated automatically

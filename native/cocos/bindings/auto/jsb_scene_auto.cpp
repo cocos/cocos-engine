@@ -18,7 +18,6 @@
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
-#include "scene/DrawBatch2D.h"
 #include "scene/RenderWindow.h"
 #include "scene/Camera.h"
 #include "scene/Define.h"
@@ -34,6 +33,7 @@
 #include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
+#include "cocos/bindings/auto/jsb_2d_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -80,10 +80,30 @@ bool js_register_scene_BaseNode(se::Object* obj) // NOLINT(readability-identifie
 se::Object* __jsb_cc_Node_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Node_class = nullptr;  // NOLINT
 
+static bool js_scene_Node__getSharedArrayBufferObject(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        se::Object* result = cobj->_getSharedArrayBufferObject();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node__getSharedArrayBufferObject)
+
 static bool js_scene_Node__setChildren(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node__setChildren : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -91,7 +111,7 @@ static bool js_scene_Node__setChildren(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<std::vector<cc::IntrusivePtr<cc::Node>>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node__setChildren : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->_setChildren(std::move(arg0.value()));
         return true;
     }
@@ -103,7 +123,7 @@ SE_BIND_FUNC(js_scene_Node__setChildren)
 static bool js_scene_Node_addChild(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_addChild : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -111,7 +131,7 @@ static bool js_scene_Node_addChild(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_addChild : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->addChild(arg0.value());
         return true;
     }
@@ -123,7 +143,7 @@ SE_BIND_FUNC(js_scene_Node_addChild)
 static bool js_scene_Node_destroyAllChildren(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_destroyAllChildren : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -139,7 +159,7 @@ SE_BIND_FUNC(js_scene_Node_destroyAllChildren)
 static bool js_scene_Node_getAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getAngle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -147,7 +167,7 @@ static bool js_scene_Node_getAngle(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         float result = cobj->getAngle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getAngle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -159,7 +179,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_getAngle)
 static bool js_scene_Node_getChangedFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getChangedFlags : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -167,7 +187,7 @@ static bool js_scene_Node_getChangedFlags(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         unsigned int result = cobj->getChangedFlags();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChangedFlags : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -179,7 +199,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_getChangedFlags)
 static bool js_scene_Node_getChildByName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getChildByName : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -187,10 +207,10 @@ static bool js_scene_Node_getChildByName(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChildByName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::Node* result = cobj->getChildByName(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChildByName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -202,7 +222,7 @@ SE_BIND_FUNC(js_scene_Node_getChildByName)
 static bool js_scene_Node_getChildByPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getChildByPath : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -210,10 +230,10 @@ static bool js_scene_Node_getChildByPath(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChildByPath : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::Node* result = cobj->getChildByPath(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChildByPath : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -225,7 +245,7 @@ SE_BIND_FUNC(js_scene_Node_getChildByPath)
 static bool js_scene_Node_getChildByUuid(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getChildByUuid : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -233,10 +253,10 @@ static bool js_scene_Node_getChildByUuid(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChildByUuid : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::Node* result = cobj->getChildByUuid(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getChildByUuid : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -248,7 +268,7 @@ SE_BIND_FUNC(js_scene_Node_getChildByUuid)
 static bool js_scene_Node_getDirtyFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getDirtyFlag : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -256,39 +276,19 @@ static bool js_scene_Node_getDirtyFlag(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         unsigned int result = cobj->getDirtyFlag();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getDirtyFlag : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_getDirtyFlag)
-
-static bool js_scene_Node_getEventMask(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getEventMask : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getEventMask();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getEventMask : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getEventMask)
+SE_BIND_FUNC(js_scene_Node_getDirtyFlag)
 
 static bool js_scene_Node_getLayer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getLayer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -296,7 +296,7 @@ static bool js_scene_Node_getLayer(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         unsigned int result = cobj->getLayer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getLayer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -308,7 +308,7 @@ SE_BIND_FUNC(js_scene_Node_getLayer)
 static bool js_scene_Node_getParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getParent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -316,7 +316,7 @@ static bool js_scene_Node_getParent(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         cc::Node* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getParent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -328,7 +328,7 @@ SE_BIND_FUNC(js_scene_Node_getParent)
 static bool js_scene_Node_getScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -336,7 +336,7 @@ static bool js_scene_Node_getScene(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         cc::Scene* result = cobj->getScene();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -348,7 +348,7 @@ SE_BIND_FUNC(js_scene_Node_getScene)
 static bool js_scene_Node_getSiblingIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getSiblingIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -356,7 +356,7 @@ static bool js_scene_Node_getSiblingIndex(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         int result = cobj->getSiblingIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getSiblingIndex : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -368,7 +368,7 @@ SE_BIND_FUNC(js_scene_Node_getSiblingIndex)
 static bool js_scene_Node_getUuid(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_getUuid : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -376,7 +376,7 @@ static bool js_scene_Node_getUuid(se::State& s) // NOLINT(readability-identifier
     if (argc == 0) {
         const std::string& result = cobj->getUuid();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getUuid : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -388,7 +388,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_getUuid)
 static bool js_scene_Node_insertChild(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_insertChild : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -398,7 +398,7 @@ static bool js_scene_Node_insertChild(se::State& s) // NOLINT(readability-identi
         HolderType<int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_insertChild : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->insertChild(arg0.value(), arg1.value());
         return true;
     }
@@ -410,7 +410,7 @@ SE_BIND_FUNC(js_scene_Node_insertChild)
 static bool js_scene_Node_invalidateChildren(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_invalidateChildren : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -418,7 +418,7 @@ static bool js_scene_Node_invalidateChildren(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::TransformBit, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_invalidateChildren : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->invalidateChildren(arg0.value());
         return true;
     }
@@ -427,33 +427,10 @@ static bool js_scene_Node_invalidateChildren(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_Node_invalidateChildren)
 
-static bool js_scene_Node_inverseTransformPoint(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_inverseTransformPoint : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Vec3, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_inverseTransformPoint : Error processing arguments");
-        cc::Vec3 result = cobj->inverseTransformPoint(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_inverseTransformPoint : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_inverseTransformPoint)
-
 static bool js_scene_Node_isActive(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_isActive : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -461,19 +438,19 @@ static bool js_scene_Node_isActive(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_isActive : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_isActive)
+SE_BIND_FUNC(js_scene_Node_isActive)
 
 static bool js_scene_Node_isChildOf(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_isChildOf : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -481,10 +458,10 @@ static bool js_scene_Node_isChildOf(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_isChildOf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->isChildOf(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_isChildOf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -496,7 +473,7 @@ SE_BIND_FUNC(js_scene_Node_isChildOf)
 static bool js_scene_Node_isPersistNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_isPersistNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -504,7 +481,7 @@ static bool js_scene_Node_isPersistNode(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         bool result = cobj->isPersistNode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_isPersistNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -513,10 +490,30 @@ static bool js_scene_Node_isPersistNode(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Node_isPersistNode)
 
+static bool js_scene_Node_isStatic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isStatic();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_isStatic)
+
 static bool js_scene_Node_lookAt(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_lookAt : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -524,7 +521,7 @@ static bool js_scene_Node_lookAt(se::State& s) // NOLINT(readability-identifier-
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_lookAt : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->lookAt(arg0.value());
         return true;
     }
@@ -533,7 +530,7 @@ static bool js_scene_Node_lookAt(se::State& s) // NOLINT(readability-identifier-
         HolderType<cc::Vec3, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_lookAt : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->lookAt(arg0.value(), arg1.value());
         return true;
     }
@@ -546,7 +543,7 @@ static bool js_scene_Node_off(se::State& s) // NOLINT(readability-identifier-nam
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_off : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -642,7 +639,7 @@ SE_BIND_FUNC(js_scene_Node_off)
 static bool js_scene_Node_onPostActivated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_onPostActivated : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -650,7 +647,7 @@ static bool js_scene_Node_onPostActivated(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_onPostActivated : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->onPostActivated(arg0.value());
         return true;
     }
@@ -662,7 +659,7 @@ SE_BIND_FUNC(js_scene_Node_onPostActivated)
 static bool js_scene_Node_onPreDestroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_onPreDestroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -670,7 +667,7 @@ static bool js_scene_Node_onPreDestroy(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         bool result = cobj->onPreDestroy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_onPreDestroy : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -682,7 +679,7 @@ SE_BIND_FUNC(js_scene_Node_onPreDestroy)
 static bool js_scene_Node_onPreDestroyBase(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_onPreDestroyBase : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -690,7 +687,7 @@ static bool js_scene_Node_onPreDestroyBase(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         bool result = cobj->onPreDestroyBase();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_onPreDestroyBase : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -702,7 +699,7 @@ SE_BIND_FUNC(js_scene_Node_onPreDestroyBase)
 static bool js_scene_Node_pauseSystemEvents(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_pauseSystemEvents : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -710,7 +707,7 @@ static bool js_scene_Node_pauseSystemEvents(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_pauseSystemEvents : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->pauseSystemEvents(arg0.value());
         return true;
     }
@@ -722,7 +719,7 @@ SE_BIND_FUNC(js_scene_Node_pauseSystemEvents)
 static bool js_scene_Node_removeAllChildren(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_removeAllChildren : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -738,7 +735,7 @@ SE_BIND_FUNC(js_scene_Node_removeAllChildren)
 static bool js_scene_Node_removeChild(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_removeChild : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -746,7 +743,7 @@ static bool js_scene_Node_removeChild(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_removeChild : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->removeChild(arg0.value());
         return true;
     }
@@ -758,7 +755,7 @@ SE_BIND_FUNC(js_scene_Node_removeChild)
 static bool js_scene_Node_removeFromParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_removeFromParent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -774,7 +771,7 @@ SE_BIND_FUNC(js_scene_Node_removeFromParent)
 static bool js_scene_Node_resumeSystemEvents(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_resumeSystemEvents : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -782,7 +779,7 @@ static bool js_scene_Node_resumeSystemEvents(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_resumeSystemEvents : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->resumeSystemEvents(arg0.value());
         return true;
     }
@@ -794,7 +791,7 @@ SE_BIND_FUNC(js_scene_Node_resumeSystemEvents)
 static bool js_scene_Node_setActive(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setActive : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -802,19 +799,19 @@ static bool js_scene_Node_setActive(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setActive : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setActive(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_SET(js_scene_Node_setActive)
+SE_BIND_FUNC(js_scene_Node_setActive)
 
 static bool js_scene_Node_setAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setAngle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -822,7 +819,7 @@ static bool js_scene_Node_setAngle(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setAngle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAngle(arg0.value());
         return true;
     }
@@ -834,7 +831,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Node_setAngle)
 static bool js_scene_Node_setChangedFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setChangedFlags : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -842,7 +839,7 @@ static bool js_scene_Node_setChangedFlags(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setChangedFlags : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setChangedFlags(arg0.value());
         return true;
     }
@@ -854,7 +851,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Node_setChangedFlags)
 static bool js_scene_Node_setDirtyFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setDirtyFlag : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -862,19 +859,19 @@ static bool js_scene_Node_setDirtyFlag(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setDirtyFlag : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDirtyFlag(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_SET(js_scene_Node_setDirtyFlag)
+SE_BIND_FUNC(js_scene_Node_setDirtyFlag)
 
 static bool js_scene_Node_setEulerAngles(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setEulerAngles : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -882,7 +879,7 @@ static bool js_scene_Node_setEulerAngles(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setEulerAngles : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEulerAngles(arg0.value());
         return true;
     }
@@ -891,30 +888,10 @@ static bool js_scene_Node_setEulerAngles(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_Node_setEulerAngles)
 
-static bool js_scene_Node_setEventMask(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setEventMask : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setEventMask : Error processing arguments");
-        cobj->setEventMask(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_setEventMask)
-
 static bool js_scene_Node_setForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setForward : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -922,7 +899,7 @@ static bool js_scene_Node_setForward(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setForward : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setForward(arg0.value());
         return true;
     }
@@ -934,7 +911,7 @@ SE_BIND_FUNC(js_scene_Node_setForward)
 static bool js_scene_Node_setLayer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setLayer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -942,7 +919,7 @@ static bool js_scene_Node_setLayer(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setLayer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLayer(arg0.value());
         return true;
     }
@@ -954,7 +931,7 @@ SE_BIND_FUNC(js_scene_Node_setLayer)
 static bool js_scene_Node_setMatrix(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setMatrix : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -962,7 +939,7 @@ static bool js_scene_Node_setMatrix(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::Mat4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setMatrix : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMatrix(arg0.value());
         return true;
     }
@@ -974,7 +951,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Node_setMatrix)
 static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setParent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -982,7 +959,7 @@ static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setParent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setParent(arg0.value());
         return true;
     }
@@ -991,7 +968,7 @@ static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifi
         HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setParent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setParent(arg0.value(), arg1.value());
         return true;
     }
@@ -1003,7 +980,7 @@ SE_BIND_FUNC(js_scene_Node_setParent)
 static bool js_scene_Node_setPersistNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setPersistNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1011,7 +988,7 @@ static bool js_scene_Node_setPersistNode(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setPersistNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPersistNode(arg0.value());
         return true;
     }
@@ -1023,7 +1000,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Node_setPersistNode)
 static bool js_scene_Node_setPositionForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setPositionForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1035,7 +1012,7 @@ static bool js_scene_Node_setPositionForJS(se::State& s) // NOLINT(readability-i
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setPositionForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPositionForJS(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -1048,7 +1025,7 @@ static bool js_scene_Node_setPositionInternal(se::State& s) // NOLINT(readabilit
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_setPositionInternal : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1095,7 +1072,7 @@ SE_BIND_FUNC(js_scene_Node_setPositionInternal)
 static bool js_scene_Node_setRTSInternal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setRTSInternal : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1109,7 +1086,7 @@ static bool js_scene_Node_setRTSInternal(se::State& s) // NOLINT(readability-ide
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setRTSInternal : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRTSInternal(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
@@ -1121,7 +1098,7 @@ SE_BIND_FUNC(js_scene_Node_setRTSInternal)
 static bool js_scene_Node_setRotationForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setRotationForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1135,7 +1112,7 @@ static bool js_scene_Node_setRotationForJS(se::State& s) // NOLINT(readability-i
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setRotationForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRotationForJS(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
@@ -1147,7 +1124,7 @@ SE_BIND_FUNC(js_scene_Node_setRotationForJS)
 static bool js_scene_Node_setRotationFromEulerForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setRotationFromEulerForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1159,7 +1136,7 @@ static bool js_scene_Node_setRotationFromEulerForJS(se::State& s) // NOLINT(read
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setRotationFromEulerForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRotationFromEulerForJS(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -1171,7 +1148,7 @@ SE_BIND_FUNC(js_scene_Node_setRotationFromEulerForJS)
 static bool js_scene_Node_setRotationInternal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setRotationInternal : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1187,7 +1164,7 @@ static bool js_scene_Node_setRotationInternal(se::State& s) // NOLINT(readabilit
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setRotationInternal : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRotationInternal(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
         return true;
     }
@@ -1199,7 +1176,7 @@ SE_BIND_FUNC(js_scene_Node_setRotationInternal)
 static bool js_scene_Node_setScaleForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setScaleForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1211,7 +1188,7 @@ static bool js_scene_Node_setScaleForJS(se::State& s) // NOLINT(readability-iden
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setScaleForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setScaleForJS(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -1224,7 +1201,7 @@ static bool js_scene_Node_setScaleInternal(se::State& s) // NOLINT(readability-i
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_setScaleInternal : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1271,7 +1248,7 @@ SE_BIND_FUNC(js_scene_Node_setScaleInternal)
 static bool js_scene_Node_setSiblingIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setSiblingIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1279,7 +1256,7 @@ static bool js_scene_Node_setSiblingIndex(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setSiblingIndex : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSiblingIndex(arg0.value());
         return true;
     }
@@ -1288,11 +1265,31 @@ static bool js_scene_Node_setSiblingIndex(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Node_setSiblingIndex)
 
+static bool js_scene_Node_setStatic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setStatic(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_setStatic)
+
 static bool js_scene_Node_setWorldPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_setWorldPosition : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1333,7 +1330,7 @@ static bool js_scene_Node_setWorldRotation(se::State& s) // NOLINT(readability-i
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_setWorldRotation : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1376,7 +1373,7 @@ SE_BIND_FUNC(js_scene_Node_setWorldRotation)
 static bool js_scene_Node_setWorldRotationFromEuler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_setWorldRotationFromEuler : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1388,7 +1385,7 @@ static bool js_scene_Node_setWorldRotationFromEuler(se::State& s) // NOLINT(read
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setWorldRotationFromEuler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setWorldRotationFromEuler(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -1401,7 +1398,7 @@ static bool js_scene_Node_setWorldScale(se::State& s) // NOLINT(readability-iden
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_setWorldScale : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1441,7 +1438,7 @@ SE_BIND_FUNC(js_scene_Node_setWorldScale)
 static bool js_scene_Node_targetOff(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_targetOff : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1449,7 +1446,7 @@ static bool js_scene_Node_targetOff(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<unsigned int, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_targetOff : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->targetOff(arg0.value());
         return true;
     }
@@ -1461,7 +1458,7 @@ SE_BIND_FUNC(js_scene_Node_targetOff)
 static bool js_scene_Node_translate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_translate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1469,7 +1466,7 @@ static bool js_scene_Node_translate(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_translate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->translate(arg0.value());
         return true;
     }
@@ -1478,7 +1475,7 @@ static bool js_scene_Node_translate(se::State& s) // NOLINT(readability-identifi
         HolderType<cc::NodeSpace, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_translate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->translate(arg0.value(), arg1.value());
         return true;
     }
@@ -1490,7 +1487,7 @@ SE_BIND_FUNC(js_scene_Node_translate)
 static bool js_scene_Node_updateSiblingIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_updateSiblingIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1506,7 +1503,7 @@ SE_BIND_FUNC(js_scene_Node_updateSiblingIndex)
 static bool js_scene_Node_updateWorldTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_updateWorldTransform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1523,7 +1520,7 @@ static bool js_scene_Node_walk(se::State& s) // NOLINT(readability-identifier-na
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Node_walk : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1657,28 +1654,6 @@ static bool js_scene_Node_clearNodeArray_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_scene_Node_clearNodeArray_static)
 
-static bool js_scene_Node_getIdxOfChild_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<std::vector<cc::IntrusivePtr<cc::Node>>, true> arg0 = {};
-        HolderType<cc::Node*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getIdxOfChild_static : Error processing arguments");
-        int result = cc::Node::getIdxOfChild(arg0.value(), arg1.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_getIdxOfChild_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_getIdxOfChild_static)
-
 static bool js_scene_Node_instantiate_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -1689,10 +1664,10 @@ static bool js_scene_Node_instantiate_static(se::State& s) // NOLINT(readability
         HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_instantiate_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::Node* result = cc::Node::instantiate(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_instantiate_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -1722,7 +1697,7 @@ static bool js_scene_Node_setScene_static(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setScene_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::Node::setScene(arg0.value());
         return true;
     }
@@ -1731,38 +1706,10 @@ static bool js_scene_Node_setScene_static(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Node_setScene_static)
 
-static bool js_scene_Node_get__siblingIndex(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_get__siblingIndex : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_siblingIndex, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_siblingIndex, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_Node_get__siblingIndex)
-
-static bool js_scene_Node_set__siblingIndex(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_set__siblingIndex : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_siblingIndex, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Node_set__siblingIndex : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_Node_set__siblingIndex)
-
 static bool js_scene_Node_get__id(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_get__id : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -1778,11 +1725,11 @@ static bool js_scene_Node_set__id(se::State& s) // NOLINT(readability-identifier
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_set__id : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_id, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Node_set__id : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_Node_set__id)
@@ -1790,7 +1737,7 @@ SE_BIND_PROP_SET(js_scene_Node_set__id)
 static bool js_scene_Node_get__parent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_get__parent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -1806,42 +1753,14 @@ static bool js_scene_Node_set__parent(se::State& s) // NOLINT(readability-identi
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_set__parent : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_parent, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Node_set__parent : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_Node_set__parent)
-
-static bool js_scene_Node_get__active(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Node_get__active : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_active, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_active, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_Node_get__active)
-
-static bool js_scene_Node_set__active(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_set__active : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_active, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Node_set__active : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_Node_set__active)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_Node_finalize)
 
@@ -1885,32 +1804,30 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("_siblingIndex", _SE(js_scene_Node_get__siblingIndex), _SE(js_scene_Node_set__siblingIndex));
     cls->defineProperty("_id", _SE(js_scene_Node_get__id), _SE(js_scene_Node_set__id));
     cls->defineProperty("_parentInternal", _SE(js_scene_Node_get__parent), _SE(js_scene_Node_set__parent));
-    cls->defineProperty("_active", _SE(js_scene_Node_get__active), _SE(js_scene_Node_set__active));
     cls->defineProperty("uuid", _SE(js_scene_Node_getUuid_asGetter), nullptr);
     cls->defineProperty("angle", _SE(js_scene_Node_getAngle_asGetter), _SE(js_scene_Node_setAngle_asSetter));
     cls->defineProperty("matrix", nullptr, _SE(js_scene_Node_setMatrix_asSetter));
     cls->defineProperty("hasChangedFlags", _SE(js_scene_Node_getChangedFlags_asGetter), _SE(js_scene_Node_setChangedFlags_asSetter));
-    cls->defineProperty("active", _SE(js_scene_Node_isActive_asGetter), _SE(js_scene_Node_setActive_asSetter));
     cls->defineProperty("_persistNode", _SE(js_scene_Node_isPersistNode_asGetter), _SE(js_scene_Node_setPersistNode_asSetter));
-    cls->defineProperty("_dirtyFlags", _SE(js_scene_Node_getDirtyFlag_asGetter), _SE(js_scene_Node_setDirtyFlag_asSetter));
+    cls->defineFunction("_getSharedArrayBufferObject", _SE(js_scene_Node__getSharedArrayBufferObject));
     cls->defineFunction("_setChildren", _SE(js_scene_Node__setChildren));
     cls->defineFunction("addChild", _SE(js_scene_Node_addChild));
     cls->defineFunction("destroyAllChildren", _SE(js_scene_Node_destroyAllChildren));
     cls->defineFunction("getChildByName", _SE(js_scene_Node_getChildByName));
     cls->defineFunction("getChildByPath", _SE(js_scene_Node_getChildByPath));
     cls->defineFunction("getChildByUuid", _SE(js_scene_Node_getChildByUuid));
-    cls->defineFunction("getEventMask", _SE(js_scene_Node_getEventMask));
+    cls->defineFunction("getDirtyFlag", _SE(js_scene_Node_getDirtyFlag));
     cls->defineFunction("getLayer", _SE(js_scene_Node_getLayer));
     cls->defineFunction("getParent", _SE(js_scene_Node_getParent));
     cls->defineFunction("getScene", _SE(js_scene_Node_getScene));
     cls->defineFunction("getSiblingIndex", _SE(js_scene_Node_getSiblingIndex));
     cls->defineFunction("insertChild", _SE(js_scene_Node_insertChild));
     cls->defineFunction("invalidateChildren", _SE(js_scene_Node_invalidateChildren));
-    cls->defineFunction("inverseTransformPoint", _SE(js_scene_Node_inverseTransformPoint));
+    cls->defineFunction("isActive", _SE(js_scene_Node_isActive));
     cls->defineFunction("isChildOf", _SE(js_scene_Node_isChildOf));
+    cls->defineFunction("isStatic", _SE(js_scene_Node_isStatic));
     cls->defineFunction("lookAt", _SE(js_scene_Node_lookAt));
     cls->defineFunction("off", _SE(js_scene_Node_off));
     cls->defineFunction("onPostActivated", _SE(js_scene_Node_onPostActivated));
@@ -1921,8 +1838,9 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("removeChild", _SE(js_scene_Node_removeChild));
     cls->defineFunction("removeFromParent", _SE(js_scene_Node_removeFromParent));
     cls->defineFunction("resumeSystemEvents", _SE(js_scene_Node_resumeSystemEvents));
+    cls->defineFunction("setActive", _SE(js_scene_Node_setActive));
+    cls->defineFunction("setDirtyFlag", _SE(js_scene_Node_setDirtyFlag));
     cls->defineFunction("setEulerAngles", _SE(js_scene_Node_setEulerAngles));
-    cls->defineFunction("setEventMask", _SE(js_scene_Node_setEventMask));
     cls->defineFunction("setForward", _SE(js_scene_Node_setForward));
     cls->defineFunction("setLayer", _SE(js_scene_Node_setLayer));
     cls->defineFunction("setParent", _SE(js_scene_Node_setParent));
@@ -1935,6 +1853,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("setScaleForJS", _SE(js_scene_Node_setScaleForJS));
     cls->defineFunction("setScaleInternal", _SE(js_scene_Node_setScaleInternal));
     cls->defineFunction("setSiblingIndex", _SE(js_scene_Node_setSiblingIndex));
+    cls->defineFunction("setStatic", _SE(js_scene_Node_setStatic));
     cls->defineFunction("setWorldPosition", _SE(js_scene_Node_setWorldPosition));
     cls->defineFunction("setWorldRotation", _SE(js_scene_Node_setWorldRotation));
     cls->defineFunction("setWorldRotationFromEuler", _SE(js_scene_Node_setWorldRotationFromEuler));
@@ -1945,7 +1864,6 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("updateWorldTransform", _SE(js_scene_Node_updateWorldTransform));
     cls->defineFunction("walk", _SE(js_scene_Node_walk));
     cls->defineStaticFunction("clearNodeArray", _SE(js_scene_Node_clearNodeArray_static));
-    cls->defineStaticFunction("getIdxOfChild", _SE(js_scene_Node_getIdxOfChild_static));
     cls->defineStaticFunction("instantiate", _SE(js_scene_Node_instantiate_static));
     cls->defineStaticFunction("resetHasChangedFlags", _SE(js_scene_Node_resetChangedFlags_static));
     cls->defineStaticFunction("setScene", _SE(js_scene_Node_setScene_static));
@@ -1966,7 +1884,7 @@ se::Class* __jsb_cc_Scene_class = nullptr;  // NOLINT
 static bool js_scene_Scene_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1978,7 +1896,7 @@ static bool js_scene_Scene_activate(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_activate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->activate(arg0.value());
         return true;
     }
@@ -1990,7 +1908,7 @@ SE_BIND_FUNC(js_scene_Scene_activate)
 static bool js_scene_Scene_getRenderScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_getRenderScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1998,7 +1916,7 @@ static bool js_scene_Scene_getRenderScene(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::scene::RenderScene* result = cobj->getRenderScene();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_getRenderScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2010,7 +1928,7 @@ SE_BIND_FUNC(js_scene_Scene_getRenderScene)
 static bool js_scene_Scene_getSceneGlobals(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_getSceneGlobals : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2018,7 +1936,7 @@ static bool js_scene_Scene_getSceneGlobals(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         cc::SceneGlobals* result = cobj->getSceneGlobals();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_getSceneGlobals : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2030,7 +1948,7 @@ SE_BIND_FUNC(js_scene_Scene_getSceneGlobals)
 static bool js_scene_Scene_isAutoReleaseAssets(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_isAutoReleaseAssets : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2038,7 +1956,7 @@ static bool js_scene_Scene_isAutoReleaseAssets(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         bool result = cobj->isAutoReleaseAssets();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_isAutoReleaseAssets : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2050,7 +1968,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Scene_isAutoReleaseAssets)
 static bool js_scene_Scene_load(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_load : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2066,7 +1984,7 @@ SE_BIND_FUNC(js_scene_Scene_load)
 static bool js_scene_Scene_onBatchCreated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_onBatchCreated : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2074,7 +1992,7 @@ static bool js_scene_Scene_onBatchCreated(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_onBatchCreated : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->onBatchCreated(arg0.value());
         return true;
     }
@@ -2086,7 +2004,7 @@ SE_BIND_FUNC(js_scene_Scene_onBatchCreated)
 static bool js_scene_Scene_setAutoReleaseAssets(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_setAutoReleaseAssets : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2094,7 +2012,7 @@ static bool js_scene_Scene_setAutoReleaseAssets(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_setAutoReleaseAssets : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAutoReleaseAssets(arg0.value());
         return true;
     }
@@ -2106,7 +2024,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Scene_setAutoReleaseAssets)
 static bool js_scene_Scene_setSceneGlobals(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Scene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Scene_setSceneGlobals : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2114,7 +2032,7 @@ static bool js_scene_Scene_setSceneGlobals(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<cc::SceneGlobals*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Scene_setSceneGlobals : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSceneGlobals(arg0.value());
         return true;
     }
@@ -2189,7 +2107,7 @@ se::Class* __jsb_cc_SceneGlobals_class = nullptr;  // NOLINT
 static bool js_scene_SceneGlobals_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2205,7 +2123,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_activate)
 static bool js_scene_SceneGlobals_getAmbientInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_getAmbientInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2213,7 +2131,7 @@ static bool js_scene_SceneGlobals_getAmbientInfo(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         cc::scene::AmbientInfo* result = cobj->getAmbientInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_getAmbientInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2225,7 +2143,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_getAmbientInfo)
 static bool js_scene_SceneGlobals_getFogInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_getFogInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2233,7 +2151,7 @@ static bool js_scene_SceneGlobals_getFogInfo(se::State& s) // NOLINT(readability
     if (argc == 0) {
         cc::scene::FogInfo* result = cobj->getFogInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_getFogInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2245,7 +2163,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_getFogInfo)
 static bool js_scene_SceneGlobals_getOctreeInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_getOctreeInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2253,7 +2171,7 @@ static bool js_scene_SceneGlobals_getOctreeInfo(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         cc::scene::OctreeInfo* result = cobj->getOctreeInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_getOctreeInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2265,7 +2183,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_getOctreeInfo)
 static bool js_scene_SceneGlobals_getShadowsInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_getShadowsInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2273,7 +2191,7 @@ static bool js_scene_SceneGlobals_getShadowsInfo(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         cc::scene::ShadowsInfo* result = cobj->getShadowsInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_getShadowsInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2285,7 +2203,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_getShadowsInfo)
 static bool js_scene_SceneGlobals_getSkyboxInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_getSkyboxInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2293,7 +2211,7 @@ static bool js_scene_SceneGlobals_getSkyboxInfo(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         cc::scene::SkyboxInfo* result = cobj->getSkyboxInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_getSkyboxInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2305,7 +2223,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_getSkyboxInfo)
 static bool js_scene_SceneGlobals_setAmbientInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_setAmbientInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2313,7 +2231,7 @@ static bool js_scene_SceneGlobals_setAmbientInfo(se::State& s) // NOLINT(readabi
     if (argc == 1) {
         HolderType<cc::scene::AmbientInfo*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_setAmbientInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAmbientInfo(arg0.value());
         return true;
     }
@@ -2325,7 +2243,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_setAmbientInfo)
 static bool js_scene_SceneGlobals_setFogInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_setFogInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2333,7 +2251,7 @@ static bool js_scene_SceneGlobals_setFogInfo(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::scene::FogInfo*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_setFogInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogInfo(arg0.value());
         return true;
     }
@@ -2345,7 +2263,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_setFogInfo)
 static bool js_scene_SceneGlobals_setOctreeInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_setOctreeInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2353,7 +2271,7 @@ static bool js_scene_SceneGlobals_setOctreeInfo(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::scene::OctreeInfo*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_setOctreeInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOctreeInfo(arg0.value());
         return true;
     }
@@ -2365,7 +2283,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_setOctreeInfo)
 static bool js_scene_SceneGlobals_setShadowsInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_setShadowsInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2373,7 +2291,7 @@ static bool js_scene_SceneGlobals_setShadowsInfo(se::State& s) // NOLINT(readabi
     if (argc == 1) {
         HolderType<cc::scene::ShadowsInfo*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_setShadowsInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowsInfo(arg0.value());
         return true;
     }
@@ -2385,7 +2303,7 @@ SE_BIND_FUNC(js_scene_SceneGlobals_setShadowsInfo)
 static bool js_scene_SceneGlobals_setSkyboxInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SceneGlobals>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SceneGlobals_setSkyboxInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2393,7 +2311,7 @@ static bool js_scene_SceneGlobals_setSkyboxInfo(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::scene::SkyboxInfo*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SceneGlobals_setSkyboxInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyboxInfo(arg0.value());
         return true;
     }
@@ -2453,7 +2371,7 @@ se::Class* __jsb_cc_scene_Light_class = nullptr;  // NOLINT
 static bool js_scene_Light_attachToScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_attachToScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2461,7 +2379,7 @@ static bool js_scene_Light_attachToScene(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::scene::RenderScene*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_attachToScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->attachToScene(arg0.value());
         return true;
     }
@@ -2473,7 +2391,7 @@ SE_BIND_FUNC(js_scene_Light_attachToScene)
 static bool js_scene_Light_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2489,7 +2407,7 @@ SE_BIND_FUNC(js_scene_Light_destroy)
 static bool js_scene_Light_detachFromScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_detachFromScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2505,7 +2423,7 @@ SE_BIND_FUNC(js_scene_Light_detachFromScene)
 static bool js_scene_Light_getColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2513,7 +2431,7 @@ static bool js_scene_Light_getColor(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         const cc::Vec3& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2525,7 +2443,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getColor)
 static bool js_scene_Light_getColorTemperature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getColorTemperature : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2533,7 +2451,7 @@ static bool js_scene_Light_getColorTemperature(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         float result = cobj->getColorTemperature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getColorTemperature : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2545,7 +2463,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getColorTemperature)
 static bool js_scene_Light_getColorTemperatureRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getColorTemperatureRGB : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2553,7 +2471,7 @@ static bool js_scene_Light_getColorTemperatureRGB(se::State& s) // NOLINT(readab
     if (argc == 0) {
         const cc::Vec3& result = cobj->getColorTemperatureRGB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getColorTemperatureRGB : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2565,7 +2483,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getColorTemperatureRGB)
 static bool js_scene_Light_getName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getName : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2573,7 +2491,7 @@ static bool js_scene_Light_getName(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2585,7 +2503,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getName)
 static bool js_scene_Light_getNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2593,7 +2511,7 @@ static bool js_scene_Light_getNode(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         cc::Node* result = cobj->getNode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2605,7 +2523,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getNode)
 static bool js_scene_Light_getScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2613,7 +2531,7 @@ static bool js_scene_Light_getScene(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         cc::scene::RenderScene* result = cobj->getScene();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2625,7 +2543,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getScene)
 static bool js_scene_Light_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2633,7 +2551,7 @@ static bool js_scene_Light_getType(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2645,7 +2563,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_getType)
 static bool js_scene_Light_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2661,7 +2579,7 @@ SE_BIND_FUNC(js_scene_Light_initialize)
 static bool js_scene_Light_isBaked(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_isBaked : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2669,7 +2587,7 @@ static bool js_scene_Light_isBaked(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         bool result = cobj->isBaked();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_isBaked : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2681,7 +2599,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_isBaked)
 static bool js_scene_Light_isUseColorTemperature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_isUseColorTemperature : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2689,7 +2607,7 @@ static bool js_scene_Light_isUseColorTemperature(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         bool result = cobj->isUseColorTemperature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_isUseColorTemperature : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2701,7 +2619,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Light_isUseColorTemperature)
 static bool js_scene_Light_setBaked(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setBaked : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2709,7 +2627,7 @@ static bool js_scene_Light_setBaked(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setBaked : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setBaked(arg0.value());
         return true;
     }
@@ -2721,7 +2639,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setBaked)
 static bool js_scene_Light_setColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2729,7 +2647,7 @@ static bool js_scene_Light_setColor(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setColor(arg0.value());
         return true;
     }
@@ -2741,7 +2659,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setColor)
 static bool js_scene_Light_setColorTemperature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setColorTemperature : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2749,7 +2667,7 @@ static bool js_scene_Light_setColorTemperature(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setColorTemperature : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setColorTemperature(arg0.value());
         return true;
     }
@@ -2761,7 +2679,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setColorTemperature)
 static bool js_scene_Light_setColorTemperatureRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setColorTemperatureRGB : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2769,7 +2687,7 @@ static bool js_scene_Light_setColorTemperatureRGB(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setColorTemperatureRGB : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setColorTemperatureRGB(arg0.value());
         return true;
     }
@@ -2781,7 +2699,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setColorTemperatureRGB)
 static bool js_scene_Light_setName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setName : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2789,7 +2707,7 @@ static bool js_scene_Light_setName(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setName(arg0.value());
         return true;
     }
@@ -2801,7 +2719,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setName)
 static bool js_scene_Light_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2809,7 +2727,7 @@ static bool js_scene_Light_setNode(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setNode(arg0.value());
         return true;
     }
@@ -2821,7 +2739,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setNode)
 static bool js_scene_Light_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2829,7 +2747,7 @@ static bool js_scene_Light_setType(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::scene::LightType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setType(arg0.value());
         return true;
     }
@@ -2841,7 +2759,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setType)
 static bool js_scene_Light_setUseColorTemperature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_setUseColorTemperature : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2849,7 +2767,7 @@ static bool js_scene_Light_setUseColorTemperature(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Light_setUseColorTemperature : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUseColorTemperature(arg0.value());
         return true;
     }
@@ -2861,7 +2779,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Light_setUseColorTemperature)
 static bool js_scene_Light_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Light_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2882,10 +2800,10 @@ static bool js_scene_Light_colorTemperatureToRGB_static(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_colorTemperatureToRGB_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::Vec3 result = cc::scene::Light::colorTemperatureToRGB(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_colorTemperatureToRGB_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2902,10 +2820,10 @@ static bool js_scene_Light_nt2lm_static(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_nt2lm_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         float result = cc::scene::Light::nt2lm(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Light_nt2lm_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -2970,7 +2888,7 @@ se::Class* __jsb_cc_scene_Fog_class = nullptr;  // NOLINT
 static bool js_scene_Fog_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2986,7 +2904,7 @@ SE_BIND_FUNC(js_scene_Fog_activate)
 static bool js_scene_Fog_getColorArray(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getColorArray : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2994,7 +2912,7 @@ static bool js_scene_Fog_getColorArray(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         const cc::Vec4& result = cobj->getColorArray();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getColorArray : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3006,7 +2924,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getColorArray)
 static bool js_scene_Fog_getFogAtten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogAtten : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3014,7 +2932,7 @@ static bool js_scene_Fog_getFogAtten(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         float result = cobj->getFogAtten();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogAtten : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3026,7 +2944,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogAtten)
 static bool js_scene_Fog_getFogColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3034,7 +2952,7 @@ static bool js_scene_Fog_getFogColor(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         const cc::Color& result = cobj->getFogColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3046,7 +2964,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogColor)
 static bool js_scene_Fog_getFogDensity(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogDensity : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3054,7 +2972,7 @@ static bool js_scene_Fog_getFogDensity(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         float result = cobj->getFogDensity();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogDensity : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3066,7 +2984,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogDensity)
 static bool js_scene_Fog_getFogEnd(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogEnd : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3074,7 +2992,7 @@ static bool js_scene_Fog_getFogEnd(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         float result = cobj->getFogEnd();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogEnd : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3086,7 +3004,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogEnd)
 static bool js_scene_Fog_getFogRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3094,7 +3012,7 @@ static bool js_scene_Fog_getFogRange(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         float result = cobj->getFogRange();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3106,7 +3024,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogRange)
 static bool js_scene_Fog_getFogStart(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogStart : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3114,7 +3032,7 @@ static bool js_scene_Fog_getFogStart(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         float result = cobj->getFogStart();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogStart : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3126,7 +3044,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogStart)
 static bool js_scene_Fog_getFogTop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getFogTop : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3134,7 +3052,7 @@ static bool js_scene_Fog_getFogTop(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         float result = cobj->getFogTop();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getFogTop : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3146,7 +3064,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getFogTop)
 static bool js_scene_Fog_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3154,7 +3072,7 @@ static bool js_scene_Fog_getType(se::State& s) // NOLINT(readability-identifier-
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3166,7 +3084,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_getType)
 static bool js_scene_Fog_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3174,7 +3092,7 @@ static bool js_scene_Fog_initialize(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::scene::FogInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -3186,7 +3104,7 @@ SE_BIND_FUNC(js_scene_Fog_initialize)
 static bool js_scene_Fog_isAccurate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_isAccurate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3194,7 +3112,7 @@ static bool js_scene_Fog_isAccurate(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         bool result = cobj->isAccurate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_isAccurate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3206,7 +3124,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_isAccurate)
 static bool js_scene_Fog_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3214,7 +3132,7 @@ static bool js_scene_Fog_isEnabled(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3226,7 +3144,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Fog_isEnabled)
 static bool js_scene_Fog_setAccurate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setAccurate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3234,7 +3152,7 @@ static bool js_scene_Fog_setAccurate(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setAccurate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAccurate(arg0.value());
         return true;
     }
@@ -3246,7 +3164,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setAccurate)
 static bool js_scene_Fog_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3254,7 +3172,7 @@ static bool js_scene_Fog_setEnabled(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -3266,7 +3184,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setEnabled)
 static bool js_scene_Fog_setFogAtten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogAtten : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3274,7 +3192,7 @@ static bool js_scene_Fog_setFogAtten(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogAtten : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogAtten(arg0.value());
         return true;
     }
@@ -3286,7 +3204,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogAtten)
 static bool js_scene_Fog_setFogColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3294,7 +3212,7 @@ static bool js_scene_Fog_setFogColor(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogColor(arg0.value());
         return true;
     }
@@ -3306,7 +3224,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogColor)
 static bool js_scene_Fog_setFogDensity(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogDensity : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3314,7 +3232,7 @@ static bool js_scene_Fog_setFogDensity(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogDensity : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogDensity(arg0.value());
         return true;
     }
@@ -3326,7 +3244,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogDensity)
 static bool js_scene_Fog_setFogEnd(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogEnd : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3334,7 +3252,7 @@ static bool js_scene_Fog_setFogEnd(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogEnd : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogEnd(arg0.value());
         return true;
     }
@@ -3346,7 +3264,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogEnd)
 static bool js_scene_Fog_setFogRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3354,7 +3272,7 @@ static bool js_scene_Fog_setFogRange(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogRange(arg0.value());
         return true;
     }
@@ -3366,7 +3284,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogRange)
 static bool js_scene_Fog_setFogStart(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogStart : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3374,7 +3292,7 @@ static bool js_scene_Fog_setFogStart(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogStart : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogStart(arg0.value());
         return true;
     }
@@ -3386,7 +3304,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogStart)
 static bool js_scene_Fog_setFogTop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setFogTop : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3394,7 +3312,7 @@ static bool js_scene_Fog_setFogTop(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setFogTop : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogTop(arg0.value());
         return true;
     }
@@ -3406,7 +3324,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Fog_setFogTop)
 static bool js_scene_Fog_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Fog_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3414,7 +3332,7 @@ static bool js_scene_Fog_setType(se::State& s) // NOLINT(readability-identifier-
     if (argc == 1) {
         HolderType<cc::scene::FogType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Fog_setType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setType(arg0.value());
         return true;
     }
@@ -3476,7 +3394,7 @@ se::Class* __jsb_cc_scene_FogInfo_class = nullptr;  // NOLINT
 static bool js_scene_FogInfo_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3484,7 +3402,7 @@ static bool js_scene_FogInfo_activate(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::scene::Fog*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_activate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->activate(arg0.value());
         return true;
     }
@@ -3496,7 +3414,7 @@ SE_BIND_FUNC(js_scene_FogInfo_activate)
 static bool js_scene_FogInfo_getFogAtten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogAtten : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3504,7 +3422,7 @@ static bool js_scene_FogInfo_getFogAtten(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getFogAtten();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogAtten : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3516,7 +3434,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogAtten)
 static bool js_scene_FogInfo_getFogColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3524,7 +3442,7 @@ static bool js_scene_FogInfo_getFogColor(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         const cc::Color& result = cobj->getFogColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3536,7 +3454,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogColor)
 static bool js_scene_FogInfo_getFogDensity(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogDensity : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3544,7 +3462,7 @@ static bool js_scene_FogInfo_getFogDensity(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         float result = cobj->getFogDensity();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogDensity : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3556,7 +3474,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogDensity)
 static bool js_scene_FogInfo_getFogEnd(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogEnd : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3564,7 +3482,7 @@ static bool js_scene_FogInfo_getFogEnd(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         float result = cobj->getFogEnd();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogEnd : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3576,7 +3494,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogEnd)
 static bool js_scene_FogInfo_getFogRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3584,7 +3502,7 @@ static bool js_scene_FogInfo_getFogRange(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getFogRange();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3596,7 +3514,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogRange)
 static bool js_scene_FogInfo_getFogStart(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogStart : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3604,7 +3522,7 @@ static bool js_scene_FogInfo_getFogStart(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getFogStart();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogStart : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3616,7 +3534,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogStart)
 static bool js_scene_FogInfo_getFogTop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getFogTop : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3624,7 +3542,7 @@ static bool js_scene_FogInfo_getFogTop(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         float result = cobj->getFogTop();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getFogTop : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3636,7 +3554,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getFogTop)
 static bool js_scene_FogInfo_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3644,7 +3562,7 @@ static bool js_scene_FogInfo_getType(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3656,7 +3574,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_getType)
 static bool js_scene_FogInfo_isAccurate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_isAccurate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3664,7 +3582,7 @@ static bool js_scene_FogInfo_isAccurate(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         bool result = cobj->isAccurate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_isAccurate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3676,7 +3594,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_isAccurate)
 static bool js_scene_FogInfo_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3684,7 +3602,7 @@ static bool js_scene_FogInfo_isEnabled(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -3696,7 +3614,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_isEnabled)
 static bool js_scene_FogInfo_setAccurate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setAccurate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3704,7 +3622,7 @@ static bool js_scene_FogInfo_setAccurate(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setAccurate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAccurate(arg0.value());
         return true;
     }
@@ -3716,7 +3634,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setAccurate)
 static bool js_scene_FogInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3724,7 +3642,7 @@ static bool js_scene_FogInfo_setEnabled(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -3736,7 +3654,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setEnabled)
 static bool js_scene_FogInfo_setFogAtten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogAtten : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3744,7 +3662,7 @@ static bool js_scene_FogInfo_setFogAtten(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogAtten : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogAtten(arg0.value());
         return true;
     }
@@ -3756,7 +3674,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogAtten)
 static bool js_scene_FogInfo_setFogColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3764,7 +3682,7 @@ static bool js_scene_FogInfo_setFogColor(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogColor(arg0.value());
         return true;
     }
@@ -3776,7 +3694,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogColor)
 static bool js_scene_FogInfo_setFogDensity(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogDensity : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3784,7 +3702,7 @@ static bool js_scene_FogInfo_setFogDensity(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogDensity : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogDensity(arg0.value());
         return true;
     }
@@ -3796,7 +3714,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogDensity)
 static bool js_scene_FogInfo_setFogEnd(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogEnd : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3804,7 +3722,7 @@ static bool js_scene_FogInfo_setFogEnd(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogEnd : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogEnd(arg0.value());
         return true;
     }
@@ -3816,7 +3734,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogEnd)
 static bool js_scene_FogInfo_setFogRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3824,7 +3742,7 @@ static bool js_scene_FogInfo_setFogRange(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogRange(arg0.value());
         return true;
     }
@@ -3836,7 +3754,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogRange)
 static bool js_scene_FogInfo_setFogStart(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogStart : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3844,7 +3762,7 @@ static bool js_scene_FogInfo_setFogStart(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogStart : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogStart(arg0.value());
         return true;
     }
@@ -3856,7 +3774,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogStart)
 static bool js_scene_FogInfo_setFogTop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setFogTop : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3864,7 +3782,7 @@ static bool js_scene_FogInfo_setFogTop(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setFogTop : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFogTop(arg0.value());
         return true;
     }
@@ -3876,7 +3794,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setFogTop)
 static bool js_scene_FogInfo_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -3884,7 +3802,7 @@ static bool js_scene_FogInfo_setType(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::scene::FogType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_FogInfo_setType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setType(arg0.value());
         return true;
     }
@@ -3896,7 +3814,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setType)
 static bool js_scene_FogInfo_get__type(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__type : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -3912,11 +3830,11 @@ static bool js_scene_FogInfo_set__type(se::State& s) // NOLINT(readability-ident
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__type : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_type, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__type : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__type)
@@ -3924,7 +3842,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__type)
 static bool js_scene_FogInfo_get__fogColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -3940,11 +3858,11 @@ static bool js_scene_FogInfo_set__fogColor(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogColor, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogColor : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogColor)
@@ -3952,7 +3870,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogColor)
 static bool js_scene_FogInfo_get__isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -3968,11 +3886,11 @@ static bool js_scene_FogInfo_set__isEnabled(se::State& s) // NOLINT(readability-
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__isEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_isEnabled, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__isEnabled : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__isEnabled)
@@ -3980,7 +3898,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__isEnabled)
 static bool js_scene_FogInfo_get__fogDensity(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogDensity : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -3996,11 +3914,11 @@ static bool js_scene_FogInfo_set__fogDensity(se::State& s) // NOLINT(readability
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogDensity : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogDensity, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogDensity : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogDensity)
@@ -4008,7 +3926,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogDensity)
 static bool js_scene_FogInfo_get__fogStart(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogStart : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4024,11 +3942,11 @@ static bool js_scene_FogInfo_set__fogStart(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogStart : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogStart, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogStart : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogStart)
@@ -4036,7 +3954,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogStart)
 static bool js_scene_FogInfo_get__fogEnd(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogEnd : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4052,11 +3970,11 @@ static bool js_scene_FogInfo_set__fogEnd(se::State& s) // NOLINT(readability-ide
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogEnd : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogEnd, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogEnd : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogEnd)
@@ -4064,7 +3982,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogEnd)
 static bool js_scene_FogInfo_get__fogAtten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogAtten : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4080,11 +3998,11 @@ static bool js_scene_FogInfo_set__fogAtten(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogAtten : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogAtten, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogAtten : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogAtten)
@@ -4092,7 +4010,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogAtten)
 static bool js_scene_FogInfo_get__fogTop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogTop : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4108,11 +4026,11 @@ static bool js_scene_FogInfo_set__fogTop(se::State& s) // NOLINT(readability-ide
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogTop : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogTop, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogTop : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogTop)
@@ -4120,7 +4038,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogTop)
 static bool js_scene_FogInfo_get__fogRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__fogRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4136,11 +4054,11 @@ static bool js_scene_FogInfo_set__fogRange(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__fogRange : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_fogRange, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__fogRange : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogRange)
@@ -4148,7 +4066,7 @@ SE_BIND_PROP_SET(js_scene_FogInfo_set__fogRange)
 static bool js_scene_FogInfo_get__accurate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__accurate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4164,11 +4082,11 @@ static bool js_scene_FogInfo_set__accurate(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__accurate : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_accurate, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__accurate : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__accurate)
@@ -4234,7 +4152,7 @@ se::Class* __jsb_cc_scene_IMacroPatch_class = nullptr;  // NOLINT
 static bool js_scene_IMacroPatch_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IMacroPatch>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IMacroPatch_get_name : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4250,11 +4168,11 @@ static bool js_scene_IMacroPatch_set_name(se::State& s) // NOLINT(readability-id
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IMacroPatch>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IMacroPatch_set_name : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IMacroPatch_set_name : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IMacroPatch_set_name)
@@ -4262,7 +4180,7 @@ SE_BIND_PROP_SET(js_scene_IMacroPatch_set_name)
 static bool js_scene_IMacroPatch_get_value(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IMacroPatch>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IMacroPatch_get_value : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4278,11 +4196,11 @@ static bool js_scene_IMacroPatch_set_value(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IMacroPatch>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IMacroPatch_set_value : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->value, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IMacroPatch_set_value : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IMacroPatch_set_value)
@@ -4392,7 +4310,7 @@ se::Class* __jsb_cc_scene_ShadowsInfo_class = nullptr;  // NOLINT
 static bool js_scene_ShadowsInfo_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4400,7 +4318,7 @@ static bool js_scene_ShadowsInfo_activate(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::scene::Shadows*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_activate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->activate(arg0.value());
         return true;
     }
@@ -4412,7 +4330,7 @@ SE_BIND_FUNC(js_scene_ShadowsInfo_activate)
 static bool js_scene_ShadowsInfo_getMaxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getMaxReceived : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4420,7 +4338,7 @@ static bool js_scene_ShadowsInfo_getMaxReceived(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         unsigned int result = cobj->getMaxReceived();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getMaxReceived : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4432,7 +4350,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getMaxReceived)
 static bool js_scene_ShadowsInfo_getPlaneDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getPlaneDirection : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4440,7 +4358,7 @@ static bool js_scene_ShadowsInfo_getPlaneDirection(se::State& s) // NOLINT(reada
     if (argc == 0) {
         const cc::Vec3& result = cobj->getPlaneDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getPlaneDirection : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4452,7 +4370,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getPlaneDirection)
 static bool js_scene_ShadowsInfo_getPlaneHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getPlaneHeight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4460,7 +4378,7 @@ static bool js_scene_ShadowsInfo_getPlaneHeight(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         float result = cobj->getPlaneHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getPlaneHeight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4472,7 +4390,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getPlaneHeight)
 static bool js_scene_ShadowsInfo_getShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getShadowColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4480,7 +4398,7 @@ static bool js_scene_ShadowsInfo_getShadowColor(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         const cc::Color& result = cobj->getShadowColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getShadowColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4492,7 +4410,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getShadowColor)
 static bool js_scene_ShadowsInfo_getShadowMapSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getShadowMapSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4500,7 +4418,7 @@ static bool js_scene_ShadowsInfo_getShadowMapSize(se::State& s) // NOLINT(readab
     if (argc == 0) {
         float result = cobj->getShadowMapSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getShadowMapSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4512,7 +4430,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getShadowMapSize)
 static bool js_scene_ShadowsInfo_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4520,7 +4438,7 @@ static bool js_scene_ShadowsInfo_getType(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4532,7 +4450,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getType)
 static bool js_scene_ShadowsInfo_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4540,7 +4458,7 @@ static bool js_scene_ShadowsInfo_isEnabled(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -4552,7 +4470,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_isEnabled)
 static bool js_scene_ShadowsInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4560,7 +4478,7 @@ static bool js_scene_ShadowsInfo_setEnabled(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -4572,7 +4490,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setEnabled)
 static bool js_scene_ShadowsInfo_setMaxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setMaxReceived : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4580,7 +4498,7 @@ static bool js_scene_ShadowsInfo_setMaxReceived(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setMaxReceived : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMaxReceived(arg0.value());
         return true;
     }
@@ -4592,7 +4510,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setMaxReceived)
 static bool js_scene_ShadowsInfo_setPlaneDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setPlaneDirection : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4600,7 +4518,7 @@ static bool js_scene_ShadowsInfo_setPlaneDirection(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setPlaneDirection : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPlaneDirection(arg0.value());
         return true;
     }
@@ -4612,7 +4530,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setPlaneDirection)
 static bool js_scene_ShadowsInfo_setPlaneFromNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setPlaneFromNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4620,7 +4538,7 @@ static bool js_scene_ShadowsInfo_setPlaneFromNode(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<const cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setPlaneFromNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPlaneFromNode(arg0.value());
         return true;
     }
@@ -4632,7 +4550,7 @@ SE_BIND_FUNC(js_scene_ShadowsInfo_setPlaneFromNode)
 static bool js_scene_ShadowsInfo_setPlaneHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setPlaneHeight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4640,7 +4558,7 @@ static bool js_scene_ShadowsInfo_setPlaneHeight(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setPlaneHeight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPlaneHeight(arg0.value());
         return true;
     }
@@ -4652,7 +4570,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setPlaneHeight)
 static bool js_scene_ShadowsInfo_setShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setShadowColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4660,7 +4578,7 @@ static bool js_scene_ShadowsInfo_setShadowColor(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setShadowColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowColor(arg0.value());
         return true;
     }
@@ -4672,7 +4590,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setShadowColor)
 static bool js_scene_ShadowsInfo_setShadowMapSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setShadowMapSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4680,7 +4598,7 @@ static bool js_scene_ShadowsInfo_setShadowMapSize(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setShadowMapSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowMapSize(arg0.value());
         return true;
     }
@@ -4692,7 +4610,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setShadowMapSize)
 static bool js_scene_ShadowsInfo_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4700,7 +4618,7 @@ static bool js_scene_ShadowsInfo_setType(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::scene::ShadowType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setType(arg0.value());
         return true;
     }
@@ -4712,7 +4630,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setType)
 static bool js_scene_ShadowsInfo_get__enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__enabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4728,11 +4646,11 @@ static bool js_scene_ShadowsInfo_set__enabled(se::State& s) // NOLINT(readabilit
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__enabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_enabled, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__enabled : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__enabled)
@@ -4740,7 +4658,7 @@ SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__enabled)
 static bool js_scene_ShadowsInfo_get__type(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__type : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4756,11 +4674,11 @@ static bool js_scene_ShadowsInfo_set__type(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__type : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_type, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__type : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__type)
@@ -4768,7 +4686,7 @@ SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__type)
 static bool js_scene_ShadowsInfo_get__normal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__normal : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4784,11 +4702,11 @@ static bool js_scene_ShadowsInfo_set__normal(se::State& s) // NOLINT(readability
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__normal : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_normal, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__normal : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__normal)
@@ -4796,7 +4714,7 @@ SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__normal)
 static bool js_scene_ShadowsInfo_get__distance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__distance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4812,11 +4730,11 @@ static bool js_scene_ShadowsInfo_set__distance(se::State& s) // NOLINT(readabili
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__distance : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_distance, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__distance : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__distance)
@@ -4824,7 +4742,7 @@ SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__distance)
 static bool js_scene_ShadowsInfo_get__shadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__shadowColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4840,11 +4758,11 @@ static bool js_scene_ShadowsInfo_set__shadowColor(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__shadowColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_shadowColor, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__shadowColor : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__shadowColor)
@@ -4852,7 +4770,7 @@ SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__shadowColor)
 static bool js_scene_ShadowsInfo_get__maxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__maxReceived : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4868,11 +4786,11 @@ static bool js_scene_ShadowsInfo_set__maxReceived(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__maxReceived : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_maxReceived, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__maxReceived : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__maxReceived)
@@ -4880,7 +4798,7 @@ SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__maxReceived)
 static bool js_scene_ShadowsInfo_get__size(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__size : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -4896,11 +4814,11 @@ static bool js_scene_ShadowsInfo_set__size(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__size : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_size, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__size : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__size)
@@ -4961,7 +4879,7 @@ se::Class* __jsb_cc_scene_Shadows_class = nullptr;  // NOLINT
 static bool js_scene_Shadows_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4977,7 +4895,7 @@ SE_BIND_FUNC(js_scene_Shadows_activate)
 static bool js_scene_Shadows_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -4993,7 +4911,7 @@ SE_BIND_FUNC(js_scene_Shadows_destroy)
 static bool js_scene_Shadows_getDistance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getDistance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5001,7 +4919,7 @@ static bool js_scene_Shadows_getDistance(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getDistance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getDistance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5013,7 +4931,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getDistance)
 static bool js_scene_Shadows_getInstancingMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getInstancingMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5021,7 +4939,7 @@ static bool js_scene_Shadows_getInstancingMaterial(se::State& s) // NOLINT(reada
     if (argc == 0) {
         cc::Material* result = cobj->getInstancingMaterial();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getInstancingMaterial : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5033,7 +4951,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getInstancingMaterial)
 static bool js_scene_Shadows_getMatLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getMatLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5041,7 +4959,7 @@ static bool js_scene_Shadows_getMatLight(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         const cc::Mat4& result = cobj->getMatLight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getMatLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5053,7 +4971,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getMatLight)
 static bool js_scene_Shadows_getMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5061,7 +4979,7 @@ static bool js_scene_Shadows_getMaterial(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         cc::Material* result = cobj->getMaterial();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getMaterial : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5073,7 +4991,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getMaterial)
 static bool js_scene_Shadows_getMaxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getMaxReceived : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5081,7 +4999,7 @@ static bool js_scene_Shadows_getMaxReceived(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         unsigned int result = cobj->getMaxReceived();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getMaxReceived : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5093,7 +5011,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getMaxReceived)
 static bool js_scene_Shadows_getNormal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getNormal : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5101,7 +5019,7 @@ static bool js_scene_Shadows_getNormal(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         const cc::Vec3& result = cobj->getNormal();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getNormal : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5113,7 +5031,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getNormal)
 static bool js_scene_Shadows_getPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getPlanarInstanceShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5121,10 +5039,10 @@ static bool js_scene_Shadows_getPlanarInstanceShader(se::State& s) // NOLINT(rea
     if (argc == 1) {
         HolderType<std::vector<cc::scene::IMacroPatch>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getPlanarInstanceShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::Shader* result = cobj->getPlanarInstanceShader(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getPlanarInstanceShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5136,7 +5054,7 @@ SE_BIND_FUNC(js_scene_Shadows_getPlanarInstanceShader)
 static bool js_scene_Shadows_getPlanarShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getPlanarShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5144,10 +5062,10 @@ static bool js_scene_Shadows_getPlanarShader(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<std::vector<cc::scene::IMacroPatch>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getPlanarShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::Shader* result = cobj->getPlanarShader(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getPlanarShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5159,7 +5077,7 @@ SE_BIND_FUNC(js_scene_Shadows_getPlanarShader)
 static bool js_scene_Shadows_getShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getShadowColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5167,7 +5085,7 @@ static bool js_scene_Shadows_getShadowColor(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         const cc::Color& result = cobj->getShadowColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getShadowColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5179,7 +5097,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getShadowColor)
 static bool js_scene_Shadows_getShadowColor4f(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getShadowColor4f : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5187,7 +5105,7 @@ static bool js_scene_Shadows_getShadowColor4f(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         const std::array<float, 4>& result = cobj->getShadowColor4f();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getShadowColor4f : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5199,7 +5117,7 @@ SE_BIND_FUNC(js_scene_Shadows_getShadowColor4f)
 static bool js_scene_Shadows_getShadowMapSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getShadowMapSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5207,7 +5125,7 @@ static bool js_scene_Shadows_getShadowMapSize(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         float result = cobj->getShadowMapSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getShadowMapSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5219,7 +5137,7 @@ SE_BIND_FUNC(js_scene_Shadows_getShadowMapSize)
 static bool js_scene_Shadows_getSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5227,7 +5145,7 @@ static bool js_scene_Shadows_getSize(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         const cc::Vec2& result = cobj->getSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5239,7 +5157,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getSize)
 static bool js_scene_Shadows_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5247,7 +5165,7 @@ static bool js_scene_Shadows_getType(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5259,7 +5177,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getType)
 static bool js_scene_Shadows_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5267,7 +5185,7 @@ static bool js_scene_Shadows_initialize(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::scene::ShadowsInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -5279,7 +5197,7 @@ SE_BIND_FUNC(js_scene_Shadows_initialize)
 static bool js_scene_Shadows_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5287,7 +5205,7 @@ static bool js_scene_Shadows_isEnabled(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5299,7 +5217,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_isEnabled)
 static bool js_scene_Shadows_isShadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_isShadowMapDirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5307,7 +5225,7 @@ static bool js_scene_Shadows_isShadowMapDirty(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         bool result = cobj->isShadowMapDirty();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_isShadowMapDirty : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5319,7 +5237,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_isShadowMapDirty)
 static bool js_scene_Shadows_setDistance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setDistance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5327,7 +5245,7 @@ static bool js_scene_Shadows_setDistance(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setDistance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDistance(arg0.value());
         return true;
     }
@@ -5339,7 +5257,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setDistance)
 static bool js_scene_Shadows_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5347,7 +5265,7 @@ static bool js_scene_Shadows_setEnabled(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -5359,7 +5277,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setEnabled)
 static bool js_scene_Shadows_setMaxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setMaxReceived : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5367,7 +5285,7 @@ static bool js_scene_Shadows_setMaxReceived(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setMaxReceived : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMaxReceived(arg0.value());
         return true;
     }
@@ -5379,7 +5297,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setMaxReceived)
 static bool js_scene_Shadows_setNormal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setNormal : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5387,7 +5305,7 @@ static bool js_scene_Shadows_setNormal(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setNormal : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setNormal(arg0.value());
         return true;
     }
@@ -5399,7 +5317,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setNormal)
 static bool js_scene_Shadows_setShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setShadowColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5407,7 +5325,7 @@ static bool js_scene_Shadows_setShadowColor(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<cc::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setShadowColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowColor(arg0.value());
         return true;
     }
@@ -5419,7 +5337,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setShadowColor)
 static bool js_scene_Shadows_setShadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setShadowMapDirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5427,7 +5345,7 @@ static bool js_scene_Shadows_setShadowMapDirty(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setShadowMapDirty : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowMapDirty(arg0.value());
         return true;
     }
@@ -5439,7 +5357,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setShadowMapDirty)
 static bool js_scene_Shadows_setShadowMapSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setShadowMapSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5447,7 +5365,7 @@ static bool js_scene_Shadows_setShadowMapSize(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setShadowMapSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowMapSize(arg0.value());
         return true;
     }
@@ -5459,7 +5377,7 @@ SE_BIND_FUNC(js_scene_Shadows_setShadowMapSize)
 static bool js_scene_Shadows_setSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5467,7 +5385,7 @@ static bool js_scene_Shadows_setSize(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::Vec2, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSize(arg0.value());
         return true;
     }
@@ -5479,7 +5397,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setSize)
 static bool js_scene_Shadows_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5487,7 +5405,7 @@ static bool js_scene_Shadows_setType(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::scene::ShadowType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setType(arg0.value());
         return true;
     }
@@ -5582,7 +5500,7 @@ se::Class* __jsb_cc_scene_SubModel_class = nullptr;  // NOLINT
 static bool js_scene_SubModel_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5598,7 +5516,7 @@ SE_BIND_FUNC(js_scene_SubModel_destroy)
 static bool js_scene_SubModel_getDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getDescriptorSet : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5606,7 +5524,7 @@ static bool js_scene_SubModel_getDescriptorSet(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         cc::gfx::DescriptorSet* result = cobj->getDescriptorSet();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getDescriptorSet : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5618,7 +5536,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getDescriptorSet)
 static bool js_scene_SubModel_getId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getId : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5626,7 +5544,7 @@ static bool js_scene_SubModel_getId(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         unsigned int result = cobj->getId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getId : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5638,7 +5556,7 @@ SE_BIND_FUNC(js_scene_SubModel_getId)
 static bool js_scene_SubModel_getInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getInputAssembler : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5646,7 +5564,7 @@ static bool js_scene_SubModel_getInputAssembler(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         cc::gfx::InputAssembler* result = cobj->getInputAssembler();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getInputAssembler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5658,7 +5576,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getInputAssembler)
 static bool js_scene_SubModel_getOwner(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getOwner : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5666,7 +5584,7 @@ static bool js_scene_SubModel_getOwner(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         cc::scene::Model* result = cobj->getOwner();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getOwner : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5678,7 +5596,7 @@ SE_BIND_FUNC(js_scene_SubModel_getOwner)
 static bool js_scene_SubModel_getPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPass : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5686,10 +5604,10 @@ static bool js_scene_SubModel_getPass(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPass : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::scene::Pass* result = cobj->getPass(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPass : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5701,7 +5619,7 @@ SE_BIND_FUNC(js_scene_SubModel_getPass)
 static bool js_scene_SubModel_getPasses(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPasses : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5709,7 +5627,7 @@ static bool js_scene_SubModel_getPasses(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::Pass>>& result = cobj->getPasses();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPasses : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5721,7 +5639,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getPasses)
 static bool js_scene_SubModel_getPatches(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPatches : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5729,7 +5647,7 @@ static bool js_scene_SubModel_getPatches(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         const std::vector<cc::scene::IMacroPatch>& result = cobj->getPatches();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPatches : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5741,7 +5659,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getPatches)
 static bool js_scene_SubModel_getPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPlanarInstanceShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5749,7 +5667,7 @@ static bool js_scene_SubModel_getPlanarInstanceShader(se::State& s) // NOLINT(re
     if (argc == 0) {
         cc::gfx::Shader* result = cobj->getPlanarInstanceShader();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPlanarInstanceShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5761,7 +5679,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getPlanarInstanceShader)
 static bool js_scene_SubModel_getPlanarShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPlanarShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5769,7 +5687,7 @@ static bool js_scene_SubModel_getPlanarShader(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         cc::gfx::Shader* result = cobj->getPlanarShader();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPlanarShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5781,7 +5699,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getPlanarShader)
 static bool js_scene_SubModel_getPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5789,7 +5707,7 @@ static bool js_scene_SubModel_getPriority(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getPriority());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5801,7 +5719,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getPriority)
 static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5809,10 +5727,10 @@ static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::Shader* result = cobj->getShader(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5824,7 +5742,7 @@ SE_BIND_FUNC(js_scene_SubModel_getShader)
 static bool js_scene_SubModel_getShaders(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getShaders : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5832,7 +5750,7 @@ static bool js_scene_SubModel_getShaders(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::gfx::Shader>>& result = cobj->getShaders();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getShaders : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5844,7 +5762,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getShaders)
 static bool js_scene_SubModel_getSubMesh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getSubMesh : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5852,7 +5770,7 @@ static bool js_scene_SubModel_getSubMesh(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         cc::RenderingSubMesh* result = cobj->getSubMesh();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getSubMesh : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5864,7 +5782,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SubModel_getSubMesh)
 static bool js_scene_SubModel_getWorldBoundDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getWorldBoundDescriptorSet : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5872,7 +5790,7 @@ static bool js_scene_SubModel_getWorldBoundDescriptorSet(se::State& s) // NOLINT
     if (argc == 0) {
         cc::gfx::DescriptorSet* result = cobj->getWorldBoundDescriptorSet();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getWorldBoundDescriptorSet : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -5884,7 +5802,7 @@ SE_BIND_FUNC(js_scene_SubModel_getWorldBoundDescriptorSet)
 static bool js_scene_SubModel_initPlanarShadowInstanceShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_initPlanarShadowInstanceShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5900,7 +5818,7 @@ SE_BIND_FUNC(js_scene_SubModel_initPlanarShadowInstanceShader)
 static bool js_scene_SubModel_initPlanarShadowShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_initPlanarShadowShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5916,7 +5834,7 @@ SE_BIND_FUNC(js_scene_SubModel_initPlanarShadowShader)
 static bool js_scene_SubModel_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5928,7 +5846,7 @@ static bool js_scene_SubModel_initialize(se::State& s) // NOLINT(readability-ide
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -5940,7 +5858,7 @@ SE_BIND_FUNC(js_scene_SubModel_initialize)
 static bool js_scene_SubModel_onGeometryChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_onGeometryChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5956,7 +5874,7 @@ SE_BIND_FUNC(js_scene_SubModel_onGeometryChanged)
 static bool js_scene_SubModel_onMacroPatchesStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_onMacroPatchesStateChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5964,7 +5882,7 @@ static bool js_scene_SubModel_onMacroPatchesStateChanged(se::State& s) // NOLINT
     if (argc == 1) {
         HolderType<std::vector<cc::scene::IMacroPatch>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_onMacroPatchesStateChanged : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->onMacroPatchesStateChanged(arg0.value());
         return true;
     }
@@ -5976,7 +5894,7 @@ SE_BIND_FUNC(js_scene_SubModel_onMacroPatchesStateChanged)
 static bool js_scene_SubModel_onPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_onPipelineStateChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -5992,7 +5910,7 @@ SE_BIND_FUNC(js_scene_SubModel_onPipelineStateChanged)
 static bool js_scene_SubModel_setDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setDescriptorSet : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6000,7 +5918,7 @@ static bool js_scene_SubModel_setDescriptorSet(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::gfx::DescriptorSet*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setDescriptorSet : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDescriptorSet(arg0.value());
         return true;
     }
@@ -6012,7 +5930,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setDescriptorSet)
 static bool js_scene_SubModel_setInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setInputAssembler : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6020,7 +5938,7 @@ static bool js_scene_SubModel_setInputAssembler(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::gfx::InputAssembler*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setInputAssembler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setInputAssembler(arg0.value());
         return true;
     }
@@ -6032,7 +5950,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setInputAssembler)
 static bool js_scene_SubModel_setOwner(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setOwner : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6040,7 +5958,7 @@ static bool js_scene_SubModel_setOwner(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setOwner : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOwner(arg0.value());
         return true;
     }
@@ -6052,7 +5970,7 @@ SE_BIND_FUNC(js_scene_SubModel_setOwner)
 static bool js_scene_SubModel_setPasses(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPasses : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6060,7 +5978,7 @@ static bool js_scene_SubModel_setPasses(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<std::shared_ptr<std::vector<cc::IntrusivePtr<cc::scene::Pass>>>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setPasses : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPasses(arg0.value());
         return true;
     }
@@ -6072,7 +5990,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setPasses)
 static bool js_scene_SubModel_setPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPlanarInstanceShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6080,7 +5998,7 @@ static bool js_scene_SubModel_setPlanarInstanceShader(se::State& s) // NOLINT(re
     if (argc == 1) {
         HolderType<cc::gfx::Shader*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setPlanarInstanceShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPlanarInstanceShader(arg0.value());
         return true;
     }
@@ -6092,7 +6010,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setPlanarInstanceShader)
 static bool js_scene_SubModel_setPlanarShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPlanarShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6100,7 +6018,7 @@ static bool js_scene_SubModel_setPlanarShader(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::gfx::Shader*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setPlanarShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPlanarShader(arg0.value());
         return true;
     }
@@ -6112,7 +6030,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setPlanarShader)
 static bool js_scene_SubModel_setPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6120,7 +6038,7 @@ static bool js_scene_SubModel_setPriority(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::pipeline::RenderPriority, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPriority(arg0.value());
         return true;
     }
@@ -6132,7 +6050,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setPriority)
 static bool js_scene_SubModel_setShaders(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setShaders : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6140,7 +6058,7 @@ static bool js_scene_SubModel_setShaders(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<std::vector<cc::IntrusivePtr<cc::gfx::Shader>>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setShaders : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShaders(arg0.value());
         return true;
     }
@@ -6152,7 +6070,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setShaders)
 static bool js_scene_SubModel_setSubMesh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setSubMesh : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6160,7 +6078,7 @@ static bool js_scene_SubModel_setSubMesh(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::RenderingSubMesh*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setSubMesh : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSubMesh(arg0.value());
         return true;
     }
@@ -6172,7 +6090,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setSubMesh)
 static bool js_scene_SubModel_setWorldBoundDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setWorldBoundDescriptorSet : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6180,7 +6098,7 @@ static bool js_scene_SubModel_setWorldBoundDescriptorSet(se::State& s) // NOLINT
     if (argc == 1) {
         HolderType<cc::gfx::DescriptorSet*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SubModel_setWorldBoundDescriptorSet : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setWorldBoundDescriptorSet(arg0.value());
         return true;
     }
@@ -6192,7 +6110,7 @@ SE_BIND_FUNC(js_scene_SubModel_setWorldBoundDescriptorSet)
 static bool js_scene_SubModel_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SubModel_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6269,7 +6187,7 @@ se::Class* __jsb_cc_scene_InstancedAttributeBlock_class = nullptr;  // NOLINT
 static bool js_scene_InstancedAttributeBlock_get_buffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_InstancedAttributeBlock_get_buffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -6285,11 +6203,11 @@ static bool js_scene_InstancedAttributeBlock_set_buffer(se::State& s) // NOLINT(
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_InstancedAttributeBlock_set_buffer : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->buffer, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_InstancedAttributeBlock_set_buffer : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_buffer)
@@ -6297,7 +6215,7 @@ SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_buffer)
 static bool js_scene_InstancedAttributeBlock_get_views(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_InstancedAttributeBlock_get_views : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -6313,11 +6231,11 @@ static bool js_scene_InstancedAttributeBlock_set_views(se::State& s) // NOLINT(r
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_InstancedAttributeBlock_set_views : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->views, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_InstancedAttributeBlock_set_views : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_views)
@@ -6325,7 +6243,7 @@ SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_views)
 static bool js_scene_InstancedAttributeBlock_get_attributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_InstancedAttributeBlock_get_attributes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -6341,11 +6259,11 @@ static bool js_scene_InstancedAttributeBlock_set_attributes(se::State& s) // NOL
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_InstancedAttributeBlock_set_attributes : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->attributes, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_InstancedAttributeBlock_set_attributes : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_attributes)
@@ -6463,7 +6381,7 @@ se::Class* __jsb_cc_scene_Model_class = nullptr;  // NOLINT
 static bool js_scene_Model_attachToScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_attachToScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6471,7 +6389,7 @@ static bool js_scene_Model_attachToScene(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::scene::RenderScene*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_attachToScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->attachToScene(arg0.value());
         return true;
     }
@@ -6483,7 +6401,7 @@ SE_BIND_FUNC(js_scene_Model_attachToScene)
 static bool js_scene_Model_createBoundingShape(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_createBoundingShape : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6493,7 +6411,7 @@ static bool js_scene_Model_createBoundingShape(se::State& s) // NOLINT(readabili
         HolderType<boost::optional<cc::Vec3>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_createBoundingShape : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->createBoundingShape(arg0.value(), arg1.value());
         return true;
     }
@@ -6505,7 +6423,7 @@ SE_BIND_FUNC(js_scene_Model_createBoundingShape)
 static bool js_scene_Model_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6521,7 +6439,7 @@ SE_BIND_FUNC(js_scene_Model_destroy)
 static bool js_scene_Model_detachFromScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_detachFromScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6537,7 +6455,7 @@ SE_BIND_FUNC(js_scene_Model_detachFromScene)
 static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstMatWorldIdx : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6545,7 +6463,7 @@ static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         int32_t result = cobj->getInstMatWorldIdx();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstMatWorldIdx : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6557,7 +6475,7 @@ SE_BIND_FUNC(js_scene_Model_getInstMatWorldIdx)
 static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstanceAttributes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6565,7 +6483,7 @@ static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         const std::vector<cc::gfx::Attribute>& result = cobj->getInstanceAttributes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstanceAttributes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6577,7 +6495,7 @@ SE_BIND_FUNC(js_scene_Model_getInstanceAttributes)
 static bool js_scene_Model_getInstancedAttributeBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedAttributeBlock : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6585,7 +6503,7 @@ static bool js_scene_Model_getInstancedAttributeBlock(se::State& s) // NOLINT(re
     if (argc == 0) {
         cc::scene::InstancedAttributeBlock& result = cobj->getInstancedAttributeBlock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstancedAttributeBlock : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6597,7 +6515,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getInstancedAttributeBlock)
 static bool js_scene_Model_getInstancedAttributeIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedAttributeIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6605,10 +6523,10 @@ static bool js_scene_Model_getInstancedAttributeIndex(se::State& s) // NOLINT(re
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstancedAttributeIndex : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         int32_t result = cobj->getInstancedAttributeIndex(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstancedAttributeIndex : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6620,7 +6538,7 @@ SE_BIND_FUNC(js_scene_Model_getInstancedAttributeIndex)
 static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6628,7 +6546,7 @@ static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         const unsigned char* result = cobj->getInstancedBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstancedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6640,7 +6558,7 @@ SE_BIND_FUNC(js_scene_Model_getInstancedBuffer)
 static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedBufferSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6648,7 +6566,7 @@ static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readab
     if (argc == 0) {
         unsigned int result = cobj->getInstancedBufferSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstancedBufferSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6660,7 +6578,7 @@ SE_BIND_FUNC(js_scene_Model_getInstancedBufferSize)
 static bool js_scene_Model_getLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getLocalBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6668,7 +6586,7 @@ static bool js_scene_Model_getLocalBuffer(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::gfx::Buffer* result = cobj->getLocalBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getLocalBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6680,7 +6598,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getLocalBuffer)
 static bool js_scene_Model_getLocalData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getLocalData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6688,7 +6606,7 @@ static bool js_scene_Model_getLocalData(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         cc::TypedArrayTemp<float> result = cobj->getLocalData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getLocalData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6700,7 +6618,7 @@ SE_BIND_FUNC(js_scene_Model_getLocalData)
 static bool js_scene_Model_getMacroPatches(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getMacroPatches : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6708,10 +6626,10 @@ static bool js_scene_Model_getMacroPatches(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getMacroPatches : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         std::vector<cc::scene::IMacroPatch> result = cobj->getMacroPatches(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getMacroPatches : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6723,7 +6641,7 @@ SE_BIND_FUNC(js_scene_Model_getMacroPatches)
 static bool js_scene_Model_getModelBounds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getModelBounds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6731,7 +6649,7 @@ static bool js_scene_Model_getModelBounds(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::geometry::AABB* result = cobj->getModelBounds();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getModelBounds : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6743,7 +6661,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getModelBounds)
 static bool js_scene_Model_getNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6751,7 +6669,7 @@ static bool js_scene_Model_getNode(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         cc::Node* result = cobj->getNode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6763,7 +6681,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getNode)
 static bool js_scene_Model_getPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6771,7 +6689,7 @@ static bool js_scene_Model_getPriority(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         unsigned int result = cobj->getPriority();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6783,7 +6701,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getPriority)
 static bool js_scene_Model_getScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6791,7 +6709,7 @@ static bool js_scene_Model_getScene(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         cc::scene::RenderScene* result = cobj->getScene();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6803,7 +6721,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getScene)
 static bool js_scene_Model_getShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6811,7 +6729,7 @@ static bool js_scene_Model_getShadowBias(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getShadowBias();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getShadowBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6823,7 +6741,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getShadowBias)
 static bool js_scene_Model_getShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getShadowNormalBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6831,7 +6749,7 @@ static bool js_scene_Model_getShadowNormalBias(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         float result = cobj->getShadowNormalBias();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getShadowNormalBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6843,7 +6761,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getShadowNormalBias)
 static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getSubModels : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6851,7 +6769,7 @@ static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::SubModel>>& result = cobj->getSubModels();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getSubModels : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6863,7 +6781,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getSubModels)
 static bool js_scene_Model_getTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getTransform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6871,7 +6789,7 @@ static bool js_scene_Model_getTransform(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         cc::Node* result = cobj->getTransform();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getTransform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6883,7 +6801,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getTransform)
 static bool js_scene_Model_getType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6891,7 +6809,7 @@ static bool js_scene_Model_getType(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6903,7 +6821,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getType)
 static bool js_scene_Model_getUpdateStamp(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getUpdateStamp : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6911,7 +6829,7 @@ static bool js_scene_Model_getUpdateStamp(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         unsigned int result = cobj->getUpdateStamp();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getUpdateStamp : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6923,7 +6841,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getUpdateStamp)
 static bool js_scene_Model_getVisFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getVisFlags : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6931,7 +6849,7 @@ static bool js_scene_Model_getVisFlags(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getVisFlags());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getVisFlags : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6943,7 +6861,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getVisFlags)
 static bool js_scene_Model_getWorldBoundBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getWorldBoundBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6951,7 +6869,7 @@ static bool js_scene_Model_getWorldBoundBuffer(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         cc::gfx::Buffer* result = cobj->getWorldBoundBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getWorldBoundBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6963,7 +6881,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getWorldBoundBuffer)
 static bool js_scene_Model_getWorldBounds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_getWorldBounds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6971,7 +6889,7 @@ static bool js_scene_Model_getWorldBounds(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::geometry::AABB* result = cobj->getWorldBounds();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getWorldBounds : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -6983,7 +6901,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getWorldBounds)
 static bool js_scene_Model_initLightingmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_initLightingmap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -6993,7 +6911,7 @@ static bool js_scene_Model_initLightingmap(se::State& s) // NOLINT(readability-i
         HolderType<cc::Vec4, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_initLightingmap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initLightingmap(arg0.value(), arg1.value());
         return true;
     }
@@ -7005,7 +6923,7 @@ SE_BIND_FUNC(js_scene_Model_initLightingmap)
 static bool js_scene_Model_initLocalDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_initLocalDescriptors : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7013,7 +6931,7 @@ static bool js_scene_Model_initLocalDescriptors(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_initLocalDescriptors : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initLocalDescriptors(arg0.value());
         return true;
     }
@@ -7025,7 +6943,7 @@ SE_BIND_FUNC(js_scene_Model_initLocalDescriptors)
 static bool js_scene_Model_initSubModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_initSubModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7037,7 +6955,7 @@ static bool js_scene_Model_initSubModel(se::State& s) // NOLINT(readability-iden
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_initSubModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initSubModel(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -7049,7 +6967,7 @@ SE_BIND_FUNC(js_scene_Model_initSubModel)
 static bool js_scene_Model_initWorldBoundDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_initWorldBoundDescriptors : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7057,7 +6975,7 @@ static bool js_scene_Model_initWorldBoundDescriptors(se::State& s) // NOLINT(rea
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_initWorldBoundDescriptors : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initWorldBoundDescriptors(arg0.value());
         return true;
     }
@@ -7069,7 +6987,7 @@ SE_BIND_FUNC(js_scene_Model_initWorldBoundDescriptors)
 static bool js_scene_Model_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7085,7 +7003,7 @@ SE_BIND_FUNC(js_scene_Model_initialize)
 static bool js_scene_Model_isCastShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isCastShadow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7093,7 +7011,7 @@ static bool js_scene_Model_isCastShadow(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         bool result = cobj->isCastShadow();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isCastShadow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7105,7 +7023,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isCastShadow)
 static bool js_scene_Model_isDynamicBatching(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isDynamicBatching : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7113,7 +7031,7 @@ static bool js_scene_Model_isDynamicBatching(se::State& s) // NOLINT(readability
     if (argc == 0) {
         bool result = cobj->isDynamicBatching();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isDynamicBatching : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7125,7 +7043,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isDynamicBatching)
 static bool js_scene_Model_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7133,7 +7051,7 @@ static bool js_scene_Model_isEnabled(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7145,7 +7063,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isEnabled)
 static bool js_scene_Model_isInited(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isInited : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7153,7 +7071,7 @@ static bool js_scene_Model_isInited(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         bool result = cobj->isInited();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isInited : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7165,7 +7083,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isInited)
 static bool js_scene_Model_isInstancingEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isInstancingEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7173,7 +7091,7 @@ static bool js_scene_Model_isInstancingEnabled(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         bool result = cobj->isInstancingEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isInstancingEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7185,7 +7103,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isInstancingEnabled)
 static bool js_scene_Model_isLocalDataUpdated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isLocalDataUpdated : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7193,7 +7111,7 @@ static bool js_scene_Model_isLocalDataUpdated(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         bool result = cobj->isLocalDataUpdated();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isLocalDataUpdated : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7205,7 +7123,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isLocalDataUpdated)
 static bool js_scene_Model_isModelImplementedInJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isModelImplementedInJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7213,7 +7131,7 @@ static bool js_scene_Model_isModelImplementedInJS(se::State& s) // NOLINT(readab
     if (argc == 0) {
         bool result = cobj->isModelImplementedInJS();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isModelImplementedInJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7225,7 +7143,7 @@ SE_BIND_FUNC(js_scene_Model_isModelImplementedInJS)
 static bool js_scene_Model_isReceiveShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_isReceiveShadow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7233,7 +7151,7 @@ static bool js_scene_Model_isReceiveShadow(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         bool result = cobj->isReceiveShadow();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_isReceiveShadow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -7245,7 +7163,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isReceiveShadow)
 static bool js_scene_Model_onGeometryChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_onGeometryChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7261,7 +7179,7 @@ SE_BIND_FUNC(js_scene_Model_onGeometryChanged)
 static bool js_scene_Model_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_onGlobalPipelineStateChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7277,7 +7195,7 @@ SE_BIND_FUNC(js_scene_Model_onGlobalPipelineStateChanged)
 static bool js_scene_Model_onMacroPatchesStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_onMacroPatchesStateChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7293,7 +7211,7 @@ SE_BIND_FUNC(js_scene_Model_onMacroPatchesStateChanged)
 static bool js_scene_Model_setBounds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setBounds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7301,7 +7219,7 @@ static bool js_scene_Model_setBounds(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::geometry::AABB*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setBounds : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setBounds(arg0.value());
         return true;
     }
@@ -7313,7 +7231,7 @@ SE_BIND_FUNC(js_scene_Model_setBounds)
 static bool js_scene_Model_setCalledFromJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setCalledFromJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7321,7 +7239,7 @@ static bool js_scene_Model_setCalledFromJS(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setCalledFromJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCalledFromJS(arg0.value());
         return true;
     }
@@ -7333,7 +7251,7 @@ SE_BIND_FUNC(js_scene_Model_setCalledFromJS)
 static bool js_scene_Model_setCastShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setCastShadow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7341,7 +7259,7 @@ static bool js_scene_Model_setCastShadow(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setCastShadow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCastShadow(arg0.value());
         return true;
     }
@@ -7353,7 +7271,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setCastShadow)
 static bool js_scene_Model_setDynamicBatching(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setDynamicBatching : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7361,7 +7279,7 @@ static bool js_scene_Model_setDynamicBatching(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setDynamicBatching : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDynamicBatching(arg0.value());
         return true;
     }
@@ -7373,7 +7291,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setDynamicBatching)
 static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7381,7 +7299,7 @@ static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -7393,7 +7311,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setEnabled)
 static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstMatWorldIdx : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7401,7 +7319,7 @@ static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<int32_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstMatWorldIdx : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setInstMatWorldIdx(arg0.value());
         return true;
     }
@@ -7413,7 +7331,7 @@ SE_BIND_FUNC(js_scene_Model_setInstMatWorldIdx)
 static bool js_scene_Model_setInstancedAttribute(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstancedAttribute : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7425,7 +7343,7 @@ static bool js_scene_Model_setInstancedAttribute(se::State& s) // NOLINT(readabi
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstancedAttribute : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setInstancedAttribute(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -7437,7 +7355,7 @@ SE_BIND_FUNC(js_scene_Model_setInstancedAttribute)
 static bool js_scene_Model_setInstancedAttributeBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstancedAttributeBlock : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7445,7 +7363,7 @@ static bool js_scene_Model_setInstancedAttributeBlock(se::State& s) // NOLINT(re
     if (argc == 1) {
         HolderType<cc::scene::InstancedAttributeBlock, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstancedAttributeBlock : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setInstancedAttributeBlock(arg0.value());
         return true;
     }
@@ -7457,7 +7375,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setInstancedAttributeBlock)
 static bool js_scene_Model_setInstancedAttributesViewData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstancedAttributesViewData : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7469,7 +7387,7 @@ static bool js_scene_Model_setInstancedAttributesViewData(se::State& s) // NOLIN
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstancedAttributesViewData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setInstancedAttributesViewData(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -7481,7 +7399,7 @@ SE_BIND_FUNC(js_scene_Model_setInstancedAttributesViewData)
 static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setLocalBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7489,7 +7407,7 @@ static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::gfx::Buffer*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setLocalBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLocalBuffer(arg0.value());
         return true;
     }
@@ -7501,7 +7419,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setLocalBuffer)
 static bool js_scene_Model_setLocalDataUpdated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setLocalDataUpdated : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7509,7 +7427,7 @@ static bool js_scene_Model_setLocalDataUpdated(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setLocalDataUpdated : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLocalDataUpdated(arg0.value());
         return true;
     }
@@ -7521,7 +7439,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setLocalDataUpdated)
 static bool js_scene_Model_setModelBounds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setModelBounds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7529,7 +7447,7 @@ static bool js_scene_Model_setModelBounds(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::geometry::AABB*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setModelBounds : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setModelBounds(arg0.value());
         return true;
     }
@@ -7541,7 +7459,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setModelBounds)
 static bool js_scene_Model_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7549,7 +7467,7 @@ static bool js_scene_Model_setNode(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setNode(arg0.value());
         return true;
     }
@@ -7561,7 +7479,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setNode)
 static bool js_scene_Model_setPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7569,7 +7487,7 @@ static bool js_scene_Model_setPriority(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPriority(arg0.value());
         return true;
     }
@@ -7581,7 +7499,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setPriority)
 static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setReceiveShadow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7589,7 +7507,7 @@ static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setReceiveShadow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setReceiveShadow(arg0.value());
         return true;
     }
@@ -7601,7 +7519,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setReceiveShadow)
 static bool js_scene_Model_setScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7609,7 +7527,7 @@ static bool js_scene_Model_setScene(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::scene::RenderScene*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setScene(arg0.value());
         return true;
     }
@@ -7621,7 +7539,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setScene)
 static bool js_scene_Model_setShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7629,7 +7547,7 @@ static bool js_scene_Model_setShadowBias(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setShadowBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowBias(arg0.value());
         return true;
     }
@@ -7641,7 +7559,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setShadowBias)
 static bool js_scene_Model_setShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setShadowNormalBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7649,7 +7567,7 @@ static bool js_scene_Model_setShadowNormalBias(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setShadowNormalBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowNormalBias(arg0.value());
         return true;
     }
@@ -7661,7 +7579,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setShadowNormalBias)
 static bool js_scene_Model_setSubModelMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setSubModelMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7671,7 +7589,7 @@ static bool js_scene_Model_setSubModelMaterial(se::State& s) // NOLINT(readabili
         HolderType<cc::Material*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setSubModelMaterial : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSubModelMaterial(arg0.value(), arg1.value());
         return true;
     }
@@ -7683,7 +7601,7 @@ SE_BIND_FUNC(js_scene_Model_setSubModelMaterial)
 static bool js_scene_Model_setSubModelMesh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setSubModelMesh : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7693,7 +7611,7 @@ static bool js_scene_Model_setSubModelMesh(se::State& s) // NOLINT(readability-i
         HolderType<cc::RenderingSubMesh*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setSubModelMesh : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSubModelMesh(arg0.value(), arg1.value());
         return true;
     }
@@ -7705,7 +7623,7 @@ SE_BIND_FUNC(js_scene_Model_setSubModelMesh)
 static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setTransform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7713,7 +7631,7 @@ static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setTransform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setTransform(arg0.value());
         return true;
     }
@@ -7725,7 +7643,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setTransform)
 static bool js_scene_Model_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7733,7 +7651,7 @@ static bool js_scene_Model_setType(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::scene::Model::Type, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setType(arg0.value());
         return true;
     }
@@ -7745,7 +7663,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setType)
 static bool js_scene_Model_setVisFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setVisFlags : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7753,7 +7671,7 @@ static bool js_scene_Model_setVisFlags(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::Layers::LayerList, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setVisFlags : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setVisFlags(arg0.value());
         return true;
     }
@@ -7765,7 +7683,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setVisFlags)
 static bool js_scene_Model_setWorldBoundBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setWorldBoundBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7773,7 +7691,7 @@ static bool js_scene_Model_setWorldBoundBuffer(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::gfx::Buffer*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setWorldBoundBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setWorldBoundBuffer(arg0.value());
         return true;
     }
@@ -7785,7 +7703,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setWorldBoundBuffer)
 static bool js_scene_Model_setWorldBounds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_setWorldBounds : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7793,7 +7711,7 @@ static bool js_scene_Model_setWorldBounds(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::geometry::AABB*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setWorldBounds : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setWorldBounds(arg0.value());
         return true;
     }
@@ -7805,7 +7723,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setWorldBounds)
 static bool js_scene_Model_updateInstancedAttributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateInstancedAttributes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7815,7 +7733,7 @@ static bool js_scene_Model_updateInstancedAttributes(se::State& s) // NOLINT(rea
         HolderType<cc::scene::Pass*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateInstancedAttributes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateInstancedAttributes(arg0.value(), arg1.value());
         return true;
     }
@@ -7827,7 +7745,7 @@ SE_BIND_FUNC(js_scene_Model_updateInstancedAttributes)
 static bool js_scene_Model_updateLightingmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateLightingmap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7837,7 +7755,7 @@ static bool js_scene_Model_updateLightingmap(se::State& s) // NOLINT(readability
         HolderType<cc::Vec4, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateLightingmap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateLightingmap(arg0.value(), arg1.value());
         return true;
     }
@@ -7849,7 +7767,7 @@ SE_BIND_FUNC(js_scene_Model_updateLightingmap)
 static bool js_scene_Model_updateLocalDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateLocalDescriptors : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7859,7 +7777,7 @@ static bool js_scene_Model_updateLocalDescriptors(se::State& s) // NOLINT(readab
         HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateLocalDescriptors : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateLocalDescriptors(arg0.value(), arg1.value());
         return true;
     }
@@ -7871,7 +7789,7 @@ SE_BIND_FUNC(js_scene_Model_updateLocalDescriptors)
 static bool js_scene_Model_updateLocalShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateLocalShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7887,7 +7805,7 @@ SE_BIND_FUNC(js_scene_Model_updateLocalShadowBias)
 static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateTransform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7895,7 +7813,7 @@ static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateTransform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateTransform(arg0.value());
         return true;
     }
@@ -7907,7 +7825,7 @@ SE_BIND_FUNC(js_scene_Model_updateTransform)
 static bool js_scene_Model_updateUBOs(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateUBOs : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7915,7 +7833,7 @@ static bool js_scene_Model_updateUBOs(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateUBOs : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateUBOs(arg0.value());
         return true;
     }
@@ -7927,7 +7845,7 @@ SE_BIND_FUNC(js_scene_Model_updateUBOs)
 static bool js_scene_Model_updateWorldBound(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateWorldBound : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7943,7 +7861,7 @@ SE_BIND_FUNC(js_scene_Model_updateWorldBound)
 static bool js_scene_Model_updateWorldBoundDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateWorldBoundDescriptors : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7953,7 +7871,7 @@ static bool js_scene_Model_updateWorldBoundDescriptors(se::State& s) // NOLINT(r
         HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateWorldBoundDescriptors : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateWorldBoundDescriptors(arg0.value(), arg1.value());
         return true;
     }
@@ -7965,7 +7883,7 @@ SE_BIND_FUNC(js_scene_Model_updateWorldBoundDescriptors)
 static bool js_scene_Model_updateWorldBoundUBOs(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateWorldBoundUBOs : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7981,7 +7899,7 @@ SE_BIND_FUNC(js_scene_Model_updateWorldBoundUBOs)
 static bool js_scene_Model_updateWorldBoundsForJSBakedSkinningModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateWorldBoundsForJSBakedSkinningModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -7989,7 +7907,7 @@ static bool js_scene_Model_updateWorldBoundsForJSBakedSkinningModel(se::State& s
     if (argc == 1) {
         HolderType<cc::geometry::AABB*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateWorldBoundsForJSBakedSkinningModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateWorldBoundsForJSBakedSkinningModel(arg0.value());
         return true;
     }
@@ -8001,7 +7919,7 @@ SE_BIND_FUNC(js_scene_Model_updateWorldBoundsForJSBakedSkinningModel)
 static bool js_scene_Model_updateWorldBoundsForJSSkinningModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Model_updateWorldBoundsForJSSkinningModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8011,7 +7929,7 @@ static bool js_scene_Model_updateWorldBoundsForJSSkinningModel(se::State& s) // 
         HolderType<cc::Vec3, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_updateWorldBoundsForJSSkinningModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateWorldBoundsForJSSkinningModel(arg0.value(), arg1.value());
         return true;
     }
@@ -8120,7 +8038,7 @@ se::Class* __jsb_cc_scene_IRenderSceneInfo_class = nullptr;  // NOLINT
 static bool js_scene_IRenderSceneInfo_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderSceneInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IRenderSceneInfo_get_name : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -8136,11 +8054,11 @@ static bool js_scene_IRenderSceneInfo_set_name(se::State& s) // NOLINT(readabili
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderSceneInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IRenderSceneInfo_set_name : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IRenderSceneInfo_set_name : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IRenderSceneInfo_set_name)
@@ -8226,7 +8144,7 @@ se::Class* __jsb_cc_scene_RenderScene_class = nullptr;  // NOLINT
 static bool js_scene_RenderScene_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8239,30 +8157,10 @@ static bool js_scene_RenderScene_activate(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_RenderScene_activate)
 
-static bool js_scene_RenderScene_addBatch(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addBatch : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::DrawBatch2D*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addBatch : Error processing arguments");
-        cobj->addBatch(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_RenderScene_addBatch)
-
 static bool js_scene_RenderScene_addCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addCamera : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8270,7 +8168,7 @@ static bool js_scene_RenderScene_addCamera(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<cc::scene::Camera*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addCamera : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->addCamera(arg0.value());
         return true;
     }
@@ -8282,7 +8180,7 @@ SE_BIND_FUNC(js_scene_RenderScene_addCamera)
 static bool js_scene_RenderScene_addDirectionalLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addDirectionalLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8290,7 +8188,7 @@ static bool js_scene_RenderScene_addDirectionalLight(se::State& s) // NOLINT(rea
     if (argc == 1) {
         HolderType<cc::scene::DirectionalLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addDirectionalLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->addDirectionalLight(arg0.value());
         return true;
     }
@@ -8302,7 +8200,7 @@ SE_BIND_FUNC(js_scene_RenderScene_addDirectionalLight)
 static bool js_scene_RenderScene_addModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8310,7 +8208,7 @@ static bool js_scene_RenderScene_addModel(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->addModel(arg0.value());
         return true;
     }
@@ -8322,7 +8220,7 @@ SE_BIND_FUNC(js_scene_RenderScene_addModel)
 static bool js_scene_RenderScene_addSphereLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addSphereLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8330,7 +8228,7 @@ static bool js_scene_RenderScene_addSphereLight(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::scene::SphereLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addSphereLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->addSphereLight(arg0.value());
         return true;
     }
@@ -8342,7 +8240,7 @@ SE_BIND_FUNC(js_scene_RenderScene_addSphereLight)
 static bool js_scene_RenderScene_addSpotLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addSpotLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8350,7 +8248,7 @@ static bool js_scene_RenderScene_addSpotLight(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::scene::SpotLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addSpotLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->addSpotLight(arg0.value());
         return true;
     }
@@ -8362,7 +8260,7 @@ SE_BIND_FUNC(js_scene_RenderScene_addSpotLight)
 static bool js_scene_RenderScene_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8378,7 +8276,7 @@ SE_BIND_FUNC(js_scene_RenderScene_destroy)
 static bool js_scene_RenderScene_generateModelId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_generateModelId : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8386,7 +8284,7 @@ static bool js_scene_RenderScene_generateModelId(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         uint64_t result = cobj->generateModelId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_generateModelId : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8395,30 +8293,10 @@ static bool js_scene_RenderScene_generateModelId(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_RenderScene_generateModelId)
 
-static bool js_scene_RenderScene_getBatches(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getBatches : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::scene::DrawBatch2D *>& result = cobj->getBatches();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getBatches : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_RenderScene_getBatches)
-
 static bool js_scene_RenderScene_getCameras(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getCameras : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8426,7 +8304,7 @@ static bool js_scene_RenderScene_getCameras(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::Camera>>& result = cobj->getCameras();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getCameras : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8436,30 +8314,10 @@ static bool js_scene_RenderScene_getCameras(se::State& s) // NOLINT(readability-
 SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderScene_getCameras)
 SE_BIND_FUNC(js_scene_RenderScene_getCameras)
 
-static bool js_scene_RenderScene_getDrawBatch2Ds(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getDrawBatch2Ds : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::scene::DrawBatch2D *>& result = cobj->getDrawBatch2Ds();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getDrawBatch2Ds : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_RenderScene_getDrawBatch2Ds)
-
 static bool js_scene_RenderScene_getMainLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getMainLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8467,7 +8325,7 @@ static bool js_scene_RenderScene_getMainLight(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         cc::scene::DirectionalLight* result = cobj->getMainLight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getMainLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8480,7 +8338,7 @@ SE_BIND_FUNC(js_scene_RenderScene_getMainLight)
 static bool js_scene_RenderScene_getModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getModels : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8488,7 +8346,7 @@ static bool js_scene_RenderScene_getModels(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::Model>>& result = cobj->getModels();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getModels : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8500,7 +8358,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderScene_getModels)
 static bool js_scene_RenderScene_getName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getName : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8508,7 +8366,7 @@ static bool js_scene_RenderScene_getName(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8520,7 +8378,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderScene_getName)
 static bool js_scene_RenderScene_getOctree(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getOctree : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8528,7 +8386,7 @@ static bool js_scene_RenderScene_getOctree(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         cc::scene::Octree* result = cobj->getOctree();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getOctree : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8540,7 +8398,7 @@ SE_BIND_FUNC(js_scene_RenderScene_getOctree)
 static bool js_scene_RenderScene_getSphereLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getSphereLights : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8548,7 +8406,7 @@ static bool js_scene_RenderScene_getSphereLights(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::SphereLight>>& result = cobj->getSphereLights();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getSphereLights : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8561,7 +8419,7 @@ SE_BIND_FUNC(js_scene_RenderScene_getSphereLights)
 static bool js_scene_RenderScene_getSpotLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getSpotLights : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8569,7 +8427,7 @@ static bool js_scene_RenderScene_getSpotLights(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::SpotLight>>& result = cobj->getSpotLights();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_getSpotLights : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8582,7 +8440,7 @@ SE_BIND_FUNC(js_scene_RenderScene_getSpotLights)
 static bool js_scene_RenderScene_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8590,10 +8448,10 @@ static bool js_scene_RenderScene_initialize(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<cc::scene::IRenderSceneInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->initialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -8605,7 +8463,7 @@ SE_BIND_FUNC(js_scene_RenderScene_initialize)
 static bool js_scene_RenderScene_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_onGlobalPipelineStateChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8618,46 +8476,10 @@ static bool js_scene_RenderScene_onGlobalPipelineStateChanged(se::State& s) // N
 }
 SE_BIND_FUNC(js_scene_RenderScene_onGlobalPipelineStateChanged)
 
-static bool js_scene_RenderScene_removeBatch(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeBatch : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::DrawBatch2D*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeBatch : Error processing arguments");
-        cobj->removeBatch(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_RenderScene_removeBatch)
-
-static bool js_scene_RenderScene_removeBatches(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeBatches : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->removeBatches();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_RenderScene_removeBatches)
-
 static bool js_scene_RenderScene_removeCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeCamera : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8665,7 +8487,7 @@ static bool js_scene_RenderScene_removeCamera(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::scene::Camera*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeCamera : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->removeCamera(arg0.value());
         return true;
     }
@@ -8677,7 +8499,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeCamera)
 static bool js_scene_RenderScene_removeCameras(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeCameras : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8693,7 +8515,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeCameras)
 static bool js_scene_RenderScene_removeDirectionalLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeDirectionalLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8701,7 +8523,7 @@ static bool js_scene_RenderScene_removeDirectionalLight(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<cc::scene::DirectionalLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeDirectionalLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->removeDirectionalLight(arg0.value());
         return true;
     }
@@ -8713,7 +8535,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeDirectionalLight)
 static bool js_scene_RenderScene_removeModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8721,7 +8543,7 @@ static bool js_scene_RenderScene_removeModel(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->removeModel(arg0.value());
         return true;
     }
@@ -8733,7 +8555,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeModel)
 static bool js_scene_RenderScene_removeModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeModels : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8749,7 +8571,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeModels)
 static bool js_scene_RenderScene_removeSphereLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSphereLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8757,7 +8579,7 @@ static bool js_scene_RenderScene_removeSphereLight(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<cc::scene::SphereLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeSphereLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->removeSphereLight(arg0.value());
         return true;
     }
@@ -8769,7 +8591,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeSphereLight)
 static bool js_scene_RenderScene_removeSphereLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSphereLights : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8785,7 +8607,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeSphereLights)
 static bool js_scene_RenderScene_removeSpotLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSpotLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8793,7 +8615,7 @@ static bool js_scene_RenderScene_removeSpotLight(se::State& s) // NOLINT(readabi
     if (argc == 1) {
         HolderType<cc::scene::SpotLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeSpotLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->removeSpotLight(arg0.value());
         return true;
     }
@@ -8805,7 +8627,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeSpotLight)
 static bool js_scene_RenderScene_removeSpotLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSpotLights : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8821,7 +8643,7 @@ SE_BIND_FUNC(js_scene_RenderScene_removeSpotLights)
 static bool js_scene_RenderScene_setMainLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_setMainLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8829,7 +8651,7 @@ static bool js_scene_RenderScene_setMainLight(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::scene::DirectionalLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_setMainLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMainLight(arg0.value());
         return true;
     }
@@ -8842,7 +8664,7 @@ SE_BIND_FUNC(js_scene_RenderScene_setMainLight)
 static bool js_scene_RenderScene_unsetMainLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_unsetMainLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8850,7 +8672,7 @@ static bool js_scene_RenderScene_unsetMainLight(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::scene::DirectionalLight*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_unsetMainLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->unsetMainLight(arg0.value());
         return true;
     }
@@ -8862,7 +8684,7 @@ SE_BIND_FUNC(js_scene_RenderScene_unsetMainLight)
 static bool js_scene_RenderScene_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8870,7 +8692,7 @@ static bool js_scene_RenderScene_update(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_update : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->update(arg0.value());
         return true;
     }
@@ -8882,7 +8704,7 @@ SE_BIND_FUNC(js_scene_RenderScene_update)
 static bool js_scene_RenderScene_updateOctree(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_updateOctree : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -8890,7 +8712,7 @@ static bool js_scene_RenderScene_updateOctree(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_updateOctree : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->updateOctree(arg0.value());
         return true;
     }
@@ -8929,7 +8751,6 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("spotLights", _SE(js_scene_RenderScene_getSpotLights_asGetter), nullptr);
     cls->defineProperty("models", _SE(js_scene_RenderScene_getModels_asGetter), nullptr);
     cls->defineFunction("activate", _SE(js_scene_RenderScene_activate));
-    cls->defineFunction("addBatch", _SE(js_scene_RenderScene_addBatch));
     cls->defineFunction("addCamera", _SE(js_scene_RenderScene_addCamera));
     cls->defineFunction("addDirectionalLight", _SE(js_scene_RenderScene_addDirectionalLight));
     cls->defineFunction("addModel", _SE(js_scene_RenderScene_addModel));
@@ -8937,17 +8758,13 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("addSpotLight", _SE(js_scene_RenderScene_addSpotLight));
     cls->defineFunction("destroy", _SE(js_scene_RenderScene_destroy));
     cls->defineFunction("generateModelId", _SE(js_scene_RenderScene_generateModelId));
-    cls->defineFunction("getBatches", _SE(js_scene_RenderScene_getBatches));
     cls->defineFunction("getCameras", _SE(js_scene_RenderScene_getCameras));
-    cls->defineFunction("getDrawBatch2Ds", _SE(js_scene_RenderScene_getDrawBatch2Ds));
     cls->defineFunction("getMainLight", _SE(js_scene_RenderScene_getMainLight));
     cls->defineFunction("getOctree", _SE(js_scene_RenderScene_getOctree));
     cls->defineFunction("getSphereLights", _SE(js_scene_RenderScene_getSphereLights));
     cls->defineFunction("getSpotLights", _SE(js_scene_RenderScene_getSpotLights));
     cls->defineFunction("initialize", _SE(js_scene_RenderScene_initialize));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_scene_RenderScene_onGlobalPipelineStateChanged));
-    cls->defineFunction("removeBatch", _SE(js_scene_RenderScene_removeBatch));
-    cls->defineFunction("removeBatches", _SE(js_scene_RenderScene_removeBatches));
     cls->defineFunction("removeCamera", _SE(js_scene_RenderScene_removeCamera));
     cls->defineFunction("removeCameras", _SE(js_scene_RenderScene_removeCameras));
     cls->defineFunction("removeDirectionalLight", _SE(js_scene_RenderScene_removeDirectionalLight));
@@ -8978,7 +8795,7 @@ se::Class* __jsb_cc_scene_IRenderWindowInfo_class = nullptr;  // NOLINT
 static bool js_scene_IRenderWindowInfo_get_title(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_get_title : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -8994,11 +8811,11 @@ static bool js_scene_IRenderWindowInfo_set_title(se::State& s) // NOLINT(readabi
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_set_title : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->title, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IRenderWindowInfo_set_title : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_title)
@@ -9006,7 +8823,7 @@ SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_title)
 static bool js_scene_IRenderWindowInfo_get_width(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_get_width : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9022,11 +8839,11 @@ static bool js_scene_IRenderWindowInfo_set_width(se::State& s) // NOLINT(readabi
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_set_width : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->width, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IRenderWindowInfo_set_width : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_width)
@@ -9034,7 +8851,7 @@ SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_width)
 static bool js_scene_IRenderWindowInfo_get_height(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_get_height : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9050,11 +8867,11 @@ static bool js_scene_IRenderWindowInfo_set_height(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_set_height : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->height, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IRenderWindowInfo_set_height : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_height)
@@ -9062,7 +8879,7 @@ SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_height)
 static bool js_scene_IRenderWindowInfo_get_renderPassInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_get_renderPassInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9078,11 +8895,11 @@ static bool js_scene_IRenderWindowInfo_set_renderPassInfo(se::State& s) // NOLIN
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_set_renderPassInfo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->renderPassInfo, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IRenderWindowInfo_set_renderPassInfo : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_renderPassInfo)
@@ -9090,7 +8907,7 @@ SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_renderPassInfo)
 static bool js_scene_IRenderWindowInfo_get_swapchain(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_get_swapchain : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9106,11 +8923,11 @@ static bool js_scene_IRenderWindowInfo_set_swapchain(se::State& s) // NOLINT(rea
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IRenderWindowInfo_set_swapchain : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->swapchain, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IRenderWindowInfo_set_swapchain : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IRenderWindowInfo_set_swapchain)
@@ -9244,7 +9061,7 @@ se::Class* __jsb_cc_scene_RenderWindow_class = nullptr;  // NOLINT
 static bool js_scene_RenderWindow_attachCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_attachCamera : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9252,7 +9069,7 @@ static bool js_scene_RenderWindow_attachCamera(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::scene::Camera*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_attachCamera : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->attachCamera(arg0.value());
         return true;
     }
@@ -9264,7 +9081,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_attachCamera)
 static bool js_scene_RenderWindow_clearCameras(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_clearCameras : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9280,7 +9097,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_clearCameras)
 static bool js_scene_RenderWindow_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9296,7 +9113,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_destroy)
 static bool js_scene_RenderWindow_detachCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_detachCamera : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9304,7 +9121,7 @@ static bool js_scene_RenderWindow_detachCamera(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::scene::Camera*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_detachCamera : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->detachCamera(arg0.value());
         return true;
     }
@@ -9316,7 +9133,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_detachCamera)
 static bool js_scene_RenderWindow_extractRenderCameras(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_extractRenderCameras : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9324,7 +9141,7 @@ static bool js_scene_RenderWindow_extractRenderCameras(se::State& s) // NOLINT(r
     if (argc == 1) {
         HolderType<std::vector<cc::scene::Camera *>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_extractRenderCameras : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->extractRenderCameras(arg0.value());
         return true;
     }
@@ -9336,7 +9153,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_extractRenderCameras)
 static bool js_scene_RenderWindow_getCameras(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getCameras : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9344,7 +9161,7 @@ static bool js_scene_RenderWindow_getCameras(se::State& s) // NOLINT(readability
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::Camera>>& result = cobj->getCameras();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getCameras : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9356,7 +9173,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderWindow_getCameras)
 static bool js_scene_RenderWindow_getFramebuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getFramebuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9364,7 +9181,7 @@ static bool js_scene_RenderWindow_getFramebuffer(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         cc::gfx::Framebuffer* result = cobj->getFramebuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getFramebuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9376,7 +9193,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderWindow_getFramebuffer)
 static bool js_scene_RenderWindow_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getHeight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9384,7 +9201,7 @@ static bool js_scene_RenderWindow_getHeight(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         unsigned int result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getHeight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9396,7 +9213,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderWindow_getHeight)
 static bool js_scene_RenderWindow_getSwapchain(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getSwapchain : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9404,7 +9221,7 @@ static bool js_scene_RenderWindow_getSwapchain(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         cc::gfx::Swapchain* result = cobj->getSwapchain();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getSwapchain : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9416,7 +9233,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderWindow_getSwapchain)
 static bool js_scene_RenderWindow_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getWidth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9424,7 +9241,7 @@ static bool js_scene_RenderWindow_getWidth(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         unsigned int result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getWidth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9436,7 +9253,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderWindow_getWidth)
 static bool js_scene_RenderWindow_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9446,10 +9263,10 @@ static bool js_scene_RenderWindow_initialize(se::State& s) // NOLINT(readability
         HolderType<cc::scene::IRenderWindowInfo, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->initialize(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9461,7 +9278,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_initialize)
 static bool js_scene_RenderWindow_resize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_resize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9471,7 +9288,7 @@ static bool js_scene_RenderWindow_resize(se::State& s) // NOLINT(readability-ide
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->resize(arg0.value(), arg1.value());
         return true;
     }
@@ -9483,7 +9300,7 @@ SE_BIND_FUNC(js_scene_RenderWindow_resize)
 static bool js_scene_RenderWindow_sortCameras(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_sortCameras : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9549,7 +9366,7 @@ se::Class* __jsb_cc_scene_SphereLight_class = nullptr;  // NOLINT
 static bool js_scene_SphereLight_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getAABB : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9557,7 +9374,7 @@ static bool js_scene_SphereLight_getAABB(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         const cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getAABB : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9569,7 +9386,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getAABB)
 static bool js_scene_SphereLight_getLuminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getLuminance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9577,7 +9394,7 @@ static bool js_scene_SphereLight_getLuminance(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         float result = cobj->getLuminance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getLuminance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9589,7 +9406,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getLuminance)
 static bool js_scene_SphereLight_getLuminanceHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getLuminanceHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9597,7 +9414,7 @@ static bool js_scene_SphereLight_getLuminanceHDR(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         float result = cobj->getLuminanceHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getLuminanceHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9609,7 +9426,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getLuminanceHDR)
 static bool js_scene_SphereLight_getLuminanceLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getLuminanceLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9617,7 +9434,7 @@ static bool js_scene_SphereLight_getLuminanceLDR(se::State& s) // NOLINT(readabi
     if (argc == 0) {
         float result = cobj->getLuminanceLDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getLuminanceLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9629,7 +9446,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getLuminanceLDR)
 static bool js_scene_SphereLight_getPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getPosition : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9637,7 +9454,7 @@ static bool js_scene_SphereLight_getPosition(se::State& s) // NOLINT(readability
     if (argc == 0) {
         const cc::Vec3& result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getPosition : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9649,7 +9466,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getPosition)
 static bool js_scene_SphereLight_getRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9657,7 +9474,7 @@ static bool js_scene_SphereLight_getRange(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         float result = cobj->getRange();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9669,7 +9486,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getRange)
 static bool js_scene_SphereLight_getSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_getSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9677,7 +9494,7 @@ static bool js_scene_SphereLight_getSize(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_getSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -9689,7 +9506,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SphereLight_getSize)
 static bool js_scene_SphereLight_setLuminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setLuminance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9697,7 +9514,7 @@ static bool js_scene_SphereLight_setLuminance(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_setLuminance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLuminance(arg0.value());
         return true;
     }
@@ -9709,7 +9526,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SphereLight_setLuminance)
 static bool js_scene_SphereLight_setLuminanceHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setLuminanceHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9717,7 +9534,7 @@ static bool js_scene_SphereLight_setLuminanceHDR(se::State& s) // NOLINT(readabi
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_setLuminanceHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLuminanceHDR(arg0.value());
         return true;
     }
@@ -9729,7 +9546,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SphereLight_setLuminanceHDR)
 static bool js_scene_SphereLight_setLuminanceLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setLuminanceLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9737,7 +9554,7 @@ static bool js_scene_SphereLight_setLuminanceLDR(se::State& s) // NOLINT(readabi
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_setLuminanceLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLuminanceLDR(arg0.value());
         return true;
     }
@@ -9749,7 +9566,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SphereLight_setLuminanceLDR)
 static bool js_scene_SphereLight_setPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setPosition : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9757,7 +9574,7 @@ static bool js_scene_SphereLight_setPosition(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_setPosition : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPosition(arg0.value());
         return true;
     }
@@ -9769,7 +9586,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SphereLight_setPosition)
 static bool js_scene_SphereLight_setRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9777,7 +9594,7 @@ static bool js_scene_SphereLight_setRange(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_setRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRange(arg0.value());
         return true;
     }
@@ -9789,7 +9606,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SphereLight_setRange)
 static bool js_scene_SphereLight_setSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -9797,7 +9614,7 @@ static bool js_scene_SphereLight_setSize(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SphereLight_setSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSize(arg0.value());
         return true;
     }
@@ -9853,7 +9670,7 @@ se::Class* __jsb_cc_DebugViewConfig_class = nullptr;  // NOLINT
 static bool js_scene_DebugViewConfig_get_singleMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_singleMode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9869,11 +9686,11 @@ static bool js_scene_DebugViewConfig_set_singleMode(se::State& s) // NOLINT(read
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_singleMode : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->singleMode, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_singleMode : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_singleMode)
@@ -9881,7 +9698,7 @@ SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_singleMode)
 static bool js_scene_DebugViewConfig_get_compositeModeBitCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_compositeModeBitCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9897,11 +9714,11 @@ static bool js_scene_DebugViewConfig_set_compositeModeBitCount(se::State& s) // 
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_compositeModeBitCount : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->compositeModeBitCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_compositeModeBitCount : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_compositeModeBitCount)
@@ -9909,7 +9726,7 @@ SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_compositeModeBitCount)
 static bool js_scene_DebugViewConfig_get_compositeModeValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_compositeModeValue : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9925,11 +9742,11 @@ static bool js_scene_DebugViewConfig_set_compositeModeValue(se::State& s) // NOL
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_compositeModeValue : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->compositeModeValue, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_compositeModeValue : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_compositeModeValue)
@@ -9937,7 +9754,7 @@ SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_compositeModeValue)
 static bool js_scene_DebugViewConfig_get_lightingWithAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_lightingWithAlbedo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9953,11 +9770,11 @@ static bool js_scene_DebugViewConfig_set_lightingWithAlbedo(se::State& s) // NOL
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_lightingWithAlbedo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->lightingWithAlbedo, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_lightingWithAlbedo : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_lightingWithAlbedo)
@@ -9965,7 +9782,7 @@ SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_lightingWithAlbedo)
 static bool js_scene_DebugViewConfig_get_csmLayerColoration(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_csmLayerColoration : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -9981,11 +9798,11 @@ static bool js_scene_DebugViewConfig_set_csmLayerColoration(se::State& s) // NOL
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_csmLayerColoration : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->csmLayerColoration, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_csmLayerColoration : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_csmLayerColoration)
@@ -10119,7 +9936,7 @@ se::Class* __jsb_cc_Root_class = nullptr;  // NOLINT
 static bool js_scene_Root_activeWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_activeWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10127,7 +9944,7 @@ static bool js_scene_Root_activeWindow(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::RenderWindow*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_activeWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->activeWindow(arg0.value());
         return true;
     }
@@ -10139,7 +9956,7 @@ SE_BIND_FUNC(js_scene_Root_activeWindow)
 static bool js_scene_Root_createCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_createCamera : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10147,7 +9964,7 @@ static bool js_scene_Root_createCamera(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         cc::scene::Camera* result = cobj->createCamera();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_createCamera : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10159,7 +9976,7 @@ SE_BIND_FUNC(js_scene_Root_createCamera)
 static bool js_scene_Root_createScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_createScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10167,10 +9984,10 @@ static bool js_scene_Root_createScene(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::scene::IRenderSceneInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_createScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::scene::RenderScene* result = cobj->createScene(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_createScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10182,7 +9999,7 @@ SE_BIND_FUNC(js_scene_Root_createScene)
 static bool js_scene_Root_createWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_createWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10190,10 +10007,10 @@ static bool js_scene_Root_createWindow(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::IRenderWindowInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_createWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::scene::RenderWindow* result = cobj->createWindow(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_createWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10205,7 +10022,7 @@ SE_BIND_FUNC(js_scene_Root_createWindow)
 static bool js_scene_Root_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10221,7 +10038,7 @@ SE_BIND_FUNC(js_scene_Root_destroy)
 static bool js_scene_Root_destroyLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroyLight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10229,7 +10046,7 @@ static bool js_scene_Root_destroyLight(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::Light*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_destroyLight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->destroyLight(arg0.value());
         return true;
     }
@@ -10241,7 +10058,7 @@ SE_BIND_FUNC(js_scene_Root_destroyLight)
 static bool js_scene_Root_destroyModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroyModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10249,7 +10066,7 @@ static bool js_scene_Root_destroyModel(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_destroyModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->destroyModel(arg0.value());
         return true;
     }
@@ -10261,7 +10078,7 @@ SE_BIND_FUNC(js_scene_Root_destroyModel)
 static bool js_scene_Root_destroyScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroyScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10269,7 +10086,7 @@ static bool js_scene_Root_destroyScene(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::RenderScene*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_destroyScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->destroyScene(arg0.value());
         return true;
     }
@@ -10281,7 +10098,7 @@ SE_BIND_FUNC(js_scene_Root_destroyScene)
 static bool js_scene_Root_destroyScenes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroyScenes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10297,7 +10114,7 @@ SE_BIND_FUNC(js_scene_Root_destroyScenes)
 static bool js_scene_Root_destroyWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroyWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10305,7 +10122,7 @@ static bool js_scene_Root_destroyWindow(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::scene::RenderWindow*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_destroyWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->destroyWindow(arg0.value());
         return true;
     }
@@ -10317,7 +10134,7 @@ SE_BIND_FUNC(js_scene_Root_destroyWindow)
 static bool js_scene_Root_destroyWindows(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_destroyWindows : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10333,7 +10150,7 @@ SE_BIND_FUNC(js_scene_Root_destroyWindows)
 static bool js_scene_Root_frameMove(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_frameMove : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10343,7 +10160,7 @@ static bool js_scene_Root_frameMove(se::State& s) // NOLINT(readability-identifi
         HolderType<int32_t, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_frameMove : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->frameMove(arg0.value(), arg1.value());
         return true;
     }
@@ -10355,15 +10172,15 @@ SE_BIND_FUNC(js_scene_Root_frameMove)
 static bool js_scene_Root_getBatcher2D(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getBatcher2D : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::DrawBatch2D* result = cobj->getBatcher2D();
+        cc::Batcher2d* result = cobj->getBatcher2D();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getBatcher2D : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10375,7 +10192,7 @@ SE_BIND_FUNC(js_scene_Root_getBatcher2D)
 static bool js_scene_Root_getCumulativeTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getCumulativeTime : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10383,7 +10200,7 @@ static bool js_scene_Root_getCumulativeTime(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         float result = cobj->getCumulativeTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getCumulativeTime : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10395,7 +10212,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getCumulativeTime)
 static bool js_scene_Root_getCurWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getCurWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10403,7 +10220,7 @@ static bool js_scene_Root_getCurWindow(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         cc::scene::RenderWindow* result = cobj->getCurWindow();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getCurWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10415,7 +10232,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getCurWindow)
 static bool js_scene_Root_getCustomPipeline(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getCustomPipeline : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10423,7 +10240,7 @@ static bool js_scene_Root_getCustomPipeline(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         cc::render::Pipeline* result = cobj->getCustomPipeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getCustomPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10435,7 +10252,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getCustomPipeline)
 static bool js_scene_Root_getDebugViewConfig(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getDebugViewConfig : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10443,7 +10260,7 @@ static bool js_scene_Root_getDebugViewConfig(se::State& s) // NOLINT(readability
     if (argc == 0) {
         const cc::DebugViewConfig& result = cobj->getDebugViewConfig();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getDebugViewConfig : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10455,7 +10272,7 @@ SE_BIND_FUNC(js_scene_Root_getDebugViewConfig)
 static bool js_scene_Root_getDevice(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getDevice : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10463,7 +10280,7 @@ static bool js_scene_Root_getDevice(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         cc::gfx::Device* result = cobj->getDevice();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getDevice : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10475,7 +10292,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getDevice)
 static bool js_scene_Root_getEventProcessor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getEventProcessor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10483,7 +10300,7 @@ static bool js_scene_Root_getEventProcessor(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         cc::CallbacksInvoker* result = cobj->getEventProcessor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getEventProcessor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10495,7 +10312,7 @@ SE_BIND_FUNC(js_scene_Root_getEventProcessor)
 static bool js_scene_Root_getFixedFPS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getFixedFPS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10503,7 +10320,7 @@ static bool js_scene_Root_getFixedFPS(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         unsigned int result = cobj->getFixedFPS();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getFixedFPS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10515,7 +10332,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getFixedFPS)
 static bool js_scene_Root_getFps(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getFps : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10523,7 +10340,7 @@ static bool js_scene_Root_getFps(se::State& s) // NOLINT(readability-identifier-
     if (argc == 0) {
         unsigned int result = cobj->getFps();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getFps : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10535,7 +10352,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getFps)
 static bool js_scene_Root_getFrameCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getFrameCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10543,7 +10360,7 @@ static bool js_scene_Root_getFrameCount(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         unsigned int result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getFrameCount : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10555,7 +10372,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getFrameCount)
 static bool js_scene_Root_getFrameTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getFrameTime : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10563,7 +10380,7 @@ static bool js_scene_Root_getFrameTime(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         float result = cobj->getFrameTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getFrameTime : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10575,7 +10392,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getFrameTime)
 static bool js_scene_Root_getMainWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getMainWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10583,7 +10400,7 @@ static bool js_scene_Root_getMainWindow(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         cc::scene::RenderWindow* result = cobj->getMainWindow();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getMainWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10595,7 +10412,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getMainWindow)
 static bool js_scene_Root_getPipeline(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getPipeline : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10603,7 +10420,7 @@ static bool js_scene_Root_getPipeline(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         cc::render::PipelineRuntime* result = cobj->getPipeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10615,7 +10432,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getPipeline)
 static bool js_scene_Root_getScenes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getScenes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10623,7 +10440,7 @@ static bool js_scene_Root_getScenes(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::RenderScene>>& result = cobj->getScenes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getScenes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10635,7 +10452,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getScenes)
 static bool js_scene_Root_getTempWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getTempWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10643,7 +10460,7 @@ static bool js_scene_Root_getTempWindow(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         cc::scene::RenderWindow* result = cobj->getTempWindow();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getTempWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10655,7 +10472,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getTempWindow)
 static bool js_scene_Root_getWindows(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_getWindows : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10663,7 +10480,7 @@ static bool js_scene_Root_getWindows(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         const std::vector<cc::IntrusivePtr<cc::scene::RenderWindow>>& result = cobj->getWindows();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getWindows : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10675,7 +10492,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getWindows)
 static bool js_scene_Root_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10683,7 +10500,7 @@ static bool js_scene_Root_initialize(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::gfx::Swapchain*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -10695,7 +10512,7 @@ SE_BIND_FUNC(js_scene_Root_initialize)
 static bool js_scene_Root_isUsingDeferredPipeline(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_isUsingDeferredPipeline : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10703,7 +10520,7 @@ static bool js_scene_Root_isUsingDeferredPipeline(se::State& s) // NOLINT(readab
     if (argc == 0) {
         bool result = cobj->isUsingDeferredPipeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_isUsingDeferredPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10715,7 +10532,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_isUsingDeferredPipeline)
 static bool js_scene_Root_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_onGlobalPipelineStateChanged : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10731,7 +10548,7 @@ SE_BIND_FUNC(js_scene_Root_onGlobalPipelineStateChanged)
 static bool js_scene_Root_resetCumulativeTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_resetCumulativeTime : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10747,7 +10564,7 @@ SE_BIND_FUNC(js_scene_Root_resetCumulativeTime)
 static bool js_scene_Root_resize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_resize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10757,7 +10574,7 @@ static bool js_scene_Root_resize(se::State& s) // NOLINT(readability-identifier-
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->resize(arg0.value(), arg1.value());
         return true;
     }
@@ -10769,7 +10586,7 @@ SE_BIND_FUNC(js_scene_Root_resize)
 static bool js_scene_Root_setCurWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_setCurWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10777,7 +10594,7 @@ static bool js_scene_Root_setCurWindow(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::RenderWindow*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setCurWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCurWindow(arg0.value());
         return true;
     }
@@ -10789,7 +10606,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setCurWindow)
 static bool js_scene_Root_setDebugViewConfig(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_setDebugViewConfig : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10797,7 +10614,7 @@ static bool js_scene_Root_setDebugViewConfig(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::DebugViewConfig, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setDebugViewConfig : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDebugViewConfig(arg0.value());
         return true;
     }
@@ -10809,7 +10626,7 @@ SE_BIND_FUNC(js_scene_Root_setDebugViewConfig)
 static bool js_scene_Root_setDevice(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_setDevice : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10817,7 +10634,7 @@ static bool js_scene_Root_setDevice(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::gfx::Device*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setDevice : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDevice(arg0.value());
         return true;
     }
@@ -10829,7 +10646,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setDevice)
 static bool js_scene_Root_setFixedFPS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_setFixedFPS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10837,7 +10654,7 @@ static bool js_scene_Root_setFixedFPS(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setFixedFPS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFixedFPS(arg0.value());
         return true;
     }
@@ -10849,7 +10666,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setFixedFPS)
 static bool js_scene_Root_setRenderPipeline(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_setRenderPipeline : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10857,17 +10674,17 @@ static bool js_scene_Root_setRenderPipeline(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         bool result = cobj->setRenderPipeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setRenderPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 1) {
         HolderType<cc::pipeline::RenderPipeline*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setRenderPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->setRenderPipeline(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setRenderPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10879,7 +10696,7 @@ SE_BIND_FUNC(js_scene_Root_setRenderPipeline)
 static bool js_scene_Root_setTempWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_setTempWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10887,7 +10704,7 @@ static bool js_scene_Root_setTempWindow(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::scene::RenderWindow*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Root_setTempWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setTempWindow(arg0.value());
         return true;
     }
@@ -10899,7 +10716,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setTempWindow)
 static bool js_scene_Root_usesCustomPipeline(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Root_usesCustomPipeline : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10907,7 +10724,7 @@ static bool js_scene_Root_usesCustomPipeline(se::State& s) // NOLINT(readability
     if (argc == 0) {
         bool result = cobj->usesCustomPipeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_usesCustomPipeline : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10924,7 +10741,7 @@ static bool js_scene_Root_getInstance_static(se::State& s) // NOLINT(readability
     if (argc == 0) {
         cc::Root* result = cc::Root::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Root_getInstance_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -10941,7 +10758,7 @@ static bool js_scene_Root_constructor(se::State& s) // NOLINT(readability-identi
     const auto& args = s.args();
     cc::gfx::Device* arg0 = nullptr;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Root_constructor : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Root, arg0);
     s.thisObject()->setPrivateObject(ptr);
     return true;
@@ -11015,7 +10832,7 @@ se::Class* __jsb_cc_scene_SkyboxInfo_class = nullptr;  // NOLINT
 static bool js_scene_SkyboxInfo_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11023,7 +10840,7 @@ static bool js_scene_SkyboxInfo_activate(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::scene::Skybox*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_activate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->activate(arg0.value());
         return true;
     }
@@ -11035,7 +10852,7 @@ SE_BIND_FUNC(js_scene_SkyboxInfo_activate)
 static bool js_scene_SkyboxInfo_getDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_getDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11043,7 +10860,7 @@ static bool js_scene_SkyboxInfo_getDiffuseMap(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         cc::TextureCube* result = cobj->getDiffuseMap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_getDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11055,7 +10872,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_getDiffuseMap)
 static bool js_scene_SkyboxInfo_getEnvLightingType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_getEnvLightingType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11063,7 +10880,7 @@ static bool js_scene_SkyboxInfo_getEnvLightingType(se::State& s) // NOLINT(reada
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getEnvLightingType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_getEnvLightingType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11075,7 +10892,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_getEnvLightingType)
 static bool js_scene_SkyboxInfo_getEnvmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_getEnvmap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11083,7 +10900,7 @@ static bool js_scene_SkyboxInfo_getEnvmap(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::TextureCube* result = cobj->getEnvmap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_getEnvmap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11095,7 +10912,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_getEnvmap)
 static bool js_scene_SkyboxInfo_getEnvmapForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_getEnvmapForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11103,7 +10920,7 @@ static bool js_scene_SkyboxInfo_getEnvmapForJS(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         cc::TextureCube* result = cobj->getEnvmapForJS();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_getEnvmapForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11115,7 +10932,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_getEnvmapForJS)
 static bool js_scene_SkyboxInfo_isApplyDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_isApplyDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11123,7 +10940,7 @@ static bool js_scene_SkyboxInfo_isApplyDiffuseMap(se::State& s) // NOLINT(readab
     if (argc == 0) {
         bool result = cobj->isApplyDiffuseMap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_isApplyDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11135,7 +10952,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_isApplyDiffuseMap)
 static bool js_scene_SkyboxInfo_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11143,7 +10960,7 @@ static bool js_scene_SkyboxInfo_isEnabled(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11155,7 +10972,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_isEnabled)
 static bool js_scene_SkyboxInfo_isUseHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_isUseHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11163,7 +10980,7 @@ static bool js_scene_SkyboxInfo_isUseHDR(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         bool result = cobj->isUseHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_isUseHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11175,7 +10992,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_isUseHDR)
 static bool js_scene_SkyboxInfo_isUseIBL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_isUseIBL : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11183,7 +11000,7 @@ static bool js_scene_SkyboxInfo_isUseIBL(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         bool result = cobj->isUseIBL();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_isUseIBL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11195,7 +11012,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_isUseIBL)
 static bool js_scene_SkyboxInfo_setApplyDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setApplyDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11203,7 +11020,7 @@ static bool js_scene_SkyboxInfo_setApplyDiffuseMap(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setApplyDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setApplyDiffuseMap(arg0.value());
         return true;
     }
@@ -11215,7 +11032,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setApplyDiffuseMap)
 static bool js_scene_SkyboxInfo_setDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11223,7 +11040,7 @@ static bool js_scene_SkyboxInfo_setDiffuseMap(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::TextureCube*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDiffuseMap(arg0.value());
         return true;
     }
@@ -11235,7 +11052,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setDiffuseMap)
 static bool js_scene_SkyboxInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11243,7 +11060,7 @@ static bool js_scene_SkyboxInfo_setEnabled(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -11255,7 +11072,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setEnabled)
 static bool js_scene_SkyboxInfo_setEnvLightingType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setEnvLightingType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11263,7 +11080,7 @@ static bool js_scene_SkyboxInfo_setEnvLightingType(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<cc::scene::EnvironmentLightingType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setEnvLightingType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnvLightingType(arg0.value());
         return true;
     }
@@ -11275,7 +11092,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setEnvLightingType)
 static bool js_scene_SkyboxInfo_setEnvmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setEnvmap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11283,7 +11100,7 @@ static bool js_scene_SkyboxInfo_setEnvmap(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::TextureCube*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setEnvmap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnvmap(arg0.value());
         return true;
     }
@@ -11295,7 +11112,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setEnvmap)
 static bool js_scene_SkyboxInfo_setEnvmapForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setEnvmapForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11303,7 +11120,7 @@ static bool js_scene_SkyboxInfo_setEnvmapForJS(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::TextureCube*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setEnvmapForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnvmapForJS(arg0.value());
         return true;
     }
@@ -11315,7 +11132,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setEnvmapForJS)
 static bool js_scene_SkyboxInfo_setUseHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setUseHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11323,7 +11140,7 @@ static bool js_scene_SkyboxInfo_setUseHDR(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setUseHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUseHDR(arg0.value());
         return true;
     }
@@ -11335,7 +11152,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setUseHDR)
 static bool js_scene_SkyboxInfo_setUseIBL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setUseIBL : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11343,7 +11160,7 @@ static bool js_scene_SkyboxInfo_setUseIBL(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setUseIBL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUseIBL(arg0.value());
         return true;
     }
@@ -11355,7 +11172,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setUseIBL)
 static bool js_scene_SkyboxInfo_get__envmapHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__envmapHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11371,11 +11188,11 @@ static bool js_scene_SkyboxInfo_set__envmapHDR(se::State& s) // NOLINT(readabili
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__envmapHDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_envmapHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__envmapHDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envmapHDR)
@@ -11383,7 +11200,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envmapHDR)
 static bool js_scene_SkyboxInfo_get__envmapLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__envmapLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11399,11 +11216,11 @@ static bool js_scene_SkyboxInfo_set__envmapLDR(se::State& s) // NOLINT(readabili
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__envmapLDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_envmapLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__envmapLDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envmapLDR)
@@ -11411,7 +11228,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envmapLDR)
 static bool js_scene_SkyboxInfo_get__diffuseMapHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__diffuseMapHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11427,11 +11244,11 @@ static bool js_scene_SkyboxInfo_set__diffuseMapHDR(se::State& s) // NOLINT(reada
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__diffuseMapHDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_diffuseMapHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__diffuseMapHDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__diffuseMapHDR)
@@ -11439,7 +11256,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__diffuseMapHDR)
 static bool js_scene_SkyboxInfo_get__diffuseMapLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__diffuseMapLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11455,11 +11272,11 @@ static bool js_scene_SkyboxInfo_set__diffuseMapLDR(se::State& s) // NOLINT(reada
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__diffuseMapLDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_diffuseMapLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__diffuseMapLDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__diffuseMapLDR)
@@ -11467,7 +11284,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__diffuseMapLDR)
 static bool js_scene_SkyboxInfo_get__enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__enabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11483,11 +11300,11 @@ static bool js_scene_SkyboxInfo_set__enabled(se::State& s) // NOLINT(readability
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__enabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_enabled, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__enabled : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__enabled)
@@ -11495,7 +11312,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__enabled)
 static bool js_scene_SkyboxInfo_get__useHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__useHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11511,11 +11328,11 @@ static bool js_scene_SkyboxInfo_set__useHDR(se::State& s) // NOLINT(readability-
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__useHDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_useHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__useHDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__useHDR)
@@ -11523,7 +11340,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__useHDR)
 static bool js_scene_SkyboxInfo_get__envLightingType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__envLightingType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11539,11 +11356,11 @@ static bool js_scene_SkyboxInfo_set__envLightingType(se::State& s) // NOLINT(rea
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__envLightingType : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_envLightingType, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__envLightingType : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envLightingType)
@@ -11551,7 +11368,7 @@ SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envLightingType)
 static bool js_scene_SkyboxInfo_get__editableMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__editableMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -11567,11 +11384,11 @@ static bool js_scene_SkyboxInfo_set__editableMaterial(se::State& s) // NOLINT(re
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__editableMaterial : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_editableMaterial, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__editableMaterial : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__editableMaterial)
@@ -11633,7 +11450,7 @@ se::Class* __jsb_cc_scene_Skybox_class = nullptr;  // NOLINT
 static bool js_scene_Skybox_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11649,7 +11466,7 @@ SE_BIND_FUNC(js_scene_Skybox_activate)
 static bool js_scene_Skybox_getDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_getDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11657,7 +11474,7 @@ static bool js_scene_Skybox_getDiffuseMap(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::TextureCube* result = cobj->getDiffuseMap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_getDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11669,7 +11486,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_getDiffuseMap)
 static bool js_scene_Skybox_getEnvmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_getEnvmap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11677,7 +11494,7 @@ static bool js_scene_Skybox_getEnvmap(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         cc::TextureCube* result = cobj->getEnvmap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_getEnvmap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11689,7 +11506,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_getEnvmap)
 static bool js_scene_Skybox_getModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_getModel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11697,7 +11514,7 @@ static bool js_scene_Skybox_getModel(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         cc::scene::Model* result = cobj->getModel();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_getModel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11709,7 +11526,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_getModel)
 static bool js_scene_Skybox_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11717,7 +11534,7 @@ static bool js_scene_Skybox_initialize(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::SkyboxInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -11729,7 +11546,7 @@ SE_BIND_FUNC(js_scene_Skybox_initialize)
 static bool js_scene_Skybox_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11737,7 +11554,7 @@ static bool js_scene_Skybox_isEnabled(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11749,7 +11566,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_isEnabled)
 static bool js_scene_Skybox_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isRGBE : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11757,7 +11574,7 @@ static bool js_scene_Skybox_isRGBE(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         bool result = cobj->isRGBE();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isRGBE : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11769,7 +11586,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_isRGBE)
 static bool js_scene_Skybox_isUseDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isUseDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11777,7 +11594,7 @@ static bool js_scene_Skybox_isUseDiffuseMap(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         bool result = cobj->isUseDiffuseMap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isUseDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11789,7 +11606,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_isUseDiffuseMap)
 static bool js_scene_Skybox_isUseHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isUseHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11797,7 +11614,7 @@ static bool js_scene_Skybox_isUseHDR(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         bool result = cobj->isUseHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isUseHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11809,7 +11626,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_isUseHDR)
 static bool js_scene_Skybox_isUseIBL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isUseIBL : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11817,7 +11634,7 @@ static bool js_scene_Skybox_isUseIBL(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         bool result = cobj->isUseIBL();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isUseIBL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11829,7 +11646,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_isUseIBL)
 static bool js_scene_Skybox_isUsingConvolutionMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isUsingConvolutionMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11837,7 +11654,7 @@ static bool js_scene_Skybox_isUsingConvolutionMap(se::State& s) // NOLINT(readab
     if (argc == 0) {
         bool result = cobj->isUsingConvolutionMap();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isUsingConvolutionMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -11849,7 +11666,7 @@ SE_BIND_FUNC(js_scene_Skybox_isUsingConvolutionMap)
 static bool js_scene_Skybox_setDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11857,7 +11674,7 @@ static bool js_scene_Skybox_setDiffuseMap(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::TextureCube*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDiffuseMap(arg0.value());
         return true;
     }
@@ -11869,7 +11686,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Skybox_setDiffuseMap)
 static bool js_scene_Skybox_setDiffuseMaps(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setDiffuseMaps : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11879,7 +11696,7 @@ static bool js_scene_Skybox_setDiffuseMaps(se::State& s) // NOLINT(readability-i
         HolderType<cc::TextureCube*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setDiffuseMaps : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDiffuseMaps(arg0.value(), arg1.value());
         return true;
     }
@@ -11891,7 +11708,7 @@ SE_BIND_FUNC(js_scene_Skybox_setDiffuseMaps)
 static bool js_scene_Skybox_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11899,7 +11716,7 @@ static bool js_scene_Skybox_setEnabled(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -11911,7 +11728,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Skybox_setEnabled)
 static bool js_scene_Skybox_setEnvMaps(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setEnvMaps : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11921,7 +11738,7 @@ static bool js_scene_Skybox_setEnvMaps(se::State& s) // NOLINT(readability-ident
         HolderType<cc::TextureCube*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setEnvMaps : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnvMaps(arg0.value(), arg1.value());
         return true;
     }
@@ -11933,7 +11750,7 @@ SE_BIND_FUNC(js_scene_Skybox_setEnvMaps)
 static bool js_scene_Skybox_setEnvmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setEnvmap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11941,7 +11758,7 @@ static bool js_scene_Skybox_setEnvmap(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::TextureCube*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setEnvmap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnvmap(arg0.value());
         return true;
     }
@@ -11953,7 +11770,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Skybox_setEnvmap)
 static bool js_scene_Skybox_setSkyboxMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setSkyboxMaterial : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11961,7 +11778,7 @@ static bool js_scene_Skybox_setSkyboxMaterial(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::Material*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setSkyboxMaterial : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyboxMaterial(arg0.value());
         return true;
     }
@@ -11973,7 +11790,7 @@ SE_BIND_FUNC(js_scene_Skybox_setSkyboxMaterial)
 static bool js_scene_Skybox_setUseDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setUseDiffuseMap : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -11981,7 +11798,7 @@ static bool js_scene_Skybox_setUseDiffuseMap(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setUseDiffuseMap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUseDiffuseMap(arg0.value());
         return true;
     }
@@ -11993,7 +11810,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Skybox_setUseDiffuseMap)
 static bool js_scene_Skybox_setUseHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setUseHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12001,7 +11818,7 @@ static bool js_scene_Skybox_setUseHDR(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setUseHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUseHDR(arg0.value());
         return true;
     }
@@ -12013,7 +11830,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Skybox_setUseHDR)
 static bool js_scene_Skybox_setUseIBL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setUseIBL : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12021,7 +11838,7 @@ static bool js_scene_Skybox_setUseIBL(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setUseIBL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUseIBL(arg0.value());
         return true;
     }
@@ -12084,7 +11901,7 @@ se::Class* __jsb_cc_scene_Ambient_class = nullptr;  // NOLINT
 static bool js_scene_Ambient_getGroundAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_getGroundAlbedo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12092,7 +11909,7 @@ static bool js_scene_Ambient_getGroundAlbedo(se::State& s) // NOLINT(readability
     if (argc == 0) {
         const cc::Vec4& result = cobj->getGroundAlbedo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_getGroundAlbedo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12104,7 +11921,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Ambient_getGroundAlbedo)
 static bool js_scene_Ambient_getMipmapCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_getMipmapCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12112,7 +11929,7 @@ static bool js_scene_Ambient_getMipmapCount(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         uint8_t result = cobj->getMipmapCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_getMipmapCount : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12124,7 +11941,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Ambient_getMipmapCount)
 static bool js_scene_Ambient_getSkyColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_getSkyColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12132,7 +11949,7 @@ static bool js_scene_Ambient_getSkyColor(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         cc::Vec4& result = cobj->getSkyColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_getSkyColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12144,7 +11961,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Ambient_getSkyColor)
 static bool js_scene_Ambient_getSkyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_getSkyIllum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12152,7 +11969,7 @@ static bool js_scene_Ambient_getSkyIllum(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         float result = cobj->getSkyIllum();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_getSkyIllum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12164,7 +11981,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Ambient_getSkyIllum)
 static bool js_scene_Ambient_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12172,7 +11989,7 @@ static bool js_scene_Ambient_initialize(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::scene::AmbientInfo*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -12184,7 +12001,7 @@ SE_BIND_FUNC(js_scene_Ambient_initialize)
 static bool js_scene_Ambient_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12192,7 +12009,7 @@ static bool js_scene_Ambient_isEnabled(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12204,7 +12021,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Ambient_isEnabled)
 static bool js_scene_Ambient_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12212,7 +12029,7 @@ static bool js_scene_Ambient_setEnabled(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -12224,7 +12041,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Ambient_setEnabled)
 static bool js_scene_Ambient_setGroundAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_setGroundAlbedo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12232,7 +12049,7 @@ static bool js_scene_Ambient_setGroundAlbedo(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::Vec4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_setGroundAlbedo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setGroundAlbedo(arg0.value());
         return true;
     }
@@ -12244,7 +12061,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Ambient_setGroundAlbedo)
 static bool js_scene_Ambient_setMipmapCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_setMipmapCount : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12252,7 +12069,7 @@ static bool js_scene_Ambient_setMipmapCount(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<uint8_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_setMipmapCount : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMipmapCount(arg0.value());
         return true;
     }
@@ -12264,7 +12081,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Ambient_setMipmapCount)
 static bool js_scene_Ambient_setSkyColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_setSkyColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12272,7 +12089,7 @@ static bool js_scene_Ambient_setSkyColor(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::Vec4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_setSkyColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyColor(arg0.value());
         return true;
     }
@@ -12284,7 +12101,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Ambient_setSkyColor)
 static bool js_scene_Ambient_setSkyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Ambient_setSkyIllum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12292,7 +12109,7 @@ static bool js_scene_Ambient_setSkyIllum(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Ambient_setSkyIllum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyIllum(arg0.value());
         return true;
     }
@@ -12374,7 +12191,7 @@ se::Class* __jsb_cc_scene_AmbientInfo_class = nullptr;  // NOLINT
 static bool js_scene_AmbientInfo_getGroundAlbedoHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getGroundAlbedoHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12382,7 +12199,7 @@ static bool js_scene_AmbientInfo_getGroundAlbedoHDR(se::State& s) // NOLINT(read
     if (argc == 0) {
         const cc::Vec4& result = cobj->getGroundAlbedoHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getGroundAlbedoHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12394,7 +12211,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getGroundAlbedoHDR)
 static bool js_scene_AmbientInfo_getGroundAlbedoLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getGroundAlbedoLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12402,7 +12219,7 @@ static bool js_scene_AmbientInfo_getGroundAlbedoLDR(se::State& s) // NOLINT(read
     if (argc == 0) {
         const cc::Vec4& result = cobj->getGroundAlbedoLDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getGroundAlbedoLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12414,7 +12231,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getGroundAlbedoLDR)
 static bool js_scene_AmbientInfo_getGroundLightingColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getGroundLightingColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12422,7 +12239,7 @@ static bool js_scene_AmbientInfo_getGroundLightingColor(se::State& s) // NOLINT(
     if (argc == 0) {
         const cc::Color& result = cobj->getGroundLightingColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getGroundLightingColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12434,7 +12251,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getGroundLightingColor)
 static bool js_scene_AmbientInfo_getSkyColorHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getSkyColorHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12442,7 +12259,7 @@ static bool js_scene_AmbientInfo_getSkyColorHDR(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         const cc::Vec4& result = cobj->getSkyColorHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getSkyColorHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12454,7 +12271,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyColorHDR)
 static bool js_scene_AmbientInfo_getSkyColorLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getSkyColorLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12462,7 +12279,7 @@ static bool js_scene_AmbientInfo_getSkyColorLDR(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         const cc::Vec4& result = cobj->getSkyColorLDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getSkyColorLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12474,7 +12291,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyColorLDR)
 static bool js_scene_AmbientInfo_getSkyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getSkyIllum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12482,7 +12299,7 @@ static bool js_scene_AmbientInfo_getSkyIllum(se::State& s) // NOLINT(readability
     if (argc == 0) {
         float result = cobj->getSkyIllum();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getSkyIllum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12494,7 +12311,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyIllum)
 static bool js_scene_AmbientInfo_getSkyIllumHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getSkyIllumHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12502,7 +12319,7 @@ static bool js_scene_AmbientInfo_getSkyIllumHDR(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         const float& result = cobj->getSkyIllumHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getSkyIllumHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12514,7 +12331,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyIllumHDR)
 static bool js_scene_AmbientInfo_getSkyIllumLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getSkyIllumLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12522,7 +12339,7 @@ static bool js_scene_AmbientInfo_getSkyIllumLDR(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         const float& result = cobj->getSkyIllumLDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getSkyIllumLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12534,7 +12351,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyIllumLDR)
 static bool js_scene_AmbientInfo_getSkyLightingColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_getSkyLightingColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12542,7 +12359,7 @@ static bool js_scene_AmbientInfo_getSkyLightingColor(se::State& s) // NOLINT(rea
     if (argc == 0) {
         const cc::Color& result = cobj->getSkyLightingColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_getSkyLightingColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12554,7 +12371,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyLightingColor)
 static bool js_scene_AmbientInfo_setGroundAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setGroundAlbedo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12562,7 +12379,7 @@ static bool js_scene_AmbientInfo_setGroundAlbedo(se::State& s) // NOLINT(readabi
     if (argc == 1) {
         HolderType<cc::Vec4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setGroundAlbedo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setGroundAlbedo(arg0.value());
         return true;
     }
@@ -12574,7 +12391,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setGroundAlbedo)
 static bool js_scene_AmbientInfo_setGroundAlbedoHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setGroundAlbedoHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12582,7 +12399,7 @@ static bool js_scene_AmbientInfo_setGroundAlbedoHDR(se::State& s) // NOLINT(read
     if (argc == 1) {
         HolderType<cc::Vec4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setGroundAlbedoHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setGroundAlbedoHDR(arg0.value());
         return true;
     }
@@ -12594,7 +12411,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setGroundAlbedoHDR)
 static bool js_scene_AmbientInfo_setGroundLightingColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setGroundLightingColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12602,7 +12419,7 @@ static bool js_scene_AmbientInfo_setGroundLightingColor(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<cc::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setGroundLightingColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setGroundLightingColor(arg0.value());
         return true;
     }
@@ -12614,7 +12431,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setGroundLightingColor)
 static bool js_scene_AmbientInfo_setSkyColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12622,7 +12439,7 @@ static bool js_scene_AmbientInfo_setSkyColor(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::Vec4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyColor(arg0.value());
         return true;
     }
@@ -12634,7 +12451,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyColor)
 static bool js_scene_AmbientInfo_setSkyColorHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyColorHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12642,7 +12459,7 @@ static bool js_scene_AmbientInfo_setSkyColorHDR(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<cc::Vec4, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyColorHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyColorHDR(arg0.value());
         return true;
     }
@@ -12654,7 +12471,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyColorHDR)
 static bool js_scene_AmbientInfo_setSkyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyIllum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12662,7 +12479,7 @@ static bool js_scene_AmbientInfo_setSkyIllum(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyIllum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyIllum(arg0.value());
         return true;
     }
@@ -12674,7 +12491,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyIllum)
 static bool js_scene_AmbientInfo_setSkyIllumHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyIllumHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12682,7 +12499,7 @@ static bool js_scene_AmbientInfo_setSkyIllumHDR(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyIllumHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyIllumHDR(arg0.value());
         return true;
     }
@@ -12694,7 +12511,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyIllumHDR)
 static bool js_scene_AmbientInfo_setSkyLightingColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyLightingColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12702,7 +12519,7 @@ static bool js_scene_AmbientInfo_setSkyLightingColor(se::State& s) // NOLINT(rea
     if (argc == 1) {
         HolderType<cc::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyLightingColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSkyLightingColor(arg0.value());
         return true;
     }
@@ -12714,7 +12531,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyLightingColor)
 static bool js_scene_AmbientInfo_get__skyColorHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyColorHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -12730,11 +12547,11 @@ static bool js_scene_AmbientInfo_set__skyColorHDR(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyColorHDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_skyColorHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyColorHDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyColorHDR)
@@ -12742,7 +12559,7 @@ SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyColorHDR)
 static bool js_scene_AmbientInfo_get__skyIllumHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyIllumHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -12758,11 +12575,11 @@ static bool js_scene_AmbientInfo_set__skyIllumHDR(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyIllumHDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_skyIllumHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyIllumHDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyIllumHDR)
@@ -12770,7 +12587,7 @@ SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyIllumHDR)
 static bool js_scene_AmbientInfo_get__groundAlbedoHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__groundAlbedoHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -12786,11 +12603,11 @@ static bool js_scene_AmbientInfo_set__groundAlbedoHDR(se::State& s) // NOLINT(re
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__groundAlbedoHDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_groundAlbedoHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__groundAlbedoHDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_AmbientInfo_set__groundAlbedoHDR)
@@ -12798,7 +12615,7 @@ SE_BIND_PROP_SET(js_scene_AmbientInfo_set__groundAlbedoHDR)
 static bool js_scene_AmbientInfo_get__skyColorLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyColorLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -12814,11 +12631,11 @@ static bool js_scene_AmbientInfo_set__skyColorLDR(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyColorLDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_skyColorLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyColorLDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyColorLDR)
@@ -12826,7 +12643,7 @@ SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyColorLDR)
 static bool js_scene_AmbientInfo_get__skyIllumLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyIllumLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -12842,11 +12659,11 @@ static bool js_scene_AmbientInfo_set__skyIllumLDR(se::State& s) // NOLINT(readab
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyIllumLDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_skyIllumLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyIllumLDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyIllumLDR)
@@ -12854,7 +12671,7 @@ SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyIllumLDR)
 static bool js_scene_AmbientInfo_get__groundAlbedoLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__groundAlbedoLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -12870,11 +12687,11 @@ static bool js_scene_AmbientInfo_set__groundAlbedoLDR(se::State& s) // NOLINT(re
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__groundAlbedoLDR : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_groundAlbedoLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__groundAlbedoLDR : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_AmbientInfo_set__groundAlbedoLDR)
@@ -12939,7 +12756,7 @@ se::Class* __jsb_cc_scene_DirectionalLight_class = nullptr;  // NOLINT
 static bool js_scene_DirectionalLight_getCSMLayerLambda(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getCSMLayerLambda : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12947,7 +12764,7 @@ static bool js_scene_DirectionalLight_getCSMLayerLambda(se::State& s) // NOLINT(
     if (argc == 0) {
         float result = cobj->getCSMLayerLambda();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getCSMLayerLambda : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12959,7 +12776,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getCSMLayerLambda)
 static bool js_scene_DirectionalLight_getCSMLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getCSMLevel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12967,7 +12784,7 @@ static bool js_scene_DirectionalLight_getCSMLevel(se::State& s) // NOLINT(readab
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getCSMLevel());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getCSMLevel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12979,7 +12796,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getCSMLevel)
 static bool js_scene_DirectionalLight_getCSMOptimizationMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getCSMOptimizationMode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -12987,7 +12804,7 @@ static bool js_scene_DirectionalLight_getCSMOptimizationMode(se::State& s) // NO
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getCSMOptimizationMode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getCSMOptimizationMode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -12999,7 +12816,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getCSMOptimizationMode)
 static bool js_scene_DirectionalLight_getDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getDirection : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13007,7 +12824,7 @@ static bool js_scene_DirectionalLight_getDirection(se::State& s) // NOLINT(reada
     if (argc == 0) {
         const cc::Vec3& result = cobj->getDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getDirection : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13019,7 +12836,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getDirection)
 static bool js_scene_DirectionalLight_getIlluminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getIlluminance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13027,7 +12844,7 @@ static bool js_scene_DirectionalLight_getIlluminance(se::State& s) // NOLINT(rea
     if (argc == 0) {
         float result = cobj->getIlluminance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getIlluminance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13039,7 +12856,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getIlluminance)
 static bool js_scene_DirectionalLight_getIlluminanceHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getIlluminanceHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13047,7 +12864,7 @@ static bool js_scene_DirectionalLight_getIlluminanceHDR(se::State& s) // NOLINT(
     if (argc == 0) {
         float result = cobj->getIlluminanceHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getIlluminanceHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13059,7 +12876,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getIlluminanceHDR)
 static bool js_scene_DirectionalLight_getIlluminanceLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getIlluminanceLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13067,7 +12884,7 @@ static bool js_scene_DirectionalLight_getIlluminanceLDR(se::State& s) // NOLINT(
     if (argc == 0) {
         float result = cobj->getIlluminanceLDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getIlluminanceLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13079,7 +12896,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getIlluminanceLDR)
 static bool js_scene_DirectionalLight_getShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13087,7 +12904,7 @@ static bool js_scene_DirectionalLight_getShadowBias(se::State& s) // NOLINT(read
     if (argc == 0) {
         float result = cobj->getShadowBias();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13099,7 +12916,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowBias)
 static bool js_scene_DirectionalLight_getShadowDistance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowDistance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13107,7 +12924,7 @@ static bool js_scene_DirectionalLight_getShadowDistance(se::State& s) // NOLINT(
     if (argc == 0) {
         float result = cobj->getShadowDistance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowDistance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13119,7 +12936,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowDistance)
 static bool js_scene_DirectionalLight_getShadowFar(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowFar : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13127,7 +12944,7 @@ static bool js_scene_DirectionalLight_getShadowFar(se::State& s) // NOLINT(reada
     if (argc == 0) {
         float result = cobj->getShadowFar();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowFar : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13139,7 +12956,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowFar)
 static bool js_scene_DirectionalLight_getShadowInvisibleOcclusionRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowInvisibleOcclusionRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13147,7 +12964,7 @@ static bool js_scene_DirectionalLight_getShadowInvisibleOcclusionRange(se::State
     if (argc == 0) {
         float result = cobj->getShadowInvisibleOcclusionRange();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowInvisibleOcclusionRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13159,7 +12976,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowInvisibleOcclusionRa
 static bool js_scene_DirectionalLight_getShadowNear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowNear : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13167,7 +12984,7 @@ static bool js_scene_DirectionalLight_getShadowNear(se::State& s) // NOLINT(read
     if (argc == 0) {
         float result = cobj->getShadowNear();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowNear : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13179,7 +12996,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowNear)
 static bool js_scene_DirectionalLight_getShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowNormalBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13187,7 +13004,7 @@ static bool js_scene_DirectionalLight_getShadowNormalBias(se::State& s) // NOLIN
     if (argc == 0) {
         float result = cobj->getShadowNormalBias();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowNormalBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13199,7 +13016,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowNormalBias)
 static bool js_scene_DirectionalLight_getShadowOrthoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowOrthoSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13207,7 +13024,7 @@ static bool js_scene_DirectionalLight_getShadowOrthoSize(se::State& s) // NOLINT
     if (argc == 0) {
         float result = cobj->getShadowOrthoSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowOrthoSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13219,7 +13036,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowOrthoSize)
 static bool js_scene_DirectionalLight_getShadowPcf(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowPcf : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13227,7 +13044,7 @@ static bool js_scene_DirectionalLight_getShadowPcf(se::State& s) // NOLINT(reada
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getShadowPcf());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowPcf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13239,7 +13056,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowPcf)
 static bool js_scene_DirectionalLight_getShadowSaturation(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowSaturation : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13247,7 +13064,7 @@ static bool js_scene_DirectionalLight_getShadowSaturation(se::State& s) // NOLIN
     if (argc == 0) {
         float result = cobj->getShadowSaturation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowSaturation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13259,7 +13076,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowSaturation)
 static bool js_scene_DirectionalLight_isCSMNeedUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_isCSMNeedUpdate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13267,7 +13084,7 @@ static bool js_scene_DirectionalLight_isCSMNeedUpdate(se::State& s) // NOLINT(re
     if (argc == 0) {
         bool result = cobj->isCSMNeedUpdate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_isCSMNeedUpdate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13279,7 +13096,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_isCSMNeedUpdate)
 static bool js_scene_DirectionalLight_isShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_isShadowEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13287,7 +13104,7 @@ static bool js_scene_DirectionalLight_isShadowEnabled(se::State& s) // NOLINT(re
     if (argc == 0) {
         bool result = cobj->isShadowEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_isShadowEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13299,7 +13116,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_isShadowEnabled)
 static bool js_scene_DirectionalLight_isShadowFixedArea(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_isShadowFixedArea : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13307,7 +13124,7 @@ static bool js_scene_DirectionalLight_isShadowFixedArea(se::State& s) // NOLINT(
     if (argc == 0) {
         bool result = cobj->isShadowFixedArea();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_isShadowFixedArea : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13319,7 +13136,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_isShadowFixedArea)
 static bool js_scene_DirectionalLight_setCSMLayerLambda(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setCSMLayerLambda : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13327,7 +13144,7 @@ static bool js_scene_DirectionalLight_setCSMLayerLambda(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setCSMLayerLambda : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCSMLayerLambda(arg0.value());
         return true;
     }
@@ -13339,7 +13156,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setCSMLayerLambda)
 static bool js_scene_DirectionalLight_setCSMLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setCSMLevel : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13347,7 +13164,7 @@ static bool js_scene_DirectionalLight_setCSMLevel(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<cc::scene::CSMLevel, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setCSMLevel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCSMLevel(arg0.value());
         return true;
     }
@@ -13359,7 +13176,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setCSMLevel)
 static bool js_scene_DirectionalLight_setCSMNeedUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setCSMNeedUpdate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13367,7 +13184,7 @@ static bool js_scene_DirectionalLight_setCSMNeedUpdate(se::State& s) // NOLINT(r
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setCSMNeedUpdate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCSMNeedUpdate(arg0.value());
         return true;
     }
@@ -13379,7 +13196,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setCSMNeedUpdate)
 static bool js_scene_DirectionalLight_setCSMOptimizationMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setCSMOptimizationMode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13387,7 +13204,7 @@ static bool js_scene_DirectionalLight_setCSMOptimizationMode(se::State& s) // NO
     if (argc == 1) {
         HolderType<cc::scene::CSMOptimizationMode, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setCSMOptimizationMode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setCSMOptimizationMode(arg0.value());
         return true;
     }
@@ -13399,7 +13216,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setCSMOptimizationMode)
 static bool js_scene_DirectionalLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setDirection : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13407,7 +13224,7 @@ static bool js_scene_DirectionalLight_setDirection(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setDirection : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDirection(arg0.value());
         return true;
     }
@@ -13419,7 +13236,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setDirection)
 static bool js_scene_DirectionalLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setIlluminance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13427,7 +13244,7 @@ static bool js_scene_DirectionalLight_setIlluminance(se::State& s) // NOLINT(rea
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setIlluminance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setIlluminance(arg0.value());
         return true;
     }
@@ -13439,7 +13256,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setIlluminance)
 static bool js_scene_DirectionalLight_setIlluminanceHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setIlluminanceHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13447,7 +13264,7 @@ static bool js_scene_DirectionalLight_setIlluminanceHDR(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setIlluminanceHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setIlluminanceHDR(arg0.value());
         return true;
     }
@@ -13459,7 +13276,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setIlluminanceHDR)
 static bool js_scene_DirectionalLight_setIlluminanceLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setIlluminanceLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13467,7 +13284,7 @@ static bool js_scene_DirectionalLight_setIlluminanceLDR(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setIlluminanceLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setIlluminanceLDR(arg0.value());
         return true;
     }
@@ -13479,7 +13296,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setIlluminanceLDR)
 static bool js_scene_DirectionalLight_setShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13487,7 +13304,7 @@ static bool js_scene_DirectionalLight_setShadowBias(se::State& s) // NOLINT(read
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowBias(arg0.value());
         return true;
     }
@@ -13499,7 +13316,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowBias)
 static bool js_scene_DirectionalLight_setShadowDistance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowDistance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13507,7 +13324,7 @@ static bool js_scene_DirectionalLight_setShadowDistance(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowDistance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowDistance(arg0.value());
         return true;
     }
@@ -13519,7 +13336,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowDistance)
 static bool js_scene_DirectionalLight_setShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13527,7 +13344,7 @@ static bool js_scene_DirectionalLight_setShadowEnabled(se::State& s) // NOLINT(r
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowEnabled(arg0.value());
         return true;
     }
@@ -13539,7 +13356,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowEnabled)
 static bool js_scene_DirectionalLight_setShadowFar(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowFar : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13547,7 +13364,7 @@ static bool js_scene_DirectionalLight_setShadowFar(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowFar : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowFar(arg0.value());
         return true;
     }
@@ -13559,7 +13376,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowFar)
 static bool js_scene_DirectionalLight_setShadowFixedArea(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowFixedArea : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13567,7 +13384,7 @@ static bool js_scene_DirectionalLight_setShadowFixedArea(se::State& s) // NOLINT
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowFixedArea : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowFixedArea(arg0.value());
         return true;
     }
@@ -13579,7 +13396,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowFixedArea)
 static bool js_scene_DirectionalLight_setShadowInvisibleOcclusionRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowInvisibleOcclusionRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13587,7 +13404,7 @@ static bool js_scene_DirectionalLight_setShadowInvisibleOcclusionRange(se::State
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowInvisibleOcclusionRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowInvisibleOcclusionRange(arg0.value());
         return true;
     }
@@ -13599,7 +13416,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowInvisibleOcclusionRa
 static bool js_scene_DirectionalLight_setShadowNear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowNear : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13607,7 +13424,7 @@ static bool js_scene_DirectionalLight_setShadowNear(se::State& s) // NOLINT(read
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowNear : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowNear(arg0.value());
         return true;
     }
@@ -13619,7 +13436,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowNear)
 static bool js_scene_DirectionalLight_setShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowNormalBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13627,7 +13444,7 @@ static bool js_scene_DirectionalLight_setShadowNormalBias(se::State& s) // NOLIN
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowNormalBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowNormalBias(arg0.value());
         return true;
     }
@@ -13639,7 +13456,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowNormalBias)
 static bool js_scene_DirectionalLight_setShadowOrthoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowOrthoSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13647,7 +13464,7 @@ static bool js_scene_DirectionalLight_setShadowOrthoSize(se::State& s) // NOLINT
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowOrthoSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowOrthoSize(arg0.value());
         return true;
     }
@@ -13659,7 +13476,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowOrthoSize)
 static bool js_scene_DirectionalLight_setShadowPcf(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowPcf : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13667,7 +13484,7 @@ static bool js_scene_DirectionalLight_setShadowPcf(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<cc::scene::PCFType, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowPcf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowPcf(arg0.value());
         return true;
     }
@@ -13679,7 +13496,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_DirectionalLight_setShadowPcf)
 static bool js_scene_DirectionalLight_setShadowSaturation(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setShadowSaturation : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13687,7 +13504,7 @@ static bool js_scene_DirectionalLight_setShadowSaturation(se::State& s) // NOLIN
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_setShadowSaturation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowSaturation(arg0.value());
         return true;
     }
@@ -13755,7 +13572,7 @@ se::Class* __jsb_cc_scene_SpotLight_class = nullptr;  // NOLINT
 static bool js_scene_SpotLight_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getAABB : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13763,7 +13580,7 @@ static bool js_scene_SpotLight_getAABB(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         const cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getAABB : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13775,7 +13592,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getAABB)
 static bool js_scene_SpotLight_getAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getAngle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13783,7 +13600,7 @@ static bool js_scene_SpotLight_getAngle(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         float result = cobj->getAngle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getAngle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13795,7 +13612,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getAngle)
 static bool js_scene_SpotLight_getDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getDirection : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13803,7 +13620,7 @@ static bool js_scene_SpotLight_getDirection(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         const cc::Vec3& result = cobj->getDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getDirection : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13815,7 +13632,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getDirection)
 static bool js_scene_SpotLight_getFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getFrustum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13823,7 +13640,7 @@ static bool js_scene_SpotLight_getFrustum(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         const cc::geometry::Frustum& result = cobj->getFrustum();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getFrustum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13835,7 +13652,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getFrustum)
 static bool js_scene_SpotLight_getLuminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getLuminance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13843,7 +13660,7 @@ static bool js_scene_SpotLight_getLuminance(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         float result = cobj->getLuminance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getLuminance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13855,7 +13672,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getLuminance)
 static bool js_scene_SpotLight_getLuminanceHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getLuminanceHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13863,7 +13680,7 @@ static bool js_scene_SpotLight_getLuminanceHDR(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         float result = cobj->getLuminanceHDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getLuminanceHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13875,7 +13692,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getLuminanceHDR)
 static bool js_scene_SpotLight_getLuminanceLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getLuminanceLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13883,7 +13700,7 @@ static bool js_scene_SpotLight_getLuminanceLDR(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         float result = cobj->getLuminanceLDR();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getLuminanceLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13895,7 +13712,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getLuminanceLDR)
 static bool js_scene_SpotLight_getPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getPosition : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13903,7 +13720,7 @@ static bool js_scene_SpotLight_getPosition(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         const cc::Vec3& result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getPosition : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13915,7 +13732,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getPosition)
 static bool js_scene_SpotLight_getRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13923,7 +13740,7 @@ static bool js_scene_SpotLight_getRange(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         float result = cobj->getRange();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13935,7 +13752,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getRange)
 static bool js_scene_SpotLight_getShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13943,7 +13760,7 @@ static bool js_scene_SpotLight_getShadowBias(se::State& s) // NOLINT(readability
     if (argc == 0) {
         float result = cobj->getShadowBias();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getShadowBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13955,7 +13772,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getShadowBias)
 static bool js_scene_SpotLight_getShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getShadowNormalBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13963,7 +13780,7 @@ static bool js_scene_SpotLight_getShadowNormalBias(se::State& s) // NOLINT(reada
     if (argc == 0) {
         float result = cobj->getShadowNormalBias();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getShadowNormalBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13975,7 +13792,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getShadowNormalBias)
 static bool js_scene_SpotLight_getShadowPcf(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getShadowPcf : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -13983,7 +13800,7 @@ static bool js_scene_SpotLight_getShadowPcf(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         float result = cobj->getShadowPcf();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getShadowPcf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -13995,7 +13812,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getShadowPcf)
 static bool js_scene_SpotLight_getSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14003,7 +13820,7 @@ static bool js_scene_SpotLight_getSize(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         float result = cobj->getSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14015,7 +13832,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getSize)
 static bool js_scene_SpotLight_getSpotAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getSpotAngle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14023,7 +13840,7 @@ static bool js_scene_SpotLight_getSpotAngle(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         float result = cobj->getSpotAngle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getSpotAngle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14035,7 +13852,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getSpotAngle)
 static bool js_scene_SpotLight_isShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_isShadowEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14043,7 +13860,7 @@ static bool js_scene_SpotLight_isShadowEnabled(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         bool result = cobj->isShadowEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_isShadowEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14055,7 +13872,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_isShadowEnabled)
 static bool js_scene_SpotLight_setFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setFrustum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14063,7 +13880,7 @@ static bool js_scene_SpotLight_setFrustum(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::geometry::Frustum, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setFrustum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFrustum(arg0.value());
         return true;
     }
@@ -14075,7 +13892,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setFrustum)
 static bool js_scene_SpotLight_setLuminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setLuminance : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14083,7 +13900,7 @@ static bool js_scene_SpotLight_setLuminance(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setLuminance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLuminance(arg0.value());
         return true;
     }
@@ -14095,7 +13912,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setLuminance)
 static bool js_scene_SpotLight_setLuminanceHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setLuminanceHDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14103,7 +13920,7 @@ static bool js_scene_SpotLight_setLuminanceHDR(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setLuminanceHDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLuminanceHDR(arg0.value());
         return true;
     }
@@ -14115,7 +13932,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setLuminanceHDR)
 static bool js_scene_SpotLight_setLuminanceLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setLuminanceLDR : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14123,7 +13940,7 @@ static bool js_scene_SpotLight_setLuminanceLDR(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setLuminanceLDR : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setLuminanceLDR(arg0.value());
         return true;
     }
@@ -14135,7 +13952,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setLuminanceLDR)
 static bool js_scene_SpotLight_setRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setRange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14143,7 +13960,7 @@ static bool js_scene_SpotLight_setRange(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRange(arg0.value());
         return true;
     }
@@ -14155,7 +13972,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setRange)
 static bool js_scene_SpotLight_setShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setShadowBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14163,7 +13980,7 @@ static bool js_scene_SpotLight_setShadowBias(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setShadowBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowBias(arg0.value());
         return true;
     }
@@ -14175,7 +13992,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setShadowBias)
 static bool js_scene_SpotLight_setShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setShadowEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14183,7 +14000,7 @@ static bool js_scene_SpotLight_setShadowEnabled(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setShadowEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowEnabled(arg0.value());
         return true;
     }
@@ -14195,7 +14012,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setShadowEnabled)
 static bool js_scene_SpotLight_setShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setShadowNormalBias : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14203,7 +14020,7 @@ static bool js_scene_SpotLight_setShadowNormalBias(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setShadowNormalBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowNormalBias(arg0.value());
         return true;
     }
@@ -14215,7 +14032,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setShadowNormalBias)
 static bool js_scene_SpotLight_setShadowPcf(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setShadowPcf : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14223,7 +14040,7 @@ static bool js_scene_SpotLight_setShadowPcf(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setShadowPcf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShadowPcf(arg0.value());
         return true;
     }
@@ -14235,7 +14052,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setShadowPcf)
 static bool js_scene_SpotLight_setSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14243,7 +14060,7 @@ static bool js_scene_SpotLight_setSize(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSize(arg0.value());
         return true;
     }
@@ -14255,7 +14072,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setSize)
 static bool js_scene_SpotLight_setSpotAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setSpotAngle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14263,7 +14080,7 @@ static bool js_scene_SpotLight_setSpotAngle(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setSpotAngle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setSpotAngle(arg0.value());
         return true;
     }
@@ -14327,7 +14144,7 @@ se::Class* __jsb_cc_scene_PassDynamicsValue_class = nullptr;  // NOLINT
 static bool js_scene_PassDynamicsValue_get_dirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PassDynamicsValue>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_PassDynamicsValue_get_dirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -14343,11 +14160,11 @@ static bool js_scene_PassDynamicsValue_set_dirty(se::State& s) // NOLINT(readabi
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PassDynamicsValue>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_PassDynamicsValue_set_dirty : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->dirty, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_PassDynamicsValue_set_dirty : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_PassDynamicsValue_set_dirty)
@@ -14355,7 +14172,7 @@ SE_BIND_PROP_SET(js_scene_PassDynamicsValue_set_dirty)
 static bool js_scene_PassDynamicsValue_get_value(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PassDynamicsValue>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_PassDynamicsValue_get_value : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -14371,11 +14188,11 @@ static bool js_scene_PassDynamicsValue_set_value(se::State& s) // NOLINT(readabi
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PassDynamicsValue>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_PassDynamicsValue_set_value : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->value, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_PassDynamicsValue_set_value : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_PassDynamicsValue_set_value)
@@ -14485,7 +14302,7 @@ se::Class* __jsb_cc_scene_Pass_class = nullptr;  // NOLINT
 static bool js_scene_Pass__setRootBufferDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass__setRootBufferDirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14493,7 +14310,7 @@ static bool js_scene_Pass__setRootBufferDirty(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass__setRootBufferDirty : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->_setRootBufferDirty(arg0.value());
         return true;
     }
@@ -14505,7 +14322,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Pass__setRootBufferDirty)
 static bool js_scene_Pass_beginChangeStatesSilently(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_beginChangeStatesSilently : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14521,7 +14338,7 @@ SE_BIND_FUNC(js_scene_Pass_beginChangeStatesSilently)
 static bool js_scene_Pass_bindSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_bindSampler : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14531,7 +14348,7 @@ static bool js_scene_Pass_bindSampler(se::State& s) // NOLINT(readability-identi
         HolderType<cc::gfx::Sampler*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_bindSampler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->bindSampler(arg0.value(), arg1.value());
         return true;
     }
@@ -14542,7 +14359,7 @@ static bool js_scene_Pass_bindSampler(se::State& s) // NOLINT(readability-identi
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_bindSampler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->bindSampler(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -14554,7 +14371,7 @@ SE_BIND_FUNC(js_scene_Pass_bindSampler)
 static bool js_scene_Pass_bindTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_bindTexture : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14564,7 +14381,7 @@ static bool js_scene_Pass_bindTexture(se::State& s) // NOLINT(readability-identi
         HolderType<cc::gfx::Texture*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_bindTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->bindTexture(arg0.value(), arg1.value());
         return true;
     }
@@ -14575,7 +14392,7 @@ static bool js_scene_Pass_bindTexture(se::State& s) // NOLINT(readability-identi
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_bindTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->bindTexture(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -14587,7 +14404,7 @@ SE_BIND_FUNC(js_scene_Pass_bindTexture)
 static bool js_scene_Pass_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14603,7 +14420,7 @@ SE_BIND_FUNC(js_scene_Pass_destroy)
 static bool js_scene_Pass_endChangeStatesSilently(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_endChangeStatesSilently : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14619,7 +14436,7 @@ SE_BIND_FUNC(js_scene_Pass_endChangeStatesSilently)
 static bool js_scene_Pass_getBatchedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getBatchedBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14627,17 +14444,17 @@ static bool js_scene_Pass_getBatchedBuffer(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         cc::pipeline::BatchedBuffer* result = cobj->getBatchedBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBatchedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 1) {
         HolderType<int32_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBatchedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::pipeline::BatchedBuffer* result = cobj->getBatchedBuffer(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBatchedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14649,7 +14466,7 @@ SE_BIND_FUNC(js_scene_Pass_getBatchedBuffer)
 static bool js_scene_Pass_getBatchingScheme(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getBatchingScheme : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14657,7 +14474,7 @@ static bool js_scene_Pass_getBatchingScheme(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getBatchingScheme());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBatchingScheme : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14669,7 +14486,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getBatchingScheme)
 static bool js_scene_Pass_getBinding(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getBinding : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14677,10 +14494,10 @@ static bool js_scene_Pass_getBinding(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBinding : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cobj->getBinding(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBinding : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14692,7 +14509,7 @@ SE_BIND_FUNC(js_scene_Pass_getBinding)
 static bool js_scene_Pass_getBlendState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getBlendState : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14700,7 +14517,7 @@ static bool js_scene_Pass_getBlendState(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         const cc::gfx::BlendState* result = cobj->getBlendState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBlendState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14712,7 +14529,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getBlendState)
 static bool js_scene_Pass_getDefines(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDefines : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14720,7 +14537,7 @@ static bool js_scene_Pass_getDefines(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         const std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>& result = cobj->getDefines();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getDefines : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14732,7 +14549,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getDefines)
 static bool js_scene_Pass_getDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDepthStencilState : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14740,7 +14557,7 @@ static bool js_scene_Pass_getDepthStencilState(se::State& s) // NOLINT(readabili
     if (argc == 0) {
         const cc::gfx::DepthStencilState* result = cobj->getDepthStencilState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getDepthStencilState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14752,7 +14569,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getDepthStencilState)
 static bool js_scene_Pass_getDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDescriptorSet : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14760,7 +14577,7 @@ static bool js_scene_Pass_getDescriptorSet(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         cc::gfx::DescriptorSet* result = cobj->getDescriptorSet();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getDescriptorSet : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14772,7 +14589,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getDescriptorSet)
 static bool js_scene_Pass_getDevice(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDevice : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14780,7 +14597,7 @@ static bool js_scene_Pass_getDevice(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         cc::gfx::Device* result = cobj->getDevice();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getDevice : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14792,7 +14609,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getDevice)
 static bool js_scene_Pass_getDynamicStates(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDynamicStates : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14800,7 +14617,7 @@ static bool js_scene_Pass_getDynamicStates(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getDynamicStates());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getDynamicStates : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14812,7 +14629,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getDynamicStates)
 static bool js_scene_Pass_getDynamics(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDynamics : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14820,7 +14637,7 @@ static bool js_scene_Pass_getDynamics(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         const std::unordered_map<unsigned int, cc::scene::PassDynamicsValue>& result = cobj->getDynamics();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getDynamics : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14832,7 +14649,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getDynamics)
 static bool js_scene_Pass_getHandle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getHandle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14840,10 +14657,10 @@ static bool js_scene_Pass_getHandle(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cobj->getHandle(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14852,10 +14669,10 @@ static bool js_scene_Pass_getHandle(se::State& s) // NOLINT(readability-identifi
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cobj->getHandle(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14866,10 +14683,10 @@ static bool js_scene_Pass_getHandle(se::State& s) // NOLINT(readability-identifi
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cobj->getHandle(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14881,7 +14698,7 @@ SE_BIND_FUNC(js_scene_Pass_getHandle)
 static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getHash : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14889,7 +14706,7 @@ static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier
     if (argc == 0) {
         unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14901,7 +14718,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getHash)
 static bool js_scene_Pass_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getInstancedBuffer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14909,17 +14726,17 @@ static bool js_scene_Pass_getInstancedBuffer(se::State& s) // NOLINT(readability
     if (argc == 0) {
         cc::pipeline::InstancedBuffer* result = cobj->getInstancedBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getInstancedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 1) {
         HolderType<int32_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getInstancedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::pipeline::InstancedBuffer* result = cobj->getInstancedBuffer(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getInstancedBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14931,7 +14748,7 @@ SE_BIND_FUNC(js_scene_Pass_getInstancedBuffer)
 static bool js_scene_Pass_getLocalSetLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getLocalSetLayout : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14939,7 +14756,7 @@ static bool js_scene_Pass_getLocalSetLayout(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         cc::gfx::DescriptorSetLayout* result = cobj->getLocalSetLayout();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getLocalSetLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14951,7 +14768,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getLocalSetLayout)
 static bool js_scene_Pass_getPassIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPassIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14959,7 +14776,7 @@ static bool js_scene_Pass_getPassIndex(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         int result = cobj->getPassIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassIndex : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14971,7 +14788,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getPassIndex)
 static bool js_scene_Pass_getPassInfoFull(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPassInfoFull : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14979,7 +14796,7 @@ static bool js_scene_Pass_getPassInfoFull(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         cc::IPassInfoFull result = cobj->getPassInfoFull();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassInfoFull : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -14991,7 +14808,7 @@ SE_BIND_FUNC(js_scene_Pass_getPassInfoFull)
 static bool js_scene_Pass_getPhase(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPhase : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14999,7 +14816,7 @@ static bool js_scene_Pass_getPhase(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         unsigned int result = cobj->getPhase();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPhase : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15011,7 +14828,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getPhase)
 static bool js_scene_Pass_getPipelineLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPipelineLayout : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15019,7 +14836,7 @@ static bool js_scene_Pass_getPipelineLayout(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         cc::gfx::PipelineLayout* result = cobj->getPipelineLayout();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPipelineLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15031,7 +14848,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getPipelineLayout)
 static bool js_scene_Pass_getPrimitive(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPrimitive : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15039,7 +14856,7 @@ static bool js_scene_Pass_getPrimitive(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getPrimitive());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPrimitive : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15051,7 +14868,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getPrimitive)
 static bool js_scene_Pass_getPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15059,7 +14876,7 @@ static bool js_scene_Pass_getPriority(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getPriority());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15071,7 +14888,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getPriority)
 static bool js_scene_Pass_getProgram(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getProgram : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15079,7 +14896,7 @@ static bool js_scene_Pass_getProgram(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         const std::string& result = cobj->getProgram();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getProgram : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15091,7 +14908,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getProgram)
 static bool js_scene_Pass_getProperties(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getProperties : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15099,7 +14916,7 @@ static bool js_scene_Pass_getProperties(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         const std::unordered_map<std::string, cc::IPropertyInfo>& result = cobj->getProperties();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getProperties : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15111,7 +14928,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getProperties)
 static bool js_scene_Pass_getPropertyIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPropertyIndex : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15119,7 +14936,7 @@ static bool js_scene_Pass_getPropertyIndex(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         int result = cobj->getPropertyIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPropertyIndex : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15131,7 +14948,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getPropertyIndex)
 static bool js_scene_Pass_getRasterizerState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getRasterizerState : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15139,7 +14956,7 @@ static bool js_scene_Pass_getRasterizerState(se::State& s) // NOLINT(readability
     if (argc == 0) {
         const cc::gfx::RasterizerState* result = cobj->getRasterizerState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getRasterizerState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15151,7 +14968,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getRasterizerState)
 static bool js_scene_Pass_getRoot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getRoot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15159,7 +14976,7 @@ static bool js_scene_Pass_getRoot(se::State& s) // NOLINT(readability-identifier
     if (argc == 0) {
         cc::Root* result = cobj->getRoot();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getRoot : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15171,7 +14988,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getRoot)
 static bool js_scene_Pass_getRootBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getRootBlock : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15179,7 +14996,7 @@ static bool js_scene_Pass_getRootBlock(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         cc::ArrayBuffer* result = cobj->getRootBlock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getRootBlock : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15191,7 +15008,7 @@ SE_BIND_FUNC(js_scene_Pass_getRootBlock)
 static bool js_scene_Pass_getShaderInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getShaderInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15199,7 +15016,7 @@ static bool js_scene_Pass_getShaderInfo(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         cc::IProgramInfo* result = cobj->getShaderInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getShaderInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15212,7 +15029,7 @@ static bool js_scene_Pass_getShaderVariant(se::State& s) // NOLINT(readability-i
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Pass_getShaderVariant : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15224,7 +15041,7 @@ static bool js_scene_Pass_getShaderVariant(se::State& s) // NOLINT(readability-i
             if (!ok) { ok = true; break; }
             cc::gfx::Shader* result = cobj->getShaderVariant(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_scene_Pass_getShaderVariant : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -15235,7 +15052,7 @@ static bool js_scene_Pass_getShaderVariant(se::State& s) // NOLINT(readability-i
 
             cc::gfx::Shader* result = cobj->getShaderVariant();
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_scene_Pass_getShaderVariant : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -15249,7 +15066,7 @@ SE_BIND_FUNC(js_scene_Pass_getShaderVariant)
 static bool js_scene_Pass_getStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getStage : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15257,7 +15074,7 @@ static bool js_scene_Pass_getStage(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getStage());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getStage : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15269,7 +15086,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getStage)
 static bool js_scene_Pass_getUniform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_getUniform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15279,10 +15096,10 @@ static bool js_scene_Pass_getUniform(se::State& s) // NOLINT(readability-identif
         HolderType<boost::variant2::variant<boost::variant2::monostate, float, int, cc::Vec2, cc::Vec3, cc::Vec4, cc::Color, cc::Mat3, cc::Mat4, cc::Quaternion, cc::IntrusivePtr<cc::TextureBase>, cc::IntrusivePtr<cc::gfx::Texture>>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getUniform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         boost::variant2::variant<boost::variant2::monostate, float, int, cc::Vec2, cc::Vec3, cc::Vec4, cc::Color, cc::Mat3, cc::Mat4, cc::Quaternion, cc::IntrusivePtr<cc::TextureBase>, cc::IntrusivePtr<cc::gfx::Texture>>& result = cobj->getUniform(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getUniform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15291,36 +15108,10 @@ static bool js_scene_Pass_getUniform(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_scene_Pass_getUniform)
 
-static bool js_scene_Pass_initPassFromTarget(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_initPassFromTarget : Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        HolderType<cc::scene::Pass*, false> arg0 = {};
-        HolderType<cc::gfx::DepthStencilState, true> arg1 = {};
-        HolderType<cc::gfx::BlendState, true> arg2 = {};
-        HolderType<unsigned int, false> arg3 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_initPassFromTarget : Error processing arguments");
-        cobj->initPassFromTarget(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Pass_initPassFromTarget)
-
 static bool js_scene_Pass_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15328,7 +15119,7 @@ static bool js_scene_Pass_initialize(se::State& s) // NOLINT(readability-identif
     if (argc == 1) {
         HolderType<cc::IPassInfoFull, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -15340,7 +15131,7 @@ SE_BIND_FUNC(js_scene_Pass_initialize)
 static bool js_scene_Pass_isRootBufferDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_isRootBufferDirty : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15348,7 +15139,7 @@ static bool js_scene_Pass_isRootBufferDirty(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         bool result = cobj->isRootBufferDirty();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_isRootBufferDirty : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15360,7 +15151,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_isRootBufferDirty)
 static bool js_scene_Pass_overridePipelineStates(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_overridePipelineStates : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15370,7 +15161,7 @@ static bool js_scene_Pass_overridePipelineStates(se::State& s) // NOLINT(readabi
         HolderType<cc::IPassStates, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_overridePipelineStates : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->overridePipelineStates(arg0.value(), arg1.value());
         return true;
     }
@@ -15383,7 +15174,7 @@ static bool js_scene_Pass_resetTexture(se::State& s) // NOLINT(readability-ident
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Pass_resetTexture : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15420,7 +15211,7 @@ SE_BIND_FUNC(js_scene_Pass_resetTexture)
 static bool js_scene_Pass_resetTextures(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_resetTextures : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15436,7 +15227,7 @@ SE_BIND_FUNC(js_scene_Pass_resetTextures)
 static bool js_scene_Pass_resetUBOs(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_resetUBOs : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15452,7 +15243,7 @@ SE_BIND_FUNC(js_scene_Pass_resetUBOs)
 static bool js_scene_Pass_resetUniform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_resetUniform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15460,7 +15251,7 @@ static bool js_scene_Pass_resetUniform(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_resetUniform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->resetUniform(arg0.value());
         return true;
     }
@@ -15472,7 +15263,7 @@ SE_BIND_FUNC(js_scene_Pass_resetUniform)
 static bool js_scene_Pass_setDynamicState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_setDynamicState : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15482,7 +15273,7 @@ static bool js_scene_Pass_setDynamicState(se::State& s) // NOLINT(readability-id
         HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_setDynamicState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDynamicState(arg0.value(), arg1.value());
         return true;
     }
@@ -15494,7 +15285,7 @@ SE_BIND_FUNC(js_scene_Pass_setDynamicState)
 static bool js_scene_Pass_setUniform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_setUniform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15504,7 +15295,7 @@ static bool js_scene_Pass_setUniform(se::State& s) // NOLINT(readability-identif
         HolderType<boost::variant2::variant<boost::variant2::monostate, float, int, cc::Vec2, cc::Vec3, cc::Vec4, cc::Color, cc::Mat3, cc::Mat4, cc::Quaternion, cc::IntrusivePtr<cc::TextureBase>, cc::IntrusivePtr<cc::gfx::Texture>>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_setUniform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUniform(arg0.value(), arg1.value());
         return true;
     }
@@ -15516,7 +15307,7 @@ SE_BIND_FUNC(js_scene_Pass_setUniform)
 static bool js_scene_Pass_setUniformArray(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_setUniformArray : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15526,7 +15317,7 @@ static bool js_scene_Pass_setUniformArray(se::State& s) // NOLINT(readability-id
         HolderType<std::vector<boost::variant2::variant<boost::variant2::monostate, float, int, cc::Vec2, cc::Vec3, cc::Vec4, cc::Color, cc::Mat3, cc::Mat4, cc::Quaternion, cc::IntrusivePtr<cc::TextureBase>, cc::IntrusivePtr<cc::gfx::Texture>>>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_setUniformArray : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUniformArray(arg0.value(), arg1.value());
         return true;
     }
@@ -15539,7 +15330,7 @@ static bool js_scene_Pass_tryCompile(se::State& s) // NOLINT(readability-identif
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2( cobj, false, "js_scene_Pass_tryCompile : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15551,7 +15342,7 @@ static bool js_scene_Pass_tryCompile(se::State& s) // NOLINT(readability-identif
             if (!ok) { ok = true; break; }
             bool result = cobj->tryCompile(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_scene_Pass_tryCompile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -15562,7 +15353,7 @@ static bool js_scene_Pass_tryCompile(se::State& s) // NOLINT(readability-identif
 
             bool result = cobj->tryCompile();
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_scene_Pass_tryCompile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -15576,7 +15367,7 @@ SE_BIND_FUNC(js_scene_Pass_tryCompile)
 static bool js_scene_Pass_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Pass_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -15599,7 +15390,7 @@ static bool js_scene_Pass_fillPipelineInfo_static(se::State& s) // NOLINT(readab
         HolderType<cc::IPassInfoFull, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_fillPipelineInfo_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::scene::Pass::fillPipelineInfo(arg0.value(), arg1.value());
         return true;
     }
@@ -15616,10 +15407,10 @@ static bool js_scene_Pass_getBindingFromHandle_static(se::State& s) // NOLINT(re
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBindingFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cc::scene::Pass::getBindingFromHandle(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getBindingFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15636,10 +15427,10 @@ static bool js_scene_Pass_getCountFromHandle_static(se::State& s) // NOLINT(read
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getCountFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cc::scene::Pass::getCountFromHandle(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getCountFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15656,10 +15447,10 @@ static bool js_scene_Pass_getOffsetFromHandle_static(se::State& s) // NOLINT(rea
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getOffsetFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cc::scene::Pass::getOffsetFromHandle(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getOffsetFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15676,10 +15467,10 @@ static bool js_scene_Pass_getPassHash_static(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::scene::Pass*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassHash_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         unsigned int result = cc::scene::Pass::getPassHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassHash_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15696,10 +15487,10 @@ static bool js_scene_Pass_getTypeFromHandle_static(se::State& s) // NOLINT(reada
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getTypeFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         auto result = static_cast<int>(cc::scene::Pass::getTypeFromHandle(arg0.value()));
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getTypeFromHandle_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -15787,7 +15578,6 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getRootBlock", _SE(js_scene_Pass_getRootBlock));
     cls->defineFunction("getShaderVariant", _SE(js_scene_Pass_getShaderVariant));
     cls->defineFunction("getUniform", _SE(js_scene_Pass_getUniform));
-    cls->defineFunction("_initPassFromTarget", _SE(js_scene_Pass_initPassFromTarget));
     cls->defineFunction("initialize", _SE(js_scene_Pass_initialize));
     cls->defineFunction("overridePipelineStates", _SE(js_scene_Pass_overridePipelineStates));
     cls->defineFunction("resetTexture", _SE(js_scene_Pass_resetTexture));
@@ -15816,279 +15606,13 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_scene_DrawBatch2D_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_scene_DrawBatch2D_class = nullptr;  // NOLINT
-
-static bool js_scene_DrawBatch2D_get_visFlags(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_visFlags : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->visFlags, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->visFlags, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_visFlags)
-
-static bool js_scene_DrawBatch2D_set_visFlags(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_set_visFlags : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->visFlags, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_set_visFlags : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_visFlags)
-
-static bool js_scene_DrawBatch2D_get_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_descriptorSet : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->descriptorSet, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->descriptorSet, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_descriptorSet)
-
-static bool js_scene_DrawBatch2D_set_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_set_descriptorSet : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->descriptorSet, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_set_descriptorSet : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_descriptorSet)
-
-static bool js_scene_DrawBatch2D_get_inputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_inputAssembler : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->inputAssembler, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->inputAssembler, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_inputAssembler)
-
-static bool js_scene_DrawBatch2D_set_inputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_set_inputAssembler : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->inputAssembler, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_set_inputAssembler : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_inputAssembler)
-
-static bool js_scene_DrawBatch2D_get_passes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_passes : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->passes, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->passes, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_passes)
-
-static bool js_scene_DrawBatch2D_set_passes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_set_passes : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->passes, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_set_passes : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_passes)
-
-static bool js_scene_DrawBatch2D_get_shaders(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_shaders : Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->shaders, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->shaders, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_shaders)
-
-static bool js_scene_DrawBatch2D_set_shaders(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_set_shaders : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->shaders, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_set_shaders : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_shaders)
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::scene::DrawBatch2D * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::scene::DrawBatch2D*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    json->getProperty("visFlags", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->visFlags), ctx);
-    }
-    json->getProperty("descriptorSet", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->descriptorSet), ctx);
-    }
-    json->getProperty("inputAssembler", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->inputAssembler), ctx);
-    }
-    json->getProperty("passes", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->passes), ctx);
-    }
-    json->getProperty("shaders", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shaders), ctx);
-    }
-    return ok;
-}
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_scene_DrawBatch2D_finalize)
-
-static bool js_scene_DrawBatch2D_constructor(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-
-    if(argc == 0)
-    {
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::DrawBatch2D);
-        s.thisObject()->setPrivateObject(ptr);
-        return true;
-    }
-
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::DrawBatch2D);
-        auto cobj = ptr->get<cc::scene::DrawBatch2D>();
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            delete ptr;
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-        s.thisObject()->setPrivateObject(ptr);
-        return true;
-    }
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::DrawBatch2D);
-    auto cobj = ptr->get<cc::scene::DrawBatch2D>();
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->visFlags), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->descriptorSet), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->inputAssembler), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->passes), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->shaders), nullptr);
-    }
-
-    if(!ok) {
-        delete ptr;
-        SE_REPORT_ERROR("Argument convertion error");
-        return false;
-    }
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_scene_DrawBatch2D_constructor, __jsb_cc_scene_DrawBatch2D_class, js_cc_scene_DrawBatch2D_finalize)
-
-static bool js_cc_scene_DrawBatch2D_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_scene_DrawBatch2D_finalize)
-
-bool js_register_scene_DrawBatch2D(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("DrawBatch2D", obj, nullptr, _SE(js_scene_DrawBatch2D_constructor));
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
-#endif
-    cls->defineProperty("visFlags", _SE(js_scene_DrawBatch2D_get_visFlags), _SE(js_scene_DrawBatch2D_set_visFlags));
-    cls->defineProperty("descriptorSet", _SE(js_scene_DrawBatch2D_get_descriptorSet), _SE(js_scene_DrawBatch2D_set_descriptorSet));
-    cls->defineProperty("inputAssembler", _SE(js_scene_DrawBatch2D_get_inputAssembler), _SE(js_scene_DrawBatch2D_set_inputAssembler));
-    cls->defineProperty("passes", _SE(js_scene_DrawBatch2D_get_passes), _SE(js_scene_DrawBatch2D_set_passes));
-    cls->defineProperty("shaders", _SE(js_scene_DrawBatch2D_get_shaders), _SE(js_scene_DrawBatch2D_set_shaders));
-    cls->defineFinalizeFunction(_SE(js_cc_scene_DrawBatch2D_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::scene::DrawBatch2D>(cls);
-
-    __jsb_cc_scene_DrawBatch2D_proto = cls->getProto();
-    __jsb_cc_scene_DrawBatch2D_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_cc_scene_ICameraInfo_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_scene_ICameraInfo_class = nullptr;  // NOLINT
 
 static bool js_scene_ICameraInfo_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_name : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16104,11 +15628,11 @@ static bool js_scene_ICameraInfo_set_name(se::State& s) // NOLINT(readability-id
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_name : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_name : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_name)
@@ -16116,7 +15640,7 @@ SE_BIND_PROP_SET(js_scene_ICameraInfo_set_name)
 static bool js_scene_ICameraInfo_get_node(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_node : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16132,11 +15656,11 @@ static bool js_scene_ICameraInfo_set_node(se::State& s) // NOLINT(readability-id
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_node : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->node, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_node : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_node)
@@ -16144,7 +15668,7 @@ SE_BIND_PROP_SET(js_scene_ICameraInfo_set_node)
 static bool js_scene_ICameraInfo_get_projection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_projection : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16160,11 +15684,11 @@ static bool js_scene_ICameraInfo_set_projection(se::State& s) // NOLINT(readabil
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_projection : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->projection, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_projection : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_projection)
@@ -16172,7 +15696,7 @@ SE_BIND_PROP_SET(js_scene_ICameraInfo_set_projection)
 static bool js_scene_ICameraInfo_get_targetDisplay(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_targetDisplay : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16188,11 +15712,11 @@ static bool js_scene_ICameraInfo_set_targetDisplay(se::State& s) // NOLINT(reada
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_targetDisplay : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->targetDisplay, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_targetDisplay : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_targetDisplay)
@@ -16200,7 +15724,7 @@ SE_BIND_PROP_SET(js_scene_ICameraInfo_set_targetDisplay)
 static bool js_scene_ICameraInfo_get_window(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_window : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16216,11 +15740,11 @@ static bool js_scene_ICameraInfo_set_window(se::State& s) // NOLINT(readability-
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_window : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->window, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_window : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_window)
@@ -16228,7 +15752,7 @@ SE_BIND_PROP_SET(js_scene_ICameraInfo_set_window)
 static bool js_scene_ICameraInfo_get_priority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_priority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16244,11 +15768,11 @@ static bool js_scene_ICameraInfo_set_priority(se::State& s) // NOLINT(readabilit
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_priority : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->priority, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_priority : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_priority)
@@ -16256,7 +15780,7 @@ SE_BIND_PROP_SET(js_scene_ICameraInfo_set_priority)
 static bool js_scene_ICameraInfo_get_pipeline(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_get_pipeline : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -16272,11 +15796,11 @@ static bool js_scene_ICameraInfo_set_pipeline(se::State& s) // NOLINT(readabilit
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ICameraInfo_set_pipeline : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->pipeline, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ICameraInfo_set_pipeline : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_ICameraInfo_set_pipeline)
@@ -16426,7 +15950,7 @@ se::Class* __jsb_cc_scene_Camera_class = nullptr;  // NOLINT
 static bool js_scene_Camera_attachToScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_attachToScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16434,7 +15958,7 @@ static bool js_scene_Camera_attachToScene(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::scene::RenderScene*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_attachToScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->attachToScene(arg0.value());
         return true;
     }
@@ -16446,7 +15970,7 @@ SE_BIND_FUNC(js_scene_Camera_attachToScene)
 static bool js_scene_Camera_changeTargetWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_changeTargetWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16454,7 +15978,7 @@ static bool js_scene_Camera_changeTargetWindow(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::scene::RenderWindow*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_changeTargetWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->changeTargetWindow(arg0.value());
         return true;
     }
@@ -16466,7 +15990,7 @@ SE_BIND_FUNC(js_scene_Camera_changeTargetWindow)
 static bool js_scene_Camera_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_destroy : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16482,7 +16006,7 @@ SE_BIND_FUNC(js_scene_Camera_destroy)
 static bool js_scene_Camera_detachCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_detachCamera : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16498,7 +16022,7 @@ SE_BIND_FUNC(js_scene_Camera_detachCamera)
 static bool js_scene_Camera_detachFromScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_detachFromScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16514,7 +16038,7 @@ SE_BIND_FUNC(js_scene_Camera_detachFromScene)
 static bool js_scene_Camera_getAperture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getAperture : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16522,7 +16046,7 @@ static bool js_scene_Camera_getAperture(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getAperture());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getAperture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16534,7 +16058,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getAperture)
 static bool js_scene_Camera_getApertureValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getApertureValue : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16542,7 +16066,7 @@ static bool js_scene_Camera_getApertureValue(se::State& s) // NOLINT(readability
     if (argc == 0) {
         float result = cobj->getApertureValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getApertureValue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16554,7 +16078,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getApertureValue)
 static bool js_scene_Camera_getAspect(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getAspect : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16562,7 +16086,7 @@ static bool js_scene_Camera_getAspect(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         float result = cobj->getAspect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getAspect : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16574,7 +16098,7 @@ SE_BIND_FUNC(js_scene_Camera_getAspect)
 static bool js_scene_Camera_getClearColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getClearColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16582,7 +16106,7 @@ static bool js_scene_Camera_getClearColor(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         const cc::gfx::Color& result = cobj->getClearColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getClearColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16594,7 +16118,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getClearColor)
 static bool js_scene_Camera_getClearDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getClearDepth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16602,7 +16126,7 @@ static bool js_scene_Camera_getClearDepth(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         float result = cobj->getClearDepth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getClearDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16614,7 +16138,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getClearDepth)
 static bool js_scene_Camera_getClearFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getClearFlag : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16622,7 +16146,7 @@ static bool js_scene_Camera_getClearFlag(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getClearFlag());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getClearFlag : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16634,7 +16158,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getClearFlag)
 static bool js_scene_Camera_getClearStencil(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getClearStencil : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16642,7 +16166,7 @@ static bool js_scene_Camera_getClearStencil(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         unsigned int result = cobj->getClearStencil();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getClearStencil : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16654,7 +16178,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getClearStencil)
 static bool js_scene_Camera_getEc(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getEc : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16662,7 +16186,7 @@ static bool js_scene_Camera_getEc(se::State& s) // NOLINT(readability-identifier
     if (argc == 0) {
         float result = cobj->getEc();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getEc : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16674,7 +16198,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getEc)
 static bool js_scene_Camera_getExposure(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getExposure : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16682,7 +16206,7 @@ static bool js_scene_Camera_getExposure(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         float result = cobj->getExposure();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getExposure : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16694,7 +16218,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getExposure)
 static bool js_scene_Camera_getFarClip(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getFarClip : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16702,7 +16226,7 @@ static bool js_scene_Camera_getFarClip(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         float result = cobj->getFarClip();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getFarClip : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16714,7 +16238,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getFarClip)
 static bool js_scene_Camera_getForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getForward : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16722,7 +16246,7 @@ static bool js_scene_Camera_getForward(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         const cc::Vec3& result = cobj->getForward();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getForward : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16734,7 +16258,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getForward)
 static bool js_scene_Camera_getFov(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getFov : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16742,7 +16266,7 @@ static bool js_scene_Camera_getFov(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         float result = cobj->getFov();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getFov : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16754,7 +16278,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getFov)
 static bool js_scene_Camera_getFovAxis(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getFovAxis : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16762,7 +16286,7 @@ static bool js_scene_Camera_getFovAxis(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getFovAxis());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getFovAxis : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16774,7 +16298,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getFovAxis)
 static bool js_scene_Camera_getFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getFrustum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16782,7 +16306,7 @@ static bool js_scene_Camera_getFrustum(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         const cc::geometry::Frustum& result = cobj->getFrustum();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getFrustum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16795,7 +16319,7 @@ static bool js_scene_Camera_getGeometryRenderer(se::State& s) // NOLINT(readabil
 {
 #if CC_USE_GEOMETRY_RENDERER
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getGeometryRenderer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16803,7 +16327,7 @@ static bool js_scene_Camera_getGeometryRenderer(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getGeometryRenderer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16818,7 +16342,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getGeometryRenderer)
 static bool js_scene_Camera_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getHeight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16826,7 +16350,7 @@ static bool js_scene_Camera_getHeight(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         unsigned int result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getHeight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16838,7 +16362,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getHeight)
 static bool js_scene_Camera_getIso(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getIso : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16846,7 +16370,7 @@ static bool js_scene_Camera_getIso(se::State& s) // NOLINT(readability-identifie
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getIso());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getIso : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16858,7 +16382,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getIso)
 static bool js_scene_Camera_getIsoValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getIsoValue : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16866,7 +16390,7 @@ static bool js_scene_Camera_getIsoValue(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         float result = cobj->getIsoValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getIsoValue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16878,7 +16402,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getIsoValue)
 static bool js_scene_Camera_getName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getName : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16886,7 +16410,7 @@ static bool js_scene_Camera_getName(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16898,7 +16422,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getName)
 static bool js_scene_Camera_getNearClip(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getNearClip : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16906,7 +16430,7 @@ static bool js_scene_Camera_getNearClip(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         float result = cobj->getNearClip();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getNearClip : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16918,7 +16442,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getNearClip)
 static bool js_scene_Camera_getNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16926,7 +16450,7 @@ static bool js_scene_Camera_getNode(se::State& s) // NOLINT(readability-identifi
     if (argc == 0) {
         cc::Node* result = cobj->getNode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16938,7 +16462,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getNode)
 static bool js_scene_Camera_getOrthoHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getOrthoHeight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16946,7 +16470,7 @@ static bool js_scene_Camera_getOrthoHeight(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         float result = cobj->getOrthoHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getOrthoHeight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16958,7 +16482,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getOrthoHeight)
 static bool js_scene_Camera_getPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getPosition : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16966,7 +16490,7 @@ static bool js_scene_Camera_getPosition(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         const cc::Vec3& result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getPosition : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16978,7 +16502,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getPosition)
 static bool js_scene_Camera_getPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16986,7 +16510,7 @@ static bool js_scene_Camera_getPriority(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         unsigned int result = cobj->getPriority();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -16998,7 +16522,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getPriority)
 static bool js_scene_Camera_getProjectionType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getProjectionType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17006,7 +16530,7 @@ static bool js_scene_Camera_getProjectionType(se::State& s) // NOLINT(readabilit
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getProjectionType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getProjectionType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17018,7 +16542,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getProjectionType)
 static bool js_scene_Camera_getScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getScene : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17026,7 +16550,7 @@ static bool js_scene_Camera_getScene(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         cc::scene::RenderScene* result = cobj->getScene();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17038,7 +16562,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getScene)
 static bool js_scene_Camera_getScreenScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getScreenScale : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17046,7 +16570,7 @@ static bool js_scene_Camera_getScreenScale(se::State& s) // NOLINT(readability-i
     if (argc == 0) {
         float result = cobj->getScreenScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getScreenScale : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17058,7 +16582,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getScreenScale)
 static bool js_scene_Camera_getShutter(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getShutter : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17066,7 +16590,7 @@ static bool js_scene_Camera_getShutter(se::State& s) // NOLINT(readability-ident
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getShutter());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getShutter : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17078,7 +16602,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getShutter)
 static bool js_scene_Camera_getShutterValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getShutterValue : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17086,7 +16610,7 @@ static bool js_scene_Camera_getShutterValue(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         float result = cobj->getShutterValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getShutterValue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17098,7 +16622,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getShutterValue)
 static bool js_scene_Camera_getSurfaceTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getSurfaceTransform : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17106,7 +16630,7 @@ static bool js_scene_Camera_getSurfaceTransform(se::State& s) // NOLINT(readabil
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getSurfaceTransform());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getSurfaceTransform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17118,7 +16642,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getSurfaceTransform)
 static bool js_scene_Camera_getViewport(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getViewport : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17126,7 +16650,7 @@ static bool js_scene_Camera_getViewport(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         const cc::Vec4& result = cobj->getViewport();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getViewport : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17138,7 +16662,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getViewport)
 static bool js_scene_Camera_getVisibility(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getVisibility : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17146,7 +16670,7 @@ static bool js_scene_Camera_getVisibility(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         unsigned int result = cobj->getVisibility();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getVisibility : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17158,7 +16682,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getVisibility)
 static bool js_scene_Camera_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getWidth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17166,7 +16690,7 @@ static bool js_scene_Camera_getWidth(se::State& s) // NOLINT(readability-identif
     if (argc == 0) {
         unsigned int result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getWidth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17178,7 +16702,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getWidth)
 static bool js_scene_Camera_getWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_getWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17186,7 +16710,7 @@ static bool js_scene_Camera_getWindow(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         cc::scene::RenderWindow* result = cobj->getWindow();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17198,7 +16722,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getWindow)
 static bool js_scene_Camera_initGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_initGeometryRenderer : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17214,7 +16738,7 @@ SE_BIND_FUNC(js_scene_Camera_initGeometryRenderer)
 static bool js_scene_Camera_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17222,10 +16746,10 @@ static bool js_scene_Camera_initialize(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::ICameraInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->initialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17237,7 +16761,7 @@ SE_BIND_FUNC(js_scene_Camera_initialize)
 static bool js_scene_Camera_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17245,7 +16769,7 @@ static bool js_scene_Camera_isEnabled(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17257,7 +16781,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_isEnabled)
 static bool js_scene_Camera_isWindowSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_isWindowSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17265,7 +16789,7 @@ static bool js_scene_Camera_isWindowSize(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         bool result = cobj->isWindowSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_isWindowSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17277,7 +16801,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_isWindowSize)
 static bool js_scene_Camera_resize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_resize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17287,7 +16811,7 @@ static bool js_scene_Camera_resize(se::State& s) // NOLINT(readability-identifie
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->resize(arg0.value(), arg1.value());
         return true;
     }
@@ -17299,7 +16823,7 @@ SE_BIND_FUNC(js_scene_Camera_resize)
 static bool js_scene_Camera_setAperture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setAperture : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17307,7 +16831,7 @@ static bool js_scene_Camera_setAperture(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::scene::CameraAperture, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setAperture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAperture(arg0.value());
         return true;
     }
@@ -17319,7 +16843,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setAperture)
 static bool js_scene_Camera_setClearColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setClearColor : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17327,7 +16851,7 @@ static bool js_scene_Camera_setClearColor(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::gfx::Color, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setClearColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setClearColor(arg0.value());
         return true;
     }
@@ -17339,7 +16863,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setClearColor)
 static bool js_scene_Camera_setClearDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setClearDepth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17347,7 +16871,7 @@ static bool js_scene_Camera_setClearDepth(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setClearDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setClearDepth(arg0.value());
         return true;
     }
@@ -17359,7 +16883,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setClearDepth)
 static bool js_scene_Camera_setClearFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setClearFlag : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17367,7 +16891,7 @@ static bool js_scene_Camera_setClearFlag(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::gfx::ClearFlagBit, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setClearFlag : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setClearFlag(arg0.value());
         return true;
     }
@@ -17379,7 +16903,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setClearFlag)
 static bool js_scene_Camera_setClearStencil(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setClearStencil : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17387,7 +16911,7 @@ static bool js_scene_Camera_setClearStencil(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setClearStencil : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setClearStencil(arg0.value());
         return true;
     }
@@ -17399,7 +16923,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setClearStencil)
 static bool js_scene_Camera_setEc(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setEc : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17407,7 +16931,7 @@ static bool js_scene_Camera_setEc(se::State& s) // NOLINT(readability-identifier
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setEc : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEc(arg0.value());
         return true;
     }
@@ -17419,7 +16943,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setEc)
 static bool js_scene_Camera_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17427,7 +16951,7 @@ static bool js_scene_Camera_setEnabled(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -17439,7 +16963,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setEnabled)
 static bool js_scene_Camera_setFarClip(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setFarClip : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17447,7 +16971,7 @@ static bool js_scene_Camera_setFarClip(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setFarClip : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFarClip(arg0.value());
         return true;
     }
@@ -17459,7 +16983,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setFarClip)
 static bool js_scene_Camera_setFixedSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setFixedSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17469,7 +16993,7 @@ static bool js_scene_Camera_setFixedSize(se::State& s) // NOLINT(readability-ide
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setFixedSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFixedSize(arg0.value(), arg1.value());
         return true;
     }
@@ -17481,7 +17005,7 @@ SE_BIND_FUNC(js_scene_Camera_setFixedSize)
 static bool js_scene_Camera_setForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setForward : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17489,7 +17013,7 @@ static bool js_scene_Camera_setForward(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setForward : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setForward(arg0.value());
         return true;
     }
@@ -17501,7 +17025,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setForward)
 static bool js_scene_Camera_setFov(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setFov : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17509,7 +17033,7 @@ static bool js_scene_Camera_setFov(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setFov : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFov(arg0.value());
         return true;
     }
@@ -17521,7 +17045,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setFov)
 static bool js_scene_Camera_setFovAxis(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setFovAxis : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17529,7 +17053,7 @@ static bool js_scene_Camera_setFovAxis(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::CameraFOVAxis, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setFovAxis : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFovAxis(arg0.value());
         return true;
     }
@@ -17541,7 +17065,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setFovAxis)
 static bool js_scene_Camera_setFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setFrustum : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17549,7 +17073,7 @@ static bool js_scene_Camera_setFrustum(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::geometry::Frustum, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setFrustum : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setFrustum(arg0.value());
         return true;
     }
@@ -17561,7 +17085,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setFrustum)
 static bool js_scene_Camera_setIso(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setIso : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17569,7 +17093,7 @@ static bool js_scene_Camera_setIso(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::scene::CameraISO, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setIso : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setIso(arg0.value());
         return true;
     }
@@ -17581,7 +17105,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setIso)
 static bool js_scene_Camera_setNearClip(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setNearClip : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17589,7 +17113,7 @@ static bool js_scene_Camera_setNearClip(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setNearClip : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setNearClip(arg0.value());
         return true;
     }
@@ -17601,7 +17125,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setNearClip)
 static bool js_scene_Camera_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setNode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17609,7 +17133,7 @@ static bool js_scene_Camera_setNode(se::State& s) // NOLINT(readability-identifi
     if (argc == 1) {
         HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setNode(arg0.value());
         return true;
     }
@@ -17621,7 +17145,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setNode)
 static bool js_scene_Camera_setOrthoHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setOrthoHeight : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17629,7 +17153,7 @@ static bool js_scene_Camera_setOrthoHeight(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setOrthoHeight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setOrthoHeight(arg0.value());
         return true;
     }
@@ -17641,7 +17165,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setOrthoHeight)
 static bool js_scene_Camera_setPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setPosition : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17649,7 +17173,7 @@ static bool js_scene_Camera_setPosition(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setPosition : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPosition(arg0.value());
         return true;
     }
@@ -17661,7 +17185,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setPosition)
 static bool js_scene_Camera_setPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setPriority : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17669,7 +17193,7 @@ static bool js_scene_Camera_setPriority(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setPriority : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPriority(arg0.value());
         return true;
     }
@@ -17681,7 +17205,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setPriority)
 static bool js_scene_Camera_setProjectionType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setProjectionType : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17689,7 +17213,7 @@ static bool js_scene_Camera_setProjectionType(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::scene::CameraProjection, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setProjectionType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setProjectionType(arg0.value());
         return true;
     }
@@ -17701,7 +17225,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setProjectionType)
 static bool js_scene_Camera_setScreenScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setScreenScale : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17709,7 +17233,7 @@ static bool js_scene_Camera_setScreenScale(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setScreenScale : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setScreenScale(arg0.value());
         return true;
     }
@@ -17721,7 +17245,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setScreenScale)
 static bool js_scene_Camera_setShutter(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setShutter : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17729,7 +17253,7 @@ static bool js_scene_Camera_setShutter(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::CameraShutter, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setShutter : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setShutter(arg0.value());
         return true;
     }
@@ -17741,15 +17265,15 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setShutter)
 static bool js_scene_Camera_setViewport(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setViewport : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::Rect, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setViewport : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setViewport(arg0.value());
         return true;
     }
@@ -17761,15 +17285,15 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setViewport)
 static bool js_scene_Camera_setViewportInOrientedSpace(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setViewportInOrientedSpace : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::Rect, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setViewportInOrientedSpace : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setViewportInOrientedSpace(arg0.value());
         return true;
     }
@@ -17781,7 +17305,7 @@ SE_BIND_FUNC(js_scene_Camera_setViewportInOrientedSpace)
 static bool js_scene_Camera_setVisibility(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setVisibility : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17789,7 +17313,7 @@ static bool js_scene_Camera_setVisibility(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setVisibility : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setVisibility(arg0.value());
         return true;
     }
@@ -17801,7 +17325,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setVisibility)
 static bool js_scene_Camera_setWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setWindow : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17809,7 +17333,7 @@ static bool js_scene_Camera_setWindow(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::scene::RenderWindow*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setWindow(arg0.value());
         return true;
     }
@@ -17821,7 +17345,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setWindow)
 static bool js_scene_Camera_setWindowSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_setWindowSize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17829,7 +17353,7 @@ static bool js_scene_Camera_setWindowSize(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_setWindowSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setWindowSize(arg0.value());
         return true;
     }
@@ -17841,7 +17365,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_Camera_setWindowSize)
 static bool js_scene_Camera_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Camera_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -17853,7 +17377,7 @@ static bool js_scene_Camera_update(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_update : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->update(arg0.value());
         return true;
     }
@@ -17870,7 +17394,7 @@ static bool js_scene_Camera_getStandardExposureValue_static(se::State& s) // NOL
     if (argc == 0) {
         float result = cc::scene::Camera::getStandardExposureValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getStandardExposureValue_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17887,7 +17411,7 @@ static bool js_scene_Camera_getStandardLightMeterScale_static(se::State& s) // N
     if (argc == 0) {
         float result = cc::scene::Camera::getStandardLightMeterScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Camera_getStandardLightMeterScale_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -17916,7 +17440,7 @@ static bool js_scene_Camera_constructor(se::State& s) // NOLINT(readability-iden
     const auto& args = s.args();
     cc::gfx::Device* arg0 = nullptr;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Camera_constructor : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::Camera, arg0);
     s.thisObject()->setPrivateObject(ptr);
     return true;
@@ -18004,7 +17528,7 @@ se::Class* __jsb_cc_PassInstance_class = nullptr;  // NOLINT
 static bool js_scene_PassInstance_getParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::PassInstance>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_PassInstance_getParent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18012,7 +17536,7 @@ static bool js_scene_PassInstance_getParent(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         cc::scene::Pass* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_PassInstance_getParent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -18031,7 +17555,7 @@ static bool js_scene_PassInstance_constructor(se::State& s) // NOLINT(readabilit
     cc::MaterialInstance* arg1 = nullptr;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_PassInstance_constructor : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::PassInstance, arg0, arg1);
     s.thisObject()->setPrivateObject(ptr);
     return true;
@@ -18069,7 +17593,7 @@ se::Class* __jsb_cc_IMaterialInstanceInfo_class = nullptr;  // NOLINT
 static bool js_scene_IMaterialInstanceInfo_get_parent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IMaterialInstanceInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IMaterialInstanceInfo_get_parent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18085,11 +17609,11 @@ static bool js_scene_IMaterialInstanceInfo_set_parent(se::State& s) // NOLINT(re
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IMaterialInstanceInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IMaterialInstanceInfo_set_parent : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->parent, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IMaterialInstanceInfo_set_parent : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IMaterialInstanceInfo_set_parent)
@@ -18097,7 +17621,7 @@ SE_BIND_PROP_SET(js_scene_IMaterialInstanceInfo_set_parent)
 static bool js_scene_IMaterialInstanceInfo_get_subModelIdx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IMaterialInstanceInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IMaterialInstanceInfo_get_subModelIdx : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18113,11 +17637,11 @@ static bool js_scene_IMaterialInstanceInfo_set_subModelIdx(se::State& s) // NOLI
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IMaterialInstanceInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IMaterialInstanceInfo_set_subModelIdx : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->subModelIdx, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IMaterialInstanceInfo_set_subModelIdx : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IMaterialInstanceInfo_set_subModelIdx)
@@ -18227,7 +17751,7 @@ se::Class* __jsb_cc_MaterialInstance_class = nullptr;  // NOLINT
 static bool js_scene_MaterialInstance_onPassStateChange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::MaterialInstance>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_MaterialInstance_onPassStateChange : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18235,7 +17759,7 @@ static bool js_scene_MaterialInstance_onPassStateChange(se::State& s) // NOLINT(
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_MaterialInstance_onPassStateChange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->onPassStateChange(arg0.value());
         return true;
     }
@@ -18247,7 +17771,7 @@ SE_BIND_FUNC(js_scene_MaterialInstance_onPassStateChange)
 static bool js_scene_MaterialInstance_setRebuildPSOCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::MaterialInstance>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_MaterialInstance_setRebuildPSOCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18285,7 +17809,7 @@ static bool js_scene_MaterialInstance_setRebuildPSOCallback(se::State& s) // NOL
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_scene_MaterialInstance_setRebuildPSOCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setRebuildPSOCallback(arg0.value());
         return true;
     }
@@ -18302,7 +17826,7 @@ static bool js_scene_MaterialInstance_constructor(se::State& s) // NOLINT(readab
     const auto& args = s.args();
     cc::IMaterialInstanceInfo arg0;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_MaterialInstance_constructor : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::MaterialInstance, arg0);
     s.thisObject()->setPrivateObject(ptr);
     return true;
@@ -18341,7 +17865,7 @@ se::Class* __jsb_cc_MorphModel_class = nullptr;  // NOLINT
 static bool js_scene_MorphModel_setMorphRendering(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::MorphModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_MorphModel_setMorphRendering : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18349,7 +17873,7 @@ static bool js_scene_MorphModel_setMorphRendering(se::State& s) // NOLINT(readab
     if (argc == 1) {
         HolderType<cc::MorphRenderingInstance*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_MorphModel_setMorphRendering : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMorphRendering(arg0.value());
         return true;
     }
@@ -18399,7 +17923,7 @@ se::Class* __jsb_cc_SkinningModel_class = nullptr;  // NOLINT
 static bool js_scene_SkinningModel_bindSkeleton(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SkinningModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_SkinningModel_bindSkeleton : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18411,7 +17935,7 @@ static bool js_scene_SkinningModel_bindSkeleton(se::State& s) // NOLINT(readabil
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SkinningModel_bindSkeleton : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->bindSkeleton(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -18461,7 +17985,7 @@ se::Class* __jsb_cc_BakedSkinningModel_class = nullptr;  // NOLINT
 static bool js_scene_BakedSkinningModel_bindSkeleton(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::BakedSkinningModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_bindSkeleton : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18473,7 +17997,7 @@ static bool js_scene_BakedSkinningModel_bindSkeleton(se::State& s) // NOLINT(rea
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_BakedSkinningModel_bindSkeleton : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->bindSkeleton(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -18485,7 +18009,7 @@ SE_BIND_FUNC(js_scene_BakedSkinningModel_bindSkeleton)
 static bool js_scene_BakedSkinningModel_setUploadedAnimForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::BakedSkinningModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_setUploadedAnimForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18493,7 +18017,7 @@ static bool js_scene_BakedSkinningModel_setUploadedAnimForJS(se::State& s) // NO
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_BakedSkinningModel_setUploadedAnimForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUploadedAnimForJS(arg0.value());
         return true;
     }
@@ -18505,7 +18029,7 @@ SE_BIND_FUNC(js_scene_BakedSkinningModel_setUploadedAnimForJS)
 static bool js_scene_BakedSkinningModel_syncAnimInfoForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::BakedSkinningModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_syncAnimInfoForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18517,7 +18041,7 @@ static bool js_scene_BakedSkinningModel_syncAnimInfoForJS(se::State& s) // NOLIN
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_BakedSkinningModel_syncAnimInfoForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->syncAnimInfoForJS(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -18529,7 +18053,7 @@ SE_BIND_FUNC(js_scene_BakedSkinningModel_syncAnimInfoForJS)
 static bool js_scene_BakedSkinningModel_syncDataForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::BakedSkinningModel>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_syncDataForJS : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18551,7 +18075,7 @@ static bool js_scene_BakedSkinningModel_syncDataForJS(se::State& s) // NOLINT(re
         ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
         ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
         ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_BakedSkinningModel_syncDataForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->syncDataForJS(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
         return true;
     }
@@ -18604,7 +18128,7 @@ se::Class* __jsb_cc_IDefineRecord_class = nullptr;  // NOLINT
 static bool js_scene_IDefineRecord_get_offset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IDefineRecord>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IDefineRecord_get_offset : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18620,11 +18144,11 @@ static bool js_scene_IDefineRecord_set_offset(se::State& s) // NOLINT(readabilit
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IDefineRecord>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IDefineRecord_set_offset : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->offset, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IDefineRecord_set_offset : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IDefineRecord_set_offset)
@@ -18728,7 +18252,7 @@ se::Class* __jsb_cc_IProgramInfo_class = nullptr;  // NOLINT
 static bool js_scene_IProgramInfo_copyFrom(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_copyFrom : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18736,7 +18260,7 @@ static bool js_scene_IProgramInfo_copyFrom(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<cc::IShaderInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_IProgramInfo_copyFrom : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->copyFrom(arg0.value());
         return true;
     }
@@ -18748,7 +18272,7 @@ SE_BIND_FUNC(js_scene_IProgramInfo_copyFrom)
 static bool js_scene_IProgramInfo_get_effectName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_get_effectName : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18764,11 +18288,11 @@ static bool js_scene_IProgramInfo_set_effectName(se::State& s) // NOLINT(readabi
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_set_effectName : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->effectName, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IProgramInfo_set_effectName : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IProgramInfo_set_effectName)
@@ -18776,7 +18300,7 @@ SE_BIND_PROP_SET(js_scene_IProgramInfo_set_effectName)
 static bool js_scene_IProgramInfo_get_defines(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_get_defines : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18792,11 +18316,11 @@ static bool js_scene_IProgramInfo_set_defines(se::State& s) // NOLINT(readabilit
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_set_defines : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->defines, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IProgramInfo_set_defines : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IProgramInfo_set_defines)
@@ -18804,7 +18328,7 @@ SE_BIND_PROP_SET(js_scene_IProgramInfo_set_defines)
 static bool js_scene_IProgramInfo_get_constantMacros(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_get_constantMacros : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18820,11 +18344,11 @@ static bool js_scene_IProgramInfo_set_constantMacros(se::State& s) // NOLINT(rea
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_set_constantMacros : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->constantMacros, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IProgramInfo_set_constantMacros : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IProgramInfo_set_constantMacros)
@@ -18832,7 +18356,7 @@ SE_BIND_PROP_SET(js_scene_IProgramInfo_set_constantMacros)
 static bool js_scene_IProgramInfo_get_uber(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_get_uber : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -18848,11 +18372,11 @@ static bool js_scene_IProgramInfo_set_uber(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::IProgramInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_IProgramInfo_set_uber : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->uber, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_IProgramInfo_set_uber : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_IProgramInfo_set_uber)
@@ -18981,7 +18505,7 @@ se::Class* __jsb_cc_ProgramLib_class = nullptr;  // NOLINT
 static bool js_scene_ProgramLib_define(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_define : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18989,10 +18513,10 @@ static bool js_scene_ProgramLib_define(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::IShaderInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_define : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::IProgramInfo* result = cobj->define(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_define : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19004,7 +18528,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_define)
 static bool js_scene_ProgramLib_destroyShaderByDefines(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_destroyShaderByDefines : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19012,7 +18536,7 @@ static bool js_scene_ProgramLib_destroyShaderByDefines(se::State& s) // NOLINT(r
     if (argc == 1) {
         HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_destroyShaderByDefines : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->destroyShaderByDefines(arg0.value());
         return true;
     }
@@ -19024,7 +18548,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_destroyShaderByDefines)
 static bool js_scene_ProgramLib_getDescriptorSetLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_getDescriptorSetLayout : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19034,10 +18558,10 @@ static bool js_scene_ProgramLib_getDescriptorSetLayout(se::State& s) // NOLINT(r
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getDescriptorSetLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::DescriptorSetLayout* result = cobj->getDescriptorSetLayout(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getDescriptorSetLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19048,10 +18572,10 @@ static bool js_scene_ProgramLib_getDescriptorSetLayout(se::State& s) // NOLINT(r
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getDescriptorSetLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::DescriptorSetLayout* result = cobj->getDescriptorSetLayout(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getDescriptorSetLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19063,7 +18587,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_getDescriptorSetLayout)
 static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_getGFXShader : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19077,10 +18601,10 @@ static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getGFXShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::Shader* result = cobj->getGFXShader(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getGFXShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19095,10 +18619,10 @@ static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getGFXShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::gfx::Shader* result = cobj->getGFXShader(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getGFXShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19110,7 +18634,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_getGFXShader)
 static bool js_scene_ProgramLib_getKey(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_getKey : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19120,10 +18644,10 @@ static bool js_scene_ProgramLib_getKey(se::State& s) // NOLINT(readability-ident
         HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getKey : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         std::string result = cobj->getKey(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getKey : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19135,7 +18659,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_getKey)
 static bool js_scene_ProgramLib_getTemplate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_getTemplate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19143,10 +18667,10 @@ static bool js_scene_ProgramLib_getTemplate(se::State& s) // NOLINT(readability-
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getTemplate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::IProgramInfo* result = cobj->getTemplate(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getTemplate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19158,7 +18682,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_getTemplate)
 static bool js_scene_ProgramLib_getTemplateInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_getTemplateInfo : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19166,10 +18690,10 @@ static bool js_scene_ProgramLib_getTemplateInfo(se::State& s) // NOLINT(readabil
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getTemplateInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::ITemplateInfo* result = cobj->getTemplateInfo(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getTemplateInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19181,7 +18705,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_getTemplateInfo)
 static bool js_scene_ProgramLib_hasProgram(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_hasProgram : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19189,10 +18713,10 @@ static bool js_scene_ProgramLib_hasProgram(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_hasProgram : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->hasProgram(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_hasProgram : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19204,7 +18728,7 @@ SE_BIND_FUNC(js_scene_ProgramLib_hasProgram)
 static bool js_scene_ProgramLib_registerEffect(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ProgramLib>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_ProgramLib_registerEffect : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19212,7 +18736,7 @@ static bool js_scene_ProgramLib_registerEffect(se::State& s) // NOLINT(readabili
     if (argc == 1) {
         HolderType<cc::EffectAsset*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_registerEffect : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->registerEffect(arg0.value());
         return true;
     }
@@ -19229,7 +18753,7 @@ static bool js_scene_ProgramLib_getInstance_static(se::State& s) // NOLINT(reada
     if (argc == 0) {
         cc::ProgramLib* result = cc::ProgramLib::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getInstance_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19271,7 +18795,7 @@ se::Class* __jsb_cc_scene_OctreeInfo_class = nullptr;  // NOLINT
 static bool js_scene_OctreeInfo_activate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_activate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19279,7 +18803,7 @@ static bool js_scene_OctreeInfo_activate(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<cc::scene::Octree*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_activate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->activate(arg0.value());
         return true;
     }
@@ -19291,7 +18815,7 @@ SE_BIND_FUNC(js_scene_OctreeInfo_activate)
 static bool js_scene_OctreeInfo_getDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_getDepth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19299,7 +18823,7 @@ static bool js_scene_OctreeInfo_getDepth(se::State& s) // NOLINT(readability-ide
     if (argc == 0) {
         unsigned int result = cobj->getDepth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_getDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19311,7 +18835,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_OctreeInfo_getDepth)
 static bool js_scene_OctreeInfo_getMaxPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_getMaxPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19319,7 +18843,7 @@ static bool js_scene_OctreeInfo_getMaxPos(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         const cc::Vec3& result = cobj->getMaxPos();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_getMaxPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19331,7 +18855,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_OctreeInfo_getMaxPos)
 static bool js_scene_OctreeInfo_getMinPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_getMinPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19339,7 +18863,7 @@ static bool js_scene_OctreeInfo_getMinPos(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         const cc::Vec3& result = cobj->getMinPos();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_getMinPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19351,7 +18875,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_OctreeInfo_getMinPos)
 static bool js_scene_OctreeInfo_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19359,7 +18883,7 @@ static bool js_scene_OctreeInfo_isEnabled(se::State& s) // NOLINT(readability-id
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19371,7 +18895,7 @@ SE_BIND_FUNC_AS_PROP_GET(js_scene_OctreeInfo_isEnabled)
 static bool js_scene_OctreeInfo_setDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_setDepth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19379,7 +18903,7 @@ static bool js_scene_OctreeInfo_setDepth(se::State& s) // NOLINT(readability-ide
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_setDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setDepth(arg0.value());
         return true;
     }
@@ -19391,7 +18915,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_OctreeInfo_setDepth)
 static bool js_scene_OctreeInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19399,7 +18923,7 @@ static bool js_scene_OctreeInfo_setEnabled(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -19411,7 +18935,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_OctreeInfo_setEnabled)
 static bool js_scene_OctreeInfo_setMaxPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_setMaxPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19419,7 +18943,7 @@ static bool js_scene_OctreeInfo_setMaxPos(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_setMaxPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMaxPos(arg0.value());
         return true;
     }
@@ -19431,7 +18955,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_OctreeInfo_setMaxPos)
 static bool js_scene_OctreeInfo_setMinPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_setMinPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19439,7 +18963,7 @@ static bool js_scene_OctreeInfo_setMinPos(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_setMinPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMinPos(arg0.value());
         return true;
     }
@@ -19451,7 +18975,7 @@ SE_BIND_FUNC_AS_PROP_SET(js_scene_OctreeInfo_setMinPos)
 static bool js_scene_OctreeInfo_get__enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get__enabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -19467,11 +18991,11 @@ static bool js_scene_OctreeInfo_set__enabled(se::State& s) // NOLINT(readability
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set__enabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_enabled, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set__enabled : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_OctreeInfo_set__enabled)
@@ -19479,7 +19003,7 @@ SE_BIND_PROP_SET(js_scene_OctreeInfo_set__enabled)
 static bool js_scene_OctreeInfo_get__minPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get__minPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -19495,11 +19019,11 @@ static bool js_scene_OctreeInfo_set__minPos(se::State& s) // NOLINT(readability-
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set__minPos : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_minPos, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set__minPos : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_OctreeInfo_set__minPos)
@@ -19507,7 +19031,7 @@ SE_BIND_PROP_SET(js_scene_OctreeInfo_set__minPos)
 static bool js_scene_OctreeInfo_get__maxPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get__maxPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -19523,11 +19047,11 @@ static bool js_scene_OctreeInfo_set__maxPos(se::State& s) // NOLINT(readability-
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set__maxPos : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_maxPos, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set__maxPos : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_OctreeInfo_set__maxPos)
@@ -19535,7 +19059,7 @@ SE_BIND_PROP_SET(js_scene_OctreeInfo_set__maxPos)
 static bool js_scene_OctreeInfo_get__depth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get__depth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
 
     CC_UNUSED bool ok = true;
@@ -19551,11 +19075,11 @@ static bool js_scene_OctreeInfo_set__depth(se::State& s) // NOLINT(readability-i
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set__depth : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->_depth, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set__depth : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(js_scene_OctreeInfo_set__depth)
@@ -19609,7 +19133,7 @@ se::Class* __jsb_cc_scene_Octree_class = nullptr;  // NOLINT
 static bool js_scene_Octree_getMaxDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_getMaxDepth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19617,7 +19141,7 @@ static bool js_scene_Octree_getMaxDepth(se::State& s) // NOLINT(readability-iden
     if (argc == 0) {
         unsigned int result = cobj->getMaxDepth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_getMaxDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19629,7 +19153,7 @@ SE_BIND_FUNC(js_scene_Octree_getMaxDepth)
 static bool js_scene_Octree_getMaxPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_getMaxPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19637,7 +19161,7 @@ static bool js_scene_Octree_getMaxPos(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         const cc::Vec3& result = cobj->getMaxPos();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_getMaxPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19649,7 +19173,7 @@ SE_BIND_FUNC(js_scene_Octree_getMaxPos)
 static bool js_scene_Octree_getMinPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_getMinPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19657,7 +19181,7 @@ static bool js_scene_Octree_getMinPos(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         const cc::Vec3& result = cobj->getMinPos();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_getMinPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19669,7 +19193,7 @@ SE_BIND_FUNC(js_scene_Octree_getMinPos)
 static bool js_scene_Octree_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_initialize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19677,7 +19201,7 @@ static bool js_scene_Octree_initialize(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::scene::OctreeInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->initialize(arg0.value());
         return true;
     }
@@ -19689,7 +19213,7 @@ SE_BIND_FUNC(js_scene_Octree_initialize)
 static bool js_scene_Octree_insert(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_insert : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19697,7 +19221,7 @@ static bool js_scene_Octree_insert(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_insert : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->insert(arg0.value());
         return true;
     }
@@ -19709,7 +19233,7 @@ SE_BIND_FUNC(js_scene_Octree_insert)
 static bool js_scene_Octree_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_isEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19717,7 +19241,7 @@ static bool js_scene_Octree_isEnabled(se::State& s) // NOLINT(readability-identi
     if (argc == 0) {
         bool result = cobj->isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_isEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -19729,7 +19253,7 @@ SE_BIND_FUNC(js_scene_Octree_isEnabled)
 static bool js_scene_Octree_queryVisibility(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_queryVisibility : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19743,7 +19267,7 @@ static bool js_scene_Octree_queryVisibility(se::State& s) // NOLINT(readability-
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_queryVisibility : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->queryVisibility(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
@@ -19755,7 +19279,7 @@ SE_BIND_FUNC(js_scene_Octree_queryVisibility)
 static bool js_scene_Octree_remove(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_remove : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19763,7 +19287,7 @@ static bool js_scene_Octree_remove(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_remove : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->remove(arg0.value());
         return true;
     }
@@ -19775,7 +19299,7 @@ SE_BIND_FUNC(js_scene_Octree_remove)
 static bool js_scene_Octree_resize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_resize : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19787,7 +19311,7 @@ static bool js_scene_Octree_resize(se::State& s) // NOLINT(readability-identifie
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->resize(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
@@ -19799,7 +19323,7 @@ SE_BIND_FUNC(js_scene_Octree_resize)
 static bool js_scene_Octree_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_setEnabled : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19807,7 +19331,7 @@ static bool js_scene_Octree_setEnabled(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_setEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEnabled(arg0.value());
         return true;
     }
@@ -19819,7 +19343,7 @@ SE_BIND_FUNC(js_scene_Octree_setEnabled)
 static bool js_scene_Octree_setMaxDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_setMaxDepth : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19827,7 +19351,7 @@ static bool js_scene_Octree_setMaxDepth(se::State& s) // NOLINT(readability-iden
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_setMaxDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMaxDepth(arg0.value());
         return true;
     }
@@ -19839,7 +19363,7 @@ SE_BIND_FUNC(js_scene_Octree_setMaxDepth)
 static bool js_scene_Octree_setMaxPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_setMaxPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19847,7 +19371,7 @@ static bool js_scene_Octree_setMaxPos(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_setMaxPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMaxPos(arg0.value());
         return true;
     }
@@ -19859,7 +19383,7 @@ SE_BIND_FUNC(js_scene_Octree_setMaxPos)
 static bool js_scene_Octree_setMinPos(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_setMinPos : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19867,7 +19391,7 @@ static bool js_scene_Octree_setMinPos(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_setMinPos : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMinPos(arg0.value());
         return true;
     }
@@ -19879,7 +19403,7 @@ SE_BIND_FUNC(js_scene_Octree_setMinPos)
 static bool js_scene_Octree_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Octree>(s);
-    // SE_PRECONDITION2(cobj, false, "js_scene_Octree_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19887,7 +19411,7 @@ static bool js_scene_Octree_update(se::State& s) // NOLINT(readability-identifie
     if (argc == 1) {
         HolderType<cc::scene::Model*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Octree_update : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->update(arg0.value());
         return true;
     }
@@ -19966,7 +19490,6 @@ bool register_all_scene(se::Object* obj)    // NOLINT
     js_register_scene_DebugViewConfig(ns);
     js_register_scene_Light(ns);
     js_register_scene_DirectionalLight(ns);
-    js_register_scene_DrawBatch2D(ns);
     js_register_scene_Fog(ns);
     js_register_scene_FogInfo(ns);
     js_register_scene_ICameraInfo(ns);

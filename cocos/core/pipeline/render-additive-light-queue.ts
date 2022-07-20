@@ -330,10 +330,10 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         const validPunctualLights = sceneData.validPunctualLights;
+        const cap = this._pipeline.device.capabilities;
 
         for (let i = 0; i < validPunctualLights.length; i++) {
             const light = validPunctualLights[i];
@@ -376,7 +376,8 @@ export class RenderAdditiveLightQueue {
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range);
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range,
+                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
                 matShadowProj = _matShadowViewProj.clone();
                 matShadowInvProj = _matShadowViewProj.clone().invert();
 
@@ -388,7 +389,7 @@ export class RenderAdditiveLightQueue {
 
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = 0.01;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = (light as SpotLight).range;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = 0.0;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 0.0;
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;

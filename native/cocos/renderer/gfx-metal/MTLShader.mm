@@ -57,6 +57,12 @@ void CCMTLShader::doInit(const ShaderInfo& info) {
     setAvailableBufferBindingIndex();
 
     CC_LOG_INFO("%s compile succeed.", _name.c_str());
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : _stages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
 }
 
 void CCMTLShader::doDestroy() {
@@ -143,7 +149,6 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
     size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
     ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize() / unitSize, stage.stage, _gpuShader);
 
-    NSString* rawSrc = [NSString stringWithUTF8String:stage.source.c_str()];
     NSString* shader = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
     NSError* error = nil;
     MTLCompileOptions* opts = [[MTLCompileOptions alloc] init];
@@ -157,12 +162,14 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
             if (!library) {
                 CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
                 CC_LOG_ERROR("%s", stage.source.c_str());
+                [opts release];
                 return false;
             }
         } else {
             //delayed instance and pretend tobe specialized function.
             _gpuShader->specializeColor = false;
             _gpuShader->shaderSrc = [shader retain];
+            [opts release];
             CC_ASSERT(_gpuShader->shaderSrc != nil);
             return true;
         }
@@ -171,6 +178,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
         if (!library) {
             CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
             CC_LOG_ERROR("%s", stage.source.c_str());
+            [opts release];
             return false;
         }
     }

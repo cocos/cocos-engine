@@ -59,6 +59,12 @@ void GlobalDSManager::activate(gfx::Device *device) {
     SkinningJointCapacity::jointUniformCapacity = maxJoints;
     UBOSkinning::initLayout(maxJoints);
 
+    _defaultTexture = _device->createTexture({gfx::TextureType::TEX2D,
+                                              gfx::TextureUsageBit::SAMPLED,
+                                              gfx::Format::RGBA8,
+                                              2,
+                                              2});
+
     setDescriptorSetLayout();
     _descriptorSetLayout = device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
     _globalDescriptorSet = device->createDescriptorSet({_descriptorSetLayout});
@@ -89,6 +95,9 @@ void GlobalDSManager::bindSampler(uint32_t binding, gfx::Sampler *sampler) {
 }
 
 void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
+    if (!texture) {
+        texture = _defaultTexture.get();
+    }
     if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->bindTexture(binding, texture);
     }
@@ -159,6 +168,8 @@ void GlobalDSManager::destroy() {
     _globalDescriptorSet = nullptr;
     _linearSampler = nullptr;
     _pointSampler = nullptr;
+
+    _defaultTexture = nullptr;
 }
 
 void GlobalDSManager::setDescriptorSetLayout() {

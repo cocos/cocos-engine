@@ -1051,6 +1051,9 @@ export class SceneGlobals {
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
+
+        const root = legacyCC.director.root as Root;
+        root.onGlobalPipelineStateChanged();
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;

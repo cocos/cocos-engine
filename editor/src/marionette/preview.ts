@@ -341,7 +341,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
 
         const targetMotionDuration = target.duration;
         const destinationStartAbsolute = targetMotionDuration * destinationStart;
-        const targetMotionStart = exitTimeAbsolute + targetMotionDuration * destinationStart - destinationStartAbsolute;
+        const targetMotionStart = exitTimeAbsolute - destinationStartAbsolute;
         const targetMotionLiveTime = Math.max(transitionDurationAbsolute, targetMotionDuration);
         const targetMotionRepeatCount = targetMotionLiveTime / targetMotionDuration;
 

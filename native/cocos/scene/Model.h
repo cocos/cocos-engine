@@ -77,25 +77,31 @@ public:
     Model();
     ~Model() override;
 
-    void initialize();
     virtual void destroy();
-    void updateWorldBound();
-    void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
-    void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
-    void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
     virtual void initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat);
-    void setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
+    virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
     virtual void setSubModelMaterial(index_t idx, Material *mat);
+    virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
+    virtual void updateTransform(uint32_t stamp);
+    virtual void updateUBOs(uint32_t stamp);
+    virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
+    virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
+
+    void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
+    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
+    void initialize();
+    void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void initLocalDescriptors(index_t subModelIndex);
+    void initWorldBoundDescriptors(index_t subModelIndex);
     void onGlobalPipelineStateChanged() const;
     void onMacroPatchesStateChanged();
     void onGeometryChanged();
-    void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
+    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
+    void updateWorldBound();
+    void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
+    void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
-    virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
-    virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
-
-    virtual void updateTransform(uint32_t stamp);
-    virtual void updateUBOs(uint32_t stamp);
     void updateOctree();
     void updateWorldBoundUBOs();
     void updateLocalShadowBias();
@@ -167,14 +173,6 @@ public:
     inline uint32_t getPriority() const { return _priority; }
     inline void setPriority(uint32_t value) { _priority = value; }
 
-    void initLocalDescriptors(index_t subModelIndex);
-    void initWorldBoundDescriptors(index_t subModelIndex);
-
-    virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
-    virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
-
-    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
-
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
     inline CallbacksInvoker &getEventProcessor() { return _eventProcessor; }
@@ -187,54 +185,54 @@ public:
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
 
-    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
-
 protected:
+    static SubModel *createSubModel();
     static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
-
     void updateAttributesAndBinding(index_t subModelIndex);
 
-    static SubModel *createSubModel();
+    // Please declare variables in descending order of memory size occupied by variables.
 
-    Type _type{Type::DEFAULT};
-    bool _localDataUpdated{false};
-    bool _worldBoundsDirty{true};
-    IntrusivePtr<geometry::AABB> _worldBounds;
-    IntrusivePtr<geometry::AABB> _modelBounds;
+    InstancedAttributeBlock _instanceAttributeBlock;
+    Float32Array _localData;
+    ccstd::vector<IntrusivePtr<SubModel>> _subModels;
+    std::tuple<uint8_t *, uint32_t> _instancedBuffer{nullptr, 0};
+
+    // For JS
+    CallbacksInvoker _eventProcessor;
+
+    Vec4 _lightmapUVParam;
+    float _shadowBias{0.0F};
+    float _shadowNormalBias{0.0F};
+
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};
     gfx::Device *_device{nullptr};
-    bool _inited{false};
+
+    IntrusivePtr<Node> _transform;
+    IntrusivePtr<Node> _node;
+    IntrusivePtr<gfx::Buffer> _localBuffer;
+    IntrusivePtr<gfx::Buffer> _worldBoundBuffer;
+    IntrusivePtr<geometry::AABB> _worldBounds;
+    IntrusivePtr<geometry::AABB> _modelBounds;
+    IntrusivePtr<Texture2D> _lightmap;
+
+    Type _type{Type::DEFAULT};
+    Layers::Enum _visFlags{Layers::Enum::NONE};
+
     uint32_t _descriptorSetCount{1};
-    float _shadowBias{0.0F};
-    float _shadowNormalBias{0.0F};
+    uint32_t _priority{0};
+    uint32_t _updateStamp{0};
+    int32_t _instMatWorldIdx{-1};
 
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};
     bool _isDynamicBatching{false};
-
-    int32_t _instMatWorldIdx{-1};
-    Layers::Enum _visFlags{Layers::Enum::NONE};
-    uint32_t _updateStamp{0};
-    IntrusivePtr<Node> _transform;
-    IntrusivePtr<Node> _node;
-    Float32Array _localData;
-    std::tuple<uint8_t *, uint32_t> _instancedBuffer{nullptr, 0};
-    IntrusivePtr<gfx::Buffer> _localBuffer;
-    IntrusivePtr<gfx::Buffer> _worldBoundBuffer;
-    InstancedAttributeBlock _instanceAttributeBlock{};
-    ccstd::vector<IntrusivePtr<SubModel>> _subModels;
-
-    IntrusivePtr<Texture2D> _lightmap;
-    Vec4 _lightmapUVParam;
-
-    uint32_t _priority{0};
-
+    bool _inited{false};
+    bool _localDataUpdated{false};
+    bool _worldBoundsDirty{true};
     // For JS
-    CallbacksInvoker _eventProcessor;
     bool _isCalledFromJS{false};
-    //
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Model);

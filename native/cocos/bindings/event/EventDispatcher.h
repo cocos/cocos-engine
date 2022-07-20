@@ -269,6 +269,7 @@ public:
     static void dispatchCloseEvent();
     static void dispatchDestroyWindowEvent();
     static void dispatchRecreateWindowEvent();
+    static void dispatchSceneLoadEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
     static uint32_t addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener);

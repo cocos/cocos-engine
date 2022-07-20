@@ -30,7 +30,6 @@ import { legacyCC } from '../global-exports';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../renderer';
 
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../math';
-import { _assertThisInitialized, _initializerDefineProperty } from '../data/utils/decorator-jsb-utils';
 import { ccclass, serializable, type } from '../data/decorators';
 import './asset';
 
@@ -177,7 +176,7 @@ matProto.getProperty = function (name: string, passIdx?: number) {
     if (Array.isArray(val)) {
         const first = val[0];
         const arr: any[] = []; // cjh TODO: optimize temporary gc objects being created
-        if (first instanceof jsb.Vec2 || first.type === MathType.VEC2) { // The type of first is uncertain, might be jsb.Color or plainObject. 
+        if (first instanceof jsb.Vec2 || first.type === MathType.VEC2) { // The type of first is uncertain, might be jsb.Color or plainObject.
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Vec2(e.x, e.y));

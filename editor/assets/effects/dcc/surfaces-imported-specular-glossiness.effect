@@ -10,7 +10,7 @@ CCEffect %{
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
         mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
         albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
-        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveMap:          { value: grey }
         shininessExponentMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
@@ -19,13 +19,14 @@ CCEffect %{
         specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:   { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:            { value: normal }
         glossiness:           { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:             { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
         metallicMap:          { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
+        occlusionMap:         { value: white }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -51,11 +52,13 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, editor: { displayName: Albedo, type: color } }
+        albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -77,10 +80,7 @@ CCEffect %{
 
 CCProgram shared-ubos %{
   uniform Constants {
-    vec4 tilingOffset;
-    vec4 albedo;
-    vec4 albedoScaleAndCutoff;
-  
+    vec4  tilingOffset;
     vec4  diffuseColor;
     vec4  specularColor;
     vec4  emissive;
@@ -170,6 +170,12 @@ CCProgram surface-fragment %{
     #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
 
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+    #pragma define-meta OCCLUSION_UV options([v_uv, v_uv1])
+    #pragma define-meta  OCCLUSION_CHANNEL options([r,g,b,a])
+  #endif
+
   float discolor(vec3 srcColor)
   {
     return dot(GRAY_VECTOR, srcColor);
@@ -214,72 +220,22 @@ CCProgram surface-fragment %{
     return vec4(inSpecular, specularFactor);
   }
 
-  vec4 calculateBaseColorAndPBRParams(out vec3 pbrParams)
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
   {
-    vec4 baseColor = diffuseColor;
-    #if USE_VERTEX_COLOR
-      baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
-      baseColor.a *= FSInput_vertexColor.a;
-    #endif
-    #if USE_ALBEDO_MAP
-      vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      baseColor.rgb = SRGBToLinear(texColor.rgb);
-    #else
-      baseColor.rgb *= diffuseFactor;
-    #endif
-
-    vec4 specularColorAndFactor = getSpecularColorAndFactor();
-    //glossiness
-    float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
-    #if HAS_EXPORTED_GLOSSINESS
-      inGlossiness = glossiness;
-    #else
-      #if USE_SHININESS_MAP
-        #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL
-          inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).GLOSSINESS_MAP_CHANNEL;
-        #else
-          inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
+      #if USE_ALPHA_TEST
+        float alpha = diffuseColor.a;
+        #if USE_VERTEX_COLOR
+          alpha *= FSInput_vertexColor.a;
         #endif
-      #else
-        inGlossiness = convertShininessExponent(shininessExponent);
+        #if USE_ALBEDO_MAP
+          alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        #if USE_TRANSPARENCY_MAP
+          alpha = texture(transparencyMap, TEXTURE_UV).a;
+        #endif
+        if (alpha < alphaThreshold) discard;
       #endif
-      inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
-    #endif
-
-    //metallic
-    float inMetallic = 0.0;
-    vec3 albedo = baseColor.rgb;
-    #if HAS_EXPORTED_METALLIC
-      inMetallic = metallic;
-    #else
-      GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
-      inSpecularIntensity *= inMetallic; //simulate specular color is black
-    #endif
-    baseColor.rgb = albedo;
-
-    pbrParams.x = 1.0 - inGlossiness;
-    pbrParams.y = inMetallic;
-    pbrParams.z = inSpecularIntensity * 0.5;
-    return baseColor;
-  }
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
-  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
-  {
-    //diffuse
-    vec3 pbrParams = vec3(1.0);
-
-    vec4 baseColor = calculateBaseColorAndPBRParams(pbrParams);
-
-    #if USE_TRANSPARENCY_MAP
-      baseColor.a =texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-    #endif
-
-    #if USE_ALPHA_TEST
-      if (baseColor.a < albedoScaleAndCutoff.w) discard;
-    #endif
-    
-    return baseColor;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
@@ -304,17 +260,75 @@ CCProgram surface-fragment %{
     return emissiveColor;
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
-  vec4 SurfacesFragmentModifyPBRParams()
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  #include <surfaces/data-structures/standard>
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
-    vec4 pbr = vec4(1.0);
-    vec3 outParams = vec3(1.0);
-    calculateBaseColorAndPBRParams(outParams);
-    pbr.x = 1.0;
-    pbr.y = outParams.x;
-    pbr.z = outParams.y;
-    pbr.w = outParams.z;
-    return pbr;
+      vec4 baseColor = vec4(1.0);
+      #if USE_VERTEX_COLOR
+        baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
+        baseColor.a *= FSInput_vertexColor.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        vec4 texColor = texture(albedoMap, TEXTURE_UV);
+        texColor.rgb = SRGBToLinear(texColor.rgb);
+        texColor.a *= transparencyFactor;
+        baseColor *= texColor;
+      #else
+        baseColor *= diffuseColor;
+      #endif
+      baseColor.rgb *= diffuseFactor;
+
+      #if USE_TRANSPARENCY_MAP
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
+      #endif
+
+      #if USE_ALPHA_TEST
+        if (baseColor.a < alphaThreshold) discard;
+      #endif
+
+      vec4 specularColorAndFactor = getSpecularColorAndFactor();
+      //glossiness
+      float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
+      #if HAS_EXPORTED_GLOSSINESS
+        inGlossiness = glossiness;
+      #else
+        #if USE_SHININESS_MAP
+          #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL
+            inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).GLOSSINESS_MAP_CHANNEL;
+          #else
+            inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
+          #endif
+        #else
+          inGlossiness = convertShininessExponent(shininessExponent);
+        #endif
+        inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
+      #endif
+
+      //metallic
+      float inMetallic = 0.0;
+      vec3 albedo = baseColor.rgb;
+      #if HAS_EXPORTED_METALLIC
+        inMetallic = metallic;
+        float spec = specularFactor;
+        #if USE_SPECULAR_MAP
+          spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+        #endif
+        inSpecularIntensity *= spec * 0.5; //0.5 is suitable for blender
+      #else
+        GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
+        inSpecularIntensity *= inMetallic; //simulate specular color is black
+      #endif
+      baseColor.rgb = albedo;
+
+      surfaceData.baseColor = baseColor;
+      surfaceData.specularIntensity = inSpecularIntensity * 0.5;
+      surfaceData.roughness = 1.0 - inGlossiness;
+      surfaceData.metallic = inMetallic;
+      surfaceData.ao = 1.0;
+      #if USE_OCCLUSION_MAP
+        surfaceData.ao = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
+      #endif
   }
 }%
 

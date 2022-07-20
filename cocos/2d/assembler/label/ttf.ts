@@ -38,6 +38,7 @@ import { IRenderData } from '../../renderer/render-data';
 
 const WHITE = Color.WHITE.clone();
 const vec3_temp = new Vec3();
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
 /**
  * ttf 组装器
@@ -59,6 +60,9 @@ export const ttf: IAssembler = {
             Color.toArray(vData, WHITE, offset);
             offset += 9;
         }
+        renderData.vertexRow = 2;
+        renderData.vertexCol = 2;
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
