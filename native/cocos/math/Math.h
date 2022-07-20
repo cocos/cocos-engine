@@ -24,8 +24,8 @@
  ****************************************************************************/
 #pragma once
 
+#include <cmath>
 #include <cstdint>
-#include <cstdlib>
 #include "base/Macros.h"
 
 namespace cc {
@@ -65,15 +65,15 @@ inline bool isPowerOfTwo(T n) {
 }
 
 inline bool isEqualF(float lhs, float rhs, float precision = 0.000001F) {
-    return (std::abs(lhs - rhs) < precision);
+    return (std::fabs(lhs - rhs) < precision);
 }
 
 inline bool isNotEqualF(float lhs, float rhs, float precision = 0.000001F) {
-    return (std::abs(lhs - rhs) > precision);
+    return (std::fabs(lhs - rhs) > precision);
 }
 
 inline bool isNotZeroF(float v, float precision = 0.000001F) {
-    return (std::abs(v) > precision);
+    return (std::fabs(v) > precision);
 }
 
 } // namespace math
