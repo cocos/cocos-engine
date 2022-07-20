@@ -29,7 +29,7 @@ import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, isEnglishWordPartAtFirst, isEnglishWordPartAtLast, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
@@ -584,7 +584,10 @@ export class RichText extends Component {
                     partStringArr.push(multilineTexts[i]);
                 } else {
                     // if it is not the first element, it is right behind a "\n", so we should reset the lineOffsetX as 0.
-                    const currOffsetX = i === 0 ? this._lineOffsetX : 0;
+                    let currOffsetX = i === 0 ? this._lineOffsetX : 0;
+                    if (currOffsetX >= this.maxWidth) {
+                        currOffsetX = 0;
+                    }
                     const thisPartSplitResultArr = this.splitLongStringOver2048(multilineTexts[i], styleIndex, currOffsetX);
                     partStringArr.push(...thisPartSplitResultArr);
                 }
