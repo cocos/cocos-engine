@@ -204,7 +204,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
     ccstd::array<float, UBOCSM::COUNT> &cv = *csmBufferView;
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
-    const bool isSupportCSM = sceneData->isSupportCSM();
+    const bool isSupportCSM = sceneData->getCSMSupported();
 
     if (shadowInfo->isEnabled() && mainLight) {
         if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {

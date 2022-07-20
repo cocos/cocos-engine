@@ -67,7 +67,7 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
     }
 
-    const auto csmLevel = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ? dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
+    const auto csmLevel = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ? dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
     if (csmLevel != scene::CSMLevel::LEVEL_1 && dirLight->getCSMOptimizationMode() ==
         scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
         if (_level >= static_cast<uint32_t>(csmLevel) - 1U) {
@@ -177,7 +177,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     CC_ASSERT(dirLight);
 
-    const auto levelCount = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ?
+    const auto levelCount = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ?
         static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
     CC_ASSERT(levelCount <= static_cast<uint32_t>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
@@ -230,7 +230,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const auto level = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ?
+    const auto level = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ?
         static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
     const float lambda = dirLight->getCSMLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
@@ -251,7 +251,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
     const Root *root = Root::getInstance();
-    const auto level = root->getPipeline()->getPipelineSceneData()->isSupportCSM() ?
+    const auto level = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ?
         dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
     const float shadowMapWidth = level !=  scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 

@@ -210,7 +210,7 @@ export class PipelineUBO {
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
         const cv = csmBufferView;
-        const isSupportCSM = sceneData.isSupportCSM;
+        const isSupportCSM = sceneData.csmSupported;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
 
         if (mainLight && shadowInfo.enabled) {

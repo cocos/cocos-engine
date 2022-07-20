@@ -88,9 +88,9 @@ export class ShadowFlow extends RenderFlow {
         pipeline.macros.CC_SHADOWMAP_USE_LINEAR_DEPTH = isLinear;
 
         // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
-        pipeline.pipelineSceneData.isSupportCSM = pipeline.device.capabilities.maxFragmentUniformVectors
-        >= (CSM_UNIFORM_VECTORS + GLOBAL_UNIFORM_VECTORS);
-        pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.isSupportCSM;
+        pipeline.pipelineSceneData.csmSupported = pipeline.device.capabilities.maxFragmentUniformVectors
+            >= (CSM_UNIFORM_VECTORS + GLOBAL_UNIFORM_VECTORS);
+        pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.csmSupported;
 
         pipeline.onGlobalPipelineStateChanged();
     }
@@ -136,7 +136,7 @@ export class ShadowFlow extends RenderFlow {
             if (mainLight.shadowFixedArea) {
                 this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS);
             } else {
-                const csmLevel = pipeline.pipelineSceneData.isSupportCSM ? mainLight.csmLevel : 1;
+                const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
                 for (let i = 0; i < csmLevel; i++) {
                     this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS, i);
                 }

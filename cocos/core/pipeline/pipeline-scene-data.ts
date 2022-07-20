@@ -55,11 +55,11 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
-    public get isSupportCSM () {
-        return this._isSupportCSM;
+    public get csmSupported () {
+        return this._csmSupported;
     }
-    public set isSupportCSM (val: boolean) {
-        this._isSupportCSM = val;
+    public set csmSupported (val: boolean) {
+        this._csmSupported = val;
     }
 
     public fog: Fog = new Fog();
@@ -92,7 +92,7 @@ export class PipelineSceneData {
     protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = true;
     protected _shadingScale = 1.0;
-    protected _isSupportCSM = true;
+    protected _csmSupported = true;
 
     constructor () {
         this._shadingScale = 1.0;

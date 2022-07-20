@@ -83,8 +83,8 @@ public:
     inline void clearValidPunctualLights() { _validPunctualLights.clear(); }
     inline float getShadingScale() const { return _shadingScale; }
     inline void setShadingScale(float val) { _shadingScale = val; }
-    inline bool isSupportCSM() const { return _isSupportCSM; }
-    inline void setIsSupportCSM(bool val) { _isSupportCSM = val; }
+    inline bool getCSMSupported() const { return _csmSupported; }
+    inline void setCSMSupported(bool val) { _csmSupported = val; }
 
 protected:
     void initOcclusionQuery();
@@ -119,7 +119,7 @@ protected:
     CSMLayers *_csmLayers{nullptr};
 
     bool _isHDR{true};
-    bool _isSupportCSM{true};
+    bool _csmSupported{true};
 
     float _shadingScale{1.0F};
 
