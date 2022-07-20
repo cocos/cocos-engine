@@ -45,81 +45,61 @@ void RenderDrawInfo::changeMeshBuffer() {
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
-    CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-    if (!_iaAttrs._iaPool) {
-        _iaAttrs._iaPool = new ccstd::vector<gfx::InputAssembler*>{0};
+    CC_ASSERT(drawInfoAttrs._isMeshBuffer && drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    if (!_iaPool) {
+        _iaPool = new ccstd::vector<gfx::InputAssembler*>;
     }
-    if (_iaAttrs._nextFreeIAHandle >= _iaAttrs._iaPool -> size()) {
+    if (_nextFreeIAHandle >= _iaPool -> size()) {
         initIAInfo(device);
     }
-    auto* ia = _iaAttrs._iaPool->at(_iaAttrs._nextFreeIAHandle++); // 需要 reset
+    auto* ia = _iaPool->at(_nextFreeIAHandle++); // 需要 reset
     ia->setFirstIndex(getIndexOffset());
     ia->setIndexCount(getIbCount());
     return ia;
 }
 
 void RenderDrawInfo::uploadBuffers() {
-    CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
+    CC_ASSERT(drawInfoAttrs._isMeshBuffer && drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     if (drawInfoAttrs._vbCount == 0 || drawInfoAttrs._ibCount == 0) return;
     uint32_t size = drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
-    gfx::Buffer* vBuffer = _iaAttrs._iaInfo->vertexBuffers[0];
+    gfx::Buffer* vBuffer = _iaInfo->vertexBuffers[0];
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
-    gfx::Buffer* iBuffer = _iaAttrs._iaInfo->indexBuffer;
+    gfx::Buffer* iBuffer = _iaInfo->indexBuffer;
     uint32_t iSize = drawInfoAttrs._ibCount * 2;
     iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
 
 void RenderDrawInfo::resetMeshIA() {
-    CC_ASSERT(drawInfoAttrs._drawInfoType == RenderDrawInfoType::IA);
-    _iaAttrs._nextFreeIAHandle = 0;
+    CC_ASSERT(drawInfoAttrs._isMeshBuffer && drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    _nextFreeIAHandle = 0;
 }
 
 void RenderDrawInfo::destroy() {
-    if (drawInfoAttrs._drawInfoType != RenderDrawInfoType::IA) return;
-    _iaAttrs._nextFreeIAHandle = 0;
-
-    //TODO(): Should use _iaPool to delete vb, ib.
-    if (_iaAttrs._iaInfo != nullptr) {
-        CC_SAFE_DELETE(_iaAttrs._iaInfo->indexBuffer);
-        if (!_iaAttrs._iaInfo->vertexBuffers.empty()) {
+    _nextFreeIAHandle = 0;
+    if (_iaInfo) {
+        CC_SAFE_DELETE(_iaInfo->indexBuffer);
+        if (!_iaInfo->vertexBuffers.empty()) {
             // only one vb
-            CC_SAFE_DELETE(_iaAttrs._iaInfo->vertexBuffers[0]);
-            _iaAttrs._iaInfo->vertexBuffers.clear();
+            CC_SAFE_DELETE(_iaInfo->vertexBuffers[0]);
+            _iaInfo->vertexBuffers.clear();
         }
-        CC_SAFE_DELETE(_iaAttrs._iaInfo);
+        CC_SAFE_DELETE(_iaInfo);
     }
 
-    for (auto* ia : *_iaAttrs._iaPool) {
-        CC_SAFE_DELETE(ia);
-    }
-    _iaAttrs._iaPool -> clear();
-    CC_SAFE_DELETE(_iaAttrs._iaPool);
-}
-
-void RenderDrawInfo::initialize () {
-    switch (drawInfoAttrs._drawInfoType)
-    {
-    case RenderDrawInfoType::COMP:
-        _compAttrs._ibBuffer = nullptr;
-        _compAttrs._sharedBuffer = nullptr;
-        _compAttrs._vbBuffer = nullptr;
-        break;
-    case RenderDrawInfoType::IA:
-        _iaAttrs._iaInfo = nullptr;
-        _iaAttrs._iaPool = nullptr;
-        _iaAttrs._nextFreeIAHandle = 0;
-        break;
-    default:
-        _model = nullptr;
-        break;
+    if (_iaPool) {
+        for (auto* ia : *_iaPool) {
+            CC_SAFE_DELETE(ia);
+        }
+        _iaPool->clear();
+        CC_SAFE_DELETE(_iaPool);
     }
 }
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
-    if (_iaAttrs._iaPool->empty()) {
-        _iaAttrs._iaInfo = new gfx::InputAssemblerInfo();
+    if (_iaPool->empty()) {
+        _iaInfo = new gfx::InputAssemblerInfo();
         uint32_t vbStride = 9 * sizeof(float);// magic Number
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
@@ -135,12 +115,12 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
             ibStride,
         });
 
-        _iaAttrs._iaInfo->attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
-        _iaAttrs._iaInfo->vertexBuffers.emplace_back(vertexBuffer);
-        _iaAttrs._iaInfo->indexBuffer = indexBuffer;
+        _iaInfo->attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        _iaInfo->vertexBuffers.emplace_back(vertexBuffer);
+        _iaInfo->indexBuffer = indexBuffer;
     }
-    auto* ia = device->createInputAssembler(*_iaAttrs._iaInfo);
-    _iaAttrs._iaPool->emplace_back(ia);
+    auto* ia = device->createInputAssembler(*_iaInfo);
+    _iaPool->emplace_back(ia);
 
     return ia;
 }
