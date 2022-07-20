@@ -51,6 +51,7 @@ import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../assets';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
+import { RenderGraphPrintVisitor } from './debug';
 
 export class WebSetter {
     constructor (data: RenderData) {
