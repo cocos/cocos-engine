@@ -208,13 +208,13 @@ export class PipelineUBO {
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
         const cv = csmBufferView;
-        const isSupportCSM = sceneData.csmSupported;
+        const csmSupported = sceneData.csmSupported;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
 
         if (shadowInfo.enabled && mainLight) {
             if (shadowInfo.type === ShadowType.ShadowMap) {
                 if (mainLight.shadowEnabled) {
-                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !isSupportCSM) {
+                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !csmSupported) {
                         const matShadowView = csmLayers.specialLayer.matShadowView;
                         const matShadowProj = csmLayers.specialLayer.matShadowProj;
                         const matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;

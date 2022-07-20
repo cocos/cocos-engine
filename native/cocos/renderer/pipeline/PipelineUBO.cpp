@@ -204,12 +204,12 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
     ccstd::array<float, UBOCSM::COUNT> &cv = *csmBufferView;
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
-    const bool isSupportCSM = sceneData->getCSMSupported();
+    const bool csmSupported = sceneData->getCSMSupported();
 
     if (shadowInfo->isEnabled() && mainLight) {
         if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
             if (mainLight->isShadowEnabled()) {
-                if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1 || !isSupportCSM) {
+                if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1 || !csmSupported) {
                     const Mat4 &matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                     const Mat4 &matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                     const Mat4 &matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
