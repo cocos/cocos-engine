@@ -9,6 +9,8 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
+#include "cocos/renderer/pipeline/GeometryRenderer.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
