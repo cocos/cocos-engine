@@ -28,8 +28,6 @@
 
 @interface View : NSView <CALayerDelegate>
 
-#ifdef CC_USE_METAL
 @property (nonatomic, assign) id<MTLDevice> device;
-#endif
 
 @end

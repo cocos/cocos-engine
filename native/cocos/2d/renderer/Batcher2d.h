@@ -59,6 +59,7 @@ public:
 
     UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
     gfx::Device* getDevice();
+    inline ccstd::vector<gfx::Attribute>* getDefaultAttribute() { return &_attributes; }
 
     void updateDescriptorSet();
 
@@ -74,7 +75,6 @@ private:
     bool _isInit = false;
 
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        uint32_t vertexOffset = drawInfo->getVertexOffset();
         uint16_t* ib = drawInfo->getIDataBuffer();
 
         UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
@@ -175,6 +175,13 @@ private:
     gfx::DescriptorSetInfo _dsInfo;
 
     UIMeshBufferMap _meshBuffersMap;
+
+    // DefaultAttribute
+    ccstd::vector<gfx::Attribute> _attributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    };
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
 };

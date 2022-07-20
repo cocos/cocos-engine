@@ -223,10 +223,7 @@ public:
      * @zh 是否启用HDR？
      */
     inline bool isUseHDR() const { return _useHDR; }
-    inline void setUseHDR(bool val) {
-        _useHDR = val;
-        setEnvMaps(_envmapHDR, _envmapLDR);
-    }
+    void setUseHDR(bool val);
 
     /**
      * @en Whether use environment lighting

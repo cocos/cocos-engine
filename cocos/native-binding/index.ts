@@ -61,6 +61,7 @@ export declare namespace native {
          * @example
          * ```ts
          * let downloader = new native.Downloader(); // create a Downloader object by default constructor
+         * ```
          */
         constructor();
 
@@ -75,6 +76,7 @@ export declare namespace native {
          *     tempFileNameSuffix: ".tmp"
          * };
          * let downloader = new native.Downloader(hints); // create a Downloader object with DownloaderHints
+         * ```
          */
         constructor (hints: DownloaderHints);
 
@@ -88,6 +90,7 @@ export declare namespace native {
          * @example
          * ```ts
          * let task = downloader.createDownloadTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
+         * ```
          */
         createDownloadTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
@@ -101,6 +104,7 @@ export declare namespace native {
          *  downloader.onSuccess = (task) => {
          *      console.log('Success!'); // call when task download success
          * };
+         * ```
          */
         onSuccess: (task: DownloaderTask) => void | undefined;
 
@@ -118,6 +122,7 @@ export declare namespace native {
          *      console.log(bytesReceived, totalBytesReceived); // download data info
          *      console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
          * };
+         * ```
          */
         onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void | undefined;
 
@@ -148,6 +153,7 @@ export declare namespace native {
          * @example
          * ```ts
          * let task = downloader.createDownloadFileTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
+         * ```
          */
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
@@ -162,6 +168,7 @@ export declare namespace native {
          *  downloader.setOnFileTaskSuccess((task)=>{
          *  console.log('Success!'); // call when task download success
          * });
+         * ```
          */
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
@@ -177,6 +184,7 @@ export declare namespace native {
          *  console.log(bytesReceived, totalBytesReceived); // download data info
          *  console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
          * });
+         * ```
          */
         setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
@@ -191,6 +199,7 @@ export declare namespace native {
          *  downloader.setOnTaskError((task, errorCode, errorCodeInternal, errorStr)=>{
          *  console.log('Error:', errorStr);
          * });
+         * ```
         */
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }

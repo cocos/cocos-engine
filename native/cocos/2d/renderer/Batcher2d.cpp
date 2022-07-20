@@ -54,6 +54,7 @@ Batcher2d::~Batcher2d() { // NOLINT
     for (auto* drawBatch : _batches) {
         delete drawBatch;
     }
+    _attributes.clear();
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -90,7 +91,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
     if (!node->isActiveInHierarchy()) {
         return;
     }
-
+    bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
     if (entity && entity->isEnabled()) {
         RenderEntityType entityType = entity->getRenderEntityType();
@@ -106,14 +107,27 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             for (auto* drawInfo : drawInfos) {
                 handleDrawInfo(entity, drawInfo, node, parentOpacity);
             }
+        } else if (entityType == RenderEntityType::CROSSED) {
+            //for tiledmap
+            ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
+            for (auto* drawInfo : drawInfos) {
+                if (drawInfo->getSubNode()) {
+                    walk(drawInfo->getSubNode(), entity->getOpacity());
+                } else {
+                    handleDrawInfo(entity, drawInfo, node, parentOpacity);
+                }
+                
+            }
+            breakWalk = true;
         }
     }
-
-    const auto& children = node->getChildren();
-    for (const auto& child : children) {
-        // we should find parent opacity recursively upwards if it doesn't have an entity.
-        float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
-        walk(child, thisOpacity);
+    if (!breakWalk) {
+        const auto& children = node->getChildren();
+        for (const auto& child : children) {
+            // we should find parent opacity recursively upwards if it doesn't have an entity.
+            float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
+            walk(child, thisOpacity);
+        }
     }
 
     // post assembler
@@ -240,7 +254,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
             curdrawBatch->setUseLocalFlag(nullptr);
 
-            curdrawBatch->fillPass(renderMat, depthStencil, dssHash, nullptr, 0, &(submodel->getPatches()));
+            curdrawBatch->fillPass(renderMat, depthStencil, dssHash, &(submodel->getPatches()));
             _batches.push_back(curdrawBatch);
         }
     } else if (drawInfoType == RenderDrawInfoType::IA) {
@@ -282,7 +296,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         curdrawBatch->setVisFlags(_currLayer);
         curdrawBatch->setInputAssembler(ia);
         curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
-        curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash, nullptr, 0);
+        curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
         const auto& pass = curdrawBatch->getPasses().at(0);
 
         curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
@@ -339,7 +353,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
-    curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash, nullptr, 0);
+    curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
 
     curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));

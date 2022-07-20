@@ -272,7 +272,7 @@ void sceneCulling(const RenderPipeline* pipeline, scene::Camera* camera) {
                     (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
                     const auto *modelWorldBounds = model->getWorldBounds();
 
-                    if (!modelWorldBounds && skyBox->getModel() != model) {
+                    if (!modelWorldBounds && (skyBox == nullptr || skyBox->getModel() != model)) {
                         sceneData->addRenderObject(genRenderObject(model, camera));
                     }
                 }

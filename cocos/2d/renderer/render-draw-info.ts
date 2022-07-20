@@ -36,11 +36,13 @@ export class RenderDrawInfo {
     protected _texture: Texture | null = null;
     protected _textureHash: number | undefined;
     protected _sampler: Sampler | null = null;
-    protected _blendHash: number | undefined;
+    //protected _blendHash: number | undefined;
 
     protected _model: Model | undefined;
 
     protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+
+    protected _subNode: Node | null = null;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
 
@@ -208,15 +210,6 @@ export class RenderDrawInfo {
         this._sampler = sampler;
     }
 
-    public setBlendHash (blendHash: number) {
-        if (JSB) {
-            if (this._blendHash !== blendHash) {
-                this._nativeObj.blendHash = blendHash;
-            }
-        }
-        this._blendHash = blendHash;
-    }
-
     public setModel (model: Model) {
         if (JSB) {
             if (this._model !== model) {
@@ -232,6 +225,15 @@ export class RenderDrawInfo {
             }
         }
         this._drawInfoType = drawInfoType;
+    }
+
+    public setSubNode (node : Node) {
+        if (JSB) {
+            if (this._subNode !== node) {
+                this._nativeObj.subNode = node;
+            }
+        }
+        this._subNode = node;
     }
 
     public initRender2dBuffer (vertexCount: number, stride: number) {
