@@ -182,18 +182,14 @@ export class RenderDrawInfo {
 
     public setDataHash (dataHash: number) {
         if (JSB) {
-            if (this._dataHash !== dataHash) {
-                this._uint32SharedBuffer[AttrUInt32ArrayView.DataHash] = dataHash;
-            }
+            this._uint32SharedBuffer[AttrUInt32ArrayView.DataHash] = dataHash;
         }
         this._dataHash = dataHash;
     }
 
     public setIsMeshBuffer (isMeshBuffer: boolean) {
         if (JSB) {
-            if (this._isMeshBuffer !== isMeshBuffer) {
-                this._uint8SharedBuffer[AttrUInt8ArrayView.IsMeshBuffer] = isMeshBuffer ? 1 : 0;
-            }
+            this._uint8SharedBuffer[AttrUInt8ArrayView.IsMeshBuffer] = isMeshBuffer ? 1 : 0;
         }
         this._isMeshBuffer = isMeshBuffer;
     }
@@ -218,9 +214,7 @@ export class RenderDrawInfo {
 
     public setTextureHash (textureHash: number) {
         if (JSB) {
-            if (this._textureHash !== textureHash) {
-                this._uint32SharedBuffer[AttrUInt32ArrayView.TextureHash] = textureHash;
-            }
+            this._uint32SharedBuffer[AttrUInt32ArrayView.TextureHash] = textureHash;
         }
         this._textureHash = textureHash;
     }

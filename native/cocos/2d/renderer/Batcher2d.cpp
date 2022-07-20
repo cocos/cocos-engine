@@ -106,12 +106,12 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             if (entityType == RenderEntityType::STATIC) {
                 std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
                 for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
-                    handleDrawInfo(entity, &(drawInfos[i]), node, parentOpacity);
+                    handleDrawInfo(entity, &(drawInfos[i]), node);
                 }
             } else if (entityType == RenderEntityType::DYNAMIC) {
                 ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
                 for (auto* drawInfo : drawInfos) {
-                    handleDrawInfo(entity, drawInfo, node, parentOpacity);
+                    handleDrawInfo(entity, drawInfo, node);
                 }
             } else if (entityType == RenderEntityType::CROSSED) {
                 //for tiledmap
@@ -120,7 +120,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
                     if (drawInfo->getSubNode()) {
                         walk(drawInfo->getSubNode(), entity->getOpacity());
                     } else {
-                        handleDrawInfo(entity, drawInfo, node, parentOpacity);
+                        handleDrawInfo(entity, drawInfo, node);
                     }
                 }
                 breakWalk = true;
@@ -158,7 +158,7 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
     }
 }
 
-CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity) {
+CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
     CC_ASSERT(entity);
     CC_ASSERT(drawInfo);
     RenderDrawInfoType drawInfoType = drawInfo->getEnumDrawInfoType();

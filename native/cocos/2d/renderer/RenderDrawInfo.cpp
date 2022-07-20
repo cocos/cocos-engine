@@ -32,7 +32,7 @@
 namespace cc {
 
 RenderDrawInfo::RenderDrawInfo() {
-    _attrSharedBufferActor.initialize(&drawInfoAttrs, sizeof(DrawInfoAttrs));
+    _attrSharedBufferActor.initialize(&_drawInfoAttrs, sizeof(_drawInfoAttrs));
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
@@ -41,11 +41,11 @@ RenderDrawInfo::~RenderDrawInfo() {
 
 void RenderDrawInfo::changeMeshBuffer() {
     CC_ASSERT(Root::getInstance()->getBatcher2D());
-    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(drawInfoAttrs._accId, drawInfoAttrs._bufferId);
+    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(_drawInfoAttrs._accId, _drawInfoAttrs._bufferId);
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
-    CC_ASSERT(drawInfoAttrs._isMeshBuffer && drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     if (!_iaPool) {
         _iaPool = new ccstd::vector<gfx::InputAssembler*>;
     }
@@ -59,20 +59,20 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 }
 
 void RenderDrawInfo::uploadBuffers() {
-    CC_ASSERT(drawInfoAttrs._isMeshBuffer && drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
-    if (drawInfoAttrs._vbCount == 0 || drawInfoAttrs._ibCount == 0) return;
-    uint32_t size = drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    if (_drawInfoAttrs._vbCount == 0 || _drawInfoAttrs._ibCount == 0) return;
+    uint32_t size = _drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
     gfx::Buffer* vBuffer = _iaInfo->vertexBuffers[0];
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
     gfx::Buffer* iBuffer = _iaInfo->indexBuffer;
-    uint32_t iSize = drawInfoAttrs._ibCount * 2;
+    uint32_t iSize = _drawInfoAttrs._ibCount * 2;
     iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
 
 void RenderDrawInfo::resetMeshIA() {
-    CC_ASSERT(drawInfoAttrs._isMeshBuffer && drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     _nextFreeIAHandle = 0;
 }
 
