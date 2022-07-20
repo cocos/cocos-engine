@@ -373,14 +373,14 @@ void GeometryRenderer::addBoundingBox(const geometry::AABB &aabb, gfx::Color col
     Vec3 v7{max.x, max.y, max.z};
 
     if (useTransform) {
-        transform.transformPoint(&v0);
-        transform.transformPoint(&v1);
-        transform.transformPoint(&v2);
-        transform.transformPoint(&v3);
-        transform.transformPoint(&v4);
-        transform.transformPoint(&v5);
-        transform.transformPoint(&v6);
-        transform.transformPoint(&v7);
+        v0.transformMat4(transform);
+        v1.transformMat4(transform);
+        v2.transformMat4(transform);
+        v3.transformMat4(transform);
+        v4.transformMat4(transform);
+        v5.transformMat4(transform);
+        v6.transformMat4(transform);
+        v7.transformMat4(transform);
     }
 
     if (wireframe) {
@@ -470,8 +470,8 @@ void GeometryRenderer::addCapsule(const Vec3 &center, float radius, float height
     if (useTransform) {
         for (auto i = 0U; i < hemiSegmentsV + 1; i++) {
             for (auto j = 0U; j < segmentsU + 1; j++) {
-                transform.transformPoint(&bottomPoints[i][j]);
-                transform.transformPoint(&topPoints[i][j]);
+                bottomPoints[i][j].transformMat4(transform);
+                topPoints[i][j].transformMat4(transform);
             }
         }
     }
@@ -509,12 +509,12 @@ void GeometryRenderer::addCylinder(const Vec3 &center, float radius, float heigh
     }
 
     if (useTransform) {
-        transform.transformPoint(&bottomCenter);
-        transform.transformPoint(&topCenter);
+        bottomCenter.transformMat4(transform);
+        topCenter.transformMat4(transform);
 
         for (auto i = 0U; i < segments + 1; i++) {
-            transform.transformPoint(&bottomPoints[i]);
-            transform.transformPoint(&topPoints[i]);
+            bottomPoints[i].transformMat4(transform);
+            topPoints[i].transformMat4(transform);
         }
     }
 
@@ -539,11 +539,11 @@ void GeometryRenderer::addCone(const Vec3 &center, float radius, float height, g
     }
 
     if (useTransform) {
-        transform.transformPoint(&bottomCenter);
-        transform.transformPoint(&topCenter);
+        bottomCenter.transformMat4(transform);
+        topCenter.transformMat4(transform);
 
         for (auto i = 0U; i < segments + 1; i++) {
-            transform.transformPoint(&bottomPoints[i]);
+            bottomPoints[i].transformMat4(transform);
         }
     }
 
@@ -564,7 +564,7 @@ void GeometryRenderer::addCircle(const Vec3 &center, float radius, gfx::Color co
 
     if (useTransform) {
         for (auto i = 0U; i < segments + 1; i++) {
-            transform.transformPoint(&points[i]);
+            points[i].transformMat4(transform);
         }
     }
 
@@ -586,7 +586,7 @@ void GeometryRenderer::addArc(const Vec3 &center, float radius, gfx::Color color
 
     if (useTransform) {
         for (auto i = 0U; i < segments + 1; i++) {
-            transform.transformPoint(&points[i]);
+            points[i].transformMat4(transform);
         }
     }
 
@@ -614,10 +614,10 @@ void GeometryRenderer::addDisc(const Vec3 &center, float radius, gfx::Color colo
     }
 
     if (useTransform) {
-        transform.transformPoint(&newCenter);
+        newCenter.transformMat4(transform);
 
         for (auto i = 0U; i < segments + 1; i++) {
-            transform.transformPoint(&points[i]);
+            points[i].transformMat4(transform);
         }
     }
 
@@ -646,10 +646,10 @@ void GeometryRenderer::addSector(const Vec3 &center, float radius, gfx::Color co
     }
 
     if (useTransform) {
-        transform.transformPoint(&newCenter);
+        newCenter.transformMat4(transform);
 
         for (auto i = 0U; i < segments + 1; i++) {
-            transform.transformPoint(&points[i]);
+            points[i].transformMat4(transform);
         }
     }
 
@@ -693,7 +693,7 @@ void GeometryRenderer::addSphere(const Vec3 &center, float radius, gfx::Color co
     if (useTransform) {
         for (auto i = 0U; i < segmentsV + 1; i++) {
             for (auto j = 0U; j < segmentsU + 1; j++) {
-                transform.transformPoint(&points[i][j]);
+                points[i][j].transformMat4(transform);
             }
         }
     }
@@ -734,7 +734,7 @@ void GeometryRenderer::addTorus(const Vec3 &center, float bigRadius, float radiu
     if (useTransform) {
         for (auto i = 0U; i < segmentsU + 1; i++) {
             for (auto j = 0U; j < segmentsV + 1; j++) {
-                transform.transformPoint(&points[i][j]);
+                points[i][j].transformMat4(transform);
             }
         }
     }
@@ -759,7 +759,7 @@ void GeometryRenderer::addOctahedron(const Vec3 &center, float radius, gfx::Colo
 
     if (useTransform) {
         for (auto &point : points) {
-            transform.transformPoint(&point);
+            point.transformMat4(transform);
         }
     }
 
@@ -800,10 +800,10 @@ void GeometryRenderer::addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2,
     Vec3 newV3 = v3;
 
     if (useTransform) {
-        transform.transformPoint(&newV0);
-        transform.transformPoint(&newV1);
-        transform.transformPoint(&newV2);
-        transform.transformPoint(&newV3);
+        newV0.transformMat4(transform);
+        newV1.transformMat4(transform);
+        newV2.transformMat4(transform);
+        newV3.transformMat4(transform);
     }
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -847,9 +847,9 @@ void GeometryRenderer::addMesh(const Vec3 &center, const ccstd::vector<Vec3> &ve
         Vec3 v2 = center + vertices[i + 2];
 
         if (useTransform) {
-            transform.transformPoint(&v0);
-            transform.transformPoint(&v1);
-            transform.transformPoint(&v2);
+            v0.transformMat4(transform);
+            v1.transformMat4(transform);
+            v2.transformMat4(transform);
         }
 
         addLine(v0, v1, color, depthTest);
@@ -865,9 +865,9 @@ void GeometryRenderer::addIndexedMesh(const Vec3 &center, const ccstd::vector<Ve
         Vec3 v2 = center + vertices[indices[i + 2]];
 
         if (useTransform) {
-            transform.transformPoint(&v0);
-            transform.transformPoint(&v1);
-            transform.transformPoint(&v2);
+            v0.transformMat4(transform);
+            v1.transformMat4(transform);
+            v2.transformMat4(transform);
         }
 
         addLine(v0, v1, color, depthTest);

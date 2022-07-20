@@ -70,14 +70,14 @@ inline Mat4& Mat4::operator*=(const Mat4& mat)
 
 inline Vec3& operator*=(Vec3& v, const Mat4& m)
 {
-    m.transformVector(&v);
+    v.transformMat4(m);
     return v;
 }
 
 inline const Vec3 operator*(const Mat4& m, const Vec3& v)
 {
     Vec3 x;
-    m.transformVector(v, &x);
+    x.transformMat4(v, m);
     return x;
 }
 

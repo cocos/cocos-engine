@@ -791,23 +791,29 @@ public:
      *
      * The result of the transformation is stored directly into point.
      *
+     * @deprecated use Vec3::transformMat4 instead.
+     * 
      * @param point The point to transform and also a vector to hold the result in.
      */
+    CC_DEPRECATED(3.6)
     inline void transformPoint(Vec3 *point) const {
         CC_ASSERT(point);
-        transformVector(point->x, point->y, point->z, 1.0F, point);
+        point->transformMat4(*point, *this);
     }
 
     /**
      * Transforms the specified point by this matrix, and stores
      * the result in dst.
      *
+     * @deprecated use Vec3::transformMat4 instead.
      * @param point The point to transform.
      * @param dst A vector to store the transformed point in.
      */
+    CC_DEPRECATED(3.6)
     inline void transformPoint(const Vec3 &point, Vec3 *dst) const {
         CC_ASSERT(dst);
-        transformVector(point.x, point.y, point.z, 1.0F, dst);
+        // transformVector(point.x, point.y, point.z, 1.0F, dst);
+        dst->transformMat4(point, *this);
     }
 
     /**
@@ -815,23 +821,29 @@ public:
      * treating the fourth (w) coordinate as zero.
      *
      * The result of the transformation is stored directly into vector.
+     * @deprecated use Vec3::transformMat4 instead.
      *
      * @param vector The vector to transform and also a vector to hold the result in.
      */
+    CC_DEPRECATED(3.6)
     void transformVector(Vec3 *vector) const;
 
     /**
      * Transforms the specified vector by this matrix by
      * treating the fourth (w) coordinate as zero, and stores the
      * result in dst.
+     * @deprecated use Vec3::transformMat4 instead.
      *
      * @param vector The vector to transform.
      * @param dst A vector to store the transformed vector in.
      */
+    CC_DEPRECATED(3.6)
     void transformVector(const Vec3 &vector, Vec3 *dst) const;
 
     /**
      * Transforms the specified vector by this matrix.
+     *
+     * @deprecated use Vec3::transformMat4 instead.
      *
      * @param x The vector x-coordinate to transform by.
      * @param y The vector y-coordinate to transform by.
@@ -839,6 +851,7 @@ public:
      * @param w The vector w-coordinate to transform by.
      * @param dst A vector to store the transformed point in.
      */
+    CC_DEPRECATED(3.6)
     void transformVector(float x, float y, float z, float w, Vec3 *dst) const;
 
     /**

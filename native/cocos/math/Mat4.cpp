@@ -1014,8 +1014,12 @@ void Mat4::transformVector(const Vec3 &vector, Vec3 *dst) const {
 
 void Mat4::transformVector(float x, float y, float z, float w, Vec3 *dst) const {
     CC_ASSERT(dst);
-
+    alignas(16) float tmp[4];
     MathUtil::transformVec4(m, x, y, z, w, reinterpret_cast<float *>(dst));
+    // NOTICE: ignore the 4th component, the result can be incorrect when w is not zero
+    dst->x = tmp[0];
+    dst->y = tmp[1];
+    dst->z = tmp[2];
 }
 
 void Mat4::transformVector(Vec4 *vector) const {
