@@ -264,7 +264,7 @@ CCProgram surface-fragment %{
   #include <surfaces/data-structures/standard>
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
-      vec4 baseColor = diffuseColor;
+      vec4 baseColor = vec4(1.0);
       #if USE_VERTEX_COLOR
         baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
         baseColor.a *= FSInput_vertexColor.a;
@@ -275,8 +275,9 @@ CCProgram surface-fragment %{
         texColor.a *= transparencyFactor;
         baseColor *= texColor;
       #else
-        baseColor.rgb *= diffuseFactor;
+        baseColor *= diffuseColor;
       #endif
+      baseColor.rgb *= diffuseFactor;
 
       #if USE_TRANSPARENCY_MAP
         baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
