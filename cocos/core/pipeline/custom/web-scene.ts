@@ -31,7 +31,7 @@ import { IRenderObject, IRenderPass, UBOShadow } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
-import { PipelineUBO } from './ubos';
+import { PipelineUBO } from '../pipeline-ubo';
 
 export class RenderObject implements IRenderObject {
     public model: Model;

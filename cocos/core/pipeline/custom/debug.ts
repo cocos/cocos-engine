@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
+import { Viewport } from '../../gfx';
 import { assert } from '../../platform';
 import { DefaultVisitor, ReferenceGraphView, ED, edge_descriptor, IncidenceGraph } from './graph';
-import { Blit, ComputePass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
 import { getQueueHintName } from './types';
 
 export const enableDebug = true;
@@ -12,6 +13,12 @@ let space = '';
 class PrePrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
+    }
+    clear(value: ClearView[]): unknown {
+        throw new Error('Method not implemented.');
+    }
+    viewport(value: Viewport): unknown {
+        throw new Error('Method not implemented.');
     }
     raster (value: RasterPass) {
         oss += `${space}width = ${value.width}\n`;
@@ -117,6 +124,12 @@ class PrePrintVisitor implements RenderGraphVisitor {
 class PostPrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
+    }
+    clear(value: ClearView[]): unknown {
+        throw new Error('Method not implemented.');
+    }
+    viewport(value: Viewport): unknown {
+        throw new Error('Method not implemented.');
     }
     raster (value: RasterPass) {
         // post raster pass
