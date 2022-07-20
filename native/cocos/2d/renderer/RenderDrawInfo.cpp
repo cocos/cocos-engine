@@ -47,12 +47,12 @@ void RenderDrawInfo::changeMeshBuffer() {
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
     CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     if (!_iaPool) {
-        _iaPool = new ccstd::vector<gfx::InputAssembler*>;
+        _iaPool = ccnew ccstd::vector<gfx::InputAssembler*>;
     }
     if (_nextFreeIAHandle >= _iaPool -> size()) {
         initIAInfo(device);
     }
-    auto* ia = _iaPool->at(_nextFreeIAHandle++); // 需要 reset
+    auto* ia = (*_iaPool)[_nextFreeIAHandle++];
     ia->setFirstIndex(getIndexOffset());
     ia->setIndexCount(getIbCount());
     return ia;
@@ -99,7 +99,7 @@ void RenderDrawInfo::destroy() {
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     if (_iaPool->empty()) {
-        _iaInfo = new gfx::InputAssemblerInfo();
+        _iaInfo = ccnew gfx::InputAssemblerInfo();
         uint32_t vbStride = 9 * sizeof(float);// magic Number
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
