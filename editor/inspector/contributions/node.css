@@ -9,8 +9,7 @@
     display: flex;
     flex-direction: column;
     overflow: scroll;
-    padding-left: 10px;
-    padding-right: 2px;
+    padding-left: 6px;
 }
 
 .container[hoving] {
