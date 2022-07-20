@@ -37,8 +37,6 @@ if (globalThis.BULLET) {
     bulletLibs = globalThis.BULLET;
 }
 
-if (!physics.selector.runInEditor) bulletLibs = () => ({});
-
 interface instanceExt extends Bullet.instance {
     CACHE: any,
     BODY_CACHE_NAME: string,
