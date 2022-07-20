@@ -294,6 +294,8 @@ export class PipelineUBO {
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
+        const cap = pipeline.device.capabilities;
+
         switch (light.type) {
         case LightType.DIRECTIONAL: {
             const mainLight = light as DirectionalLight;
@@ -363,7 +365,8 @@ export class PipelineUBO {
                 Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
                 Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
+                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range,
+                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
 
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);

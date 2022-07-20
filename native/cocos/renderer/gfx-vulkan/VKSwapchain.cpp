@@ -193,6 +193,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     _gpuSwapchain->createInfo.imageExtent = imageExtent;
     _gpuSwapchain->createInfo.imageUsage = imageUsage;
     _gpuSwapchain->createInfo.imageArrayLayers = 1;
+    _gpuSwapchain->createInfo.preTransform = surfaceCapabilities.currentTransform;
     _gpuSwapchain->createInfo.compositeAlpha = compositeAlpha;
     _gpuSwapchain->createInfo.presentMode = swapchainPresentMode;
     _gpuSwapchain->createInfo.clipped = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area

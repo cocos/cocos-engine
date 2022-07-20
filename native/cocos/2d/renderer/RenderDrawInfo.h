@@ -45,10 +45,6 @@ struct Render2dLayout {
     Vec4 color;
 };
 
-struct DrawInfoAttrLayout {
-    uint32_t enabledIndex{1};
-};
-
 enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
@@ -97,12 +93,12 @@ public:
     void setTextureHash(uint32_t textureHash);
     inline gfx::Sampler* getSampler() const { return _sampler; }
     void setSampler(gfx::Sampler* sampler);
-    inline uint32_t getBlendHash() const { return _blendHash; }
-    void setBlendHash(uint32_t blendHash);
     inline scene::Model* getModel() const { return _model; }
     void setModel(scene::Model* model);
     inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
     void setDrawInfoType(uint32_t type);
+    inline Node* getSubNode() const { return _subNode; }
+    void setSubNode(Node *node);
 
     inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
 
@@ -157,7 +153,6 @@ private:
     scene::Model* _model{nullptr};
 
     ccstd::hash_t _dataHash{0};
-    uint32_t _stencilStage{0};
     // weak reference
     Material* _material{nullptr};
     // weak reference
@@ -165,24 +160,17 @@ private:
     uint32_t _textureHash{0};
     // weak reference
     gfx::Sampler* _sampler{nullptr};
+    Node* _subNode{nullptr};
 
-    uint32_t _blendHash{0};
-
-    gfx::InputAssemblerInfo _iaInfo;
-    ccstd::vector<gfx::Attribute> _attributes{
-        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-    };
-    uint32_t _vertexFormatBytes = 9 * sizeof(float); // Affected by _attributes // magic Number
-
-    //TODO(): it is not a good way to cache IA here.
-    // manage memory manually
-    ccstd::vector<gfx::InputAssembler*> _iaPool;
     uint32_t _nextFreeIAHandle{0};
     // weak reference
     gfx::Buffer* _vbGFXBuffer{nullptr};
     // weak reference
     gfx::Buffer* _ibGFXBuffer{nullptr};
+
+    gfx::InputAssemblerInfo* _iaInfo{nullptr};
+    //TODO(): it is not a good way to cache IA here.
+    // manage memory manually
+    ccstd::vector<gfx::InputAssembler*> _iaPool;
 };
 } // namespace cc

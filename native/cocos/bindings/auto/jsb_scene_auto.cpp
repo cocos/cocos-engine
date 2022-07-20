@@ -15108,32 +15108,6 @@ static bool js_scene_Pass_getUniform(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_scene_Pass_getUniform)
 
-static bool js_scene_Pass_initPassFromTarget(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        HolderType<cc::scene::Pass*, false> arg0 = {};
-        HolderType<cc::gfx::DepthStencilState, true> arg1 = {};
-        HolderType<cc::gfx::BlendState, true> arg2 = {};
-        HolderType<unsigned int, false> arg3 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->initPassFromTarget(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Pass_initPassFromTarget)
-
 static bool js_scene_Pass_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
@@ -15604,7 +15578,6 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getRootBlock", _SE(js_scene_Pass_getRootBlock));
     cls->defineFunction("getShaderVariant", _SE(js_scene_Pass_getShaderVariant));
     cls->defineFunction("getUniform", _SE(js_scene_Pass_getUniform));
-    cls->defineFunction("_initPassFromTarget", _SE(js_scene_Pass_initPassFromTarget));
     cls->defineFunction("initialize", _SE(js_scene_Pass_initialize));
     cls->defineFunction("overridePipelineStates", _SE(js_scene_Pass_overridePipelineStates));
     cls->defineFunction("resetTexture", _SE(js_scene_Pass_resetTexture));

@@ -1,12 +1,12 @@
 # What's new
 * Add a prebuilt libclang 12.0 in `libclang/`for linux, mac and windows.
-* If you want use the prebuilt libclang 12.0 work with Android NDK, then `only the NDK r21 (or higher version) can work corrently` with it.
+* If you want use the prebuilt libclang 12.0 work with Android NDK, then `only the NDK r21 can work corrently` with it.
 
 # Requirements
 
-* python2.7 or 3.x (64-bit)
-* py-yaml
-* cheetah or cheetah3 (depend on your python version)
+* python 3.x (64-bit)
+* py-yaml version 5.4.1
+* cheetah3
 * libclang binary files
 
 # Usage
@@ -47,8 +47,8 @@ Included in this repository is a simple test. Use this to confirm the generator 
 
 * Install python dependices by pip.
   ```bash
-  sudo easy_install pip
-  sudo pip install PyYAML Cheetah
+  sudo easy_install pip3
+  sudo pip3 install PyYAML==5.4.1 Cheetah3
   ```
 
 * Download NDK r21 from [google](https://developer.android.com/ndk/downloads/index.html)
@@ -58,31 +58,12 @@ Included in this repository is a simple test. Use this to confirm the generator 
   export NDK_ROOT=/path/to/android-ndk-r21
   ./test.sh
   ```
-
-### Ubuntu Linux 12.04 64bit
-* Install python
-  ```bash
-  sudo apt-get install python2.7
-  ```
-* Install python dependices by pip.
-  ```bash
-  sudo apt-get install python-pip
-  sudo pip install PyYAML Cheetah
-  ```
-* Download NDK r21 from [google](https://developer.android.com/ndk/downloads/index.html)
-* If you are using python installed from other way, copy user.cfg.sample and rename it as `user.cfg` then set the absolute path to  python `PYTHON_BIN` in `user.cfg`
-* Run follow command, it will generate a `userconf.ini`, and check the values in it if it occorus any error.
-  ```bash
-  export NDK_ROOT=/path/to/android-ndk-r21
-  ./test.sh
-  ```
-
 ### Windows 7 64bit
 * Download python3 (`64bit`) from (https://www.python.org).
 * Add the installed path of python (e.g. C:\Python39) to PATH environment variable, if not already added in the installer.
 * Install python dependices by pip.
   ```bash
-  pip install PyYAML Cheetah3
+  python -m pip install PyYAML==5.4.1 Cheetah3
   ```
 * Download NDK r21 or above from [google](https://developer.android.com/ndk/downloads/index.html)
 * Set the environment variables (`PYTHON_ROOT` and `NDK_ROOT`) or just them in `test.bat`.

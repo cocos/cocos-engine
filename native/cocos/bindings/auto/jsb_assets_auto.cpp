@@ -15428,7 +15428,7 @@ static bool js_assets_TextureCube_setImage(se::State& s) // NOLINT(readability-i
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::ITextureCubeMipmap, true> arg0 = {};
+        HolderType<const cc::ITextureCubeMipmap*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setImage(arg0.value());
@@ -15539,34 +15539,6 @@ static bool js_assets_TextureCube_fromTexture2DArray_static(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_assets_TextureCube_fromTexture2DArray_static)
 
-static bool js_assets_TextureCube_get_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->isRGBE, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->isRGBE, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureCube_get_isRGBE)
-
-static bool js_assets_TextureCube_set_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->isRGBE, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureCube_set_isRGBE)
-
 static bool js_assets_TextureCube_get__mipmapMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
@@ -15595,6 +15567,34 @@ static bool js_assets_TextureCube_set__mipmapMode(se::State& s) // NOLINT(readab
 }
 SE_BIND_PROP_SET(js_assets_TextureCube_set__mipmapMode)
 
+static bool js_assets_TextureCube_get_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->isRGBE, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->isRGBE, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCube_get_isRGBE)
+
+static bool js_assets_TextureCube_set_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->isRGBE, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCube_set_isRGBE)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_TextureCube_finalize)
 
 static bool js_assets_TextureCube_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -15618,8 +15618,8 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineProperty("_mipmapMode", _SE(js_assets_TextureCube_get__mipmapMode), _SE(js_assets_TextureCube_set__mipmapMode));
+    cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineProperty("mipmapAtlas", _SE(js_assets_TextureCube_getMipmapAtlas_asGetter), _SE(js_assets_TextureCube_setMipmapAtlas_asSetter));
     cls->defineProperty("image", _SE(js_assets_TextureCube_getImage_asGetter), _SE(js_assets_TextureCube_setImage_asSetter));
     cls->defineProperty("mipmaps", _SE(js_assets_TextureCube_getMipmaps_asGetter), _SE(js_assets_TextureCube_setMipmaps_asSetter));

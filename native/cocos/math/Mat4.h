@@ -73,7 +73,7 @@ NS_CC_MATH_BEGIN
  *
  * @see Transform
  */
-class CC_DLL alignas(16) Mat4 {
+class CC_DLL Mat4 {
 public:
     // //temp add conversion
     // operator kmMat4() const
