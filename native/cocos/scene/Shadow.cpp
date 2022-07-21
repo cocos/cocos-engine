@@ -139,6 +139,7 @@ gfx::Shader *Shadows::getPlanarShader(const ccstd::vector<IMacroPatch> &patches)
     }
 
     const auto &passes = _material->getPasses();
+    CC_ASSERT(passes && !passes->empty());
     return (passes && !passes->empty()) ? passes->at(0)->getShaderVariant(patches) : nullptr;
 }
 
@@ -148,6 +149,7 @@ gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &
     }
 
     const auto &passes = _instancingMaterial->getPasses();
+    CC_ASSERT(passes && !passes->empty());
     return (passes && !passes->empty()) ? passes->at(0)->getShaderVariant(patches) : nullptr;
 }
 

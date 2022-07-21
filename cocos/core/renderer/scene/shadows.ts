@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { DEBUG } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
@@ -31,6 +32,7 @@ import { Enum } from '../../value-types';
 import type { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
 import { Shader } from '../../gfx';
+import { assert } from '../../platform/debug';
 
 /**
  * @zh 阴影贴图分辨率。
@@ -347,6 +349,9 @@ export class Shadows {
         }
 
         const passes = this._material.passes;
+        if (DEBUG) {
+            assert(passes.length > 0, 'passes should not be empty!');
+        }
         return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
     }
 
@@ -363,6 +368,9 @@ export class Shadows {
         }
 
         const passes = this._instancingMaterial.passes;
+        if (DEBUG) {
+            assert(passes.length > 0, 'passes should not be empty!');
+        }
         return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
     }
 
