@@ -228,7 +228,10 @@ class DeferredData {
     constructor () {
         this._deferredLightingMaterial = new Material();
         this._deferredLightingMaterial.name = 'builtin-deferred-material';
-        this._deferredLightingMaterial.initialize({ effectName: 'pipeline/deferred-lighting' });
+        this._deferredLightingMaterial.initialize({
+            effectName: 'pipeline/deferred-lighting',
+            defines: { CC_RECEIVE_SHADOW: 1 },
+        });
         for (let i = 0; i < this._deferredLightingMaterial.passes.length; ++i) {
             this._deferredLightingMaterial.passes[i].tryCompile();
         }
