@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
@@ -448,7 +449,7 @@ export class SkyboxInfo {
      * @zh 使用环境反射卷积图
      */
     @visible(function (this : SkyboxInfo) {
-        if (this._resource?.useConvolutionMap) {
+        if (this._resource?.reflectionMap) {
             return true;
         }
         return false;
