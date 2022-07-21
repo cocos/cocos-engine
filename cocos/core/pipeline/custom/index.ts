@@ -23,17 +23,18 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../../global-exports';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { macro } from '../../platform/macro';
 
 let _pipeline: WebPipeline | null = null;
 
 export function createCustomPipeline (): Pipeline {
-    const root = legacyCC.director.root;
     const ppl = new WebPipeline();
-    if (root.useDeferredPipeline) {
+    const pplName = macro.CUSTOM_PIPELINE_NAME;
+    ppl.setCustomPipelineName(pplName);
+    if (ppl.usesDeferredPipeline) {
         buildDeferredLayout(ppl);
     } else {
         buildForwardLayout(ppl);

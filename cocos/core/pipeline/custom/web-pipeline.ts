@@ -370,9 +370,6 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline extends Pipeline {
-    public get device (): Device {
-        return this._device;
-    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -390,18 +387,8 @@ export class WebPipeline extends Pipeline {
     public presentAll (): void {
         throw new Error('Method not implemented.');
     }
-    public get lightingMode (): LightingMode {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this._lightingMode;
-    }
-    public set lightingMode (mode: LightingMode) {
-        this._lightingMode = mode;
-    }
     public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         throw new Error('Method not implemented.');
-    }
-    public get layoutGraphBuilder (): LayoutGraphBuilder {
-        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
     }
     protected _generateConstantMacros (clusterEnabled: boolean) {
         let str = '';
@@ -415,7 +402,12 @@ export class WebPipeline extends Pipeline {
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
         this._constantMacros = str;
     }
-
+    public setCustomPipelineName (name: string) {
+        this._customPipelineName = name;
+        if (this._customPipelineName === 'Deferred') {
+            this._usesDeferredPipeline = true;
+        }
+    }
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -434,9 +426,8 @@ export class WebPipeline extends Pipeline {
             >= (WebPipeline.CSM_UNIFORM_VECTORS + WebPipeline.GLOBAL_UNIFORM_VECTORS);
         this.setMacroBool('CC_SUPPORT_CASCADED_SHADOW_MAP', this.pipelineSceneData.csmSupported);
 
-        const root = legacyCC.director.root;
         // enable the deferred pipeline
-        if (root.useDeferredPipeline) {
+        if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
         }
         const shadowMapSampler = this._globalDSManager.pointSampler;
@@ -456,6 +447,22 @@ export class WebPipeline extends Pipeline {
         this._globalDSManager?.destroy();
         this._pipelineSceneData?.destroy();
         return true;
+    }
+    public get device (): Device {
+        return this._device;
+    }
+    public get lightingMode (): LightingMode {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._lightingMode;
+    }
+    public set lightingMode (mode: LightingMode) {
+        this._lightingMode = mode;
+    }
+    public get layoutGraphBuilder (): LayoutGraphBuilder {
+        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
+    }
+    public get usesDeferredPipeline (): boolean {
+        return this._usesDeferredPipeline;
     }
     public get macros (): MacroRecord {
         return this._macros;
@@ -650,13 +657,10 @@ export class WebPipeline extends Pipeline {
         this.beginFrame();
         if (this.builder) {
             this.builder.setup(cameras, this);
+        } else if (this.usesDeferredPipeline) {
+            this._deferred.setup(cameras, this);
         } else {
-            const root = legacyCC.director.root;
-            if (root.useDeferredPipeline) {
-                this._deferred.setup(cameras, this);
-            } else {
-                this._forward.setup(cameras, this);
-            }
+            this._forward.setup(cameras, this);
         }
         this.compile();
         this.execute();
@@ -705,6 +709,7 @@ export class WebPipeline extends Pipeline {
     }
 
     public static MAX_BLOOM_FILTER_PASS_NUM = 6;
+    private _usesDeferredPipeline = false;
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
     private readonly _macros: MacroRecord = {};
@@ -720,6 +725,7 @@ export class WebPipeline extends Pipeline {
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
     private _executor: Executor | null = null;
+    private _customPipelineName = '';
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     public builder: PipelineBuilder | null = null;
