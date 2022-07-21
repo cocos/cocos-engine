@@ -356,7 +356,7 @@ export class SkyboxInfo {
 
         if (this._resource) {
             this._resource.useHDR = this._useHDR;
-            this._resource.update();
+            this._resource.updateMaterialRenderInfo();
         }
     }
     get useHDR () {

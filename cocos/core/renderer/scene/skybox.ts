@@ -202,16 +202,6 @@ export class Skybox {
         }
     }
 
-    public setSkyboxMaterial (skyboxMat: Material | null) {
-        if (skyboxMat) {
-            this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
-            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-        } else {
-            this._editableMaterial = null;
-        }
-        this._updatePipeline();
-    }
-
     get reflectionMap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -220,12 +210,7 @@ export class Skybox {
             return this._reflectionLDR;
         }
     }
-    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null) {
-        this._reflectionHDR = reflectionHDR;
-        this._reflectionLDR = reflectionLDR;
-        this._updateGlobalBinding();
-        this._updatePipeline();
-    }
+
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
     protected _diffuseMapLDR: TextureCube | null = null;
@@ -273,6 +258,39 @@ export class Skybox {
     public setDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null) {
         this._diffuseMapHDR = diffuseMapHDR;
         this._diffuseMapLDR = diffuseMapLDR;
+        this._updateGlobalBinding();
+        this._updatePipeline();
+    }
+
+    /**
+     * @en Set custom skybox material
+     * @zh 设置自定义的天空盒材质
+     * @param skyboxMat  @en Skybox material @zh 天空盒材质
+     */
+    public setSkyboxMaterial (skyboxMat: Material | null) {
+        if (skyboxMat) {
+            this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
+            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        } else {
+            this._editableMaterial = null;
+        }
+        this._updatePipeline();
+    }
+
+    /**
+     * @en Set the environment reflection convolution map
+     * @zh 设置环境反射卷积图
+     * @param reflectionHDR  @en Reflection convolution map for HDR mode @zh HDR 模式下的反射卷积图
+     * @param reflectionLDR  @en Reflection convolution map for LDR mode @zh LDR 模式下的反射卷积图
+     */
+    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null) {
+        this._reflectionHDR = reflectionHDR;
+        this._reflectionLDR = reflectionLDR;
+        this._updateGlobalBinding();
+        this._updatePipeline();
+    }
+
+    public updateMaterialRenderInfo () {
         this._updateGlobalBinding();
         this._updatePipeline();
     }
@@ -414,11 +432,6 @@ export class Skybox {
                 subModels[i].update();
             }
         }
-    }
-
-    public update () {
-        this._updateGlobalBinding();
-        this._updatePipeline();
     }
 }
 
