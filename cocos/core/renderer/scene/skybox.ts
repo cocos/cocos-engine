@@ -353,10 +353,10 @@ export class Skybox {
                 this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             } else if (skybox_material) {
                 if (this.reflectionMap) {
-                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTIONMAP: true });
+                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: true });
                     skybox_material.setProperty('environmentMap', this.envmap);
                 } else {
-                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTIONMAP: false });
+                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: false });
                 }
             }
         }

@@ -70,7 +70,7 @@ CCProgram sky-fs %{
   }
   uniform samplerCube environmentMap;
   vec4 frag () {
-    #if USE_REFLECTIONMAP
+    #if USE_REFLECTION_CUBEMAP
       vec3 c = getEnvironment(environmentMap);
     #else
       vec3 c = getEnvironment(cc_environment);
