@@ -7,7 +7,8 @@
             "970b0598-bcb0-4714-91fb-2e81440dccd8",
             "bcd64cc6-2dd9-43f6-abbe-66318d332032",
             "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
-            "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
+            "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
+            "9361fd90-ba52-4f84-aa93-6e878fd576ca"
         ]},
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
@@ -15,7 +16,6 @@
             "modules": [ "3d" ], 
             "dependentAssets": [
                 "1baf0fc9-befa-459c-8bdd-af1a450a0319",
-                "9361fd90-ba52-4f84-aa93-6e878fd576ca",
                 "511d2633-09a7-4bdd-ac42-f778032124b3",
                 "5d45aa00-e064-4938-b314-4265f0c2258c",
                 "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
