@@ -768,9 +768,9 @@ const Elements = {
         async skyboxReflectionConvolution() {
             const panel = this;
 
-            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'none';
 
-            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
             if (reflectionMap.value && reflectionMap.value.uuid) {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'none';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
@@ -787,11 +787,11 @@ const Elements = {
                 }
             }
         },
-        skyboxReflectionConvolutionBake() {
+        async skyboxReflectionConvolutionBake() {
             const panel = this;
 
             const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (!envMapData.meta) {
+            if (!envMapData.value || !envMapData.value.uuid) {
                 return;
             }
 
@@ -801,15 +801,21 @@ const Elements = {
             await Editor.Message.request('scene', 'execute-scene-script', {
                 name: 'inspector',
                 method: 'bakeReflectionConvolution',
-                args: [envMapUuid],
+                args: [envMapData.value.uuid],
             });
         },
         skyboxReflectionConvolutionRemove() {
             const panel = this;
+
             const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
             if (reflectionMap.value && reflectionMap.value.uuid) {
-                reflectionMap.value.uuid = '';
-                $prop.addEventListener('change-dump', $prop.regenerate);
+                const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
+                $skyProps.forEach(($prop) => {
+                    if ($prop.dump.name === 'reflectionMap') {
+                        $prop.dump.value.uuid = '';
+                        $prop.dispatch('change');
+                    }
+                });
             }
         },
     },
