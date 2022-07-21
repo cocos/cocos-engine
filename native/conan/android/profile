@@ -13,7 +13,7 @@ os.api_level=$api_level
 [tool_requires]
 [options]
 [env]
-PATH=[$android_ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin]
+PATH=[$android_ndk/toolchains/llvm/prebuilt/linux-x86_64/bin]
 CHOST=$target_host
 AR=$target_host-ar
 AS=$target_host-as
