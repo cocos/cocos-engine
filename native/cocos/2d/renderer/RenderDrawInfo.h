@@ -219,7 +219,7 @@ private:
 
     gfx::InputAssembler* initIAInfo(gfx::Device* device);
 
-    struct drawInfoAttrs {
+    struct DrawInfoAttrs {
         RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
         bool _vertDirty{false};
         bool _isMeshBuffer{false};
