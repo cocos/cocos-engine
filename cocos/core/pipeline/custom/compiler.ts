@@ -26,10 +26,10 @@ import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { AccessType, Blit, ClearView, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass,
-    PresentPass, RasterPass, RasterView, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
+    PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
-import { ResourceResidency } from './types';
+import { AccessType, RasterView, ResourceResidency } from './types';
 
 class PassVisitor implements RenderGraphVisitor {
     public passID = 0xFFFFFFFF;

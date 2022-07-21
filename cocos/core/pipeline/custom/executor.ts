@@ -56,10 +56,10 @@ import { PipelineInputAssemblerData } from '../render-pipeline';
 import { ShadowLayerVolume } from '../shadow/csm-layers';
 import { LayoutGraph, LayoutGraphData, LayoutGraphDataVisitor, LayoutGraphVisitor, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
-import { AccessType, AttachmentType, Blit, ClearView, ComputePass, ComputeView, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
     RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
-import { QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
+import { AttachmentType, ComputeView, QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';

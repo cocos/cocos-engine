@@ -14,10 +14,10 @@ class PrePrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
     }
-    clear(value: ClearView[]) {
+    clear (value: ClearView[]) {
         // do nothing
     }
-    viewport(value: Viewport) {
+    viewport (value: Viewport) {
         // do nothing
     }
     raster (value: RasterPass) {
@@ -125,10 +125,10 @@ class PostPrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
     }
-    clear(value: ClearView[]) {
+    clear (value: ClearView[]) {
         // do nothing
     }
-    viewport(value: Viewport) {
+    viewport (value: Viewport) {
         // do nothing
     }
     raster (value: RasterPass) {
