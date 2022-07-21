@@ -119,7 +119,7 @@ public:
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
     inline void setOptions(const DeviceOptions &opts) { _options = opts; }
-    inline DeviceOptions getOptions() const { return _options; }
+    inline const DeviceOptions &getOptions() const { return _options; }
 
 protected:
     static Device *instance;

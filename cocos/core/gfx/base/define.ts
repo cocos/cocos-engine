@@ -778,11 +778,11 @@ export class DeviceOptions {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public barrierDeduce: boolean = true,
+        public enableBarrierDeduce: boolean = true,
     ) {}
 
     public copy (info: Readonly<DeviceOptions>) {
-        this.barrierDeduce = info.barrierDeduce;
+        this.enableBarrierDeduce = info.enableBarrierDeduce;
         return this;
     }
 }
