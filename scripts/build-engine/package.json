@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.3.10",
+  "version": "4.3.14",
   "description": "",
   "repository": {
     "type": "git",
@@ -49,7 +49,8 @@
     "@types/semver": "^7.3.4",
     "@types/yargs": "^15.0.4",
     "jest": "^28.1.1",
-    "ts-jest": "^28.0.4"
+    "ts-jest": "^28.0.4",
+    "ts-json-schema-generator": "~1.0.0"
   },
   "peerDependencies": {
     "typescript": "^3.7.2"
@@ -58,6 +59,7 @@
     "build": "npx tsc",
     "clear": "node ./scripts/clear.mjs",
     "prepublishOnly": "npm run clear & npm run build",
+    "gen-config-json-schema": "npx ts-json-schema-generator -t Config -p ./src/config-interface.ts -o ./cc.config.schema.json",
     "test": "jest"
   },
   "author": "",

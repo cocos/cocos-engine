@@ -121,10 +121,6 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
         }                                                                                                          \
     })
 
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::ROOT_BATCH2D_INIT, _onBatch2DInit);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::ROOT_BATCH2D_UPDATE, _onBatch2DUpdate);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::ROOT_BATCH2D_UPLOAD_BUFFERS, _onBatch2DUploadBuffers);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::ROOT_BATCH2D_RESET, _onBatch2DReset);
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::DIRECTOR_BEFORE_COMMIT, _onDirectorBeforeCommit);
 
     return true;
@@ -626,7 +622,6 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
-    auto *thiz = s.thisObject();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         ccstd::string name;

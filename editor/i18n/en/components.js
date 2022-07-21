@@ -22,7 +22,7 @@ module.exports = {
                 'When the new Prefab system is complete, it will be automatically migrated to the new Prefab system.',
         },
         label: {
-            font_style_tooltip: "The style of the text, corresponding to the engine's isBold,isItalic,isUnderline",
+            font_style_tooltip: "The style of the text, corresponding to the engine's Bold, Italic, Underline",
         },
         layer: {
             confirm_message: 'Do you want to set layer for all child objects as well?',

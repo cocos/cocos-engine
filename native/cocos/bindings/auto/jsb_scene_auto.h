@@ -411,6 +411,7 @@ SE_DECLARE_FUNC(js_scene_Root_destroyScenes);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindow);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindows);
 SE_DECLARE_FUNC(js_scene_Root_frameMove);
+SE_DECLARE_FUNC(js_scene_Root_getBatcher2D);
 SE_DECLARE_FUNC(js_scene_Root_getDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
@@ -428,6 +429,7 @@ extern se::Class * __jsb_cc_scene_SkyboxInfo_class; // NOLINT
 bool js_register_cc_scene_SkyboxInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_activate);
+SE_DECLARE_FUNC(js_scene_SkyboxInfo_setReflectionMap);
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_SkyboxInfo);
 
 extern se::Object *__jsb_cc_scene_Skybox_proto; // NOLINT
@@ -436,10 +438,12 @@ extern se::Class * __jsb_cc_scene_Skybox_class; // NOLINT
 bool js_register_cc_scene_Skybox(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Skybox_activate);
+SE_DECLARE_FUNC(js_scene_Skybox_getReflectionMap);
 SE_DECLARE_FUNC(js_scene_Skybox_initialize);
 SE_DECLARE_FUNC(js_scene_Skybox_isUsingConvolutionMap);
 SE_DECLARE_FUNC(js_scene_Skybox_setDiffuseMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setEnvMaps);
+SE_DECLARE_FUNC(js_scene_Skybox_setReflectionMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setSkyboxMaterial);
 SE_DECLARE_FUNC(js_scene_Skybox_Skybox);
 
@@ -498,7 +502,6 @@ SE_DECLARE_FUNC(js_scene_Pass_getPassInfoFull);
 SE_DECLARE_FUNC(js_scene_Pass_getRootBlock);
 SE_DECLARE_FUNC(js_scene_Pass_getShaderVariant);
 SE_DECLARE_FUNC(js_scene_Pass_getUniform);
-SE_DECLARE_FUNC(js_scene_Pass_initPassFromTarget);
 SE_DECLARE_FUNC(js_scene_Pass_initialize);
 SE_DECLARE_FUNC(js_scene_Pass_overridePipelineStates);
 SE_DECLARE_FUNC(js_scene_Pass_resetTexture);

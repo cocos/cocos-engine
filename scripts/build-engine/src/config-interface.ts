@@ -66,6 +66,7 @@ export interface Context {
     buildTimeConstants?: Object;
 }
 
+export type ConstantTypeName = 'boolean' | 'number';
 
 export interface IConstantInfo {
     /**
@@ -74,11 +75,15 @@ export interface IConstantInfo {
      */
     readonly comment: string;
     /**
+     * The type of the constant for generating consts.d.ts file.
+     */
+    readonly type: ConstantTypeName;
+    /**
      * The default value of the constant.
-     * It can be a boolean or string.
+     * It can be a boolean, number or string.
      * When it's a string type, the value is the result of eval().
      */
-    value: boolean | string,
+    value: boolean | string | number,
     /**
      * Whether exported to global as a `CC_XXXX` constant.
      * eg. WECHAT is exported to global.CC_WECHAT

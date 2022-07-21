@@ -10,7 +10,7 @@ CCEffect %{
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
         mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
         albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
-        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveMap:          { value: grey }
         shininessExponentMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
@@ -19,7 +19,7 @@ CCEffect %{
         specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:   { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:            { value: normal }
@@ -52,11 +52,13 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, editor: { displayName: Albedo, type: color } }
+        albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -78,10 +80,7 @@ CCEffect %{
 
 CCProgram shared-ubos %{
   uniform Constants {
-    vec4 tilingOffset;
-    vec4 albedo;
-    vec4 albedoScaleAndCutoff;
-  
+    vec4  tilingOffset;
     vec4  diffuseColor;
     vec4  specularColor;
     vec4  emissive;
@@ -221,21 +220,22 @@ CCProgram surface-fragment %{
     return vec4(inSpecular, specularFactor);
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
-  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
   {
-    //diffuse
-    vec4 baseColor = vec4(1.0);
-
-    #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-    #endif
-
-    #if USE_ALPHA_TEST
-      if (baseColor.a < albedoScaleAndCutoff.w) discard;
-    #endif
-    
-    return baseColor;
+      #if USE_ALPHA_TEST
+        float alpha = diffuseColor.a;
+        #if USE_VERTEX_COLOR
+          alpha *= FSInput_vertexColor.a;
+        #endif
+        #if USE_ALBEDO_MAP
+          alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        #if USE_TRANSPARENCY_MAP
+          alpha = texture(transparencyMap, TEXTURE_UV).a;
+        #endif
+        if (alpha < alphaThreshold) discard;
+      #endif
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
@@ -264,7 +264,7 @@ CCProgram surface-fragment %{
   #include <surfaces/data-structures/standard>
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
-      vec4 baseColor = diffuseColor;
+      vec4 baseColor = vec4(1.0);
       #if USE_VERTEX_COLOR
         baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
         baseColor.a *= FSInput_vertexColor.a;
@@ -272,9 +272,19 @@ CCProgram surface-fragment %{
       #if USE_ALBEDO_MAP
         vec4 texColor = texture(albedoMap, TEXTURE_UV);
         texColor.rgb = SRGBToLinear(texColor.rgb);
-        baseColor = texColor;
+        texColor.a *= transparencyFactor;
+        baseColor *= texColor;
       #else
-        baseColor.rgb *= diffuseFactor;
+        baseColor *= diffuseColor;
+      #endif
+      baseColor.rgb *= diffuseFactor;
+
+      #if USE_TRANSPARENCY_MAP
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
+      #endif
+
+      #if USE_ALPHA_TEST
+        if (baseColor.a < alphaThreshold) discard;
       #endif
 
       vec4 specularColorAndFactor = getSpecularColorAndFactor();
@@ -311,7 +321,7 @@ CCProgram surface-fragment %{
       #endif
       baseColor.rgb = albedo;
 
-      surfaceData.baseColor.rgb = baseColor.rgb;
+      surfaceData.baseColor = baseColor;
       surfaceData.specularIntensity = inSpecularIntensity * 0.5;
       surfaceData.roughness = 1.0 - inGlossiness;
       surfaceData.metallic = inMetallic;

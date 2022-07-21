@@ -24,9 +24,6 @@
  ****************************************************************************/
 
 #include "scene/Pass.h"
-
-#include <sstream>
-
 #include "base/std/hash/hash.h"
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
@@ -46,30 +43,52 @@ namespace scene {
 
 namespace {
 
-ccstd::string serializeBlendState(const gfx::BlendState &bs) {
-    std::stringstream res;
-    res << ",bs," << bs.isA2C;
+ccstd::hash_t serializeBlendState(const gfx::BlendState &bs) {
+    ccstd::hash_t hashValue{2};
+    ccstd::hash_combine(hashValue, bs.isA2C);
     for (const auto &t : bs.targets) {
-        res << ",bt," << t.blend << "," << static_cast<uint32_t>(t.blendEq) << "," << static_cast<uint32_t>(t.blendAlphaEq) << "," << static_cast<uint32_t>(t.blendColorMask);
-        res << "," << static_cast<uint32_t>(t.blendSrc) << "," << static_cast<uint32_t>(t.blendDst) << "," << static_cast<uint32_t>(t.blendSrcAlpha) << "," << static_cast<uint32_t>(t.blendDstAlpha);
+        ccstd::hash_combine(hashValue, t.blend);
+        ccstd::hash_combine(hashValue, t.blendEq);
+        ccstd::hash_combine(hashValue, t.blendAlphaEq);
+        ccstd::hash_combine(hashValue, t.blendColorMask);
+        ccstd::hash_combine(hashValue, t.blendSrc);
+        ccstd::hash_combine(hashValue, t.blendDst);
+        ccstd::hash_combine(hashValue, t.blendSrcAlpha);
+        ccstd::hash_combine(hashValue, t.blendDstAlpha);
     }
-    return res.str();
+    return hashValue;
 }
 
-ccstd::string serializeRasterizerState(const gfx::RasterizerState &rs) {
-    std::stringstream res;
-    res << ",rs," << static_cast<uint32_t>(rs.cullMode) << "," << static_cast<uint32_t>(rs.depthBias) << "," << static_cast<uint32_t>(rs.isFrontFaceCCW);
-    return res.str();
+ccstd::hash_t serializeRasterizerState(const gfx::RasterizerState &rs) {
+    ccstd::hash_t hashValue{2};
+    ccstd::hash_combine(hashValue, rs.cullMode);
+    ccstd::hash_combine(hashValue, rs.depthBias);
+    ccstd::hash_combine(hashValue, rs.isFrontFaceCCW);
+    return hashValue;
 }
 
-ccstd::string serializeDepthStencilState(const gfx::DepthStencilState &dss) {
-    std::stringstream res;
-    res << ",dss," << static_cast<uint32_t>(dss.depthTest) << "," << static_cast<uint32_t>(dss.depthWrite) << "," << static_cast<uint32_t>(dss.depthFunc);
-    res << "," << static_cast<uint32_t>(dss.stencilTestFront) << "," << static_cast<uint32_t>(dss.stencilFuncFront) << "," << static_cast<uint32_t>(dss.stencilRefFront) << "," << static_cast<uint32_t>(dss.stencilReadMaskFront);
-    res << "," << static_cast<uint32_t>(dss.stencilFailOpFront) << "," << static_cast<uint32_t>(dss.stencilZFailOpFront) << "," << static_cast<uint32_t>(dss.stencilPassOpFront) << "," << static_cast<uint32_t>(dss.stencilWriteMaskFront);
-    res << "," << static_cast<uint32_t>(dss.stencilTestBack) << "," << static_cast<uint32_t>(dss.stencilFuncBack) << "," << static_cast<uint32_t>(dss.stencilRefBack) << "," << static_cast<uint32_t>(dss.stencilReadMaskBack);
-    res << "," << static_cast<uint32_t>(dss.stencilFailOpBack) << "," << static_cast<uint32_t>(dss.stencilZFailOpBack) << "," << static_cast<uint32_t>(dss.stencilPassOpBack) << "," << dss.stencilWriteMaskBack;
-    return res.str();
+ccstd::hash_t serializeDepthStencilState(const gfx::DepthStencilState &dss) {
+    ccstd::hash_t hashValue{2};
+    ccstd::hash_combine(hashValue, dss.depthTest);
+    ccstd::hash_combine(hashValue, dss.depthWrite);
+    ccstd::hash_combine(hashValue, dss.depthFunc);
+    ccstd::hash_combine(hashValue, dss.stencilTestFront);
+    ccstd::hash_combine(hashValue, dss.stencilFuncFront);
+    ccstd::hash_combine(hashValue, dss.stencilRefFront);
+    ccstd::hash_combine(hashValue, dss.stencilReadMaskFront);
+    ccstd::hash_combine(hashValue, dss.stencilFailOpFront);
+    ccstd::hash_combine(hashValue, dss.stencilZFailOpFront);
+    ccstd::hash_combine(hashValue, dss.stencilPassOpFront);
+    ccstd::hash_combine(hashValue, dss.stencilWriteMaskFront);
+    ccstd::hash_combine(hashValue, dss.stencilTestBack);
+    ccstd::hash_combine(hashValue, dss.stencilFuncBack);
+    ccstd::hash_combine(hashValue, dss.stencilRefBack);
+    ccstd::hash_combine(hashValue, dss.stencilReadMaskBack);
+    ccstd::hash_combine(hashValue, dss.stencilFailOpBack);
+    ccstd::hash_combine(hashValue, dss.stencilZFailOpBack);
+    ccstd::hash_combine(hashValue, dss.stencilPassOpBack);
+    ccstd::hash_combine(hashValue, dss.stencilWriteMaskBack);
+    return hashValue;
 }
 
 } // namespace
@@ -108,17 +127,17 @@ void Pass::fillPipelineInfo(Pass *pass, const IPassInfoFull &info) {
 
 /* static */
 ccstd::hash_t Pass::getPassHash(Pass *pass) {
-    const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
-    std::stringstream res;
-    res << shaderKey << "," << static_cast<uint32_t>(pass->_primitive) << "," << static_cast<uint32_t>(pass->_dynamicStates);
-    res << serializeBlendState(pass->_blendState);
-    res << serializeDepthStencilState(pass->_depthStencilState);
-    res << serializeRasterizerState(pass->_rs);
+    ccstd::hash_t hashValue{666};
+    ccstd::hash_combine(hashValue, pass->_primitive);
+    ccstd::hash_combine(hashValue, pass->_dynamicStates);
+    ccstd::hash_combine(hashValue, serializeBlendState(pass->_blendState));
+    ccstd::hash_combine(hashValue, serializeDepthStencilState(pass->_depthStencilState));
+    ccstd::hash_combine(hashValue, serializeRasterizerState(pass->_rs));
 
-    ccstd::string str{res.str()};
-    ccstd::hash_t seed = 666;
-    ccstd::hash_range(seed, str.begin(), str.end());
-    return seed;
+    const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
+    ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
+
+    return hashValue;
 }
 
 Pass::Pass() : Pass(Root::getInstance()) {}
@@ -594,7 +613,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
 void Pass::syncBatchingScheme() {
     auto iter = _defines.find("USE_INSTANCING");
     if (iter != _defines.end()) {
-        if (_device->hasFeature(gfx::Feature::INSTANCED_ARRAYS)) {
+        if (_device->hasFeature(gfx::Feature::INSTANCED_ARRAYS) && ccstd::get<bool>(iter->second)) {
             _batchingScheme = BatchingSchemes::INSTANCING;
         } else {
             iter->second = false;
@@ -602,7 +621,7 @@ void Pass::syncBatchingScheme() {
         }
     } else {
         auto iter = _defines.find("USE_BATCHING");
-        if (iter != _defines.end()) {
+        if (iter != _defines.end() && ccstd::get<bool>(iter->second)) {
             _batchingScheme = BatchingSchemes::VB_MERGING;
         } else {
             _batchingScheme = BatchingSchemes::NONE;
@@ -610,14 +629,14 @@ void Pass::syncBatchingScheme() {
     }
 }
 
-void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor) {
+void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor) {
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;
     _dynamicStates = target->_dynamicStates;
-    _blendState = bs; // cjh lifecycle?
+    _blendState = *target->getBlendState();
     _depthStencilState = dss;
     _descriptorSet = target->_descriptorSet;
     _rs = *target->getRasterizerState();

@@ -35,7 +35,7 @@
 
 namespace cc {
 class RenderEntity;
-enum class StencilStage {
+enum class StencilStage: uint8_t {
     // Stencil disabled
     DISABLED = 0,
     // Clear stencil buffer

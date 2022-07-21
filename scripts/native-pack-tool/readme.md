@@ -23,11 +23,12 @@
 ## 支持的命令
 
 ```bash
-npm run pack [projectBuildPath] create // 根据原始构建后的目录资源生成基础的原生资源工程
+npm run pack [projectBuildPath] create // 根据原始构建后的目录资源生成基础的原生模板
+npm run pack [projectBuildPath] generate // 根据基础原生模板，调用 cmake 生成完整工程
 npm run pack [projectBuildPath] make // 编译/生成指定的原生工程
 npm run pack [projectBuildPath] run // 运行已经编译好的原生导出软件
 
-npm run pack [projectBuildPath] init,make,run
+npm run pack [projectBuildPath] create,generate,make,run
 ```
 
 > [projectBuildPath] 指代 `build/[platform]` 路径
@@ -47,7 +48,7 @@ import { WindowsPackTool } from './platforms/windows';
 nativePackToolMg.register('windows', new WindowsPackTool());
 ```
 
-(3) 保障新的类里，`create, make, run` 的逻辑都正常，直接使用命令行测试即可。
+(3) 保障新的类里，`create, generate, make, run` 的逻辑都正常，直接使用命令行测试即可。
 
 (4) 构建的内置平台是直接调用的命令行执行的生成、编译逻辑，所有如果有其他闭源插件想要添加新平台的定制打包逻辑，可以在 `hooks` 脚本的 `load` 或者 `beforeBuild` 之类的钩子里加载 `nativePackToolMg` 后执行注册逻辑即可，通过命令行和直接加载脚本的差异主要在于脚本加载有缓存，通过这种方式可能会取到被多个不同插件加工过的原生平台打包逻辑。
 

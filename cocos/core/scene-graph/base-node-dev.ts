@@ -149,30 +149,40 @@ export function baseNodePolyfill (BaseNode) {
 
     if (EDITOR || TEST) {
         BaseNode.prototype._registerIfAttached = function (register) {
-            const attachedObjsForEditor = legacyCC.engine.attachedObjsForEditor;
-            if (register) {
-                attachedObjsForEditor[this._id] = this;
-                for (let i = this._components.length - 1; i >= 0; i--) {
-                    const comp = this._components[i];
-                    if (!comp) {
-                        this._components.splice(i, 1);
-                        console.error(`component attached to node:${this.name} is invalid for some reason`);
-                        continue;
+            if (!this._id) {
+                console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
+                return;
+            }
+            if (EditorExtends.Node && EditorExtends.Component) {
+                if (register) {
+                    EditorExtends.Node.add(this._id, this);
+
+                    for (let i = 0; i < this._components.length; i++) {
+                        const comp = this._components[i];
+                        if (!comp || !comp._id) {
+                            console.warn(`Component attached to node:${this.name} is corrupted`);
+                        } else {
+                            EditorExtends.Component.add(comp._id, comp);
+                        }
                     }
-                    attachedObjsForEditor[comp._id] = comp;
-                }
-                legacyCC.engine.emit('node-attach-to-scene', this);
-            } else {
-                legacyCC.engine.emit('node-detach-from-scene', this);
-                delete attachedObjsForEditor[this._id];
-                for (const comp of this._components) {
-                    delete attachedObjsForEditor[comp._id];
+                } else {
+                    for (let i = 0; i < this._components.length; i++) {
+                        const comp = this._components[i];
+                        if (!comp || !comp._id) {
+                            console.warn(`Component attached to node:${this.name} is corrupted`);
+                        } else {
+                            EditorExtends.Component.remove(comp._id);
+                        }
+                    }
+
+                    EditorExtends.Node.remove(this._id);
                 }
             }
+
             const children = this._children;
             for (let i = 0, len = children.length; i < len; ++i) {
                 const child = children[i];
-                child._registerIfAttached(register);
+                child._registerIfAttached!(register);
             }
         };
     }

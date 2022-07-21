@@ -15,12 +15,12 @@ module.exports = {
         save: 'Save',
         locate_asset: 'Locate in Assets Panel',
         'label-atlas': {
-            SpriteFrameTip: 'SpriteFrame',
+            SpriteFrameTip: 'Sprite Frame',
             ItemWidthTip: 'Item Width',
             ItemHeightTip: 'Item Height',
             StartCharTip: 'Start Char',
             FontSizeTip: 'Font Size',
-            SpriteFrame: 'SpriteFrame',
+            SpriteFrame: 'Sprite Frame',
             ItemWidth: 'Item Width',
             ItemHeight: 'Item Height',
             StartChar: 'Start Char',
@@ -65,9 +65,9 @@ module.exports = {
             loadPluginInWeb: 'Load In Web',
             loadPluginInEditor: 'Load In Editor',
             loadPluginInNative: 'Load In Native',
-            simulateGlobals: 'Simulate global variables',
+            simulateGlobals: 'Simulate Global Variables',
             executionScopeTip: 'Do not transpile or wrap this plugin script.',
-            executionScopeEnclosed: 'Simulate global variables',
+            executionScopeEnclosed: 'Simulate Global Variables',
             pluginTip: 'Import As Plugin',
             dependenciesTip: 'Dependencies',
             globalTip: 'Global',
@@ -237,19 +237,19 @@ module.exports = {
                     },
                 },
                 dumpMaterials: {
-                    name: 'Dump materials',
+                    name: 'Dump Materials',
                     title: 'Whether to extract material assets out of embedded (sub)assets, so that the assets become editable.',
                 },
                 materialDumpDir: {
-                    name: 'Material dump directory',
+                    name: 'Material Dump Directory',
                     title: 'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
                 },
                 useVertexColors: {
-                    name: 'Use vertex colors',
+                    name: 'Use Vertex Colors',
                     title: 'Whether to use vertex colors. ',
                 },
                 depthWriteInAlphaModeBlend: {
-                    name: 'Depth-write if blending',
+                    name: 'Depth-Write If Blending',
                     title: 'Enable depth-write if the alpha mode is set to "BLEND". ',
                 },
                 skipValidation: {
@@ -262,7 +262,7 @@ module.exports = {
                 ok: 'OK',
             },
             ImageRemap: {
-                remapAs: 'Remap as',
+                remapAs: 'Remap As',
                 original: 'Original',
             },
             limitMaterialDumpDir: 'The extracted path needs to be scoped to the project path.',
@@ -273,7 +273,7 @@ module.exports = {
                 warn: 'Warning: Changing this property may break imported assets that have been using or referencing. ',
             },
             disableMeshSplit: {
-                name: 'Disable mesh split',
+                name: 'Disable Mesh Split',
                 title:
                     'Currently there is a joint-counting-based mesh splitting process during the <br>' +
                     'import pipeline to workaround the max uniform vector limit problem for real-time <br>' +
@@ -297,36 +297,36 @@ module.exports = {
                     name: 'Simplification',
                     title: 'Simplification',
                     si: {
-                        name: 'Achieve the ratio R',
-                        title: 'Achieve the ratio R',
+                        name: 'Achieve The Ratio R',
+                        title: 'Achieve The Ratio R',
                     },
                     sa: {
-                        name: 'Aggressively simplify',
-                        title: 'Aggressively simplify',
+                        name: 'Aggressively Simplify',
+                        title: 'Aggressively Simplify',
                     },
                 },
                 scene: {
                     name: 'Scene',
                     title: 'Scene',
                     kn: {
-                        name: 'Keep nodes transform',
-                        title: 'Keep nodes transform',
+                        name: 'Keep Nodes Transform',
+                        title: 'Keep Nodes Transform',
                     },
                     ke: {
-                        name: 'Keep extras data',
-                        title: 'Keep extras data',
+                        name: 'Keep Extras Data',
+                        title: 'Keep Extras Data',
                     },
                 },
                 miscellaneous: {
                     name: 'Miscellaneous',
                     title: 'Miscellaneous',
                     noq: {
-                        name: 'Disable quantization',
-                        title: 'Disable quantization',
+                        name: 'Disable Quantization',
+                        title: 'Disable Quantization',
                     },
                     v: {
-                        name: 'Verbose output',
-                        title: 'Verbose output',
+                        name: 'Verbose Output',
+                        title: 'Verbose Output',
                     },
                 },
                 // eslint-disable-next-line max-len
@@ -420,7 +420,7 @@ module.exports = {
         paste_component_values: 'Paste Component Values',
 
         help_url: 'Help Document',
-        custom_script: 'Custom script',
+        custom_script: 'Custom Script',
     },
 
     prefab: {

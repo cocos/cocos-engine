@@ -255,16 +255,14 @@ exports.template = /* html*/`
                 </ui-link>
             </div>
             <div class="before"></div>
-            <div class="reflection" hidden>
-                <ui-prop>
-                    <ui-label slot="label">Reflection Convolution</ui-label>
-                    <div slot="content">
-                        <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
-                        <ui-button class="blue bake" mipBakeMode="2" style="display:none;">Bake</ui-button>
-                        <ui-button class="red remove" mipBakeMode="1" style="display:none;">Remove</ui-button>
-                    </div>
-                </ui-prop>
-            </div>
+            <ui-prop class="reflection">
+                <ui-label slot="label">Reflection Convolution</ui-label>
+                <div slot="content">
+                    <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
+                    <ui-button class="blue bake" style="display:none;">Bake</ui-button>
+                    <ui-button class="red remove" style="display:none;">Remove</ui-button>
+                </div>
+            </ui-prop>
             <div class="after"></div>
         </ui-section>
         <ui-prop class="postProcess" type="dump"></ui-prop>
@@ -664,10 +662,8 @@ const Elements = {
                 event.preventDefault();
             });
 
-            panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionChange.bind(panel));
-            panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionChange.bind(panel));
-            panel.skyboxReflectionConvolutionWatchBind = Elements.scene.skyboxReflectionConvolutionWatch.bind(panel);
-            Editor.Message.addBroadcastListener('asset-db:asset-change', panel.skyboxReflectionConvolutionWatchBind);
+            panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionBake.bind(panel));
+            panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionRemove.bind(panel));
         },
         async update() {
             const panel = this;
@@ -716,13 +712,7 @@ const Elements = {
                 }
             }
 
-            const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (envMapData.value && envMapData.value.uuid) {
-                panel.$.sceneSkyboxReflection.removeAttribute('hidden');
-                envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
-            } else {
-                panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
-            }
+            Elements.scene.skyboxReflectionConvolution.call(panel);
             // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
@@ -778,49 +768,55 @@ const Elements = {
         async skyboxReflectionConvolution() {
             const panel = this;
 
-            const meta = await Editor.Message.request('asset-db', 'query-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid);
             panel.$.sceneSkyboxReflectionLoading.style.display = 'none';
 
-            if (meta.userData.mipBakeMode !== 1) {
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            if (reflectionMap.value && reflectionMap.value.uuid) {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'none';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
-
             } else {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
-            }
 
-            return meta;
+                // 在 bake 按钮显示的状态下，如果 envmap 都没有配置，那 bake 也不需要显示
+                const envMapData = panel.dump._globals.skybox.value['envmap'];
+                if (envMapData.value && envMapData.value.uuid) {
+                    panel.$.sceneSkyboxReflection.removeAttribute('hidden');
+                } else {
+                    panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
+                }
+            }
         },
-        skyboxReflectionConvolutionChange(event) {
+        async skyboxReflectionConvolutionBake() {
             const panel = this;
 
             const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (!envMapData.meta) {
+            if (!envMapData.value || !envMapData.value.uuid) {
                 return;
             }
 
             panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
             panel.$.sceneSkyboxReflectionBake.style.display = 'none';
-            panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
 
-            const mipBakeMode = event.target.getAttribute('mipBakeMode') || 0;
-            envMapData.meta.userData.mipBakeMode = parseInt(mipBakeMode);
-            Editor.Message.send('asset-db', 'save-asset-meta', envMapData.value.uuid, JSON.stringify(envMapData.meta));
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'bakeReflectionConvolution',
+                args: [envMapData.value.uuid],
+            });
         },
-        async skyboxReflectionConvolutionWatch(uuid) {
+        skyboxReflectionConvolutionRemove() {
             const panel = this;
-            if (panel.dump && panel.dump._globals && panel.dump._globals.skybox) {
-                const envMapData = panel.dump._globals.skybox.value['envmap'];
-                if (envMapData.value && envMapData.value.uuid === uuid) {
-                    envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
-                }
+
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            if (reflectionMap.value && reflectionMap.value.uuid) {
+                const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
+                $skyProps.forEach(($prop) => {
+                    if ($prop.dump.name === 'reflectionMap') {
+                        $prop.dump.value.uuid = '';
+                        $prop.dispatch('change');
+                    }
+                });
             }
-        },
-        close() {
-            const panel = this;
-
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.skyboxReflectionConvolutionWatchBind);
         },
     },
     node: {
@@ -1473,7 +1469,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
@@ -1596,7 +1592,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,

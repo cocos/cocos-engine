@@ -25,7 +25,9 @@
 
 #pragma once
 
+#include <limits>
 #include "CallbackPass.h"
+#include "ImmutableState.h"
 #include "RenderTargetAttachment.h"
 #include "base/std/container/string.h"
 #include "gfx-base/GFXDef.h"
@@ -54,8 +56,9 @@ private:
     };
 
     struct Subpass final {
-        ccstd::vector<LogicPass> logicPasses{};
         gfx::SubpassInfo desc;
+        ccstd::vector<LogicPass> logicPasses{};
+        uint32_t barrierID{0xFFFFFFFF};
     };
 
     struct Attachment final {
@@ -70,6 +73,8 @@ private:
     void next(gfx::CommandBuffer *cmdBuff) noexcept;
     void end(gfx::CommandBuffer *cmdBuff);
 
+    void passDependency(gfx::RenderPassInfo& rpInfo);
+
     ccstd::vector<Subpass> _subpasses{};
     ccstd::vector<Attachment> _attachments{};
     uint16_t _usedRenderTargetSlotMask{0};
@@ -81,6 +86,8 @@ private:
     gfx::Rect _curScissor;
     RenderPass _renderPass;
     Framebuffer _fbo;
+
+    std::vector<std::reference_wrapper<const PassBarrierPair>> _barriers;
 };
 
 } // namespace framegraph

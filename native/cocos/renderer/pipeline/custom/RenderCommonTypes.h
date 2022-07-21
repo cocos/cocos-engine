@@ -30,7 +30,11 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/Ptr.h"
+#include "cocos/base/std/container/string.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
+#include "cocos/scene/Light.h"
 
 namespace cc {
 
@@ -126,10 +130,17 @@ enum class TaskType {
 
 enum class SceneFlags : uint32_t {
     NONE = 0,
-    OPAQUE_OBJECT = 0x1,
-    CUTOUT_OBJECT = 0x2,
-    TRANSPARENT_OBJECT = 0x4,
-    SHADOW_CASTER = 0x8,
+    OPAQUE_OBJECT = 1,
+    CUTOUT_OBJECT = 2,
+    TRANSPARENT_OBJECT = 4,
+    SHADOW_CASTER = 8,
+    UI = 16,
+    DEFAULT_LIGHTING = 32,
+    VOLUMETRIC_LIGHTING = 64,
+    CLUSTERED_LIGHTING = 128,
+    PLANAR_SHADOW = 256,
+    GEOMETRY = 512,
+    PROFILER = 1024,
     ALL = 0xFFFFFFFF,
 };
 
@@ -156,6 +167,92 @@ constexpr bool operator!(SceneFlags e) noexcept {
 constexpr bool any(SceneFlags e) noexcept {
     return !!e;
 }
+
+enum class LightingMode : uint32_t {
+    NONE,
+    DEFAULT,
+    CLUSTERED,
+};
+
+enum class AttachmentType {
+    RENDER_TARGET,
+    DEPTH_STENCIL,
+};
+
+enum class AccessType {
+    READ,
+    READ_WRITE,
+    WRITE,
+};
+
+struct RasterView {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {slotName.get_allocator().resource()};
+    }
+
+    RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(RasterView&& rhs, const allocator_type& alloc);
+    RasterView(RasterView const& rhs, const allocator_type& alloc);
+
+    RasterView(RasterView&& rhs) noexcept = default;
+    RasterView(RasterView const& rhs)     = delete;
+    RasterView& operator=(RasterView&& rhs) = default;
+    RasterView& operator=(RasterView const& rhs) = default;
+
+    ccstd::pmr::string slotName;
+    AccessType         accessType{AccessType::WRITE};
+    AttachmentType     attachmentType{AttachmentType::RENDER_TARGET};
+    gfx::LoadOp        loadOp{gfx::LoadOp::LOAD};
+    gfx::StoreOp       storeOp{gfx::StoreOp::STORE};
+    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color         clearColor;
+};
+
+enum class ClearValueType {
+    FLOAT_TYPE,
+    INT_TYPE,
+};
+
+struct ComputeView {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {name.get_allocator().resource()};
+    }
+
+    ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    ComputeView(ComputeView&& rhs, const allocator_type& alloc);
+    ComputeView(ComputeView const& rhs, const allocator_type& alloc);
+
+    ComputeView(ComputeView&& rhs) noexcept = default;
+    ComputeView(ComputeView const& rhs)     = delete;
+    ComputeView& operator=(ComputeView&& rhs) = default;
+    ComputeView& operator=(ComputeView const& rhs) = default;
+
+    bool isRead() const {
+        return accessType != AccessType::WRITE;
+    }
+    bool isWrite() const {
+        return accessType != AccessType::READ;
+    }
+
+    ccstd::pmr::string name;
+    AccessType         accessType{AccessType::READ};
+    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::NONE};
+    gfx::Color         clearColor;
+    ClearValueType     clearValueType{ClearValueType::FLOAT_TYPE};
+};
+
+struct LightInfo {
+    LightInfo() = default;
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
+    : light(std::move(lightIn)),
+      level(levelIn) {}
+
+    IntrusivePtr<scene::Light> light;
+    uint32_t                   level{0};
+};
 
 } // namespace render
 

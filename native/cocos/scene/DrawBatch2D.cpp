@@ -34,10 +34,9 @@ namespace scene {
 void DrawBatch2D::clear() {
 }
 
-void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, const ccstd::vector<IMacroPatch> *patches) {
+void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const ccstd::vector<IMacroPatch> *patches) {
     const auto &passes = mat->getPasses();
     if (passes->empty()) return;
-    uint32_t hashFactor = 0;
     _shaders.clear();
     if (_passes.size() < passes->size()) {
         auto num = static_cast<uint32_t>(passes->size() - _passes.size());
@@ -51,11 +50,7 @@ void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthSte
         auto &passInUse = _passes[i];
         pass->update();
         if (!depthStencilState) depthStencilState = pass->getDepthStencilState();
-        if (!blendState) blendState = pass->getBlendState();
-        // 可能有负值问题
-        // if (bsHash == -1) {bsHash = 0;}
-        hashFactor = (dsHash << 16) | bsHash;
-        passInUse->initPassFromTarget(pass, *depthStencilState, *blendState, hashFactor);
+        passInUse->initPassFromTarget(pass, *depthStencilState, dsHash);
         _shaders.push_back(patches ? passInUse->getShaderVariant(*patches) : passInUse->getShaderVariant());
     }
 }

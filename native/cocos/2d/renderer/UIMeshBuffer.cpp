@@ -101,7 +101,6 @@ void UIMeshBuffer::uploadBuffers() {
 
     uint32_t indexCount = getIndexOffset();
     uint32_t byteCount = getByteOffset();
-    uint32_t dataCount = byteCount >> 2;
 
     gfx::InputAssembler* ia = _iaPool[0];
     gfx::BufferList vBuffers = ia->getVertexBuffers();
@@ -132,13 +131,13 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
 
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
         auto* indexBuffer = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });

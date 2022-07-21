@@ -171,7 +171,7 @@ inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.hash < b.hash;
     }
 
-    if (math::IsNotEqualF(a.depth, b.depth)) {
+    if (math::isNotEqualF(a.depth, b.depth)) {
         return a.depth < b.depth;
     }
 
@@ -182,12 +182,12 @@ inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.priority != b.priority) {
         return a.priority < b.priority;
     }
-    
+
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
 
-    if (math::IsNotEqualF(a.depth, b.depth)) {
+    if (math::isNotEqualF(a.depth, b.depth)) {
         return b.depth < a.depth;
     }
 
@@ -224,6 +224,7 @@ enum class CC_DLL PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_CAMERA,
     UBO_SHADOW,
+    UBO_CSM, // should reserve slot for this optional ubo
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT,
@@ -350,7 +351,7 @@ struct CC_DLL UBOSkinning {
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static gfx::UniformBlock layout;
     static const ccstd::string NAME;
-    static void initLayout (uint capacity);
+    static void initLayout(uint capacity);
 };
 
 struct CC_DLL UBOMorph {
@@ -420,7 +421,7 @@ struct CC_DLL UBOGlobal {
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
-    
+
     static constexpr uint32_t COUNT = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
 
     static constexpr uint32_t SIZE = UBOGlobal::COUNT * 4;
@@ -459,9 +460,7 @@ struct CC_DLL UBOCamera {
 };
 
 struct CC_DLL UBOShadow {
-    static constexpr uint32_t CSM_LEVEL_COUNT = 4;
-    static constexpr uint32_t MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
-    static constexpr uint32_t MAT_LIGHT_VIEW_OFFSET = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    static constexpr uint32_t MAT_LIGHT_VIEW_OFFSET = 0;
     static constexpr uint32_t MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
     static constexpr uint32_t SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
     static constexpr uint32_t SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow::SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
@@ -471,16 +470,27 @@ struct CC_DLL UBOShadow {
     static constexpr uint32_t SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     static constexpr uint32_t SHADOW_COLOR_OFFSET = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
     static constexpr uint32_t PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadow::SHADOW_COLOR_OFFSET + 4;
-    static constexpr uint32_t MAT_CSM_VIEW_LEVELS_OFFSET = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
-    static constexpr uint32_t MAT_CSM_VIEW_PROJ_LEVELS_OFFSET = UBOShadow::MAT_CSM_VIEW_LEVELS_OFFSET + 16 * UBOShadow::CSM_LEVEL_COUNT;
-    static constexpr uint32_t MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOShadow::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOShadow::CSM_LEVEL_COUNT;
-    static constexpr uint32_t CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOShadow::MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOShadow::CSM_LEVEL_COUNT;
-    static constexpr uint32_t CSM_PROJ_INFO_LEVELS_OFFSET = UBOShadow::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOShadow::CSM_LEVEL_COUNT;
-    static constexpr uint32_t CSM_SPLITS_INFO_OFFSET = UBOShadow::CSM_PROJ_INFO_LEVELS_OFFSET + 4 * UBOShadow::CSM_LEVEL_COUNT;
-    static constexpr uint32_t CSM_INFO_OFFSET = UBOShadow::CSM_SPLITS_INFO_OFFSET + 4;
-    static constexpr uint32_t COUNT = UBOShadow::CSM_INFO_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
     static constexpr uint32_t SIZE = UBOShadow::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::UBO_SHADOW);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformBlock LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL UBOCSM {
+    static constexpr uint32_t CSM_LEVEL_COUNT = 4;
+    static constexpr uint32_t CSM_VIEW_DIR_0_OFFSET = 0;
+    static constexpr uint32_t CSM_VIEW_DIR_1_OFFSET = UBOCSM::CSM_VIEW_DIR_0_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_VIEW_DIR_2_OFFSET = UBOCSM::CSM_VIEW_DIR_1_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_ATLAS_OFFSET = UBOCSM::CSM_VIEW_DIR_2_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t MAT_CSM_VIEW_PROJ_LEVELS_OFFSET = UBOCSM::CSM_ATLAS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_PROJ_INFO_LEVELS_OFFSET = UBOCSM::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_SPLITS_INFO_OFFSET = UBOCSM::CSM_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t COUNT = UBOCSM::CSM_SPLITS_INFO_OFFSET + 4;
+    static constexpr uint32_t SIZE = UBOCSM::COUNT * 4;
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::UBO_CSM);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock LAYOUT;
     static const ccstd::string NAME;
@@ -516,9 +526,9 @@ const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & 
 
 uint32_t nextPow2(uint32_t val);
 
-bool supportsR16HalfFloatTexture(const gfx::Device* device);
+bool supportsR16HalfFloatTexture(const gfx::Device *device);
 
-bool supportsR32FloatTexture(const gfx::Device* device);
+bool supportsR32FloatTexture(const gfx::Device *device);
 
 extern CC_DLL uint32_t skyboxFlag;
 

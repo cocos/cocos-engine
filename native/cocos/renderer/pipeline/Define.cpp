@@ -147,7 +147,6 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
     UBOShadow::BINDING,
     UBOShadow::NAME,
     {
-        {"cc_matLightPlaneProj", gfx::Type::MAT4, 1},
         {"cc_matLightView", gfx::Type::MAT4, 1},
         {"cc_matLightViewProj", gfx::Type::MAT4, 1},
         {"cc_shadowInvProjDepthInfo", gfx::Type::FLOAT4, 1},
@@ -158,13 +157,31 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
         {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowColor", gfx::Type::FLOAT4, 1},
         {"cc_planarNDInfo", gfx::Type::FLOAT4, 1},
-        {"cc_matCSMView", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
-        {"cc_matCSMViewProj", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
-        {"cc_matCSMViewProjAtlas", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
-        {"cc_csmProjDepthInfo", gfx::Type::FLOAT4, UBOShadow::CSM_LEVEL_COUNT},
-        {"cc_csmProjInfo", gfx::Type::FLOAT4, UBOShadow::CSM_LEVEL_COUNT},
+    },
+    1,
+};
+
+const ccstd::string UBOCSM::NAME = "CCCSM";
+const gfx::DescriptorSetLayoutBinding UBOCSM::DESCRIPTOR = {
+    UBOCSM::BINDING,
+    gfx::DescriptorType::UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::ALL,
+    {},
+};
+const gfx::UniformBlock UBOCSM::LAYOUT = {
+    globalSet,
+    UBOCSM::BINDING,
+    UBOCSM::NAME,
+    {
+        {"cc_csmViewDir0", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmViewDir1", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmViewDir2", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmAtlas", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_matCSMViewProj", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmProjDepthInfo", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmProjInfo", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_csmSplitsInfo", gfx::Type::FLOAT4, 1},
-        {"cc_csmInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };

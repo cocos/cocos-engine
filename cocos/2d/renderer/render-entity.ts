@@ -1,6 +1,5 @@
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
-import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
@@ -11,6 +10,7 @@ import { Stage } from './stencil-manager';
 export enum RenderEntityType {
     STATIC,
     DYNAMIC,
+    CROSSED,
 }
 
 export enum RenderEntityFloatSharedBufferView {
@@ -41,8 +41,6 @@ export class RenderEntity {
 
     protected _node: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
-    protected _customMaterial: Material | null = null;
-    protected _commitModelMaterial: Material | null = null;
 
     // is it entity a mask node
     protected _isMask = false;
@@ -121,7 +119,7 @@ export class RenderEntity {
     constructor (entityType: RenderEntityType) {
         if (JSB) {
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderEntity(director.root!.batcher2D.nativeObj);
+                this._nativeObj = new NativeRenderEntity();
             }
             this.setRenderEntityType(entityType);
 
@@ -218,24 +216,6 @@ export class RenderEntity {
             }
         }
         this._stencilStage = stage;
-    }
-
-    setCustomMaterial (mat: Material | null) {
-        if (JSB) {
-            if (this._customMaterial !== mat) {
-                this._nativeObj.customMaterial = mat!;
-            }
-        }
-        this._customMaterial = mat;
-    }
-
-    setCommitModelMaterial (mat:Material|null) {
-        if (JSB) {
-            if (this._commitModelMaterial !== mat) {
-                this._nativeObj.commitModelMaterial = mat!;
-            }
-        }
-        this._commitModelMaterial = mat;
     }
 
     setRenderEntityType (type: RenderEntityType) {

@@ -32,7 +32,7 @@ import { Model, Camera } from '../renderer/scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Layers } from '../scene-graph/layers';
-import { RenderPipeline } from './render-pipeline';
+import { PipelineRuntime } from './custom/pipeline';
 
 const _ab = new AABB();
 
@@ -40,15 +40,14 @@ export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
     private _castModels:Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
-    private _pipeline: RenderPipeline;
+    private _pipeline: PipelineRuntime;
 
-    constructor (pipeline: RenderPipeline) {
+    constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
     }
 
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const pipelineSceneData = this._pipeline.pipelineSceneData;
-        const pipelineUBO = this._pipeline.pipelineUBO;
         const shadows = pipelineSceneData.shadows;
         this._instancedQueue.clear();
         this._pendingModels.length = 0;

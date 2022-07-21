@@ -4,7 +4,7 @@ How to Use bindings-generator
 On Windows:
 ------------
 
-* Make sure you have installed `android-ndk-r22`.
+* Make sure you have installed `android-ndk-r21`.
 * Download and install python3.6+ (64bit) from (<https://www.python.org/downloads/> ).(higher than python3.6)
 * Add the installed path of python (e.g. C:\Python310) to windows environment variable named 'PATH'.
 * Execute the following command from the command processor to install **PyYAML** and **Cheetah**:
@@ -14,51 +14,29 @@ On Windows:
    ```
 
 * Set environment variables (`NDK_ROOT`) and `PYTHON_BIN`
-* Go to "cocos2d-x/tools/tojs" folder, and run "genbindings.py". The generated codes will be under "cocos\bindings\auto".
+* Go to "native/tools/tojs" folder, and run "genbindings.py". The generated codes will be under "cocos\bindings\auto".
 
 
 On MAC:
 ----------
 
-* The OSX 10.10 has a built-in python2.7 and if your os don't have python2.7 then use [Homebrew](http://brew.sh/) to install the python and use pip install the python dependencies.
+* The macOS since 12.3 has a built-in python3, and if your os don't have python3 then use [Homebrew](http://brew.sh/) to install the python and use pip install the python dependencies.
 <pre>
-	brew install python
+	brew install python3
 </pre>
 
 * Install python dependices by pip.
 <pre>
-    sudo easy_install pip
-    sudo pip install PyYAML
-	sudo pip install Cheetah
+   python -m pip install PyYAML==5.4.1 Cheetah3
 </pre>
     
-* Download NDK r16 or later from [Android Ndk](https://developer.android.com/ndk/downloads/index.html)
+* Download NDK r21 or later from [Android Ndk](https://developer.android.com/ndk/downloads/index.html)
 * Run
 <pre>
-	export NDK_ROOT=/path/to/android-ndk-r16
+	export NDK_ROOT=/path/to/android-ndk-r21
     ./genbindings.py
 </pre>
 
-
-On Ubuntu Linux 12.04 64bit
-------------
-
-* Install python
-<pre>
-	sudo apt-get install python2.7
-</pre>
-* Install python dependices by pip.
-<pre>
-	sudo apt-get install python-pip
-	sudo pip install PyYAML
-	sudo pip install Cheetah
-</pre>
-* Download NDK r16 or later from [Android Ndk](https://developer.android.com/ndk/downloads/index.html)
-* Go to "cocos2d-x/tools/tojs", Run
-<pre>
-	export NDK_ROOT=/path/to/android-ndk-r16
-    ./genbindings.py
-</pre>
 
 # Steps of establishing associations by JSB between framework and native
 

@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <algorithm>
 #include <boost/functional/hash.hpp>
 #include <thread>
 #include "VKStd.h"
@@ -34,7 +35,9 @@
 #include "VKDevice.h"
 #include "VKGPUObjects.h"
 #include "gfx-base/GFXDef.h"
+#include "states/VKBufferBarrier.h"
 #include "states/VKGeneralBarrier.h"
+#include "states/VKTextureBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
 
@@ -553,40 +556,73 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     size_t dependencyCount = gpuRenderPass->dependencies.size();
     dependencyManager.clear();
 
-    if (dependencyCount) {
-        offset = 0U;
-        VkImageLayout imageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
-        bool hasWriteAccess{false};
+    bool manuallyDeduce = true;
+    if constexpr(ENABLE_GRAPH_AUTO_BARRIER) {
+        // single pass front and rear cost 2 slot.
+        manuallyDeduce = dependencyCount <= 2;
+    } else {
+        manuallyDeduce = dependencyCount == 0;
+    }
+    if (!manuallyDeduce) {
+        // offset = 0U;
+        ccstd::unordered_set<const GFXObject *> subpassExternalFilter;
 
         for (uint32_t i = 0U; i < dependencyCount; ++i) {
             const auto &dependency{gpuRenderPass->dependencies[i]};
-            const auto *gpuBarrier{static_cast<CCVKGeneralBarrier *>(dependency.barrier)->gpuBarrier()};
-
             VkSubpassDependency2 vkDependency{VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2};
             vkDependency.srcSubpass = dependency.srcSubpass;
             vkDependency.dstSubpass = dependency.dstSubpass;
             vkDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-            thsvsGetAccessInfo(
-                utils::toUint(gpuBarrier->prevAccesses.size()),
-                gpuBarrier->prevAccesses.data(),
-                &vkDependency.srcStageMask,
-                &vkDependency.srcAccessMask,
-                &imageLayout, &hasWriteAccess);
+            auto addStageAccessMask = [&vkDependency](const auto *barrier) {
+                VkPipelineStageFlags srcStageMask;
+                VkAccessFlags srcAccessMask;
+                VkPipelineStageFlags dstStageMask;
+                VkAccessFlags dstAccessMask;
+                VkImageLayout imageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
+                bool hasWriteAccess{false};
+                const auto *gpuBarrier{barrier->gpuBarrier()};
+                thsvsGetAccessInfo(
+                    utils::toUint(gpuBarrier->prevAccesses.size()),
+                    gpuBarrier->prevAccesses.data(),
+                    &srcStageMask,
+                    &srcAccessMask,
+                    &imageLayout, &hasWriteAccess);
 
-            offset += gpuBarrier->prevAccesses.size();
+                // offset += gpuBarrier->prevAccesses.size();
 
-            thsvsGetAccessInfo(
-                utils::toUint(gpuBarrier->nextAccesses.size()),
-                gpuBarrier->nextAccesses.data(),
-                &vkDependency.dstStageMask,
-                &vkDependency.dstAccessMask,
-                &imageLayout, &hasWriteAccess);
+                thsvsGetAccessInfo(
+                    utils::toUint(gpuBarrier->nextAccesses.size()),
+                    gpuBarrier->nextAccesses.data(),
+                    &dstStageMask,
+                    &dstAccessMask,
+                    &imageLayout, &hasWriteAccess);
 
-            dependencyManager.append(vkDependency);
+                // offset += gpuBarrier->nextAccesses.size();
+                vkDependency.srcStageMask |= srcStageMask;
+                vkDependency.srcAccessMask |= srcAccessMask;
+                vkDependency.dstStageMask |= dstStageMask;
+                vkDependency.dstAccessMask |= dstAccessMask;
+                dependencyManager.append(vkDependency);
+            };
 
-            offset += gpuBarrier->nextAccesses.size();
+            if (dependency.generalBarrier) {
+                addStageAccessMask(static_cast<CCVKGeneralBarrier *>(dependency.generalBarrier));
+            }
+
+            if (dependency.textureBarriers) {
+                for (size_t index = 0; index < dependency.textureBarrierCount; ++index) {
+                    addStageAccessMask(static_cast<CCVKTextureBarrier *>(dependency.textureBarriers[index]));
+                }
+            }
+
+            if (dependency.bufferBarriers) {
+                for (size_t index = 0; index < dependency.bufferBarrierCount; ++index) {
+                    addStageAccessMask(static_cast<CCVKBufferBarrier *>(dependency.bufferBarriers[index]));
+                }
+            }
         }
+
     } else {
         // try to deduce dependencies if not specified
 

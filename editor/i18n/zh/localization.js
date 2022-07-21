@@ -102,7 +102,7 @@ module.exports = {
         saturation: '阴影饱和度，建议设置为 1.0。若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
         pcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）类型',
         bias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
-        normalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
+        normalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，\n防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
         fixedArea: '切换固定区域和 CSM 模式。固定区域是一种旧模式，我们并不推荐使用。勾选该项则开启 CSM 模式，该模式下阴影会跟随方向光节点的位置，在方向光包围盒附近分布，而非跟随相机。',
         near: '固定区域开始值',
@@ -116,7 +116,7 @@ module.exports = {
         default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
         clips: '通过脚本可以访问并播放的 AnimationClip 列表',
         play_on_load: '是否在运行游戏后自动播放默认动画 clip。',
-        use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑',
+        use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，\n但所有动画效果会被彻底固定，不支持任何形式的编辑',
         sockets: '当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点',
     },
     audio: {
@@ -168,25 +168,25 @@ module.exports = {
     sprite: {
         gray_scale: '是否开启灰度渲染模式',
         atlas: '图片资源所属的 Atlas 图集资源',
-        sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
+        sprite_frame: '渲染 Sprite 使用的 Sprite Frame 图片资源',
         type:
             '渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
-            '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
-            '- 平铺（Tiled）：修改尺寸时会不断平铺原始大小的图片 \n' +
-            '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
+            '- 九宫格 Sliced 修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
+            '- 平铺 Tiled 修改尺寸时会不断平铺原始大小的图片 \n' +
+            '- 填充 Filled 设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
         original_size: '是否使用图片资源的原始尺寸作为 Sprite 节点的 size',
         edit_button: '编辑',
         select_button: '选择',
         select_tooltip: '选择 Atlas 中的其他 SpriteFrame',
         edit_tooltip: '打开 Sprite 编辑器，设置九宫格等数据',
-        fill_type: '填充方向，可以选择横向（Horizontal），纵向（Vertical）和扇形（Radial）三种方向',
+        fill_type: '填充方向，可以选择横向 Horizontal，纵向 Vertical 和扇形 Radial 三种方向',
         fill_center: '扇形填充时，指定扇形的中心点，取值范围 0 ~ 1',
         fill_start: '填充起始位置，输入一个 0 ~ 1 之间的小数表示起始位置的百分比',
         fill_range: '填充总量，取值范围 0 ~ 1 指定显示图像范围的百分比',
         src_blend_factor: '混合显示两张图片时，源图片的取值模式',
         dst_blend_factor: '混合显示两张图片时，目标图片的取值模式',
         size_mode:
-            '指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸',
+            '指定 Sprite 所在节点的尺寸\nCUSTOM 表示自定义尺寸\nTRIMMED 表示取原始图片剪裁透明像素后的尺寸\nRAW 表示取原始图片未剪裁的尺寸',
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
     },
     UIOpacity: {
@@ -214,7 +214,7 @@ module.exports = {
         duration: '按钮颜色变化或者缩放变化的过渡时间',
         zoom_scale: '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale, zoomScale 可以为负数',
         auto_gray_effect:
-            '如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰',
+            '如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，\n会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰',
         normal_sprite: '普通状态的按钮背景图资源',
         pressed_sprite: '按下状态的按钮背景图资源',
         hover_sprite: '悬停状态的按钮背景图资源',
@@ -223,10 +223,10 @@ module.exports = {
         click_events: '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     },
     canvas: {
-        camera: '2D渲染相机',
+        camera: '2D 渲染相机',
         align: '自动为 camera 计算参数',
         design_resolution:
-            '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
+            '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，\n可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
         fit_height: '自动缩放 Canvas 使设计分辨率的高度充满设备屏幕的高度',
         fit_width: '自动缩放 Canvas 使设计分辨率的宽度充满设备屏幕的宽度',
     },
@@ -299,18 +299,18 @@ module.exports = {
     scrollbar: {
         handle: '作为当前滚动区域位置显示的滑块 Sprite',
         direction: 'ScrollBar的滚动方向',
-        auto_hide: '是否在没有滚动动作时自动隐藏 ScrollBar',
-        auto_hide_time: '没有滚动动作后经过多久会自动隐藏\n注意：只有当 “enableAutoHide” 为 true 时，才有效',
+        auto_hide: '是否在没有滚动动作时自动隐藏 Scroll Bar',
+        auto_hide_time: '没有滚动动作后经过多久会自动隐藏\n注意：只有当  Enable Auto Hide 为 true 时才有效',
     },
     scrollview: {
         content: '包含可滚动展示内容的节点引用',
         horizontal: '是否开启水平滚动',
         vertical: '是否开启垂直滚动',
         inertia: '是否开启滚动惯性',
-        brake: '开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止',
+        brake: '开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
         elastic: '是否允许滚动内容超过边界，并在停止触摸后回弹',
-        horizontal_bar: '水平滚动的 ScrollBar',
-        vertical_bar: '垂直滚动的 ScrollBar',
+        horizontal_bar: '水平滚动的滚动条',
+        vertical_bar: '垂直滚动的滚动条',
         bounceDuration: '回弹持续的时间，0 表示将立即反弹',
         scrollEvents: '滚动视图的事件回调函数',
         cancelInnerEvents: '滚动行为是否会取消子节点上注册的触摸事件',
@@ -319,7 +319,7 @@ module.exports = {
         sizeMode: '页面视图中每个页面大小类型',
         direction: '页面视图滚动方向',
         scrollThreshold: '滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原',
-        pageTurningEventTiming: '设置 PageView 页面自动滚动动画结束的阈值，修改此值可以调整 PageView 事件的发送时机。',
+        pageTurningEventTiming: '设置 Page View 页面自动滚动动画结束的阈值，\n修改此值可以调整 Page View 事件的发送时机。',
         indicator: '页面视图指示器组件',
         pageTurningSpeed: '每个页面翻页时所需时间。单位：秒',
         pageEvents: '页面视图的事件回调函数',
@@ -334,8 +334,8 @@ module.exports = {
     },
     particleSystemRenderer: {
         renderMode: '设定粒子生成模式',
-        velocityScale: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
-        lengthScale: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
+        velocityScale: '在粒子生成方式为 Stretched Billboard 时,对粒子在运动方向上按速度大小进行拉伸',
+        lengthScale: '在粒子生成方式为 Stretched Billboard 时,对粒子在运动方向上按粒子大小进行拉伸',
         mesh: '粒子发射的模型',
         particleMaterial: '粒子使用的材质',
         trailMaterial: '拖尾使用的材质',
@@ -368,8 +368,8 @@ module.exports = {
         frameOverTime: '一个周期内动画播放的帧与时间变化曲线',
         startFrame: '从第几帧开始播放，时间为整个粒子系统的生命周期',
         cycleCount: '一个生命周期内播放循环的次数',
-        randomRow: '随机从动画贴图中选择一行以生成动画,\n此选项仅在动画播放方式为 SingleRow 时生效',
-        rowIndex: '从动画贴图中选择特定行以生成动画,\n此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用',
+        randomRow: '随机从动画贴图中选择一行以生成动画,\n此选项仅在动画播放方式为 Single Row 时生效',
+        rowIndex: '从动画贴图中选择特定行以生成动画,\n此选项仅在动画播放方式为 Single Row 时且禁用 Random Row 时可用',
     },
     toggle: {
         interactable: 'Toggle 是否可交互，这一项未选中时，Toggle 处在禁用状态',
@@ -380,9 +380,9 @@ module.exports = {
         hover_color: '悬停状态的 Toggle 背景颜色',
         disabled_color: '禁用状态的 Toggle 背景颜色',
         duration: 'Toggle 颜色变化或者缩放变化的过渡时间',
-        zoom_scale: '当用户点击 Toggle 后，Toggle 会缩放到一个值，这个值等于 Toggle 原始 scale * zoomScale, zoomScale 可以为负数',
+        zoom_scale: '当用户点击 Toggle 后，Toggle 会缩放到一个值，\n这个值等于 Toggle 原始 scale * zoomScale, zoomScale 可以为负数',
         auto_gray_effect:
-            '如果这个标记为 true，当 toggle 的 interactable 属性为 false 的时候，会使用内置 shader 让 toggle 的 target 节点的 sprite 组件变灰',
+            '如果这个标记为 true，当 toggle 的 interactable 属性为 false 的时候，\n会使用内置 shader 让 toggle 的 target 节点的 sprite 组件变灰',
         normal_sprite: '普通状态的 Toggle 背景图资源',
         pressed_sprite: '按下状态的 Toggle 背景图资源',
         hover_sprite: '悬停状态的 Toggle 背景图资源',
@@ -391,7 +391,7 @@ module.exports = {
         isChecked: '如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。',
         checkMark: 'Toggle 处于选中状态时显示的精灵图片',
         toggleGroup:
-            'Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。',
+            'Toggle 所属的 Toggle Group，这个属性是可选的。\n如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 Radio Button。',
         check_events: 'Toggle 按钮的点击事件列表',
     },
     toggle_group: {
@@ -428,8 +428,8 @@ module.exports = {
         mode: 'Particle在每个粒子的运动轨迹上形成拖尾效果',
         lifeTime: '拖尾的生命周期',
         minParticleDistance: '粒子每生成一个拖尾节点所运行的最短距离',
-        space: '拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行',
-        textureMode: '贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上',
+        space: '拖尾所在的坐标系，\nWorld 在世界坐标系中运行，\nLocal 在本地坐标系中运行',
+        textureMode: '贴图在拖尾上的展开形式，\nStretch 贴图覆盖在整条拖尾上，\nRepeat 贴图覆盖在一段拖尾上',
         widthFromParticle: '拖尾宽度继承自粒子大小',
         widthRatio: '拖尾宽度，如果继承自粒子则是粒子大小的比例',
         colorFromParticle: '拖尾颜色是否继承自粒子',
@@ -539,8 +539,8 @@ module.exports = {
         cache_mode: '文本缓存模式, 该模式只支持系统字体',
         max_width: '富文本的最大宽度, 传 0 的话意味着必须手动换行.',
         line_height: '字体行高, 单位是 point',
-        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效',
-        handleTouchEvent: '选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
+        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 image atlas 里面找到一个有效的 sprite frame，否则 img tag 会判定为无效',
+        handleTouchEvent: '选中此选项后，rich text 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
     },
     UICoordinateTracker: {
         target: '目标对象',
@@ -564,12 +564,12 @@ module.exports = {
         premultipliedAlpha: '是否启用贴图预乘',
     },
     dragon_bones: {
-        dragon_bones_asset: '骨骼信息数据，拖拽 DragonBones 导出的骨骼动画信息 json 资源到这里来开始使用',
-        dragon_bones_atlas_asset: 'Texture 信息数据，拖拽 DragonBones 导出的 Texture 信息 json 资源到这里来开始使用',
+        dragon_bones_asset: '骨骼信息数据，拖拽 Dragon Bones 导出的骨骼动画信息 json 资源到这里来开始使用',
+        dragon_bones_atlas_asset: 'Texture 信息数据，拖拽 Dragon Bones 导出的 Texture 信息 json 资源到这里来开始使用',
         armature_name: '当前的 Armature 名称',
         animation_name: '当前播放的动画名称',
         time_scale: '当前骨骼中所有动画的时间缩放率',
-        play_times: '播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数',
+        play_times: '播放默认动画的循环次数\n - 1 表示使用配置文件中的默认值\n0 表示无限循环\n > 0 表示循环次数',
         debug_bones: '是否显示 bone 的 debug 信息',
     },
     motionStreak: {
@@ -595,7 +595,7 @@ module.exports = {
         custom: '是否自定义粒子属性',
         file: 'plist 格式的粒子配置文件',
         spriteFrame: '粒子贴图定义',
-        texture: '粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图',
+        texture: '粒子贴图，只读属性，请使用 sprite Frame 属性来替换贴图',
         particleCount: '当前播放的粒子数量',
         srcBlendFactor: '指定原图混合模式',
         dstBlendFactor: '指定目标的混合模式',
@@ -627,15 +627,15 @@ module.exports = {
         rotatePerS: '粒子每秒围绕起始点的旋转角度及变化范围，只有在半径模式下可用',
         capacity: '粒子系统能生成的最大粒子数量',
         scaleSpace: '选择缩放坐标系',
-        startSize3D: '是否分别设置粒子X,Y和Z轴的初始大小',
-        startSizeX: 'X轴初始大小',
-        startSizeY: 'Y轴初始大小',
-        startSizeZ: 'Z轴初始大小',
+        startSize3D: '是否分别设置粒子 X, Y 和 Z 轴的初始大小',
+        startSizeX: 'X 轴初始大小',
+        startSizeY: 'Y 轴初始大小',
+        startSizeZ: 'Z 轴初始大小',
         startSpeed: '初始速度',
-        startRotation3D: '是否分别设置粒子X,Y和Z轴的初始旋转角度',
-        startRotationX: 'X轴初始旋转角度',
-        startRotationY: 'Y轴初始旋转角度',
-        startRotationZ: 'Z轴初始旋转角度',
+        startRotation3D: '是否分别设置粒子 X, Y 和 Z 轴的初始旋转角度',
+        startRotationX: 'X 轴初始旋转角度',
+        startRotationY: 'Y 轴初始旋转角度',
+        startRotationZ: 'Z 轴初始旋转角度',
         startDelay: '粒子系统开始运行后，延迟粒子发射的时间',
         startLifetime: '粒子生命周期',
         duration: '粒子系统运行时间',
@@ -670,14 +670,14 @@ module.exports = {
         type: '遮罩类型',
         spriteFrame: '遮罩所需要的贴图',
         inverted: '反向遮罩（不支持 Canvas 模式）',
-        alphaThreshold: 'Alpha阈值，只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容（不支持 Canvas 模式）',
+        alphaThreshold: 'Alpha阈值，只有当模板的像素的 alpha 大于 alpha Threshold 时，才会绘制内容（不支持 Canvas 模式）',
         segements: '椭圆遮罩的曲线细分数',
     },
     physics: {
         rigidbody: {
             enabledContactListener: '是否启用接触接听器。当 collider 产生碰撞时，只有开启了接触接听器才会调用相应的回调函数',
             bullet: '这个刚体是否是一个快速移动的刚体，并且需要禁止穿过其他快速移动的刚体',
-            type: '刚体类型： Static（静态）, Kinematic（不受外力）, Dynamic（动态）和 Animated（通过设置线性速度和角速度驱动）',
+            type: '刚体类型：\nStatic（静态）, \nKinematic（不受外力）, \nDynamic（动态）和 Animated（通过设置线性速度和角速度驱动）',
             allowSleep: '如果此刚体永远都不应该进入睡眠，那么设置这个属性为 false。需要注意这将使 CPU 占用率提高',
             gravityScale: '缩放应用在此刚体上的重力值',
             linearDamping:
@@ -731,10 +731,10 @@ module.exports = {
         brief_help: '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。',
     },
     tiledtile: {
-        row: '指定 TiledTile 的横向坐标，以地图块为单位',
-        column: '指定 TiledTile 的纵向坐标，以地图块为单位',
-        gid: '指定 TiledTile 的 gid 值',
-        layer: '指定 TiledTile 属于哪一个 TiledLayer',
+        row: '指定 Tiled Tile 的横向坐标，以地图块为单位',
+        column: '指定 Tiled Tile 的纵向坐标，以地图块为单位',
+        gid: '指定 Tiled Tile 的 gid 值',
+        layer: '指定 Tiled Tile 属于哪一个 Tiled Layer',
     },
     INSPECTOR: {
         component: {
@@ -881,8 +881,8 @@ module.exports = {
             description: "Spine 动画支持。",
         },
         dragon_bones: {
-            label: "DragonBones",
-            description: "DragonBones 支持。",
+            label: "Dragon Bones",
+            description: "Dragon Bones 支持。",
         },
         animation: {
             label: "基础动画功能",
@@ -895,6 +895,10 @@ module.exports = {
         marionette: {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
+        },
+        custom_pipeline: {
+            label: "自定义渲染管线（实验）",
+            description: "启用自定义渲染管线。",
         },
     },
     renderable_2d: {
@@ -918,7 +922,7 @@ module.exports = {
     physics3d: {
         rigidbody: {
             group: '刚体分组',
-            type: '刚体类型：Static为静态, Kinematic为运动学（通过变换信息操控）, Dynamic为动力学（通过物理数值操控）',
+            type: '刚体类型：\nStatic为静态, \nKinematic 为运动学（通过变换信息操控）, \nDynamic 为动力学（通过物理数值操控）',
             mass: '刚体质量，需大于 0',
             allowSleep: '是否允许自动休眠',
             linearDamping: '线性阻尼，用于衰减线性速度，值越大，衰减越快',
@@ -949,10 +953,10 @@ module.exports = {
             mesh_convex: '是否使用凸包近似代替，顶点数应小于255，开启后可以支持动力学',
             terrain_terrain: '所使用的地形资源',
             simplex_shapeType: '单纯形类型，点、线、三角形、四面体',
-            simplex_vertex0: '形状的顶点0',
-            simplex_vertex1: '形状的顶点1',
-            simplex_vertex2: '形状的顶点2',
-            simplex_vertex3: '形状的顶点3',
+            simplex_vertex0: '形状的顶点 0',
+            simplex_vertex1: '形状的顶点 1',
+            simplex_vertex2: '形状的顶点 2',
+            simplex_vertex3: '形状的顶点 3',
         },
         constant_force:{
             force: '在世界坐标系中，对刚体施加的力',

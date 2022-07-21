@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-import { AABB, Frustum, intersect, Sphere } from '../geometry';
+import { intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Vec3, Mat4, Color } from '../math';
+import { Vec3 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMLevel, CSMOptimizationMode } from '../renderer/scene/shadows';
-import { SphereLight, DirectionalLight } from '../renderer/scene';
+import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 
@@ -50,99 +49,6 @@ function getRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
-}
-
-function updateSphereLight (pipeline: RenderPipeline, light: SphereLight) {
-    const shadows = pipeline.pipelineSceneData.shadows;
-
-    const pos = light.node!.worldPosition;
-    const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
-    const NdL = Vec3.dot(n, pos);
-    const lx = pos.x; const ly = pos.y; const lz = pos.z;
-    const nx = n.x; const ny = n.y; const nz = n.z;
-    const m = shadows.matLight;
-    m.m00 = NdL - d - lx * nx;
-    m.m01 = -ly * nx;
-    m.m02 = -lz * nx;
-    m.m03 = -nx;
-    m.m04 = -lx * ny;
-    m.m05 = NdL - d - ly * ny;
-    m.m06 = -lz * ny;
-    m.m07 = -ny;
-    m.m08 = -lx * nz;
-    m.m09 = -ly * nz;
-    m.m10 = NdL - d - lz * nz;
-    m.m11 = -nz;
-    m.m12 = lx * d;
-    m.m13 = ly * d;
-    m.m14 = lz * d;
-    m.m15 = NdL;
-
-    pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadows.matLight);
-}
-
-function updateDirLight (pipeline: RenderPipeline, light: DirectionalLight) {
-    const shadows = pipeline.pipelineSceneData.shadows;
-
-    const dir = light.direction;
-    const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
-    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
-    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
-    const nx = n.x; const ny = n.y; const nz = n.z;
-    const m = shadows.matLight;
-    m.m00 = 1 - nx * lx;
-    m.m01 = -nx * ly;
-    m.m02 = -nx * lz;
-    m.m03 = 0;
-    m.m04 = -ny * lx;
-    m.m05 = 1 - ny * ly;
-    m.m06 = -ny * lz;
-    m.m07 = 0;
-    m.m08 = -nz * lx;
-    m.m09 = -nz * ly;
-    m.m10 = 1 - nz * lz;
-    m.m11 = 0;
-    m.m12 = lx * d;
-    m.m13 = ly * d;
-    m.m14 = lz * d;
-    m.m15 = 1;
-
-    pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadows.matLight);
-}
-
-export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array) {
-    const dir = light.direction;
-    const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
-    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
-    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
-    const nx = n.x; const ny = n.y; const nz = n.z;
-    const m = shadowInfo.matLight;
-    m.m00 = 1 - nx * lx;
-    m.m01 = -nx * ly;
-    m.m02 = -nx * lz;
-    m.m03 = 0;
-    m.m04 = -ny * lx;
-    m.m05 = 1 - ny * ly;
-    m.m06 = -ny * lz;
-    m.m07 = 0;
-    m.m08 = -nz * lx;
-    m.m09 = -nz * ly;
-    m.m10 = 1 - nz * lz;
-    m.m11 = 0;
-    m.m12 = lx * d;
-    m.m13 = ly * d;
-    m.m14 = lz * d;
-    m.m15 = 1;
-
-    Mat4.toArray(shadowUBO, m, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-}
-
-export function updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array) {
-    Vec3.normalize(_tempVec3, shadowInfo.normal);
-    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 0] = _tempVec3.x;
-    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 1] = _tempVec3.y;
-    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 2] = _tempVec3.z;
-    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 3] = shadowInfo.distance;
 }
 
 export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera) {
@@ -236,12 +142,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             if (mainLight && mainLight.node) {
                 csmLayers.update(sceneData, camera);
             }
-        }
-    }
-
-    if (mainLight) {
-        if (shadows.type === ShadowType.Planar) {
-            updateDirLight(pipeline, mainLight);
         }
     }
 
