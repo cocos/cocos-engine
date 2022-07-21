@@ -493,7 +493,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.cpp
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h
 )
-if(USE_SERVER_MODE AND (NOT MACOSX))
+if(USE_SERVER_MODE)
     cocos_source_files(
         cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.cpp
         cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.h
