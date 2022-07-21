@@ -1078,7 +1078,6 @@ interface Macro {
      * @en The name of custom rendering pipeline (experimental)
      * Engine will use the name to create the custom pipeline (Web only). If the name is empty, custom pipeline will be disabled.
      * Currently only 'Forward' and 'Deferred' are supported.
-     * @default 144 KB
      */
     CUSTOM_PIPELINE_NAME: string;
 
