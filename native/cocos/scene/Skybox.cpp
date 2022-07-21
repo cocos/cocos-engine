@@ -118,17 +118,17 @@ void SkyboxInfo::setEnvmap(TextureCube *val) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         _envmapHDR = val;
+        _reflectionHDR = nullptr;
     } else {
         _envmapLDR = val;
+        _reflectionLDR = nullptr;
     }
 
     if (!val) {
         if (isHDR) {
             _diffuseMapHDR = nullptr;
-            _reflectionHDR = nullptr;
         } else {
             _diffuseMapLDR = nullptr;
-            _reflectionLDR = nullptr;
         }
         setApplyDiffuseMap(false);
         setUseIBL(false);
