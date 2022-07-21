@@ -1482,6 +1482,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     public prepareDrawData () {
+        this._drawInfoList.length = 0;
         const entity = this.renderEntity;
         entity.clearDynamicRenderDrawInfos();
         const tiledDataArray = this._tiledDataArray;
