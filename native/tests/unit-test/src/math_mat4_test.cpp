@@ -246,13 +246,6 @@ TEST(mathMat4Test, test5) {
     logLabel = "test the mat4 subtract function";
     cc::Mat4::subtract(m1, m2, &outMat);
     ExpectEq(outMat.m[0] == -1, true);
-    // transformPoint
-    logLabel = "test the mat4 transformPoint function";
-    cc::Vec3 transformPot(0, 3, 0);
-    outMat.setIdentity();
-    outMat.m[13] = 2;
-    outMat.transformPoint(&transformPot);
-    ExpectEq(transformPot.y == 5, true);
     // translate
     logLabel = "test the mat4 translate function";
     cc::Mat4 translate;

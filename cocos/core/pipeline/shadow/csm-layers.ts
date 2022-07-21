@@ -162,9 +162,10 @@ export class ShadowLayerVolume {
             orthoSizeWidth = orthoSizeHeight = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
         }
 
-        if (dirLight.csmLevel > 1 && dirLight.csmOptimizationMode
+        const csmLevel = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
+        if (csmLevel > 1 && dirLight.csmOptimizationMode
             === CSMOptimizationMode.RemoveDuplicates) {
-            if (this._level >= dirLight.csmLevel - 1) {
+            if (this._level >= csmLevel - 1) {
                 _maxLayerFarPlane = this._castLightViewBoundingBox.halfExtents.z;
                 _maxLayerPosz = this._castLightViewBoundingBox.center.z;
             } else {
@@ -310,7 +311,7 @@ export class CSMLayers {
         if (dirLight === null) { return; }
 
         const shadowInfo = sceneData.shadows;
-        const levelCount = dirLight.csmLevel;
+        const levelCount = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowDistance = dirLight.shadowDistance;
 
         if (!shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
@@ -359,7 +360,7 @@ export class CSMLayers {
         const nd = 0.1;
         const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
-        const level = dirLight.csmLevel;
+        const level = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const lambda = dirLight.csmLayerLambda;
         this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
@@ -379,7 +380,7 @@ export class CSMLayers {
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
-        const level = dirLight.csmLevel;
+        const level = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowMapWidth = level > 1 ? shadowInfo.size.x * 0.5 : shadowInfo.size.x;
 
         if (shadowMapWidth < 0.0) { return; }
