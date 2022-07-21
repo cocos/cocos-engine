@@ -896,6 +896,10 @@ module.exports = {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
         },
+        custom_pipeline: {
+            label: "自定义渲染管线（实验）",
+            description: "启用自定义渲染管线。",
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',

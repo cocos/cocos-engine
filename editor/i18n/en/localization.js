@@ -915,6 +915,10 @@ module.exports = {
             label: "Marionette Animation System",
             description: "Enable the Marionette animation system",
         },
+        custom_pipeline: {
+            label: "Custom Render Pipeline (Experimental)",
+            description: "Enable custom render pipeline",
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, it will clone a new material object.',
