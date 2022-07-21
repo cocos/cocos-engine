@@ -7,7 +7,7 @@
       #endif
 
       //#todo: add GL400 calcmip
-    	float mip = roughness * mipCount;
+    	float mip = roughness * (mipCount - 1.0);
     	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
     	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
 
@@ -35,7 +35,7 @@
         roughness = pow(roughness, 0.5);
       #endif
       
-      vec4 envmap = fragTextureLod(cc_environment, R, roughness * mipCount);
+      vec4 envmap = fragTextureLod(cc_environment, R, roughness * (mipCount - 1.0));
     
       #if CC_USE_IBL == IBL_RGBE
         return unpackRGBE(envmap);
