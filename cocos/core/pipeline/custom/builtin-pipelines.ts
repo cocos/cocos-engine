@@ -115,7 +115,8 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipe
             buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
                 camera, mainLight, 0, mapWidth, mapHeight);
         } else {
-            for (let i = 0; i < mainLight.csmLevel; i++) {
+            const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
+            for (let i = 0; i < csmLevel; i++) {
                 cameraInfo.mainLightShadowNames[i] = `MainLightShadow${cameraName}`;
                 buildShadowPass(cameraInfo.mainLightShadowNames[i], ppl,
                     camera, mainLight, i, mapWidth, mapHeight);
@@ -209,10 +210,12 @@ export class ForwardPipelineBuilder extends PipelineBuilder {
             forwardPass.addRasterView(forwardPassDSName, passDSView);
             forwardPass
                 .addQueue(QueueHint.RENDER_OPAQUE)
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.DEFAULT_LIGHTING);
+                .addSceneOfCamera(camera, new LightInfo(),
+                    SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
+                    | SceneFlags.PLANAR_SHADOW | SceneFlags.DEFAULT_LIGHTING);
             forwardPass
                 .addQueue(QueueHint.RENDER_TRANSPARENT)
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.UI | SceneFlags.GEOMETRY | SceneFlags.PROFILER);
         }
     }
 }
@@ -406,7 +409,8 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
                 camera, this._deferredData._deferredLightingMaterial,
                 SceneFlags.VOLUMETRIC_LIGHTING,
             );
-            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT);
+            lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
             // Postprocess
             const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
             const postprocessPassDS = `postprocessPassDS${cameraID}`;
@@ -441,7 +445,8 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
             postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
             postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
             postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(this._deferredData._deferredPostMaterial, SceneFlags.NONE);
-            postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(), SceneFlags.UI);
+            postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+                SceneFlags.UI | SceneFlags.PROFILER);
         }
     }
     readonly _deferredData = new DeferredData();

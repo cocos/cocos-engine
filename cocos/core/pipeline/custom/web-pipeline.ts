@@ -52,6 +52,7 @@ import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../assets';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { RenderGraphPrintVisitor } from './debug';
+import { decideProfilerCamera } from '../pipeline-funcs';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -427,6 +428,12 @@ export class WebPipeline extends Pipeline {
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
         const isLinear = this._device.gfxAPI === API.WEBGL ? 1 : 0;
         this.setMacroInt('CC_SHADOWMAP_USE_LINEAR_DEPTH', isLinear);
+
+        // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
+        this.pipelineSceneData.csmSupported = this.device.capabilities.maxFragmentUniformVectors
+            >= (WebPipeline.CSM_UNIFORM_VECTORS + WebPipeline.GLOBAL_UNIFORM_VECTORS);
+        this.setMacroBool('CC_SUPPORT_CASCADED_SHADOW_MAP', this.pipelineSceneData.csmSupported);
+
         const root = legacyCC.director.root;
         // enable the deferred pipeline
         if (root.useDeferredPipeline) {
@@ -638,6 +645,7 @@ export class WebPipeline extends Pipeline {
             return;
         }
         this._applySize(cameras);
+        decideProfilerCamera(cameras);
         // build graph
         this.beginFrame();
         if (this.builder) {
@@ -715,4 +723,8 @@ export class WebPipeline extends Pipeline {
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     public builder: PipelineBuilder | null = null;
+    // csm uniform used vectors count
+    public static CSM_UNIFORM_VECTORS = 61;
+    // all global uniform used vectors count
+    public static GLOBAL_UNIFORM_VECTORS = 64;
 }
