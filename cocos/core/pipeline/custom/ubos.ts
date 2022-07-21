@@ -31,19 +31,19 @@ import { Mat4, Vec3, Vec4, Color } from '../../math';
 import { WebPipeline } from './web-pipeline';
 import { legacyCC } from '../../global-exports';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { updatePlanarNormalAndDistance, updatePlanarPROJ } from '../scene-culling';
 import { Light, LightType } from '../../renderer/scene/light';
 import { DirectionalLight, SpotLight } from '../../renderer/scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets';
-import { DebugView, DebugViewCompositeType } from '../debug-view';
+import { DebugViewCompositeType } from '../debug-view';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
 const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
+const _tempVec3 = new Vec3();
 
 export class PipelineUBO {
     public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
@@ -199,6 +199,14 @@ export class PipelineUBO {
         return 0.0;
     }
 
+    public static updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array) {
+        Vec3.normalize(_tempVec3, shadowInfo.normal);
+        shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 0] = _tempVec3.x;
+        shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 1] = _tempVec3.y;
+        shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 2] = _tempVec3.z;
+        shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 3] = -shadowInfo.distance;
+    }
+
     public static updateShadowUBOView (pipeline: WebPipeline, shadowBufferView: Float32Array,
         csmBufferView: Float32Array, camera: Camera) {
         const device = pipeline.device;
@@ -243,8 +251,6 @@ export class PipelineUBO {
                     } else {
                         const layerThreshold = this.getPCFRadius(shadowInfo, mainLight);
                         for (let i = 0; i < mainLight.csmLevel; i++) {
-                            cv[UBOCSM.CSM_SPLITS_INFO_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
-
                             const matShadowView = csmLayers.layers[i].matShadowView;
                             _vec4ShadowInfo.set(matShadowView.m00, matShadowView.m04, matShadowView.m08, layerThreshold);
                             Vec4.toArray(cv, _vec4ShadowInfo, UBOCSM.CSM_VIEW_DIR_0_OFFSET + 4 * i);
@@ -253,11 +259,13 @@ export class PipelineUBO {
                             _vec4ShadowInfo.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, 0.0);
                             Vec4.toArray(cv, _vec4ShadowInfo, UBOCSM.CSM_VIEW_DIR_2_OFFSET + 4 * i);
 
-                            const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
-                            Mat4.toArray(cv, matShadowViewProj, UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * i);
-
                             const csmAtlas = csmLayers.layers[i].csmAtlas;
                             Vec4.toArray(cv, csmAtlas, UBOCSM.CSM_ATLAS_OFFSET + 4 * i);
+
+                            cv[UBOCSM.CSM_SPLITS_INFO_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
+
+                            const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
+                            Mat4.toArray(cv, matShadowViewProj, UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * i);
 
                             const matShadowProj = csmLayers.layers[i].matShadowProj;
                             cv[UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m10;
@@ -281,8 +289,7 @@ export class PipelineUBO {
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
                 }
             } else {
-                updatePlanarPROJ(shadowInfo, mainLight, sv);
-                updatePlanarNormalAndDistance(shadowInfo, sv);
+                PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, sv);
             }
 
             Color.toArray(sv, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);

@@ -261,8 +261,7 @@ globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
  * @zh 这个 UBO 仅仅只给 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow' 使用
  */
 export class UBOShadow {
-    public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
-    public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static readonly MAT_LIGHT_VIEW_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
     public static readonly SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
     public static readonly SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
@@ -278,7 +277,6 @@ export class UBOShadow {
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOShadow.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOShadow.BINDING, UBOShadow.NAME, [
-        new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
         new Uniform('cc_matLightView', Type.MAT4, 1),
         new Uniform('cc_matLightViewProj', Type.MAT4, 1),
         new Uniform('cc_shadowInvProjDepthInfo', Type.FLOAT4, 1),
@@ -300,39 +298,29 @@ globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
  */
 export class UBOCSM {
     public static readonly CSM_LEVEL_COUNT = 4;
-    /*********************************************************************************************************/
     public static readonly CSM_VIEW_DIR_0_OFFSET = 0;
     public static readonly CSM_VIEW_DIR_1_OFFSET = UBOCSM.CSM_VIEW_DIR_0_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly CSM_VIEW_DIR_2_OFFSET = UBOCSM.CSM_VIEW_DIR_1_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly CSM_ATLAS_OFFSET = UBOCSM.CSM_VIEW_DIR_2_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    /*********************************************************************************************************/
-    public static readonly MAT_CSM_VIEW_OFFSET = UBOCSM.CSM_ATLAS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly MAT_CSM_VIEW_PROJ_OFFSET = UBOCSM.MAT_CSM_VIEW_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly MAT_CSM_VIEW_PROJ_ATLAS_OFFSET = UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_PROJ_DEPTH_INFO_OFFSET = UBOCSM.MAT_CSM_VIEW_PROJ_ATLAS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly MAT_CSM_VIEW_PROJ_OFFSET = UBOCSM.CSM_ATLAS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_PROJ_DEPTH_INFO_OFFSET = UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly CSM_PROJ_INFO_OFFSET = UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly CSM_SPLITS_INFO_OFFSET = UBOCSM.CSM_PROJ_INFO_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_INFO_OFFSET = UBOCSM.CSM_SPLITS_INFO_OFFSET + 4;
-    public static readonly COUNT: number = UBOCSM.CSM_INFO_OFFSET + 4;
+    public static readonly COUNT: number = UBOCSM.CSM_SPLITS_INFO_OFFSET + 4;
     public static readonly SIZE = UBOCSM.COUNT * 4;
 
     public static readonly NAME = 'CCCSM';
     public static readonly BINDING = PipelineGlobalBindings.UBO_CSM;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCSM.BINDING, UBOCSM.NAME, [
-        /*********************************************************************************************************/
         new Uniform('cc_csmViewDir0', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmViewDir1', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmViewDir2', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmAtlas', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
-        /*********************************************************************************************************/
-        new Uniform('cc_matCSMView', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_matCSMViewProj', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
-        new Uniform('cc_matCSMViewProjAtlas', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmProjDepthInfo', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmProjInfo', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmSplitsInfo', Type.FLOAT4, 1),
-        new Uniform('cc_csmInfo', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCSM.NAME] = UBOCSM.LAYOUT;

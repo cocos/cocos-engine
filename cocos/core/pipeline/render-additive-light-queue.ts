@@ -41,9 +41,9 @@ import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
 import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
     UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
-import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { PipelineUBO } from './pipeline-ubo';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -345,8 +345,7 @@ export class RenderAdditiveLightQueue {
             case LightType.SPHERE: {
                 // planar PROJ
                 if (mainLight) {
-                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                    PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -368,8 +367,7 @@ export class RenderAdditiveLightQueue {
 
                 // planar PROJ
                 if (mainLight) {
-                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                    PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
                 // light view

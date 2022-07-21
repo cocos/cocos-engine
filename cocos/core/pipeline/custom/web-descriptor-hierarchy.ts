@@ -338,7 +338,6 @@ export class WebDescriptorHierarchy {
 
         if (hasCCShadow) {
             const shadowDB: UniformBlock = this.getUniformBlock('CCShadow', globalUniformTarget);
-            this.setUniform(shadowDB, 'cc_matLightPlaneProj', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightView', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_matLightViewProj', Type.MAT4, 1);
             this.setUniform(shadowDB, 'cc_shadowInvProjDepthInfo', Type.FLOAT4, 1);
@@ -348,6 +347,7 @@ export class WebDescriptorHierarchy {
             this.setUniform(shadowDB, 'cc_shadowWHPBInfo', Type.FLOAT4, 1);
             this.setUniform(shadowDB, 'cc_shadowLPNNInfo', Type.FLOAT4, 1);
             this.setUniform(shadowDB, 'cc_shadowColor', Type.FLOAT4, 1);
+            this.setUniform(shadowDB, 'cc_planarNDInfo', Type.FLOAT4, 1);
         }
 
         if (hasShadowmap) {
