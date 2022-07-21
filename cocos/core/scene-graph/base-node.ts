@@ -361,44 +361,6 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
     }
 
-    protected _registerIfAttached = !EDITOR ? undefined : function _registerIfAttached (this: BaseNode, register) {
-        if (!this._id) {
-            warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
-            return;
-        }
-        if (EditorExtends.Node && EditorExtends.Component) {
-            if (register) {
-                EditorExtends.Node.add(this._id, this);
-
-                for (let i = 0; i < this._components.length; i++) {
-                    const comp = this._components[i];
-                    if (!comp || !comp._id) {
-                        warn(`Component attached to node:${this.name} is corrupted`);
-                    } else {
-                        EditorExtends.Component.add(comp._id, comp);
-                    }
-                }
-            } else {
-                for (let i = 0; i < this._components.length; i++) {
-                    const comp = this._components[i];
-                    if (!comp || !comp._id) {
-                        warn(`Component attached to node:${this.name} is corrupted`);
-                    } else {
-                        EditorExtends.Component.remove(comp._id);
-                    }
-                }
-
-                EditorExtends.Node.remove(this._id);
-            }
-        }
-
-        const children = this._children;
-        for (let i = 0, len = children.length; i < len; ++i) {
-            const child = children[i];
-            child._registerIfAttached!(register);
-        }
-    };
-
     constructor (name?: string) {
         super(name);
         this._name = name !== undefined ? name : 'New Node';
