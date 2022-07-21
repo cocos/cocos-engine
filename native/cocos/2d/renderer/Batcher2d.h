@@ -39,7 +39,7 @@
 namespace cc {
 class Root;
 using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
-using UIMeshBufferMap = ccstd::unordered_map<uint32_t, UIMeshBufferArray>;
+using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
 class Batcher2d final {
 public:
@@ -47,7 +47,7 @@ public:
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
-    void syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
+    void syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
 
     bool initialize();
     void update();
@@ -57,7 +57,7 @@ public:
     void syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes);
     void releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler);
 
-    UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
+    UIMeshBuffer* getMeshBuffer(uint16_t accId, uint16_t bufferId);
     gfx::Device* getDevice();
     inline ccstd::vector<gfx::Attribute>* getDefaultAttribute() { return &_attributes; }
 
@@ -66,8 +66,7 @@ public:
     void fillBuffersAndMergeBatches();
     void walk(Node* node, float parentOpacity);
     void handlePostRender(RenderEntity* entity);
-    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity);
-    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity);
+    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 

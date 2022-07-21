@@ -35,9 +35,9 @@ import { ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType } from '../renderer/scene/light';
 import { intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
-import { RenderPipeline } from './render-pipeline';
 import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
 import { shadowCulling } from './scene-culling';
+import { PipelineRuntime } from './custom/pipeline';
 
 const _phaseID = getPhaseID('shadow-caster');
 function getShadowPassIndex (subModel: SubModel) : number {
@@ -55,14 +55,14 @@ function getShadowPassIndex (subModel: SubModel) : number {
  * 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
-    private _pipeline: RenderPipeline;
+    private _pipeline: PipelineRuntime;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
-    public constructor (pipeline: RenderPipeline) {
+    public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();

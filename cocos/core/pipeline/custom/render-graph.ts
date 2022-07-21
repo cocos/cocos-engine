@@ -30,10 +30,10 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
+import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
-import { Light } from '../../renderer/scene';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -82,6 +82,17 @@ export const enum ResourceGraphValue {
     PersistentTexture,
     Framebuffer,
     Swapchain,
+}
+
+export function getResourceGraphValueName (e: ResourceGraphValue): string {
+    switch (e) {
+    case ResourceGraphValue.Managed: return 'Managed';
+    case ResourceGraphValue.PersistentBuffer: return 'PersistentBuffer';
+    case ResourceGraphValue.PersistentTexture: return 'PersistentTexture';
+    case ResourceGraphValue.Framebuffer: return 'Framebuffer';
+    case ResourceGraphValue.Swapchain: return 'Swapchain';
+    default: return '';
+    }
 }
 
 interface ResourceGraphValueType {
@@ -594,92 +605,6 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
 }
 
-export const enum AttachmentType {
-    RENDER_TARGET,
-    DEPTH_STENCIL,
-}
-
-export function getAttachmentTypeName (e: AttachmentType): string {
-    switch (e) {
-    case AttachmentType.RENDER_TARGET:
-        return 'RENDER_TARGET';
-    case AttachmentType.DEPTH_STENCIL:
-        return 'DEPTH_STENCIL';
-    default:
-        return '';
-    }
-}
-
-export const enum AccessType {
-    READ,
-    READ_WRITE,
-    WRITE,
-}
-
-export function getAccessTypeName (e: AccessType): string {
-    switch (e) {
-    case AccessType.READ:
-        return 'READ';
-    case AccessType.READ_WRITE:
-        return 'READ_WRITE';
-    case AccessType.WRITE:
-        return 'WRITE';
-    default:
-        return '';
-    }
-}
-
-export class RasterView {
-    constructor (
-        slotName = '',
-        accessType: AccessType = AccessType.WRITE,
-        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
-        loadOp: LoadOp = LoadOp.LOAD,
-        storeOp: StoreOp = StoreOp.STORE,
-        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
-        clearColor: Color = new Color(),
-    ) {
-        this.slotName = slotName;
-        this.accessType = accessType;
-        this.attachmentType = attachmentType;
-        this.loadOp = loadOp;
-        this.storeOp = storeOp;
-        this.clearFlags = clearFlags;
-        this.clearColor = clearColor;
-    }
-    slotName: string;
-    accessType: AccessType;
-    attachmentType: AttachmentType;
-    loadOp: LoadOp;
-    storeOp: StoreOp;
-    clearFlags: ClearFlagBit;
-    readonly clearColor: Color;
-}
-
-export const enum ClearValueType {
-    FLOAT_TYPE,
-    INT_TYPE,
-}
-
-export function getClearValueTypeName (e: ClearValueType): string {
-    switch (e) {
-    case ClearValueType.FLOAT_TYPE:
-        return 'FLOAT_TYPE';
-    case ClearValueType.INT_TYPE:
-        return 'INT_TYPE';
-    default:
-        return '';
-    }
-}
-
-export class ComputeView {
-    name = '';
-    accessType: AccessType = AccessType.READ;
-    clearFlags: ClearFlagBit = ClearFlagBit.NONE;
-    readonly clearColor: Color = new Color();
-    clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE;
-}
-
 export class RasterSubpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
@@ -980,6 +905,7 @@ export class RasterPass {
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
     width = 0;
     height = 0;
+    readonly viewport: Viewport = new Viewport();
 }
 
 export class ComputePass {
@@ -1061,6 +987,17 @@ export class RaytracePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
+export class ClearView {
+    constructor (slotName = '', clearFlags: ClearFlagBit = gfx.ClearFlagBit.ALL, clearColor: Color = new Color()) {
+        this.slotName = slotName;
+        this.clearFlags = clearFlags;
+        this.clearColor = clearColor;
+    }
+    slotName: string;
+    clearFlags: ClearFlagBit;
+    readonly clearColor: Color;
+}
+
 export class RenderQueue {
     constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE) {
         this.hint = hint;
@@ -1069,13 +1006,14 @@ export class RenderQueue {
 }
 
 export class SceneData {
-    constructor (name = '', flags: SceneFlags = SceneFlags.NONE) {
+    constructor (name = '', flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
         this.name = name;
+        this.light = light;
         this.flags = flags;
     }
     name: string;
     camera: Camera | null = null;
-    light: Light | null = null;
+    readonly light: LightInfo;
     flags: SceneFlags;
     readonly scenes: string[] = [];
 }
@@ -1094,10 +1032,14 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (shader = '') {
-        this.shader = shader;
+    constructor (material: Material | null, sceneFlags: SceneFlags, camera: Camera | null) {
+        this.material = material;
+        this.sceneFlags = sceneFlags;
+        this.camera = camera;
     }
-    shader: string;
+    /*object*/ material: Material | null;
+    sceneFlags: SceneFlags;
+    camera: Camera | null;
 }
 
 export class Present {
@@ -1135,6 +1077,26 @@ export const enum RenderGraphValue {
     Scene,
     Blit,
     Dispatch,
+    Clear,
+    Viewport,
+}
+
+export function getRenderGraphValueName (e: RenderGraphValue): string {
+    switch (e) {
+    case RenderGraphValue.Raster: return 'Raster';
+    case RenderGraphValue.Compute: return 'Compute';
+    case RenderGraphValue.Copy: return 'Copy';
+    case RenderGraphValue.Move: return 'Move';
+    case RenderGraphValue.Present: return 'Present';
+    case RenderGraphValue.Raytrace: return 'Raytrace';
+    case RenderGraphValue.Queue: return 'Queue';
+    case RenderGraphValue.Scene: return 'Scene';
+    case RenderGraphValue.Blit: return 'Blit';
+    case RenderGraphValue.Dispatch: return 'Dispatch';
+    case RenderGraphValue.Clear: return 'Clear';
+    case RenderGraphValue.Viewport: return 'Viewport';
+    default: return '';
+    }
 }
 
 interface RenderGraphValueType {
@@ -1148,6 +1110,8 @@ interface RenderGraphValueType {
     [RenderGraphValue.Scene]: SceneData
     [RenderGraphValue.Blit]: Blit
     [RenderGraphValue.Dispatch]: Dispatch
+    [RenderGraphValue.Clear]: ClearView[]
+    [RenderGraphValue.Viewport]: Viewport
 }
 
 export interface RenderGraphVisitor {
@@ -1161,6 +1125,8 @@ export interface RenderGraphVisitor {
     scene(value: SceneData): unknown;
     blit(value: Blit): unknown;
     dispatch(value: Dispatch): unknown;
+    clear(value: ClearView[]): unknown;
+    viewport(value: Viewport): unknown;
 }
 
 type RenderGraphObject = RasterPass
@@ -1172,7 +1138,9 @@ type RenderGraphObject = RasterPass
 | RenderQueue
 | SceneData
 | Blit
-| Dispatch;
+| Dispatch
+| ClearView[]
+| Viewport;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1553,11 +1521,17 @@ export class RenderGraph implements impl.BidirectionalGraph
     getLayout (v: number): string {
         return this._layoutNodes[v];
     }
+    setLayout (v: number, value: string) {
+        this._layoutNodes[v] = value;
+    }
     getData (v: number): RenderData {
         return this._data[v];
     }
     getValid (v: number): boolean {
         return this._valid[v];
+    }
+    setValid (v: number, value: boolean) {
+        this._valid[v] = value;
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
@@ -1607,6 +1581,10 @@ export class RenderGraph implements impl.BidirectionalGraph
             return visitor.blit(vert._object as Blit);
         case RenderGraphValue.Dispatch:
             return visitor.dispatch(vert._object as Dispatch);
+        case RenderGraphValue.Clear:
+            return visitor.clear(vert._object as ClearView[]);
+        case RenderGraphValue.Viewport:
+            return visitor.viewport(vert._object as Viewport);
         default:
             throw Error('polymorphic type not found');
         }
@@ -1681,6 +1659,20 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
+    getClear (v: number): ClearView[] {
+        if (this._vertices[v]._id === RenderGraphValue.Clear) {
+            return this._vertices[v]._object as ClearView[];
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getViewport (v: number): Viewport {
+        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
+            return this._vertices[v]._object as Viewport;
+        } else {
+            throw Error('value id not match');
+        }
+    }
     tryGetRaster (v: number): RasterPass | null {
         if (this._vertices[v]._id === RenderGraphValue.Raster) {
             return this._vertices[v]._object as RasterPass;
@@ -1747,6 +1739,20 @@ export class RenderGraph implements impl.BidirectionalGraph
     tryGetDispatch (v: number): Dispatch | null {
         if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
             return this._vertices[v]._object as Dispatch;
+        } else {
+            return null;
+        }
+    }
+    tryGetClear (v: number): ClearView[] | null {
+        if (this._vertices[v]._id === RenderGraphValue.Clear) {
+            return this._vertices[v]._object as ClearView[];
+        } else {
+            return null;
+        }
+    }
+    tryGetViewport (v: number): Viewport | null {
+        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
+            return this._vertices[v]._object as Viewport;
         } else {
             return null;
         }

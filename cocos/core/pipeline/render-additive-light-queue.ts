@@ -24,7 +24,6 @@
  */
 
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
-import { RenderPipeline } from './render-pipeline';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
@@ -44,6 +43,7 @@ import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { PipelineUBO } from './pipeline-ubo';
+import { PipelineRuntime } from './custom/pipeline';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -111,7 +111,7 @@ function isInstancedOrBatched (model: Model) {
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
-    private _pipeline: RenderPipeline;
+    private _pipeline: PipelineRuntime;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
     private _instancedLightPassPool = _lightPassPool.alloc();
@@ -127,7 +127,7 @@ export class RenderAdditiveLightQueue {
     private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale = 10000.0;
 
-    constructor (pipeline: RenderPipeline) {
+    constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._device = pipeline.device;
         this._instancedQueue = new RenderInstancedQueue();
