@@ -1199,6 +1199,22 @@ uint32_t mu::getMaxVertexAttributes(uint32_t family) {
     }
 }
 
+uint32_t mu::getMaxUniformBufferBindings(uint32_t family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+            return 31;
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return 14;
+    }
+}
+
+
 uint32_t mu::getMaxEntriesInBufferArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
