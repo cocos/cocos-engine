@@ -66,8 +66,6 @@ import { WebSceneVisitor } from './web-scene-visitor';
 import { stringify, parse } from './utils';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
-import { renderProfiler } from '../pipeline-funcs';
-import { PlanarShadowQueue } from '../planar-shadow-queue';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -453,7 +451,6 @@ class SubmitInfo {
     public batches = new Set<BatchedBuffer>();
     public opaqueList: RenderInfo[] = [];
     public transparentList: RenderInfo[] = [];
-    public planarQueue: PlanarShadowQueue | null = null;
     public shadowMap: RenderShadowMapBatchedQueue | null = null;
     public additiveLight: RenderAdditiveLightQueue | null = null;
 }
@@ -829,14 +826,10 @@ class DevicePreSceneTask extends WebSceneTask {
                 }
             }
         }
-        const pipeline = this._currentQueue.devicePass.context.pipeline;
         if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
+            const pipeline = this._currentQueue.devicePass.context.pipeline;
             this._submitInfo.additiveLight = new RenderAdditiveLightQueue(pipeline);
             this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff);
-        }
-        if (sceneFlag & SceneFlags.PLANAR_SHADOW) {
-            this._submitInfo.planarQueue = new PlanarShadowQueue(pipeline);
-            this._submitInfo.planarQueue.gatherShadowPasses(this.camera, this._cmdBuff);
         }
         this._submitInfo.opaqueList.sort(this._opaqueCompareFn);
         this._submitInfo.transparentList.sort(this._transparentCompareFn);
@@ -1132,20 +1125,8 @@ class DeviceSceneTask extends WebSceneTask {
             this._renderPass,
             devicePass.context.commandBuffer);
     }
-
-    private _recordPlanarShadows () {
-        const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
-        const context = devicePass.context;
-        submitMap.get(this.camera!)?.planarQueue?.recordCommandBuffer(context.device,
-            this._renderPass,
-            devicePass.context.commandBuffer);
-    }
-
     public submit () {
         const area = this._generateRenderArea();
-        const devicePass = this._currentQueue.devicePass;
-        const context = devicePass.context;
         if (!this._currentQueue.devicePass.viewport) {
             this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
             this.visitor.setScissor(area);
@@ -1159,23 +1140,13 @@ class DeviceSceneTask extends WebSceneTask {
             this._recordShadowMap();
             return;
         }
-        const graphSceneData = this.graphScene.scene!;
         this._recordOpaqueList();
         this._recordInstences();
         this._recordBatches();
         this._recordAdditiveLights();
-        this._recordPlanarShadows();
         this._recordTransparentList();
-        if (graphSceneData.flags & SceneFlags.GEOMETRY) {
-            this.camera!.geometryRenderer?.render(devicePass.renderPass,
-                context.commandBuffer, context.pipeline.pipelineSceneData);
-        }
-        if (graphSceneData.flags & SceneFlags.UI) {
+        if (this.graphScene.scene!.flags & SceneFlags.UI) {
             this._recordUI();
-        }
-        if (graphSceneData.flags & SceneFlags.PROFILER) {
-            renderProfiler(context.device, devicePass.renderPass,
-                context.commandBuffer, context.pipeline.profiler, this.camera!);
         }
     }
 }
