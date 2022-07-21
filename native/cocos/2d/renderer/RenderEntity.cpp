@@ -89,7 +89,7 @@ ccstd::vector<RenderDrawInfo*>& RenderEntity::getDynamicRenderDrawInfos() {
     return _dynamicDrawInfos;
 }
 void RenderEntity::setStaticDrawInfoSize(uint32_t size) {
-    CC_ASSERT(size < RenderEntity::STATIC_DRAW_INFO_CAPACITY);
+    CC_ASSERT(size <= RenderEntity::STATIC_DRAW_INFO_CAPACITY);
     _staticDrawInfoSize = size;
 }
 RenderDrawInfo* RenderEntity::getStaticRenderDrawInfo(uint32_t index) {
