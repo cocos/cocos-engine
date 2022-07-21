@@ -65,47 +65,6 @@ export class WebSceneTask extends SceneTask {
         return TaskType.SYNC;
     }
 
-    protected _updateDirLight (light: DirectionalLight) {
-        const shadows = this._sceneData.shadows;
-
-        const dir = light.direction;
-        const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
-        const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
-        const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
-        const nx = n.x; const ny = n.y; const nz = n.z;
-        const m = shadows.matLight;
-        m.m00 = 1 - nx * lx;
-        m.m01 = -nx * ly;
-        m.m02 = -nx * lz;
-        m.m03 = 0;
-        m.m04 = -ny * lx;
-        m.m05 = 1 - ny * ly;
-        m.m06 = -ny * lz;
-        m.m07 = 0;
-        m.m08 = -nz * lx;
-        m.m09 = -nz * ly;
-        m.m10 = 1 - nz * lz;
-        m.m11 = 0;
-        m.m12 = lx * d;
-        m.m13 = ly * d;
-        m.m14 = lz * d;
-        m.m15 = 1;
-        this._ubo.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadows.matLight);
-    }
-
-    protected _getCameraWorldMatrix (out: Mat4, camera: Camera) {
-        if (!camera.node) { return; }
-
-        const cameraNode = camera.node;
-        const position = cameraNode.getWorldPosition();
-        const rotation = cameraNode.getWorldRotation();
-
-        Mat4.fromRT(out, rotation, position);
-        out.m08 *= -1.0;
-        out.m09 *= -1.0;
-        out.m10 *= -1.0;
-    }
-
     protected _getRenderObject (model: Model, camera: Camera) {
         let depth = 0;
         if (model.node) {
@@ -141,12 +100,6 @@ export class WebSceneTask extends SceneTask {
                 if (mainLight && mainLight.node) {
                     csmLayers.update(sceneData, camera);
                 }
-            }
-        }
-
-        if (mainLight) {
-            if (shadows.type === ShadowType.Planar) {
-                this._updateDirLight(mainLight);
             }
         }
 
