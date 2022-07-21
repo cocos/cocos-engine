@@ -34,6 +34,7 @@ export enum RenderDrawInfoType {
     COMP,
     MODEL,
     IA,
+    TILED
 }
 
 export class RenderDrawInfo {

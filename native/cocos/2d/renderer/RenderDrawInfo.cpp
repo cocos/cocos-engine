@@ -140,7 +140,7 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
 void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout) {
     if (_localDSBF == nullptr) {
         _localDSBF = new LocalDSBF();
-        auto device = Root::getInstance()->getDevice();
+        auto *device = Root::getInstance()->getDevice();
         gDsInfo.layout = dsLayout;
         _localDSBF->ds = device->createDescriptorSet(gDsInfo);
         _localDSBF->uboBuf = device->createBuffer({
