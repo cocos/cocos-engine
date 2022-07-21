@@ -29,20 +29,20 @@ exports.style = `
     }
     .asset-effect > .config > .description {
         text-align: center;
-        color: var(--color-normal-border-weakest);
+        color: var(--color-normal-fill-weakest);
     }
     .asset-effect > .config > .combinations {
         padding: 10px 0;
     }
-    .asset-effect > .config > .combinations .checktab {
+    .asset-effect > .config > .combinations .tab {
         line-height: 20px;
         margin-left: 5px;
         margin-right: 5px;
         min-width: 60px;
     }
-    .asset-effect > .config > .combinations .checktab[checked="true"] {
-        border-color: var(--color-focus-contrast-weakest);
-        background-color: var(--color-focus-fill-weaker);
+    .asset-effect > .config > .combinations .tab[checked="true"] {
+        background-color: var(--color-focus-fill-emphasis);
+        color: var(--color-focus-contrast-emphasis);
     }
     .asset-effect > .codes > * {
         margin-bottom: 8px;
@@ -57,7 +57,9 @@ exports.style = `
         text-align: center;
         cursor: pointer;
         display: inline-block;
-        background: var(--color-normal-fill-weakest);
+        background-color: var(--color-normal-fill-emphasis);
+        color: var(--color-default-contrast-emphasis);
+        border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
     }
     .asset-effect > .codes .tabs > .tab:first-child  {
         border-top-left-radius: 4px;
@@ -70,7 +72,8 @@ exports.style = `
         border-left: 1px solid var(--color-normal-fill-emphasis);
     }
     .asset-effect > .codes .tabs > .tab[active="true"]  {
-        background: var(--color-normal-fill-emphasis);
+        background-color: var(--color-normal-fill);
+        color: var(--color-focus-fill-emphasis);
     }
     .asset-effect > .codes ui-code  {
         max-height: 400px;
@@ -152,7 +155,7 @@ const Elements = {
                     const button = document.createElement('ui-button');
                     content.appendChild(button);
 
-                    button.setAttribute('class', 'checktab');
+                    button.setAttribute('class', 'tab');
                     button.setAttribute('checked', checked);
                     panel.updateReadonly(button);
                     button.innerText = name;

@@ -622,7 +622,6 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
-    auto *thiz = s.thisObject();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         ccstd::string name;

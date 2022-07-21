@@ -33,7 +33,9 @@
 #include "math/Math.h"
 #include "platform/FileUtils.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/CanvasRenderingContext2DDelegate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "platform/win32/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
@@ -161,14 +163,14 @@ void CanvasRenderingContext2D::fetchData() {
 
 void CanvasRenderingContext2D::setWidth(float width) {
     //SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
-    if (math::IsEqualF(width, _width)) return;
+    if (math::isEqualF(width, _width)) return;
     _width = width;
     _isBufferSizeDirty = true;
 }
 
 void CanvasRenderingContext2D::setHeight(float height) {
     //SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
-    if (math::IsEqualF(height, _height)) return;
+    if (math::isEqualF(height, _height)) return;
     _height = height;
     _isBufferSizeDirty = true;
 }

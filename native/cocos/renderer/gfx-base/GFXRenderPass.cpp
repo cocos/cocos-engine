@@ -43,12 +43,10 @@ RenderPass::~RenderPass() = default;
 ccstd::hash_t RenderPass::computeHash() {
     ccstd::hash_t seed = static_cast<uint32_t>(_colorAttachments.size()) * 2 + 3;
     for (const ColorAttachment &ca : _colorAttachments) {
-        ccstd::hash_combine(seed, ca.format);
-        ccstd::hash_combine(seed, ca.sampleCount);
+        ccstd::hash_combine(seed, ca);
     }
     const auto &ds = _depthStencilAttachment;
-    ccstd::hash_combine(seed, ds.format);
-    ccstd::hash_combine(seed, ds.sampleCount);
+    ccstd::hash_combine(seed, ds);
 
     ccstd::hash_combine(seed, _subpasses);
     return seed;

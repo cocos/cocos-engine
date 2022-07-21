@@ -481,7 +481,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
             // eslint-disable-next-line max-len
-            const packed = packCurveRangeXY(this._animTexture, this._animData, _sample_num, textureModule.startFrame, textureModule.frameOverTime);
+            const packed = packCurveRangeXY(this._animTexture, this._animData, _sample_num, textureModule.startFrame, textureModule.frameOverTime, true);
             this._animTexture = packed.texture;
             this._animData = packed.texdata;
             const handle = pass.getHandle('texture_animation_tex0');

@@ -4,22 +4,7 @@ import { Node } from '../../core/scene-graph';
 import { Model } from '../../core/renderer/scene';
 
 export declare class NativeRenderDrawInfo {
-    constructor(batcher: NativeBatcher2d);
-
-    // get batcher ():NativeBatcher2d { return new NativeBatcher2d(); }
-    // set batcher (batcher: NativeBatcher2d) {}
-
-    get accId(): number;
-    set accId(accId: number);
-
-    get bufferId(): number;
-    set bufferId(bufferId: number);
-
-    get vertexOffset(): number;
-    set vertexOffset(vertexOffset: number);
-
-    get indexOffset(): number;
-    set indexOffset(indexOffset: number);
+    constructor();
 
     get vbBuffer(): ArrayBufferLike;
     set vbBuffer(vbBuffer: ArrayBufferLike);
@@ -33,49 +18,29 @@ export declare class NativeRenderDrawInfo {
     get iDataBuffer(): ArrayBufferLike;
     set iDataBuffer(iDataBuffer: ArrayBufferLike);
 
-    get vbCount(): number;
-    set vbCount(vbCount: number);
-
-    get ibCount(): number;
-    set ibCount(ibCount: number);
-
-    get vertDirty(): boolean;
-    set vertDirty(val: boolean);
-
-    get dataHash(): number;
-    set dataHash(dataHash: number);
-
-    get isMeshBuffer(): boolean;
-    set isMeshBuffer(isMeshBuffer: boolean);
-
     get material(): Material | null;
     set material(material: Material | null);
 
     get texture(): Texture | null;
     set texture(texture: Texture | null);
 
-    get textureHash(): number;
-    set textureHash(textureHash: number);
-
     get sampler(): Sampler | null;
     set sampler(sampler: Sampler | null);
-
-    get blendHash(): number;
-    set blendHash(blendHash: number);
 
     get model(): Model | null;
     set model(model: Model | null);
 
-    get drawInfoType(): number;
-    set drawInfoType(drawInfoType: number);
+    get subNode(): Node;
+    set subNode(node: Node);
 
-    setRender2dBufferToNative(data: TypedArray, stride: number, size: number);
+    changeMeshBuffer();
+    setRender2dBufferToNative(data: TypedArray);
     syncSharedBufferToNative(data: TypedArray);
     getAttrSharedBufferForJS(): ArrayBufferLike;
 }
 
 export declare class NativeRenderEntity {
-    constructor(batcher: NativeBatcher2d);
+    constructor();
 
     addDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo);
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);

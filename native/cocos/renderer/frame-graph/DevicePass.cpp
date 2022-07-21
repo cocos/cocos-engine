@@ -29,7 +29,6 @@
 #include "FrameGraph.h"
 #include "PassNode.h"
 #include "ResourceNode.h"
-
 #include "base/Utils.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDef-common.h"
@@ -42,9 +41,22 @@ namespace framegraph {
 DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const &subpassNodes) {
     ccstd::vector<RenderTargetAttachment> attachments;
 
+    uint32_t index = 0;
     for (const PassNode *passNode : subpassNodes) {
         append(graph, passNode, &attachments);
+        _barriers.push_back(std::cref(passNode->getBarriers()));
+        _subpasses.back().barrierID = index++;
     }
+
+    auto* device = gfx::Device::getInstance();
+    // _enableAutoBarrier: auto barrier in framegraph
+    // barrierDeduce: deduce barrier gfx internally
+    // to avoid redundant instructions, either inside or outside
+    auto opts = device->getOptions();
+    opts.enableBarrierDeduce = !gfx::ENABLE_GRAPH_AUTO_BARRIER;
+    device->setOptions(opts);
+
+    CC_ASSERT(gfx::ENABLE_GRAPH_AUTO_BARRIER ^ gfx::Device::getInstance()->getOptions().enableBarrierDeduce);
 
     // Important Notice:
     // here attchment index has changed.
@@ -111,8 +123,93 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     }
 }
 
+void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
+    if constexpr (gfx::ENABLE_GRAPH_AUTO_BARRIER) {
+        uint32_t index = 0;
+
+        thread_local gfx::BufferBarrierList bufferBarriers;
+        thread_local gfx::TextureBarrierList textureBarriers;
+        thread_local gfx::BufferList buffers;
+        thread_local gfx::TextureList textures;
+
+        bufferBarriers.clear();
+        textureBarriers.clear();
+        buffers.clear();
+        textures.clear();
+
+        uint32_t lastBufferIndex{0};
+        uint32_t lastTextureIndex{0};
+
+        auto mergeToDependency = [&](uint32_t barrierID, uint32_t subpassIndex){
+            for (const auto &frontBarrier : _barriers[barrierID].get().frontBarriers) {
+                const auto &res = getBarrier(frontBarrier, &_resourceTable);
+                if (frontBarrier.resourceType == ResourceType::BUFFER) {
+                    bufferBarriers.emplace_back(static_cast<gfx::BufferBarrier *>(res.first));
+                    buffers.emplace_back(static_cast<gfx::Buffer *>(res.second));
+                } else if (frontBarrier.resourceType == ResourceType::TEXTURE) {
+                    textureBarriers.emplace_back(static_cast<gfx::TextureBarrier *>(res.first));
+                    textures.emplace_back(static_cast<gfx::Texture *>(res.second));
+                } else {
+                    CC_ASSERT(false);
+                }
+            }
+
+            lastBufferIndex = static_cast<uint32_t>(buffers.size());
+            lastTextureIndex = static_cast<uint32_t>(textures.size());
+
+            rpInfo.dependencies.emplace_back(gfx::SubpassDependency{
+                subpassIndex > 1 ? subpassIndex - 1 : gfx::SUBPASS_EXTERNAL,
+                subpassIndex,
+                nullptr,
+                bufferBarriers.data() + lastBufferIndex,
+                buffers.data() + lastBufferIndex,
+                static_cast<uint32_t>(buffers.size() - lastBufferIndex + 1),
+                textureBarriers.data() + lastTextureIndex,
+                textures.data() + lastTextureIndex,
+                static_cast<uint32_t>(textures.size() - lastTextureIndex + 1)});
+
+            for (const auto &rearBarrier : _barriers[barrierID].get().rearBarriers) {
+                const auto &res = getBarrier(rearBarrier, &_resourceTable);
+                if (rearBarrier.resourceType == ResourceType::BUFFER) {
+                    bufferBarriers.emplace_back(static_cast<gfx::BufferBarrier *>(res.first));
+                    buffers.emplace_back(static_cast<gfx::Buffer *>(res.second));
+                } else if (rearBarrier.resourceType == ResourceType::TEXTURE) {
+                    textureBarriers.emplace_back(static_cast<gfx::TextureBarrier *>(res.first));
+                    textures.emplace_back(static_cast<gfx::Texture *>(res.second));
+                } else {
+                    CC_ASSERT(false);
+                }
+            }
+
+        };
+
+        if(!_subpasses.empty()) {
+            for (const auto &subpass : _subpasses) {
+                mergeToDependency(subpass.barrierID, index);
+                ++index;   
+            }
+        } else {
+            mergeToDependency(0, 0);
+        }
+
+        if (textureBarriers.size() > lastTextureIndex || bufferBarriers.size() > lastBufferIndex) {
+            rpInfo.dependencies.emplace_back(gfx::SubpassDependency{
+                _subpasses.empty() ? 0 : static_cast<uint32_t>(_subpasses.size() - 1),
+                gfx::SUBPASS_EXTERNAL,
+                nullptr,
+                bufferBarriers.data() + lastBufferIndex,
+                buffers.data() + lastBufferIndex,
+                static_cast<uint32_t>(buffers.size() - lastBufferIndex + 1),
+                textureBarriers.data() + lastTextureIndex,
+                textures.data() + lastTextureIndex,
+                static_cast<uint32_t>(textures.size() - lastTextureIndex + 1)});
+        }
+    }
+}
+
 void DevicePass::execute() {
-    auto *cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
+    auto *device = gfx::Device::getInstance();
+    auto *cmdBuff = device->getCommandBuffer();
 
     begin(cmdBuff);
 
@@ -311,6 +408,8 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     for (auto &subpass : _subpasses) {
         rpInfo.subpasses.emplace_back(subpass.desc);
     }
+
+    passDependency(rpInfo);
 
     _renderPass = RenderPass(rpInfo);
     _renderPass.createTransient();

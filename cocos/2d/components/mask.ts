@@ -656,7 +656,7 @@ export class Mask extends UIRenderer {
     }
 
     protected _updateBuiltinMaterial (): Material {
-        return this._clearStencilMtl!;
+        return builtinResMgr.get<Material>('default-clear-stencil');
     }
 
     protected _updateMaterial () {

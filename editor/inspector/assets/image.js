@@ -73,6 +73,14 @@ const Elements = {
             const panel = this;
 
             panel.$.typeSelect.addEventListener('change', (event) => {
+                // metaList 时以以选中的第一个 asset 的类型进行处理
+                let spriteFrameChange;
+                if (panel.meta.userData.type === 'sprite-frame') {
+                    spriteFrameChange = 'spriteFrameToOthers';
+                } else if (event.target.value === 'sprite-frame') {
+                    spriteFrameChange = 'othersToSpriteFrame';
+                }
+
                 panel.metaList.forEach((meta) => {
                     meta.userData.type = event.target.value;
                 });
@@ -81,7 +89,8 @@ const Elements = {
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
-                panel.updatePanel();
+                // imageAssets 类型有 spriteFrame 变化的话需要处理 mipmaps
+                panel.updatePanel(spriteFrameChange);
             });
         },
         update() {
@@ -147,7 +156,6 @@ const Elements = {
             panel.$.fixAlphaTransparencyArtifactsCheckbox.addEventListener('change', (event) => {
                 panel.metaList.forEach((meta) => {
                     meta.userData.fixAlphaTransparencyArtifacts = event.target.value;
-
                 });
                 panel.dispatch('change');
             });
@@ -169,7 +177,6 @@ const Elements = {
             } else {
                 fixATAProp.style.display = 'none';
             }
-
         },
     },
     isRGBE: {
@@ -260,7 +267,7 @@ exports.methods = {
         }
     },
 
-    async _updatePanel($section, type) {
+    _updatePanel($section, type, spriteFrameChange) {
         const assetList = [];
         const metaList = [];
 
@@ -306,6 +313,13 @@ exports.methods = {
                 }
 
                 if (subMeta.importer === imageImporter) {
+                    if (spriteFrameChange === 'othersToSpriteFrame') {
+                        // imageAsset 类型切换到 spriteFrame，禁用 mipmaps
+                        subMeta.userData.mipfilter = 'none';
+                    } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
+                        // imageAsset 类型从 spriteFrame 切换到其他，原来没启用的话 mipmaps 默认 nearest
+                        subMeta.userData.mipfilter = 'nearest';
+                    }
                     metaList.push(subMeta);
                     break;
                 }
@@ -327,10 +341,14 @@ exports.methods = {
         $panel.update(assetList, metaList);
     },
 
-    async updatePanel() {
-        this._updatePanel(this.$.panelSection, this.meta.userData.type);
+    /**
+     * 更新属性 panel
+     * @param {*} spriteFrameChange imageAsset 类型是否切换和 spriteFrame 是否有关
+     */
+    updatePanel(spriteFrameChange) {
+        this._updatePanel(this.$.panelSection, this.meta.userData.type, spriteFrameChange);
         if (this.meta.userData.type === 'sprite-frame') {
-            this._updatePanel(this.$.texturePanelSection, 'texture');
+            this._updatePanel(this.$.texturePanelSection, 'texture', spriteFrameChange);
         } else {
             this.$.texturePanelSection.style.display = 'none';
         }

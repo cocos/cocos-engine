@@ -22,14 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Framebuffer, Texture } from '../../gfx';
+import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { AccessType, Blit, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
-    PresentPass, RasterPass, RasterView, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
+    PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
-import { ResourceResidency } from './types';
+import { AccessType, RasterView, ResourceResidency } from './types';
 
 class PassVisitor implements RenderGraphVisitor {
     public passID = 0xFFFFFFFF;
@@ -41,6 +41,12 @@ class PassVisitor implements RenderGraphVisitor {
     protected _sceneID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
         this._context = context;
+    }
+    clear (value: ClearView[]): unknown {
+        throw new Error('Method not implemented.');
+    }
+    viewport (value: Viewport): unknown {
+        throw new Error('Method not implemented.');
     }
     raster (pass: RasterPass) {
         // Since the pass is valid, there is no need to continue traversing.
@@ -82,7 +88,7 @@ class PassVisitor implements RenderGraphVisitor {
             rg.visitVertex(this, sceneID);
         }
     }
-    scene (value: SceneData) {
+    private _fetchValidPass () {
         if (this._currPass!.isValid) {
             return;
         }
@@ -90,31 +96,48 @@ class PassVisitor implements RenderGraphVisitor {
         const outputName = this._context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
         const pass = this._currPass!;
-        for (const [name, raster] of pass.rasterViews) {
+
+        for (const [readName, raster] of pass.rasterViews) {
             // find the pass
-            if (name === outputName
+            if (readName === outputName
                 && raster.accessType !== AccessType.READ) {
                 assert(!pass.isValid, 'The same pass cannot output multiple resources with the same name at the same time');
                 pass.isValid = true;
                 continue;
             }
             if (raster.accessType !== AccessType.WRITE) {
-                readViews.set(name, raster);
+                readViews.set(readName, raster);
             }
         }
         if (pass.isValid) {
-            for (const [name, raster] of readViews) {
-                const resVisitor = new ResourceVisitor(this._context);
-                const resourceGraph = this._context.resourceGraph;
-                const vertID = resourceGraph.vertex(name);
-                if (vertID) {
+            let resVisitor;
+            let resourceGraph;
+            let vertID;
+            for (const [rasterName, raster] of readViews) {
+                resVisitor = new ResourceVisitor(this._context);
+                resourceGraph = this._context.resourceGraph;
+                vertID = resourceGraph.find(rasterName);
+                if (vertID !== 0xFFFFFFFF) {
+                    resVisitor.resID = vertID;
+                    resourceGraph.visitVertex(resVisitor, vertID);
+                }
+            }
+            for (const [computeName, cViews] of pass.computeViews) {
+                resVisitor = new ResourceVisitor(this._context);
+                resourceGraph = this._context.resourceGraph;
+                vertID = resourceGraph.find(computeName);
+                if (vertID !== 0xFFFFFFFF) {
                     resVisitor.resID = vertID;
                     resourceGraph.visitVertex(resVisitor, vertID);
                 }
             }
         }
     }
+    scene (value: SceneData) {
+        this._fetchValidPass();
+    }
     blit (value: Blit) {
+        this._fetchValidPass();
     }
     dispatch (value: Dispatch) {
     }

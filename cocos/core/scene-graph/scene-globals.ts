@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
@@ -343,9 +344,6 @@ export class SkyboxInfo {
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if (this._resource) {
-            this.envmap = this._resource.envmap;
-            this.diffuseMap = this._resource.diffuseMap;
-
             if (this.envLightingType === EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
                 if (this.diffuseMap === null) {
                     this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
@@ -356,7 +354,10 @@ export class SkyboxInfo {
             }
         }
 
-        if (this._resource) { this._resource.useHDR = this._useHDR; }
+        if (this._resource) {
+            this._resource.useHDR = this._useHDR;
+            this._resource.updateMaterialRenderInfo();
+        }
     }
     get useHDR () {
         (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
@@ -374,8 +375,10 @@ export class SkyboxInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._envmapHDR = val;
+            this._reflectionHDR = null;
         } else {
             this._envmapLDR = val;
+            this._reflectionLDR = null;
         }
         if (!val) {
             if (isHDR) {
@@ -392,6 +395,7 @@ export class SkyboxInfo {
         if (this._resource) {
             this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
             this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
             this._resource.useDiffuseMap = this.applyDiffuseMap;
             this._resource.envmap = val;
         }
@@ -441,6 +445,40 @@ export class SkyboxInfo {
     }
 
     /**
+     * @en Convolutional map using environmental reflections
+     * @zh 使用环境反射卷积图
+     */
+    @visible(function (this : SkyboxInfo) {
+        if (this._resource?.reflectionMap) {
+            return true;
+        }
+        return false;
+    })
+    @editable
+    @readOnly
+    @type(TextureCube)
+    @displayOrder(100)
+    set reflectionMap (val: TextureCube | null) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._reflectionHDR = val;
+        } else {
+            this._reflectionLDR = val;
+        }
+        if (this._resource) {
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+        }
+    }
+    get reflectionMap () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._reflectionHDR;
+        } else {
+            return this._reflectionLDR;
+        }
+    }
+
+    /**
      * @en Use custom skybox material
      * @zh 使用自定义的天空盒材质
      */
@@ -479,6 +517,12 @@ export class SkyboxInfo {
     @serializable
     @type(Material)
     protected _editableMaterial: Material | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _reflectionHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _reflectionLDR: TextureCube | null = null;
 
     protected _resource: Skybox | null = null;
 
@@ -494,6 +538,7 @@ export class SkyboxInfo {
         this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
         this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
         this._resource.setSkyboxMaterial(this._editableMaterial);
+        this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
         this._resource.activate(); // update global DS first
     }
 }
@@ -806,7 +851,7 @@ export class ShadowsInfo {
     @tooltip('i18n:shadow.planeHeight')
     set planeHeight (val: number) {
         this._distance = val;
-        if (this._resource) { this._resource.distance = -val; }
+        if (this._resource) { this._resource.distance = val; }
     }
     get planeHeight () {
         return this._distance;

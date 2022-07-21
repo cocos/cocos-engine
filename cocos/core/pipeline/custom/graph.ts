@@ -343,6 +343,10 @@ export interface PropertyMap {
     get (x: vertex_descriptor | edge_descriptor): unknown;
 }
 
+export interface MutableVertexPropertyMap<T> extends PropertyMap {
+    put (x: vertex_descriptor, value: T): void;
+}
+
 //--------------------------------------------------------------------------
 // PropertyGraph
 //--------------------------------------------------------------------------
@@ -518,4 +522,260 @@ export function findRelative (g: ParentGraph, v: vertex_descriptor | null, path:
         }
     }
     return curr;
+}
+
+//=======================================================================
+// DFS
+// Based on boost/graph/depth_first_search.hpp
+//=======================================================================
+
+//=======================================================================
+// Copyright 1997, 1998, 1999, 2000 University of Notre Dame.
+// Copyright 2003 Bruce Barr
+// Authors: Andrew Lumsdaine, Lie-Quan Lee, Jeremy G. Siek
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
+
+export interface TerminatorFunc {
+    terminate (v: vertex_descriptor, g: IncidenceGraph): boolean;
+}
+
+class NoTermination implements TerminatorFunc {
+    terminate (v: vertex_descriptor, g: IncidenceGraph): boolean {
+        return false;
+    }
+}
+
+function getDefaultStartingVertex (g: IncidenceGraph & VertexListGraph): vertex_descriptor | null {
+    const iter = g.vertices();
+    const v = iter.next();
+    if (v.done) {
+        return g.nullVertex();
+    } else {
+        return v.value;
+    }
+}
+
+export interface GraphVisitor {
+    // 0. before dfs
+    initializeVertex (v: vertex_descriptor, g: IncidenceGraph): void;
+    // 1. dfs starting vertex (usually the root)
+    startVertex (v: vertex_descriptor, g: IncidenceGraph): void;
+    // 2. vertex discovered
+    discoverVertex (v: vertex_descriptor, g: IncidenceGraph): void;
+    // 3. edge discovered
+    examineEdge (e: edge_descriptor, g: IncidenceGraph): void;
+    // 4(a). is tree edge
+    treeEdge (e: edge_descriptor, g: IncidenceGraph): void;
+    // 4(b). is back edge
+    backEdge (e: edge_descriptor, g: IncidenceGraph): void;
+    // 4(c). is forward or cross edge
+    forwardOrCrossEdge (e: edge_descriptor, g: IncidenceGraph): void;
+    // 5. edge finished
+    finishEdge (e: edge_descriptor, g: IncidenceGraph): void;
+    // 6. vertex finished
+    finishVertex (v: vertex_descriptor, g: IncidenceGraph): void;
+}
+
+export enum GraphColor {
+    WHITE,
+    GRAY,
+    GREEN,
+    RED,
+    BLACK,
+}
+
+class VertexInfo {
+    constructor (
+        v: vertex_descriptor,
+        e: edge_descriptor | null,
+        iter: out_edge_iterator | null,
+    ) {
+        this.v = v;
+        this.e = e;
+        this.iter = iter;
+    }
+    v: vertex_descriptor;
+    e: edge_descriptor | null;
+    iter: out_edge_iterator | null;
+}
+
+function depthFirstVisitImpl (
+    g: IncidenceGraph,
+    u: vertex_descriptor,
+    visitor: GraphVisitor,
+    color: MutableVertexPropertyMap<GraphColor>,
+    func: TerminatorFunc,
+): void {
+    let srcE: edge_descriptor | null = null;
+    let ei: out_edge_iterator | null = null;
+    const stack = new Array<VertexInfo>();
+
+    color.put(u, GraphColor.GRAY);
+    visitor.discoverVertex(u, g);
+
+    ei = g.outEdges(u);
+    if (func.terminate(u, g)) {
+        // If this vertex terminates the search, we push empty range
+        stack.push(new VertexInfo(u, null, null));
+    } else {
+        stack.push(new VertexInfo(u, null, ei));
+    }
+
+    while (stack.length) {
+        const back = stack.pop()!;
+        u = back.v;
+        srcE = back.e;
+        ei = back.iter;
+        // finish_edge has to be called here, not after the
+        // loop. Think of the pop as the return from a recursive call.
+        if (srcE !== null) {
+            visitor.finishEdge(srcE, g);
+        }
+        if (ei) { // has out edges
+            for (let ev = ei.next(); !ev.done; ev = ei.next()) {
+                const e = ev.value;
+                const v = e.target;
+                visitor.examineEdge(e, g);
+                const vColor = color.get(v);
+                if (vColor === GraphColor.WHITE) {
+                    visitor.treeEdge(e, g);
+                    srcE = e;
+                    stack.push(new VertexInfo(u, srcE, ei));
+                    u = v;
+                    color.put(u, GraphColor.GRAY);
+                    visitor.discoverVertex(u, g);
+                    ei = g.outEdges(u);
+                    if (func.terminate(u, g)) {
+                        break;
+                    }
+                } else {
+                    if (vColor === GraphColor.GRAY) {
+                        visitor.backEdge(e, g);
+                    } else {
+                        visitor.forwardOrCrossEdge(e, g);
+                    }
+                    visitor.finishEdge(e, g);
+                }
+            }
+        }
+        color.put(u, GraphColor.BLACK);
+        visitor.finishVertex(u, g);
+    }
+}
+
+export function depthFirstSearch (
+    g: IncidenceGraph & VertexListGraph,
+    visitor: GraphVisitor,
+    color: MutableVertexPropertyMap<GraphColor>,
+    startVertex: vertex_descriptor | null = null,
+): void {
+    // get start vertex
+    startVertex = startVertex || getDefaultStartingVertex(g);
+    // graph is empty, do nothing
+    if (startVertex === null || g.numVertices() === 0) {
+        return;
+    }
+    // initialize vertex and color map
+    for (const u of g.vertices()) {
+        color.put(u, GraphColor.WHITE);
+        visitor.initializeVertex(u, g);
+    }
+    // start DFS
+    const terminator = new NoTermination();
+    // try starting from startVertex
+    if (startVertex !== getDefaultStartingVertex(g)) {
+        visitor.startVertex(startVertex, g);
+        depthFirstVisitImpl(g, startVertex, visitor, color, terminator);
+    }
+    // try starting from each vertex
+    for (const u of g.vertices()) {
+        // if vertex is not visited, start DFS
+        if (color.get(u) === GraphColor.WHITE) {
+            visitor.startVertex(u, g);
+            depthFirstVisitImpl(g, u, visitor, color, terminator);
+        }
+    }
+}
+
+export function depthFirstVisit (
+    g: IncidenceGraph,
+    u: vertex_descriptor,
+    visitor: GraphVisitor,
+    color: MutableVertexPropertyMap<GraphColor>,
+    func: TerminatorFunc = new NoTermination(),
+): void {
+    visitor.startVertex(u, g);
+    depthFirstVisitImpl(g, u, visitor, color, func);
+}
+
+export class DefaultVisitor implements GraphVisitor {
+    initializeVertex (v: vertex_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    startVertex (v: vertex_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    discoverVertex (v: vertex_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    examineEdge (e: edge_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    treeEdge (e: edge_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    backEdge (e: edge_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    forwardOrCrossEdge (e: edge_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    finishEdge (e: edge_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+    finishVertex (v: vertex_descriptor, g: IncidenceGraph): void {
+        // do nothing
+    }
+}
+
+export class ReferenceGraphView <BaseGraph extends ReferenceGraph & VertexListGraph>
+implements IncidenceGraph, VertexListGraph {
+    constructor (g: BaseGraph) {
+        this.g = g;
+        this.directed_category = directional.directed;
+        this.edge_parallel_category = parallel.allow;
+        this.traversal_category = traversal.incidence | traversal.vertex_list;
+    }
+    nullVertex () {
+        return this.g.nullVertex();
+    }
+    edge (u: vertex_descriptor, v: vertex_descriptor): boolean {
+        return this.g.reference(u, v);
+    }
+    source (e: edge_descriptor): vertex_descriptor {
+        return this.g.parent(e);
+    }
+    target (e: edge_descriptor): vertex_descriptor {
+        return this.g.child(e);
+    }
+    outEdges (v: vertex_descriptor): out_edge_iterator {
+        return this.g.children(v);
+    }
+    outDegree (v: vertex_descriptor): number {
+        return this.g.numChildren(v);
+    }
+    vertices (): IterableIterator<vertex_descriptor> {
+        return this.g.vertices();
+    }
+    numVertices (): number {
+        return this.g.numVertices();
+    }
+    readonly directed_category: directional;
+    readonly edge_parallel_category: parallel;
+    readonly traversal_category: traversal;
+    g: BaseGraph;
 }

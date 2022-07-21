@@ -32,10 +32,20 @@ export class NativePackToolManager {
             throw new Error(`No pack tool for platform ${platform}}`);
         }
         if (!tool.create) {
-            // TODO Error
             return false;
         }
         await tool.create();
+    }
+
+    async generate(platform: string) {
+        const tool = this.getPackTool(platform);
+        if (!tool) {
+            throw new Error(`No pack tool for platform ${platform}}`);
+        }
+        if (!tool.generate) {
+            return false;
+        }
+        await tool.generate();
     }
 
     async make(platform: string) {

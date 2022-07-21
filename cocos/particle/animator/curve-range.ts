@@ -338,7 +338,7 @@ export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | nu
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
@@ -368,7 +368,7 @@ export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | n
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
@@ -398,7 +398,7 @@ export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | 
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }

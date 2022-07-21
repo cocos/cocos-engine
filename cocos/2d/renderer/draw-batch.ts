@@ -133,15 +133,8 @@ export class DrawBatch2D {
                 if (bsHash === -1) { bsHash = 0; }
 
                 hashFactor = (dssHash << 16) | bsHash;
-                if (JSB) {
-                    const nativeDSS = dss._nativeObj ? dss._nativeObj : dss;
-                    const nativeBS = bs._nativeObj ? bs._nativeObj : bs;
-                    // @ts-expect-error hack for UI use pass object
-                    passInUse._initPassFromTarget(mtlPass, nativeDSS, nativeBS, hashFactor);
-                } else {
-                    // @ts-expect-error hack for UI use pass object
-                    passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
-                }
+                // @ts-expect-error hack for UI use pass object
+                passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
 
                 this._shaders[i] = passInUse.getShaderVariant(patches)!;
 

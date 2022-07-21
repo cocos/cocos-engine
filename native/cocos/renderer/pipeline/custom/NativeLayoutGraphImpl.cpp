@@ -103,6 +103,25 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
     layout.capacity += block.capacity;
 }
 
+void NativeLayoutGraphBuilder::addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const ccstd::string& name, const gfx::UniformBlock& uniformBlock) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+    auto iter = g.attributeIndex.find(boost::string_view(name));
+    if (iter == g.attributeIndex.end()) {
+        auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
+        g.valueNames.emplace_back(name);
+        bool added = false;
+        std::tie(iter, added) = g.attributeIndex.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(NameLocalID{attrID}));
+        CC_ENSURES(added);
+    }
+    const auto &nameID = iter->second;
+    layout.uniformBlocks.emplace(nameID, uniformBlock);
+}
+
 namespace {
 
 gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
@@ -186,6 +205,10 @@ int NativeLayoutGraphBuilder::compile() {
                 gfx::DescriptorSetInfo{level.descriptorSetLayout.get()});
         }
     }
+
+#ifdef _DEBUG
+    CC_LOG_DEBUG(print().c_str());
+#endif // _DEBUG
 
     return 0;
 }

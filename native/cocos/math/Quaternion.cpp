@@ -331,9 +331,9 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
         heading = atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz) * r2d;
         attitude = asin(2 * test) * r2d;
         if (outerZ) {
-            bank = static_cast<float>(-180.F * math::Sgn(bank + 1e-6) + bank);
-            heading = static_cast<float>(-180.F * math::Sgn(heading + 1e-6) + heading);
-            attitude = static_cast<float>(180.F * math::Sgn(attitude + 1e-6) - attitude);
+            bank = static_cast<float>(-180.F * math::sgn(bank + 1e-6) + bank);
+            heading = static_cast<float>(-180.F * math::sgn(heading + 1e-6) + heading);
+            attitude = static_cast<float>(180.F * math::sgn(attitude + 1e-6) - attitude);
         }
     }
     out->x = bank;

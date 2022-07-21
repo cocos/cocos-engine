@@ -29,7 +29,6 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
-cc_set_if_undefined(USE_CCACHE               OFF)
 cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_OCCLUSION_QUERY      ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
@@ -39,7 +38,14 @@ cc_set_if_undefined(NET_MODE                  0) # 0 is client
 cc_set_if_undefined(USE_REMOTE_LOG           OFF)
 
 
-add_definitions()
+if(ANDROID AND NOT DEFINED USE_CCACHE)
+    if("$ENV{COCOS_USE_CCACHE}" STREQUAL "1")
+        message(STATUS "Enable ccache by env CC_USE_CACHE=1")
+        set(USE_CCACHE ON)
+    else()
+        set(USE_CCACHE OFF)
+    endif()
+endif()
 
 if(NX)
     cc_set_if_undefined(CC_USE_VULKAN ON)
@@ -63,6 +69,7 @@ set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
 
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
+    set(CC_USE_METAL OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
     add_definitions(-DCC_SERVER_MODE)
@@ -1620,6 +1627,8 @@ cocos_source_files(
                  cocos/renderer/frame-graph/ResourceNode.h
                  cocos/renderer/frame-graph/VirtualResource.cpp
                  cocos/renderer/frame-graph/VirtualResource.h
+                 cocos/renderer/frame-graph/ImmutableState.h
+                 cocos/renderer/frame-graph/ImmutableState.cpp
 )
 
 ##### physics
@@ -2670,70 +2679,18 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 ### generate source files
 
-
-function(compile_ts input_file_ts output_file)
-    get_filename_component(outdir ${output_file} DIRECTORY)
-    get_filename_component(from_ts ${input_file_ts} NAME)
-    add_custom_command(
-        OUTPUT ${output_file}
-        COMMAND ${CMAKE_COMMAND} -E echo " transform ${from_ts} file ${output_file}"
-        COMMAND ${TSC_EXECUTABLE} --module commonjs ${input_file_ts} --outDir ${outdir}
-        DEPENDS ${input_file_ts}
-        VERBATIM USES_TERMINAL
-    )
-endfunction()
-
-# compile_ts(${CWD}/../cocos/core/builtin/effects.ts ${CWD}/cocos/core/builtin/effects.js)
-# compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl1.ts ${CWD}/cocos/core/builtin/shader-sources/glsl1.js)
-# compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl3.ts ${CWD}/cocos/core/builtin/shader-sources/glsl3.js)
-# compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl4.ts ${CWD}/cocos/core/builtin/shader-sources/glsl4.js)
-
 set(CC_GENERATED_FILES
-    # ${CWD}/cocos/core/builtin/Effects.cpp
     ${CWD}/cocos/core/builtin/DebugInfos.cpp
-    # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
-    # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
-    # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
 )
 
 add_custom_target(builtin-res
     COMMAND ${CMAKE_COMMAND} -E echo "Generate builtin resources ..."
-    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
-            # glsl1
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
-    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
-            # glsl3
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
-    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
-            # glsl4
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
-    # COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/effects_gzip.js
-            # ${CWD}/cocos/core/builtin/effects.js
-            # effects
-            # ${CWD}/cocos/core/builtin/Effects.cpp.in
-            # ${CWD}/cocos/core/builtin/Effects.cpp
     COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/gen_debugInfos.js
             ${CWD}/../EngineErrorMap.md
             ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
             ${CWD}/cocos/core/builtin/DebugInfos.cpp
     DEPENDS
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
-            # ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
-            # ${CWD}/cocos/core/builtin/effects.js
-            # ${CWD}/cocos/core/builtin/Effects.cpp.in
             ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
-            # ${CWD}/cmake/scripts/glsl_gzip.js
-            # ${CWD}/cmake/scripts/effects_gzip.js
     VERBATIM USES_TERMINAL
 )
 set_target_properties(builtin-res PROPERTIES FOLDER Utils)

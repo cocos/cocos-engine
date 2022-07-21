@@ -6,6 +6,8 @@ CCEffect %{
     passes:
     - vert: sky-vs
       frag: sky-fs
+      properties: &props
+        environmentMap:     { value: grey }
       priority : max - 10
       rasterizerState :
         cullMode : none
@@ -25,18 +27,32 @@ CCProgram surface-vertex %{
 }%
 
 CCProgram surface-fragment %{
+
+  uniform samplerCube environmentMap;
+
+  vec3 getEnvironment(samplerCube cubeMap)
+  {
+    vec3 c = vec3(1.0);
+    vec3 normal = normalize(FSInput_worldNormal);
+    #if USE_RGBE_CUBEMAP
+      c *= unpackRGBE(fragTextureLod(cubeMap, normal.xyz, 0.0));
+    #else
+      c *= SRGBToLinear(fragTextureLod(cubeMap, normal.xyz, 0.0).rgb);
+    #endif
+    return c;
+  }
+
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
-     vec3 c = vec3(1.0);
-  #if CC_USE_IBL
-     vec3 normal = normalize(FSInput_worldNormal);
-    #if USE_RGBE_CUBEMAP
-      c *= unpackRGBE(fragTextureLod(cc_environment, normal.xyz, 0.0));
-    #else
-      c *= SRGBToLinear(fragTextureLod(cc_environment, normal.xyz, 0.0).rgb);
+    vec3 c = vec3(1.0);
+    #if CC_USE_IBL
+      #if USE_REFLECTION_CUBEMAP
+        c = getEnvironment(environmentMap);
+      #else
+        c = getEnvironment(cc_environment);
+      #endif
     #endif
-  #endif
     return vec4(c * cc_ambientSky.w, 1.0);
   }
 }%

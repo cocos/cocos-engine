@@ -173,12 +173,13 @@ export class BaseRenderData {
                 if (!this._renderDrawInfo) {
                     this._renderDrawInfo = new RenderDrawInfo();
                     // for no resize() invoking components
-                    this.setRenderDrawInfoAttributes();
+                    //this.setRenderDrawInfoAttributes();
                     renderEntity.addDynamicRenderDrawInfo(this._renderDrawInfo);
                 }
             }
 
             this.drawInfoType = drawInfoType;
+            this.setRenderDrawInfoAttributes();
         }
     }
 
@@ -301,9 +302,6 @@ export class RenderData extends BaseRenderData {
     }
     set blendHash (val: number) {
         this._blendHash = val;
-        if (this._renderDrawInfo) {
-            this._renderDrawInfo.setBlendHash(val);
-        }
     }
 
     public indices: Uint16Array | null = null;
@@ -386,7 +384,6 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
             this._renderDrawInfo.setTextureHash(this.textureHash);
             this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
-            this._renderDrawInfo.setBlendHash(this.blendHash);
         }
     }
 
@@ -418,8 +415,9 @@ export class RenderData extends BaseRenderData {
             if (!this._renderDrawInfo) {
                 return;
             }
-            this.renderDrawInfo.initRender2dBuffer(this.dataLength, this.floatStride);
-            this.renderDrawInfo.setRender2dBufferToNative();
+            this.renderDrawInfo.setStride(this.floatStride);
+            this.renderDrawInfo.setVBCount(this.dataLength);
+            this.renderDrawInfo.initRender2dBuffer();
         }
     }
 
@@ -479,6 +477,10 @@ export class RenderData extends BaseRenderData {
             this.blendHash = comp.blendHash;
             this.passDirty = false;
             this.hashDirty = true;
+
+            if (this._renderDrawInfo) {
+                this._renderDrawInfo.setMaterial(this.material);
+            }
         }
         if (this.nodeDirty) {
             const renderScene = comp.node.scene ? comp._getRenderScene() : null;
@@ -494,15 +496,25 @@ export class RenderData extends BaseRenderData {
             this.textureHash = frame.getHash();
             this.textureDirty = false;
             this.hashDirty = true;
+
+            if (this._renderDrawInfo) {
+                this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
+                this._renderDrawInfo.setTextureHash(this.textureHash);
+                this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
+            }
         }
         if (this.hashDirty) {
             this.updateHash();
+
+            if (this._renderDrawInfo) {
+                this._renderDrawInfo.setDataHash(this.dataHash);
+            }
         }
 
         // Hack Do not update pre frame
         if (JSB && this.multiOwner === false) {
             // for sync vData and iData address to native
-            this.setRenderDrawInfoAttributes();
+            //this.setRenderDrawInfoAttributes();
             // sync shared buffer to native
             this.copyRenderDataToSharedBuffer();
         }

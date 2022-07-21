@@ -80,17 +80,24 @@ public:
     virtual bool destroy() noexcept = 0;
     virtual void render(const ccstd::vector<scene::Camera*>& cameras) = 0;
 
-    virtual const MacroRecord           &getMacros() const = 0;
-    virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
-    virtual gfx::DescriptorSetLayout    *getDescriptorSetLayout() const = 0;
+    virtual gfx::Device* getDevice() const = 0;
+    virtual const MacroRecord &getMacros() const = 0;
+    virtual pipeline::GlobalDSManager *getGlobalDSManager() const = 0;
+    virtual gfx::DescriptorSetLayout *getDescriptorSetLayout() const = 0;
+    virtual gfx::DescriptorSet *getDescriptorSet() const = 0;
+    virtual ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const = 0;
     virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
-    virtual const ccstd::string         &getConstantMacros() const = 0;
-    virtual scene::Model                *getProfiler() const = 0;
-    virtual void                         setProfiler(scene::Model *profiler) = 0;
+    virtual const ccstd::string &getConstantMacros() const = 0;
+    virtual scene::Model *getProfiler() const = 0;
+    virtual void setProfiler(scene::Model *profiler) = 0;
     virtual pipeline::GeometryRenderer  *getGeometryRenderer() const = 0;
 
     virtual float getShadingScale() const = 0;
-    virtual void  setShadingScale(float scale) = 0;
+    virtual void setShadingScale(float scale) = 0;
+
+    virtual const ccstd::string& getMacroString(const ccstd::string& name) const = 0;
+    virtual int32_t getMacroInt(const ccstd::string& name) const = 0;
+    virtual bool getMacroBool(const ccstd::string& name) const = 0;
 
     virtual void setMacroString(const ccstd::string& name, const ccstd::string& value) = 0;
     virtual void setMacroInt(const ccstd::string& name, int32_t value) = 0;
@@ -138,11 +145,15 @@ public:
 
     ~RasterQueueBuilder() noexcept override = 0;
 
-    virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
-    virtual void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(const ccstd::string& shader) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
+    virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
 
 inline RasterQueueBuilder::~RasterQueueBuilder() noexcept = default;
@@ -153,14 +164,15 @@ public:
 
     ~RasterPassBuilder() noexcept override = 0;
 
-    virtual void                addRasterView(const ccstd::string& name, const RasterView& view) = 0;
-    virtual void                addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
-    virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName) = 0;
+    virtual void addRasterView(const ccstd::string& name, const RasterView& view) = 0;
+    virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
+    virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
-    virtual void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName) = 0;
-    virtual void                addFullscreenQuad(const ccstd::string& shader) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
 
 inline RasterPassBuilder::~RasterPassBuilder() noexcept = default;
@@ -171,8 +183,7 @@ public:
 
     ~ComputeQueueBuilder() noexcept override = 0;
 
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) = 0;
+    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) = 0;
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
@@ -186,12 +197,10 @@ public:
 
     virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
 
-    virtual ComputeQueueBuilder *addQueue(const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual ComputeQueueBuilder *addQueue(const ccstd::string& layoutName) = 0;
+    virtual ComputeQueueBuilder *addQueue(const ccstd::string& name) = 0;
     virtual ComputeQueueBuilder *addQueue() = 0;
 
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) = 0;
+    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) = 0;
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
@@ -298,6 +307,7 @@ public:
     virtual uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) = 0;
     virtual void addShader(const ccstd::string& name, uint32_t parentPhaseID) = 0;
     virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) = 0;
+    virtual void addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const ccstd::string& name, const gfx::UniformBlock& uniformBlock) = 0;
     virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) = 0;
     virtual int compile() = 0;
 
@@ -312,18 +322,20 @@ public:
 
     ~Pipeline() noexcept override = 0;
 
-    virtual uint32_t            addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
-    virtual uint32_t            addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual uint32_t            addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual void                beginFrame() = 0;
-    virtual void                endFrame() = 0;
-    virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) = 0;
-    virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) = 0;
+    virtual bool containsResource(const ccstd::string& name) const = 0;
+    virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
+    virtual uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+    virtual uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+
+    virtual void beginFrame() = 0;
+    virtual void endFrame() = 0;
+    virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) = 0;
+    virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) = 0;
     virtual ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) = 0;
     virtual ComputePassBuilder *addComputePass(const ccstd::string& layoutName) = 0;
-    virtual MovePassBuilder    *addMovePass(const ccstd::string& name) = 0;
-    virtual CopyPassBuilder    *addCopyPass(const ccstd::string& name) = 0;
-    virtual void                presentAll() = 0;
+    virtual MovePassBuilder *addMovePass(const ccstd::string& name) = 0;
+    virtual CopyPassBuilder *addCopyPass(const ccstd::string& name) = 0;
+    virtual void presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
@@ -331,6 +343,21 @@ public:
 };
 
 inline Pipeline::~Pipeline() noexcept = default;
+
+class PipelineBuilder {
+public:
+    PipelineBuilder() noexcept = default;
+    PipelineBuilder(PipelineBuilder&& rhs)      = delete;
+    PipelineBuilder(PipelineBuilder const& rhs) = delete;
+    PipelineBuilder& operator=(PipelineBuilder&& rhs) = delete;
+    PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
+
+    virtual ~PipelineBuilder() noexcept = 0;
+
+    virtual void setup(const ccstd::vector<scene::Camera*>& cameras, Pipeline* pipeline) = 0;
+};
+
+inline PipelineBuilder::~PipelineBuilder() noexcept = default;
 
 class Factory {
 public:

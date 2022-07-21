@@ -24,7 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture } from '../define';
+import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture, UBOCamera, UBOCSM, UBOGlobal, UBOShadow } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../enum';
 import { ShadowStage } from './shadow-stage';
@@ -83,6 +83,11 @@ export class ShadowFlow extends RenderFlow {
         const isLinear = pipeline.device.gfxAPI === API.WEBGL ? 1 : 0;
         pipeline.macros.CC_SHADOWMAP_USE_LINEAR_DEPTH = isLinear;
 
+        // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
+        pipeline.pipelineSceneData.csmSupported = pipeline.device.capabilities.maxFragmentUniformVectors
+            >= (UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOCSM.COUNT) / 4;
+        pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.csmSupported;
+
         pipeline.onGlobalPipelineStateChanged();
     }
 
@@ -127,7 +132,8 @@ export class ShadowFlow extends RenderFlow {
             if (mainLight.shadowFixedArea) {
                 this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS);
             } else {
-                for (let i = 0; i < mainLight.csmLevel; i++) {
+                const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
+                for (let i = 0; i < csmLevel; i++) {
                     this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS, i);
                 }
             }

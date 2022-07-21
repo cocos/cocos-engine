@@ -28,14 +28,7 @@
 #include "bindings/utils/BindingUtils.h"
 
 namespace cc {
-RenderEntity::RenderEntity() : RenderEntity(nullptr) {
-}
-
-RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
-    for (auto& drawInfo : _staticDrawInfos) {
-        drawInfo.setBatcher(_batcher);
-    }
-
+RenderEntity::RenderEntity() {
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 
@@ -96,7 +89,7 @@ ccstd::vector<RenderDrawInfo*>& RenderEntity::getDynamicRenderDrawInfos() {
     return _dynamicDrawInfos;
 }
 void RenderEntity::setStaticDrawInfoSize(uint32_t size) {
-    CC_ASSERT(size < RenderEntity::STATIC_DRAW_INFO_CAPACITY);
+    CC_ASSERT(size <= RenderEntity::STATIC_DRAW_INFO_CAPACITY);
     _staticDrawInfoSize = size;
 }
 RenderDrawInfo* RenderEntity::getStaticRenderDrawInfo(uint32_t index) {

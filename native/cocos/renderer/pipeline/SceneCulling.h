@@ -49,10 +49,5 @@ RenderObject genRenderObject(const scene::Model *, const scene::Camera *);
 void validPunctualLightsCulling(const RenderPipeline* pipeline, const scene::Camera* camera);
 void shadowCulling(const RenderPipeline*, const scene::Camera*, ShadowTransformInfo*);
 void sceneCulling(const RenderPipeline*, scene::Camera*);
-void updateSphereLight(scene::Shadows *shadowInfo, const scene::Light *light, ccstd::array<float, UBOShadow::COUNT> *);
-void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, ccstd::array<float, UBOShadow::COUNT> *);
-void updatePlanarNormalAndDistance(const ::cc::scene::Shadows* shadowInfo, ccstd::array<float, UBOShadow::COUNT>* shadowUBO);
-void getShadowWorldMatrix(const geometry::Sphere *sphere, const cc::Quaternion &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out);
-void updateDirFrustum(const geometry::Sphere *cameraBoundingSphere, const Quaternion &rotation, float range, geometry::Frustum *dirLightFrustum);
 } // namespace pipeline
 } // namespace cc
