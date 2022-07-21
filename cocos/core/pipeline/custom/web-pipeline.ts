@@ -370,9 +370,6 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline extends Pipeline {
-    public get device (): Device {
-        return this._device;
-    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -390,18 +387,8 @@ export class WebPipeline extends Pipeline {
     public presentAll (): void {
         throw new Error('Method not implemented.');
     }
-    public get lightingMode (): LightingMode {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this._lightingMode;
-    }
-    public set lightingMode (mode: LightingMode) {
-        this._lightingMode = mode;
-    }
     public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         throw new Error('Method not implemented.');
-    }
-    public get layoutGraphBuilder (): LayoutGraphBuilder {
-        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
     }
     protected _generateConstantMacros (clusterEnabled: boolean) {
         let str = '';
@@ -415,18 +402,12 @@ export class WebPipeline extends Pipeline {
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
         this._constantMacros = str;
     }
-
-    public get usesDeferredPipeline (): boolean {
-        return this._usesDeferredPipeline;
-    }
-
     public setCustomPipelineName (name: string) {
         this._customPipelineName = name;
         if (this._customPipelineName === 'Deferred') {
             this._usesDeferredPipeline = true;
         }
     }
-
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -466,6 +447,22 @@ export class WebPipeline extends Pipeline {
         this._globalDSManager?.destroy();
         this._pipelineSceneData?.destroy();
         return true;
+    }
+    public get device (): Device {
+        return this._device;
+    }
+    public get lightingMode (): LightingMode {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._lightingMode;
+    }
+    public set lightingMode (mode: LightingMode) {
+        this._lightingMode = mode;
+    }
+    public get layoutGraphBuilder (): LayoutGraphBuilder {
+        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
+    }
+    public get usesDeferredPipeline (): boolean {
+        return this._usesDeferredPipeline;
     }
     public get macros (): MacroRecord {
         return this._macros;
