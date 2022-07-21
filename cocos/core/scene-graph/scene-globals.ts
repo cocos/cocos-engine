@@ -850,7 +850,7 @@ export class ShadowsInfo {
     @tooltip('i18n:shadow.planeHeight')
     set planeHeight (val: number) {
         this._distance = val;
-        if (this._resource) { this._resource.distance = -val; }
+        if (this._resource) { this._resource.distance = val; }
     }
     get planeHeight () {
         return this._distance;

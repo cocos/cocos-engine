@@ -150,7 +150,7 @@ void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, ccstd
 
 void updatePlanarNormalAndDistance(const scene::Shadows* shadowInfo, ccstd::array<float, UBOShadow::COUNT>* shadowUBO) {
     const Vec3 normal = shadowInfo->getNormal().getNormalized();
-    const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadowInfo->getDistance()};
+    const float planarNDInfo[4] = {normal.x, normal.y, normal.z, -shadowInfo->getDistance()};
     memcpy(shadowUBO->data() + UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET, &planarNDInfo, sizeof(planarNDInfo));
 }
 
