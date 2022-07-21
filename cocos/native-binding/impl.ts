@@ -126,17 +126,10 @@ if( NATIVE ){
     });
 }
 
-
-
-
-
 export const native = {
     DownloaderHints: globalJsb.DownloaderHints,
     Downloader: globalJsb.Downloader,
     zipUtils: globalJsb.zipUtils,
     fileUtils: globalJsb.fileUtils,
     DebugRenderer: globalJsb.DebugRenderer,
-    reflection: globalJsb.reflection,
-    bridge: globalJsb.bridge,
-    jsbBridgeWrapper: globalJsb.jsbBridgeWrapper,
 };

@@ -119,7 +119,7 @@ export class ShadowStage extends RenderStage {
         switch (this._light.type) {
         case LightType.DIRECTIONAL: {
             const mainLight = this._light as DirectionalLight;
-            if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
+            if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !pipelineSceneData.csmSupported) {
                 this._renderArea.x = 0;
                 this._renderArea.y = 0;
                 this._renderArea.width = shadowMapSize.x;

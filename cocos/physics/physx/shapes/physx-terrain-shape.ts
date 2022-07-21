@@ -32,7 +32,7 @@ import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
-    static heightScale = 1 / 5000;
+    static heightScale = 1 / 512;
 
     constructor () {
         super(EPhysXShapeType.TERRAIN);
