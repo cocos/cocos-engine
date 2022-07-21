@@ -583,9 +583,10 @@ export class RichText extends Component {
                 if (thisPartSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
-                    // if it is not the first element, it is right behind a "\n", so we should reset the lineOffsetX as 0.
+                    // If it is not the first element, it is right behind a "\n", so we should reset the lineOffsetX as 0.
                     let currOffsetX = i === 0 ? this._lineOffsetX : 0;
-                    if (currOffsetX >= this.maxWidth) {
+                    // Hack: Special switching line could reserve fontSize-length space
+                    if (currOffsetX >= this.maxWidth - this.fontSize) {
                         currOffsetX = 0;
                     }
                     const thisPartSplitResultArr = this.splitLongStringOver2048(multilineTexts[i], styleIndex, currOffsetX);
