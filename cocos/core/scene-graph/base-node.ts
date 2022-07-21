@@ -1319,9 +1319,11 @@ export class BaseNode extends CCObject implements ISchedulable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
+                // @ts-expect-error Polyfilled functions in base-node-dev.ts
                 this._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
+                // @ts-expect-error Polyfilled functions in base-node-dev.ts
                 this._registerIfAttached!(false);
             }
 
@@ -1343,6 +1345,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
+            // @ts-expect-error Polyfilled functions in base-node-dev.ts
             this._registerIfAttached!(false);
         }
 
