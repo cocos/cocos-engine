@@ -1377,13 +1377,62 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
                   gpuRenderPass->statistics[i].storeSubpass != SUBPASS_EXTERNAL);
     }
 
-    // should deduce this from subpass & attachment access infos
-    gpuRenderPass->barriers.resize(gpuRenderPass->subpasses.size() + 1);
+    ccstd::unordered_map<GFXObject*, std::pair<GLbitfield, GLbitfield>> resRecord;
+    // if barrier deduce enabled: should deduce this from subpass & attachment access infos
+    if constexpr (ENABLE_GRAPH_AUTO_BARRIER) {
+        gpuRenderPass->subpassBarriers.resize(gpuRenderPass->dependencies.size());
+        for (size_t i = 0; i < gpuRenderPass->subpassBarriers.size(); ++i) {
+            auto &barrier = gpuRenderPass->subpassBarriers[i];
+            const auto &dependency = gpuRenderPass->dependencies[i];
+            if (dependency.generalBarrier) {
+                barrier.prevAccesses = dependency.generalBarrier->getInfo().prevAccesses;
+                barrier.nextAccesses = dependency.generalBarrier->getInfo().nextAccesses;
+                completeBarrier(&barrier);
+                completeBarrier(&gpuRenderPass->blockBarrier);
+            }
+
+            if (dependency.bufferBarrierCount) {
+                for (size_t index = 0; index < dependency.bufferBarrierCount; ++index) {
+                    barrier.prevAccesses = dependency.bufferBarriers[index]->getInfo().prevAccesses;
+                    barrier.nextAccesses = dependency.bufferBarriers[index]->getInfo().nextAccesses;
+                    completeBarrier(&barrier);
+                    auto iter = resRecord.find(dependency.buffers[index]);
+                    if (iter == resRecord.end()) {
+                        resRecord.insert({dependency.buffers[index], std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion)});
+                    } else {
+                        iter->second = std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion);
+                    }
+                }
+            }
+
+            if (dependency.textureBarrierCount) {
+                for (size_t index = 0; index < dependency.textureBarrierCount; ++index) {
+                    barrier.prevAccesses = dependency.textureBarriers[index]->getInfo().prevAccesses;
+                    barrier.nextAccesses = dependency.textureBarriers[index]->getInfo().nextAccesses;
+                    completeBarrier(&barrier);
+                    auto iter = resRecord.find(dependency.textures[index]);
+                    if (iter == resRecord.end()) {
+                        resRecord.insert({dependency.textures[index], std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion)});
+                    } else {
+                        iter->second = std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion);
+                    }
+                }
+            }
+        }
+
+        for (const auto &pair : resRecord) {
+            const auto &barrier = pair.second;
+            gpuRenderPass->blockBarrier.glBarriers |= barrier.first;
+            gpuRenderPass->blockBarrier.glBarriersByRegion |= barrier.second;
+        }
+    } else {
+        gpuRenderPass->subpassBarriers.resize(gpuRenderPass->subpasses.size() + 1);
+    }
 }
 
 void cmdFuncGLES3DestroyRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *gpuRenderPass) {
     gpuRenderPass->statistics.clear();
-    gpuRenderPass->barriers.clear();
+    gpuRenderPass->subpassBarriers.clear();
 }
 
 void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler) {
@@ -1979,7 +2028,7 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3
         uint32_t glAttachmentIndex = 0U;
         if (gpuFramebuffer->usesFBF) {
             if (subpassIdx == 0) {
-                cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->barriers[0].glBarriers, gpuRenderPass->barriers[0].glBarriersByRegion);
+                cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->blockBarrier.glBarriers, gpuRenderPass->blockBarrier.glBarriersByRegion);
 
                 for (const auto attachmentIndex : gpuFramebuffer->uberColorAttachmentIndices) {
                     performLoadOp(attachmentIndex, glAttachmentIndex++);
@@ -1987,7 +2036,7 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3
                 performDepthStencilLoadOp(gpuFramebuffer->uberDepthStencil, false);
             }
         } else {
-            cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->barriers[subpassIdx].glBarriers, gpuRenderPass->barriers[subpassIdx].glBarriersByRegion);
+            cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->subpassBarriers[subpassIdx].glBarriers, gpuRenderPass->subpassBarriers[subpassIdx].glBarriersByRegion);
 
             for (const auto attachmentIndex : gpuRenderPass->subpasses[subpassIdx].colors) {
                 if (gpuRenderPass->statistics[attachmentIndex].loadSubpass != subpassIdx) continue;
@@ -2139,9 +2188,7 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
                 region.srcExtent.height = region.dstExtent.height = blitSrc->height;
                 cmdFuncGLES3BlitTexture(device, blitSrc, blitDst, &region, 1, Filter::POINT);
             }
-
-            cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->barriers.back().glBarriers, gpuRenderPass->barriers.back().glBarriersByRegion);
-        } else if (gpuFramebuffer->usesFBF) {
+        } else {
             if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
                 GL_CHECK(glFramebufferFetchBarrierEXT());
             } else if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
@@ -2157,8 +2204,8 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
         bool skipStore = subpass.depthStencil == INVALID_BINDING ||
                          gpuRenderPass->statistics[subpass.depthStencil].storeSubpass != gfxStateCache.subpassIdx;
         performDepthStencilStoreOp(subpass.depthStencil, skipStore);
-
-        cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->barriers.back().glBarriers, gpuRenderPass->barriers.back().glBarriersByRegion);
+        
+        cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->subpassBarriers.back().glBarriers, gpuRenderPass->subpassBarriers.back().glBarriersByRegion);
     }
 }
 

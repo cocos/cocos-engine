@@ -28,6 +28,7 @@
 #include <memory>
 #include "CallbackPass.h"
 #include "Handle.h"
+#include "ImmutableState.h"
 #include "PassInsertPointManager.h"
 #include "RenderTargetAttachment.h"
 #include "VirtualResource.h"
@@ -50,9 +51,12 @@ public:
     Handle read(FrameGraph &graph, const Handle &input);
     Handle write(FrameGraph &graph, const Handle &output);
     void createRenderTargetAttachment(RenderTargetAttachment &&attachment);
+    void setBarrier(const PassBarrierPair &barrier);
+
     inline void sideEffect();
     inline void subpass(bool end, bool clearActionIgnorable);
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor);
+    inline const PassBarrierPair &getBarriers() const;
 
 private:
     bool canMerge(const FrameGraph &graph, const PassNode &passNode) const;
@@ -88,12 +92,18 @@ private:
     gfx::Viewport _viewport;
     gfx::Rect _scissor;
 
+    PassBarrierPair _barriers;
+
     friend class FrameGraph;
     friend class DevicePass;
     friend class DevicePassResourceTable;
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+const PassBarrierPair &PassNode::getBarriers() const {
+    return _barriers;
+}
 
 void PassNode::sideEffect() {
     _sideEffect = true;
