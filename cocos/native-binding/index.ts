@@ -847,7 +847,7 @@ export declare namespace native {
      * @en DebugRenderer class used to output debug text on screen
      * @zh 用于输出屏幕调试文字的调试渲染器类
      */
-     export class DebugRenderer {
+    export class DebugRenderer {
         /**
          * @en get DebugRenderer instance
          * @zh 获取调试渲染器实例
@@ -868,8 +868,8 @@ export declare namespace native {
     export namespace reflection {
         /**
          * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html
-         * @en call OBJC/Java static methods
-         * @zh 调用 OBJC/Java 静态方法
+         * @en call Objective-C/Java static methods
+         * @zh 调用 Objective-C/Java 静态方法
          *
          * @param className
          * @param methodName
