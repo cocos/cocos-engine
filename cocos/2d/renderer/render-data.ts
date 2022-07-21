@@ -178,8 +178,8 @@ export class BaseRenderData {
                 }
             }
 
-            this.setRenderDrawInfoAttributes();
             this.drawInfoType = drawInfoType;
+            this.setRenderDrawInfoAttributes();
         }
     }
 
@@ -415,8 +415,9 @@ export class RenderData extends BaseRenderData {
             if (!this._renderDrawInfo) {
                 return;
             }
-            this.renderDrawInfo.initRender2dBuffer(this.dataLength, this.floatStride);
-            this.renderDrawInfo.setRender2dBufferToNative();
+            this.renderDrawInfo.setStride(this.floatStride);
+            this.renderDrawInfo.setVBCount(this.dataLength);
+            this.renderDrawInfo.initRender2dBuffer();
         }
     }
 
