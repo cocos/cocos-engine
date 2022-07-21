@@ -241,17 +241,23 @@ export class PipelineUBO {
                         _vec4ShadowInfo.set(0, packing, mainLight.shadowNormalBias, 0);
                         Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
                     } else {
+                        const layerThreshold = this.getPCFRadius(shadowInfo, mainLight);
                         for (let i = 0; i < mainLight.csmLevel; i++) {
                             cv[UBOCSM.CSM_SPLITS_INFO_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
 
                             const matShadowView = csmLayers.layers[i].matShadowView;
-                            Mat4.toArray(cv, matShadowView, UBOCSM.MAT_CSM_VIEW_OFFSET + 16 * i);
+                            _vec4ShadowInfo.set(matShadowView.m00, matShadowView.m04, matShadowView.m08, layerThreshold);
+                            Vec4.toArray(cv, _vec4ShadowInfo, UBOCSM.CSM_VIEW_DIR_0_OFFSET + 4 * i);
+                            _vec4ShadowInfo.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, 0.0);
+                            Vec4.toArray(cv, _vec4ShadowInfo, UBOCSM.CSM_VIEW_DIR_1_OFFSET + 4 * i);
+                            _vec4ShadowInfo.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, 0.0);
+                            Vec4.toArray(cv, _vec4ShadowInfo, UBOCSM.CSM_VIEW_DIR_2_OFFSET + 4 * i);
 
                             const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
                             Mat4.toArray(cv, matShadowViewProj, UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * i);
 
-                            const matShadowViewProjAtlas = csmLayers.layers[i].matShadowViewProjAtlas;
-                            Mat4.toArray(cv, matShadowViewProjAtlas, UBOCSM.MAT_CSM_VIEW_PROJ_ATLAS_OFFSET + 16 * i);
+                            const csmAtlas = csmLayers.layers[i].csmAtlas;
+                            Vec4.toArray(cv, csmAtlas, UBOCSM.CSM_ATLAS_OFFSET + 4 * i);
 
                             const matShadowProj = csmLayers.layers[i].matShadowProj;
                             cv[UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m10;
@@ -264,11 +270,6 @@ export class PipelineUBO {
                             cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
                             cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
                         }
-
-                        cv[UBOCSM.CSM_INFO_OFFSET + 0] = 0;
-                        cv[UBOCSM.CSM_INFO_OFFSET + 1] = this.getPCFRadius(shadowInfo, mainLight);
-                        cv[UBOCSM.CSM_INFO_OFFSET + 2] = 0;
-                        cv[UBOCSM.CSM_INFO_OFFSET + 3] = 0;
 
                         _vec4ShadowInfo.set(0, 0, 0, 1.0 - mainLight.shadowSaturation);
                         Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);

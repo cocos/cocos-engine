@@ -20,7 +20,7 @@
  */
 
 import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../renderer/scene';
-import { Mat4, Vec3, Vec2, Quat } from '../../math';
+import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { IRenderObject } from '../define';
 import { legacyCC } from '../../global-exports';
@@ -220,6 +220,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
 
     protected _matShadowAtlas: Mat4 = new Mat4();
     protected _matShadowViewProjAtlas: Mat4 = new Mat4();
+    protected _csmAtlas: Vec4 = new Vec4();
 
     constructor (level: number) {
         super(level);
@@ -243,6 +244,12 @@ export class CSMShadowLayer extends ShadowLayerVolume {
     get matShadowAtlas () {
         return this._matShadowAtlas;
     }
+    get csmAtlas () {
+        return this._csmAtlas;
+    }
+    set csmAtlas (val) {
+        this._csmAtlas = val;
+    }
     set matShadowViewAtlas (val) {
         this._matShadowAtlas = val;
     }
@@ -265,6 +272,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         _bias.set(x, y, 0);
         _scale.set(0.5, 0.5, 1);
         Mat4.fromRTS(this._matShadowAtlas, Quat.IDENTITY, _bias, _scale);
+        this._csmAtlas.set(0.5, 0.5, x, y);
     }
 }
 
