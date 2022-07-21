@@ -25,7 +25,7 @@
 
 import { DEBUG, EDITOR, JSB } from 'internal:constants';
 import {
-    ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
 } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -113,7 +113,6 @@ export enum InstanceMaterialType {
  */
 @ccclass('cc.UIRenderer')
 @requireComponent(UITransform)
-@disallowMultiple
 @executeInEditMode
 export class UIRenderer extends Renderer {
     /**
