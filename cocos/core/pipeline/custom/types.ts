@@ -29,6 +29,9 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
+import { ClearFlagBit, Color, LoadOp, StoreOp } from '../../gfx';
+import { Light } from '../../renderer/scene';
+
 export const enum UpdateFrequency {
     PER_INSTANCE,
     PER_BATCH,
@@ -180,9 +183,130 @@ export function getTaskTypeName (e: TaskType): string {
 
 export const enum SceneFlags {
     NONE = 0,
-    OPAQUE_OBJECT = 0x1,
-    CUTOUT_OBJECT = 0x2,
-    TRANSPARENT_OBJECT = 0x4,
-    SHADOW_CASTER = 0x8,
+    OPAQUE_OBJECT = 1,
+    CUTOUT_OBJECT = 2,
+    TRANSPARENT_OBJECT = 4,
+    SHADOW_CASTER = 8,
+    UI = 16,
+    DEFAULT_LIGHTING = 32,
+    VOLUMETRIC_LIGHTING = 64,
+    CLUSTERED_LIGHTING = 128,
+    PLANAR_SHADOW = 256,
+    GEOMETRY = 512,
+    PROFILER = 1024,
     ALL = 0xFFFFFFFF,
+}
+
+export const enum LightingMode {
+    NONE,
+    DEFAULT,
+    CLUSTERED,
+}
+
+export function getLightingModeName (e: LightingMode): string {
+    switch (e) {
+    case LightingMode.NONE:
+        return 'NONE';
+    case LightingMode.DEFAULT:
+        return 'DEFAULT';
+    case LightingMode.CLUSTERED:
+        return 'CLUSTERED';
+    default:
+        return '';
+    }
+}
+
+export const enum AttachmentType {
+    RENDER_TARGET,
+    DEPTH_STENCIL,
+}
+
+export function getAttachmentTypeName (e: AttachmentType): string {
+    switch (e) {
+    case AttachmentType.RENDER_TARGET:
+        return 'RENDER_TARGET';
+    case AttachmentType.DEPTH_STENCIL:
+        return 'DEPTH_STENCIL';
+    default:
+        return '';
+    }
+}
+
+export const enum AccessType {
+    READ,
+    READ_WRITE,
+    WRITE,
+}
+
+export function getAccessTypeName (e: AccessType): string {
+    switch (e) {
+    case AccessType.READ:
+        return 'READ';
+    case AccessType.READ_WRITE:
+        return 'READ_WRITE';
+    case AccessType.WRITE:
+        return 'WRITE';
+    default:
+        return '';
+    }
+}
+
+export class RasterView {
+    constructor (
+        slotName = '',
+        accessType: AccessType = AccessType.WRITE,
+        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
+        loadOp: LoadOp = LoadOp.LOAD,
+        storeOp: StoreOp = StoreOp.STORE,
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+        clearColor: Color = new Color(),
+    ) {
+        this.slotName = slotName;
+        this.accessType = accessType;
+        this.attachmentType = attachmentType;
+        this.loadOp = loadOp;
+        this.storeOp = storeOp;
+        this.clearFlags = clearFlags;
+        this.clearColor = clearColor;
+    }
+    slotName: string;
+    accessType: AccessType;
+    attachmentType: AttachmentType;
+    loadOp: LoadOp;
+    storeOp: StoreOp;
+    clearFlags: ClearFlagBit;
+    readonly clearColor: Color;
+}
+
+export const enum ClearValueType {
+    FLOAT_TYPE,
+    INT_TYPE,
+}
+
+export function getClearValueTypeName (e: ClearValueType): string {
+    switch (e) {
+    case ClearValueType.FLOAT_TYPE:
+        return 'FLOAT_TYPE';
+    case ClearValueType.INT_TYPE:
+        return 'INT_TYPE';
+    default:
+        return '';
+    }
+}
+
+export class ComputeView {
+    name = '';
+    accessType: AccessType = AccessType.READ;
+    clearFlags: ClearFlagBit = ClearFlagBit.NONE;
+    readonly clearColor: Color = new Color();
+    clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE;
+}
+
+export class LightInfo {
+    constructor (light: Light | null = null, level = 0) {
+        this.light = light;
+        this.level = level;
+    }
+    /*object*/ light: Light | null;
+    level: number;
 }

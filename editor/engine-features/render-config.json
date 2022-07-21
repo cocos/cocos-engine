@@ -222,6 +222,12 @@
             "description": "i18n:ENGINE.features.marionette.description",
             "wechatPlugin": false,
             "category": "animation"
+        },
+        "custom-pipeline": {
+            "default": ["custom-pipeline"],
+            "label": "i18n:ENGINE.features.custom_pipeline.label",
+            "description": "i18n:ENGINE.features.custom_pipeline.description",
+            "wechatPlugin": false
         }
     },
     "categories": {
