@@ -282,10 +282,11 @@ export class Skybox {
 
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
+            //The skybox material has added properties of 'environmentMap' that need local ubo
             // @ts-expect-error private member access
-            this._model._initLocalDescriptors = () => {};
+            //this._model._initLocalDescriptors = () => {};
             // @ts-expect-error private member access
-            this._model._initWorldBoundDescriptors = () => {};
+            //this._model._initWorldBoundDescriptors = () => {};
         }
         let isRGBE = this._default.isRGBE;
         let isUseConvolutionMap = this._default.isUsingOfflineMipmaps();
@@ -350,7 +351,12 @@ export class Skybox {
 
         if (this.enabled) {
             if (this._editableMaterial) {
-                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+                if (this.reflectionMap) {
+                    this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: true });
+                    this._editableMaterial.setProperty('environmentMap', this.envmap);
+                } else {
+                    this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: false });
+                }
             } else if (skybox_material) {
                 if (this.reflectionMap) {
                     skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: true });

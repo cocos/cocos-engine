@@ -288,8 +288,9 @@ void Skybox::activate() {
 
     if (!_model) {
         _model = Root::getInstance()->createModel<scene::Model>();
-        _model->initLocalDescriptors(CC_INVALID_INDEX);
-        _model->initWorldBoundDescriptors(CC_INVALID_INDEX);
+        //The skybox material has added properties of 'environmentMap' that need local ubo
+        //_model->initLocalDescriptors(CC_INVALID_INDEX);
+        //_model->initWorldBoundDescriptors(CC_INVALID_INDEX);
     }
     auto *envmap = getEnvmap();
     bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
