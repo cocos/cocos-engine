@@ -23,9 +23,27 @@
  THE SOFTWARE.
  */
 
-import { Pipeline } from './pipeline';
+import { legacyCC } from '../../global-exports';
+import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
+import { buildDeferredLayout, buildForwardLayout } from './effect';
+
+let _pipeline: WebPipeline | null = null;
 
 export function createCustomPipeline (): Pipeline {
-    return new WebPipeline();
+    const root = legacyCC.director.root;
+    const ppl = new WebPipeline();
+    if (root.useDeferredPipeline) {
+        buildDeferredLayout(ppl);
+    } else {
+        buildForwardLayout(ppl);
+    }
+    _pipeline = ppl;
+    return ppl;
+}
+
+export function setCustomPipelineBuilder (builder: PipelineBuilder) {
+    if (_pipeline) {
+        _pipeline.builder = builder;
+    }
 }

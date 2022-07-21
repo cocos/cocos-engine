@@ -1469,7 +1469,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
@@ -1592,7 +1592,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,

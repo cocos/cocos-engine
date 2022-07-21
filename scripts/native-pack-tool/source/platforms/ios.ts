@@ -33,9 +33,7 @@ export class IOSPackTool extends MacOSPackTool {
         await this.excuteCocosTemplateTask();
 
         await this.setOrientation();
-
         await this.encrypteScripts();
-        await this.generate();
         return true;
     }
 

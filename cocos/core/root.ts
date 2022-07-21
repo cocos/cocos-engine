@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { DEV, HTML5, TEST } from 'internal:constants';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { DebugView } from './pipeline/debug-view';
@@ -118,7 +119,7 @@ export class Root {
      * 启用自定义渲染管线
      */
     public get usesCustomPipeline (): boolean {
-        return this._usesCustomPipeline;
+        return this._usesCustomPipeline && !DEV && (HTML5 || TEST);
     }
 
     /**

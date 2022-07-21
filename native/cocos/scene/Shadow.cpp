@@ -91,7 +91,7 @@ void ShadowsInfo::setShadowMapSize(float value) {
     }
 }
 
-void ShadowsInfo::setPlaneFromNode(const Node* node) {
+void ShadowsInfo::setPlaneFromNode(const Node *node) {
     const auto &qt = node->getWorldRotation();
     _normal = Vec3::UNIT_Y;
     _normal.transformQuat(qt);
@@ -117,7 +117,7 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
         setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
         _shadowMapDirty = true;
     }
-    
+
     setShadowColor(shadowsInfo.getShadowColor());
 }
 
@@ -138,8 +138,9 @@ gfx::Shader *Shadows::getPlanarShader(const ccstd::vector<IMacroPatch> &patches)
         createMaterial();
     }
 
-    const auto &passes = *_material->getPasses();
-    return passes[0]->getShaderVariant(patches);
+    const auto &passes = _material->getPasses();
+    CC_ASSERT(passes && !passes->empty());
+    return (passes && !passes->empty()) ? passes->at(0)->getShaderVariant(patches) : nullptr;
 }
 
 gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches) {
@@ -147,8 +148,9 @@ gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &
         createInstanceMaterial();
     }
 
-    const auto &passes = *_instancingMaterial->getPasses();
-    return passes[0]->getShaderVariant(patches);
+    const auto &passes = _instancingMaterial->getPasses();
+    CC_ASSERT(passes && !passes->empty());
+    return (passes && !passes->empty()) ? passes->at(0)->getShaderVariant(patches) : nullptr;
 }
 
 void Shadows::activate() {

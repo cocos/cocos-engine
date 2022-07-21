@@ -21,6 +21,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTask);
 JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTransversal);
 JSB_REGISTER_OBJECT_TYPE(cc::render::LayoutGraphBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
+JSB_REGISTER_OBJECT_TYPE(cc::render::PipelineBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Factory);
 
 
@@ -31,6 +32,9 @@ bool js_register_cc_render_PipelineRuntime(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_PipelineRuntime_activate);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_destroy);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_getMacroBool);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_getMacroInt);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_getMacroString);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_render);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_setMacroBool);
@@ -59,19 +63,24 @@ extern se::Class * __jsb_cc_render_RasterQueueBuilder_class; // NOLINT
 
 bool js_register_cc_render_RasterQueueBuilder(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addCameraQuad);
 SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addFullscreenQuad);
 SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addScene);
 SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addSceneOfCamera);
+SE_DECLARE_FUNC(js_render_RasterQueueBuilder_clearRenderTarget);
+SE_DECLARE_FUNC(js_render_RasterQueueBuilder_setViewport);
 
 extern se::Object *__jsb_cc_render_RasterPassBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_RasterPassBuilder_class; // NOLINT
 
 bool js_register_cc_render_RasterPassBuilder(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_render_RasterPassBuilder_addCameraQuad);
 SE_DECLARE_FUNC(js_render_RasterPassBuilder_addComputeView);
 SE_DECLARE_FUNC(js_render_RasterPassBuilder_addFullscreenQuad);
 SE_DECLARE_FUNC(js_render_RasterPassBuilder_addQueue);
 SE_DECLARE_FUNC(js_render_RasterPassBuilder_addRasterView);
+SE_DECLARE_FUNC(js_render_RasterPassBuilder_setViewport);
 
 extern se::Object *__jsb_cc_render_ComputeQueueBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_ComputeQueueBuilder_class; // NOLINT
@@ -139,6 +148,7 @@ SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderPhase);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderStage);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addShader);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addUniformBlock);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_clear);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_compile);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_print);
@@ -157,10 +167,18 @@ SE_DECLARE_FUNC(js_render_Pipeline_addRasterPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
+SE_DECLARE_FUNC(js_render_Pipeline_containsResource);
 SE_DECLARE_FUNC(js_render_Pipeline_createSceneTransversal);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
 SE_DECLARE_FUNC(js_render_Pipeline_getDescriptorSetLayout);
 SE_DECLARE_FUNC(js_render_Pipeline_presentAll);
+
+extern se::Object *__jsb_cc_render_PipelineBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_PipelineBuilder_class; // NOLINT
+
+bool js_register_cc_render_PipelineBuilder(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_PipelineBuilder_setup);
 
 extern se::Object *__jsb_cc_render_Factory_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Factory_class; // NOLINT

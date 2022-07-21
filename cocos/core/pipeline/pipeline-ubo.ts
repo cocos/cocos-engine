@@ -24,11 +24,11 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from './define';
+    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, API } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
-import { RenderPipeline } from './render-pipeline';
+import { PipelineRuntime } from './custom/pipeline';
 import { legacyCC } from '../global-exports';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
@@ -87,7 +87,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
+    public static updateCameraUBOView (pipeline: PipelineRuntime, bufferView: Float32Array,
         camera: Camera) {
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
@@ -201,19 +201,22 @@ export class PipelineUBO {
         return 0.0;
     }
 
-    public static updateShadowUBOView (pipeline: RenderPipeline, shadowBufferView: Float32Array, camera: Camera) {
+    public static updateShadowUBOView (pipeline: PipelineRuntime, shadowBufferView: Float32Array,
+        csmBufferView: Float32Array, camera: Camera) {
         const device = pipeline.device;
         const mainLight = camera.scene!.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
         const csmLayers = sceneData.csmLayers;
         const sv = shadowBufferView;
+        const cv = csmBufferView;
+        const csmSupported = sceneData.csmSupported;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
 
         if (mainLight && shadowInfo.enabled) {
             if (shadowInfo.type === ShadowType.ShadowMap) {
                 if (mainLight.shadowEnabled) {
-                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
+                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !csmSupported) {
                         const matShadowView = csmLayers.specialLayer.matShadowView;
                         const matShadowProj = csmLayers.specialLayer.matShadowProj;
                         const matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;
@@ -241,33 +244,33 @@ export class PipelineUBO {
                         Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
                     } else {
                         for (let i = 0; i < mainLight.csmLevel; i++) {
-                            sv[UBOShadow.CSM_SPLITS_INFO_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
+                            cv[UBOCSM.CSM_SPLITS_INFO_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
 
                             const matShadowView = csmLayers.layers[i].matShadowView;
-                            Mat4.toArray(sv, matShadowView, UBOShadow.MAT_CSM_VIEW_OFFSET + 16 * i);
+                            Mat4.toArray(cv, matShadowView, UBOCSM.MAT_CSM_VIEW_OFFSET + 16 * i);
 
                             const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
-                            Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_CSM_VIEW_PROJ_OFFSET + 16 * i);
+                            Mat4.toArray(cv, matShadowViewProj, UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * i);
 
                             const matShadowViewProjAtlas = csmLayers.layers[i].matShadowViewProjAtlas;
-                            Mat4.toArray(sv, matShadowViewProjAtlas, UBOShadow.MAT_CSM_VIEW_PROJ_ATLAS_OFFSET + 16 * i);
+                            Mat4.toArray(cv, matShadowViewProjAtlas, UBOCSM.MAT_CSM_VIEW_PROJ_ATLAS_OFFSET + 16 * i);
 
                             const matShadowProj = csmLayers.layers[i].matShadowProj;
-                            sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m10;
-                            sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 1 + 4 * i] = matShadowProj.m14;
-                            sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 2 + 4 * i] = matShadowProj.m11;
-                            sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 3 + 4 * i] = matShadowProj.m15;
+                            cv[UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m10;
+                            cv[UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 1 + 4 * i] = matShadowProj.m14;
+                            cv[UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 2 + 4 * i] = matShadowProj.m11;
+                            cv[UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 3 + 4 * i] = matShadowProj.m15;
 
-                            sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m00;
-                            sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 1 + 4 * i] = matShadowProj.m05;
-                            sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
-                            sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
+                            cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m00;
+                            cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 1 + 4 * i] = matShadowProj.m05;
+                            cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
+                            cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
                         }
 
-                        sv[UBOShadow.CSM_INFO_OFFSET + 0] = 0;
-                        sv[UBOShadow.CSM_INFO_OFFSET + 1] = this.getPCFRadius(shadowInfo, mainLight);
-                        sv[UBOShadow.CSM_INFO_OFFSET + 2] = 0;
-                        sv[UBOShadow.CSM_INFO_OFFSET + 3] = 0;
+                        cv[UBOCSM.CSM_INFO_OFFSET + 0] = 0;
+                        cv[UBOCSM.CSM_INFO_OFFSET + 1] = this.getPCFRadius(shadowInfo, mainLight);
+                        cv[UBOCSM.CSM_INFO_OFFSET + 2] = 0;
+                        cv[UBOCSM.CSM_INFO_OFFSET + 3] = 0;
 
                         _vec4ShadowInfo.set(0, 0, 0, 1.0 - mainLight.shadowSaturation);
                         Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
@@ -287,7 +290,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateShadowUBOLightView (pipeline: RenderPipeline, shadowBufferView: Float32Array, light: Light, level: number) {
+    public static updateShadowUBOLightView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, light: Light, level: number) {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
@@ -391,9 +394,10 @@ export class PipelineUBO {
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    protected _csmUBO = new Float32Array(UBOCSM.COUNT);
     static _combineSignY = 0;
     protected declare _device: Device;
-    protected declare _pipeline: RenderPipeline;
+    protected declare _pipeline: PipelineRuntime;
 
     /**
      *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends |
@@ -412,7 +416,7 @@ export class PipelineUBO {
         PipelineUBO._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
+    public activate (device: Device, pipeline: PipelineRuntime) {
         this._device = device;
         this._pipeline = pipeline;
         const ds = this._pipeline.descriptorSet;
@@ -440,6 +444,13 @@ export class PipelineUBO {
             UBOShadow.SIZE,
         ));
         ds.bindBuffer(UBOShadow.BINDING, shadowUBO);
+        const csmUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            UBOCSM.SIZE,
+            UBOCSM.SIZE,
+        ));
+        ds.bindBuffer(UBOCSM.BINDING, csmUBO);
     }
 
     /**
@@ -481,9 +492,10 @@ export class PipelineUBO {
         if (mainLight && shadowFrameBufferMap.has(mainLight)) {
             ds.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
         }
-        PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, camera);
+        PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, this._csmUBO, camera);
         ds.update();
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
+        cmdBuffer[0].updateBuffer(ds.getBuffer(UBOCSM.BINDING), this._csmUBO);
     }
 
     public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0) {

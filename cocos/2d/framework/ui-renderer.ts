@@ -25,7 +25,7 @@
 
 import { DEBUG, EDITOR, JSB } from 'internal:constants';
 import {
-    ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
 } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -46,6 +46,7 @@ import { Renderer } from '../../core/components/renderer';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { assert, director } from '../../core';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
 // hack
 ccenum(BlendFactor);
@@ -113,7 +114,6 @@ export enum InstanceMaterialType {
  */
 @ccclass('cc.UIRenderer')
 @requireComponent(UITransform)
-@disallowMultiple
 @executeInEditMode
 export class UIRenderer extends Renderer {
     /**
@@ -382,9 +382,9 @@ export class UIRenderer extends Renderer {
      * @zh 请求新的渲染数据对象。
      * @return The new render data
      */
-    public requestRenderData () {
+    public requestRenderData (drawInfoType = RenderDrawInfoType.COMP) {
         const data = RenderData.add();
-        data.initRenderDrawInfo(this);
+        data.initRenderDrawInfo(this, drawInfoType);
         this._renderData = data;
         return data;
     }

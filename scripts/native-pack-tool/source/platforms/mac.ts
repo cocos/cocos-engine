@@ -16,9 +16,7 @@ export class MacPackTool extends MacOSPackTool {
 
     async create(): Promise<boolean> {
         await super.create();
-
         await this.encrypteScripts();
-        await this.generate();
         return true;
     }
 

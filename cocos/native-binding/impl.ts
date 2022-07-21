@@ -6,4 +6,5 @@ export const native = {
     zipUtils: globalJsb.zipUtils,
     fileUtils: globalJsb.fileUtils,
     DebugRenderer: globalJsb.DebugRenderer,
+    copyTextToClipboard: globalJsb.copyTextToClipboard?.bind(globalJsb),
 };
