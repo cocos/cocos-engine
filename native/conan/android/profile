@@ -22,4 +22,4 @@ CC=$target_host$api_level-clang
 CXX=$target_host$api_level-clang++
 LD=$target_host-ld
 STRIP=$target_host-strip
-ANDROID_NDK=$android_ndk
+ANDROID_NDK_ROOT=$android_ndk
