@@ -22,16 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { legacyCC } from "../core/global-exports";
+import { sys } from "../core/platform/sys";
 import { NATIVE } from 'internal:constants';
 const globalJsb = globalThis.jsb ?? {};
 if( NATIVE ){
     Object.defineProperty(globalJsb, 'reflection', {
         get () {
             if (globalJsb.__bridge !== undefined) return globalJsb.__bridge;
-            if (globalThis.JavascriptJavaBridge && (legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.OHOS)) {
+            if (globalThis.JavascriptJavaBridge && (sys.os === sys.OS.ANDROID || sys.os === sys.OS.OHOS)) {
                 globalJsb.__bridge = new globalThis.JavascriptJavaBridge();
-            } else if (globalThis.JavaScriptObjCBridge && (legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX)) {
+            } else if (globalThis.JavaScriptObjCBridge && (sys.os === sys.OS.IOS || sys.os === sys.OS.OSX)) {
                 globalJsb.__bridge = new globalThis.JavaScriptObjCBridge();
             } else   {
                 globalJsb.__bridge = null;
@@ -47,7 +47,7 @@ if( NATIVE ){
     Object.defineProperty(globalJsb, 'bridge', {
         get () {
             if (globalJsb.__ccbridge !== undefined) return globalJsb.__ccbridge;
-            if (window.ScriptNativeBridge && legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX || legacyCC.sys.os === legacyCC.sys.OS.OHOS) {
+            if (window.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
                 globalJsb.__ccbridge = new ScriptNativeBridge();
             } else {
                 globalJsb.__ccbridge = null;
@@ -107,7 +107,7 @@ if( NATIVE ){
         get () {
             if (globalJsb.__JsbBridgeWrapper !== undefined) return globalJsb.__JsbBridgeWrapper;
     
-            if (window.ScriptNativeBridge && legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX || legacyCC.sys.os === legacyCC.sys.OS.OHOS) {
+            if (window.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
                 globalJsb.__JsbBridgeWrapper = JsbBridgeWrapper;
                 globalJsb.bridge.onNative = (methodName, arg1) => {
                     console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);

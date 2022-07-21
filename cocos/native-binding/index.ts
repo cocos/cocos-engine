@@ -871,10 +871,10 @@ export declare namespace native {
          * @en call Objective-C/Java static methods
          * @zh 调用 Objective-C/Java 静态方法
          *
-         * @param className
-         * @param methodName
-         * @param methodSignature
-         * @param parameters
+         * @param className : @en the class name of the Objective-C/Java class @zh Objective-C/Java 类的类名
+         * @param methodName : @en the method name of the Objective-C/Java class @zh Objective-C/Java 类的方法名
+         * @param methodSignature : @en the method signature of the Objective-C/Java class @zh Objective-C/Java 方法签名
+         * @param parameters : @en the parameters of the Objective-C/Java class to translate @zh 传递至该 Objective-C/Java 方法的参数
          */
         export function callStaticMethod (methodName: string, methodSignature: string, ...parameters:any): any;
     }
@@ -892,7 +892,8 @@ export declare namespace native {
      *  }
      * }
      * ```
-     * ```java
+     * ```
+     *  // Java codes
      *  JsbBridge.sendToScript('send_message', 'hello world');
      * ```
      * @zh
