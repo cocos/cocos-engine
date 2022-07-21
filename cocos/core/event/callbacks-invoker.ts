@@ -186,6 +186,14 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
     public _callbackTable: ICallbackTable = createMap(true);
     private _offCallback?: () => void;
 
+    public once<Callback extends (...any) => void> (type: EventTypeClass, callback: AnyFunction, target?: any) {
+        return this.on(type, callback, target, true) as Callback;
+    }
+
+    public targetOff (typeOrTarget: any) {
+        this.removeAll(typeOrTarget);
+    }
+
     /**
      * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
      * @en Register an event listener to a given event key with callback and target.
