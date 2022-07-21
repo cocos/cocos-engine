@@ -478,8 +478,8 @@ void Skybox::updateGlobalBinding() {
 void Skybox::updateSubModes() const {
     if (_model) {
         ccstd::vector<IntrusivePtr<SubModel>> subModels = _model->_subModels;
-        for (uint32_t i = 0; i < subModels.size(); ++i) {
-            subModels[i]->update();
+        for (auto& subModel : subModels) {
+            subModel->update();
         }
     }
 }
