@@ -83,13 +83,11 @@ public:
         return Device::createFramebuffer(static_cast<const FramebufferInfo &>(info));
     }
 
-    Texture *createTexture(const ems::TextureInfo &info) {
-        return Device::createTexture(static_cast<const TextureInfo &>(info));
-    }
-
     Texture *createTexture(const ems::TextureViewInfo &info) {
         return Device::createTexture(static_cast<const TextureViewInfo &>(info));
     }
+
+    using Device::createTexture;
 
     Buffer *createBuffer(const ems::BufferInfo &info) {
         return Device::createBuffer(static_cast<const BufferInfo &>(info));
@@ -131,13 +129,19 @@ public:
 
     Shader *createShader(const ShaderInfo &info);
 
-    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, emscripten::val regions);
+    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const emscripten::val &regions);
+
+    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const std::vector<BufferTextureCopy> &regions);
 
     Sampler *getSampler(const ems::SamplerInfo &info) {
         return Device::getSampler(static_cast<const SamplerInfo &>(info));
     }
 
     void debug();
+
+    uint32_t getFormatFeatures(uint32_t format) {
+        return static_cast<uint32_t>(Device::getFormatFeatures(Format{format}));
+    }
 
 protected:
     static CCWGPUDevice *instance;
@@ -163,6 +167,8 @@ protected:
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
+
+    void initFormatFeatures();
 
     CCWGPUDeviceObject *_gpuDeviceObj = nullptr;
     ccstd::vector<CCWGPUSwapchain *> _swapchains;

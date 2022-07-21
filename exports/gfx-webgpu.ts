@@ -30,10 +30,10 @@
 
 import { BUILD } from 'internal:constants';
 import { legacyCC } from '../cocos/core/global-exports';
-import { gfx } from '../cocos/webgpu/instantiated';
-import { WebGPUDevice } from '../cocos/core/gfx';
+import '../cocos/webgpu/instantiated';
+// import { WebGPUDevice } from '../cocos/core/gfx';
 
-legacyCC.WebGPUDevice = gfx.WebGPUDevice;
-legacyCC.gfx = gfx;
+// legacyCC.WebGPUDevice = gfx.WebGPUDevice;
+// legacyCC.gfx = gfx;
 
-export { WebGPUDevice };
+export {};

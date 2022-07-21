@@ -1,10 +1,12 @@
 #pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 #include <vector>
 #include "../gfx-base/GFXDef-common.h"
 #include "../gfx-base/GFXDef.h"
-
 /*
 value_object<PipelineLayoutInfo>("PipelineLayoutInfo")
     .field("setLayouts", &PipelineLayoutInfo::setLayouts);
@@ -14,6 +16,20 @@ function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
     explicit operator const gfx::NAME() const { return obj; }
 #define CTOR_FROM_CCOBJECT(NAME) \
     NAME(const gfx::NAME& other) : obj(other){};
+
+#define ENUMTYPE(ENUMNAME) \
+    std::underlying_type<gfx::ENUMNAME>::type;
+
+#define EXPORT_ENUMFIELD_BY_SEQ(r, ENUMNAME, FIELD) \
+    static constexpr ENUMTYPE(ENUMNAME) FIELD = static_cast<ENUMTYPE(ENUMNAME)>(gfx::ENUMNAME::FILED);
+
+#define EXPORT_ENUM(ENUMNAME, ...)                                                                       \
+    class ENUMNAME {                                                                                     \
+    public:                                                                                              \
+        ENUMNAME() = delete;                                                                             \
+        using type = std::underlying_type<gfx::ENUMNAME>::type;                                          \
+        BOOST_PP_SEQ_FOR_EACH(EXPORT_ENUMFIELD_BY_SEQ, ENUMNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
 
 namespace cc::gfx::ems {
 
@@ -74,6 +90,144 @@ val enumVecToEMS(const std::vector<E>& Ts) {
     }
     return arr;
 }
+
+inline TextureInfo* getTextureInfo_1(uint32_t type) {
+    return new TextureInfo{TextureType{type}};
+}
+
+inline TextureInfo* getTextureInfo_2(uint32_t type, uint32_t usage) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}};
+}
+
+inline TextureInfo* getTextureInfo_3(uint32_t type, uint32_t usage, uint32_t format) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}};
+}
+
+inline TextureInfo* getTextureInfo_5(uint32_t type, uint32_t usage, uint32_t format, uint32_t width, uint32_t height) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}, width, height};
+}
+
+inline TextureInfo* getTextureInfo_6(uint32_t type, uint32_t usage, uint32_t format, uint32_t width, uint32_t height, uint32_t flags) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}, width, height, TextureFlags{flags}};
+}
+
+inline TextureInfo* getTextureInfo_7(uint32_t type, uint32_t usage, uint32_t format, uint32_t width, uint32_t height, uint32_t flags, uint32_t layerCount) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}, width, height, TextureFlags{flags}, layerCount};
+}
+
+inline TextureInfo* getTextureInfo_8(uint32_t type, uint32_t usage, uint32_t format, uint32_t width, uint32_t height, uint32_t flags, uint32_t layerCount, uint32_t levelCount) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}, width, height, TextureFlags{flags}, layerCount, levelCount};
+}
+
+inline TextureInfo* getTextureInfo_9(uint32_t type, uint32_t usage, uint32_t format, uint32_t width, uint32_t height, uint32_t flags, uint32_t layerCount, uint32_t levelCount, uint32_t sampleCount) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}, width, height, TextureFlags{flags}, layerCount, levelCount, SampleCount{sampleCount}};
+}
+
+inline TextureInfo* getTextureInfo_10(uint32_t type, uint32_t usage, uint32_t format, uint32_t width, uint32_t height, uint32_t flags, uint32_t layerCount, uint32_t levelCount, uint32_t sampleCount, uint32_t depth) {
+    return new TextureInfo{TextureType{type}, TextureUsage{usage}, Format{format}, width, height, TextureFlags{flags}, layerCount, levelCount, SampleCount{sampleCount}, depth};
+}
+
+inline void setTextureInfoType(TextureInfo& info, uint32_t type) {
+    info.type = TextureType{type};
+}
+
+inline uint32_t getTextureInfoType(const TextureInfo& info) {
+    return static_cast<std::underlying_type<decltype(info.type)>::type>(info.type);
+}
+
+inline void setTextureInfoUsage(TextureInfo& info, uint32_t usage) {
+    info.usage = TextureUsage{usage};
+}
+
+inline uint32_t getTextureInfoUsage(const TextureInfo& info) {
+    return static_cast<std::underlying_type<decltype(info.usage)>::type>(info.usage);
+}
+
+inline void setTextureInfoFormat(TextureInfo& info, uint32_t format) {
+    info.format = Format{format};
+}
+
+inline uint32_t getTextureInfoFormat(const TextureInfo& info) {
+    return static_cast<std::underlying_type<decltype(info.format)>::type>(info.format);
+}
+
+inline void setTextureInfoFlags(TextureInfo& info, uint32_t flags) {
+    info.flags = TextureFlags{flags};
+}
+
+inline uint32_t getTextureInfoFlags(const TextureInfo& info) {
+    return static_cast<std::underlying_type<decltype(info.flags)>::type>(info.flags);
+}
+
+inline void setTextureInfoSamples(TextureInfo& info, uint32_t samples) {
+    info.samples = SampleCount{samples};
+}
+
+inline uint32_t getTextureInfoSamples(const TextureInfo& info) {
+    return static_cast<std::underlying_type<decltype(info.samples)>::type>(info.samples);
+}
+
+inline Uniform* getUniform_1(const String& name) {
+    return new Uniform{name};
+}
+
+inline Uniform* getUniform_2(const String& name, uint32_t type) {
+    return new Uniform{name, gfx::Type{type}};
+}
+
+inline Uniform* getUniform_3(const String& name, uint32_t type, uint32_t count) {
+    return new Uniform{name, gfx::Type{type}, count};
+}
+
+inline void setUniformType(Uniform& uniform, uint32_t type) {
+    uniform.type = gfx::Type{type};
+}
+
+inline uint32_t getUniformType(const Uniform& uniform) {
+    return static_cast<std::underlying_type<decltype(uniform.type)>::type>(uniform.type);
+}
+
+class FormatFeatureBit {
+public:
+    FormatFeatureBit() = delete;
+
+    using type = std::underlying_type<gfx::FormatFeatureBit>::type;
+
+    static constexpr type NONE = static_cast<type>(gfx::FormatFeatureBit::NONE);
+    static constexpr type RENDER_TARGET = static_cast<type>(gfx::FormatFeatureBit::RENDER_TARGET);
+    static constexpr type SAMPLED_TEXTURE = static_cast<type>(gfx::FormatFeatureBit::SAMPLED_TEXTURE);
+    static constexpr type LINEAR_FILTER = static_cast<type>(gfx::FormatFeatureBit::LINEAR_FILTER);
+    static constexpr type STORAGE_TEXTURE = static_cast<type>(gfx::FormatFeatureBit::STORAGE_TEXTURE);
+    static constexpr type VERTEX_ATTRIBUTE = static_cast<type>(gfx::FormatFeatureBit::VERTEX_ATTRIBUTE);
+};
+
+class API {
+public:
+    API() = delete;
+
+    using type = std::underlying_type<gfx::API>::type;
+
+    static constexpr type UNKNOWN = static_cast<type>(gfx::API::UNKNOWN);
+    static constexpr type GLES2 = static_cast<type>(gfx::API::GLES2);
+    static constexpr type GLES3 = static_cast<type>(gfx::API::GLES3);
+    static constexpr type METAL = static_cast<type>(gfx::API::METAL);
+    static constexpr type VULKAN = static_cast<type>(gfx::API::VULKAN);
+    static constexpr type NVN = static_cast<type>(gfx::API::NVN);
+    static constexpr type WEBGL = static_cast<type>(gfx::API::WEBGL);
+    static constexpr type WEBGL2 = static_cast<type>(gfx::API::WEBGL2);
+    static constexpr type WEBGPU = static_cast<type>(gfx::API::WEBGPU);
+};
+
+class BarrierType {
+public:
+    BarrierType() = delete;
+
+    using type = std::underlying_type<gfx::BarrierType>::type;
+
+    static constexpr type FULL = static_cast<type>(gfx::BarrierType::FULL);
+    static constexpr type SPLIT_BEGIN = static_cast<type>(gfx::BarrierType::SPLIT_BEGIN);
+    static constexpr type SPLIT_END = static_cast<type>(gfx::BarrierType::SPLIT_END);
+};
 
 class BufferUsageBit {
 public:
@@ -823,6 +977,32 @@ private:
     cc::gfx::BindingMappingInfo obj;
 };
 
+class GeneralBarrierInfo {
+public:
+    GeneralBarrierInfo() = default;
+    GeneralBarrierInfo(uint32_t prevAccess)
+    : obj({gfx::AccessFlags(prevAccess)}) {}
+    GeneralBarrierInfo(uint32_t prevAccess, uint32_t nextAccess)
+    : obj({gfx::AccessFlags(prevAccess), gfx::AccessFlags(nextAccess)}) {}
+    GeneralBarrierInfo(uint32_t prevAccess, uint32_t nextAccess, uint32_t barrierType)
+    : obj({gfx::AccessFlags(prevAccess), gfx::AccessFlags(nextAccess), gfx::BarrierType(barrierType)}) {}
+
+    inline void setPrevAccess(uint32_t prevAccess) { obj.prevAccesses = gfx::AccessFlags(prevAccess); }
+    inline void setNextAccess(uint32_t nextAccess) { obj.nextAccesses = gfx::AccessFlags(nextAccess); }
+    inline void setBarrierType(uint32_t barrierType) { obj.type = gfx::BarrierType(barrierType); }
+
+    inline uint32_t getPrevAccess() const { return static_cast<AccessFlags::type>(obj.prevAccesses); }
+    inline uint32_t getNextAccess() const { return static_cast<AccessFlags::type>(obj.nextAccesses); }
+    inline uint32_t getBarrierType() const { return static_cast<BarrierType::type>(obj.type); }
+
+    CC_OBJECT(GeneralBarrierInfo);
+
+    CTOR_FROM_CCOBJECT(GeneralBarrierInfo);
+
+private:
+    cc::gfx::GeneralBarrierInfo obj;
+};
+
 class DeviceInfo {
 public:
     DeviceInfo() = default;
@@ -842,29 +1022,29 @@ private:
     cc::gfx::DeviceInfo obj;
 };
 
-class Uniform {
-public:
-    Uniform() = default;
-    Uniform(String name)
-    : obj({name}) {}
-    Uniform(String name, Type::type type)
-    : obj({name, gfx::Type(type)}) {}
-    Uniform(String name, Type::type type, uint32_t count)
-    : obj({name, gfx::Type(type), count}) {}
+// class Uniform {
+// public:
+//     Uniform() = default;
+//     Uniform(String name)
+//     : obj({name}) {}
+//     Uniform(String name, Type::type type)
+//     : obj({name, gfx::Type(type)}) {}
+//     Uniform(String name, Type::type type, uint32_t count)
+//     : obj({name, gfx::Type(type), count}) {}
 
-    inline void setName(String name) { obj.name = name; }
-    inline void setType(Type::type type) { obj.type = gfx::Type(type); }
-    inline void setCount(uint32_t count) { obj.count = count; }
+//     inline void setName(String name) { obj.name = name; }
+//     inline void setType(Type::type type) { obj.type = gfx::Type(type); }
+//     inline void setCount(uint32_t count) { obj.count = count; }
 
-    inline String getName() const { return obj.name; }
-    inline Type::type getType() const { return static_cast<Type::type>(obj.type); }
-    inline uint32_t getCount() const { return obj.count; }
+//     inline String getName() const { return obj.name; }
+//     inline Type::type getType() const { return static_cast<Type::type>(obj.type); }
+//     inline uint32_t getCount() const { return obj.count; }
 
-    CC_OBJECT(Uniform)
+//     CC_OBJECT(Uniform)
 
-private:
-    gfx::Uniform obj;
-};
+// private:
+//     gfx::Uniform obj;
+// };
 
 class UniformBlock {
 public:
@@ -873,16 +1053,16 @@ public:
     : obj({set}) {}
     UniformBlock(uint32_t set, uint32_t binding)
     : obj({set, binding}) {}
-    UniformBlock(uint32_t set, uint32_t binding, const std::string& name)
+    UniformBlock(uint32_t set, uint32_t binding, const String& name)
     : obj({set, binding, name}) {}
-    UniformBlock(uint32_t set, uint32_t binding, const std::string& name, val vals)
+    UniformBlock(uint32_t set, uint32_t binding, const String& name, val vals)
     : obj({set, binding, name, vecFromEMS<gfx::Uniform, Uniform>(vals)}) {}
-    UniformBlock(uint32_t set, uint32_t binding, const std::string& name, val vals, uint32_t count)
+    UniformBlock(uint32_t set, uint32_t binding, const String& name, val vals, uint32_t count)
     : obj({set, binding, name, vecFromEMS<gfx::Uniform, Uniform>(vals), count}) {}
 
     inline void setSet(uint32_t set) { obj.set = set; }
     inline void setBinding(uint32_t binding) { obj.binding = binding; }
-    inline void setName(const std::string& name) { obj.name = name; }
+    inline void setName(const String& name) { obj.name = name; }
     inline void setUniforms(val vals) {
         obj.members = vecFromEMS<gfx::Uniform, Uniform>(vals);
         printf("member set\n");
@@ -911,90 +1091,100 @@ private:
     gfx::UniformBlock obj;
 };
 
-class TextureInfo {
-public:
-    TextureInfo() = default;
-    TextureInfo(TextureType::type type)
-    : info({gfx::TextureType(type)}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage)}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format)}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag)}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
-                uint32_t layerCount)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
-                uint32_t layerCount, uint32_t levelCount)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
-                uint32_t layerCount, uint32_t levelCount, SampleCount::type sampleCount)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount, gfx::SampleCount(sampleCount)}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
-                uint32_t layerCount, uint32_t levelCount, SampleCount::type sampleCount, uint32_t depth)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount, gfx::SampleCount(sampleCount), depth}) {}
-    TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
-                uint32_t layerCount, uint32_t levelCount, SampleCount::type sampleCount, uint32_t depth, uint32_t externalRes)
-    : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount, gfx::SampleCount(sampleCount), depth, reinterpret_cast<void*>(externalRes)}) {}
+// class TextureInfo {
+// public:
+//     TextureInfo() = default;
+//     TextureInfo(TextureType::type type)
+//     : info({gfx::TextureType(type)}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage)}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format)}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag)}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
+//                 uint32_t layerCount)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
+//                 uint32_t layerCount, uint32_t levelCount)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
+//                 uint32_t layerCount, uint32_t levelCount, SampleCount::type sampleCount)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount, gfx::SampleCount(sampleCount)}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
+//                 uint32_t layerCount, uint32_t levelCount, SampleCount::type sampleCount, uint32_t depth)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount, gfx::SampleCount(sampleCount), depth}) {}
+//     TextureInfo(TextureType::type type, TextureUsageBit::type usage, Format::type format, uint32_t width, uint32_t height, TextureFlagBit::type flag,
+//                 uint32_t layerCount, uint32_t levelCount, SampleCount::type sampleCount, uint32_t depth, uint32_t externalRes)
+//     : info({gfx::TextureType(type), gfx::TextureUsageBit(usage), gfx::Format(format), width, height, gfx::TextureFlags(flag), layerCount, levelCount, gfx::SampleCount(sampleCount), depth, reinterpret_cast<void*>(externalRes)}) {}
 
-    inline void setType(TextureType::type type) { info.type = gfx::TextureType(type); }
-    inline void setUsage(TextureUsageBit::type usageIn) { info.usage = gfx::TextureUsageBit(usageIn); }
-    inline void setFormat(Format::type format) { info.format = gfx::Format(format); }
-    inline void setWidth(uint32_t width) { info.width = width; }
-    inline void setHeight(uint32_t height) { info.height = height; }
-    inline void setFlags(TextureFlagBit::type flagsIn) { info.flags = gfx::TextureFlagBit(flagsIn); }
-    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
-    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
-    inline void setSamples(SampleCount::type sample) { info.samples = gfx::SampleCount(sample); }
-    inline void setDepth(uint32_t depth) { info.depth = depth; }
-    inline void setImageBuffer(intptr_t imgBuff) { info.externalRes = reinterpret_cast<void*>(imgBuff); }
+//     inline void setType(TextureType::type type) { info.type = gfx::TextureType(type); }
+//     inline void setUsage(TextureUsageBit::type usageIn) { info.usage = gfx::TextureUsageBit(usageIn); }
+//     inline void setFormat(Format::type format) { info.format = gfx::Format(format); }
+//     inline void setWidth(uint32_t width) { info.width = width; }
+//     inline void setHeight(uint32_t height) { info.height = height; }
+//     inline void setFlags(TextureFlagBit::type flagsIn) { info.flags = gfx::TextureFlagBit(flagsIn); }
+//     inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
+//     inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
+//     inline void setSamples(SampleCount::type sample) { info.samples = gfx::SampleCount(sample); }
+//     inline void setDepth(uint32_t depth) { info.depth = depth; }
+//     inline void setImageBuffer(intptr_t imgBuff) { info.externalRes = reinterpret_cast<void*>(imgBuff); }
 
-    inline TextureType::type getType() const { return static_cast<TextureType::type>(info.type); }
-    inline TextureUsageBit::type getUsage() const { return static_cast<TextureUsageBit::type>(info.usage); }
-    inline Format::type getFormat() const { return static_cast<Format::type>(info.format); }
-    inline uint32_t getWidth() const { return info.width; }
-    inline uint32_t getHeight() const { return info.height; }
-    inline TextureFlagBit::type getFlags() const { return static_cast<TextureFlagBit::type>(info.flags); }
-    inline uint32_t getLevelCount() const { return info.levelCount; }
-    inline uint32_t getLayerCount() const { return info.layerCount; }
-    inline SampleCount::type getSamples() const { return static_cast<SampleCount::type>(info.samples); }
-    inline uint32_t getDepth() const { return info.depth; }
-    inline uint32_t getImageBuffer() const { return reinterpret_cast<uint32_t>(info.externalRes); }
+//     inline TextureType::type getType() const { return static_cast<TextureType::type>(info.type); }
+//     inline TextureUsageBit::type getUsage() const { return static_cast<TextureUsageBit::type>(info.usage); }
+//     inline Format::type getFormat() const { return static_cast<Format::type>(info.format); }
+//     inline uint32_t getWidth() const { return info.width; }
+//     inline uint32_t getHeight() const { return info.height; }
+//     inline TextureFlagBit::type getFlags() const { return static_cast<TextureFlagBit::type>(info.flags); }
+//     inline uint32_t getLevelCount() const { return info.levelCount; }
+//     inline uint32_t getLayerCount() const { return info.layerCount; }
+//     inline SampleCount::type getSamples() const { return static_cast<SampleCount::type>(info.samples); }
+//     inline uint32_t getDepth() const { return info.depth; }
+//     inline uint32_t getImageBuffer() const { return reinterpret_cast<uint32_t>(info.externalRes); }
 
-    explicit operator const cc::gfx::TextureInfo() const { return info; }
+//     explicit operator const cc::gfx::TextureInfo() const { return info; }
 
-private:
-    cc::gfx::TextureInfo info;
-};
+// private:
+//     cc::gfx::TextureInfo info;
+// };
 // emscripten export struct with pointers.
 
 class TextureViewInfo {
 public:
     TextureViewInfo() = default;
+    TextureViewInfo(Texture* tex)
+    : obj({tex}) {}
+    TextureViewInfo(Texture* tex, uint32_t type)
+    : obj({tex, gfx::TextureType{type}}) {}
+    TextureViewInfo(Texture* tex, uint32_t type, uint32_t format)
+    : obj({tex, gfx::TextureType{type}, gfx::Format{format}}) {}
+    TextureViewInfo(Texture* tex, uint32_t type, uint32_t format, uint32_t baseLevel, uint32_t levelCount)
+    : obj({tex, gfx::TextureType{type}, gfx::Format{format}, baseLevel, levelCount}) {}
+    TextureViewInfo(Texture* tex, uint32_t type, uint32_t format, uint32_t baseLevel, uint32_t levelCount, uint32_t baseLayer, uint32_t layerCount)
+    : obj({tex, gfx::TextureType{type}, gfx::Format{format}, baseLevel, levelCount, baseLayer, layerCount}) {}
 
-    inline void setTexture(Texture* tex) { info.texture = tex; }
-    inline void setType(TextureType::type type) { info.type = gfx::TextureType(type); }
-    inline void setFormat(Format::type format) { info.format = gfx::Format(format); }
-    inline void setBaseLevel(uint baseLevel) { info.baseLevel = baseLevel; }
-    inline void setLevelCount(uint levelCount) { info.levelCount = levelCount; }
-    inline void setBaseLayer(uint baseLayer) { info.baseLayer = baseLayer; }
-    inline void setLayerCount(uint layerCount) { info.layerCount = layerCount; }
+    inline void setTexture(Texture* tex) { obj.texture = tex; }
+    inline void setType(uint32_t type) { obj.type = gfx::TextureType(type); }
+    inline void setFormat(uint32_t format) { obj.format = gfx::Format(format); }
+    inline void setBaseLevel(uint baseLevel) { obj.baseLevel = baseLevel; }
+    inline void setLevelCount(uint levelCount) { obj.levelCount = levelCount; }
+    inline void setBaseLayer(uint baseLayer) { obj.baseLayer = baseLayer; }
+    inline void setLayerCount(uint layerCount) { obj.layerCount = layerCount; }
 
-    inline Texture* getTexture() const { return info.texture; }
-    inline TextureType::type getType() const { return static_cast<TextureType::type>(info.type); }
-    inline Format::type getFormat() const { return static_cast<Format::type>(info.format); }
-    inline uint getBaseLevel() const { return info.baseLevel; }
-    inline uint getLevelCount() const { return info.levelCount; }
-    inline uint getBaseLayer() const { return info.baseLayer; }
-    inline uint getLayerCount() const { return info.layerCount; }
+    inline Texture* getTexture() const { return obj.texture; }
+    inline uint32_t getType() const { return static_cast<uint32_t>(obj.type); }
+    inline uint32_t getFormat() const { return static_cast<uint32_t>(obj.format); }
+    inline uint getBaseLevel() const { return obj.baseLevel; }
+    inline uint getLevelCount() const { return obj.levelCount; }
+    inline uint getBaseLayer() const { return obj.baseLayer; }
+    inline uint getLayerCount() const { return obj.layerCount; }
 
-    explicit operator const cc::gfx::TextureViewInfo() const { return info; }
+    explicit operator const cc::gfx::TextureViewInfo() const { return obj; }
 
 private:
-    cc::gfx::TextureViewInfo info;
+    cc::gfx::TextureViewInfo obj;
 };
 
 class SwapchainInfo {
@@ -1014,10 +1204,10 @@ public:
     inline void setWidth(uint32_t width) { info.width = width; }
     inline void setHeight(uint32_t height) { info.height = height; }
 
-    inline uintptr_t getWindowHandle() { reinterpret_cast<uintptr_t>(info.windowHandle); }
-    inline VsyncMode::type getVsyncMode() { return static_cast<VsyncMode::type>(info.vsyncMode); }
-    inline uint32_t getWidth() { return info.width; }
-    inline uint32_t getHeight() { return info.height; }
+    inline uintptr_t getWindowHandle() const { reinterpret_cast<uintptr_t>(info.windowHandle); }
+    inline VsyncMode::type getVsyncMode() const { return static_cast<VsyncMode::type>(info.vsyncMode); }
+    inline uint32_t getWidth() const { return info.width; }
+    inline uint32_t getHeight() const { return info.height; }
 
     explicit operator const cc::gfx::SwapchainInfo() const { return info; }
 

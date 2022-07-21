@@ -49,6 +49,7 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
     if (info.type == TextureType::CUBE) {
         depthOrArrayLayers = 6;
     }
+    printf("tex %d, %d\n", info.width, info.height);
     WGPUTextureDescriptor descriptor = {
         .nextInChain = nullptr,
         .label = nullptr,
@@ -99,6 +100,7 @@ void CCWGPUTexture::doInit(const TextureViewInfo &info) {
 
 void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
     if (_swapchain) {
+        printf("swapchain %d, %d\n", info.width, info.height);
         auto *swapchain = static_cast<CCWGPUSwapchain *>(_swapchain);
         if (info.format == Format::DEPTH || info.format == Format::DEPTH_STENCIL) {
             WGPUTextureDescriptor descriptor = {
@@ -158,7 +160,7 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     }
     // swapchain color tex using canvas
     if (_swapchain && _info.format != Format::DEPTH && _info.format != Format::DEPTH_STENCIL) {
-        auto *swapchain          = static_cast<CCWGPUSwapchain *>(_swapchain);
+        auto *swapchain = static_cast<CCWGPUSwapchain *>(_swapchain);
         _gpuTextureObj->selfView = wgpuSwapChainGetCurrentTextureView(swapchain->gpuSwapchainObject()->wgpuSwapChain);
         return;
     }

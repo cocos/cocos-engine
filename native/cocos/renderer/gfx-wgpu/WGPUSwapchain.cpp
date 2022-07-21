@@ -40,6 +40,7 @@ CCWGPUSwapchain::~CCWGPUSwapchain() {
 }
 
 void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
+    printf("swapchain init %d, %d\n", info.width, info.height);
     WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
     canvDesc.chain.sType = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
     canvDesc.selector = "canvas";
@@ -91,6 +92,10 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
         .width = info.width,
         .height = info.height,
     };
+
+    printf("swapchain init %d, %d\n", info.width, info.height);
+
+    printf("swapchain tex init %d, %d\n", textureInfo.width, textureInfo.height);
 
     _colorTexture = _gpuSwapchainObj->swapchainColor = ccnew CCWGPUTexture;
     initTexture(textureInfo, _gpuSwapchainObj->swapchainColor);

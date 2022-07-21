@@ -27,6 +27,7 @@
 
 import * as pipeline from './define';
 import { ForwardPipeline } from './forward/forward-pipeline';
+import { gfx } from '../../webgpu/instantiated';
 
 export { pipeline };
 
@@ -61,3 +62,13 @@ export function createDefaultPipeline () {
     rppl.initialize({ flows: [] });
     return rppl;
 }
+
+// ems overwrite
+export const bindingMappingInfo = new gfx.BindingMappingInfo;
+bindingMappingInfo.maxBlockCounts = [0];
+bindingMappingInfo.maxSamplerCounts = [0];
+bindingMappingInfo.maxTextureCounts = [0];
+bindingMappingInfo.maxBufferCounts = [0];
+bindingMappingInfo.maxSubpassInputCounts = [0];
+bindingMappingInfo.setIndices = [0];
+bindingMappingInfo.maxImageCounts = [0];

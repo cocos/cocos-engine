@@ -194,6 +194,10 @@ using ccstd::vector;
 //     OBJECT_EXPORT(T);
 // };
 
+// inline void setSwapchainVsyncMode(SwapchainInfo &info, uint32_t mode) { info.vsyncMode = gfx::VsyncMode(mode); }
+
+// inline uint32_t getSwapchainVsyncMode(const SwapchainInfo &info) { return static_cast<std::underlying_type<decltype(info.vsyncMode)>::type>(info.vsyncMode); }
+
 // GenInstances<DeviceInfo, BindingMappingInfo, ColorAttachment, DepthStencilAttachment, SubpassInfo, SubpassDependency, RenderPassInfo, Offset, Extent, TextureSubresLayers, BufferTextureCopy, SamplerInfo, BufferInfo,
 //              DescriptorSetLayoutInfo, DescriptorSetLayoutBinding, PipelineLayoutInfo, UniformStorageImage, ShaderStage, Attribute, UniformBlock, UniformStorageBuffer>;
 
@@ -210,175 +214,12 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     //     .value("STORAGE", BufferUsageBit::STORAGE)
     //     .value("INDIRECT", BufferUsageBit::INDIRECT);
 
-    // exceeds BOOST_PP_SEQ_FOR_EACH max num count so manually export
-    class_<ems::Format>("Format")
-        .class_property("UNKNOWN", &ems::Format::UNKNOWN)
-        .class_property("A8", &ems::Format::A8)
-        .class_property("L8", &ems::Format::L8)
-        .class_property("LA8", &ems::Format::LA8)
-        .class_property("R8", &ems::Format::R8)
-        .class_property("R8SN", &ems::Format::R8SN)
-        .class_property("R8UI", &ems::Format::R8UI)
-        .class_property("R8I", &ems::Format::R8I)
-        .class_property("R16F", &ems::Format::R16F)
-        .class_property("R16UI", &ems::Format::R16UI)
-        .class_property("R16I", &ems::Format::R16I)
-        .class_property("R32F", &ems::Format::R32F)
-        .class_property("R32UI", &ems::Format::R32UI)
-        .class_property("R32I", &ems::Format::R32I)
-        .class_property("RG8", &ems::Format::RG8)
-        .class_property("RG8SN", &ems::Format::RG8SN)
-        .class_property("RG8UI", &ems::Format::RG8UI)
-        .class_property("RG8I", &ems::Format::RG8I)
-        .class_property("RG16F", &ems::Format::RG16F)
-        .class_property("RG16UI", &ems::Format::RG16UI)
-        .class_property("RG16I", &ems::Format::RG16I)
-        .class_property("RG32F", &ems::Format::RG32F)
-        .class_property("RG32UI", &ems::Format::RG32UI)
-        .class_property("RG32I", &ems::Format::RG32I)
-        .class_property("RGB8", &ems::Format::RGB8)
-        .class_property("SRGB8", &ems::Format::SRGB8)
-        .class_property("RGB8SN", &ems::Format::RGB8SN)
-        .class_property("RGB8UI", &ems::Format::RGB8UI)
-        .class_property("RGB8I", &ems::Format::RGB8I)
-        .class_property("RGB16F", &ems::Format::RGB16F)
-        .class_property("RGB16UI", &ems::Format::RGB16UI)
-        .class_property("RGB16I", &ems::Format::RGB16I)
-        .class_property("RGB32F", &ems::Format::RGB32F)
-        .class_property("RGB32UI", &ems::Format::RGB32UI)
-        .class_property("RGB32I", &ems::Format::RGB32I)
-        .class_property("RGBA8", &ems::Format::RGBA8)
-        .class_property("BGRA8", &ems::Format::BGRA8)
-        .class_property("SRGB8_A8", &ems::Format::SRGB8_A8)
-        .class_property("RGBA8SN", &ems::Format::RGBA8SN)
-        .class_property("RGBA8UI", &ems::Format::RGBA8UI)
-        .class_property("RGBA8I", &ems::Format::RGBA8I)
-        .class_property("RGBA16F", &ems::Format::RGBA16F)
-        .class_property("RGBA16UI", &ems::Format::RGBA16UI)
-        .class_property("RGBA16I", &ems::Format::RGBA16I)
-        .class_property("RGBA32F", &ems::Format::RGBA32F)
-        .class_property("RGBA32UI", &ems::Format::RGBA32UI)
-        .class_property("RGBA32I", &ems::Format::RGBA32I)
-        .class_property("R5G6B5", &ems::Format::R5G6B5)
-        .class_property("R11G11B10F", &ems::Format::R11G11B10F)
-        .class_property("RGB5A1", &ems::Format::RGB5A1)
-        .class_property("RGBA4", &ems::Format::RGBA4)
-        .class_property("RGB10A2", &ems::Format::RGB10A2)
-        .class_property("RGB10A2UI", &ems::Format::RGB10A2UI)
-        .class_property("RGB9E5", &ems::Format::RGB9E5)
-        .class_property("DEPTH", &ems::Format::DEPTH)
-        .class_property("DEPTH_STENCIL", &ems::Format::DEPTH_STENCIL)
-        .class_property("BC1", &ems::Format::BC1)
-        .class_property("BC1_ALPHA", &ems::Format::BC1_ALPHA)
-        .class_property("BC1_SRGB", &ems::Format::BC1_SRGB)
-        .class_property("BC1_SRGB_ALPHA", &ems::Format::BC1_SRGB_ALPHA)
-        .class_property("BC2", &ems::Format::BC2)
-        .class_property("BC2_SRGB", &ems::Format::BC2_SRGB)
-        .class_property("BC3", &ems::Format::BC3)
-        .class_property("BC3_SRGB", &ems::Format::BC3_SRGB)
-        .class_property("BC4", &ems::Format::BC4)
-        .class_property("BC4_SNORM", &ems::Format::BC4_SNORM)
-        .class_property("BC5", &ems::Format::BC5)
-        .class_property("BC5_SNORM", &ems::Format::BC5_SNORM)
-        .class_property("BC6H_UF16", &ems::Format::BC6H_UF16)
-        .class_property("BC6H_SF16", &ems::Format::BC6H_SF16)
-        .class_property("BC7", &ems::Format::BC7)
-        .class_property("BC7_SRGB", &ems::Format::BC7_SRGB)
-        .class_property("ETC_RGB8", &ems::Format::ETC_RGB8)
-        .class_property("ETC2_RGB8", &ems::Format::ETC2_RGB8)
-        .class_property("ETC2_SRGB8", &ems::Format::ETC2_SRGB8)
-        .class_property("ETC2_RGB8_A1", &ems::Format::ETC2_RGB8_A1)
-        .class_property("ETC2_SRGB8_A1", &ems::Format::ETC2_SRGB8_A1)
-        .class_property("ETC2_RGBA8", &ems::Format::ETC2_RGBA8)
-        .class_property("ETC2_SRGB8_A8", &ems::Format::ETC2_SRGB8_A8)
-        .class_property("EAC_R11", &ems::Format::EAC_R11)
-        .class_property("EAC_R11SN", &ems::Format::EAC_R11SN)
-        .class_property("EAC_RG11", &ems::Format::EAC_RG11)
-        .class_property("EAC_RG11SN", &ems::Format::EAC_RG11SN)
-        .class_property("PVRTC_RGB2", &ems::Format::PVRTC_RGB2)
-        .class_property("PVRTC_RGBA2", &ems::Format::PVRTC_RGBA2)
-        .class_property("PVRTC_RGB4", &ems::Format::PVRTC_RGB4)
-        .class_property("PVRTC_RGBA4", &ems::Format::PVRTC_RGBA4)
-        .class_property("PVRTC2_2BPP", &ems::Format::PVRTC2_2BPP)
-        .class_property("PVRTC2_4BPP", &ems::Format::PVRTC2_4BPP)
-        .class_property("ASTC_RGBA_4X4", &ems::Format::ASTC_RGBA_4X4)
-        .class_property("ASTC_RGBA_5X4", &ems::Format::ASTC_RGBA_5X4)
-        .class_property("ASTC_RGBA_5X5", &ems::Format::ASTC_RGBA_5X5)
-        .class_property("ASTC_RGBA_6X5", &ems::Format::ASTC_RGBA_6X5)
-        .class_property("ASTC_RGBA_6X6", &ems::Format::ASTC_RGBA_6X6)
-        .class_property("ASTC_RGBA_8X5", &ems::Format::ASTC_RGBA_8X5)
-        .class_property("ASTC_RGBA_8X6", &ems::Format::ASTC_RGBA_8X6)
-        .class_property("ASTC_RGBA_8X8", &ems::Format::ASTC_RGBA_8X8)
-        .class_property("ASTC_RGBA_10X5", &ems::Format::ASTC_RGBA_10X5)
-        .class_property("ASTC_RGBA_10X6", &ems::Format::ASTC_RGBA_10X6)
-        .class_property("ASTC_RGBA_10X8", &ems::Format::ASTC_RGBA_10X8)
-        .class_property("ASTC_RGBA_10X10", &ems::Format::ASTC_RGBA_10X10)
-        .class_property("ASTC_RGBA_12X10", &ems::Format::ASTC_RGBA_12X10)
-        .class_property("ASTC_RGBA_12X12", &ems::Format::ASTC_RGBA_12X12)
-        .class_property("ASTC_SRGBA_4X4", &ems::Format::ASTC_SRGBA_4X4)
-        .class_property("ASTC_SRGBA_5X4", &ems::Format::ASTC_SRGBA_5X4)
-        .class_property("ASTC_SRGBA_5X5", &ems::Format::ASTC_SRGBA_5X5)
-        .class_property("ASTC_SRGBA_6X5", &ems::Format::ASTC_SRGBA_6X5)
-        .class_property("ASTC_SRGBA_6X6", &ems::Format::ASTC_SRGBA_6X6)
-        .class_property("ASTC_SRGBA_8X5", &ems::Format::ASTC_SRGBA_8X5)
-        .class_property("ASTC_SRGBA_8X6", &ems::Format::ASTC_SRGBA_8X6)
-        .class_property("ASTC_SRGBA_8X8", &ems::Format::ASTC_SRGBA_8X8)
-        .class_property("ASTC_SRGBA_10X5", &ems::Format::ASTC_SRGBA_10X5)
-        .class_property("ASTC_SRGBA_10X6", &ems::Format::ASTC_SRGBA_10X6)
-        .class_property("ASTC_SRGBA_10X8", &ems::Format::ASTC_SRGBA_10X8)
-        .class_property("ASTC_SRGBA_10X10", &ems::Format::ASTC_SRGBA_10X10)
-        .class_property("ASTC_SRGBA_12X10", &ems::Format::ASTC_SRGBA_12X10)
-        .class_property("ASTC_SRGBA_12X12", &ems::Format::ASTC_SRGBA_12X12)
-        .class_property("COUNT", &ems::Format::COUNT);
-
-    // enum which will will be used to bitwise operation
-    EXPORT_ENUM(VsyncMode, OFF, ON, RELAXED, MAILBOX, HALF);
-    EXPORT_ENUM(TextureType, TEX1D, TEX2D, TEX3D, CUBE, TEX1D_ARRAY, TEX2D_ARRAY);
-    EXPORT_ENUM(SurfaceTransform, IDENTITY, ROTATE_90, ROTATE_180, ROTATE_270);
-    EXPORT_ENUM(BufferFlagBit, NONE);
-    EXPORT_ENUM(BufferUsageBit, NONE, TRANSFER_SRC, TRANSFER_DST, INDEX, VERTEX, UNIFORM, STORAGE, INDIRECT);
-    EXPORT_ENUM(MemoryUsageBit, NONE, DEVICE, HOST);
-    EXPORT_ENUM(TextureFlagBit, NONE, GEN_MIPMAP, GENERAL_LAYOUT);
-    EXPORT_ENUM(TextureUsageBit, NONE, TRANSFER_SRC, TRANSFER_DST, SAMPLED, STORAGE, COLOR_ATTACHMENT, DEPTH_STENCIL_ATTACHMENT, INPUT_ATTACHMENT);
-    EXPORT_ENUM(ComparisonFunc, NEVER, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL, GREATER_EQUAL, ALWAYS);
-    EXPORT_ENUM(Address, WRAP, MIRROR, CLAMP, BORDER);
-    EXPORT_ENUM(Filter, NONE, POINT, LINEAR, ANISOTROPIC);
-    EXPORT_ENUM(ResolveMode, NONE, SAMPLE_ZERO, AVERAGE, MIN, MAX);
-    EXPORT_ENUM(StoreOp, STORE, DISCARD);
-    EXPORT_ENUM(LoadOp, LOAD, CLEAR, DISCARD);
-    EXPORT_ENUM(SampleCount, ONE, MULTIPLE_PERFORMANCE, MULTIPLE_BALANCE, MULTIPLE_QUALITY);
-    EXPORT_ENUM(DescriptorType, UNKNOWN, UNIFORM_BUFFER, DYNAMIC_UNIFORM_BUFFER, STORAGE_BUFFER, DYNAMIC_STORAGE_BUFFER, SAMPLER_TEXTURE, SAMPLER, TEXTURE, STORAGE_IMAGE, INPUT_ATTACHMENT);
-    EXPORT_ENUM(ShaderStageFlagBit, NONE, VERTEX, CONTROL, EVALUATION, GEOMETRY, FRAGMENT, COMPUTE, ALL);
-    EXPORT_ENUM(Type, UNKNOWN, BOOL, BOOL2, BOOL3, BOOL4, INT, INT2, INT3, INT4, UINT, UINT2, UINT3, UINT4, FLOAT, FLOAT2, FLOAT3, FLOAT4, MAT2, MAT2X3, MAT2X4, MAT3X2, MAT3X4, MAT4X2, MAT4X3, MAT4, SAMPLER1D, SAMPLER1D_ARRAY, SAMPLER2D, SAMPLER2D_ARRAY, SAMPLER3D, SAMPLER_CUBE, SAMPLER, TEXTURE1D, TEXTURE1D_ARRAY, TEXTURE2D, TEXTURE2D_ARRAY, TEXTURE3D, TEXTURE_CUBE, IMAGE1D, IMAGE1D_ARRAY, IMAGE2D, IMAGE2D_ARRAY, IMAGE3D, IMAGE_CUBE, IMAGE3D, SUBPASS_INPUT, COUNT);
-    EXPORT_ENUM(PolygonMode, FILL, POINT, LINE);
-    EXPORT_ENUM(ShadeModel, GOURAND, FLAT);
-    EXPORT_ENUM(CullMode, NONE, FRONT, BACK);
-    EXPORT_ENUM(StencilOp, ZERO, KEEP, REPLACE, INCR, DECR, INVERT, INCR_WRAP, DECR_WRAP);
-    EXPORT_ENUM(BlendFactor, ZERO, ONE, SRC_ALPHA, DST_ALPHA, ONE_MINUS_SRC_ALPHA, ONE_MINUS_DST_ALPHA, SRC_COLOR, DST_COLOR, ONE_MINUS_SRC_COLOR, ONE_MINUS_DST_COLOR, SRC_ALPHA_SATURATE, CONSTANT_COLOR, ONE_MINUS_CONSTANT_COLOR, CONSTANT_ALPHA, ONE_MINUS_CONSTANT_ALPHA);
-    EXPORT_ENUM(BlendOp, ADD, SUB, REV_SUB, MIN, MAX);
-    EXPORT_ENUM(ColorMask, NONE, R, G, B, A, ALL);
-    EXPORT_ENUM(PrimitiveMode, POINT_LIST, LINE_LIST, LINE_STRIP, LINE_LOOP, LINE_LIST_ADJACENCY, LINE_STRIP_ADJACENCY, ISO_LINE_LIST, TRIANGLE_LIST, TRIANGLE_STRIP, TRIANGLE_FAN, TRIANGLE_LIST_ADJACENCY, TRIANGLE_STRIP_ADJACENCY, TRIANGLE_PATCH_ADJACENCY, QUAD_PATCH_LIST);
-    EXPORT_ENUM(DynamicStateFlagBit, NONE, LINE_WIDTH, DEPTH_BIAS, BLEND_CONSTANTS, DEPTH_BOUNDS, STENCIL_WRITE_MASK, STENCIL_COMPARE_MASK);
-    EXPORT_ENUM(PipelineBindPoint, GRAPHICS, COMPUTE, RAY_TRACING);
-    EXPORT_ENUM(QueueType, GRAPHICS, COMPUTE, TRANSFER);
-    EXPORT_ENUM(ClearFlagBit, NONE, COLOR, DEPTH, STENCIL, DEPTH_STENCIL, ALL);
-    EXPORT_ENUM(FormatType, NONE, UNORM, SNORM, UINT, INT, UFLOAT, FLOAT);
-    EXPORT_ENUM(CommandBufferType, PRIMARY, SECONDARY);
-    EXPORT_ENUM(MemoryAccessBit, NONE, READ_ONLY, WRITE_ONLY, READ_WRITE);
-
-    EXPORT_ENUM(Feature,
-                ELEMENT_INDEX_UINT,
-                INSTANCED_ARRAYS,
-                MULTIPLE_RENDER_TARGETS,
-                BLEND_MINMAX,
-                COMPUTE_SHADER,
-                INPUT_ATTACHMENT_BENEFIT,
-                COUNT);
     //-----------------------------------------------STRUCT-------------------------------------------------------------------
     EXPORT_STRUCT(Offset, x, y, z);
     EXPORT_STRUCT(Extent, width, height, depth);
     EXPORT_STRUCT(TextureSubresLayers, mipLevel, baseArrayLayer, layerCount);
     EXPORT_STRUCT(BufferTextureCopy, buffStride, buffTexHeight, texOffset, texExtent, texSubres);
+    // EXPORT_STRUCT(TextureInfo, type, usage, format, width, height, depth, layerCount, levelCount, sampleCount);
     // EXPORT_STRUCT(SamplerInfo, minFilter, magFilter, mipFilter, addressU, addressV, addressW, maxAnisotropy, cmpFunc);
     // EXPORT_STRUCT(BufferInfo, usage, memUsage, size, stride, flags);
     // EXPORT_STRUCT(DescriptorSetLayoutBinding, binding, descriptorType, count, stageFlags, immutableSamplers);
@@ -606,14 +447,14 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("count", &ems::UniformStorageBuffer::getCount, &ems::UniformStorageBuffer::setCount)
         .property("memoryAccess", &ems::UniformStorageBuffer::getMemAccess, &ems::UniformStorageBuffer::setMemAccess);
 
-    class_<ems::Uniform>("Uniform")
+    class_<Uniform>("Uniform")
         .constructor<>()
-        .constructor<String>()
-        .constructor<String, ems::Type::type>()
-        .constructor<String, ems::Type::type, uint32_t>()
-        .property("name", &ems::Uniform::getName, &ems::Uniform::setName)
-        .property("type", &ems::Uniform::getType, &ems::Uniform::setType)
-        .property("count", &ems::Uniform::getCount, &ems::Uniform::setCount);
+        .constructor(&ems::getUniform_1)
+        .constructor(&ems::getUniform_2)
+        .constructor(&ems::getUniform_3)
+        .property("name", &Uniform::name)
+        .property("type", &ems::getUniformType, &ems::setUniformType)
+        .property("count", &Uniform::count);
 
     class_<ems::Attribute>("Attribute")
         .constructor<>()
@@ -648,6 +489,15 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("addressW", &ems::SamplerInfo::getAddressW, &ems::SamplerInfo::setAddressW)
         .property("maxAnisotropy", &ems::SamplerInfo::getMaxAnisotropy, &ems::SamplerInfo::setMaxAnisotropy)
         .property("cmpFunc", &ems::SamplerInfo::getCmpFunc, &ems::SamplerInfo::setCmpFunc);
+
+    class_<ems::GeneralBarrierInfo>("GeneralBarrierInfo")
+        .constructor<>()
+        .constructor<uint32_t>()
+        .constructor<uint32_t, uint32_t>()
+        .constructor<uint32_t, uint32_t, uint32_t>()
+        .property("prevAccesses", &ems::GeneralBarrierInfo::getPrevAccess, &ems::GeneralBarrierInfo::setPrevAccess)
+        .property("nextAccess", &ems::GeneralBarrierInfo::getNextAccess, &ems::GeneralBarrierInfo::setNextAccess)
+        .property("type", &ems::GeneralBarrierInfo::getBarrierType, &ems::GeneralBarrierInfo::setBarrierType);
 
     class_<ems::ShaderStage>("ShaderStage")
         .constructor<>()
@@ -730,39 +580,77 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("count", &ems::UniformBlock::getCount, &ems::UniformBlock::setCount);
 
     // struct with pointers
-    class_<ems::TextureInfo>("TextureInfo")
-        .constructor<>()
-        .constructor<ems::TextureType::type>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t, ems::SampleCount::type>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t, ems::SampleCount::type, uint32_t>()
-        .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t, ems::SampleCount::type, uint32_t, uint32_t>()
-        .property("type", &ems::TextureInfo::getType, &ems::TextureInfo::setType)
-        .property("usage", &ems::TextureInfo::getUsage, &ems::TextureInfo::setUsage)
-        .property("format", &ems::TextureInfo::getFormat, &ems::TextureInfo::setFormat)
-        .property("width", &ems::TextureInfo::getWidth, &ems::TextureInfo::setWidth)
-        .property("height", &ems::TextureInfo::getHeight, &ems::TextureInfo::setHeight)
-        .property("flags", &ems::TextureInfo::getFlags, &ems::TextureInfo::setFlags)
-        .property("levelCount", &ems::TextureInfo::getLevelCount, &ems::TextureInfo::setLevelCount)
-        .property("layerCount", &ems::TextureInfo::getLayerCount, &ems::TextureInfo::setLayerCount)
-        .property("samples", &ems::TextureInfo::getSamples, &ems::TextureInfo::setSamples)
-        .property("depth", &ems::TextureInfo::getDepth, &ems::TextureInfo::setDepth)
-        .property("externalRes", &ems::TextureInfo::getImageBuffer, &ems::TextureInfo::setImageBuffer);
+    class_<TextureInfo>("TextureInfo")
+        .constructor<>(select_overload<TextureInfo()>([]() { return TextureInfo(); }))
+        .constructor(&ems::getTextureInfo_1, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_2, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_3, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_5, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_6, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_7, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_8, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_9, allow_raw_pointers())
+        .constructor(&ems::getTextureInfo_10, allow_raw_pointers())
+        .property("type", &ems::getTextureInfoType, &ems::setTextureInfoType)
+        .property("usage", &ems::getTextureInfoUsage, &ems::setTextureInfoUsage)
+        .property("format", &ems::getTextureInfoFormat, &ems::setTextureInfoFormat)
+        .property("width", &TextureInfo::width)
+        .property("height", &TextureInfo::height)
+        .property("flags", &ems::getTextureInfoFlags, &ems::setTextureInfoFlags)
+        .property("layerCount", &TextureInfo::layerCount)
+        .property("levelCount", &TextureInfo::levelCount)
+        .property("samples", &ems::getTextureInfoSamples, &ems::setTextureInfoSamples)
+        .property("depth", &TextureInfo::depth);
+
+    // .constructor<TextureType::type, >(select_overload<TextureInfo(TextureType::type)>([](TextureType::type) {
+    //     return TextureInfo(TextureType::type());
+    // }))
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t, ems::SampleCount::type>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t, ems::SampleCount::type, uint32_t>()
+    // .constructor<ems::TextureType::type, ems::TextureUsageBit::type, ems::Format::type, uint32_t, uint32_t, ems::TextureFlagBit::type, uint32_t, uint32_t, ems::SampleCount::type, uint32_t, uint32_t>()
+    // .property("type", &ems::TextureInfo::getType, &ems::TextureInfo::setType)
+    // .property("usage", &ems::TextureInfo::getUsage, &ems::TextureInfo::setUsage)
+    // .property("format", &ems::TextureInfo::getFormat, &ems::TextureInfo::setFormat)
+    // .property("width", &ems::TextureInfo::getWidth, &ems::TextureInfo::setWidth)
+    // .property("height", &ems::TextureInfo::getHeight, &ems::TextureInfo::setHeight)
+    // .property("flags", &ems::TextureInfo::getFlags, &ems::TextureInfo::setFlags)
+    // .property("levelCount", &ems::TextureInfo::getLevelCount, &ems::TextureInfo::setLevelCount)
+    // .property("layerCount", &ems::TextureInfo::getLayerCount, &ems::TextureInfo::setLayerCount)
+    // .property("samples", &ems::TextureInfo::getSamples, &ems::TextureInfo::setSamples)
+    // .property("depth", &ems::TextureInfo::getDepth, &ems::TextureInfo::setDepth)
+    // .property("externalRes", &ems::TextureInfo::getImageBuffer, &ems::TextureInfo::setImageBuffer);
+
+    // class_<TextureViewInfo>("TextureViewInfo")
+    //     // .constructor<>()
+    //     .constructor<>(select_overload<TextureViewInfo()>([]() {
+    //         return TextureViewInfo{};
+    //     }))
+    //     .constructor<>(select_overload<TextureViewInfo(uint32_t)>([](uint32_t c) {
+    //         return TextureViewInfo{nullptr, TextureType::TEX2D, Format::RGBA16F, c};
+    //     }))
+    //     .property("tex", &TextureViewInfo::baseLevel);
 
     class_<ems::TextureViewInfo>("TextureViewInfo")
         .constructor<>()
+        .constructor<Texture *>()
+        .constructor<Texture *, uint32_t>()
+        .constructor<Texture *, uint32_t, uint32_t>()
+        .constructor<Texture *, uint32_t, uint32_t, uint32_t, uint32_t>()
+        .constructor<Texture *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>()
         .function("setTexture", &ems::TextureViewInfo::setTexture, allow_raw_pointer<arg<0>>())
-        .function("setType", &ems::TextureViewInfo::setType)
-        .function("setFormat", &ems::TextureViewInfo::setFormat)
-        .function("setBaseLevel", &ems::TextureViewInfo::setBaseLevel)
-        .function("setLevelCount", &ems::TextureViewInfo::setLevelCount)
-        .function("setBaseLayer", &ems::TextureViewInfo::setBaseLayer)
-        .function("setLayerCount", &ems::TextureViewInfo::setLayerCount);
+        .function("getTexture", &ems::TextureViewInfo::getTexture, allow_raw_pointer<arg<0>>())
+        .property("type", &ems::TextureViewInfo::getType, &ems::TextureViewInfo::setType)
+        .property("format", &ems::TextureViewInfo::getFormat, &ems::TextureViewInfo::setFormat)
+        .property("baseLevel", &ems::TextureViewInfo::getBaseLevel, &ems::TextureViewInfo::setBaseLevel)
+        .property("levelCount", &ems::TextureViewInfo::getLevelCount, &ems::TextureViewInfo::setLevelCount)
+        .property("baseLayer", &ems::TextureViewInfo::getBaseLayer, &ems::TextureViewInfo::setBaseLayer)
+        .property("layerCount", &ems::TextureViewInfo::getLayerCount, &ems::TextureViewInfo::setLayerCount);
 
     class_<ems::FramebufferInfo>("FramebufferInfo")
         .constructor<>()
@@ -780,9 +668,9 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .constructor<const val &, ems::VsyncMode::type, uint32_t>()
         .constructor<const val &, ems::VsyncMode::type, uint32_t, uint32_t>()
         .function("setWindowHandle", &ems::SwapchainInfo::setWindowHandle)
-        .function("setVsyncMode", &ems::SwapchainInfo::setVsyncMode)
-        .function("setWidth", &ems::SwapchainInfo::setWidth)
-        .function("setHeight", &ems::SwapchainInfo::setHeight);
+        .property("vsyncMode", &ems::SwapchainInfo::getVsyncMode, &ems::SwapchainInfo::setVsyncMode)
+        .property("width", &ems::SwapchainInfo::getWidth, &ems::SwapchainInfo::setWidth)
+        .property("height", &ems::SwapchainInfo::getHeight, &ems::SwapchainInfo::setHeight);
 
     class_<ems::BufferViewInfo>("BufferViewInfo")
         .constructor<>()
@@ -1022,7 +910,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createBufferView", select_overload<Buffer *(const ems::BufferViewInfo &)>(&CCWGPUDevice::createBuffer),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createTexture", select_overload<Texture *(const ems::TextureInfo &)>(&CCWGPUDevice::createTexture),
+        .function("createTexture", select_overload<Texture *(const TextureInfo &)>(&CCWGPUDevice::createTexture),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createTextureView", select_overload<Texture *(const ems::TextureViewInfo &)>(&CCWGPUDevice::createTexture),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
@@ -1038,11 +926,14 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("copyTextureToBuffers", select_overload<emscripten::val(Texture *, const BufferTextureCopyList &)>(&CCWGPUDevice::copyTextureToBuffers),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *, emscripten::val)>(&CCWGPUDevice::copyBuffersToTexture),
+        .function("copyBuffersToTextureWithRawCopyList", select_overload<void(const emscripten::val &, Texture *, const std::vector<BufferTextureCopy> &)>(&CCWGPUDevice::copyBuffersToTexture),
+                  /* pure_virtual(), */ allow_raw_pointers())
+        .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *, const val &)>(&CCWGPUDevice::copyBuffersToTexture),
                   /* pure_virtual(), */ allow_raw_pointers())
         .function("createPipelineLayout", select_overload<PipelineLayout *(const ems::PipelineLayoutInfo &)>(&CCWGPUDevice::createPipelineLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("getSampler", &CCWGPUDevice::getSampler, allow_raw_pointer<arg<0>>())
+        .function("getFormatFeatures", select_overload<uint32_t(uint32_t)>(&CCWGPUDevice::getFormatFeatures))
         .function("hasFeature", &CCWGPUDevice::hasFeature);
 
     class_<cc::gfx::RenderPass>("RenderPass")

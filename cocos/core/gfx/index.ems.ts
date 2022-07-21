@@ -29,11 +29,14 @@
  */
 
 import { legacyCC } from '../global-exports';
+import { waitForWebGPUInstantiation, gfx, webgpuAdapter } from '../../webgpu/instantiated'
+
+await waitForWebGPUInstantiation();
 
 console.log("INDEX REDIRECT");
 
-const gfx = legacyCC.gfx;
-const webgpuAdapter = legacyCC.webgpuAdapter;
+export * from './base/define';
+export * from './device-manager';
 
 const polyfillCC: Record<string, unknown> = Object.assign({}, gfx);
 polyfillCC.Device = gfx.CCWGPUDevice;
@@ -52,7 +55,6 @@ polyfillCC.PipelineState = gfx.CCWGPUPipelineState;
 polyfillCC.CommandBuffer = gfx.CCWGPUCommandBuffer;
 polyfillCC.Queue = gfx.CCWGPUQueue;
 legacyCC.gfx = polyfillCC;
-
 
 export const Device = gfx.CCWGPUDevice;
 export const WebGPUDevice = gfx.CCWGPUDevice;
@@ -79,39 +81,51 @@ export const BlendState = gfx.BlendState;
 export const RasterizerState = gfx.RasterizerState;
 export const DepthStencilState = gfx.DepthStencilState;
 export const PipelineStateInfo = gfx.PipelineStateInfo;
-export const Format = gfx.Format;
-export const BufferUsageBit = gfx.BufferUsageBit;
-export const BufferFlagBit = gfx.BufferFlagBit;
-export const MemoryAccessBit = gfx.MemoryAccessBit;
-export const MemoryUsageBit = gfx.MemoryUsageBit;
-export const TextureUsageBit = gfx.TextureUsageBit;
-export const TextureFlagBit = gfx.TextureFlagBit;
-export const SampleCount = gfx.SampleCount;
-export const VsyncMode = gfx.VsyncMode;
-export const Filter = gfx.Filter;
-export const Address = gfx.Address;
-export const ComparisonFunc = gfx.ComparisonFunc;
-export const StencilOp = gfx.StencilOp;
-export const BlendFactor = gfx.BlendFactor;
-export const BlendOp = gfx.BlendOp;
-export const ColorMask = gfx.ColorMask;
-export const ShaderStageFlagBit = gfx.ShaderStageFlagBit;
-export const LoadOp = gfx.LoadOp;
-export const StoreOp = gfx.StoreOp;
-export const ResolveMode = gfx.ResolveMode;
-export const PipelineBindPoint = gfx.PipelineBindPoint;
-export const PrimitiveMode = gfx.PrimitiveMode;
-export const PolygonMode = gfx.PolygonMode;
-export const ShadeModel = gfx.ShadeModel;
-export const CullMode = gfx.CullMode;
-export const DynamicStateFlag = gfx.DynamicStateFlag;
-export const StencilFace = gfx.StencilFace;
-export const DescriptorType = gfx.DescriptorType;
-export const QueueType = gfx.QueueType;
-export const QueryType = gfx.QueryType;
-export const CommandBufferType = gfx.CommandBufferType;
-export const ClearFlagBit = gfx.ClearFlagBit;
-export const TextureType = gfx.TextureType;
+// export const Format = gfx.Format;
+// export const BufferUsageBit = gfx.BufferUsageBit;
+// export const BufferFlagBit = gfx.BufferFlagBit;
+// export const MemoryAccessBit = gfx.MemoryAccessBit;
+// export const MemoryUsageBit = gfx.MemoryUsageBit;
+// export const TextureUsageBit = gfx.TextureUsageBit;
+// export const TextureFlagBit = gfx.TextureFlagBit;
+// export const SampleCount = gfx.SampleCount;
+// export const VsyncMode = gfx.VsyncMode;
+// export const Filter = gfx.Filter;
+// export const Address = gfx.Address;
+// export const ComparisonFunc = gfx.ComparisonFunc;
+// export const StencilOp = gfx.StencilOp;
+// export const BlendFactor = gfx.BlendFactor;
+// export const BlendOp = gfx.BlendOp;
+// export const ColorMask = gfx.ColorMask;
+// export const ShaderStageFlagBit = gfx.ShaderStageFlagBit;
+// export const LoadOp = gfx.LoadOp;
+// export const StoreOp = gfx.StoreOp;
+// export const ResolveMode = gfx.ResolveMode;
+// export const PipelineBindPoint = gfx.PipelineBindPoint;
+// export const PrimitiveMode = gfx.PrimitiveMode;
+// export const PolygonMode = gfx.PolygonMode;
+// export const ShadeModel = gfx.ShadeModel;
+// export const CullMode = gfx.CullMode;
+// export const DynamicStateFlag = gfx.DynamicStateFlag;
+// export const StencilFace = gfx.StencilFace;
+// export const DescriptorType = gfx.DescriptorType;
+// export const QueueType = gfx.QueueType;
+// export const QueryType = gfx.QueryType;
+// export const CommandBufferType = gfx.CommandBufferType;
+// export const ClearFlagBit = gfx.ClearFlagBit;
+// export const TextureType = gfx.TextureType;
+// export const Type = gfx.Type;
+// export const FormatFeatureBit = gfx.FormatFeatureBit;
+// export const GetTypeSize = gfx.GetTypeSize;
+// export const API = gfx.API;
+// export const Feature = gfx.Feature;
+// export const SurfaceTransform = gfx.SurfaceTransform;
+export const GeneralBarrierInfo = gfx.GeneralBarrierInfo;
+// export const AccessFlagBit = gfx.AccessFlags;
+// export const FormatType = gfx.FormatType;
+// export const AttributeName = gfx.AttributeName;
+export const DRAW_INFO_SIZE = 28;
+// export const getTypedArrayConstructor = gfx.getTypedArrayConstructor;
 
 export const Offset = gfx.Offset;
 export const Rect = gfx.Rect;
@@ -143,7 +157,7 @@ export const UniformTexture = gfx.UniformTexture;
 export const UniformStorageImage = gfx.UniformStorageImage;
 export const UniformStorageBuffer = gfx.UniformStorageBuffer;
 export const UniformInputAttachment = gfx.UniformInputAttachment;
-export const ShaderStage = gfx.ShaderStage;
+// export const ShaderStage = gfx.ShaderStage;
 export const Attribute = gfx.Attribute;
 export const ShaderInfo = gfx.ShaderInfo;
 export const InputAssemblerInfo = gfx.InputAssemblerInfo;
@@ -166,12 +180,12 @@ export const QueryPoolInfo = gfx.QueryPoolInfo;
 export const MemoryStatus = gfx.MemoryStatus;
 export const DynamicStencilStates = gfx.DynamicStencilStates;
 export const DynamicStates = gfx.DynamicStates;
-export const DynamicStateFlagBit = gfx.DynamicStateFlagBit;
+// export const DynamicStateFlagBit = gfx.DynamicStateFlagBit;
 export const FormatInfo = gfx.FormatInfo;
 export const FormatInfos = gfx.getFormatInfos();
 
-const ub = new UniformBlock();
-ub.members.push(new Uniform());
+// const ub = new UniformBlock();
+// ub.members.push(new Uniform());
 
 const originDeviceInitializeFunc = Device.prototype.initialize;
 Device.prototype.initialize = function (info: typeof DeviceInfo) {
@@ -245,12 +259,94 @@ Object.defineProperties(BufferViewInfo.prototype, {
     },
 });
 
+Object.defineProperties(TextureViewInfo.prototype, {
+    texture: {
+        get: function () {
+            return this.getTexture();
+        },
+        set: function (val: any) {
+            this.setTexture(val);
+        }
+    },
+});
+
+Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[], texture: typeof Texture, regions: typeof BufferTextureCopy[]) {
+    const buffers: Uint8Array[] = [];
+    for (let i = 0; i < regions.length; i++) {
+        if ('getContext' in texImages[i]) {
+            const canvasElem = texImages[i] as HTMLCanvasElement;
+            const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, texImages[i].width, texImages[i].height);
+            const buff = imageData!.data.buffer;
+            let data;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+            buffers[i] = data;
+        } else if (texImages[i] instanceof HTMLImageElement) {
+            const img = texImages[i] as HTMLImageElement;
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0);
+            const imageData = ctx?.getImageData(0, 0, img.width, img.height);
+            const buff = imageData!.data.buffer;
+            let data;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+            buffers[i] = data;
+        } else {
+            console.log('imageBmp copy not impled!');
+        }
+    }
+
+    const bufferTextureCopyList = new gfx.BufferTextureCopyList();
+    for (let i = 0; i < regions.length; i++) {
+        // const bufferTextureCopy = new gfx.BufferTextureCopy();
+        // bufferTextureCopy.buffOffset = regions[i].buffOffset;
+        // bufferTextureCopy.buffStride = regions[i].buffStride;
+        // bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+        // bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+        // bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+        // bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+        // bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+        // bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+        // bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+        // bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+        // bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+        // bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+        bufferTextureCopyList.push_back(regions[i]);
+    }
+
+    this.copyBuffersToTextureWithRawCopyList(buffers, texture, bufferTextureCopyList);
+};
+
 const oldCreateBuffer = Device.prototype.createBuffer;
 Device.prototype.createBuffer = function (info: typeof BufferInfo | typeof BufferViewInfo) {
     if ('buffer' in info) {
         return this.createBufferView(info);
     } else {
         return oldCreateBuffer.call(this, info);
+    }
+};
+
+const oldCreateTexture = Device.prototype.createTexture;
+Device.prototype.createTexture = function (info: typeof TextureInfo | typeof TextureViewInfo) {
+    if ('setTexture' in info) {
+        return this.createTextureView(info);
+    } else {
+        return oldCreateTexture.call(this, info);
     }
 };
 
@@ -290,16 +386,6 @@ Buffer.prototype.update = function (data: BufferSource, size?: number) {
     }
 };
 
-
-
-export const DESCRIPTOR_BUFFER_TYPE = DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER
-    | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
-
-export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER_TEXTURE | DescriptorType.SAMPLER | DescriptorType.TEXTURE
-    | DescriptorType.INPUT_ATTACHMENT;
-
-export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
-
 // export const DRAW_INFO_SIZE = commonDef.DRAW_INFO_SIZE;
 
 // export const Type = commonDef.Type;
@@ -314,8 +400,6 @@ export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | D
 // export const GetTypeSize = commonDef.GetTypeSize;
 // export const getTypedArrayConstructor = commonDef.getTypedArrayConstructor;
 
-
-
 export const WGPU_WASM = true;
 
 polyfillCC.BlendTarget = gfx.BlendTarget;
@@ -325,8 +409,5 @@ polyfillCC.DepthStencilState = gfx.DepthStencilState;
 polyfillCC.PipelineStateInfo = gfx.PipelineStateInfo;
 
 import './deprecated-3.0.0';
-import { prototype } from "events";
-import { args } from "commander";
-import { format } from "path";
 
 console.log(gfx.Device);

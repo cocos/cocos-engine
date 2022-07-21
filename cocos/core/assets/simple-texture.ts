@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
+import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy, TextureType } from '../gfx';
 import { assertID, error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -300,12 +300,13 @@ export class SimpleTexture extends TextureBase {
             return null;
         }
         const maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
-        const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
-            texture: this._gfxTexture,
-            format: this._getGFXFormat(),
-            baseLevel: this._baseLevel,
-            levelCount: maxLevel - this._baseLevel + 1,
-        });
+        const textureViewCreateInfo = this._getGfxTextureViewCreateInfo(new TextureViewInfo(
+            this._gfxTexture,
+            TextureType.TEX2D,
+            this._getGFXFormat(),
+            this._baseLevel,
+            maxLevel - this._baseLevel + 1,
+        ));
         if (!textureViewCreateInfo) {
             return null;
         }

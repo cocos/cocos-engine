@@ -26,6 +26,8 @@
  */
 import { EDITOR } from 'internal:constants';
 import { game } from '../core/game';
+import { legacyCC } from '../core/global-exports';
+
 // import glslangURL from '@cocos/webgpu/glslang.wasmurl';
 // import webgpuURL from '@cocos/webgpu/webgpu_wasm.wasmurl';
 // import glslangLoader from '@cocos/webgpu/glslang';
@@ -35,7 +37,7 @@ export const glslalgWasmModule: any = {
     glslang: null,
 };
 
-export const gfx: any = {
+export const gfx: any = legacyCC.gfx = {
     wasmBinary: null,
     nativeDevice: null,
 };
@@ -52,7 +54,10 @@ export function waitForWebGPUInstantiation () {
             fetch('./webgpu_wasm.wasm').then((response) => {
                 response.arrayBuffer().then((buffer) => {
                     gfx.wasmBinary = buffer;
-                    wasmDevice(gfx).then(resolve);
+                    wasmDevice(gfx).then(() => {
+                        legacyCC.WebGPUDevice = gfx.CCWGPUDevice;
+                        resolve();
+                    });
                 });
             });
         }),
@@ -67,7 +72,4 @@ export function waitForWebGPUInstantiation () {
             });
         }),
     ]).then(() => Promise.resolve());
-}
-if (!EDITOR) {
-    game.onPreInfrastructureInitDelegate.add(waitForWebGPUInstantiation);
 }
