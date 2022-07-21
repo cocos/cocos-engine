@@ -29,7 +29,7 @@ import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
 import { CCObject } from '../data/object';
 import { Event } from '../../input/types';
-import { errorID, warnID, error, log, getError } from '../platform/debug';
+import { errorID, warnID, error, warn, log, getError } from '../platform/debug';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
@@ -362,18 +362,30 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     protected _registerIfAttached = !EDITOR ? undefined : function _registerIfAttached (this: BaseNode, register) {
+        if (!this._id) {
+            warn(`Node(${this.name}}) is invalid or its data is corrupted.`);
+            return;
+        }
         if (EditorExtends.Node && EditorExtends.Component) {
             if (register) {
                 EditorExtends.Node.add(this._id, this);
 
                 for (let i = 0; i < this._components.length; i++) {
                     const comp = this._components[i];
-                    EditorExtends.Component.add(comp._id, comp);
+                    if (!comp || !comp._id) {
+                        warn(`Component(${comp.name}}) data is corrupted.`);
+                    } else {
+                        EditorExtends.Component.add(comp._id, comp);
+                    }
                 }
             } else {
                 for (let i = 0; i < this._components.length; i++) {
                     const comp = this._components[i];
-                    EditorExtends.Component.remove(comp._id);
+                    if (!comp || !comp._id) {
+                        warn(`Component(${comp.name}}) data is corrupted.`);
+                    } else {
+                        EditorExtends.Component.remove(comp._id);
+                    }
                 }
 
                 EditorExtends.Node.remove(this._id);
