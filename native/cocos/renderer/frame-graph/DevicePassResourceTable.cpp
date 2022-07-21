@@ -51,8 +51,8 @@ void DevicePassResourceTable::extract(const FrameGraph &graph,
 void DevicePassResourceTable::extract(const FrameGraph &graph,
                                       ccstd::vector<Handle> const &from,
                                       ResourceDictionary &to,
-                                      bool ignoreRenderTarget,
-                                      ccstd::vector<const gfx::Texture *> const &renderTargets) noexcept {
+                                      bool /*ignoreRenderTarget*/,
+                                      ccstd::vector<const gfx::Texture *> const &/*renderTargets*/) noexcept {
     std::for_each(from.cbegin(), from.cend(), [&](const Handle handle) {
         if (to.find(handle) != to.cend()) {
             return;
@@ -66,19 +66,19 @@ void DevicePassResourceTable::extract(const FrameGraph &graph,
             return;
         }
 
-        if (ignoreRenderTarget) {
-            bool const isRenderTarget =
-                std::find_if(
-                    renderTargets.cbegin(),
-                    renderTargets.cend(),
-                    [&deviceResource](const gfx::Texture *const x) {
-                        return deviceResource == x;
-                    }) != renderTargets.cend();
+        //if (ignoreRenderTarget) {
+        //    bool const isRenderTarget =
+        //        std::find_if(
+        //            renderTargets.cbegin(),
+        //            renderTargets.cend(),
+        //            [&deviceResource](const gfx::Texture *const x) {
+        //                return deviceResource == x;
+        //            }) != renderTargets.cend();
 
-            if (isRenderTarget) {
-                return;
-            }
-        }
+        //    if (isRenderTarget) {
+        //        return;
+        //    }
+        //}
 
         to[handle] = deviceResource;
     });

@@ -184,5 +184,9 @@ Handle PassNode::getWriteResourceNodeHandle(const FrameGraph &graph, const Virtu
     return it == _writes.end() ? Handle{} : *it;
 }
 
+void PassNode::setBarrier(const PassBarrierPair &barrier) {
+    _barriers = barrier;
+}
+
 } // namespace framegraph
 } // namespace cc
