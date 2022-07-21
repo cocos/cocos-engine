@@ -147,7 +147,6 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
     UBOShadow::BINDING,
     UBOShadow::NAME,
     {
-        {"cc_matLightPlaneProj", gfx::Type::MAT4, 1},
         {"cc_matLightView", gfx::Type::MAT4, 1},
         {"cc_matLightViewProj", gfx::Type::MAT4, 1},
         {"cc_shadowInvProjDepthInfo", gfx::Type::FLOAT4, 1},
@@ -175,13 +174,14 @@ const gfx::UniformBlock UBOCSM::LAYOUT = {
     UBOCSM::BINDING,
     UBOCSM::NAME,
     {
-        {"cc_matCSMView", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmViewDir0", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmViewDir1", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmViewDir2", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_csmAtlas", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_matCSMViewProj", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_matCSMViewProjAtlas", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_csmProjDepthInfo", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_csmProjInfo", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_csmSplitsInfo", gfx::Type::FLOAT4, 1},
-        {"cc_csmInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };

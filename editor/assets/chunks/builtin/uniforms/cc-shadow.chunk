@@ -3,7 +3,6 @@
 #pragma define NUMCASCADES 4
 #pragma builtin(global)
 layout(set = 0, binding = 2) uniform CCShadow {
-  highp mat4 cc_matLightPlaneProj;
   highp mat4 cc_matLightView;
   highp mat4 cc_matLightViewProj;
   highp vec4 cc_shadowInvProjDepthInfo; // x -> cc_matLightInvProj[10]([2][2]); y -> cc_matLightInvProj[14]([2][3]); z -> cc_matLightInvProj[11]([3][2]); w -> cc_matLightInvProj[15]([3][3]);

@@ -22,7 +22,6 @@
 #include "CSMLayers.h"
 #include "core/Root.h"
 #include "gfx-base/GFXDevice.h"
-#include "math/Quaternion.h"
 #include "pipeline/PipelineSceneData.h"
 #include "pipeline/RenderPipeline.h"
 #include "pipeline/custom/RenderInterfaceTypes.h"
@@ -135,8 +134,6 @@ void ShadowTransformInfo::calculateSplitFrustum(float start, float end, float as
 }
 
 CSMLayerInfo::CSMLayerInfo(uint32_t level) : ShadowTransformInfo(level) {
-    _matShadowAtlas.setZero();
-    _matShadowViewProjAtlas.setZero();
     calculateAtlas(level);
 }
 
@@ -145,9 +142,7 @@ void CSMLayerInfo::calculateAtlas(uint32_t level) {
     const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY;
     const float x = floorf(static_cast<float>(level % 2U)) - 0.5F;
     const float y = clipSpaceSignY * (0.5F - floorf(static_cast<float>(level) / 2U));
-    const Vec3 bias(x, y, 0.0F);
-    const Vec3 scale(0.5F, 0.5F, 1.0F);
-    Mat4::fromRTS(Quaternion::identity(), bias, scale, &_matShadowAtlas);
+    _csmAtlas.set(0.5F, 0.5F, x, y);
 }
 
 CSMLayers::CSMLayers() {
@@ -266,9 +261,6 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
         const float farClamp = layer->getSplitCameraFar();
         layer->calculateSplitFrustum(nearClamp, farClamp, camera->getAspect(), camera->getFov(), mat4Trans);
         layer->createMatrix(layer->getSplitFrustum(), dirLight, shadowMapWidth, false);
-        Mat4 matShadowViewProjAtlas;
-        Mat4::multiply(layer->getMatShadowAtlas(), layer->getMatShadowViewProj(), &matShadowViewProjAtlas);
-        layer->setMatShadowViewProjAtlas(matShadowViewProjAtlas);
     }
 
     if (level == scene::CSMLevel::LEVEL_1) {
