@@ -24,7 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture } from '../define';
+import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture, UBOCamera, UBOCSM, UBOGlobal, UBOShadow } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../enum';
 import { ShadowStage } from './shadow-stage';
@@ -41,10 +41,6 @@ import { Camera } from '../../renderer/scene';
 import { SpotLight } from '../../renderer/scene/spot-light';
 
 const _validLights: Light[] = [];
-// csm uniform used vectors count
-const CSM_UNIFORM_VECTORS = 61;
-// all global uniform used vectors count
-const GLOBAL_UNIFORM_VECTORS = 64;
 
 /**
  * @en Shadow map render flow
@@ -89,7 +85,7 @@ export class ShadowFlow extends RenderFlow {
 
         // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
         pipeline.pipelineSceneData.csmSupported = pipeline.device.capabilities.maxFragmentUniformVectors
-            >= (CSM_UNIFORM_VECTORS + GLOBAL_UNIFORM_VECTORS);
+            >= (UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOCSM.COUNT) / 4;
         pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.csmSupported;
 
         pipeline.onGlobalPipelineStateChanged();

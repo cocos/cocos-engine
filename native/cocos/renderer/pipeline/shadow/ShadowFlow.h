@@ -59,10 +59,6 @@ private:
     void initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light);
 
     static RenderFlowInfo initInfo;
-    // csm uniform used vectors count.
-    static const uint32_t CSM_UNIFORM_VECTORS = 61U;
-    // all global uniform used vectors count.
-    static const uint32_t GLOBAL_UNIFORM_VECTORS = 64U;
 
     // weak reference
     gfx::RenderPass *_renderPass{nullptr};

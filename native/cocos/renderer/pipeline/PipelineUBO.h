@@ -46,6 +46,7 @@ public:
     static void updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
         const scene::Light *light, uint32_t level);
     static uint8_t getCombineSignY();
+    static void updatePlanarNormalAndDistance(const ::cc::scene::Shadows *shadowInfo, ccstd::array<float, UBOShadow::COUNT> *shadowUBO);
 
     PipelineUBO() = default;
     ~PipelineUBO() = default;

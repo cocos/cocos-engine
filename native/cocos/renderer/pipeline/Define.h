@@ -460,8 +460,7 @@ struct CC_DLL UBOCamera {
 };
 
 struct CC_DLL UBOShadow {
-    static constexpr uint32_t MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
-    static constexpr uint32_t MAT_LIGHT_VIEW_OFFSET = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    static constexpr uint32_t MAT_LIGHT_VIEW_OFFSET = 0;
     static constexpr uint32_t MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
     static constexpr uint32_t SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
     static constexpr uint32_t SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow::SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
@@ -481,14 +480,15 @@ struct CC_DLL UBOShadow {
 
 struct CC_DLL UBOCSM {
     static constexpr uint32_t CSM_LEVEL_COUNT = 4;
-    static constexpr uint32_t MAT_CSM_VIEW_LEVELS_OFFSET = 0;
-    static constexpr uint32_t MAT_CSM_VIEW_PROJ_LEVELS_OFFSET = UBOCSM::MAT_CSM_VIEW_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
-    static constexpr uint32_t MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOCSM::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
-    static constexpr uint32_t CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM::MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_VIEW_DIR_0_OFFSET = 0;
+    static constexpr uint32_t CSM_VIEW_DIR_1_OFFSET = UBOCSM::CSM_VIEW_DIR_0_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_VIEW_DIR_2_OFFSET = UBOCSM::CSM_VIEW_DIR_1_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_ATLAS_OFFSET = UBOCSM::CSM_VIEW_DIR_2_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t MAT_CSM_VIEW_PROJ_LEVELS_OFFSET = UBOCSM::CSM_ATLAS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint32_t CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
     static constexpr uint32_t CSM_PROJ_INFO_LEVELS_OFFSET = UBOCSM::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
     static constexpr uint32_t CSM_SPLITS_INFO_OFFSET = UBOCSM::CSM_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
-    static constexpr uint32_t CSM_INFO_OFFSET = UBOCSM::CSM_SPLITS_INFO_OFFSET + 4;
-    static constexpr uint32_t COUNT = UBOCSM::CSM_INFO_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOCSM::CSM_SPLITS_INFO_OFFSET + 4;
     static constexpr uint32_t SIZE = UBOCSM::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::UBO_CSM);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
