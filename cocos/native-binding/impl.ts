@@ -23,107 +23,112 @@
  THE SOFTWARE.
  */
 import { legacyCC } from "../core/global-exports";
-
-Object.defineProperty(globalThis.jsb, 'reflection', {
-    get () {
-        if (globalThis.jsb.__bridge !== undefined) return globalThis.jsb.__bridge;
-        if (window.JavascriptJavaBridge && (legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.OHOS)) {
-            globalThis.jsb.__bridge = new JavascriptJavaBridge();
-        } else if (window.JavaScriptObjCBridge && (legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX)) {
-            globalThis.jsb.__bridge = new JavaScriptObjCBridge();
-        } else   {
-            globalThis.jsb.__bridge = null;
-        }
-        return globalThis.jsb.__bridge;
-    },
-    enumerable: true,
-    configurable: true,
-    set (value) {
-        globalThis.jsb.__bridge = value;
-    },
-});
-Object.defineProperty(globalThis.jsb, 'bridge', {
-    get () {
-        if (globalThis.jsb.__ccbridge !== undefined) return globalThis.jsb.__ccbridge;
-        if (window.ScriptNativeBridge && legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX || legacyCC.sys.os === legacyCC.sys.OS.OHOS) {
-            globalThis.jsb.__ccbridge = new ScriptNativeBridge();
-        } else {
-            globalThis.jsb.__ccbridge = null;
-        }
-        return globalThis.jsb.__ccbridge;
-    },
-    enumerable: true,
-    configurable: true,
-    set (value) {
-        globalThis.jsb.__ccbridge = value;
-    },
-});
-const JsbBridgeWrapper = {
-    eventMap: new Map(),
-    addNativeEventListener (eventName, listener) {
-        if (!this.eventMap.get(eventName)) {
-            this.eventMap.set(eventName, []);
-        }
-        const arr = this.eventMap.get(eventName);
-        if (!arr.find(listener)) {
-            arr.push(listener);
-        }
-    },
-    dispatchEventToNative (eventName, arg) {
-        jsb.bridge.sendToNative(eventName, arg);
-    },
-    removeAllListenersForEvent (eventName) {
-        return this.eventMap.delete(eventName);
-    },
-    removeNativeEventListener (eventName, listener) {
-        const arr = this.eventMap.get(eventName);
-        if (!arr) {
-            return false;
-        }
-        for (let i = 0, l = arr.length; i < l; i++) {
-            if (arr[i] === listener) {
-                arr.splice(i, 1);
-                return true;
-            }
-        }
-        return true;
-    },
-    removeAllListeners () {
-        this.eventMap.clear();
-    },
-    triggerEvent (eventName, arg) {
-        const arr = this.eventMap.get(eventName);
-        if (!arr) {
-            console.error(`${eventName} does not exist`);
-            return;
-        }
-        arr.map((listener) => listener.call(null, arg));
-    },
-};
-
-Object.defineProperty(globalThis.jsb, 'jsbBridgeWrapper', {
-    get () {
-        if (globalThis.jsb.__JsbBridgeWrapper !== undefined) return globalThis.jsb.__JsbBridgeWrapper;
-
-        if (window.ScriptNativeBridge && legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX || legacyCC.sys.os === legacyCC.sys.OS.OHOS) {
-            globalThis.jsb.__JsbBridgeWrapper = JsbBridgeWrapper;
-            globalThis.jsb.bridge.onNative = (methodName, arg1) => {
-                console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
-                globalThis.jsb.__JsbBridgeWrapper.triggerEvent(methodName, arg1);
-            };
-        } else {
-            globalThis.jsb.__JsbBridgeWrapper = null;
-        }
-        return globalThis.jsb.__JsbBridgeWrapper;
-    },
-    enumerable: true,
-    configurable: true,
-    set (value) {
-        globalThis.jsb.__JsbBridgeWrapper = value;
-    },
-});
-
+import { NATIVE } from 'internal:constants';
 const globalJsb = globalThis.jsb ?? {};
+if( NATIVE ){
+    Object.defineProperty(globalJsb, 'reflection', {
+        get () {
+            if (globalJsb.__bridge !== undefined) return globalJsb.__bridge;
+            if (globalThis.JavascriptJavaBridge && (legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.OHOS)) {
+                globalJsb.__bridge = new globalThis.JavascriptJavaBridge();
+            } else if (globalThis.JavaScriptObjCBridge && (legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX)) {
+                globalJsb.__bridge = new globalThis.JavaScriptObjCBridge();
+            } else   {
+                globalJsb.__bridge = null;
+            }
+            return globalJsb.__bridge;
+        },
+        enumerable: true,
+        configurable: true,
+        set (value) {
+            globalJsb.__bridge = value;
+        },
+    });
+    Object.defineProperty(globalJsb, 'bridge', {
+        get () {
+            if (globalJsb.__ccbridge !== undefined) return globalJsb.__ccbridge;
+            if (window.ScriptNativeBridge && legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX || legacyCC.sys.os === legacyCC.sys.OS.OHOS) {
+                globalJsb.__ccbridge = new ScriptNativeBridge();
+            } else {
+                globalJsb.__ccbridge = null;
+            }
+            return globalJsb.__ccbridge;
+        },
+        enumerable: true,
+        configurable: true,
+        set (value) {
+            globalJsb.__ccbridge = value;
+        },
+    });
+    const JsbBridgeWrapper = {
+        eventMap: new Map(),
+        addNativeEventListener (eventName, listener) {
+            if (!this.eventMap.get(eventName)) {
+                this.eventMap.set(eventName, []);
+            }
+            const arr = this.eventMap.get(eventName);
+            if (!arr.find(listener)) {
+                arr.push(listener);
+            }
+        },
+        dispatchEventToNative (eventName, arg) {
+            globalJsb.bridge.sendToNative(eventName, arg);
+        },
+        removeAllListenersForEvent (eventName) {
+            return this.eventMap.delete(eventName);
+        },
+        removeNativeEventListener (eventName, listener) {
+            const arr = this.eventMap.get(eventName);
+            if (!arr) {
+                return false;
+            }
+            for (let i = 0, l = arr.length; i < l; i++) {
+                if (arr[i] === listener) {
+                    arr.splice(i, 1);
+                    return true;
+                }
+            }
+            return true;
+        },
+        removeAllListeners () {
+            this.eventMap.clear();
+        },
+        triggerEvent (eventName, arg) {
+            const arr = this.eventMap.get(eventName);
+            if (!arr) {
+                console.error(`${eventName} does not exist`);
+                return;
+            }
+            arr.map((listener) => listener.call(null, arg));
+        },
+    };
+    
+    Object.defineProperty(globalJsb, 'jsbBridgeWrapper', {
+        get () {
+            if (globalJsb.__JsbBridgeWrapper !== undefined) return globalJsb.__JsbBridgeWrapper;
+    
+            if (window.ScriptNativeBridge && legacyCC.sys.os === legacyCC.sys.OS.ANDROID || legacyCC.sys.os === legacyCC.sys.OS.IOS || legacyCC.sys.os === legacyCC.sys.OS.OSX || legacyCC.sys.os === legacyCC.sys.OS.OHOS) {
+                globalJsb.__JsbBridgeWrapper = JsbBridgeWrapper;
+                globalJsb.bridge.onNative = (methodName, arg1) => {
+                    console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
+                    globalJsb.__JsbBridgeWrapper.triggerEvent(methodName, arg1);
+                };
+            } else {
+                globalJsb.__JsbBridgeWrapper = null;
+            }
+            return globalJsb.__JsbBridgeWrapper;
+        },
+        enumerable: true,
+        configurable: true,
+        set (value) {
+            globalJsb.__JsbBridgeWrapper = value;
+        },
+    });
+}
+
+
+
+
 
 export const native = {
     DownloaderHints: globalJsb.DownloaderHints,
