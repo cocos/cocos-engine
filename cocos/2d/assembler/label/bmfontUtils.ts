@@ -24,15 +24,14 @@
 */
 
 import { JSB } from 'internal:constants';
-import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
+import { BitmapFont, IConfig, FontLetterDefinition, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow } from '../../components/label';
+import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
-import { shareLabelInfo } from './font-utils';
+import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { warn } from '../../../core';
 
 class LetterInfo {
     public char = '';
@@ -163,7 +162,11 @@ export const bmfontUtils = {
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
         if (!shareLabelInfo.fontAtlas) {
-            console.warn(`The fontAtlas is null, please check the data integrity of the font named '${fontAsset.name}'`);
+            if (comp.cacheMode === CacheMode.CHAR) {
+                shareLabelInfo.fontAtlas = new LetterAtlas(1024, 1024);
+            } else {
+                shareLabelInfo.fontAtlas = new FontAtlas(null);
+            }
         }
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
@@ -285,7 +288,7 @@ export const bmfontUtils = {
                     this._recordPlaceholderInfo(letterIndex, character);
                     continue;
                 }
-                letterDef = shareLabelInfo.fontAtlas?.getLetterDefinitionForChar(character, shareLabelInfo);
+                letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log(`Can't find letter definition in texture atlas ${
@@ -395,7 +398,7 @@ export const bmfontUtils = {
         }
 
         let len = 1;
-        let letterDef = shareLabelInfo.fontAtlas?.getLetterDefinitionForChar(character, shareLabelInfo);
+        let letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
         if (!letterDef) {
             return len;
         }
@@ -404,7 +407,7 @@ export const bmfontUtils = {
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
 
-            letterDef = shareLabelInfo.fontAtlas?.getLetterDefinitionForChar(character, shareLabelInfo);
+            letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
             if (!letterDef) {
                 break;
             }
@@ -458,7 +461,7 @@ export const bmfontUtils = {
         _lettersInfo[letterIndex].line = lineIndex;
         _lettersInfo[letterIndex].char = character;
         _lettersInfo[letterIndex].hash = key;
-        _lettersInfo[letterIndex].valid = shareLabelInfo.fontAtlas?.getLetter(key).valid;
+        _lettersInfo[letterIndex].valid = shareLabelInfo.fontAtlas!.getLetter(key).valid;
         _lettersInfo[letterIndex].x = letterPosition.x;
         _lettersInfo[letterIndex].y = letterPosition.y;
     },
@@ -550,7 +553,7 @@ export const bmfontUtils = {
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             const letterInfo = _lettersInfo[ctr];
             if (letterInfo.valid) {
-                const letterDef = shareLabelInfo.fontAtlas?.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
+                const letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
                 if (!letterDef) {
                     continue;
                 }
@@ -593,7 +596,7 @@ export const bmfontUtils = {
             return false;
         }
 
-        const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas?.getTexture();
+        const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
         const renderData = _comp.renderData!;
         renderData.dataLength = 0;
         renderData.resize(0, 0);
@@ -606,7 +609,7 @@ export const bmfontUtils = {
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             const letterInfo = _lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
-            const letterDef = shareLabelInfo.fontAtlas?.getLetter(letterInfo.hash);
+            const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef) {
                 console.warn('Can\'t find letter in this bitmap-font');
                 continue;
