@@ -416,6 +416,17 @@ export class WebPipeline extends Pipeline {
         this._constantMacros = str;
     }
 
+    public get usesDeferredPipeline (): boolean {
+        return this._usesDeferredPipeline;
+    }
+
+    public setCustomPipelineName (name: string) {
+        this._customPipelineName = name;
+        if (this._customPipelineName === 'Deferred') {
+            this._usesDeferredPipeline = true;
+        }
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -434,9 +445,8 @@ export class WebPipeline extends Pipeline {
             >= (WebPipeline.CSM_UNIFORM_VECTORS + WebPipeline.GLOBAL_UNIFORM_VECTORS);
         this.setMacroBool('CC_SUPPORT_CASCADED_SHADOW_MAP', this.pipelineSceneData.csmSupported);
 
-        const root = legacyCC.director.root;
         // enable the deferred pipeline
-        if (root.useDeferredPipeline) {
+        if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
         }
         const shadowMapSampler = this._globalDSManager.pointSampler;
@@ -650,13 +660,10 @@ export class WebPipeline extends Pipeline {
         this.beginFrame();
         if (this.builder) {
             this.builder.setup(cameras, this);
+        } else if (this.usesDeferredPipeline) {
+            this._deferred.setup(cameras, this);
         } else {
-            const root = legacyCC.director.root;
-            if (root.useDeferredPipeline) {
-                this._deferred.setup(cameras, this);
-            } else {
-                this._forward.setup(cameras, this);
-            }
+            this._forward.setup(cameras, this);
         }
         this.compile();
         this.execute();
@@ -705,6 +712,7 @@ export class WebPipeline extends Pipeline {
     }
 
     public static MAX_BLOOM_FILTER_PASS_NUM = 6;
+    private _usesDeferredPipeline = false;
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
     private readonly _macros: MacroRecord = {};
@@ -720,6 +728,7 @@ export class WebPipeline extends Pipeline {
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
     private _executor: Executor | null = null;
+    private _customPipelineName = '';
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     public builder: PipelineBuilder | null = null;

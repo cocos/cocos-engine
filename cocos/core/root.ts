@@ -43,6 +43,7 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
 import { settings, Settings } from './settings';
 import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
+import { macro } from './platform/macro';
 
 /**
  * @en Initialization information for the Root
@@ -119,7 +120,7 @@ export class Root {
      * 启用自定义渲染管线
      */
     public get usesCustomPipeline (): boolean {
-        return this._usesCustomPipeline && !DEV && (HTML5 || TEST);
+        return this._usesCustomPipeline && macro.CUSTOM_PIPELINE_NAME !== '';
     }
 
     /**
@@ -248,7 +249,7 @@ export class Root {
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
-    private _usesCustomPipeline = false;
+    private _usesCustomPipeline = true;
     private _pipeline: PipelineRuntime | null = null;
     private _pipelineEvent: IPipelineEvent | null = null;
     private _classicPipeline: RenderPipeline | null = null;
