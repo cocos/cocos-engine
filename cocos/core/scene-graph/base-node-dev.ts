@@ -156,7 +156,7 @@ export function baseNodePolyfill (BaseNode) {
                     const comp = this._components[i];
                     if (!comp) {
                         this._components.splice(i, 1);
-                        console.error(`component attached to node:${this.name} is invalid for some reason`);
+                        console.warn(`component attached to node:${this.name} is corrupted`);
                         continue;
                     }
                     attachedObjsForEditor[comp._id] = comp;
@@ -166,7 +166,12 @@ export function baseNodePolyfill (BaseNode) {
                 legacyCC.engine.emit('node-detach-from-scene', this);
                 delete attachedObjsForEditor[this._id];
                 for (const comp of this._components) {
-                    delete attachedObjsForEditor[comp._id];
+                    if (!comp) {
+                        console.warn(`component attached to node:${this.name} is corrupted`);
+                        continue;
+                    } else {
+                        delete attachedObjsForEditor[comp._id];
+                    }
                 }
             }
             const children = this._children;

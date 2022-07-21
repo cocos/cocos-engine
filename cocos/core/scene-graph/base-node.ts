@@ -363,7 +363,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _registerIfAttached = !EDITOR ? undefined : function _registerIfAttached (this: BaseNode, register) {
         if (!this._id) {
-            warn(`Node(${this.name}}) is invalid or its data is corrupted.`);
+            warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
             return;
         }
         if (EditorExtends.Node && EditorExtends.Component) {
@@ -373,7 +373,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 for (let i = 0; i < this._components.length; i++) {
                     const comp = this._components[i];
                     if (!comp || !comp._id) {
-                        warn(`Component(${comp.name}}) data is corrupted.`);
+                        warn(`Component attached to node:${this.name} is corrupted`);
                     } else {
                         EditorExtends.Component.add(comp._id, comp);
                     }
@@ -382,7 +382,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 for (let i = 0; i < this._components.length; i++) {
                     const comp = this._components[i];
                     if (!comp || !comp._id) {
-                        warn(`Component(${comp.name}}) data is corrupted.`);
+                        warn(`Component attached to node:${this.name} is corrupted`);
                     } else {
                         EditorExtends.Component.remove(comp._id);
                     }
