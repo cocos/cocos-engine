@@ -97,53 +97,6 @@ ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
   inEdges(rhs.inEdges, alloc),
   handle(rhs.handle) {}
 
-RasterView::RasterView(const allocator_type& alloc) noexcept
-: slotName(alloc) {}
-
-RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
-: slotName(std::move(slotNameIn), alloc),
-  accessType(accessTypeIn),
-  attachmentType(attachmentTypeIn),
-  loadOp(loadOpIn),
-  storeOp(storeOpIn),
-  clearFlags(clearFlagsIn),
-  clearColor(clearColorIn) {}
-
-RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
-: slotName(std::move(rhs.slotName), alloc),
-  accessType(rhs.accessType),
-  attachmentType(rhs.attachmentType),
-  loadOp(rhs.loadOp),
-  storeOp(rhs.storeOp),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor) {}
-
-RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
-: slotName(rhs.slotName, alloc),
-  accessType(rhs.accessType),
-  attachmentType(rhs.attachmentType),
-  loadOp(rhs.loadOp),
-  storeOp(rhs.storeOp),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor) {}
-
-ComputeView::ComputeView(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
-ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
-: name(std::move(rhs.name), alloc),
-  accessType(rhs.accessType),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor),
-  clearValueType(rhs.clearValueType) {}
-
-ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
-: name(rhs.name, alloc),
-  accessType(rhs.accessType),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor),
-  clearValueType(rhs.clearValueType) {}
-
 RasterSubpass::RasterSubpass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc) {}

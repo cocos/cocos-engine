@@ -5,11 +5,10 @@ import { macro } from '../../platform';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../renderer/scene';
 import { supportsR32FloatTexture } from '../define';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { AccessType, AttachmentType, ComputeView, LightInfo, RasterView } from './render-graph';
-import { QueueHint, ResourceResidency, SceneFlags } from './types';
+import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
-function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0): Rect {
+export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0): Rect {
     const out = new Rect();
     const vp = camera.viewport;
     const w = width;
@@ -48,7 +47,7 @@ function getRenderArea (camera: Camera, width: number, height: number, light: Li
     return out;
 }
 
-function buildShadowPass (passName: Readonly<string>,
+export function buildShadowPass (passName: Readonly<string>,
     ppl: Pipeline,
     camera: Camera, light: Light, level: number,
     width: Readonly<number>, height: Readonly<number>) {
@@ -83,7 +82,7 @@ class CameraInfo {
     spotLightShadowNames = new Array<string>();
 }
 
-function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipeline): CameraInfo {
+export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipeline): CameraInfo {
     const pipeline = ppl;
     const shadowInfo = pipeline.pipelineSceneData.shadows;
     const validPunctualLights = ppl.pipelineSceneData.validPunctualLights;
@@ -257,7 +256,7 @@ class DeferredData {
     _antiAliasing: AntiAliasing = AntiAliasing.NONE;
 }
 
-function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
+export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;

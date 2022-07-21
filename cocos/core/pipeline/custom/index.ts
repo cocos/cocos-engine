@@ -27,7 +27,6 @@ import { legacyCC } from '../../global-exports';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
-import { ForwardPipelineBuilder, DeferredPipelineBuilder } from './builtin-pipelines';
 
 let _pipeline: WebPipeline | null = null;
 

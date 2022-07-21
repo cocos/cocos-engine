@@ -32,9 +32,8 @@
 import * as impl from './graph';
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
-import { Light } from '../../renderer/scene';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -606,92 +605,6 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
 }
 
-export const enum AttachmentType {
-    RENDER_TARGET,
-    DEPTH_STENCIL,
-}
-
-export function getAttachmentTypeName (e: AttachmentType): string {
-    switch (e) {
-    case AttachmentType.RENDER_TARGET:
-        return 'RENDER_TARGET';
-    case AttachmentType.DEPTH_STENCIL:
-        return 'DEPTH_STENCIL';
-    default:
-        return '';
-    }
-}
-
-export const enum AccessType {
-    READ,
-    READ_WRITE,
-    WRITE,
-}
-
-export function getAccessTypeName (e: AccessType): string {
-    switch (e) {
-    case AccessType.READ:
-        return 'READ';
-    case AccessType.READ_WRITE:
-        return 'READ_WRITE';
-    case AccessType.WRITE:
-        return 'WRITE';
-    default:
-        return '';
-    }
-}
-
-export class RasterView {
-    constructor (
-        slotName = '',
-        accessType: AccessType = AccessType.WRITE,
-        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
-        loadOp: LoadOp = LoadOp.LOAD,
-        storeOp: StoreOp = StoreOp.STORE,
-        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
-        clearColor: Color = new Color(),
-    ) {
-        this.slotName = slotName;
-        this.accessType = accessType;
-        this.attachmentType = attachmentType;
-        this.loadOp = loadOp;
-        this.storeOp = storeOp;
-        this.clearFlags = clearFlags;
-        this.clearColor = clearColor;
-    }
-    slotName: string;
-    accessType: AccessType;
-    attachmentType: AttachmentType;
-    loadOp: LoadOp;
-    storeOp: StoreOp;
-    clearFlags: ClearFlagBit;
-    readonly clearColor: Color;
-}
-
-export const enum ClearValueType {
-    FLOAT_TYPE,
-    INT_TYPE,
-}
-
-export function getClearValueTypeName (e: ClearValueType): string {
-    switch (e) {
-    case ClearValueType.FLOAT_TYPE:
-        return 'FLOAT_TYPE';
-    case ClearValueType.INT_TYPE:
-        return 'INT_TYPE';
-    default:
-        return '';
-    }
-}
-
-export class ComputeView {
-    name = '';
-    accessType: AccessType = AccessType.READ;
-    clearFlags: ClearFlagBit = ClearFlagBit.NONE;
-    readonly clearColor: Color = new Color();
-    clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE;
-}
-
 export class RasterSubpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
@@ -1090,15 +1003,6 @@ export class RenderQueue {
         this.hint = hint;
     }
     hint: QueueHint;
-}
-
-export class LightInfo {
-    constructor (light: Light | null = null, level = 0) {
-        this.light = light;
-        this.level = level;
-    }
-    /*object*/ light: Light | null;
-    level: number;
 }
 
 export class SceneData {
