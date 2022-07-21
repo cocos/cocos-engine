@@ -429,6 +429,7 @@ extern se::Class * __jsb_cc_scene_SkyboxInfo_class; // NOLINT
 bool js_register_cc_scene_SkyboxInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_activate);
+SE_DECLARE_FUNC(js_scene_SkyboxInfo_setReflectionMap);
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_SkyboxInfo);
 
 extern se::Object *__jsb_cc_scene_Skybox_proto; // NOLINT
@@ -437,10 +438,12 @@ extern se::Class * __jsb_cc_scene_Skybox_class; // NOLINT
 bool js_register_cc_scene_Skybox(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Skybox_activate);
+SE_DECLARE_FUNC(js_scene_Skybox_getReflectionMap);
 SE_DECLARE_FUNC(js_scene_Skybox_initialize);
 SE_DECLARE_FUNC(js_scene_Skybox_isUsingConvolutionMap);
 SE_DECLARE_FUNC(js_scene_Skybox_setDiffuseMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setEnvMaps);
+SE_DECLARE_FUNC(js_scene_Skybox_setReflectionMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setSkyboxMaterial);
 SE_DECLARE_FUNC(js_scene_Skybox_Skybox);
 
