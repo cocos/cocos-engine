@@ -23,12 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#import "MTLDevice.h"
 #import "MTLBuffer.h"
 #import "MTLCommandBuffer.h"
 #import "MTLConfig.h"
 #import "MTLDescriptorSet.h"
 #import "MTLDescriptorSetLayout.h"
-#import "MTLDevice.h"
 #import "MTLFramebuffer.h"
 #import "MTLGPUObjects.h"
 #import "MTLInputAssembler.h"
@@ -42,10 +42,11 @@
 #import "MTLShader.h"
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
+#import "base/Log.h"
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "profiler/Profiler.h"
-#import "base/Log.h"
+
 
 namespace cc {
 namespace gfx {
@@ -91,7 +92,9 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
     _caps.uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _caps.maxComputeWorkGroupInvocations = mu::getMaxThreadsPerGroup(gpuFamily);
-    _caps.maxVertexUniformVectors = 255; //no explicit limit on vertex stage.
+    _caps.maxFragmentUniformVectors = 256;
+    _caps.maxVertexUniformVectors = 256;
+    _caps.maxUniformBufferBindings = mu::getMaxUniformBufferBindings(gpuFamily);
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
