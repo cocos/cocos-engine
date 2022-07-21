@@ -28,6 +28,7 @@ declare const render: any;
 import { legacyCC } from '../../global-exports';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { ForwardPipelineBuilder, DeferredPipelineBuilder } from './builtin-pipelines';
 
 export function createCustomPipeline (): Pipeline {
     const root = legacyCC.director.root;
