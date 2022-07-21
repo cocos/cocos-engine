@@ -32,6 +32,7 @@ import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow } from 
 import { UITransform } from '../../framework/ui-transform';
 import { shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { warn } from '../../../core';
 
 class LetterInfo {
     public char = '';
@@ -161,6 +162,9 @@ export const bmfontUtils = {
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
+        if (!shareLabelInfo.fontAtlas) {
+            console.warn(`The fontAtlas is null, please check the data integrity of the font named '${fontAsset.name}'`);
+        }
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
         // TODO update material and uv
