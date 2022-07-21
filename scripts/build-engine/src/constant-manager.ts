@@ -6,15 +6,19 @@ export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
 export type PlatformType = 'HTML5' | 'NATIVE' |
         'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'BYTEDANCE' |
         'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
-export type FlagType = 'DEBUG' | 'SERVER_MODE';
+export type InternalFlagType = 'SERVER_MODE' | 'NOT_PACK_PHYSX_LIBS';
+export type PublicFlagType = 'DEBUG' | 'NET_MODE';
+export type FlagType = InternalFlagType | PublicFlagType;
 
+export type ValueType = number | boolean;
 export interface ConstantOptions {
     mode: ModeType;
     platform: PlatformType;
-    flags: Partial<Record<FlagType, boolean>>;
+    flags: Partial<Record<FlagType, ValueType>>;
 }
+export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, ValueType>;
+export type CCEnvConstants = Record<PlatformType | ModeType | PublicFlagType, ValueType>;
 
-export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, boolean>
 
 export class ConstantManager {
     private _engineRoot: string;
@@ -51,7 +55,7 @@ export class ConstantManager {
             console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType] as boolean;
+            const value = flags[key as FlagType]!;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -71,7 +75,7 @@ export class ConstantManager {
         for (const key in config) {
             const info = config[key];
             const value = info.value;
-            if (info.dynamic) {
+            if (info.dynamic || info.internal) {
                 continue;
             }
             result += `export const ${key} = ${value};\n`;
@@ -84,48 +88,34 @@ export class ConstantManager {
         return result;
     }
 
-    public genBuildTimeConstants ({
-        mode,
-        platform,
-        flags,
-    }: ConstantOptions): BuildTimeConstants {
+    public genBuildTimeConstants (options: ConstantOptions): BuildTimeConstants {
         const config = this._getConfig();
 
-        // update value
-        if (config[mode]) {
-            config[mode].value = true;
-        } else {
-            console.warn(`Unknown mode: ${mode}`);
-        }
-        if (config[platform]) {
-            config[platform].value = true;
-        } else {
-            console.warn(`Unknown platform: ${platform}`);
-        }
-        for (const key in flags) {
-            const value = flags[key as FlagType] as boolean;
-            if (config[key]) {
-                config[key].value = value;
-            } else {
-                console.warn(`Unknown flag: ${key}`);
-            }
-        }
-
-        // eval value
-        for (const key in config) {
-            const info = config[key];
-            if (typeof info.value === 'string') {
-                info.value = this._evalExpression(info.value, config);
-            }
-        }
+        this._applyOptionsToConfig(config, options);
 
         // generate json object
-        const jsonObj: Record<string, boolean> = {};
+        const jsonObj: Record<string, ValueType> = {};
         for (const key in config) {
             const info = config[key];
-            jsonObj[key] = info.value as boolean;
+            jsonObj[key] = info.value as ValueType;
         }
         return jsonObj as BuildTimeConstants;
+    }
+
+    public genCCEnvConstants (options: ConstantOptions): CCEnvConstants {
+        const config = this._getConfig();
+
+        this._applyOptionsToConfig(config, options);
+
+        // generate json object
+        const jsonObj: Record<string, ValueType> = {};
+        for (const key in config) {
+            const info = config[key];
+            if (!info.internal) {
+                jsonObj[key] = info.value as ValueType;
+            }
+        }
+        return jsonObj as CCEnvConstants;
     }
 
     public exportStaticConstants ({
@@ -152,7 +142,7 @@ export class ConstantManager {
             console.warn(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType] as boolean;
+            const value = flags[key as FlagType]!;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -222,7 +212,7 @@ export class ConstantManager {
             result += `\t * ${comment}\n`;
         }
         result += '\t */\n';
-        result += `\texport const ${name}: boolean;\n\n`
+        result += `\texport const ${name}: ${info.type};\n\n`
         return result;
     }
     //#endregion declaration
@@ -283,6 +273,38 @@ export class ConstantManager {
         // do eval
         const evalFn = new Function('$', `return ${expression}`);
         return evalFn(config);
+    }
+
+    private _applyOptionsToConfig (config: IConstantConfig, options: ConstantOptions) {
+        const { mode, platform, flags } = options;
+
+        // update value
+        if (config[mode]) {
+            config[mode].value = true;
+        } else {
+            console.warn(`Unknown mode: ${mode}`);
+        }
+        if (config[platform]) {
+            config[platform].value = true;
+        } else {
+            console.warn(`Unknown platform: ${platform}`);
+        }
+        for (const key in flags) {
+            const value = flags[key as FlagType]!;
+            if (config[key]) {
+                config[key].value = value;
+            } else {
+                console.warn(`Unknown flag: ${key}`);
+            }
+        }
+
+        // eval value
+        for (const key in config) {
+            const info = config[key];
+            if (typeof info.value === 'string') {
+                info.value = this._evalExpression(info.value, config);
+            }
+        }
     }
     //#endregion utils
 }
