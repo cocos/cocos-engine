@@ -155,9 +155,8 @@ export class Skybox {
         }
         if (this.envmap) {
             return this.envmap.isUsingOfflineMipmaps();
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
