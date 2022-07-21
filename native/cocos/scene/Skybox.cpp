@@ -91,6 +91,7 @@ void SkyboxInfo::setUseHDR(bool val) {
     if (_resource) {
         setEnvmap(_resource->getEnvmap());
         setDiffuseMap(_resource->getDiffuseMap());
+        setReflectionMap(_resource->getReflectionMap());
 
         if (_envLightingType == EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION) {
             auto *diffuseMap = getDiffuseMap();
@@ -117,8 +118,10 @@ void SkyboxInfo::setEnvmap(TextureCube *val) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         _envmapHDR = val;
+        _reflectionHDR = nullptr;
     } else {
         _envmapLDR = val;
+        _reflectionLDR = nullptr;
     }
 
     if (!val) {
@@ -136,6 +139,7 @@ void SkyboxInfo::setEnvmap(TextureCube *val) {
     if (_resource) {
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
+        _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
         _resource->setUseDiffuseMap(isApplyDiffuseMap());
         _resource->setEnvmap(val);
     }
@@ -164,6 +168,19 @@ TextureCube *SkyboxInfo::getDiffuseMap() const {
     return isHDR ? _diffuseMapHDR : _diffuseMapLDR;
 }
 
+void SkyboxInfo::setReflectionMap(TextureCube *val) {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    if (isHDR) {
+        _reflectionHDR = val;
+    } else {
+        _reflectionLDR = val;
+    }
+
+    if (_resource) {
+        _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
+    }
+}
+
 void SkyboxInfo::activate(Skybox *resource) {
     _resource = resource; // weak reference
     Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(_useHDR);
@@ -172,6 +189,7 @@ void SkyboxInfo::activate(Skybox *resource) {
         setEnvLightingType(this->_envLightingType);
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
+        _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
         _resource->setSkyboxMaterial(_editableMaterial);
         _resource->activate(); // update global DS first
     }
@@ -197,6 +215,10 @@ bool Skybox::isRGBE() const {
 }
 
 bool Skybox::isUsingConvolutionMap() const {
+    auto *reflectionMap = getReflectionMap();
+    if (reflectionMap) {
+        return reflectionMap->isUsingOfflineMipmaps();
+    }
     auto *envmap = getEnvmap();
     if (envmap) {
         return envmap->isUsingOfflineMipmaps();
@@ -248,6 +270,17 @@ void Skybox::setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapL
     updatePipeline();
 }
 
+TextureCube *Skybox::getReflectionMap() const {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    return isHDR ? _reflectionHDR : _reflectionLDR;
+}
+void Skybox::setReflectionMaps(TextureCube *reflectionHDR, TextureCube *reflectionLDR) {
+    _reflectionHDR = reflectionHDR;
+    _reflectionLDR = reflectionLDR;
+    updateGlobalBinding();
+    updatePipeline();
+}
+
 void Skybox::setSkyboxMaterial(Material *skyboxMat) {
     _editableMaterial = skyboxMat;
 }
@@ -259,8 +292,9 @@ void Skybox::activate() {
 
     if (!_model) {
         _model = Root::getInstance()->createModel<scene::Model>();
-        _model->initLocalDescriptors(CC_INVALID_INDEX);
-        _model->initWorldBoundDescriptors(CC_INVALID_INDEX);
+        //The skybox material has added properties of 'environmentMap' that need local ubo
+        //_model->initLocalDescriptors(CC_INVALID_INDEX);
+        //_model->initWorldBoundDescriptors(CC_INVALID_INDEX);
     }
     auto *envmap = getEnvmap();
     bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
@@ -314,7 +348,20 @@ void Skybox::setUseHDR(bool val) {
 }
 
 void Skybox::updatePipeline() const {
-    
+    if (isEnabled() && _material != nullptr) {
+        if (getReflectionMap()) {
+            _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"USE_REFLECTION_CUBEMAP", true}});
+            _material->setProperty("environmentMap", getEnvmap());
+        } else {
+            _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"USE_REFLECTION_CUBEMAP", false}});
+        }
+    }
+
+    if (_model != nullptr && _material != nullptr) {
+        _model->setSubModelMaterial(0, _material);
+        updateSubModes();
+    }
+
     Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
@@ -394,15 +441,24 @@ void Skybox::updatePipeline() const {
 void Skybox::updateGlobalBinding() {
     if (_globalDSManager != nullptr) {
         auto *device = Root::getInstance()->getDevice();
-        auto *envmap = getEnvmap();
-        if (!envmap) {
-            envmap = _default.get();
-        }
-        if (envmap != nullptr) {
-            auto *texture = envmap->getGFXTexture();
-            auto *sampler = device->getSampler(envmap->getSamplerInfo());
+
+        auto *convolutonMap = getReflectionMap();
+        if (convolutonMap != nullptr) {
+            auto *texture = convolutonMap->getGFXTexture();
+            auto *sampler = device->getSampler(convolutonMap->getSamplerInfo());
             _globalDSManager->bindSampler(pipeline::ENVIRONMENT::BINDING, sampler);
             _globalDSManager->bindTexture(pipeline::ENVIRONMENT::BINDING, texture);
+        } else {
+            auto *envmap = getEnvmap();
+            if (!envmap) {
+                envmap = _default.get();
+            }
+            if (envmap != nullptr) {
+                auto *texture = envmap->getGFXTexture();
+                auto *sampler = device->getSampler(envmap->getSamplerInfo());
+                _globalDSManager->bindSampler(pipeline::ENVIRONMENT::BINDING, sampler);
+                _globalDSManager->bindTexture(pipeline::ENVIRONMENT::BINDING, texture);
+            }
         }
 
         auto *diffuseMap = getDiffuseMap();
@@ -411,11 +467,20 @@ void Skybox::updateGlobalBinding() {
         }
         if (diffuseMap != nullptr) {
             auto *texture = diffuseMap->getGFXTexture();
-            auto *sampler = device->getSampler(envmap->getSamplerInfo());
+            auto *sampler = device->getSampler(diffuseMap->getSamplerInfo());
             _globalDSManager->bindSampler(pipeline::DIFFUSEMAP::BINDING, sampler);
             _globalDSManager->bindTexture(pipeline::DIFFUSEMAP::BINDING, texture);
         }
         _globalDSManager->update();
+    }
+}
+
+void Skybox::updateSubModes() const {
+    if (_model) {
+        ccstd::vector<IntrusivePtr<SubModel>> subModels = _model->_subModels;
+        for (auto& subModel : subModels) {
+            subModel->update();
+        }
     }
 }
 

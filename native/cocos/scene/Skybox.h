@@ -163,6 +163,8 @@ public:
     void setDiffuseMap(TextureCube *val);
     TextureCube *getDiffuseMap() const;
 
+    void setReflectionMap(TextureCube *val);
+
     void activate(Skybox *resource);
 
     // cjh JSB need to bind the property, so need to make it public
@@ -180,6 +182,8 @@ public:
     // @serializable
     // @type(TextureCube)
     TextureCube *_diffuseMapLDR{nullptr};
+    TextureCube *_reflectionHDR{nullptr};
+    TextureCube *_reflectionLDR{nullptr};
     // @serializable
     bool _enabled{false};
     // @serializable
@@ -199,6 +203,8 @@ public:
     void setEnvMaps(TextureCube *envmapHDR, TextureCube *envmapLDR);
 
     void setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapLDR);
+
+    void setReflectionMaps(TextureCube *reflectionHDR, TextureCube *reflectionLDR);
 
     void activate();
 
@@ -272,14 +278,19 @@ public:
     void setDiffuseMap(TextureCube *val);
     void setSkyboxMaterial(Material* skyboxMat);
 
+    TextureCube *getReflectionMap() const;
+
 private:
     void updatePipeline() const;
     void updateGlobalBinding();
+    void updateSubModes() const;
 
     IntrusivePtr<TextureCube> _envmapLDR;
     IntrusivePtr<TextureCube> _envmapHDR;
     IntrusivePtr<TextureCube> _diffuseMapLDR;
     IntrusivePtr<TextureCube> _diffuseMapHDR;
+    IntrusivePtr<TextureCube> _reflectionHDR;
+    IntrusivePtr<TextureCube> _reflectionLDR;
     pipeline::GlobalDSManager *_globalDSManager{nullptr};
     IntrusivePtr<Model> _model;
     IntrusivePtr<Mesh> _mesh;
