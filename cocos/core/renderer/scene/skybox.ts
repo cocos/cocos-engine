@@ -209,6 +209,21 @@ export class Skybox {
         }
         this._updatePipeline();
     }
+
+    get reflectionMap (): TextureCube | null {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._reflectionHDR;
+        } else {
+            return this._reflectionLDR;
+        }
+    }
+    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null) {
+        this._reflectionHDR = reflectionHDR;
+        this._reflectionLDR = reflectionLDR;
+        this._updateGlobalBinding();
+        this._updatePipeline();
+    }
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
     protected _diffuseMapLDR: TextureCube | null = null;
@@ -222,6 +237,8 @@ export class Skybox {
     protected _useDiffuseMap = false;
     protected _editableMaterial: MaterialInstance | null = null;
     protected _activated = false;
+    protected _reflectionHDR: TextureCube | null = null;
+    protected _reflectionLDR: TextureCube | null = null;
 
     public initialize (skyboxInfo: SkyboxInfo) {
         this._activated = false;
@@ -335,7 +352,12 @@ export class Skybox {
             if (this._editableMaterial) {
                 this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             } else if (skybox_material) {
-                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+                if (this.reflectionMap) {
+                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTIONMAP: true });
+                    skybox_material.setProperty('environmentMap', this.envmap);
+                } else {
+                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTIONMAP: false });
+                }
             }
         }
 
@@ -345,19 +367,26 @@ export class Skybox {
             } else {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
+            this._updateSubModes();
         }
     }
 
     protected _updateGlobalBinding () {
         if (this._globalDSManager) {
             const device = deviceManager.gfxDevice;
-
-            const envmap = this.envmap ? this.envmap : this._default;
-            if (envmap) {
-                const texture = envmap.getGFXTexture()!;
-                const sampler = device.getSampler(envmap.getSamplerInfo());
+            if (this.reflectionMap) {
+                const texture = this.reflectionMap.getGFXTexture()!;
+                const sampler = device.getSampler(this.reflectionMap.getSamplerInfo());
                 this._globalDSManager.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
                 this._globalDSManager.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+            } else {
+                const envmap = this.envmap ? this.envmap : this._default;
+                if (envmap) {
+                    const texture = envmap.getGFXTexture()!;
+                    const sampler = device.getSampler(envmap.getSamplerInfo());
+                    this._globalDSManager.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+                    this._globalDSManager.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+                }
             }
 
             const diffuseMap = this.diffuseMap ? this.diffuseMap : this._default;
@@ -370,6 +399,20 @@ export class Skybox {
 
             this._globalDSManager.update();
         }
+    }
+
+    protected _updateSubModes () {
+        if (this._model) {
+            const subModels = this._model.subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                subModels[i].update();
+            }
+        }
+    }
+
+    public update () {
+        this._updateGlobalBinding();
+        this._updatePipeline();
     }
 }
 
