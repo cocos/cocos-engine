@@ -215,6 +215,10 @@ bool Skybox::isRGBE() const {
 }
 
 bool Skybox::isUsingConvolutionMap() const {
+    auto *reflectionMap = getReflectionMap();
+    if (reflectionMap) {
+        return reflectionMap->isUsingOfflineMipmaps();
+    }
     auto *envmap = getEnvmap();
     if (envmap) {
         return envmap->isUsingOfflineMipmaps();

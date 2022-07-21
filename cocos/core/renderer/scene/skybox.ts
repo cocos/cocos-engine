@@ -150,6 +150,9 @@ export class Skybox {
      * @zh 是否使用离线烘焙的卷积图？
      */
     get useConvolutionMap (): boolean {
+        if (this.reflectionMap) {
+            return this.reflectionMap.isUsingOfflineMipmaps();
+        }
         if (this.envmap) {
             return this.envmap.isUsingOfflineMipmaps();
         } else {
