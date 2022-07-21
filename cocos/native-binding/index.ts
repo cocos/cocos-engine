@@ -876,9 +876,7 @@ export declare namespace native {
          * @param methodSignature
          * @param parameters
          */
-        export function callStaticMethod (methodName: string, methodSignature: string, ...parameters:any): any {
-            return undefined;
-        }
+        export function callStaticMethod (methodName: string, methodSignature: string, ...parameters:any): any;
     }
 
     /**
