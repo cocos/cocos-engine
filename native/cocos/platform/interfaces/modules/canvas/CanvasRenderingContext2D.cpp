@@ -33,7 +33,9 @@
 #include "math/Math.h"
 #include "platform/FileUtils.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/CanvasRenderingContext2DDelegate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "platform/win32/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
