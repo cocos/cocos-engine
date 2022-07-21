@@ -51,6 +51,11 @@ enum class RenderDrawInfoType: uint8_t {
     IA
 };
 
+struct LocalDSBF {
+    gfx::DescriptorSet* ds;
+    gfx::Buffer* uboBuf;
+};
+
 class Batcher2d;
 
 class RenderDrawInfo final {
@@ -213,6 +218,9 @@ public:
     void uploadBuffers();
     void resetMeshIA();
 
+    inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
+    void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
+
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
     void destroy();
@@ -257,9 +265,9 @@ private:
         scene::Model* _model;
         uint8_t* _sharedBuffer;
     };
-
     gfx::InputAssemblerInfo* _iaInfo{nullptr};
     ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
     uint16_t _nextFreeIAHandle{0};
+    LocalDSBF* _localDSBF{nullptr};
 };
 } // namespace cc
