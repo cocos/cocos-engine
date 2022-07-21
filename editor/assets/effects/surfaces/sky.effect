@@ -53,7 +53,7 @@ CCProgram surface-fragment %{
         c = getEnvironment(cc_environment);
       #endif
     #endif
-    return vec4(c * cc_ambientSky.w*5.0, 1.0);
+    return vec4(c * cc_ambientSky.w, 1.0);
   }
 }%
 

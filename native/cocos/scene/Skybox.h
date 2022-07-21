@@ -204,7 +204,7 @@ public:
 
     void setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapLDR);
 
-    void setReflectionMaps(TextureCube *convolutionMapHDR, TextureCube *convolutionMapLDR);
+    void setReflectionMaps(TextureCube *reflectionHDR, TextureCube *reflectionLDR);
 
     void activate();
 

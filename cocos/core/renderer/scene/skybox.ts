@@ -283,9 +283,7 @@ export class Skybox {
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
             //The skybox material has added properties of 'environmentMap' that need local ubo
-            // @ts-expect-error private member access
             //this._model._initLocalDescriptors = () => {};
-            // @ts-expect-error private member access
             //this._model._initWorldBoundDescriptors = () => {};
         }
         let isRGBE = this._default.isRGBE;
