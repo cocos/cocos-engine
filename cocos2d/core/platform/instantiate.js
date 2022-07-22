@@ -276,7 +276,7 @@ function instantiateObj (obj, parent) {
                     }
                 }
                 else if (obj instanceof cc.Component) {
-                    if (!obj.node.isChildOf(parent)) {
+                    if (!obj.node?.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
                     }

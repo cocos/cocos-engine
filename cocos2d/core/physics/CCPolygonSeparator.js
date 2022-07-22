@@ -68,14 +68,14 @@ function ConvexPartition(vertices) {
     var list = [];
     var d, lowerDist, upperDist;
     var p;
-    var lowerInt = cc.v2();
-    var upperInt = cc.v2(); // intersection points
+    var lowerInt = null;
+    var upperInt = null; // intersection points
     var lowerIndex = 0, upperIndex = 0;
     var lowerPoly, upperPoly;
     
     for (var i = 0; i < vertices.length; ++i) {
         if (Reflex(i, vertices)) {
-            lowerDist = upperDist = 10e7; // std::numeric_limits<qreal>::max();
+            lowerDist = upperDist = Number.MAX_SAFE_INTEGER || 9999999999999; // std::numeric_limits<qreal>::max();
             for (var j = 0; j < vertices.length; ++j) {
                 // if line intersects with an edge
                 if (Left(At(i - 1, vertices), At(i, vertices), At(j, vertices)) &&

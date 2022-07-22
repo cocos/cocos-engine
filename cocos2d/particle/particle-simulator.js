@@ -112,6 +112,9 @@ Simulator.prototype.reset = function () {
     for (let id = 0; id < particles.length; ++id)
         pool.put(particles[id]);
     particles.length = 0;
+    let assembler = this.sys._assembler;
+    if (assembler && assembler._ia)
+        assembler._ia._count = 0;
 }
 
 Simulator.prototype.emitParticle = function (pos) {

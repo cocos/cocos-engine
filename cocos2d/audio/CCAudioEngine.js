@@ -45,7 +45,7 @@ let recycleAudio = function (audio) {
     audio.src = null;
     // In case repeatly recycle audio
     if (!_audioPool.includes(audio)) {
-        if (_audioPool.length < 32) {
+        if (_audioPool.length < audioEngine._maxPoolSize) {
             _audioPool.push(audio);
         }
         else {
@@ -56,7 +56,7 @@ let recycleAudio = function (audio) {
 };
 
 let getAudioFromPath = function (path) {
-    var id = _instanceId++;
+    var id = ++_instanceId;
     var list = _url2id[path];
     if (!list) {
         list = _url2id[path] = [];
@@ -128,6 +128,8 @@ var audioEngine = {
     AudioState: Audio.State,
 
     _maxAudioInstance: 24,
+
+    _maxPoolSize: 32,
 
     _id2audio: _id2audio,
 
@@ -286,6 +288,18 @@ var audioEngine = {
     getState: function (audioID) {
         var audio = getAudioFromId(audioID);
         return audio ? audio.getState() : this.AudioState.ERROR;
+    },
+
+    /**
+     * !#en Whether the audio is playing
+     * !#zh 音乐是否正在播放
+     * @method isPlaying
+     * @return {Boolean}
+     * @example
+     * cc.audioEngine.isPlaying(audioID);
+     */
+    isPlaying: function(audioID) {
+        return this.getState(audioID) === this.AudioState.PLAYING;
     },
 
     /**

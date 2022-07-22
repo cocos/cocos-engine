@@ -531,7 +531,7 @@ proto.instantiateObj = function (obj) {
                     }
                 }
                 else if (obj instanceof cc.Component) {
-                    if (!obj.node.isChildOf(this.parent)) {
+                    if (!obj.node?.isChildOf(this.parent)) {
                         // should not clone other component if not descendant
                         return this.getObjRef(obj);
                     }

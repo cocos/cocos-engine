@@ -425,6 +425,7 @@ let Mask = cc.Class({
         else {
             graphics.fill();
         }
+        this.setVertsDirty();
     },
 
     _removeGraphics () {

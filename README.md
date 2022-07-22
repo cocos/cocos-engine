@@ -148,6 +148,6 @@ For details below:
 
 * [Official site](https://www.cocos.com/products#CocosCreator)
 * [Download](https://www.cocos.com/creator)
-* [Documentation](https://docs.cocos.com/creator/manual/)
-* [API References](https://docs.cocos.com/creator/api/)
+* [Documentation](https://docs.cocos.com/creator/2.4/manual/)
+* [API References](https://docs.cocos.com/creator/2.4/api/)
 * [Forum](https://discuss.cocos2d-x.org/c/creator)

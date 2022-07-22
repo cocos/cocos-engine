@@ -766,6 +766,9 @@ AssetManager.prototype = {
         assets.forEach(function (asset) {
             releaseManager.tryRelease(asset, true);
         });
+        if (CC_EDITOR) {
+            dependUtil._depends.clear();
+        }
     },
 
     _transform (input, options) {

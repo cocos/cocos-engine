@@ -75,7 +75,7 @@ let RenderComponent = cc.Class({
             animatable: false
         }
     },
-    
+
     ctor () {
         this._vertsDirty = true;
         this._assembler = null;
@@ -98,7 +98,7 @@ let RenderComponent = cc.Class({
         }
         this.node._renderComponent = this;
         this.node._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
-        
+
         this.setVertsDirty();
     },
 
@@ -115,6 +115,8 @@ let RenderComponent = cc.Class({
         materials.length = 0;
 
         cc.pool.assembler.put(this._assembler);
+
+        this.disableRender();
     },
 
     setVertsDirty () {
@@ -125,7 +127,7 @@ let RenderComponent = cc.Class({
     _on3DNodeChanged () {
         this._resetAssembler();
     },
-    
+
     _validateRender () {
     },
 
@@ -152,7 +154,7 @@ let RenderComponent = cc.Class({
      * !#en Get the material by index.
      * !#zh 根据指定索引获取材质
      * @method getMaterial
-     * @param {Number} index 
+     * @param {Number} index
      * @return {MaterialVariant}
      */
     getMaterial (index) {
@@ -162,7 +164,7 @@ let RenderComponent = cc.Class({
 
         let material = this._materials[index];
         if (!material) return null;
-        
+
         let instantiated = MaterialVariant.create(material, this);
         if (instantiated !== material) {
             this.setMaterial(index, instantiated);
@@ -184,12 +186,12 @@ let RenderComponent = cc.Class({
         }
         return materials;
     },
-    
+
     /**
      * !#en Set the material by index.
      * !#zh 根据指定索引设置材质
      * @method setMaterial
-     * @param {Number} index 
+     * @param {Number} index
      * @param {Material} material
      * @return {Material}
      */
@@ -242,10 +244,10 @@ let RenderComponent = cc.Class({
 
     _checkBacth (renderer, cullingMask) {
         let material = this._materials[0];
-        if ((material && material.getHash() !== renderer.material.getHash()) || 
+        if ((material && material.getHash() !== renderer.material.getHash()) ||
             renderer.cullingMask !== cullingMask) {
             renderer._flush();
-    
+
             renderer.node = material.getDefine('CC_USE_MODEL') ? this.node : renderer._dummyNode;
             renderer.material = material;
             renderer.cullingMask = cullingMask;

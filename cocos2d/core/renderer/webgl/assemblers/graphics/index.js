@@ -402,6 +402,7 @@ export default class GraphicsAssembler extends Assembler {
 
     _calculateJoins (impl, w, lineJoin, miterLimit) {
         let iw = 0.0;
+        let w2 = w * w;
     
         if (w > 0.0) {
             iw = 1 / w;
@@ -458,8 +459,8 @@ export default class GraphicsAssembler extends Assembler {
                 // Check whether dm length is too long
                 let dmwx = p1.dmx * w;
                 let dmwy = p1.dmy * w;
-                let dmlen = dmwx*dmwx + dmwy*dmwy;
-                if (dmlen > (p1.len * p1.len) || dmlen > (p0.len * p0.len)) {
+                let dmlen2 = dmwx*dmwx + dmwy*dmwy;
+                if (dmlen2 > (p1.len * p1.len) + w2 && dmlen2 > (p0.len * p0.len) + w2) {
                     p1.flags |= PointFlags.PT_INNERBEVEL;
                 }
     

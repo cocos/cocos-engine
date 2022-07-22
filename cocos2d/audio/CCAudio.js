@@ -288,7 +288,7 @@ Audio.State = {
         },
         set: function (clip) {
             this._unbindEnded();
-            if (clip) {
+            if (clip && clip.isValid) {
                 if (clip !== this._src) {
                     this._src = clip;
                     if (!clip.loaded) {

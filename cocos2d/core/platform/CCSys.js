@@ -755,15 +755,15 @@ function initSys () {
             "webp": true,
         };
 
-       if (sys.isMobile) {
+        if (sys.isMobile) {
             capabilities["accelerometer"] = true;
-            capabilities["touches"] = true;
         } else {
             // desktop
             capabilities["keyboard"] = true;
             capabilities["mouse"] = true;
-            capabilities["touches"] = false;
         }
+        // support touches on Web platform
+        capabilities["touches"] = sys.isBrowser || sys.isMobile;
 
         capabilities['imageBitmap'] = false;
 

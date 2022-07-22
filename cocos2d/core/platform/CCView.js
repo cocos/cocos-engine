@@ -301,9 +301,9 @@ cc.js.mixin(View.prototype, {
     /**
      * !#en
      * Sets the orientation of the game, it can be landscape, portrait or auto.
-     * When set it to landscape or portrait, and screen w/h ratio doesn't fit, 
+     * When set it to landscape or portrait, and screen w/h ratio doesn't fit,
      * cc.view will automatically rotate the game canvas using CSS.
-     * Note that this function doesn't have any effect in native, 
+     * Note that this function doesn't have any effect in native,
      * in native, you need to set the application orientation in native project settings
      * !#zh 设置游戏屏幕朝向，它能够是横版，竖版或自动。
      * 当设置为横版或竖版，并且屏幕的宽高比例不匹配时，
@@ -329,7 +329,7 @@ cc.js.mixin(View.prototype, {
         var isLandscape = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
-            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
+            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) ||
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
             locFrameSize.height = h;
@@ -425,10 +425,6 @@ cc.js.mixin(View.prototype, {
      * @param {Boolean} enabled - Enable or disable retina display
      */
     enableRetina: function(enabled) {
-        if (CC_EDITOR && enabled) {
-            cc.warn('Can not enable retina in Editor.');
-            return;
-        }
         this._retinaEnabled = !!enabled;
     },
 
@@ -442,9 +438,6 @@ cc.js.mixin(View.prototype, {
      * @return {Boolean}
      */
     isRetinaEnabled: function() {
-        if (CC_EDITOR) {
-            return false;
-        }
         return this._retinaEnabled;
     },
 
@@ -503,8 +496,8 @@ cc.js.mixin(View.prototype, {
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
     enableAutoFullScreen: function(enabled) {
-        if (enabled && 
-            enabled !== this._autoFullScreen && 
+        if (enabled &&
+            enabled !== this._autoFullScreen &&
             cc.sys.isMobile) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
@@ -1061,11 +1054,11 @@ cc.ContainerStrategy = cc.Class({
         var locCanvas = cc.game.canvas;
 
         this._setupStyle(view, w, h);
-        
+
         // Setup pixel ratio for retina display
         var devicePixelRatio = view._devicePixelRatio = 1;
         if(CC_JSB){
-            // view.isRetinaEnabled only work on web. 
+            // view.isRetinaEnabled only work on web.
             devicePixelRatio = view._devicePixelRatio = window.devicePixelRatio;
         }else if (view.isRetinaEnabled()) {
             devicePixelRatio = view._devicePixelRatio = Math.min(view._maxPixelRatio, window.devicePixelRatio || 1);

@@ -200,7 +200,7 @@ Tween.stopAll = function () {
  * @param {number} tag
  */
 Tween.stopAllByTag = function (tag) {
-    cc.director.getActionManager().removeActionByTag(tag);
+    cc.director.getActionManager().removeAllActionsByTag(tag);
 }
 /**
  * !#en Stop all tweens by target
@@ -294,6 +294,7 @@ Tween.prototype.start = function () {
 Tween.prototype.stop = function () {
     if (this._finalAction) {
         cc.director.getActionManager().removeAction(this._finalAction);
+        this._finalAction = null;
     }
     return this;
 };
