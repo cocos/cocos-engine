@@ -63,7 +63,9 @@
 #include "pipeline/custom/Range.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/RenderInterfaceTypes.h"
-#include "profiler/DebugRenderer.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "profiler/DebugRenderer.h"
+#endif
 
 namespace cc {
 
