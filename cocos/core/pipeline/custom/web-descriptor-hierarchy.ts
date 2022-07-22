@@ -30,6 +30,7 @@ import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor, IncidenceGraph, vertex_descriptor } from './graph';
+import { assert } from '../../platform';
 
 export class WebDescriptorHierarchy {
     public uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
@@ -459,6 +460,7 @@ export class CollectVisitor extends DefaultVisitor {
         if (g.holds(LayoutGraphValue.RenderStage, v)) {
             freq = UpdateFrequency.PER_PASS;
         } else {
+            assert(g.holds(LayoutGraphValue.RenderPhase, v));
             freq = UpdateFrequency.PER_QUEUE;
         }
         return freq;
