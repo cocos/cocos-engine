@@ -113,8 +113,7 @@ private:
     StencilStage _stencilStage{StencilStage::DISABLED};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     bool _isMask{false};
-    bool _isSubMask{false};
-    bool _useLocal{false};
+    bool _isSubMask{false}; 
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};
@@ -124,5 +123,6 @@ private:
     std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
     ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
     bool _isMaskInverted{false};
+    bool _useLocal{false};
 };
 } // namespace cc

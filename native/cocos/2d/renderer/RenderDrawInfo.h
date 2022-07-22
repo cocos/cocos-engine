@@ -49,7 +49,6 @@ enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
     IA,
-    TILED
 };
 
 struct LocalDSBF {
