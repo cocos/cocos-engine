@@ -119,15 +119,6 @@ enum class MathType {
     RECT,
     COLOR,
 };
-bool uintptr_t_to_seval(uintptr_t v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    ret->setDouble(v);
-    return true;
-}
-
-bool size_to_seval(size_t v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    ret->setSize(v);
-    return true;
-}
 
 bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
@@ -142,74 +133,6 @@ bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(re
     return true;
 }
 
-void toVec2(void *data, DataType type, se::Value *ret) {
-    auto *intptr = static_cast<int32_t *>(data);
-    auto *floatptr = static_cast<float *>(data);
-    cc::Vec2 vec2;
-    if (DataType::INT == type) {
-        vec2.x = static_cast<float>(intptr[0]);
-        vec2.y = static_cast<float>(intptr[1]);
-    } else {
-        vec2.x = *floatptr;
-        vec2.y = *(floatptr + 1);
-    }
-
-    Vec2_to_seval(vec2, ret);
-}
-
-void toVec3(void *data, DataType type, se::Value *ret) {
-    auto *intptr = static_cast<int32_t *>(data);
-    auto *floatptr = static_cast<float *>(data);
-    cc::Vec3 vec3;
-    if (DataType::INT == type) {
-        vec3.x = static_cast<float>(intptr[0]);
-        vec3.y = static_cast<float>(intptr[1]);
-        vec3.z = static_cast<float>(intptr[2]);
-    } else {
-        vec3.x = floatptr[0];
-        vec3.y = floatptr[1];
-        vec3.z = floatptr[2];
-    }
-
-    Vec3_to_seval(vec3, ret);
-}
-
-void toVec4(void *data, DataType type, se::Value *ret) {
-    auto *intptr = static_cast<int32_t *>(data);
-    auto *floatptr = static_cast<float *>(data);
-    cc::Vec4 vec4;
-    if (DataType::INT == type) {
-        vec4.x = static_cast<float>(intptr[0]);
-        vec4.y = static_cast<float>(intptr[1]);
-        vec4.z = static_cast<float>(intptr[2]);
-        vec4.w = static_cast<float>(intptr[3]);
-    } else {
-        vec4.x = *floatptr;
-        vec4.y = *(floatptr + 1);
-        vec4.z = *(floatptr + 2);
-        vec4.w = *(floatptr + 3);
-    }
-
-    Vec4_to_seval(vec4, ret);
-}
-
-void toMat(const float *data, int num, se::Value *ret) {
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    char propName[4] = {0};
-    for (int i = 0; i < num; ++i) {
-        if (i < 10) {
-            snprintf(propName, 3, "m0%d", i);
-        }
-
-        else {
-            snprintf(propName, 3, "m%d", i);
-        }
-
-        obj->setProperty(propName, se::Value(*(data + i)));
-    }
-    ret->setObject(obj);
-}
 } // namespace
 
 bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
