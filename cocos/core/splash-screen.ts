@@ -175,8 +175,8 @@ export class SplashScreen {
         const refW = dw < dh ? dw : dh;
         const deviceAspect = dw / dh;
         const designRes = window._CCSettings.designResolution;
-        const designtAspect = designRes.width / designRes.height;
-        const ratio = deviceAspect / designtAspect;
+        const designAspect = designRes.width / designRes.height;
+        const ratio = deviceAspect / designAspect;
         // update logo uniform
         this._curTime += deltaTime * 1000;
         const percent = clamp01(this._curTime / settings.totalTime);
