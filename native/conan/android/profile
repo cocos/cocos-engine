@@ -7,7 +7,7 @@ arch=armv8
 build_type=Release
 compiler=clang
 compiler.libcxx=libc++
-compiler.version=12
+compiler.version=9
 os=Android
 os.api_level=$api_level
 [tool_requires]
