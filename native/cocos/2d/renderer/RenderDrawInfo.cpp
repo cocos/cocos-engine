@@ -157,6 +157,9 @@ void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSe
     _localDSBF->ds->bindBuffer(pipeline::UBOLocal::BINDING, _localDSBF->uboBuf);
     _localDSBF->ds->update();
     static Float32Array matrixData;
+    if (matrixData.length() != pipeline::UBOLocal::COUNT) {
+        matrixData.reset(pipeline::UBOLocal::COUNT);
+    }
     matrixData.reset(pipeline::UBOLocal::COUNT);
     const auto& worldMatrix = transform->getWorldMatrix();
     mat4ToFloat32Array(worldMatrix, matrixData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
