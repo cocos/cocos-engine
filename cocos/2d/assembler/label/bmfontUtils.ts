@@ -163,7 +163,7 @@ export const bmfontUtils = {
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
         if (!shareLabelInfo.fontAtlas) {
             if (comp.cacheMode === CacheMode.CHAR) {
-                shareLabelInfo.fontAtlas = new LetterAtlas(1024, 1024);
+                shareLabelInfo.fontAtlas = new LetterAtlas(64, 64);
             } else {
                 shareLabelInfo.fontAtlas = new FontAtlas(null);
             }
