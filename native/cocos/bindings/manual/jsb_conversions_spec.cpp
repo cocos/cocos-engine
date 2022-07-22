@@ -252,32 +252,32 @@ bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-id
 bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) { // NOLINT
     return sevalue_to_native(v, ret, nullptr);
 }
-bool sevalue_to_native(const se::Value &v, cc::Value *ret, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+bool sevalue_to_native(const se::Value &from, cc::Value *to, se::Object * /*ctx*/) { // NOLINT
+    CC_ASSERT(to != nullptr);
     bool ok = true;
-    if (v.isObject()) {
-        se::Object *jsobj = v.toObject();
+    if (from.isObject()) {
+        se::Object *jsobj = from.toObject();
         if (!jsobj->isArray()) {
             // It's a normal js object.
             cc::ValueMap dictVal;
-            ok = seval_to_ccvaluemap(v, &dictVal);
-            SE_PRECONDITION3(ok, false, *ret = cc::Value::VALUE_NULL);
-            *ret = cc::Value(dictVal);
+            ok = sevalue_to_native(from, &dictVal, nullptr);
+            SE_PRECONDITION3(ok, false, *to = cc::Value::VALUE_NULL);
+            *to = cc::Value(dictVal);
         } else {
             // It's a js array object.
             cc::ValueVector arrVal;
-            ok = seval_to_ccvaluevector(v, &arrVal);
-            SE_PRECONDITION3(ok, false, *ret = cc::Value::VALUE_NULL);
-            *ret = cc::Value(arrVal);
+            ok = sevalue_to_native(from, &arrVal, nullptr);
+            SE_PRECONDITION3(ok, false, *to = cc::Value::VALUE_NULL);
+            *to = cc::Value(arrVal);
         }
-    } else if (v.isString()) {
-        *ret = v.toString();
-    } else if (v.isNumber()) {
-        *ret = v.toDouble();
-    } else if (v.isBoolean()) {
-        *ret = v.toBoolean();
-    } else if (v.isNullOrUndefined()) {
-        *ret = cc::Value::VALUE_NULL;
+    } else if (from.isString()) {
+        *to = from.toString();
+    } else if (from.isNumber()) {
+        *to = from.toDouble();
+    } else if (from.isBoolean()) {
+        *to = from.toBoolean();
+    } else if (from.isNullOrUndefined()) {
+        *to = cc::Value::VALUE_NULL;
     } else {
         SE_PRECONDITION2(false, false, "type not supported!");
     }
@@ -286,7 +286,7 @@ bool sevalue_to_native(const se::Value &v, cc::Value *ret, se::Object * /*ctx*/)
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) {
+bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
     return sevalue_to_native(v, ret, nullptr);
 }
 
@@ -404,7 +404,7 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray &args, cc::ValueVecto
 bool seval_to_Data(const se::Value &v, cc::Data *ret) {
     return sevalue_to_native(v, ret, nullptr);
 }
-bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) { // NOLINT
     CC_ASSERT(ret != nullptr);
     SE_PRECONDITION2(v.isObject() && (v.toObject()->isTypedArray() || v.toObject()->isArrayBuffer()), false, "Convert parameter to Data failed!");
     uint8_t *ptr = nullptr;
@@ -421,7 +421,7 @@ bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) 
     } else {
         ret->clear();
     }
-    return true;
+    return ok;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -1039,6 +1039,8 @@ bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * 
     to->setJSArrayBuffer(from.toObject());
     return true;
 }
+
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object * /*ctx*/) {
     CC_ASSERT(from.isObject());
     auto *obj = from.toObject();
@@ -1266,32 +1268,7 @@ bool ccvalue_to_seval(const cc::Value &v, se::Value *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
-
-    se::HandleObject obj(se::Object::createPlainObject());
-    bool ok = true;
-    for (const auto &e : v) {
-        const ccstd::string &key = e.first;
-        const cc::Value &value = e.second;
-
-        if (key.empty()) {
-            continue;
-        }
-
-        se::Value tmp;
-        if (!nativevalue_to_se(value, tmp, nullptr)) {
-            ok = false;
-            ret->setUndefined();
-            break;
-        }
-
-        obj->setProperty(key.c_str(), tmp);
-    }
-    if (ok) {
-        ret->setObject(obj);
-    }
-
-    return ok;
+    return ret ? nativevalue_to_se(v, *ret, nullptr) : false;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -1367,14 +1344,7 @@ bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *re
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool Data_to_seval(const cc::Data &v, se::Value *ret) {
-    CC_ASSERT(ret != nullptr);
-    if (v.isNull()) {
-        ret->setNull();
-    } else {
-        se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
-        ret->setObject(obj, true);
-    }
-    return true;
+    return ret ? nativevalue_to_se(v, *ret, nullptr) : false;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -1469,9 +1439,32 @@ bool nativevalue_to_se(const cc::Value &from, se::Value &to, se::Object * /*unus
     return ok;
 }
 
-// NOLINTNEXTLINE(readability-identifier-naming)
+// NOLINTNEXTLINE
 bool nativevalue_to_se(const ccstd::unordered_map<ccstd::string, cc::Value> &from, se::Value &to, se::Object * /*unused*/) {
-    return ccvaluemap_to_seval(from, &to);
+    se::HandleObject obj(se::Object::createPlainObject());
+    bool ok = true;
+    for (const auto &e : from) {
+        const ccstd::string &key = e.first;
+        const cc::Value &value = e.second;
+
+        if (key.empty()) {
+            continue;
+        }
+
+        se::Value tmp;
+        if (!nativevalue_to_se(value, tmp, nullptr)) {
+            ok = false;
+            to.setUndefined();
+            break;
+        }
+
+        obj->setProperty(key.c_str(), tmp);
+    }
+    if (ok) {
+        to.setObject(obj);
+    }
+
+    return ok;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
