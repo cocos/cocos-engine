@@ -32,9 +32,9 @@
 namespace cc {
 
 static gfx::DescriptorSetInfo gDsInfo;
-cc::Float32Array& mat4ToFloat32Array(const cc::Mat4& mat, cc::Float32Array& out, index_t ofs = 0) {
-    memcpy(reinterpret_cast<float*>(const_cast<uint8_t*>(out.buffer()->getData())) + ofs, mat.m, 16 * sizeof(float));
-    return out;
+static float matrixData[pipeline::UBOLocal::COUNT];
+void mat4ToFloatArray(const cc::Mat4& mat, float* out, index_t ofs = 0) {
+    memcpy(out + ofs, mat.m, 16 * sizeof(float));
 }
 
 RenderDrawInfo::RenderDrawInfo() {
@@ -156,14 +156,9 @@ void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSe
     }
     _localDSBF->ds->bindBuffer(pipeline::UBOLocal::BINDING, _localDSBF->uboBuf);
     _localDSBF->ds->update();
-    static Float32Array matrixData;
-    if (matrixData.length() != pipeline::UBOLocal::COUNT) {
-        matrixData.reset(pipeline::UBOLocal::COUNT);
-    }
-    matrixData.reset(pipeline::UBOLocal::COUNT);
     const auto& worldMatrix = transform->getWorldMatrix();
-    mat4ToFloat32Array(worldMatrix, matrixData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
-    _localDSBF->uboBuf->update(matrixData.buffer()->getData());
+    mat4ToFloatArray(worldMatrix, matrixData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
+    _localDSBF->uboBuf->update(matrixData);
 }
 
 } // namespace cc
