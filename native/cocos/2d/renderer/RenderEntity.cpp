@@ -37,7 +37,13 @@ RenderEntity::RenderEntity(RenderEntityType type) : _renderEntityType(type) {
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 
-RenderEntity::~RenderEntity() = default;
+RenderEntity::~RenderEntity() {
+    if (_renderEntityType == RenderEntityType::STATIC) {
+        _staticDrawInfos.~array();
+    } else {
+        _dynamicDrawInfos.~vector();
+    }
+};
 
 void RenderEntity::addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo) {
     CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
