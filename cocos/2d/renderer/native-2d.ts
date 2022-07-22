@@ -65,6 +65,9 @@ export declare class NativeRenderEntity {
     get staticDrawInfoSize(): number;
     set staticDrawInfoSize(size: number);
 
+    get useLocal(): boolean;
+    set useLocal(val: boolean);
+
     setRenderEntityType(type: number);
     getStaticRenderDrawInfo(index: number): NativeRenderDrawInfo;
     getEntitySharedBufferForJS(): ArrayBufferLike;

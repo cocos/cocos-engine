@@ -1506,7 +1506,6 @@ export class TiledLayer extends UIRenderer {
                 if (td.texture) {
                     if (!this._drawInfoList[idx]) {
                         this._drawInfoList[idx] = new RenderDrawInfo();
-                        this._drawInfoList[idx].setDrawInfoType(RenderDrawInfoType.IA);
                     }
                     const drawInfo = this._drawInfoList[idx];
                     td.renderData!.fillDrawInfoAttributes(drawInfo);
