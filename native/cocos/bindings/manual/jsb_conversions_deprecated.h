@@ -84,46 +84,6 @@ inline bool std_string_to_seval(const std::string &v, se::Value *ret) { // NOLIN
 }
 
 CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool ccvalue_to_seval(const cc::Value &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
-inline bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(v, *ret, nullptr);
-}
-CC_DEPRECATED(3.6, "use native_to_se instead")
 inline bool std_vector_string_to_seval(const std::vector<std::string> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se(v, *ret, nullptr);
 }
