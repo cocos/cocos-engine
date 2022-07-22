@@ -463,6 +463,26 @@ static bool js_2d_RenderDrawInfo_getIsMeshBuffer(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderDrawInfo_getIsMeshBuffer)
 
+static bool js_2d_RenderDrawInfo_getLocalDes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::DescriptorSet* result = cobj->getLocalDes();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderDrawInfo_getLocalDes)
+
 static bool js_2d_RenderDrawInfo_getMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1202,6 +1222,28 @@ static bool js_2d_RenderDrawInfo_setVertexOffset(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderDrawInfo_setVertexOffset)
 
+static bool js_2d_RenderDrawInfo_updateLocalDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::Node*, false> arg0 = {};
+        HolderType<cc::gfx::DescriptorSetLayout*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->updateLocalDescriptorSet(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderDrawInfo_updateLocalDescriptorSet)
+
 static bool js_2d_RenderDrawInfo_uploadBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
@@ -1264,10 +1306,12 @@ bool js_register_2d_RenderDrawInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("stride", _SE(js_2d_RenderDrawInfo_getStride_asGetter), _SE(js_2d_RenderDrawInfo_setStride_asSetter));
     cls->defineFunction("changeMeshBuffer", _SE(js_2d_RenderDrawInfo_changeMeshBuffer));
     cls->defineFunction("getAttrSharedBufferForJS", _SE(js_2d_RenderDrawInfo_getAttrSharedBufferForJS));
+    cls->defineFunction("getLocalDes", _SE(js_2d_RenderDrawInfo_getLocalDes));
     cls->defineFunction("getMeshBuffer", _SE(js_2d_RenderDrawInfo_getMeshBuffer));
     cls->defineFunction("requestIA", _SE(js_2d_RenderDrawInfo_requestIA));
     cls->defineFunction("resetMeshIA", _SE(js_2d_RenderDrawInfo_resetMeshIA));
     cls->defineFunction("setRender2dBufferToNative", _SE(js_2d_RenderDrawInfo_setRender2dBufferToNative));
+    cls->defineFunction("updateLocalDescriptorSet", _SE(js_2d_RenderDrawInfo_updateLocalDescriptorSet));
     cls->defineFunction("uploadBuffers", _SE(js_2d_RenderDrawInfo_uploadBuffers));
     cls->defineFinalizeFunction(_SE(js_cc_RenderDrawInfo_finalize));
     cls->install();
@@ -1542,6 +1586,26 @@ static bool js_2d_RenderEntity_getStencilStage(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getStencilStage)
 
+static bool js_2d_RenderEntity_getUseLocal(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getUseLocal();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getUseLocal)
+
 static bool js_2d_RenderEntity_removeDynamicRenderDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -1760,6 +1824,26 @@ static bool js_2d_RenderEntity_setStencilStage(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setStencilStage)
 
+static bool js_2d_RenderEntity_setUseLocal(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setUseLocal(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setUseLocal)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_RenderEntity_finalize)
 
 static bool js_2d_RenderEntity_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -1789,6 +1873,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("isMask", _SE(js_2d_RenderEntity_getIsMask_asGetter), _SE(js_2d_RenderEntity_setIsMask_asSetter));
     cls->defineProperty("isSubMask", _SE(js_2d_RenderEntity_getIsSubMask_asGetter), _SE(js_2d_RenderEntity_setIsSubMask_asSetter));
     cls->defineProperty("isMaskInverted", _SE(js_2d_RenderEntity_getIsMaskInverted_asGetter), _SE(js_2d_RenderEntity_setIsMaskInverted_asSetter));
+    cls->defineProperty("useLocal", _SE(js_2d_RenderEntity_getUseLocal_asGetter), _SE(js_2d_RenderEntity_setUseLocal_asSetter));
     cls->defineFunction("addDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_addDynamicRenderDrawInfo));
     cls->defineFunction("clearDynamicRenderDrawInfos", _SE(js_2d_RenderEntity_clearDynamicRenderDrawInfos));
     cls->defineFunction("getEntitySharedBufferForJS", _SE(js_2d_RenderEntity_getEntitySharedBufferForJS));
