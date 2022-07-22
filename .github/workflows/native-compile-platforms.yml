@@ -68,6 +68,68 @@ jobs:
           cmake --build . --config Release
           echo "Compile Win64 Release Done!"
 
+  compile_android_minimal:
+    name: "Android Minimal"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
+      - name: Generate bindings
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          python3 -m pip install PyYAML==5.4.1 Cheetah3
+          python3 ./native/tools/tojs/genbindings.py
+          rm ./native/tools/tojs/userconf.ini
+      - name: Compile
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
+          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
+          echo "Compiling Android ... "
+          cd $GITHUB_WORKSPACE/templates/
+          echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> android/template/Pre-Sample.cmake
+          echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> android/template/Post-Sample.cmake
+          if [ ! -d  android-template ]; then
+            cp -r android/template android-template
+          fi
+          cd $GITHUB_WORKSPACE/templates/android/build
+          mkdir -p build-android/proj
+          touch build-android/proj/cfg.cmake
+          echo "set(CI_FORCE_MINIMAL_FEATURES ON)" >> build-android/proj/cfg.cmake
+
+          mkdir -p build-android/assets
+
+          ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
+
+          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+          sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
+          sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
+          sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$NATIVE_ROOT@g" gradle.properties
+          sed -i "s@^NATIVE_DIR.*@NATIVE_DIR=$NATIVE_DIR@g" gradle.properties
+
+          # To speedup CI, compile arm64-v8a only
+          # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
+
+          echo "Compile Android - cmake ..."
+          echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
+          ./gradlew :CocosGame:assembleDebug --quiet
+          echo "Compile Android Debug Done!"
+
   compile_android:
     name: "Android"
     if: 
