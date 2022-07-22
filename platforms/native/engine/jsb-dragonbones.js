@@ -779,7 +779,6 @@ const cacheManager = require('./jsb-cache-manager');
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
             const drawInfo = this.requestDrawInfo(index);
             drawInfo.setTexture(realTexture.getGFXTexture());
-            drawInfo.setTextureHash(realTexture.getHash());
             drawInfo.setSampler(realTexture.getGFXSampler());
             drawInfo.setMaterial(this.material);
             renderData.fillDrawInfoAttributes(drawInfo);

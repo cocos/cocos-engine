@@ -291,9 +291,6 @@ export class RenderData extends BaseRenderData {
     }
     set textureHash (val: number) {
         this._textureHash = val;
-        if (this._renderDrawInfo) {
-            this._renderDrawInfo.setTextureHash(val);
-        }
     }
 
     protected _blendHash = -1;
@@ -382,7 +379,6 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setAccId(this._accessor.id);
             super.setRenderDrawInfoAttributes();
             this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
-            this._renderDrawInfo.setTextureHash(this.textureHash);
             this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
         }
     }
@@ -499,7 +495,6 @@ export class RenderData extends BaseRenderData {
 
             if (this._renderDrawInfo) {
                 this._renderDrawInfo.setTexture(this.frame ? this.frame.getGFXTexture() : null);
-                this._renderDrawInfo.setTextureHash(this.textureHash);
                 this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
             }
         }

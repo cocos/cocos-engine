@@ -42,23 +42,31 @@ enum class RenderEntityType: uint8_t {
     CROSSED,
 };
 
+enum class MaskMode : uint8_t {
+    NONE,
+    MASK,
+    MASK_INVERTED,
+    MASK_NODE,
+    MASK_NODE_INVERTED
+};
+
 struct EntityAttrLayout {
     float localOpacity{1.0F};
     uint8_t colorR{255};
     uint8_t colorG{255};
     uint8_t colorB{255};
     uint8_t colorA{255};
+    uint8_t maskMode{0};
     uint8_t colorDirtyBit{1};
     uint8_t enabledIndex{1};
-    uint8_t padding0{0}; //available
-    uint8_t padding1{0}; //available
+    uint8_t useLocal{0};
 };
 
 class RenderEntity final : public Node::UserData {
 public:
     static constexpr uint32_t STATIC_DRAW_INFO_CAPACITY = 4;
 
-    RenderEntity(RenderEntityType type);
+    explicit RenderEntity(RenderEntityType type);
     ~RenderEntity() override;
 
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
@@ -66,16 +74,22 @@ public:
     void removeDynamicRenderDrawInfo();
     void clearDynamicRenderDrawInfos();
 
-    inline bool getIsMask() const { return _isMask; }
-    void setIsMask(bool isMask);
+    inline bool getIsMask() const {
+        return static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK || static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK_INVERTED;
+    }
 
-    inline bool getIsSubMask() const { return _isSubMask; }
-    void setIsSubMask(bool isSubMask);
+    inline bool getIsSubMask() const {
+        return static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK_NODE || static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK_NODE_INVERTED;
+    }
 
-    inline bool getIsMaskInverted() const { return _isMaskInverted; }
-    void setIsMaskInverted(bool isMaskInverted);
-    inline bool getUseLocal() const { return _useLocal; }
-    void setUseLocal(bool useLocal);
+    inline bool getIsMaskInverted() const {
+        return static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK_INVERTED || static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK_NODE_INVERTED;
+    }
+
+    inline bool getUseLocal() const { return _entityAttrLayout.useLocal; }
+    inline void setUseLocal(bool useLocal) {
+        _entityAttrLayout.useLocal = useLocal;
+    }
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
@@ -109,19 +123,17 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
     // weak reference
     Node* _node{nullptr};
-    StencilStage _stencilStage{StencilStage::DISABLED};
-    RenderEntityType _renderEntityType{RenderEntityType::STATIC};
-    bool _isMask{false};
-    bool _isSubMask{false}; 
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};
-    uint32_t _staticDrawInfoSize{0};
 
     bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
-    std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
-    ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
-    bool _isMaskInverted{false};
-    bool _useLocal{false};
+    union {
+        std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY> _staticDrawInfos;
+        ccstd::vector<RenderDrawInfo*> _dynamicDrawInfos;
+    };
+    StencilStage _stencilStage{StencilStage::DISABLED};
+    RenderEntityType _renderEntityType{RenderEntityType::STATIC};
+    uint8_t _staticDrawInfoSize{0};
 };
 } // namespace cc

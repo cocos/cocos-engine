@@ -56,15 +56,19 @@ bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_2d_RenderEntity_addDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_clearDynamicRenderDrawInfos);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getEntitySharedBufferForJS);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getIsMask);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getIsMaskInverted);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getIsSubMask);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getLocalOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getUseLocal);
 SE_DECLARE_FUNC(js_2d_RenderEntity_removeDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setColorDirty);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setDynamicRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setOpacity);
-SE_DECLARE_FUNC(js_2d_RenderEntity_setRenderEntityType);
+SE_DECLARE_FUNC(js_2d_RenderEntity_setUseLocal);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
 
 extern se::Object *__jsb_cc_Batcher2d_proto; // NOLINT

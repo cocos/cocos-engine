@@ -47,15 +47,6 @@ export declare class NativeRenderEntity {
     removeDynamicRenderDrawInfo();
     clearDynamicRenderDrawInfos();
 
-    get isMask(): boolean;
-    set isMask(val: boolean);
-
-    get isSubMask(): boolean;
-    set isSubMask(val: boolean);
-
-    get isMaskInverted(): boolean;
-    set isMaskInverted(val: boolean);
-
     get node(): Node | null;
     set node(node: Node | null);
 
@@ -64,9 +55,6 @@ export declare class NativeRenderEntity {
 
     get staticDrawInfoSize(): number;
     set staticDrawInfoSize(size: number);
-
-    get useLocal(): boolean;
-    set useLocal(val: boolean);
 
     getStaticRenderDrawInfo(index: number): NativeRenderDrawInfo;
     getEntitySharedBufferForJS(): ArrayBufferLike;
