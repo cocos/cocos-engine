@@ -158,3 +158,12 @@ export function updateChildrenForDeserialize (node: Node) {
 //     });
 //     node._isChildrenRedefined = true;
 // }
+export function ExtraEventMethods () {}
+
+ExtraEventMethods.prototype.once = function once <Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any) {
+    return this.on(type, callback, target, true) as Callback;
+};
+
+ExtraEventMethods.prototype.targetOff = function targetOff (typeOrTarget: any) {
+    this.removeAll(typeOrTarget);
+};

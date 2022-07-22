@@ -25,14 +25,14 @@
 import { ccclass, serializable } from 'cc.decorator';
 
 import { legacyCC } from '../global-exports';
-// import { CallbacksInvoker } from '../event/callbacks-invoker';
+import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { applyMixins } from '../event/event-target-factory';
 import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { extname } from '../utils/path';
+import { ExtraEventMethods } from '../utils/jsb-utils'
 import '../data/object';
-import { ExtraEventify } from '../event/eventify.jsb';
 
 declare const jsb: any;
 
@@ -44,7 +44,7 @@ export type CreateNodeCallback = (error: Error | null, node: Node) => void;
 type EventType = string | number;
 
 
-applyMixins(jsb.Asset, [ExtraEventify()]);
+applyMixins(jsb.Asset, [CallbacksInvoker, ExtraEventMethods]);
 
 const assetProto: any = jsb.Asset.prototype;
 
