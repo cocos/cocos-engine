@@ -158,6 +158,7 @@ export function updateChildrenForDeserialize (node: Node) {
 //     });
 //     node._isChildrenRedefined = true;
 // }
+type EventType = string | number;
 export function ExtraEventMethods () {}
 
 ExtraEventMethods.prototype.once = function once <Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any) {
