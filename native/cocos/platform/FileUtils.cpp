@@ -675,7 +675,7 @@ ccstd::string FileUtils::fullPathForFilename(const ccstd::string &filename) cons
 
         if (!fullpath.empty()) {
             // Using the filename passed in as key.
-            _fullPathCache.insert(std::make_pair(filename, fullpath));
+            _fullPathCache.emplace(filename, fullpath);
             return fullpath;
         }
     }
@@ -812,7 +812,7 @@ bool FileUtils::isDirectoryExist(const ccstd::string &dirPath) const {
         // searchPath + file_path
         fullpath = fullPathForFilename(searchIt + dirPath);
         if (isDirectoryExistInternal(fullpath)) {
-            _fullPathCache.insert(std::make_pair(dirPath, fullpath));
+            _fullPathCache.emplace(dirPath, fullpath);
             return true;
         }
     }

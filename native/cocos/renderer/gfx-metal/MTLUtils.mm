@@ -410,7 +410,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
-    pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
+    pipelineMap.emplace(curPass->getHash(), pipelineState);
     ((CCMTLPipelineState *)pipelineState)->check();
     delete pipelineInfo.shader;
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
