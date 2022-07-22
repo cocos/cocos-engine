@@ -167,6 +167,20 @@ exports.listeners = {
             return;
         }
 
+        /**
+         * Hack：阻断
+         * 由于目前的 command 机制，
+         * 无法控制组件的属性之间的互相修改值
+         * preview-set-property 和 cancel-preview-set-property 
+         * 对某些属性无法完美配合赋值和取消，所以需要阻断
+         */
+        const stopTheseTooltips = [
+            'i18n:animation.default_clip',
+        ];
+        if (stopTheseTooltips.includes(dump.tooltip)) {
+            return;
+        }
+
         const { method, value: assetUuid } = event.detail;
         if (method === 'confirm') {
             clearTimeout(panel.previewTimeId);
@@ -181,6 +195,8 @@ exports.listeners = {
                         if (dump.values) {
                             value = dump.values[i];
                         }
+
+
 
                         // 预览新的值
                         value.uuid = assetUuid;
