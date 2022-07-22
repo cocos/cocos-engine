@@ -117,7 +117,7 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
         }
         [jb setCallback:cb];
         cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
-            [[JsbBridge sharedInstance] release];
+            [[JsbBridgeWrapper sharedInstance] release];
         });
     }
     return self;
