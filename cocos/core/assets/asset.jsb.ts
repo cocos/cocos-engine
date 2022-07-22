@@ -41,8 +41,6 @@ declare const jsb: any;
  * @param node - the created node or null
  */
 export type CreateNodeCallback = (error: Error | null, node: Node) => void;
-type EventType = string | number;
-
 
 applyMixins(jsb.Asset, [CallbacksInvoker, ExtraEventMethods]);
 
