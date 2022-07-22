@@ -58,7 +58,7 @@ class RenderEntity final : public Node::UserData {
 public:
     static constexpr uint32_t STATIC_DRAW_INFO_CAPACITY = 4;
 
-    RenderEntity();
+    RenderEntity(RenderEntityType type);
     ~RenderEntity() override;
 
     void addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo);
@@ -86,7 +86,6 @@ public:
     void setEnumStencilStage(StencilStage stage);
 
     inline RenderEntityType getRenderEntityType() const { return _renderEntityType; };
-    void setRenderEntityType(uint32_t type);
 
     inline uint32_t getStaticDrawInfoSize() const { return _staticDrawInfoSize; };
     void setStaticDrawInfoSize(uint32_t size);

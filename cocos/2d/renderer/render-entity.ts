@@ -120,10 +120,9 @@ export class RenderEntity {
     constructor (entityType: RenderEntityType) {
         if (JSB) {
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderEntity();
+                this._nativeObj = new NativeRenderEntity(entityType);
             }
-            this.setRenderEntityType(entityType);
-
+            this._renderEntityType = entityType;
             this.initSharedBuffer();
         }
     }
@@ -217,15 +216,6 @@ export class RenderEntity {
             }
         }
         this._stencilStage = stage;
-    }
-
-    setRenderEntityType (type: RenderEntityType) {
-        if (JSB) {
-            if (this._renderEntityType !== type) {
-                this._nativeObj.setRenderEntityType(type);
-            }
-        }
-        this._renderEntityType = type;
     }
 
     setUseLocal (useLocal: boolean) {

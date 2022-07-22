@@ -267,7 +267,7 @@ private:
     };
     gfx::InputAssemblerInfo* _iaInfo{nullptr};
     ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
-    uint16_t _nextFreeIAHandle{0};
     LocalDSBF* _localDSBF{nullptr};
+    uint16_t _nextFreeIAHandle{0};
 };
 } // namespace cc

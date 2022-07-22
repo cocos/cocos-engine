@@ -40,7 +40,7 @@ export declare class NativeRenderDrawInfo {
 }
 
 export declare class NativeRenderEntity {
-    constructor();
+    constructor(type: number);
 
     addDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo);
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);
@@ -68,7 +68,6 @@ export declare class NativeRenderEntity {
     get useLocal(): boolean;
     set useLocal(val: boolean);
 
-    setRenderEntityType(type: number);
     getStaticRenderDrawInfo(index: number): NativeRenderDrawInfo;
     getEntitySharedBufferForJS(): ArrayBufferLike;
 }
