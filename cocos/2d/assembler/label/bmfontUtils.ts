@@ -43,6 +43,8 @@ class LetterInfo {
 }
 
 const _tmpRect = new Rect();
+const _defaultLetterAtlas = new LetterAtlas(64, 64);
+const _defaultFontAtlas = new FontAtlas(null);
 
 let _comp: Label | null = null;
 let _uiTrans: UITransform | null = null;
@@ -163,9 +165,9 @@ export const bmfontUtils = {
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
         if (!shareLabelInfo.fontAtlas) {
             if (comp.cacheMode === CacheMode.CHAR) {
-                shareLabelInfo.fontAtlas = new LetterAtlas(64, 64);
+                shareLabelInfo.fontAtlas = _defaultLetterAtlas;
             } else {
-                shareLabelInfo.fontAtlas = new FontAtlas(null);
+                shareLabelInfo.fontAtlas = _defaultFontAtlas;
             }
         }
 
