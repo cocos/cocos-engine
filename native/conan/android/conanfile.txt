@@ -3,7 +3,7 @@ openssl/1.1.1o
 libwebsockets/4.3.0
 glslang/11.5.0
 freetype/2.10.1
-libwebp/1.2.2
+#libwebp/1.2.2
 libcurl/7.83.1
 libjpeg/9c
 tbb/2020.3
