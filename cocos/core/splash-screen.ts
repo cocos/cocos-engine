@@ -173,13 +173,17 @@ export class SplashScreen {
             device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
         const dw = swapchain.width; const dh = swapchain.height;
         const refW = dw < dh ? dw : dh;
+        const deviceAspect = dw / dh;
+        const designRes = window._CCSettings.designResolution;
+        const designtAspect = designRes.width / designRes.height;
+        const ratio = deviceAspect / designtAspect;
         // update logo uniform
         this._curTime += deltaTime * 1000;
         const percent = clamp01(this._curTime / settings.totalTime);
         let u_p = easing.cubicOut(percent);
         if (settings.effect === 'NONE') u_p = 1.0;
         const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
-        const logoW = refW * settings.displayRatio;
+        const logoW = refW * settings.displayRatio * ratio;
         let scaleX = logoW * logoTW / logoTH;
         let scaleY = logoW;
         if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
