@@ -74,7 +74,7 @@ public:
     PipelineRuntime& operator=(PipelineRuntime&& rhs) = delete;
     PipelineRuntime& operator=(PipelineRuntime const& rhs) = delete;
 
-    virtual ~PipelineRuntime() noexcept = 0;
+    virtual ~PipelineRuntime() noexcept = default;
 
     virtual bool activate(gfx::Swapchain * swapchain) = 0;
     virtual bool destroy() noexcept = 0;
@@ -111,8 +111,6 @@ public:
     virtual bool isOcclusionQueryEnabled() const = 0;
 };
 
-inline PipelineRuntime::~PipelineRuntime() noexcept = default;
-
 class Setter {
 public:
     Setter() noexcept = default;
@@ -121,7 +119,7 @@ public:
     Setter& operator=(Setter&& rhs) = delete;
     Setter& operator=(Setter const& rhs) = delete;
 
-    virtual ~Setter() noexcept = 0;
+    virtual ~Setter() noexcept = default;
 
     virtual void setMat4(const ccstd::string& name, const cc::Mat4& mat) = 0;
     virtual void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) = 0;
@@ -137,13 +135,9 @@ public:
     virtual void setSampler(const ccstd::string& name, gfx::Sampler* sampler) = 0;
 };
 
-inline Setter::~Setter() noexcept = default;
-
 class RasterQueueBuilder : public Setter {
 public:
     RasterQueueBuilder() noexcept = default;
-
-    ~RasterQueueBuilder() noexcept override = 0;
 
     virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) = 0;
@@ -156,13 +150,9 @@ public:
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
 
-inline RasterQueueBuilder::~RasterQueueBuilder() noexcept = default;
-
 class RasterPassBuilder : public Setter {
 public:
     RasterPassBuilder() noexcept = default;
-
-    ~RasterPassBuilder() noexcept override = 0;
 
     virtual void addRasterView(const ccstd::string& name, const RasterView& view) = 0;
     virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
@@ -175,25 +165,17 @@ public:
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
 
-inline RasterPassBuilder::~RasterPassBuilder() noexcept = default;
-
 class ComputeQueueBuilder : public Setter {
 public:
     ComputeQueueBuilder() noexcept = default;
-
-    ~ComputeQueueBuilder() noexcept override = 0;
 
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) = 0;
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
-inline ComputeQueueBuilder::~ComputeQueueBuilder() noexcept = default;
-
 class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
-
-    ~ComputePassBuilder() noexcept override = 0;
 
     virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
 
@@ -204,8 +186,6 @@ public:
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
-inline ComputePassBuilder::~ComputePassBuilder() noexcept = default;
-
 class MovePassBuilder {
 public:
     MovePassBuilder() noexcept = default;
@@ -214,12 +194,10 @@ public:
     MovePassBuilder& operator=(MovePassBuilder&& rhs) = delete;
     MovePassBuilder& operator=(MovePassBuilder const& rhs) = delete;
 
-    virtual ~MovePassBuilder() noexcept = 0;
+    virtual ~MovePassBuilder() noexcept = default;
 
     virtual void addPair(const MovePair& pair) = 0;
 };
-
-inline MovePassBuilder::~MovePassBuilder() noexcept = default;
 
 class CopyPassBuilder {
 public:
@@ -229,12 +207,10 @@ public:
     CopyPassBuilder& operator=(CopyPassBuilder&& rhs) = delete;
     CopyPassBuilder& operator=(CopyPassBuilder const& rhs) = delete;
 
-    virtual ~CopyPassBuilder() noexcept = 0;
+    virtual ~CopyPassBuilder() noexcept = default;
 
     virtual void addPair(const CopyPair& pair) = 0;
 };
-
-inline CopyPassBuilder::~CopyPassBuilder() noexcept = default;
 
 class SceneVisitor {
 public:
@@ -244,7 +220,7 @@ public:
     SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
     SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
 
-    virtual ~SceneVisitor() noexcept = 0;
+    virtual ~SceneVisitor() noexcept = default;
 
     virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
 
@@ -257,8 +233,6 @@ public:
     virtual void draw(const gfx::DrawInfo &info) = 0;
 };
 
-inline SceneVisitor::~SceneVisitor() noexcept = default;
-
 class SceneTask {
 public:
     SceneTask() noexcept = default;
@@ -267,15 +241,13 @@ public:
     SceneTask& operator=(SceneTask&& rhs) = delete;
     SceneTask& operator=(SceneTask const& rhs) = delete;
 
-    virtual ~SceneTask() noexcept = 0;
+    virtual ~SceneTask() noexcept = default;
 
     virtual TaskType getTaskType() const noexcept = 0;
     virtual void     start() = 0;
     virtual void     join() = 0;
     virtual void     submit() = 0;
 };
-
-inline SceneTask::~SceneTask() noexcept = default;
 
 class SceneTransversal {
 public:
@@ -285,12 +257,10 @@ public:
     SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
     SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
 
-    virtual ~SceneTransversal() noexcept = 0;
+    virtual ~SceneTransversal() noexcept = default;
 
     virtual SceneTask* transverse(SceneVisitor *visitor) const = 0;
 };
-
-inline SceneTransversal::~SceneTransversal() noexcept = default;
 
 class LayoutGraphBuilder {
 public:
@@ -300,7 +270,7 @@ public:
     LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
     LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
 
-    virtual ~LayoutGraphBuilder() noexcept = 0;
+    virtual ~LayoutGraphBuilder() noexcept = default;
 
     virtual void clear() = 0;
     virtual uint32_t addRenderStage(const ccstd::string& name) = 0;
@@ -314,13 +284,9 @@ public:
     virtual ccstd::string print() const = 0;
 };
 
-inline LayoutGraphBuilder::~LayoutGraphBuilder() noexcept = default;
-
 class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
-
-    ~Pipeline() noexcept override = 0;
 
     virtual bool containsResource(const ccstd::string& name) const = 0;
     virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
@@ -342,8 +308,6 @@ public:
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) = 0;
 };
 
-inline Pipeline::~Pipeline() noexcept = default;
-
 class PipelineBuilder {
 public:
     PipelineBuilder() noexcept = default;
@@ -352,12 +316,10 @@ public:
     PipelineBuilder& operator=(PipelineBuilder&& rhs) = delete;
     PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
 
-    virtual ~PipelineBuilder() noexcept = 0;
+    virtual ~PipelineBuilder() noexcept = default;
 
     virtual void setup(const ccstd::vector<scene::Camera*>& cameras, Pipeline* pipeline) = 0;
 };
-
-inline PipelineBuilder::~PipelineBuilder() noexcept = default;
 
 class Factory {
 public:
