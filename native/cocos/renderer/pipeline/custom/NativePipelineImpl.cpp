@@ -338,8 +338,9 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     macros["CC_PIPELINE_TYPE"] = 0;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
+#if CC_USE_DEBUG_RENDERER
     DebugRenderer::getInstance()->activate(device);
-
+#endif
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
     // pipeline construct.
