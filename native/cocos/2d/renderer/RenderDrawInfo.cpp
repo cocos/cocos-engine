@@ -103,8 +103,8 @@ void RenderDrawInfo::destroy() {
     }
 
     if (_localDSBF) {
-        _localDSBF->ds->destroy();
-        _localDSBF->uboBuf->destroy();
+        CC_SAFE_DELETE(_localDSBF->ds);
+        CC_SAFE_DELETE(_localDSBF->uboBuf);
         CC_SAFE_DELETE(_localDSBF);
     }
 }
