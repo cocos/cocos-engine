@@ -32,7 +32,7 @@
 namespace cc {
 
 static gfx::DescriptorSetInfo gDsInfo;
-static float matrixData[pipeline::UBOLocal::COUNT];
+static float matrixData[pipeline::UBOLocal::COUNT] = {0.F};
 void mat4ToFloatArray(const cc::Mat4& mat, float* out, index_t ofs = 0) {
     memcpy(out + ofs, mat.m, 16 * sizeof(float));
 }
