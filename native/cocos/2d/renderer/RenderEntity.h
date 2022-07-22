@@ -74,6 +74,8 @@ public:
 
     inline bool getIsMaskInverted() const { return _isMaskInverted; }
     void setIsMaskInverted(bool isMaskInverted);
+    inline bool getUseLocal() const { return _useLocal; }
+    void setUseLocal(bool useLocal);
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
@@ -112,6 +114,7 @@ private:
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     bool _isMask{false};
     bool _isSubMask{false};
+    bool _useLocal{false};
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};

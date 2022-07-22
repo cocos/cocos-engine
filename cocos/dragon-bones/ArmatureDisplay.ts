@@ -1343,7 +1343,9 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected createRenderEntity () {
-        return new RenderEntity(RenderEntityType.DYNAMIC);
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
     }
 }
 

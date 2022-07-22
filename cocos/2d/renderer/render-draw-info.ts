@@ -34,7 +34,6 @@ export enum RenderDrawInfoType {
     COMP,
     MODEL,
     IA,
-    TILED
 }
 
 export class RenderDrawInfo {
@@ -56,6 +55,7 @@ export class RenderDrawInfo {
     protected _texture: Texture | null = null;
     protected _sampler: Sampler | null = null;
     protected _stride = 0;
+    protected _useLocal = false;
 
     protected _model: Model | null = null;
     protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;

@@ -48,6 +48,7 @@ export class RenderEntity {
     protected _isSubMask = false;
     // is mask inverted
     protected _isMaskInverted = false;
+    protected _useLocal = false;
 
     protected declare _floatSharedBuffer: Float32Array;
     protected declare _uint8SharedBuffer: Uint8Array;
@@ -225,6 +226,15 @@ export class RenderEntity {
             }
         }
         this._renderEntityType = type;
+    }
+
+    setUseLocal (useLocal: boolean) {
+        if (JSB) {
+            if (this._useLocal !== useLocal) {
+                this._nativeObj.useLocal = useLocal;
+            }
+        }
+        this._useLocal = useLocal;
     }
 
     private initSharedBuffer () {

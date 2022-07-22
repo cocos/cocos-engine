@@ -60,6 +60,9 @@ void RenderEntity::setIsSubMask(bool isSubMask) {
 void RenderEntity::setIsMaskInverted(bool isMaskInverted) {
     _isMaskInverted = isMaskInverted;
 }
+void RenderEntity::setUseLocal(bool useLocal) {
+    _useLocal = useLocal;
+}
 void RenderEntity::setNode(Node* node) {
     if (_node) {
         _node->setUserData(nullptr);

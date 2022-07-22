@@ -305,52 +305,12 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         curdrawBatch->setInputAssembler(ia);
         curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
         const auto& pass = curdrawBatch->getPasses().at(0);
-
-        drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
-        curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
-        _batches.push_back(curdrawBatch);
-    } else if (drawInfoType == RenderDrawInfoType::TILED) {
-        generateBatch(_currEntity, _currDrawInfo);
-        uint32_t dataHash = drawInfo->getDataHash();
-        entity->setEnumStencilStage(_stencilManager->getStencilStage());
-        auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
-        _currHash = dataHash;
-        _currMaterial = drawInfo->getMaterial();
-        _currStencilStage = tempStage;
-        _currLayer = entity->getNode()->getLayer();
-
-        // make sure next generateBatch return.
-        _currEntity = nullptr;
-        _currDrawInfo = nullptr;
-        _currMeshBuffer = nullptr;
-
-        // if(frame)
-        _currTexture = drawInfo->getTexture();
-        _currTextureHash = drawInfo->getTextureHash();
-        _currSampler = drawInfo->getSampler();
-        _currSamplerHash = _currSampler->getHash();
-        setIndexRange(drawInfo);
-
-        UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
-        currMeshBuffer->setDirty(true);
-        gfx::InputAssembler* ia = currMeshBuffer->requireFreeIA(getDevice());
-        ia->setFirstIndex(drawInfo->getIndexOffset());
-        ia->setIndexCount(drawInfo->getIbCount());
-
-        // stencilstage
-        gfx::DepthStencilState* depthStencil = nullptr;
-        ccstd::hash_t dssHash = 0;
-        StencilStage entityStage = entity->getEnumStencilStage();
-        depthStencil = _stencilManager->getDepthStencilState(entityStage, drawInfo->getMaterial());
-        dssHash = _stencilManager->getStencilHash(entityStage);
-
-        auto* curdrawBatch = _drawBatchPool.alloc();
-        curdrawBatch->setVisFlags(_currLayer);
-        curdrawBatch->setInputAssembler(ia);
-        curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
-        const auto& pass = curdrawBatch->getPasses().at(0);
-
-        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+        if (entity->getUseLocal()) {
+            drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
+            curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
+        } else {
+            curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+        }
         _batches.push_back(curdrawBatch);
     }
 }
