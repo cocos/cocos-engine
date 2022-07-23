@@ -99,33 +99,20 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
         }
+        RenderEntityType entityType = entity->getRenderEntityType();
         if (entity->isEnabled()) {
-            RenderEntityType entityType = entity->getRenderEntityType();
-
-            // when filling buffers, we should distinguish common components and other complex components like middleware
-            if (entityType == RenderEntityType::STATIC) {
-                std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-                for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
-                    handleDrawInfo(entity, &(drawInfos[i]), node);
-                }
-            } else if (entityType == RenderEntityType::DYNAMIC) {
-                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (auto* drawInfo : drawInfos) {
+            
+            uint32_t size = entity->getRenderDrawInfosSize();
+            for (uint32_t i = 0; i < size; i++) {
+                auto* drawInfo = entity->getRenderDrawInfoAt(i);
+                if (entityType == RenderEntityType::CROSSED && drawInfo->getSubNode()) {
+                    walk(drawInfo->getSubNode(), entity->getOpacity());
+                } else {
                     handleDrawInfo(entity, drawInfo, node);
                 }
-            } else if (entityType == RenderEntityType::CROSSED) {
-                //for tiledmap
-                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (auto* drawInfo : drawInfos) {
-                    if (drawInfo->getSubNode()) {
-                        walk(drawInfo->getSubNode(), entity->getOpacity());
-                    } else {
-                        handleDrawInfo(entity, drawInfo, node);
-                    }
-                }
-                breakWalk = true;
             }
         }
+        if (entityType == RenderEntityType::CROSSED) breakWalk = true;
         entity->setColorDirty(false);
     }
     

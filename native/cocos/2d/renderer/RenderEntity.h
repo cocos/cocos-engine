@@ -95,9 +95,13 @@ public:
     void setNode(Node* node);
 
     inline uint32_t getStencilStage() const { return static_cast<uint32_t>(_stencilStage); }
-    void setStencilStage(uint32_t stage);
+    inline void setStencilStage(uint32_t stage) {
+        _stencilStage = static_cast<StencilStage>(stage);
+    }
     inline StencilStage getEnumStencilStage() const { return _stencilStage; }
-    void setEnumStencilStage(StencilStage stage);
+    inline void setEnumStencilStage(StencilStage stage) {
+        _stencilStage = stage;
+    }
 
     inline RenderEntityType getRenderEntityType() const { return _renderEntityType; };
 
@@ -118,6 +122,12 @@ public:
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
+    inline uint32_t getRenderDrawInfosSize() const {
+        return _renderEntityType == RenderEntityType::STATIC ? _staticDrawInfoSize : _dynamicDrawInfos.size();
+    }
+    inline RenderDrawInfo* getRenderDrawInfoAt(uint32_t index) {
+        return _renderEntityType == RenderEntityType::STATIC ? &(_staticDrawInfos[index]) : _dynamicDrawInfos[index];
+    }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
