@@ -728,28 +728,31 @@ function realTimeTraverse (batcher: Batcher2D) {
 
     clipper.clipEnd();
 
-    if (graphics && _debugBones) {
-        let bone: spine.Bone;
-        graphics.strokeColor = _boneColor;
-        graphics.fillColor = _slotColor; // Root bone color is same as slot color.
+    if (graphics) {
+        if (_debugBones) {
+            let bone: spine.Bone;
+            graphics.strokeColor = _boneColor;
+            graphics.fillColor = _slotColor; // Root bone color is same as slot color.
 
-        for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
-            bone = locSkeleton.bones[i];
-            const x = bone.data.length * bone.a + bone.worldX;
-            const y = bone.data.length * bone.c + bone.worldY;
+            for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
+                bone = locSkeleton.bones[i];
+                const x = bone.data.length * bone.a + bone.worldX;
+                const y = bone.data.length * bone.c + bone.worldY;
 
-            // Bone lengths.
-            graphics.moveTo(bone.worldX, bone.worldY);
-            graphics.lineTo(x, y);
-            graphics.stroke();
+                // Bone lengths.
+                graphics.moveTo(bone.worldX, bone.worldY);
+                graphics.lineTo(x, y);
+                graphics.stroke();
 
-            // Bone origins.
-            graphics.circle(bone.worldX, bone.worldY, Math.PI * 1.5);
-            graphics.fill();
-            if (i === 0) {
-                graphics.fillColor = _originColor;
+                // Bone origins.
+                graphics.circle(bone.worldX, bone.worldY, Math.PI * 1.5);
+                graphics.fill();
+                if (i === 0) {
+                    graphics.fillColor = _originColor;
+                }
             }
         }
+        graphics.updateRenderer();
     }
 }
 
