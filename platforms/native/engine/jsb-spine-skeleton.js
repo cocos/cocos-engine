@@ -884,13 +884,10 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
-            const meshBuffer = renderData.chunk.meshBuffer;
-            meshBuffer.setDirty();
             const drawInfo = this.requestDrawInfo(index);
             drawInfo.setTexture(realTexture.getGFXTexture());
             drawInfo.setTextureHash(realTexture.getHash());
             drawInfo.setSampler(realTexture.getGFXSampler());
-            drawInfo.setBlendHash(this.blendHash);
             drawInfo.setMaterial(this.material);
             renderData.fillDrawInfoAttributes(drawInfo);
 

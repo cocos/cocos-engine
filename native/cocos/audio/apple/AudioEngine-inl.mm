@@ -39,7 +39,7 @@
 #include "base/Utils.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
-#include "AudioDecoder.h""
+#include "AudioDecoder.h"
 
 using namespace cc;
 

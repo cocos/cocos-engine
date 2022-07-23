@@ -32,6 +32,8 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
+import { TextureBarrier } from './states/texture-barrier';
+import { BufferBarrier } from './states/buffer-barrier';
 import { GCObject } from '../../data/gc-object';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
@@ -679,6 +681,15 @@ export enum BarrierType {
     SPLIT_END,
 }
 
+export enum PassType {
+    RASTER,
+    COMPUTE,
+    COPY,
+    MOVE,
+    RAYTRACE,
+    PRESENT,
+}
+
 export type BufferUsage = BufferUsageBit;
 export type BufferFlags = BufferFlagBit;
 export type MemoryAccess = MemoryAccessBit;
@@ -759,6 +770,19 @@ export class DeviceCaps {
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
         this.clipSpaceSignY = info.clipSpaceSignY;
+        return this;
+    }
+}
+
+export class DeviceOptions {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public enableBarrierDeduce: boolean = true,
+    ) {}
+
+    public copy (info: Readonly<DeviceOptions>) {
+        this.enableBarrierDeduce = info.enableBarrierDeduce;
         return this;
     }
 }
@@ -1535,13 +1559,25 @@ export class SubpassDependency {
     constructor (
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
-        public barrier: GeneralBarrier = null!,
+        public generalBarrier: GeneralBarrier = null!,
+        public bufferBarriers: BufferBarrier = null!,
+        public buffers: Buffer = null!,
+        public bufferBarrierCount: number = 0,
+        public textureBarriers: TextureBarrier = null!,
+        public textures: Texture = null!,
+        public textureBarrierCount: number = 0,
     ) {}
 
     public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
-        this.barrier = info.barrier;
+        this.generalBarrier = info.generalBarrier;
+        this.bufferBarriers = info.bufferBarriers;
+        this.buffers = info.buffers;
+        this.bufferBarrierCount = info.bufferBarrierCount;
+        this.textureBarriers = info.textureBarriers;
+        this.textures = info.textures;
+        this.textureBarrierCount = info.textureBarrierCount;
         return this;
     }
 }

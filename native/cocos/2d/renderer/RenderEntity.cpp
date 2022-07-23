@@ -60,6 +60,9 @@ void RenderEntity::setIsSubMask(bool isSubMask) {
 void RenderEntity::setIsMaskInverted(bool isMaskInverted) {
     _isMaskInverted = isMaskInverted;
 }
+void RenderEntity::setUseLocal(bool useLocal) {
+    _useLocal = useLocal;
+}
 void RenderEntity::setNode(Node* node) {
     if (_node) {
         _node->setUserData(nullptr);
@@ -89,7 +92,7 @@ ccstd::vector<RenderDrawInfo*>& RenderEntity::getDynamicRenderDrawInfos() {
     return _dynamicDrawInfos;
 }
 void RenderEntity::setStaticDrawInfoSize(uint32_t size) {
-    CC_ASSERT(size < RenderEntity::STATIC_DRAW_INFO_CAPACITY);
+    CC_ASSERT(size <= RenderEntity::STATIC_DRAW_INFO_CAPACITY);
     _staticDrawInfoSize = size;
 }
 RenderDrawInfo* RenderEntity::getStaticRenderDrawInfo(uint32_t index) {

@@ -39,11 +39,7 @@ namespace cc {
 uint32_t Node::clearFrame{0};
 uint32_t Node::clearRound{1000};
 const uint32_t Node::TRANSFORM_ON{1 << 0};
-const uint32_t Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
-const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
-const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
 uint32_t Node::globalFlagChangeVersion{0};
-//
 
 namespace {
 const ccstd::string EMPTY_NODE_NAME;

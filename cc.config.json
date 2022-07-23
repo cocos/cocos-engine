@@ -11,7 +11,8 @@
                 "970b0598-bcb0-4714-91fb-2e81440dccd8",
                 "bcd64cc6-2dd9-43f6-abbe-66318d332032",
                 "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
-                "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
+                "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
+                "9361fd90-ba52-4f84-aa93-6e878fd576ca"
             ]
         },
         "gfx-webgl": {
@@ -24,18 +25,12 @@
                 "gfx-webgl2"
             ]
         },
-        "gfx-webgpu": {
-            "modules": [
-                "gfx-webgpu"
-            ]
-        },
         "3d": {
             "modules": [
                 "3d"
             ],
             "dependentAssets": [
                 "1baf0fc9-befa-459c-8bdd-af1a450a0319",
-                "9361fd90-ba52-4f84-aa93-6e878fd576ca",
                 "511d2633-09a7-4bdd-ac42-f778032124b3",
                 "5d45aa00-e064-4938-b314-4265f0c2258c",
                 "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
@@ -107,12 +102,18 @@
             "modules": [
                 "physics-cannon",
                 "physics-framework"
+            ],
+            "dependentAssets": [
+                "ba21476f-2866-4f81-9c4d-6e359316e448"
             ]
         },
         "physics-physx": {
             "modules": [
                 "physics-physx",
                 "physics-framework"
+            ],
+            "dependentAssets": [
+                "ba21476f-2866-4f81-9c4d-6e359316e448"
             ]
         },
         "physics-ammo": {
@@ -120,12 +121,18 @@
                 "physics-ammo",
                 "physics-framework",
                 "wait-for-ammo-instantiation"
+            ],
+            "dependentAssets": [
+                "ba21476f-2866-4f81-9c4d-6e359316e448"
             ]
         },
         "physics-builtin": {
             "modules": [
                 "physics-builtin",
                 "physics-framework"
+            ],
+            "dependentAssets": [
+                "ba21476f-2866-4f81-9c4d-6e359316e448"
             ]
         },
         "physics-2d-framework": {
@@ -164,6 +171,20 @@
             ]
         },
         "occlusion-query": {
+            "modules": [],
+            "dependentAssets": [
+                "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0"
+            ]
+        },
+        "geometry-renderer": {
+            "modules": [
+                "geometry-renderer"
+            ],
+            "dependentAssets": [
+                "4bb480dd-8384-4bc9-987f-de67cc53052a"
+            ]
+        },
+        "debug-renderer": {
             "modules": [],
             "dependentAssets": [
                 "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0"
@@ -404,84 +425,98 @@
     "constants": {
         "HTML5": {
             "comment": "Running in Web platform",
+            "type": "boolean",
             "value": false,
             "internal": false,
             "dynamic": true
         },
         "NATIVE": {
             "comment": "Running in native platform (mobile app, desktop app, or simulator).",
+            "type": "boolean",
             "value": false,
             "internal": false,
             "dynamic": true
         },
         "WECHAT": {
             "comment": "Running in the Wechat's mini game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "BAIDU": {
             "comment": "Running in the baidu's mini game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "XIAOMI": {
             "comment": "Running in the xiaomi's quick game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "ALIPAY": {
             "comment": "Running in the alipay's mini game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "BYTEDANCE": {
             "comment": "Running in the ByteDance's mini game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "OPPO": {
             "comment": "Running in the oppo's quick game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "VIVO": {
             "comment": "Running in the vivo's quick game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "HUAWEI": {
             "comment": "Running in the huawei's quick game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "COCOSPLAY": {
             "comment": "Running in the cocosplay.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "QTT": {
             "comment": "Running in the qtt's quick game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "LINKSURE": {
             "comment": "Running in the linksure's quick game.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "EDITOR": {
             "comment": "Running in the editor.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false,
@@ -489,6 +524,7 @@
         },
         "PREVIEW": {
             "comment": "Preview in browser or simulator.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false,
@@ -496,12 +532,14 @@
         },
         "BUILD": {
             "comment": "Running in published project.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "TEST": {
             "comment": "Running in the engine's unit test.",
+            "type": "boolean",
             "value": false,
             "ccGlobal": true,
             "internal": false,
@@ -509,17 +547,20 @@
         },
         "DEBUG": {
             "comment": "Running debug mode.",
+            "type": "boolean",
             "value": true,
             "ccGlobal": true,
             "internal": false
         },
         "SERVER_MODE": {
             "comment": "Running in the server mode.",
+            "type": "boolean",
             "value": false,
-            "internal": false
+            "internal": true
         },
         "DEV": {
             "comment": "Running in the editor or preview.",
+            "type": "boolean",
             "value": "$EDITOR || $PREVIEW || $TEST",
             "ccGlobal": true,
             "internal": false,
@@ -527,25 +568,28 @@
         },
         "MINIGAME": {
             "comment": "Running in mini game.",
+            "type": "boolean",
             "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
         "RUNTIME_BASED": {
             "comment": "Running in runtime based environment.",
+            "type": "boolean",
             "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE",
             "ccGlobal": true,
             "internal": false
         },
         "SUPPORT_JIT": {
             "comment": "Support JIT.",
+            "type": "boolean",
             "value": "!($MINIGAME || $RUNTIME_BASED)",
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": true
+            "internal": false
         },
         "JSB": {
             "comment": "Running in environment where using JSB as the JavaScript interface binding scheme.",
+            "type": "boolean",
             "value": "$NATIVE",
             "ccGlobal": true,
             "internal": false,
@@ -553,8 +597,15 @@
         },
         "NOT_PACK_PHYSX_LIBS": {
             "comment": "This is an internal constant to determine whether pack physx libs.",
+            "type": "boolean",
             "value": false,
             "internal": true
+        },
+        "NET_MODE": {
+            "comment": "The network access mode.\n- 0 Client\n- 1 ListenServer\n- 2 HostServer",
+            "type": "number",
+            "value": 0,
+            "internal": false
         }
     }
 }

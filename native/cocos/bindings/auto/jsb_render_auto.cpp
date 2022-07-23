@@ -6,6 +6,8 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
+#include "cocos/renderer/pipeline/GeometryRenderer.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
@@ -72,6 +74,26 @@ static bool js_render_PipelineRuntime_destroy(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_render_PipelineRuntime_destroy)
 
+static bool js_render_PipelineRuntime_getCommandBuffers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::vector<cc::gfx::CommandBuffer *> result = cobj->getCommandBuffers();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getCommandBuffers)
+
 static bool js_render_PipelineRuntime_getConstantMacros(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -92,6 +114,26 @@ static bool js_render_PipelineRuntime_getConstantMacros(se::State& s) // NOLINT(
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getConstantMacros)
 
+static bool js_render_PipelineRuntime_getDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::DescriptorSet* result = cobj->getDescriptorSet();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDescriptorSet)
+
 static bool js_render_PipelineRuntime_getDescriptorSetLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -111,6 +153,26 @@ static bool js_render_PipelineRuntime_getDescriptorSetLayout(se::State& s) // NO
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDescriptorSetLayout)
+
+static bool js_render_PipelineRuntime_getDevice(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Device* result = cobj->getDevice();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDevice)
 
 static bool js_render_PipelineRuntime_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -155,6 +217,75 @@ static bool js_render_PipelineRuntime_getGlobalDSManager(se::State& s) // NOLINT
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getGlobalDSManager)
+
+static bool js_render_PipelineRuntime_getMacroBool(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        bool result = cobj->getMacroBool(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_getMacroBool)
+
+static bool js_render_PipelineRuntime_getMacroInt(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        int32_t result = cobj->getMacroInt(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_getMacroInt)
+
+static bool js_render_PipelineRuntime_getMacroString(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        const std::string& result = cobj->getMacroString(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_getMacroString)
 
 static bool js_render_PipelineRuntime_getPipelineSceneData(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -365,8 +496,11 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
+    cls->defineProperty("device", _SE(js_render_PipelineRuntime_getDevice_asGetter), nullptr);
     cls->defineProperty("globalDSManager", _SE(js_render_PipelineRuntime_getGlobalDSManager_asGetter), nullptr);
     cls->defineProperty("descriptorSetLayout", _SE(js_render_PipelineRuntime_getDescriptorSetLayout_asGetter), nullptr);
+    cls->defineProperty("descriptorSet", _SE(js_render_PipelineRuntime_getDescriptorSet_asGetter), nullptr);
+    cls->defineProperty("commandBuffers", _SE(js_render_PipelineRuntime_getCommandBuffers_asGetter), nullptr);
     cls->defineProperty("pipelineSceneData", _SE(js_render_PipelineRuntime_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("constantMacros", _SE(js_render_PipelineRuntime_getConstantMacros_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_render_PipelineRuntime_getProfiler_asGetter), _SE(js_render_PipelineRuntime_setProfiler_asSetter));
@@ -374,6 +508,9 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("shadingScale", _SE(js_render_PipelineRuntime_getShadingScale_asGetter), _SE(js_render_PipelineRuntime_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_render_PipelineRuntime_activate));
     cls->defineFunction("destroy", _SE(js_render_PipelineRuntime_destroy));
+    cls->defineFunction("getMacroBool", _SE(js_render_PipelineRuntime_getMacroBool));
+    cls->defineFunction("getMacroInt", _SE(js_render_PipelineRuntime_getMacroInt));
+    cls->defineFunction("getMacroString", _SE(js_render_PipelineRuntime_getMacroString));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_render_PipelineRuntime_onGlobalPipelineStateChanged));
     cls->defineFunction("render", _SE(js_render_PipelineRuntime_render));
     cls->defineFunction("setMacroBool", _SE(js_render_PipelineRuntime_setMacroBool));
@@ -665,6 +802,56 @@ bool js_register_render_Setter(se::Object* obj) // NOLINT(readability-identifier
 se::Object* __jsb_cc_render_RasterQueueBuilder_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_RasterQueueBuilder_class = nullptr;  // NOLINT
 
+static bool js_render_RasterQueueBuilder_addCameraQuad(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 3) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::Material*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addCameraQuad(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::Material*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+            HolderType<std::string, true> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addCameraQuad(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_render_RasterQueueBuilder_addCameraQuad)
+
 static bool js_render_RasterQueueBuilder_addFullscreenQuad(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -674,26 +861,32 @@ static bool js_render_RasterQueueBuilder_addFullscreenQuad(se::State& s) // NOLI
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 1) {
-            HolderType<std::string, true> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addFullscreenQuad(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
         if (argc == 2) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
+            HolderType<cc::Material*, false> arg0 = {};
+            HolderType<cc::render::SceneFlags, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
             cobj->addFullscreenQuad(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<cc::Material*, false> arg0 = {};
+            HolderType<cc::render::SceneFlags, false> arg1 = {};
+            HolderType<std::string, true> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addFullscreenQuad(arg0.value(), arg1.value(), arg2.value());
             return true;
         }
     } while(false);
@@ -736,7 +929,7 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
     do {
         if (argc == 3) {
             HolderType<cc::scene::Camera*, false> arg0 = {};
-            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::LightInfo, false> arg1 = {};
             HolderType<cc::render::SceneFlags, false> arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -753,7 +946,7 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
     do {
         if (argc == 4) {
             HolderType<cc::scene::Camera*, false> arg0 = {};
-            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::LightInfo, false> arg1 = {};
             HolderType<cc::render::SceneFlags, false> arg2 = {};
             HolderType<std::string, true> arg3 = {};
 
@@ -775,6 +968,48 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_render_RasterQueueBuilder_addSceneOfCamera)
 
+static bool js_render_RasterQueueBuilder_clearRenderTarget(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::gfx::Color, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->clearRenderTarget(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_RasterQueueBuilder_clearRenderTarget)
+
+static bool js_render_RasterQueueBuilder_setViewport(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Viewport, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setViewport(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_RasterQueueBuilder_setViewport)
+
 bool js_register_render_RasterQueueBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("RasterQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr);
@@ -782,9 +1017,12 @@ bool js_register_render_RasterQueueBuilder(se::Object* obj) // NOLINT(readabilit
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
+    cls->defineFunction("addCameraQuad", _SE(js_render_RasterQueueBuilder_addCameraQuad));
     cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterQueueBuilder_addFullscreenQuad));
     cls->defineFunction("addScene", _SE(js_render_RasterQueueBuilder_addScene));
     cls->defineFunction("addSceneOfCamera", _SE(js_render_RasterQueueBuilder_addSceneOfCamera));
+    cls->defineFunction("clearRenderTarget", _SE(js_render_RasterQueueBuilder_clearRenderTarget));
+    cls->defineFunction("setViewport", _SE(js_render_RasterQueueBuilder_setViewport));
     cls->install();
     JSBClassType::registerClass<cc::render::RasterQueueBuilder>(cls);
 
@@ -797,6 +1035,56 @@ bool js_register_render_RasterQueueBuilder(se::Object* obj) // NOLINT(readabilit
 }
 se::Object* __jsb_cc_render_RasterPassBuilder_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_RasterPassBuilder_class = nullptr;  // NOLINT
+
+static bool js_render_RasterPassBuilder_addCameraQuad(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 3) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::Material*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addCameraQuad(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::Material*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+            HolderType<std::string, true> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addCameraQuad(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_render_RasterPassBuilder_addCameraQuad)
 
 static bool js_render_RasterPassBuilder_addComputeView(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -830,8 +1118,8 @@ static bool js_render_RasterPassBuilder_addFullscreenQuad(se::State& s) // NOLIN
     size_t argc = args.size();
     do {
         if (argc == 2) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
+            HolderType<cc::Material*, false> arg0 = {};
+            HolderType<cc::render::SceneFlags, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -844,8 +1132,8 @@ static bool js_render_RasterPassBuilder_addFullscreenQuad(se::State& s) // NOLIN
 
     do {
         if (argc == 3) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
+            HolderType<cc::Material*, false> arg0 = {};
+            HolderType<cc::render::SceneFlags, false> arg1 = {};
             HolderType<std::string, true> arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -855,17 +1143,6 @@ static bool js_render_RasterPassBuilder_addFullscreenQuad(se::State& s) // NOLIN
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             if (!ok) { ok = true; break; }
             cobj->addFullscreenQuad(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 1) {
-            HolderType<std::string, true> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addFullscreenQuad(arg0.value());
             return true;
         }
     } while(false);
@@ -884,6 +1161,20 @@ static bool js_render_RasterPassBuilder_addQueue(se::State& s) // NOLINT(readabi
     const auto& args = s.args();
     size_t argc = args.size();
     do {
+        if (argc == 1) {
+            HolderType<cc::render::QueueHint, false> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+            return true;
+        }
+    } while(false);
+
+    do {
         if (argc == 2) {
             HolderType<cc::render::QueueHint, false> arg0 = {};
             HolderType<std::string, true> arg1 = {};
@@ -893,40 +1184,6 @@ static bool js_render_RasterPassBuilder_addQueue(se::State& s) // NOLINT(readabi
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
             cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<cc::render::QueueHint, false> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
-            HolderType<std::string, true> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value(), arg1.value(), arg2.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 1) {
-            HolderType<cc::render::QueueHint, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -961,6 +1218,26 @@ static bool js_render_RasterPassBuilder_addRasterView(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_render_RasterPassBuilder_addRasterView)
 
+static bool js_render_RasterPassBuilder_setViewport(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Viewport, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setViewport(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_RasterPassBuilder_setViewport)
+
 bool js_register_render_RasterPassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("RasterPassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr);
@@ -968,10 +1245,12 @@ bool js_register_render_RasterPassBuilder(se::Object* obj) // NOLINT(readability
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
+    cls->defineFunction("addCameraQuad", _SE(js_render_RasterPassBuilder_addCameraQuad));
     cls->defineFunction("addComputeView", _SE(js_render_RasterPassBuilder_addComputeView));
     cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterPassBuilder_addFullscreenQuad));
     cls->defineFunction("addQueue", _SE(js_render_RasterPassBuilder_addQueue));
     cls->defineFunction("addRasterView", _SE(js_render_RasterPassBuilder_addRasterView));
+    cls->defineFunction("setViewport", _SE(js_render_RasterPassBuilder_setViewport));
     cls->install();
     JSBClassType::registerClass<cc::render::RasterPassBuilder>(cls);
 
@@ -994,6 +1273,26 @@ static bool js_render_ComputeQueueBuilder_addDispatch(se::State& s) // NOLINT(re
     const auto& args = s.args();
     size_t argc = args.size();
     do {
+        if (argc == 4) {
+            HolderType<std::string, true> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+            HolderType<unsigned int, false> arg2 = {};
+            HolderType<unsigned int, false> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            return true;
+        }
+    } while(false);
+
+    do {
         if (argc == 5) {
             HolderType<std::string, true> arg0 = {};
             HolderType<unsigned int, false> arg1 = {};
@@ -1012,52 +1311,6 @@ static bool js_render_ComputeQueueBuilder_addDispatch(se::State& s) // NOLINT(re
             ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
             if (!ok) { ok = true; break; }
             cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 6) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-            HolderType<unsigned int, false> arg3 = {};
-            HolderType<std::string, true> arg4 = {};
-            HolderType<std::string, true> arg5 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 4) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-            HolderType<unsigned int, false> arg3 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             return true;
         }
     } while(false);
@@ -1119,6 +1372,26 @@ static bool js_render_ComputePassBuilder_addDispatch(se::State& s) // NOLINT(rea
     const auto& args = s.args();
     size_t argc = args.size();
     do {
+        if (argc == 4) {
+            HolderType<std::string, true> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+            HolderType<unsigned int, false> arg2 = {};
+            HolderType<unsigned int, false> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            return true;
+        }
+    } while(false);
+
+    do {
         if (argc == 5) {
             HolderType<std::string, true> arg0 = {};
             HolderType<unsigned int, false> arg1 = {};
@@ -1141,52 +1414,6 @@ static bool js_render_ComputePassBuilder_addDispatch(se::State& s) // NOLINT(rea
         }
     } while(false);
 
-    do {
-        if (argc == 6) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-            HolderType<unsigned int, false> arg3 = {};
-            HolderType<std::string, true> arg4 = {};
-            HolderType<std::string, true> arg5 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 4) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-            HolderType<unsigned int, false> arg3 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addDispatch(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-            return true;
-        }
-    } while(false);
-
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
@@ -1201,40 +1428,23 @@ static bool js_render_ComputePassBuilder_addQueue(se::State& s) // NOLINT(readab
     const auto& args = s.args();
     size_t argc = args.size();
     do {
+        if (argc == 0) {
+
+            cc::render::ComputeQueueBuilder* result = cobj->addQueue();
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+            return true;
+        }
+    } while(false);
+
+    do {
         if (argc == 1) {
             HolderType<std::string, true> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
             cc::render::ComputeQueueBuilder* result = cobj->addQueue(arg0.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::render::ComputeQueueBuilder* result = cobj->addQueue(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 0) {
-
-            cc::render::ComputeQueueBuilder* result = cobj->addQueue();
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1728,6 +1938,32 @@ static bool js_render_LayoutGraphBuilder_addShader(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_render_LayoutGraphBuilder_addShader)
 
+static bool js_render_LayoutGraphBuilder_addUniformBlock(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::render::DescriptorBlockIndex, true> arg1 = {};
+        HolderType<std::string, true> arg2 = {};
+        HolderType<cc::gfx::UniformBlock, true> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->addUniformBlock(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addUniformBlock)
+
 static bool js_render_LayoutGraphBuilder_clear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
@@ -1819,6 +2055,7 @@ bool js_register_render_LayoutGraphBuilder(se::Object* obj) // NOLINT(readabilit
     cls->defineFunction("addRenderPhase", _SE(js_render_LayoutGraphBuilder_addRenderPhase));
     cls->defineFunction("addRenderStage", _SE(js_render_LayoutGraphBuilder_addRenderStage));
     cls->defineFunction("addShader", _SE(js_render_LayoutGraphBuilder_addShader));
+    cls->defineFunction("addUniformBlock", _SE(js_render_LayoutGraphBuilder_addUniformBlock));
     cls->defineFunction("clear", _SE(js_render_LayoutGraphBuilder_clear));
     cls->defineFunction("compile", _SE(js_render_LayoutGraphBuilder_compile));
     cls->defineFunction("print", _SE(js_render_LayoutGraphBuilder_print));
@@ -2091,6 +2328,29 @@ static bool js_render_Pipeline_beginFrame(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_render_Pipeline_beginFrame)
 
+static bool js_render_Pipeline_containsResource(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        bool result = cobj->containsResource(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_Pipeline_containsResource)
+
 static bool js_render_Pipeline_createSceneTransversal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
@@ -2209,6 +2469,7 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("addRenderTarget", _SE(js_render_Pipeline_addRenderTarget));
     cls->defineFunction("addRenderTexture", _SE(js_render_Pipeline_addRenderTexture));
     cls->defineFunction("beginFrame", _SE(js_render_Pipeline_beginFrame));
+    cls->defineFunction("containsResource", _SE(js_render_Pipeline_containsResource));
     cls->defineFunction("createSceneTransversal", _SE(js_render_Pipeline_createSceneTransversal));
     cls->defineFunction("endFrame", _SE(js_render_Pipeline_endFrame));
     cls->defineFunction("getDescriptorSetLayout", _SE(js_render_Pipeline_getDescriptorSetLayout));
@@ -2218,6 +2479,49 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
 
     __jsb_cc_render_Pipeline_proto = cls->getProto();
     __jsb_cc_render_Pipeline_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_render_PipelineBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_PipelineBuilder_class = nullptr;  // NOLINT
+
+static bool js_render_PipelineBuilder_setup(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineBuilder>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::vector<cc::scene::Camera *>, true> arg0 = {};
+        HolderType<cc::render::Pipeline*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setup(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineBuilder_setup)
+
+bool js_register_render_PipelineBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("PipelineBuilder", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("setup", _SE(js_render_PipelineBuilder_setup));
+    cls->install();
+    JSBClassType::registerClass<cc::render::PipelineBuilder>(cls);
+
+    __jsb_cc_render_PipelineBuilder_proto = cls->getProto();
+    __jsb_cc_render_PipelineBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -2288,6 +2592,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_MovePassBuilder(ns);
     js_register_render_PipelineRuntime(ns);
     js_register_render_Pipeline(ns);
+    js_register_render_PipelineBuilder(ns);
     js_register_render_RasterPassBuilder(ns);
     js_register_render_RasterQueueBuilder(ns);
     js_register_render_SceneTask(ns);

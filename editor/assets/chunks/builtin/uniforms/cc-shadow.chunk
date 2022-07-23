@@ -3,7 +3,6 @@
 #pragma define NUMCASCADES 4
 #pragma builtin(global)
 layout(set = 0, binding = 2) uniform CCShadow {
-  highp mat4 cc_matLightPlaneProj;
   highp mat4 cc_matLightView;
   highp mat4 cc_matLightViewProj;
   highp vec4 cc_shadowInvProjDepthInfo; // x -> cc_matLightInvProj[10]([2][2]); y -> cc_matLightInvProj[14]([2][3]); z -> cc_matLightInvProj[11]([3][2]); w -> cc_matLightInvProj[15]([3][3]);
@@ -14,11 +13,4 @@ layout(set = 0, binding = 2) uniform CCShadow {
   mediump vec4 cc_shadowLPNNInfo;       // x -> lightType(L); y -> isPacking(P); z -> normalBias(N); w -> CSM level(N);
   lowp vec4 cc_shadowColor;
   mediump vec4 cc_planarNDInfo;         // xyz -> normalized plane (N);  w -> plane (D);
-  highp mat4 cc_matCSMView[NUMCASCADES];
-  highp mat4 cc_matCSMViewProj[NUMCASCADES];
-  highp mat4 cc_matCSMViewProjAtlas[NUMCASCADES];
-  highp vec4 cc_csmProjDepthInfo[NUMCASCADES];
-  highp vec4 cc_csmProjInfo[NUMCASCADES];
-  highp vec4 cc_csmSplitsInfo;           // x-> level_1 far, y-> level_2 far, z-> level_3 far, w-> level_4 far
-  highp vec4 cc_csmInfo;                 // y-> radius
 };

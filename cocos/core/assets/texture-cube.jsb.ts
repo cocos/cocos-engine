@@ -27,6 +27,7 @@ import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { js } from '../utils/js';
 import './simple-texture';
+import { EDITOR, TEST } from 'internal:constants';
 
 const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
@@ -67,6 +68,9 @@ enum MipmapMode {
 }
 textureCubeProto.createNode = null!;
 
+declare const jsb: any;
+
+// @ts-expect-error jsb.TextureCube is exported from cpp
 export type TextureCube = jsb.TextureCube;
 export const TextureCube: any = jsb.TextureCube;
 
@@ -80,15 +84,6 @@ textureCubeProto._ctor = function () {
     this._mipmapAtlas = null;
 };
 
-function _forEachFace (mipmap, callback: (face, faceIndex) => void) {
-    callback(mipmap.front, FaceIndex.front);
-    callback(mipmap.back, FaceIndex.back);
-    callback(mipmap.left, FaceIndex.left);
-    callback(mipmap.right, FaceIndex.right);
-    callback(mipmap.top, FaceIndex.top);
-    callback(mipmap.bottom, FaceIndex.bottom);
-}
-
 Object.defineProperty(textureCubeProto, 'mipmaps', {
     get () {
         return this._mipmaps;
@@ -96,27 +91,6 @@ Object.defineProperty(textureCubeProto, 'mipmaps', {
     set (value) {
         this._mipmaps = value;
         this.setMipmaps(value);
-        this.mipmapLevel = this._mipmaps.length;
-        if (this._mipmaps.length > 0) {
-            const imageAsset = this._mipmaps[0].front;
-            this.reset({
-                width: imageAsset.width,
-                height: imageAsset.height,
-                format: imageAsset.format,
-                mipmapLevel: this._mipmaps.length,
-            });
-            this._mipmaps.forEach((mipmap, level) => {
-                _forEachFace(mipmap, (face, faceIndex) => {
-                    this.assignImage(face, level, faceIndex);
-                });
-            });
-        } else {
-            this.reset({
-                width: 0,
-                height: 0,
-                mipmapLevel: this._mipmaps.length,
-            });
-        }
     }
 });
 
@@ -200,7 +174,9 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
     this.isRGBE = data.rgbe;
-    this._mipmapMode = parseInt(data.mipmapMode);
+    if (data.mipmapMode != undefined) {
+        this._mipmapMode = data.mipmapMode;
+    }
     if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
         const mipmapAtlas = data.mipmapAtlas;
         const mipmapLayout = data.mipmapLayout;

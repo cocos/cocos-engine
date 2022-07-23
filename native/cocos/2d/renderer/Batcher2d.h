@@ -39,7 +39,7 @@
 namespace cc {
 class Root;
 using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
-using UIMeshBufferMap = ccstd::unordered_map<uint32_t, UIMeshBufferArray>;
+using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
 class Batcher2d final {
 public:
@@ -47,7 +47,7 @@ public:
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
-    void syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
+    void syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
 
     bool initialize();
     void update();
@@ -57,16 +57,16 @@ public:
     void syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes);
     void releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler);
 
-    UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
+    UIMeshBuffer* getMeshBuffer(uint16_t accId, uint16_t bufferId);
     gfx::Device* getDevice();
+    inline ccstd::vector<gfx::Attribute>* getDefaultAttribute() { return &_attributes; }
 
     void updateDescriptorSet();
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node, float parentOpacity);
     void handlePostRender(RenderEntity* entity);
-    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity);
-    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity);
+    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
@@ -174,6 +174,13 @@ private:
     gfx::DescriptorSetInfo _dsInfo;
 
     UIMeshBufferMap _meshBuffersMap;
+
+    // DefaultAttribute
+    ccstd::vector<gfx::Attribute> _attributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    };
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
 };

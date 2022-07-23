@@ -148,57 +148,6 @@ declare namespace jsb {
         export function getOriginalPCMBuffer (url: string, channelID: number): ArrayBuffer | undefined;
     }
 
-    export namespace reflection{
-        /**
-         * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html
-         * call OBJC/Java static methods
-         *
-         * @param className
-         * @param methodName
-         * @param methodSignature
-         * @param parameters
-         */
-        export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
-    }
-    export namespace bridge{
-        /**
-         * send to native with at least one argument.
-         */
-        export function sendToNative(arg0: string, arg1?: string): void;
-        /**
-         * save your own callback controller with a js function,
-         * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
-         * @param args : received from native
-         */
-        export function onNative(arg0: string, arg1?: string|null): void;
-    }
-    /**
-     * Listener for jsbBridgeWrapper's event.
-     * It takes one argument as string which is transferred by jsbBridge.
-     */
-    export type OnNativeEventListener = (arg: string) => void;
-    export namespace jsbBridgeWrapper {
-        /** If there's no event registered, the wrapper will create one  */
-        export function addNativeEventListener(eventName: string, listener: OnNativeEventListener);
-        /**
-         * Dispatch the event registered on Objective-C, Java etc.
-         * No return value in JS to tell you if it works.
-         */
-        export function dispatchEventToNative(eventName: string, arg?: string);
-        /**
-         * Remove all listeners relative.
-         */
-        export function removeAllListenersForEvent(eventName: string);
-        /**
-         * Remove the listener specified
-         */
-        export function removeNativeEventListener(eventName: string, listener: OnNativeEventListener);
-        /**
-         * Remove all events, use it carefully!
-         */
-        export function removeAllListeners();
-    }
-
     export interface ManifestAsset {
         md5: string;
         path: string;

@@ -222,10 +222,10 @@ void Vec3::transformMat4Neon(const Vec3 &v, const Mat4 &m) {
 #if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
     alignas(16) float tmpV0[4];
 
-    auto row0 = enoki::load<SimdVec4>(&m.m[0]);
-    auto row1 = enoki::load<SimdVec4>(&m.m[4]);
-    auto row2 = enoki::load<SimdVec4>(&m.m[8]);
-    auto row3 = enoki::load<SimdVec4>(&m.m[12]);
+    auto row0 = enoki::load_unaligned<SimdVec4>(&m.m[0]);
+    auto row1 = enoki::load_unaligned<SimdVec4>(&m.m[4]);
+    auto row2 = enoki::load_unaligned<SimdVec4>(&m.m[8]);
+    auto row3 = enoki::load_unaligned<SimdVec4>(&m.m[12]);
 
     row0 *= v.x;
     row1 *= v.y;

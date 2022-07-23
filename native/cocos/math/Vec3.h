@@ -236,12 +236,20 @@ public:
     void transformMat3(const Vec3 &v, const Mat3 &m);
 
     /**
-     * Transforms this vector by the specified Mat4 and stores the result in this vector.
+     * Transforms the input vector by the specified Mat4 and stores the result in this vector.
      *
      * @param v The Vec3 to transform.
      * @param m The matrix.
      */
     void transformMat4(const Vec3 &v, const Mat4 &m);
+
+    /**
+     * Transforms this vector by the specified Mat4 and stores the result in this vector.
+     * @param m The matrix.
+     */
+    inline void transformMat4(const Mat4 &m) {
+        transformMat4(*this, m);
+    }
 
     /**
      * Transforms vector v by the specified Mat4 and stores the result in dst vector.

@@ -1,5 +1,5 @@
 #pragma builtin(global)
-layout(set = 0, binding = 3) uniform highp sampler2D cc_shadowMap;
+layout(set = 0, binding = 4) uniform highp sampler2D cc_shadowMap;
 
 #pragma builtin(global)
-layout(set = 0, binding = 5) uniform highp sampler2D cc_spotShadowMap;
+layout(set = 0, binding = 6) uniform highp sampler2D cc_spotShadowMap;

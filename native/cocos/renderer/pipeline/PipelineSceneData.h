@@ -83,6 +83,8 @@ public:
     inline void clearValidPunctualLights() { _validPunctualLights.clear(); }
     inline float getShadingScale() const { return _shadingScale; }
     inline void setShadingScale(float val) { _shadingScale = val; }
+    inline bool getCSMSupported() const { return _csmSupported; }
+    inline void setCSMSupported(bool val) { _csmSupported = val; }
 
 protected:
     void initOcclusionQuery();
@@ -92,26 +94,17 @@ protected:
 
     static constexpr uint32_t GEOMETRY_RENDERER_TECHNIQUE_COUNT{6};
 
-    RenderObjectList _renderObjects;
-    // `scene::Light *`: weak reference
-    ccstd::vector<const scene::Light *> _validPunctualLights;
     IntrusivePtr<gfx::Buffer> _occlusionQueryVertexBuffer;
     IntrusivePtr<gfx::Buffer> _occlusionQueryIndicesBuffer;
     IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
-
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
+    IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+
     gfx::Shader *_occlusionQueryShader{nullptr}; // weak reference
     scene::Pass *_occlusionQueryPass{nullptr};   // weak reference
-
-    ccstd::vector<IntrusivePtr<Material>> _geometryRendererMaterials;
-    ccstd::vector<scene::Pass *> _geometryRendererPasses;  // weak reference
-    ccstd::vector<gfx::Shader *> _geometryRendererShaders; // weak reference
-
-    IntrusivePtr<Material> _debugRendererMaterial{nullptr};
-    gfx::Shader *_debugRendererShader{nullptr}; // weak reference
-    scene::Pass *_debugRendererPass{nullptr}; // weak reference
-    gfx::Device *_device{nullptr}; // weak reference
-
+    gfx::Shader *_debugRendererShader{nullptr};  // weak reference
+    scene::Pass *_debugRendererPass{nullptr};    // weak reference
+    gfx::Device *_device{nullptr};               // weak reference
     // manage memory manually
     scene::Fog *_fog{nullptr};
     // manage memory manually
@@ -124,8 +117,19 @@ protected:
     scene::Octree *_octree{nullptr};
     // manage memory manually
     CSMLayers *_csmLayers{nullptr};
+
     bool _isHDR{true};
+    bool _csmSupported{true};
+
     float _shadingScale{1.0F};
+
+    RenderObjectList _renderObjects;
+
+    ccstd::vector<IntrusivePtr<Material>> _geometryRendererMaterials;
+    // `scene::Light *`: weak reference
+    ccstd::vector<const scene::Light *> _validPunctualLights;
+    ccstd::vector<scene::Pass *> _geometryRendererPasses;  // weak reference
+    ccstd::vector<gfx::Shader *> _geometryRendererShaders; // weak reference
 
     ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::Framebuffer>> _shadowFrameBufferMap;
 };

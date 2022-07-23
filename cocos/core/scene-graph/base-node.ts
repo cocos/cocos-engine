@@ -29,7 +29,7 @@ import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
 import { CCObject } from '../data/object';
 import { Event } from '../../input/types';
-import { errorID, warnID, error, log, getError } from '../platform/debug';
+import { errorID, warnID, error, warn, log, getError } from '../platform/debug';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
@@ -360,32 +360,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._scene = this._parent._scene;
         }
     }
-
-    protected _registerIfAttached = !EDITOR ? undefined : function _registerIfAttached (this: BaseNode, register) {
-        if (EditorExtends.Node && EditorExtends.Component) {
-            if (register) {
-                EditorExtends.Node.add(this._id, this);
-
-                for (let i = 0; i < this._components.length; i++) {
-                    const comp = this._components[i];
-                    EditorExtends.Component.add(comp._id, comp);
-                }
-            } else {
-                for (let i = 0; i < this._components.length; i++) {
-                    const comp = this._components[i];
-                    EditorExtends.Component.remove(comp._id);
-                }
-
-                EditorExtends.Node.remove(this._id);
-            }
-        }
-
-        const children = this._children;
-        for (let i = 0, len = children.length; i < len; ++i) {
-            const child = children[i];
-            child._registerIfAttached!(register);
-        }
-    };
 
     constructor (name?: string) {
         super(name);
@@ -1345,9 +1319,11 @@ export class BaseNode extends CCObject implements ISchedulable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
+                // @ts-expect-error Polyfilled functions in base-node-dev.ts
                 this._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
+                // @ts-expect-error Polyfilled functions in base-node-dev.ts
                 this._registerIfAttached!(false);
             }
 
@@ -1369,6 +1345,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
+            // @ts-expect-error Polyfilled functions in base-node-dev.ts
             this._registerIfAttached!(false);
         }
 
