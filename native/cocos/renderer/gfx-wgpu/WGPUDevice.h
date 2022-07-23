@@ -71,21 +71,15 @@ public:
         return Device::hasFeature(Feature(feature));
     };
 
-    void initialize(const ems::DeviceInfo &info) {
-        Device::initialize(static_cast<const DeviceInfo &>(info));
-    }
+    void initialize(const emscripten::val &info);
 
-    Swapchain *createSwapchain(const ems::SwapchainInfo &info) {
-        return Device::createSwapchain(static_cast<const SwapchainInfo &>(info));
-    }
+    Swapchain *createSwapchain(const emscripten::val &info);
 
     Framebuffer *createFramebuffer(const ems::FramebufferInfo &info) {
         return Device::createFramebuffer(static_cast<const FramebufferInfo &>(info));
     }
 
-    Texture *createTexture(const ems::TextureViewInfo &info) {
-        return Device::createTexture(static_cast<const TextureViewInfo &>(info));
-    }
+    Texture *createTexture(const emscripten::val& info);
 
     using Device::createTexture;
 
@@ -121,26 +115,32 @@ public:
         return Device::createCommandBuffer(static_cast<const CommandBufferInfo &>(info));
     }
 
-    RenderPass *createRenderPass(const ems::RenderPassInfo &info) {
-        return Device::createRenderPass(static_cast<const RenderPassInfo &>(info));
-    }
+    RenderPass *createRenderPass(const emscripten::val&info);
 
     emscripten::val copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions);
 
-    Shader *createShader(const ShaderInfo &info);
+    using Device::createShader;
+    using Device::initialize;
+    using Device::createSwapchain;
+    using Device::getSampler;
+    using Device::createRenderPass;
+
+    Shader *createShader(const emscripten::val &info);
 
     void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const emscripten::val &regions);
 
     void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const std::vector<BufferTextureCopy> &regions);
 
-    Sampler *getSampler(const ems::SamplerInfo &info) {
-        return Device::getSampler(static_cast<const SamplerInfo &>(info));
-    }
+    Sampler *getSampler(const emscripten::val &info);
 
     void debug();
 
     uint32_t getFormatFeatures(uint32_t format) {
         return static_cast<uint32_t>(Device::getFormatFeatures(Format{format}));
+    }
+
+    uint32_t getGFXAPI() const {
+        return static_cast<uint32_t>(Device::getGfxAPI());
     }
 
 protected:

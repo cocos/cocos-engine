@@ -897,10 +897,10 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         // .class_function("getInstance", &CCWGPUDevice::getInstance, allow_raw_pointer<arg<0>>())
         .constructor<>()
         .function("debug", &CCWGPUDevice::debug)
-        .function("initialize", select_overload<void(const ems::DeviceInfo &info)>(&CCWGPUDevice::initialize))
-        .function("createSwapchain", select_overload<Swapchain *(const ems::SwapchainInfo &)>(&CCWGPUDevice::createSwapchain),
+        .function("initialize", select_overload<void(const emscripten::val &)>(&CCWGPUDevice::initialize))
+        .function("createSwapchain", select_overload<Swapchain *(const emscripten::val &)>(&CCWGPUDevice::createSwapchain),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("createRenderPass", select_overload<RenderPass *(const ems::RenderPassInfo &)>(&CCWGPUDevice::createRenderPass),
+        .function("createRenderPass", select_overload<RenderPass *(const emscripten::val&)>(&CCWGPUDevice::createRenderPass),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createCommandBuffer", select_overload<CommandBuffer *(const ems::CommandBufferInfo &)>(&CCWGPUDevice::createCommandBuffer),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
@@ -910,11 +910,9 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createBufferView", select_overload<Buffer *(const ems::BufferViewInfo &)>(&CCWGPUDevice::createBuffer),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createTexture", select_overload<Texture *(const TextureInfo &)>(&CCWGPUDevice::createTexture),
+        .function("createTexture", select_overload<Texture *(const emscripten::val &)>(&CCWGPUDevice::createTexture),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createTextureView", select_overload<Texture *(const ems::TextureViewInfo &)>(&CCWGPUDevice::createTexture),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createShader", select_overload<Shader *(const ShaderInfo &)>(&CCWGPUDevice::createShader),
+        .function("createShader", select_overload<Shader *(const val &)>(&CCWGPUDevice::createShader),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createDescriptorSetLayout", select_overload<DescriptorSetLayout *(const ems::DescriptorSetLayoutInfo &)>(&CCWGPUDevice::createDescriptorSetLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
@@ -932,8 +930,9 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointers())
         .function("createPipelineLayout", select_overload<PipelineLayout *(const ems::PipelineLayoutInfo &)>(&CCWGPUDevice::createPipelineLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("getSampler", &CCWGPUDevice::getSampler, allow_raw_pointer<arg<0>>())
+        .function("getSampler", select_overload<Sampler *(const emscripten::val &)>(&CCWGPUDevice::getSampler), allow_raw_pointer<arg<0>>())
         .function("getFormatFeatures", select_overload<uint32_t(uint32_t)>(&CCWGPUDevice::getFormatFeatures))
+        .property("gfxAPI", &CCWGPUDevice::getGFXAPI)
         .function("hasFeature", &CCWGPUDevice::hasFeature);
 
     class_<cc::gfx::RenderPass>("RenderPass")

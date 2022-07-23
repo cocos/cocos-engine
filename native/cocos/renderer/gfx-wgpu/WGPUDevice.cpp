@@ -345,12 +345,6 @@ void CCWGPUDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     }
 }
 
-Shader *CCWGPUDevice::createShader(const ShaderInfo &info) {
-    CCWGPUShader *shader = ccnew CCWGPUShader;
-    // shader->initialize(info);
-    return shader;
-}
-
 QueryPool *CCWGPUDevice::createQueryPool() {
     return ccnew CCWGPUQueryPool;
 }
