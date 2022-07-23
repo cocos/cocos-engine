@@ -1496,6 +1496,7 @@ export class TiledLayer extends UIRenderer {
                             this._drawInfoList[idx] = new RenderDrawInfo();
                         }
                         const drawInfo = this._drawInfoList[idx];
+                        drawInfo.setDrawInfoType(RenderDrawInfoType.SUB_NODE);
                         drawInfo.setSubNode(c.node);
                         entity.setDynamicRenderDrawInfo(drawInfo, idx);
                         idx++;
