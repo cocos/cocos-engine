@@ -29,6 +29,7 @@ import { Component } from '../../core/components/component';
 import { Color } from '../../core/math';
 import { Label } from './label';
 import { legacyCC } from '../../core/global-exports';
+import { constGetter } from '../../core/data';
 
 /**
  * @en
@@ -73,7 +74,7 @@ export class LabelOutline extends Component {
      * ```
      */
     @tooltip('i18n:labelOutline.color')
-    // @constget
+    @constGetter
     get color (): Readonly<Color> {
         return this._color;
     }

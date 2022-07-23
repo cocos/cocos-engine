@@ -38,6 +38,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { constGetter } from '../core/data';
 
 const _tempColor = new Color();
 
@@ -288,7 +289,7 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.normal_color')
-    // @constget
+    @constGetter
     get normalColor (): Readonly<Color> {
         return this._normalColor;
     }
@@ -311,7 +312,7 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.pressed_color')
-    // @constget
+    @constGetter
     get pressedColor (): Readonly<Color> {
         return this._pressedColor;
     }
@@ -333,7 +334,7 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.hover_color')
-    // @constget
+    @constGetter
     get hoverColor (): Readonly<Color> {
         return this._hoverColor;
     }
@@ -354,7 +355,7 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.disabled_color')
-    // @constget
+    @constGetter
     get disabledColor (): Readonly<Color> {
         return this._disabledColor;
     }

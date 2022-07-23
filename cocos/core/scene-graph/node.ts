@@ -34,7 +34,7 @@ import { BaseNode, TRANSFORM_ON } from './base-node';
 import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NodeSpace, TransformBit } from './node-enum';
 import { NodeEventType } from './node-event';
-import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
+import { constGetter, CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();
@@ -176,7 +176,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en Position in local coordinate system
      * @zh 本地坐标系下的坐标
      */
-    // @constget
+    @constGetter
     public get position (): Readonly<Vec3> {
         return this._lpos;
     }
@@ -189,7 +189,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en Position in world coordinate system
      * @zh 世界坐标系下的坐标
      */
-    // @constget
+    @constGetter
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
@@ -203,7 +203,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en Rotation in local coordinate system, represented by a quaternion
      * @zh 本地坐标系下的旋转，用四元数表示
      */
-    // @constget
+    @constGetter
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
@@ -253,7 +253,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en Rotation in world coordinate system, represented by a quaternion
      * @zh 世界坐标系下的旋转，用四元数表示
      */
-    // @constget
+    @constGetter
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
@@ -267,7 +267,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en Scale in local coordinate system
      * @zh 本地坐标系下的缩放
      */
-    // @constget
+    @constGetter
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
@@ -280,7 +280,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en Scale in world coordinate system
      * @zh 世界坐标系下的缩放
      */
-    // @constget
+    @constGetter
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
@@ -307,7 +307,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @en World transformation matrix
      * @zh 世界坐标系变换矩阵
      */
-    // @constget
+    @constGetter
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransform();
         return this._mat;

@@ -28,13 +28,12 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visib
 import { JSB } from 'internal:constants';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { warnID } from '../../core/platform';
 import { IBatcher } from '../renderer/i-batcher';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, CCObject, Node, NodeEventType } from '../../core';
+import { Material, builtinResMgr, director, CCObject, Node, NodeEventType, constGetter } from '../../core';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode, deviceManager } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
@@ -290,7 +289,7 @@ export class Mask extends UIRenderer {
 
     @override
     @visible(false)
-    // @constget
+    @constGetter
     get color (): Readonly<Color> {
         return this._color;
     }

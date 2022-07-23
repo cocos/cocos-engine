@@ -45,3 +45,4 @@ export type {
     SerializationContext,
     CustomSerializable,
 } from './custom-serializable';
+export { constGetter } from './utils/const-getter';

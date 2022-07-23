@@ -42,6 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
 import { NativeUIModelProxy } from '../renderer/native-2d';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { constGetter } from '../../core/data';
 
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
@@ -136,7 +137,7 @@ export class Graphics extends UIRenderer {
      * 笔触的颜色。
      */
     @tooltip('i18n:graphics.strokeColor')
-    // @constget
+    @constGetter
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
     }
@@ -158,7 +159,7 @@ export class Graphics extends UIRenderer {
      * 填充绘画的颜色。
      */
     @tooltip('i18n:graphics.fillColor')
-    // @constget
+    @constGetter
     get fillColor (): Readonly<Color> {
         return this._fillColor;
     }

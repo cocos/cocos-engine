@@ -30,7 +30,7 @@ import { DEBUG } from 'internal:constants';
  * 属性必须为 Javascript 原生类型或继承自 ValueType。
  * 非调试模式下，此装饰器没有任何效果。
  */
-export function constget (target: Object, propertyKey: string | symbol) {
+export function constGetter (target: Object, propertyKey: string | symbol) {
     if (!DEBUG) {
         return;
     }

@@ -36,6 +36,7 @@ import visibleRect from '../../core/platform/visible-rect';
 import { approx, EPSILON } from '../../core/math/utils';
 import { IMask } from '../../core/scene-graph/node-event-processor';
 import { Mask } from '../components/mask';
+import { constGetter } from '../../core/data';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -68,7 +69,7 @@ export class UITransform extends Component {
      */
     @displayOrder(0)
     @tooltip('i18n:ui_transform.content_size')
-    // @constget
+    @constGetter
     get contentSize (): Readonly<Size> {
         return this._contentSize;
     }
@@ -150,7 +151,7 @@ export class UITransform extends Component {
      */
     @displayOrder(1)
     @tooltip('i18n:ui_transform.anchor_point')
-    // @constget
+    @constGetter
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }
