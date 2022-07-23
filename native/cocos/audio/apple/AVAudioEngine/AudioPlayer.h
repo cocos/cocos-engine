@@ -106,7 +106,7 @@ public:
     /**
      * Change the seekerTime and should reschedule buffer.
      */
-    bool setCurrentTime(float curTime);
+    bool setCurrentTime(float targetTime);
     float getCurrentTime() const;
     /**
      * Get a copy of audio player descriptor.
@@ -118,10 +118,9 @@ public:
     State getState() const {return _state;}
     
     std::function<void(int, const std::string&)> finishCallback {nullptr};
-    
-#ifdef __OBJC__
+
     bool isAttached {false};
-#endif
+
     
 private:
     /**
@@ -143,11 +142,12 @@ private:
     bool _isStreaming {false};
     bool _isForceCache {false};
     float _volume {0};
-    float _seeker {0};
+    float _startTime {0};
+    float _pausingTime {0};
     float _duration {0};
     bool _shouldRescheduleBuffer {false};
 
     std::condition_variable _rotateBarrier;
-    std::mutex _readBufferMutex;
+    std::mutex _rotateBufferMutex;
 };
 } // namespace cc
