@@ -25,7 +25,6 @@ export enum AttrUInt32ArrayView {
     IndexOffset,
     VBCount,
     IBCount,
-    TextureHash,
     DataHash,
     Count
 }
@@ -50,7 +49,6 @@ export class RenderDrawInfo {
     protected _ibCount = 0;
     protected _dataHash = 0;
     protected _isMeshBuffer = false;
-    protected _textureHash = 0;
     protected _material: Material | null = null;
     protected _texture: Texture | null = null;
     protected _sampler: Sampler | null = null;
@@ -211,13 +209,6 @@ export class RenderDrawInfo {
             }
         }
         this._texture = texture;
-    }
-
-    public setTextureHash (textureHash: number) {
-        if (JSB) {
-            this._uint32SharedBuffer[AttrUInt32ArrayView.TextureHash] = textureHash;
-        }
-        this._textureHash = textureHash;
     }
 
     public setSampler (sampler: Sampler | null) {
