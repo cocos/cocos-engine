@@ -22,6 +22,7 @@
 #include <cmath>
 #include "math/Vec3.h"
 #include "math/Mat4.h"
+#include "math/Math.h"
 
 NS_CC_MATH_BEGIN
 
@@ -184,12 +185,14 @@ inline Vec3 Vec3::operator/(const Vec3 &rhs) const
 
 inline bool Vec3::operator==(const Vec3& v) const
 {
-    return x==v.x && y==v.y && z==v.z;
+    return math::isEqualF(x, v.x)
+        && math::isEqualF(y, v.y)
+        && math::isEqualF(z, v.z);
 }
 
 inline bool Vec3::operator!=(const Vec3& v) const
 {
-    return x!=v.x || y!=v.y || z!=v.z;
+    return !(*this == v);
 }
 
 inline const Vec3 operator*(float x, const Vec3& v)

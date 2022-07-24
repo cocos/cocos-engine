@@ -159,6 +159,32 @@ public:
     float determinant();
 
     /**
+     * Check whether this matrix is equal to the given matrix.
+     * @param rhs The matrix to compare.
+     * @return Whether this matrix is equal to the given matrix.
+     */
+    inline bool operator==(const Mat3& rhs) const {
+        return math::isEqualF(m[0], rhs.m[0])
+            && math::isEqualF(m[1], rhs.m[1])
+            && math::isEqualF(m[2], rhs.m[2])
+            && math::isEqualF(m[3], rhs.m[3])
+            && math::isEqualF(m[4], rhs.m[4])
+            && math::isEqualF(m[5], rhs.m[5])
+            && math::isEqualF(m[6], rhs.m[6])
+            && math::isEqualF(m[7], rhs.m[7])
+            && math::isEqualF(m[8], rhs.m[8]);
+    }
+
+    /**
+     * Check whether this matrix is not equal to the given matrix.
+     * @param rhs The matrix to compare.
+     * @return Whether this matrix is not equal to the given matrix.
+     */
+    inline bool operator!=(const Mat3& rhs) const {
+        return !(*this == rhs);
+    }
+
+    /**
      * Multiply two matrices explicitly.
      */
     static void multiply(const Mat3 &a, const Mat3 &b, Mat3 *out);

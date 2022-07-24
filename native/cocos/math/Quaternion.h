@@ -25,7 +25,6 @@
 
 #include "math/Mat4.h"
 #include "math/Vec3.h"
-//#include "Plane.h"
 
 /**
  * @addtogroup base
@@ -392,6 +391,22 @@ public:
      * @return This quaternion, after the multiplication occurs.
      */
     inline Quaternion &operator*=(const Quaternion &q);
+
+    /**
+     * Check whether this quaternion is equal to the given quaternion.
+     * @param rhs The quaternion to compare
+     * @return Whether this quaternion is equal to the given quaternion.
+     */
+    inline bool operator==(const Quaternion& rhs) const;
+
+    /**
+     * Check whether this quaternion is not equal to the given quaternion.
+     * @param rhs The quaternion to compare
+     * @return Whether this quaternion is not equal to the given quaternion.
+     */
+    inline bool operator!=(const Quaternion& rhs) const {
+        return !(*this == rhs);
+    }
 
     /** equals to Quaternion(0,0,0, 0) */
     static const Quaternion ZERO;

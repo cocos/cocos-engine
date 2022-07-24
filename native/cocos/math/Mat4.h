@@ -918,6 +918,22 @@ public:
      */
     inline Mat4 &operator*=(const Mat4 &mat);
 
+    /**
+     * Check whether this matrix is equal to the given matrix.
+     * @param rhs The matrix to compare.
+     * @return Whether this matrix is equal to the given matrix.
+     */
+    inline bool operator==(const Mat4& rhs) const;
+
+    /**
+     * Check whether this matrix is not equal to the given matrix.
+     * @param rhs The matrix to compare.
+     * @return Whether this matrix is not equal to the given matrix.
+     */
+    inline bool operator!=(const Mat4& rhs) const {
+        return !(*this == rhs);
+    }
+
     /** equals to a matrix full of zeros */
     static const Mat4 ZERO;
     /** equals to the identity matrix */

@@ -48,4 +48,11 @@ inline Vec3 Quaternion::operator*(const Vec3& v) const
     return v + uv + uuv;
 }
 
+inline bool Quaternion::operator==(const Quaternion& rhs) const {
+    return math::isEqualF(x, rhs.x)
+        && math::isEqualF(y, rhs.y)
+        && math::isEqualF(z, rhs.z)
+        && math::isEqualF(w, rhs.w);
+}
+
 NS_CC_MATH_END

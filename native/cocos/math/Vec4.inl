@@ -20,6 +20,7 @@
 
 #include "math/Mat4.h"
 #include "math/Vec4.h"
+#include "math/Math.h"
 
 NS_CC_MATH_BEGIN
 
@@ -96,12 +97,15 @@ inline bool Vec4::operator<(const Vec4& v) const
 
 inline bool Vec4::operator==(const Vec4& v) const
 {
-    return x==v.x && y==v.y && z==v.z && w==v.w;
+    return math::isEqualF(x, v.x)
+        && math::isEqualF(y, v.y)
+        && math::isEqualF(z, v.z)
+        && math::isEqualF(w, v.w);
 }
 
 inline bool Vec4::operator!=(const Vec4& v) const
 {
-    return x!=v.x || y!=v.y || z!=v.z || w!=v.w;
+    return !(*this == v);
 }
 
 inline const Vec4 operator*(float x, const Vec4& v)
