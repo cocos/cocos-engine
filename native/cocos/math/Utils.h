@@ -39,8 +39,13 @@ bool equals(F a, F b) {
 template <typename F>
 bool approx(F a, F b, F maxDiff) {
     static_assert(std::is_floating_point<F>::value, "number expected");
-    maxDiff = maxDiff || EPSILON;
     return std::abs(a - b) <= maxDiff;
+}
+
+template <typename F>
+bool approx(F a, F b) {
+    static_assert(std::is_floating_point<F>::value, "number expected");
+    return std::abs(a - b) <= EPSILON;
 }
 
 /**
