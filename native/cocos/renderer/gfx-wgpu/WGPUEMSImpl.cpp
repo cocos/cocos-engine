@@ -7,13 +7,20 @@
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
+#include "WGPUBuffer.h"
 #include "WGPUDef.h"
+#include "WGPUDescriptorSet.h"
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
+#include "WGPUInputAssembler.h"
 #include "WGPURenderPass.h"
 #include "WGPUShader.h"
 #include "WGPUSwapchain.h"
 #include "gfx-base/GFXDef-common.h"
+#include "states/WGPUBufferBarrier.h"
+#include "states/WGPUGeneralBarrier.h"
+#include "states/WGPUTextureBarrier.h"
 
 namespace cc::gfx {
 
@@ -37,19 +44,21 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
 
 #define NUMARGS(...) (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
 
-#define ASSIGN_PROERTY_BY_SEQ(r, obj, property) \
-    obj.property = decltype(obj.property){ems_##obj[#property].as<GetType<decltype(obj.property)>::type>(allow_raw_pointers())};
+#define ASSIGN_PROERTY_BY_SEQ(r, obj, property)                                                                                                         \
+    if (!ems_##obj[BOOST_PP_STRINGIZE(property)].isUndefined() && !ems_##obj[BOOST_PP_STRINGIZE(property)].isNull()) {                                  \
+        obj.property = decltype(obj.property){ems_##obj[BOOST_PP_STRINGIZE(property)].as<GetType<decltype(obj.property)>::type>(allow_raw_pointers())}; \
+    }
 
-#define ASSING_FROM_EMS(obj, ...)                                                                 \
+#define ASSIGN_FROM_EMS(obj, ...)                                                                 \
     {                                                                                             \
         BOOST_PP_SEQ_FOR_EACH(ASSIGN_PROERTY_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
 #define ASSIGN_VEC_BY_SEQ(r, obj, property) \
-    obj.property = std::move(convertJSArrayToNumberVector<uint32_t>(ems_##obj[#property]));
+    obj.property = std::move(convertJSArrayToNumberVector<decltype(obj.property)::value_type>(ems_##obj[#property]));
 
-#define ASSING_FROM_EMSARRAY(obj, ...)                                                                 \
-    {                                                                                             \
+#define ASSIGN_FROM_EMSARRAY(obj, ...)                                                        \
+    {                                                                                         \
         BOOST_PP_SEQ_FOR_EACH(ASSIGN_VEC_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
@@ -339,7 +348,7 @@ RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
         gfxColors[i].sampleCount = SampleCount{colorsVec[i]["sampleCount"].as<uint32_t>()};
         gfxColors[i].loadOp = LoadOp{colorsVec[i]["loadOp"].as<uint32_t>()};
         gfxColors[i].storeOp = StoreOp{colorsVec[i]["storeOp"].as<uint32_t>()};
-        gfxColors[i].barrier = colorsVec[i]["barrier"].as<GeneralBarrier*>(allow_raw_pointers());
+        gfxColors[i].barrier = colorsVec[i]["barrier"].as<WGPUGeneralBarrier*>(allow_raw_pointers());
         gfxColors[i].isGeneralLayout = colorsVec[i]["isGeneralLayout"].as<bool>();
     }
 
@@ -353,7 +362,8 @@ RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
     // gfxDepthStencil.stencilStoreOp = StoreOp{colorsVec[i]["stencilStoreOp"].as<uint32_t>()};
     // gfxDepthStencil.barrier = colorsVec[i]["barrier"].as<GeneralBarrier*>();
     // gfxDepthStencil.isGeneralLayout = colorsVec[i]["isGeneralLayout"].as<bool>();
-    ASSING_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, barrier, isGeneralLayout);
+
+    ASSIGN_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, isGeneralLayout);
 
     const auto& emsSubpasses = info["subpasses"];
     const std::vector<val>& subpassesVec = vecFromJSArray<val>(emsSubpasses);
@@ -363,12 +373,174 @@ RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
     for (size_t i = 0; i < len; ++i) {
         const auto& ems_subpass = subpassesVec[i];
         auto& subpass = gfxSubpasses[i];
-        ASSING_FROM_EMSARRAY(subpass, inputs, colors, resolves, preserves);
-        ASSING_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
+        ASSIGN_FROM_EMSARRAY(subpass, inputs, colors, resolves, preserves);
+        ASSIGN_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
     }
 
     const auto& emsDependencies = info["dependencies"];
     const std::vector<val>& dependenciesVec = vecFromJSArray<val>(emsDependencies);
+    len = dependenciesVec.size();
+    auto& gfxDependencies = renderPassInfo.dependencies;
+    gfxDependencies.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_dependency = dependenciesVec[i];
+        auto& dependency = gfxDependencies[i];
+        ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
+    }
+
+    return CCWGPUDevice::getInstance()->createRenderPass(renderPassInfo);
+}
+
+Framebuffer* CCWGPUDevice::createFramebuffer(const val& info) {
+    CHECK_PTR(info);
+
+    FramebufferInfo frameBufferInfo;
+    const auto& ems_frameBufferInfo = info;
+    ASSIGN_FROM_EMS(frameBufferInfo, renderPass, depthStencilTexture);
+
+    const auto& ems_colorTextures = info["colorTextures"];
+    if (!ems_colorTextures.isUndefined() || !ems_colorTextures.isNull()) {
+        const std::vector<val>& colorTexturesVec = vecFromJSArray<val>(ems_colorTextures);
+        size_t len = colorTexturesVec.size();
+        auto& gfxColorTextures = frameBufferInfo.colorTextures;
+        gfxColorTextures.resize(len);
+        for (size_t i = 0; i < len; ++i) {
+            gfxColorTextures[i] = colorTexturesVec[i].as<Texture*>(allow_raw_pointers());
+        }
+    }
+
+    return CCWGPUDevice::getInstance()->createFramebuffer(frameBufferInfo);
+}
+
+DescriptorSetLayout* CCWGPUDevice::createDescriptorSetLayout(const val& info) {
+    CHECK_PTR(info);
+
+    DescriptorSetLayoutInfo descriptorSetLayoutInfo;
+    const auto& ems_bindings = info["bindings"];
+    const std::vector<val>& bindingsVec = vecFromJSArray<val>(ems_bindings);
+    auto& bindings = descriptorSetLayoutInfo.bindings;
+    size_t len = bindingsVec.size();
+    bindings.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_dsbinding = bindingsVec[i];
+        auto& dsbinding = bindings[i];
+        ASSIGN_FROM_EMS(dsbinding, binding, descriptorType, count, stageFlags);
+
+        const auto& ems_samplers = ems_dsbinding["immutableSamplers"];
+        auto& samplers = dsbinding.immutableSamplers;
+        const std::vector<val>& samplersVec = vecFromJSArray<val>(ems_samplers);
+        size_t samplerLen = samplersVec.size();
+        samplers.resize(samplerLen);
+
+        for (size_t j = 0; j < samplerLen; ++j) {
+            samplers[j] = samplersVec[j].as<Sampler*>(allow_raw_pointers());
+        }
+    }
+
+    return CCWGPUDevice::getInstance()->createDescriptorSetLayout(descriptorSetLayoutInfo);
+}
+
+DescriptorSet* CCWGPUDevice::createDescriptorSet(const val& info) {
+    CHECK_PTR(info);
+    DescriptorSetInfo descriptorSetInfo;
+    const auto& ems_descriptorSetInfo = info;
+    ASSIGN_FROM_EMS(descriptorSetInfo, layout);
+    return CCWGPUDevice::getInstance()->createDescriptorSet(descriptorSetInfo);
+}
+
+Buffer* CCWGPUDevice::createBuffer(const val& info) {
+    CHECK_PTR(info);
+    const auto& ems_buffer = info["buffer"];
+    if (ems_buffer.isUndefined()) {
+        // BufferInfo
+        BufferInfo bufferInfo;
+        const auto& ems_bufferInfo = info;
+        ASSIGN_FROM_EMS(bufferInfo, usage, memUsage, size, stride, flags);
+        return CCWGPUDevice::getInstance()->createBuffer(bufferInfo);
+    } else {
+        // BufferViewInfo
+        BufferViewInfo bufferViewInfo;
+        const auto& ems_bufferViewInfo = info;
+        ASSIGN_FROM_EMS(bufferViewInfo, buffer, offset, range);
+        return CCWGPUDevice::getInstance()->createBuffer(bufferViewInfo);
+    }
+}
+
+PipelineLayout* CCWGPUDevice::createPipelineLayout(const val& info) {
+    CHECK_PTR(info);
+    PipelineLayoutInfo pipelineLayoutInfo;
+
+    // static_assert failed due to requirement 'internal::typeSupportsMemoryView()' "type of typed_memory_view is invalid"
+    // ASSIGN_FROM_EMSARRAY(pipelineLayoutInfo, setLayouts);
+
+    const auto& ems_setLayouts = info["setLayouts"];
+    auto& setLayouts = pipelineLayoutInfo.setLayouts;
+    const std::vector<val>& setLayoutsVec = vecFromJSArray<val>(ems_setLayouts);
+    size_t len = setLayoutsVec.size();
+    setLayouts.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        setLayouts[i] = setLayoutsVec[i].as<DescriptorSetLayout*>(allow_raw_pointers());
+    }
+
+    return CCWGPUDevice::getInstance()->createPipelineLayout(pipelineLayoutInfo);
+}
+
+InputAssembler* CCWGPUDevice::createInputAssembler(const val& info) {
+    CHECK_PTR(info);
+    InputAssemblerInfo inputAssemblerInfo;
+    const auto& ems_inputAssemblerInfo = info;
+    ASSIGN_FROM_EMS(inputAssemblerInfo, indexBuffer, indirectBuffer);
+
+    const auto& ems_vertexBuffers = info["vertexBuffers"];
+    auto& vertexBuffers = inputAssemblerInfo.vertexBuffers;
+    const std::vector<val>& vertexBuffersVec = vecFromJSArray<val>(ems_vertexBuffers);
+    size_t len = vertexBuffersVec.size();
+    vertexBuffers.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        vertexBuffers[i] = vertexBuffersVec[i].as<Buffer*>(allow_raw_pointers());
+    }
+    // ASSIGN_FROM_EMSARRAY(inputAssemblerInfo, vertexBuffers);
+
+    const auto& ems_attributes = info["attributes"];
+    auto& attributes = inputAssemblerInfo.attributes;
+    const std::vector<val>& attributesVec = vecFromJSArray<val>(ems_attributes);
+    len = attributesVec.size();
+    attributes.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_attr = attributesVec[i];
+        auto& attr = attributes[i];
+        ASSIGN_FROM_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
+    }
+
+    return CCWGPUDevice::getInstance()->createInputAssembler(inputAssemblerInfo);
+}
+
+void CCWGPUDevice::acquire(const val& info) {
+    CHECK_VOID(info);
+
+    ccstd::vector<Swapchain*> swapchains;
+    const std::vector<val>& ems_swapchains = vecFromJSArray<val>(info);
+    size_t len = ems_swapchains.size();
+    swapchains.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        swapchains[i] = ems_swapchains[i].as<Swapchain*>(allow_raw_pointers());
+    }
+    CCWGPUDevice::getInstance()->acquire(swapchains.data(), swapchains.size());
+}
+
+WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {
+    CHECK_VOID(info);
+    // TODO
+}
+
+WGPUBufferBarrier::WGPUBufferBarrier(const val& info) : BufferBarrier(BufferBarrierInfo{}) {
+    CHECK_VOID(info);
+    // TODO
+}
+
+WGPUTextureBarrier::WGPUTextureBarrier(const val& info) : TextureBarrier(TextureBarrierInfo{}) {
+    CHECK_VOID(info);
+    // TODO
 }
 
 } // namespace cc::gfx

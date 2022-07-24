@@ -23,7 +23,9 @@
 #include "WGPUTexture.h"
 #include "boost/pfr.hpp"
 #include "boost/type_index.hpp"
-
+#include "states/WGPUBufferBarrier.h"
+#include "states/WGPUGeneralBarrier.h"
+#include "states/WGPUTextureBarrier.h"
 template <typename T>
 struct GenInstance {
     static T instance() {
@@ -793,33 +795,33 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("barrier", &ems::DepthStencilAttachment::getBarrier, &ems::DepthStencilAttachment::setBarrier)
         .property("isGeneralLayout", &ems::DepthStencilAttachment::getGeneralLayout, &ems::DepthStencilAttachment::setGeneralLayout);
 
-    class_<ems::SubpassInfo>("SubpassInfo")
-        .constructor<>()
-        .constructor<val>()
-        .constructor<val, val>()
-        .constructor<val, val, val>()
-        .constructor<val, val, val, val>()
-        .constructor<val, val, val, val, uint32_t>()
-        .constructor<val, val, val, val, uint32_t, uint32_t>()
-        .constructor<val, val, val, val, uint32_t, uint32_t, ems::ResolveMode::type>()
-        .constructor<val, val, val, val, uint32_t, uint32_t, ems::ResolveMode::type, ems::ResolveMode::type>()
-        .property("inputs", &ems::SubpassInfo::getInputs, &ems::SubpassInfo::setInputs)
-        .property("colors", &ems::SubpassInfo::getColors, &ems::SubpassInfo::setColors)
-        .property("resolves", &ems::SubpassInfo::getResolves, &ems::SubpassInfo::setResolves)
-        .property("preserves", &ems::SubpassInfo::getPreserves, &ems::SubpassInfo::setPreserves)
-        .property("depthStencil", &ems::SubpassInfo::getDepthStencil, &ems::SubpassInfo::setDepthStencil)
-        .property("depthStencilResolve", &ems::SubpassInfo::getDSResolve, &ems::SubpassInfo::setDSResolve)
-        .property("depthResolveMode", &ems::SubpassInfo::getDRMode, &ems::SubpassInfo::setDRMode)
-        .property("stencilResolveMode", &ems::SubpassInfo::getSRMode, &ems::SubpassInfo::setSRMode);
+    // class_<ems::SubpassInfo>("SubpassInfo")
+    //     .constructor<>()
+    //     .constructor<val>()
+    //     .constructor<val, val>()
+    //     .constructor<val, val, val>()
+    //     .constructor<val, val, val, val>()
+    //     .constructor<val, val, val, val, uint32_t>()
+    //     .constructor<val, val, val, val, uint32_t, uint32_t>()
+    //     .constructor<val, val, val, val, uint32_t, uint32_t, ems::ResolveMode::type>()
+    //     .constructor<val, val, val, val, uint32_t, uint32_t, ems::ResolveMode::type, ems::ResolveMode::type>()
+    //     .property("inputs", &ems::SubpassInfo::getInputs, &ems::SubpassInfo::setInputs)
+    //     .property("colors", &ems::SubpassInfo::getColors, &ems::SubpassInfo::setColors)
+    //     .property("resolves", &ems::SubpassInfo::getResolves, &ems::SubpassInfo::setResolves)
+    //     .property("preserves", &ems::SubpassInfo::getPreserves, &ems::SubpassInfo::setPreserves)
+    //     .property("depthStencil", &ems::SubpassInfo::getDepthStencil, &ems::SubpassInfo::setDepthStencil)
+    //     .property("depthStencilResolve", &ems::SubpassInfo::getDSResolve, &ems::SubpassInfo::setDSResolve)
+    //     .property("depthResolveMode", &ems::SubpassInfo::getDRMode, &ems::SubpassInfo::setDRMode)
+    //     .property("stencilResolveMode", &ems::SubpassInfo::getSRMode, &ems::SubpassInfo::setSRMode);
 
-    class_<ems::SubpassDependency>("SubpassDependency")
-        .constructor<>()
-        .constructor<uint32_t>()
-        .constructor<uint32_t, uint32_t>()
-        .constructor<uint32_t, uint32_t, val>()
-        .property("srcSubpass", &ems::SubpassDependency::getSrcSubpass, &ems::SubpassDependency::setSrcSubpass)
-        .property("dstSubpass", &ems::SubpassDependency::getDstSubpass, &ems::SubpassDependency::setDstSubpass)
-        .property("barrier", &ems::SubpassDependency::getBarrier, &ems::SubpassDependency::setBarrier);
+    // class_<ems::SubpassDependency>("SubpassDependency")
+    //     .constructor<>()
+    //     .constructor<uint32_t>()
+    //     .constructor<uint32_t, uint32_t>()
+    //     .constructor<uint32_t, uint32_t, val>()
+    //     .property("srcSubpass", &ems::SubpassDependency::getSrcSubpass, &ems::SubpassDependency::setSrcSubpass)
+    //     .property("dstSubpass", &ems::SubpassDependency::getDstSubpass, &ems::SubpassDependency::setDstSubpass)
+    //     .property("barrier", &ems::SubpassDependency::getBarrier, &ems::SubpassDependency::setBarrier);
 
     class_<ems::RenderPassInfo>("RenderPassInfo")
         .constructor<>()
@@ -888,8 +890,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         //           /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("getCommandBuffer", &Device::getCommandBuffer, allow_raw_pointers())
         .function("getQueue", &Device::getQueue, allow_raw_pointers())
-        .function("acquire", select_overload<void(const vector<Swapchain *> &)>(&Device::acquire),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("present", select_overload<void(void)>(&Device::present),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .property("capabilities", &Device::getCapabilities);
@@ -898,29 +898,29 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .constructor<>()
         .function("debug", &CCWGPUDevice::debug)
         .function("initialize", select_overload<void(const emscripten::val &)>(&CCWGPUDevice::initialize))
+        .function("acquire", select_overload<void(const emscripten::val &)>(&CCWGPUDevice::acquire),
+                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createSwapchain", select_overload<Swapchain *(const emscripten::val &)>(&CCWGPUDevice::createSwapchain),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("createRenderPass", select_overload<RenderPass *(const emscripten::val&)>(&CCWGPUDevice::createRenderPass),
+        .function("createRenderPass", select_overload<RenderPass *(const emscripten::val &)>(&CCWGPUDevice::createRenderPass),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createCommandBuffer", select_overload<CommandBuffer *(const ems::CommandBufferInfo &)>(&CCWGPUDevice::createCommandBuffer),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createFramebuffer", select_overload<Framebuffer *(const ems::FramebufferInfo &)>(&CCWGPUDevice::createFramebuffer),
+        .function("createFramebuffer", select_overload<Framebuffer *(const emscripten::val &)>(&CCWGPUDevice::createFramebuffer),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createBuffer", select_overload<Buffer *(const ems::BufferInfo &)>(&CCWGPUDevice::createBuffer),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createBufferView", select_overload<Buffer *(const ems::BufferViewInfo &)>(&CCWGPUDevice::createBuffer),
+        .function("createBuffer", select_overload<Buffer *(const emscripten::val &)>(&CCWGPUDevice::createBuffer),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createTexture", select_overload<Texture *(const emscripten::val &)>(&CCWGPUDevice::createTexture),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createShader", select_overload<Shader *(const val &)>(&CCWGPUDevice::createShader),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createDescriptorSetLayout", select_overload<DescriptorSetLayout *(const ems::DescriptorSetLayoutInfo &)>(&CCWGPUDevice::createDescriptorSetLayout),
+        .function("createDescriptorSetLayout", select_overload<DescriptorSetLayout *(const emscripten::val &)>(&CCWGPUDevice::createDescriptorSetLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createInputAssembler", select_overload<InputAssembler *(const ems::InputAssemblerInfo &)>(&CCWGPUDevice::createInputAssembler),
+        .function("createInputAssembler", select_overload<InputAssembler *(const emscripten::val &)>(&CCWGPUDevice::createInputAssembler),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createPipelineState", select_overload<PipelineState *(const ems::PipelineStateInfo &)>(&CCWGPUDevice::createPipelineState),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createDescriptorSet", select_overload<DescriptorSet *(const ems::DescriptorSetInfo &)>(&CCWGPUDevice::createDescriptorSet),
+        .function("createDescriptorSet", select_overload<DescriptorSet *(const emscripten::val &)>(&CCWGPUDevice::createDescriptorSet),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("copyTextureToBuffers", select_overload<emscripten::val(Texture *, const BufferTextureCopyList &)>(&CCWGPUDevice::copyTextureToBuffers),
                   /* pure_virtual(), */ allow_raw_pointers())
@@ -928,7 +928,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointers())
         .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *, const val &)>(&CCWGPUDevice::copyBuffersToTexture),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("createPipelineLayout", select_overload<PipelineLayout *(const ems::PipelineLayoutInfo &)>(&CCWGPUDevice::createPipelineLayout),
+        .function("createPipelineLayout", select_overload<PipelineLayout *(const emscripten::val &)>(&CCWGPUDevice::createPipelineLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("getSampler", select_overload<Sampler *(const emscripten::val &)>(&CCWGPUDevice::getSampler), allow_raw_pointer<arg<0>>())
         .function("getFormatFeatures", select_overload<uint32_t(uint32_t)>(&CCWGPUDevice::getFormatFeatures))
@@ -1026,7 +1026,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     class_<CommandBuffer>("CommandBuffer")
         .function("initialize", &CommandBuffer::initialize)
         .function("destroy", &CommandBuffer::destroy)
-        .function("begin", select_overload<void(RenderPass *, uint, Framebuffer *)>(&CommandBuffer::begin), allow_raw_pointers())
+        .function("begin3", select_overload<void(RenderPass *, uint, Framebuffer *)>(&CommandBuffer::begin), allow_raw_pointers())
         .function("end", &CommandBuffer::end)
         .function("endRenderPass", &CommandBuffer::endRenderPass)
         .function("bindPipelineState", &CommandBuffer::bindPipelineState, allow_raw_pointer<arg<0>>())
@@ -1045,8 +1045,8 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("blitTexture", select_overload<void(Texture *, Texture *, const TextureBlit *, uint, Filter)>(&CommandBuffer::blitTexture), allow_raw_pointers())
         .function("execute", select_overload<void(CommandBuffer *const *, uint32_t)>(&CommandBuffer::execute), allow_raw_pointer<arg<0>>())
         .function("dispatch", &CommandBuffer::dispatch)
-        .function("begin4", select_overload<void(void)>(&CommandBuffer::begin))
-        .function("begin3", select_overload<void(RenderPass *)>(&CommandBuffer::begin), allow_raw_pointers())
+        .function("begin0", select_overload<void(void)>(&CommandBuffer::begin))
+        .function("begin1", select_overload<void(RenderPass *)>(&CommandBuffer::begin), allow_raw_pointers())
         .function("begin2", select_overload<void(RenderPass *, uint)>(&CommandBuffer::begin), allow_raw_pointers())
         .function("execute", select_overload<void(const CommandBufferList &, uint32_t)>(&CommandBuffer::execute))
         .function("bindDescriptorSet2", select_overload<void(uint, DescriptorSet *)>(&CommandBuffer::bindDescriptorSet), allow_raw_pointer<arg<0>>())
@@ -1072,6 +1072,14 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     class_<CCWGPUPipelineState>("CCWGPUPipelineState")
         .constructor<>();
 
+    class_<WGPUGeneralBarrier>("WGPUGeneralBarrier")
+        .constructor<val>();
+
+    class_<WGPUBufferBarrier>("WGPUBufferBarrier")
+        .constructor<val>();
+
+    class_<WGPUTextureBarrier>("WGPUTextureBarrier")
+        .constructor<val>();
     //--------------------------------------------------CONTAINER-----------------------------------------------------------------------
     register_vector<int>("vector_int");
     register_vector<uint32_t>("vector_uint32");

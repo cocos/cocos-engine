@@ -81,14 +81,15 @@ export const Shader = gfx.CCWGPUShader;
 export const Sampler = gfx.CCWGPUSampler;
 export const InputAssembler = gfx.CCWGPUInputAssembler;
 export const RenderPass = gfx.CCWGPURenderPass;
-export const Framebuffer = gfx.CCWGPUFrameBuffer;
+export const Framebuffer = gfx.CCWGPUFramebuffer;
 export const DescriptorSet = gfx.CCWGPUDescriptorSet;
 export const DescriptorSetLayout = gfx.CCWGPUDescriptorSetLayout;
 export const PipelineLayout = gfx.CCWGPUPipelineLayout;
 export const PipelineState = gfx.CCWGPUPipelineState;
 export const CommandBuffer = gfx.CCWGPUCommandBuffer;
-export const GlobalBarrier = gfx.CCWGPUGlobalBarrier;
-export const TextureBarrier = gfx.CCWGPUTextureBarrier;
+export const GeneralBarrier = gfx.WGPUGeneralBarrier;
+export const TextureBarrier = gfx.WGPUTextureBarrier;
+export const BufferBarrier = gfx.WGPUBufferBarrier;
 
 const originDeviceInitializeFunc = Device.prototype.initialize;
 Device.prototype.initialize = function (info: DeviceInfo) {
@@ -139,6 +140,71 @@ Object.defineProperties(Swapchain.prototype, {
         }
     },
 });
+
+Object.defineProperty(Device.prototype, 'commandBuffer', {
+    get: function () {
+        return this.getCommandBuffer();
+    }
+})
+
+Object.defineProperty(Framebuffer.prototype, 'renderPass', {
+    get: function () {
+        return this.getRenderPass();
+    }
+})
+
+const oldBegin = CommandBuffer.prototype.begin;
+CommandBuffer.prototype.begin = function (renderpass? : typeof RenderPass, subpass ?: number, framebuffer ?: typeof Framebuffer) {
+    if(renderpass === undefined) {
+        if(subpass == undefined) {
+            if(framebuffer === undefined) {
+                return this.begin0()
+            } else {
+                return this.begin1(renderpass);
+            }
+        } else {
+            return this.begin2(this, renderpass, subpass);
+        }
+    } else {
+        return this.begin3(renderpass, subpass, framebuffer);
+    }
+}
+
+const oldBindBuffer = DescriptorSet.prototype.bindBuffer;
+DescriptorSet.prototype.bindBuffer = function (binding: number, buffer: typeof Buffer, index?: number) {
+    if (index === undefined) {
+        oldBindBuffer.call(this, binding, buffer, 0);
+    } else {
+        oldBindBuffer.call(this, binding, buffer, index);
+    }
+};
+
+const oldBindSampler = DescriptorSet.prototype.bindSampler;
+DescriptorSet.prototype.bindSampler = function (binding: number, sampler: typeof Sampler, index?: number) {
+    if (index === undefined) {
+        oldBindSampler.call(this, binding, sampler, 0);
+    } else {
+        oldBindSampler.call(this, binding, sampler, index);
+    }
+};
+
+const oldBindTexture = DescriptorSet.prototype.bindTexture;
+DescriptorSet.prototype.bindTexture = function (binding: number, texture: typeof Texture, index?: number) {
+    if (index === undefined) {
+        oldBindTexture.call(this, binding, texture, 0);
+    } else {
+        oldBindTexture.call(this, binding, texture, index);
+    }
+};
+
+const oldUpdateBuffer = Buffer.prototype.update;
+Buffer.prototype.update = function (data: BufferSource, size?: number) {
+    if (size === undefined) {
+        oldUpdateBuffer.call(this, data, data.byteLength);
+    } else {
+        oldUpdateBuffer.call(this, data, size);
+    }
+};
 
 Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[], texture: typeof Texture, regions: typeof BufferTextureCopy[]) {
     const buffers: Uint8Array[] = [];

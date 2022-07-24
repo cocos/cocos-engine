@@ -53,6 +53,7 @@ public:
     CCWGPUDevice();
     ~CCWGPUDevice();
 
+    void acquire(const emscripten::val &swapchains);
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
@@ -75,37 +76,21 @@ public:
 
     Swapchain *createSwapchain(const emscripten::val &info);
 
-    Framebuffer *createFramebuffer(const ems::FramebufferInfo &info) {
-        return Device::createFramebuffer(static_cast<const FramebufferInfo &>(info));
-    }
+    Framebuffer *createFramebuffer(const emscripten::val &info);
 
-    Texture *createTexture(const emscripten::val& info);
+    Texture *createTexture(const emscripten::val &info);
 
     using Device::createTexture;
 
-    Buffer *createBuffer(const ems::BufferInfo &info) {
-        return Device::createBuffer(static_cast<const BufferInfo &>(info));
-    }
+    Buffer *createBuffer(const emscripten::val &info);
 
-    Buffer *createBuffer(const ems::BufferViewInfo &info) {
-        return Device::createBuffer(static_cast<const BufferViewInfo &>(info));
-    }
+    DescriptorSet *createDescriptorSet(const emscripten::val &info);
 
-    DescriptorSet *createDescriptorSet(const ems::DescriptorSetInfo &info) {
-        return Device::createDescriptorSet(static_cast<const DescriptorSetInfo &>(info));
-    }
+    DescriptorSetLayout *createDescriptorSetLayout(const emscripten::val &info);
 
-    DescriptorSetLayout *createDescriptorSetLayout(const ems::DescriptorSetLayoutInfo &info) {
-        return Device::createDescriptorSetLayout(static_cast<const DescriptorSetLayoutInfo &>(info));
-    }
+    PipelineLayout *createPipelineLayout(const emscripten::val &info);
 
-    PipelineLayout *createPipelineLayout(const ems::PipelineLayoutInfo &info) {
-        return Device::createPipelineLayout(static_cast<const PipelineLayoutInfo &>(info));
-    }
-
-    InputAssembler *createInputAssembler(const ems::InputAssemblerInfo &info) {
-        return Device::createInputAssembler(static_cast<const InputAssemblerInfo &>(info));
-    }
+    InputAssembler *createInputAssembler(const emscripten::val &info);
 
     PipelineState *createPipelineState(const ems::PipelineStateInfo &info) {
         return Device::createPipelineState(static_cast<const PipelineStateInfo &>(info));
@@ -115,15 +100,21 @@ public:
         return Device::createCommandBuffer(static_cast<const CommandBufferInfo &>(info));
     }
 
-    RenderPass *createRenderPass(const emscripten::val&info);
+    RenderPass *createRenderPass(const emscripten::val &info);
 
     emscripten::val copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions);
 
+    using Device::createBuffer;
+    using Device::createDescriptorSet;
+    using Device::createDescriptorSetLayout;
+    using Device::createFramebuffer;
+    using Device::createInputAssembler;
+    using Device::createPipelineLayout;
+    using Device::createRenderPass;
     using Device::createShader;
-    using Device::initialize;
     using Device::createSwapchain;
     using Device::getSampler;
-    using Device::createRenderPass;
+    using Device::initialize;
 
     Shader *createShader(const emscripten::val &info);
 

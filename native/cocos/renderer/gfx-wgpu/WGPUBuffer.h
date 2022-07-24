@@ -51,12 +51,20 @@ public:
     inline uint32_t getOffset() const { return _offset; }
 
     void update(const emscripten::val &v, uint32_t size) {
-        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        update(reinterpret_cast<const void *>(buffer.data()), size);
+        const size_t l = v["byteLength"].as<size_t>();
+        std::vector<uint8_t> rv;
+        rv.resize(l);
+        emscripten::val memoryView{emscripten::typed_memory_view(l, rv.data())};
+        memoryView.call<void>("set", v);
+        update(reinterpret_cast<const void *>(rv.data()), size);
     }
-    void update(const emscripten::val& v) {
-        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        update(reinterpret_cast<const void*>(buffer.data()), buffer.size());
+    void update(const emscripten::val &v) {
+        const size_t l = v["byteLength"].as<size_t>();
+        std::vector<uint8_t> rv;
+        rv.resize(l);
+        emscripten::val memoryView{emscripten::typed_memory_view(l, rv.data())};
+        memoryView.call<void>("set", v);
+        update(reinterpret_cast<const void *>(rv.data()), rv.size());
     }
 
     void update(const DrawInfoList &drawInfos);

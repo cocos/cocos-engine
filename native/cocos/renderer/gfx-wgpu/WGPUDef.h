@@ -1397,7 +1397,7 @@ private:
     cc::gfx::SubpassInfo obj;
 };
 
-class SubpassDependency {
+/* class SubpassDependency {
 public:
     SubpassDependency() = default;
     SubpassDependency(uint32_t src)
@@ -1419,7 +1419,7 @@ public:
 
 private:
     cc::gfx::SubpassDependency obj;
-};
+}; */
 
 class RenderPassInfo {
 public:
