@@ -31,6 +31,7 @@
 #include "core/scene-graph/NodeEnum.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
+#include "math/Utils.h"
 
 namespace cc {
 
@@ -739,13 +740,16 @@ void Node::onSetParent(Node *oldParent, bool keepWorldTransform) {
     }
 
     if (keepWorldTransform) {
-        Node *parent = _parent;
-        if (parent) {
-            parent->updateWorldTransform();
-            Mat4 mTemp{Mat4::IDENTITY}; // cjh FIXME: the logic is different from ts version.
-            Mat4::inverseTranspose(parent->getWorldMatrix(), &mTemp);
-            mTemp *= _worldMatrix;
-
+        if (_parent) {
+            _parent->updateWorldTransform();
+            if (mathutils::approx<float>(_parent->_worldMatrix.determinant(), 0.F, mathutils::EPSILON)) {
+                CC_LOG_WARNING("14300");
+                _dirtyFlag |= static_cast<uint32_t>(TransformBit::TRS);
+                updateWorldTransform();
+            } else {
+                Mat4 tmpMat4 = _parent->_worldMatrix.getInversed() * _worldMatrix;
+                Mat4::toRTS(tmpMat4, &_localRotation, &_localPosition, &_localScale);
+            }
         } else {
             _localPosition.set(_worldPosition);
             _localRotation.set(_worldRotation);
