@@ -585,8 +585,12 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         _context.Reset(_isolate, context);
         _context.Get(isolate)->Enter();
     } else {
+        static v8::ArrayBuffer::Allocator* s_arrayBufferAllocator{nullptr};
+        if (s_arrayBufferAllocator == nullptr) {
+            s_arrayBufferAllocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+        }
         v8::Isolate::CreateParams createParams;
-        createParams.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+        createParams.array_buffer_allocator = s_arrayBufferAllocator;
         _isolate = v8::Isolate::New(createParams);
         v8::HandleScope hs(_isolate);
         _context.Reset(_isolate, v8::Context::New(_isolate));
