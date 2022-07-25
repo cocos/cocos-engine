@@ -75,12 +75,6 @@ void RenderEntity::setNode(Node* node) {
         _node->setUserData(this);
     }
 }
-void RenderEntity::setStencilStage(uint32_t stage) {
-    _stencilStage = static_cast<StencilStage>(stage);
-}
-void RenderEntity::setEnumStencilStage(StencilStage stage) {
-    _stencilStage = stage;
-}
 
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {
     CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
