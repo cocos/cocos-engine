@@ -10,7 +10,7 @@ CCEffect %{
         mainTexture:           { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
         mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
         albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
-        alphaThreshold:        { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveMap:           { value: grey }
         shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
@@ -52,11 +52,13 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, editor: { displayName: Albedo, type: color } }
+        albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -78,10 +80,7 @@ CCEffect %{
 
 CCProgram shared-ubos %{
   uniform Constants {
-    vec4 tilingOffset;
-    vec4 albedo;
-    vec4 albedoScaleAndCutoff;
-  
+    vec4  tilingOffset;
     vec4  diffuseColor;
     vec4  specularColor;
     vec4  emissive;
@@ -298,6 +297,7 @@ CCProgram standard-fs %{
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
+      texColor.a *= transparencyFactor;
       baseColor *= texColor;
     #else
       baseColor *= diffuseColor;
@@ -305,11 +305,11 @@ CCProgram standard-fs %{
     baseColor.rgb *= diffuseFactor;
     
     #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
+      baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
     #endif
 
     #if USE_ALPHA_TEST
-      if (baseColor.a < albedoScaleAndCutoff.w) discard;
+      if (baseColor.a < alphaThreshold) discard;
     #endif
 
     #if CC_RECEIVE_SHADOW
@@ -403,6 +403,11 @@ CCProgram shadow-caster-vs %{
 
   out highp vec2 v_clip_depth;
 
+  #if USE_VERTEX_COLOR
+    in vec4 a_color;
+    out lowp vec4 v_color;
+  #endif
+
   vec4 vert () {
     StandardVertInput In;
     CCVertInput(In);
@@ -416,6 +421,10 @@ CCProgram shadow-caster-vs %{
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     #if HAS_SECOND_UV
       v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
     #endif
 
     v_clip_depth = clipPos.zw;
@@ -445,19 +454,23 @@ CCProgram shadow-caster-fs %{
     uniform sampler2D transparencyMap;
   #endif
 
-  vec4 frag () {
-    vec4 baseColor = diffuseColor;
-    #if USE_ALBEDO_MAP
-      vec4 texColor = texture(albedoMap, TEXTURE_UV);
-      baseColor *= texColor;
-    #endif
-    
-    #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
-    #endif
+  #if USE_VERTEX_COLOR
+    in lowp vec4 v_color;
+  #endif
 
+  vec4 frag () {
     #if USE_ALPHA_TEST
-      if (baseColor.a < albedoScaleAndCutoff.w) discard;
+      float alpha = diffuseColor.a;
+      #if USE_VERTEX_COLOR
+        alpha *= v_color.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
+      #endif
+      #if USE_TRANSPARENCY_MAP
+        alpha = texture(transparencyMap, TEXTURE_UV).a;
+      #endif
+      if (alpha < alphaThreshold) discard;
     #endif
 
     highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;

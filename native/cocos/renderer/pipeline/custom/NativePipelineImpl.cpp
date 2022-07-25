@@ -33,6 +33,7 @@
 #include "NativePipelineTypes.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
+#include "base/std/container/string.h"
 #include "boost/utility/string_view_fwd.hpp"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -82,6 +83,14 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
   resourceGraph(alloc),
   renderGraph(alloc) {}
+
+gfx::Device* NativePipeline::getDevice() const {
+    return device;
+}
+
+bool NativePipeline::containsResource(const ccstd::string &name) const {
+    return contains(name.c_str(), resourceGraph);
+}
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
@@ -184,6 +193,8 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     RasterPass pass(renderGraph.get_allocator());
     pass.width = width;
     pass.height = height;
+    pass.viewport.width = width;
+    pass.viewport.height = height;
 
     auto passID = addVertex(
         RasterTag{},
@@ -206,7 +217,8 @@ RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName, const ccstd::string &name) {
+ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName,
+    const ccstd::string &name) {
     auto passID = addVertex(
         ComputeTag{},
         std::forward_as_tuple(name.c_str()),
@@ -275,10 +287,10 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
     return ccnew NativeLayoutGraphBuilder(device, &layoutGraph);
 }
 
-gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
+gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) {
     auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
-        const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
+        const auto& layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);
         if (iter2 != layouts.end()) {
             return iter2->second.descriptorSetLayout.get();
@@ -287,6 +299,14 @@ gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::st
     }
     CC_EXPECTS(false);
     return nullptr;
+}
+
+gfx::DescriptorSet *NativePipeline::getDescriptorSet() const {
+    return globalDSManager->getGlobalDescriptorSet();
+}
+
+ccstd::vector<gfx::CommandBuffer*> NativePipeline::getCommandBuffers() const {
+    return ccstd::vector<gfx::CommandBuffer*>(1, device->getCommandBuffer());
 }
 
 namespace {
@@ -323,7 +343,6 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
 #if CC_USE_DEBUG_RENDERER
     DebugRenderer::getInstance()->activate(device);
 #endif
-
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
     // pipeline construct.
@@ -498,15 +517,40 @@ void NativePipeline::setShadingScale(float scale) {
     pipelineSceneData->setShadingScale(scale);
 }
 
-void NativePipeline::setMacroString(const ccstd::string &name, const ccstd::string &value) {
+const ccstd::string& NativePipeline::getMacroString(const ccstd::string& name) const {
+    static const ccstd::string EMPTY_STRING;
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return EMPTY_STRING;
+    }
+    return ccstd::get<ccstd::string>(iter->second);
+}
+
+int32_t NativePipeline::getMacroInt(const ccstd::string& name) const {
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return 0;
+    }
+    return ccstd::get<int32_t>(iter->second);
+}
+
+bool NativePipeline::getMacroBool(const ccstd::string& name) const {
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return false;
+    }
+    return ccstd::get<bool>(iter->second);
+}
+
+void NativePipeline::setMacroString(const ccstd::string& name, const ccstd::string& value) {
     macros[name] = value;
 }
 
-void NativePipeline::setMacroInt(const ccstd::string &name, int32_t value) {
+void NativePipeline::setMacroInt(const ccstd::string& name, int32_t value) {
     macros[name] = value;
 }
 
-void NativePipeline::setMacroBool(const ccstd::string &name, bool value) {
+void NativePipeline::setMacroBool(const ccstd::string& name, bool value) {
     macros[name] = value;
 }
 

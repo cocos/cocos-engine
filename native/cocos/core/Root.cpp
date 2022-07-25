@@ -140,6 +140,9 @@ public:
     void render(const ccstd::vector<scene::Camera *> &cameras) override {
         pipeline->render(cameras);
     }
+    gfx::Device* getDevice() const override {
+        return pipeline->getDevice();
+    }
     const MacroRecord &getMacros() const override {
         return pipeline->getMacros();
     }
@@ -148,6 +151,12 @@ public:
     }
     gfx::DescriptorSetLayout *getDescriptorSetLayout() const override {
         return pipeline->getDescriptorSetLayout();
+    }
+    gfx::DescriptorSet *getDescriptorSet() const override {
+        return pipeline->getDescriptorSet();
+    }
+    ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const override {
+        return pipeline->getCommandBuffers();
     }
     pipeline::PipelineSceneData *getPipelineSceneData() const override {
         return pipeline->getPipelineSceneData();
@@ -169,6 +178,31 @@ public:
     }
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
+    }
+    const ccstd::string& getMacroString(const ccstd::string& name) const override {
+        static const ccstd::string EMPTY_STRING;
+        const auto& macros = pipeline->getMacros();
+        auto iter = macros.find(name);
+        if (iter == macros.end()) {
+            return EMPTY_STRING;
+        }
+        return ccstd::get<ccstd::string>(iter->second);
+    }
+    int32_t getMacroInt(const ccstd::string &name) const override {
+        const auto& macros = pipeline->getMacros();
+        auto iter = macros.find(name);
+        if (iter == macros.end()) {
+            return 0;
+        }
+        return ccstd::get<int32_t>(iter->second);
+    }
+    bool getMacroBool(const ccstd::string &name) const override {
+        const auto& macros = pipeline->getMacros();
+        auto iter = macros.find(name);
+        if (iter == macros.end()) {
+            return false;
+        }
+        return ccstd::get<bool>(iter->second);
     }
     void setMacroString(const ccstd::string &name, const ccstd::string &value) override {
         pipeline->setValue(name, value);
@@ -221,7 +255,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         if (!_pipeline->activate(_mainWindow->getSwapchain())) {
             if (isCreateDefaultPipeline) {
-                CC_SAFE_DESTROY_AND_DELETE(_pipeline);
+                CC_SAFE_DESTROY(_pipeline);
             }
 
             _pipeline = nullptr;

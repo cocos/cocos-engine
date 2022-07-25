@@ -37,6 +37,12 @@ export declare namespace native {
     export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
 
     /**
+     * @en Copy text to clipboard @zh 拷贝字符串到剪切板
+     * @param text
+     */
+    export function copyTextToClipboard(text:string): void;
+
+    /**
      * @en DownloaderHints @zh 下载任务的配置接口
      * @param countOfMaxProcessingTasks
      * @en Maximum number of download tasks processed at the same time, optional, default is 6
@@ -61,6 +67,7 @@ export declare namespace native {
          * @example
          * ```ts
          * let downloader = new native.Downloader(); // create a Downloader object by default constructor
+         * ```
          */
         constructor();
 
@@ -75,6 +82,7 @@ export declare namespace native {
          *     tempFileNameSuffix: ".tmp"
          * };
          * let downloader = new native.Downloader(hints); // create a Downloader object with DownloaderHints
+         * ```
          */
         constructor (hints: DownloaderHints);
 
@@ -88,6 +96,7 @@ export declare namespace native {
          * @example
          * ```ts
          * let task = downloader.createDownloadTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
+         * ```
          */
         createDownloadTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
@@ -101,6 +110,7 @@ export declare namespace native {
          *  downloader.onSuccess = (task) => {
          *      console.log('Success!'); // call when task download success
          * };
+         * ```
          */
         onSuccess: (task: DownloaderTask) => void | undefined;
 
@@ -118,6 +128,7 @@ export declare namespace native {
          *      console.log(bytesReceived, totalBytesReceived); // download data info
          *      console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
          * };
+         * ```
          */
         onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void | undefined;
 
@@ -148,6 +159,7 @@ export declare namespace native {
          * @example
          * ```ts
          * let task = downloader.createDownloadFileTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
+         * ```
          */
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
@@ -162,6 +174,7 @@ export declare namespace native {
          *  downloader.setOnFileTaskSuccess((task)=>{
          *  console.log('Success!'); // call when task download success
          * });
+         * ```
          */
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
@@ -177,6 +190,7 @@ export declare namespace native {
          *  console.log(bytesReceived, totalBytesReceived); // download data info
          *  console.log(totalBytesReceived / totalBytesExpected * 100).toFixed(1) + '%'); // progress prompt
          * });
+         * ```
          */
         setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
@@ -191,6 +205,7 @@ export declare namespace native {
          *  downloader.setOnTaskError((task, errorCode, errorCodeInternal, errorStr)=>{
          *  console.log('Error:', errorStr);
          * });
+         * ```
         */
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
@@ -838,7 +853,7 @@ export declare namespace native {
      * @en DebugRenderer class used to output debug text on screen
      * @zh 用于输出屏幕调试文字的调试渲染器类
      */
-     export class DebugRenderer {
+    export class DebugRenderer {
         /**
          * @en get DebugRenderer instance
          * @zh 获取调试渲染器实例
@@ -854,5 +869,132 @@ export declare namespace native {
          * @param info @en the output text information @zh 输出的文本属性
          */
         addText(text:string, screenPos: Vec2, info?: DebugTextInfo): void;
-     }
+    }
+
+    export namespace reflection {
+        /**
+         * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html
+         * @en call Objective-C/Java static methods
+         * @zh 调用 Objective-C/Java 静态方法
+         *
+         * @param className : @en the class name of the Objective-C/Java class @zh Objective-C/Java 类的类名
+         * @param methodName : @en the method name of the Objective-C/Java class @zh Objective-C/Java 类的方法名
+         * @param methodSignature : @en the method signature of the Objective-C/Java class @zh Objective-C/Java 方法签名
+         * @param parameters : @en the parameters of the Objective-C/Java class to translate @zh 传递至该 Objective-C/Java 方法的参数
+         */
+        export function callStaticMethod (methodName: string, methodSignature: string, ...parameters:any): any;
+    }
+
+    /**
+     * @en
+     * The API to listen and dispatch events on Objc/JAVA without reflection,
+     * Function onNative can only be overriden once by time.
+     * https://docs.cocos.com/creator/manual/en/advanced-topics/js-java-bridge.html
+     * Sample:
+     * ```
+     * native.bridge.onNative = (event, data) => {
+     *   if (event === 'send_message') {
+     *    console.log(data);
+     *  }
+     * }
+     * ```
+     * ```
+     *  // Java codes
+     *  JsbBridge.sendToScript('send_message', 'hello world');
+     * ```
+     * @zh
+     * 不使用反射机制来调用和监听Objc/JAVA事件的接口,
+     * 同一时间只能重载一个onNative函数
+     * https://docs.cocos.com/creator/manual/zh/advanced-topics/js-java-bridge.html
+     * 示例:
+     * ```
+     * native.bridge.onNative = (event, data) => {
+     *   if (event === 'send_message') {
+     *    console.log(data);
+     *  }
+     * }
+     * ```
+     * ```java
+     *  JsbBridge.sendToScript('send_message', 'hello world');
+     * ```
+     */
+    export namespace bridge {
+        /**
+         * @en send to native with maxmimum of 2 parameters
+         * @zh 向原生发送消息，可接受1到2个参数。
+         * @param arg0 : @en the first parameter @zh 第一个参数
+         * @param arg1 : @en the second parameter @zh 第二个参数
+         */
+        export function sendToNative(arg0: string, arg1?: string): void;
+        /**
+         * @en
+         * Define your own js callback function. When native scripts run sendToScript, this callback will be called.
+         * usage: jsb.bridge.onNative = (arg0: String, arg1: String) => {...}
+         * @zh
+         * 定义自己的js回调函数，当原生调用 sendToScript 时，该回调函数被触发。
+         * 使用 jsb.bridge.onNative = (arg0: String, arg1: String) => {...}
+         *
+         * @param arg0 : @en the first parameter @zh 第一个参数
+         * @param arg1 : @en the second parameter @zh 第二个参数
+         */
+        export function onNative(arg0: string, arg1?: string|null): void;
+    }
+    /**
+     * @en
+     * Listener for jsbBridgeWrapper's event.
+     * It takes one argument as data which is transferred by jsbBridge.
+     * @zh
+     * jsbBridgeWrapper 的事件监听器，
+     * 它接受一个字符串参数，这个参数是通过 jsbBridge 进行传递的数据
+     * @param arg: @en the data transferred by jsbBridge @zh jsbBridge 进行传递的数据
+     */
+    export type OnNativeEventListener = (arg: string) => void;
+    /**
+     * @en
+     * A high level API to call Objc/JAVA methods.
+     * Use bridge to implement it. If use jsbBridgeWrapper, bridge should not be used.
+     * https://docs.cocos.com/creator/manual/en/advanced-topics/jsb-bridge-wrapper.html
+     * @zh
+     * 高级 API，用于调用 Objc/JAVA 方法。
+     * 该方法封装在bridge之上，如果使用 jsbBridgeWrapper，bridge 不应该被使用。
+     * https://docs.cocos.com/creator/manual/zh/advanced-topics/jsb-bridge-wrapper.html
+     */
+    export namespace jsbBridgeWrapper {
+        /**
+         * @en
+         * Register one listener to the event
+         * @zh
+         * 给事件注册一个监听
+         * @param event : @en the event name @zh 事件名称
+         * @param listener : @en the listener @zh 监听器
+        */
+        export function addNativeEventListener(event: string, listener: OnNativeEventListener);
+        /**
+         * @en
+         * Dispatch the event registered on Objective-C, Java etc.
+         * @zh
+         * 调用 Objective-C、Java 等的注册的事件。
+         * @param event : @en the event name @zh 事件名称
+         * @param data : @en the data @zh 数据
+         */
+        export function dispatchEventToNative(event: string, arg?: string);
+        /**
+         * @en Remove all listeners listennig to event.
+         * @zh 移除指定事件的所有监听。
+         * @param event : @en the event name @zh 事件名称
+         */
+        export function removeAllListenersForEvent(event: string);
+        /**
+         * @en Remove the listener specified.
+         * @zh 移除指定的事件监听器
+         * @param event : @en the event name @zh 事件名称
+         */
+        export function removeNativeEventListener(event: string, listener: OnNativeEventListener);
+        /**
+         * @en Remove all events, use it carefully!
+         * @zh 移除所有事件，请小心使用！
+         * @param event : @en the event name @zh 事件名称
+          */
+        export function removeAllListeners();
+    }
 }

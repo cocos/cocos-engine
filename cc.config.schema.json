@@ -38,7 +38,6 @@
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Construct a type with a set of properties K of type T",
                 "type": "object"
               },
               "test": {
@@ -61,6 +60,13 @@
         "constants"
       ],
       "type": "object"
+    },
+    "ConstantTypeName": {
+      "enum": [
+        "boolean",
+        "number"
+      ],
+      "type": "string"
     },
     "Feature": {
       "additionalProperties": false,
@@ -111,16 +117,22 @@
           "description": "Whether exported to developer. If true, it's only exported to engine.",
           "type": "boolean"
         },
+        "type": {
+          "$ref": "#/definitions/ConstantTypeName",
+          "description": "The type of the constant for generating consts.d.ts file."
+        },
         "value": {
-          "description": "The default value of the constant. It can be a boolean or string. When it's a string type, the value is the result of eval().",
+          "description": "The default value of the constant. It can be a boolean, number or string. When it's a string type, the value is the result of eval().",
           "type": [
             "boolean",
-            "string"
+            "string",
+            "number"
           ]
         }
       },
       "required": [
         "comment",
+        "type",
         "value",
         "internal"
       ],
@@ -144,7 +156,6 @@
             },
             "type": "object"
           },
-          "description": "Construct a type with a set of properties K of type T",
           "type": "object"
         }
       },

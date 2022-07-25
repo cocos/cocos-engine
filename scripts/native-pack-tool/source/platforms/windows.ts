@@ -20,7 +20,6 @@ export class WindowsPackTool extends NativePackTool {
         await this.excuteCocosTemplateTask();
 
         await this.encrypteScripts();
-        await this.generate();
         return true;
     }
 

@@ -222,7 +222,6 @@ void Engine::close() { // NOLINT
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
-    cc::EventDispatcher::dispatchCloseEvent();
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
 
 

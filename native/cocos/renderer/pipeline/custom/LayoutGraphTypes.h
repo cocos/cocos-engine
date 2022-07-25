@@ -39,7 +39,6 @@
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
 #include "cocos/base/std/hash/hash.h"
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
@@ -410,10 +409,10 @@ struct DescriptorSetLayoutData {
     DescriptorSetLayoutData& operator=(DescriptorSetLayoutData&& rhs) = default;
     DescriptorSetLayoutData& operator=(DescriptorSetLayoutData const& rhs) = delete;
 
-    uint32_t                                                 slot{0xFFFFFFFF};
-    uint32_t                                                 capacity{0};
-    ccstd::pmr::vector<DescriptorBlockData>                  descriptorBlocks;
-    ccstd::pmr::unordered_map<NameLocalID, UniformBlockData> uniformBlocks;
+    uint32_t                                                  slot{0xFFFFFFFF};
+    uint32_t                                                  capacity{0};
+    ccstd::pmr::vector<DescriptorBlockData>                   descriptorBlocks;
+    ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
 };
 
 struct DescriptorSetData {

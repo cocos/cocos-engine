@@ -325,10 +325,12 @@ struct GLES3GPURenderPass {
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList subpasses;
+    SubpassDependencyList dependencies;
 
     ccstd::vector<AttachmentStatistics> statistics; // per attachment
 
-    ccstd::vector<GLES3GPUGeneralBarrier> barriers; // per subpass
+    ccstd::vector<GLES3GPUGeneralBarrier> subpassBarriers; // per subpass
+    GLES3GPUGeneralBarrier blockBarrier;
 };
 
 class GLES3GPUFramebufferCacheMap;

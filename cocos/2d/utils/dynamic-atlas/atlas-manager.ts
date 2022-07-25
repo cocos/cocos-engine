@@ -240,7 +240,7 @@ export class DynamicAtlasManager extends System {
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
     public packToDynamicAtlas (comp, frame) {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if ((EDITOR && !legacyCC.GAME_VIEW) || !this._enabled) return;
 
         if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);

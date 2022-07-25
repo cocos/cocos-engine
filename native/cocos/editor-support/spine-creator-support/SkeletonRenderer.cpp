@@ -821,13 +821,6 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         }
 
         auto vertexOffset = vb.getCurPos() / vbs;
-        uint8_t *vbBuffer = vb.getCurBuffer();
-        cc::Vec3 *point = nullptr;
-        for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
-            point = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
-            point->z = 0; //reset for z value
-            point->transformMat4(*point, nodeWorldMat);
-        }
         if (vbSize > 0 && ibSize > 0) {
             if (vertexOffset > 0) {
                 auto *ibBuffer = reinterpret_cast<uint16_t *>(ib.getCurBuffer());

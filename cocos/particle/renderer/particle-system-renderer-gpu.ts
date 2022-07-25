@@ -457,7 +457,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
             if (this._animTexture) this._animTexture.destroy();
-            this._animTexture = packCurveRangeXY(_sample_num, textureModule.startFrame, textureModule.frameOverTime);
+            this._animTexture = packCurveRangeXY(_sample_num, textureModule.startFrame, textureModule.frameOverTime, true);
             const handle = pass.getHandle('texture_animation_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._animTexture.getGFXSampler()!);
