@@ -33,7 +33,6 @@ UIModelProxy::UIModelProxy() {
 }
 
 UIModelProxy::~UIModelProxy() {
-    destroy();
 }
 
 void UIModelProxy::initModel(Node* node) {
@@ -111,8 +110,14 @@ void UIModelProxy::uploadData() {
 void UIModelProxy::destroy() {
     if (_model != nullptr) {
         Root::getInstance()->destroyModel(_model);
-        _model = nullptr;
+        CC_SAFE_DELETE(_model);
     }
+
+    for (auto subMesh: _graphicsUseSubMeshes) {
+        subMesh->destroy();
+        CC_SAFE_DELETE(subMesh);
+    }
+    _graphicsUseSubMeshes.clear();
 }
 
 void UIModelProxy::clear() {

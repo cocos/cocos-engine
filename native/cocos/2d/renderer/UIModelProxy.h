@@ -39,6 +39,7 @@ public:
     void uploadData();
     void destroy();
     void clear();
+    inline scene::Model* getModel() const { return _model; }
     // For UIModel
     void updateModels(scene::Model* models);
     void attachDrawInfo();
@@ -50,9 +51,9 @@ protected:
 private:
     Node* _node{nullptr};
     ccstd::vector<scene::Model*> _models{};
-    ccstd::vector<RenderingSubMesh*> _graphicsUseSubMeshes{};
+    ccstd::vector<IntrusivePtr<RenderingSubMesh>> _graphicsUseSubMeshes{};
     // For UIModel
-    scene::Model* _model{nullptr};
+    IntrusivePtr<scene::Model> _model;
 
     gfx::Device* _device{nullptr};
     uint32_t _stride{32};
