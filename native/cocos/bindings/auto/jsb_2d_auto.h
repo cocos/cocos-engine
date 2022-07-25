@@ -61,6 +61,8 @@ SE_DECLARE_FUNC(js_2d_RenderEntity_getIsMaskInverted);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getIsSubMask);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getLocalOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getOpacity);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getRenderDrawInfoAt);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getRenderDrawInfosSize);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getUseLocal);
