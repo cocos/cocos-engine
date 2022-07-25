@@ -99,7 +99,6 @@ private:
     static bool isNeon32Enabled();
     static bool isNeon64Enabled();
 
-private:
 #ifdef __SSE__
     static void addMatrix(const __m128 m[4], float scalar, __m128 dst[4]);
 
