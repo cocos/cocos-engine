@@ -273,10 +273,6 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
     onHierarchyChanged(oldParent);
 }
 
-Scene *Node::getScene() const {
-    return _scene;
-}
-
 void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
@@ -550,16 +546,16 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
         auto *currChild = child;
         if (curr) {
             if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
-                currChild->_worldPosition.transformMat4(currChild->_localPosition, curr->getWorldMatrix());
+                currChild->_worldPosition.transformMat4(currChild->_localPosition, curr->_worldMatrix);
                 currChild->_worldMatrix.m[12] = currChild->_worldPosition.x;
                 currChild->_worldMatrix.m[13] = currChild->_worldPosition.y;
                 currChild->_worldMatrix.m[14] = currChild->_worldPosition.z;
             }
             if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
                 Mat4::fromRTS(currChild->_localRotation, currChild->_localPosition, currChild->_localScale, &currChild->_worldMatrix);
-                Mat4::multiply(curr->getWorldMatrix(), currChild->_worldMatrix, &currChild->_worldMatrix);
+                Mat4::multiply(curr->_worldMatrix, currChild->_worldMatrix, &currChild->_worldMatrix);
                 if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
-                    Quaternion::multiply(curr->getWorldRotation(), currChild->_localRotation, &currChild->_worldRotation);
+                    Quaternion::multiply(curr->_worldRotation, currChild->_localRotation, &currChild->_worldRotation);
                 }
                 quat = currChild->_worldRotation;
                 quat.conjugate();
@@ -637,7 +633,7 @@ void Node::setWorldPosition(float x, float y, float z) {
     _worldPosition.set(x, y, z);
     if (_parent) {
         _parent->updateWorldTransform();
-        Mat4 invertWMat{_parent->getWorldMatrix()};
+        Mat4 invertWMat{_parent->_worldMatrix};
         invertWMat.inverse();
         _localPosition.transformMat4(_worldPosition, invertWMat);
     } else {
@@ -661,7 +657,7 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
     _worldRotation.set(x, y, z, w);
     if (_parent) {
         _parent->updateWorldTransform();
-        _localRotation.set(_parent->getWorldRotation().getConjugated());
+        _localRotation.set(_parent->_worldRotation.getConjugated());
         _localRotation.multiply(_worldRotation);
     } else {
         _localRotation.set(_worldRotation);
@@ -688,9 +684,9 @@ void Node::setWorldScale(float x, float y, float z) {
     if (_parent != nullptr) {
         _parent->updateWorldTransform();
         Mat3 mat3;
-        Mat3::fromQuat(_parent->getWorldRotation().getConjugated(), &mat3);
+        Mat3::fromQuat(_parent->_worldRotation.getConjugated(), &mat3);
         Mat3 b;
-        Mat3::fromMat4(_parent->getWorldMatrix(), &b);
+        Mat3::fromMat4(_parent->_worldMatrix, &b);
         Mat3::multiply(mat3, b, &mat3);
         Mat3 mat3Scaling;
         mat3Scaling.m[0] = _worldScale.x;
@@ -717,6 +713,14 @@ void Node::setWorldScale(float x, float y, float z) {
 const Vec3 &Node::getWorldScale() const {
     const_cast<Node *>(this)->updateWorldTransform();
     return _worldScale;
+}
+
+void Node::setForward(const Vec3 &dir) {
+    const float len = dir.length();
+    Vec3 v3Temp = dir * (-1.F / len);
+    Quaternion qTemp{Quaternion::identity()};
+    Quaternion::fromViewUp(v3Temp, &qTemp);
+    setWorldRotation(qTemp);
 }
 
 void Node::setAngle(float val) {
@@ -765,7 +769,7 @@ void Node::rotate(const Quaternion &rot, NodeSpace ns /* = NodeSpace::LOCAL*/, b
         _localRotation *= qTempA;
     } else if (ns == NodeSpace::WORLD) {
         Quaternion qTempB{Quaternion::identity()};
-        qTempB = qTempA * _worldRotation;
+        qTempB = qTempA * getWorldRotation();
         qTempA = _worldRotation;
         qTempA.inverse();
         qTempB = qTempA * qTempB;
@@ -823,7 +827,7 @@ void Node::setWorldRotationFromEuler(float x, float y, float z) {
     Quaternion::fromEuler(x, y, z, &_worldRotation);
     if (_parent) {
         _parent->updateWorldTransform();
-        _localRotation = _parent->getWorldRotation().getConjugated() * _worldRotation;
+        _localRotation = _parent->_worldRotation.getConjugated() * _worldRotation;
     } else {
         _localRotation = _worldRotation;
     }
