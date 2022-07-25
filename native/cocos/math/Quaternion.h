@@ -396,14 +396,14 @@ public:
      * @param rhs The quaternion to compare
      * @return Whether this quaternion is equal to the given quaternion.
      */
-    inline bool operator==(const Quaternion& rhs) const;
+    inline bool operator==(const Quaternion &rhs) const;
 
     /**
      * Check whether this quaternion is not equal to the given quaternion.
      * @param rhs The quaternion to compare
      * @return Whether this quaternion is not equal to the given quaternion.
      */
-    inline bool operator!=(const Quaternion& rhs) const {
+    inline bool operator!=(const Quaternion &rhs) const {
         return !(*this == rhs);
     }
 

@@ -144,4 +144,3 @@ NS_CC_MATH_END
  @}
  */
 #define MATRIX_SIZE (sizeof(float) * 16)
-

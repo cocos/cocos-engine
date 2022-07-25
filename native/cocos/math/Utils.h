@@ -83,7 +83,8 @@ clamp(F val, F min, F max) {
         max = temp;
     }
 
-    return val < min ? min : val > max ? max : val;
+    return val < min ? min : val > max ? max
+                                       : val;
 }
 
 /**
@@ -94,7 +95,8 @@ clamp(F val, F min, F max) {
 template <typename F>
 auto clamp01(F val) {
     static_assert(std::is_floating_point<F>::value, "number expected");
-    return val < 0 ? 0 : val > 1 ? 1 : val;
+    return val < 0 ? 0 : val > 1 ? 1
+                                 : val;
 }
 
 /**

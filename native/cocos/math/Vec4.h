@@ -465,4 +465,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Vec4.inl"
-

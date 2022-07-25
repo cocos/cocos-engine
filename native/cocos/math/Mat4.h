@@ -922,14 +922,14 @@ public:
      * @param rhs The matrix to compare.
      * @return Whether this matrix is equal to the given matrix.
      */
-    inline bool operator==(const Mat4& rhs) const;
+    inline bool operator==(const Mat4 &rhs) const;
 
     /**
      * Check whether this matrix is not equal to the given matrix.
      * @param rhs The matrix to compare.
      * @return Whether this matrix is not equal to the given matrix.
      */
-    inline bool operator!=(const Mat4& rhs) const {
+    inline bool operator!=(const Mat4 &rhs) const {
         return !(*this == rhs);
     }
 

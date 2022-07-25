@@ -52,4 +52,3 @@ bool CC_DLL ccVertexLineIntersect(float ax, float ay,
 
 // end of base group
 /// @}
-
