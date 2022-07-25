@@ -104,6 +104,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             uint32_t size = entity->getRenderDrawInfosSize();
             for (uint32_t i = 0; i < size; i++) {
                 auto* drawInfo = entity->getRenderDrawInfoAt(i);
+                // NOLINTNEXTLINE
                 handleDrawInfo(entity, drawInfo, node);
             }
         }
@@ -294,7 +295,6 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         _batches.push_back(curdrawBatch);
     } else {
         if (drawInfo->getSubNode()) {
-            // NOLINTNEXTLINE(misc-no-recursion) tilemap walk hack for now
             walk(drawInfo->getSubNode(), entity->getOpacity());
         }
     }
