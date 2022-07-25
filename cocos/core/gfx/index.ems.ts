@@ -153,11 +153,17 @@ Object.defineProperty(Framebuffer.prototype, 'renderPass', {
     }
 })
 
+Object.defineProperty(InputAssembler.prototype, 'attributes', {
+    get: function () {
+        return this.getAttributes();
+    }
+});
+
 const oldBegin = CommandBuffer.prototype.begin;
-CommandBuffer.prototype.begin = function (renderpass? : typeof RenderPass, subpass ?: number, framebuffer ?: typeof Framebuffer) {
-    if(renderpass === undefined) {
-        if(subpass == undefined) {
-            if(framebuffer === undefined) {
+CommandBuffer.prototype.begin = function (renderpass?: typeof RenderPass, subpass?: number, framebuffer?: typeof Framebuffer) {
+    if (renderpass === undefined) {
+        if (subpass == undefined) {
+            if (framebuffer === undefined) {
                 return this.begin0()
             } else {
                 return this.begin1(renderpass);
@@ -205,6 +211,15 @@ Buffer.prototype.update = function (data: BufferSource, size?: number) {
         oldUpdateBuffer.call(this, data, size);
     }
 };
+
+const oldBindDescriptorSet = CommandBuffer.prototype.bindDescriptorSet;
+CommandBuffer.prototype.bindDescriptorSet = function (set: number, descriptorSet: typeof DescriptorSet, dynamicOffsets?: Readonly<number[]>) {
+    if (dynamicOffsets === undefined) {
+        oldBindDescriptorSet.call(this, set, descriptorSet, []);
+    } else {
+        oldBindDescriptorSet.call(this, set, descriptorSet, dynamicOffsets);
+    }
+}
 
 Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[], texture: typeof Texture, regions: typeof BufferTextureCopy[]) {
     const buffers: Uint8Array[] = [];

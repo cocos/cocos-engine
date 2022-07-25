@@ -33,6 +33,7 @@ namespace cc {
 namespace gfx {
 
 struct CCWGPUShaderObject;
+class SPIRVUtils;
 
 class CCWGPUShader final : public emscripten::wrapper<Shader> {
 public:
@@ -49,6 +50,8 @@ protected:
     void doDestroy() override;
 
     CCWGPUShaderObject *_gpuShaderObject = nullptr;
+
+    static SPIRVUtils *spirv;
 };
 
 } // namespace gfx

@@ -9,6 +9,7 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/variadic/to_seq.hpp>
 #include "WGPUBuffer.h"
+#include "WGPUCommandBuffer.h"
 #include "WGPUDef.h"
 #include "WGPUDescriptorSet.h"
 #include "WGPUDescriptorSetLayout.h"
@@ -52,6 +53,14 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
 #define ASSIGN_FROM_EMS(obj, ...)                                                                 \
     {                                                                                             \
         BOOST_PP_SEQ_FOR_EACH(ASSIGN_PROERTY_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
+
+#define SET_PROERTY_BY_SEQ(r, obj, property) \
+    ems_##obj.set(BOOST_STRINGIZE(property), static_cast<GetType<decltype(obj.property)>::type>(obj.property));
+
+#define SET_TO_EMS(obj, ...)                                                                   \
+    {                                                                                          \
+        BOOST_PP_SEQ_FOR_EACH(SET_PROERTY_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
 #define ASSIGN_VEC_BY_SEQ(r, obj, property) \
@@ -246,7 +255,7 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
         gfxSubpassInput.count = emsSubpassInput["count"].as<uint32_t>();
     }
 
-    return CCWGPUDevice::getInstance()->createShader(shaderInfo);
+    return this->createShader(shaderInfo);
 }
 
 void CCWGPUDevice::initialize(const val& info) {
@@ -280,7 +289,7 @@ Swapchain* CCWGPUDevice::createSwapchain(const val& info) {
     swapchainInfo.width = info["width"].as<uint32_t>();
     swapchainInfo.height = info["height"].as<uint32_t>();
 
-    return CCWGPUDevice::getInstance()->createSwapchain(swapchainInfo);
+    return this->createSwapchain(swapchainInfo);
 }
 
 Texture* CCWGPUDevice::createTexture(const val& info) {
@@ -301,7 +310,7 @@ Texture* CCWGPUDevice::createTexture(const val& info) {
         textureInfo.samples = SampleCount{info["samples"].as<uint32_t>()};
         textureInfo.depth = info["depth"].as<uint32_t>();
 
-        return CCWGPUDevice::getInstance()->createTexture(textureInfo);
+        return this->createTexture(textureInfo);
 
     } else {
         // texViewInfo
@@ -314,7 +323,7 @@ Texture* CCWGPUDevice::createTexture(const val& info) {
         textureViewInfo.baseLayer = info["baseLayer"].as<uint32_t>();
         textureViewInfo.baseLevel = info["baseLevel"].as<uint32_t>();
 
-        return CCWGPUDevice::getInstance()->createTexture(textureViewInfo);
+        return this->createTexture(textureViewInfo);
     }
 }
 
@@ -331,7 +340,7 @@ Sampler* CCWGPUDevice::getSampler(const val& info) {
     samplerInfo.maxAnisotropy = info["maxAnisotropy"].as<uint32_t>();
     samplerInfo.cmpFunc = ComparisonFunc{info["cmpFunc"].as<uint32_t>()};
 
-    return CCWGPUDevice::getInstance()->getSampler(samplerInfo);
+    return this->getSampler(samplerInfo);
 }
 
 RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
@@ -388,7 +397,7 @@ RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
         ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
     }
 
-    return CCWGPUDevice::getInstance()->createRenderPass(renderPassInfo);
+    return this->createRenderPass(renderPassInfo);
 }
 
 Framebuffer* CCWGPUDevice::createFramebuffer(const val& info) {
@@ -409,7 +418,7 @@ Framebuffer* CCWGPUDevice::createFramebuffer(const val& info) {
         }
     }
 
-    return CCWGPUDevice::getInstance()->createFramebuffer(frameBufferInfo);
+    return this->createFramebuffer(frameBufferInfo);
 }
 
 DescriptorSetLayout* CCWGPUDevice::createDescriptorSetLayout(const val& info) {
@@ -437,7 +446,7 @@ DescriptorSetLayout* CCWGPUDevice::createDescriptorSetLayout(const val& info) {
         }
     }
 
-    return CCWGPUDevice::getInstance()->createDescriptorSetLayout(descriptorSetLayoutInfo);
+    return this->createDescriptorSetLayout(descriptorSetLayoutInfo);
 }
 
 DescriptorSet* CCWGPUDevice::createDescriptorSet(const val& info) {
@@ -445,7 +454,7 @@ DescriptorSet* CCWGPUDevice::createDescriptorSet(const val& info) {
     DescriptorSetInfo descriptorSetInfo;
     const auto& ems_descriptorSetInfo = info;
     ASSIGN_FROM_EMS(descriptorSetInfo, layout);
-    return CCWGPUDevice::getInstance()->createDescriptorSet(descriptorSetInfo);
+    return this->createDescriptorSet(descriptorSetInfo);
 }
 
 Buffer* CCWGPUDevice::createBuffer(const val& info) {
@@ -456,13 +465,13 @@ Buffer* CCWGPUDevice::createBuffer(const val& info) {
         BufferInfo bufferInfo;
         const auto& ems_bufferInfo = info;
         ASSIGN_FROM_EMS(bufferInfo, usage, memUsage, size, stride, flags);
-        return CCWGPUDevice::getInstance()->createBuffer(bufferInfo);
+        return this->createBuffer(bufferInfo);
     } else {
         // BufferViewInfo
         BufferViewInfo bufferViewInfo;
         const auto& ems_bufferViewInfo = info;
         ASSIGN_FROM_EMS(bufferViewInfo, buffer, offset, range);
-        return CCWGPUDevice::getInstance()->createBuffer(bufferViewInfo);
+        return this->createBuffer(bufferViewInfo);
     }
 }
 
@@ -482,7 +491,7 @@ PipelineLayout* CCWGPUDevice::createPipelineLayout(const val& info) {
         setLayouts[i] = setLayoutsVec[i].as<DescriptorSetLayout*>(allow_raw_pointers());
     }
 
-    return CCWGPUDevice::getInstance()->createPipelineLayout(pipelineLayoutInfo);
+    return this->createPipelineLayout(pipelineLayoutInfo);
 }
 
 InputAssembler* CCWGPUDevice::createInputAssembler(const val& info) {
@@ -512,7 +521,9 @@ InputAssembler* CCWGPUDevice::createInputAssembler(const val& info) {
         ASSIGN_FROM_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
     }
 
-    return CCWGPUDevice::getInstance()->createInputAssembler(inputAssemblerInfo);
+    printf("ia %d\n", len);
+
+    return this->createInputAssembler(inputAssemblerInfo);
 }
 
 void CCWGPUDevice::acquire(const val& info) {
@@ -525,7 +536,104 @@ void CCWGPUDevice::acquire(const val& info) {
     for (size_t i = 0; i < len; ++i) {
         swapchains[i] = ems_swapchains[i].as<Swapchain*>(allow_raw_pointers());
     }
-    CCWGPUDevice::getInstance()->acquire(swapchains.data(), swapchains.size());
+    return this->acquire(swapchains.data(), swapchains.size());
+}
+
+void CCWGPUCommandBuffer::beginRenderPass(RenderPass* renderpass, Framebuffer* framebuffer, const emscripten::val& area, const emscripten::val& colors, float depth, uint32_t stencil) {
+    const auto& ems_rect = area;
+    Rect rect;
+    ASSIGN_FROM_EMS(rect, width, height, x, y);
+
+    ccstd::vector<Color> clearColors;
+    const std::vector<val>& ems_clearColorsVec = vecFromJSArray<val>(colors);
+    size_t len = ems_clearColorsVec.size();
+    clearColors.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_color = ems_clearColorsVec[i];
+        auto& color = clearColors[i];
+        ASSIGN_FROM_EMS(color, x, y, z, w);
+    }
+
+    return this->beginRenderPass(renderpass, framebuffer, rect, clearColors, depth, stencil);
+}
+
+PipelineState* CCWGPUDevice::createPipelineState(const emscripten::val& info) {
+    CHECK_PTR(info);
+    PipelineStateInfo pipelineStateInfo;
+    const auto& ems_pipelineStateInfo = info;
+    ASSIGN_FROM_EMS(pipelineStateInfo, shader, pipelineLayout, renderPass, primitive, dynamicStates, bindPoint);
+
+    const auto& ems_inputState = info["inputState"];
+    const auto& ems_attrs = ems_inputState["attributes"];
+    auto& attributes = pipelineStateInfo.inputState.attributes;
+    const std::vector<val>& attributesVec = vecFromJSArray<val>(ems_attrs);
+    size_t len = attributesVec.size();
+    attributes.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_attr = attributesVec[i];
+        auto& attr = attributes[i];
+        ASSIGN_FROM_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
+    }
+
+    const auto& ems_rasterizerState = info["rasterizerState"];
+    auto& rasterizerState = pipelineStateInfo.rasterizerState;
+    ASSIGN_FROM_EMS(rasterizerState, isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW, depthBiasEnabled, depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
+
+    const auto& ems_depthStencilState = info["depthStencilState"];
+    auto& depthStencilState = pipelineStateInfo.depthStencilState;
+    ASSIGN_FROM_EMS(depthStencilState, depthTest, depthWrite, depthFunc, stencilTestFront, stencilFuncFront, stencilReadMaskFront, stencilWriteMaskFront, stencilFailOpFront, stencilZFailOpFront,
+                    stencilPassOpFront, stencilRefFront, stencilTestBack, stencilFuncBack, stencilReadMaskBack, stencilWriteMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilPassOpBack, stencilRefBack);
+
+    const auto& ems_blendState = info["blendState"];
+    auto& blendState = pipelineStateInfo.blendState;
+    ASSIGN_FROM_EMS(blendState, isA2C, isIndepend);
+    const auto& ems_blendColor = ems_blendState["blendColor"];
+    auto& blendColor = blendState.blendColor;
+    ASSIGN_FROM_EMS(blendColor, x, y, z, w);
+    const auto& ems_targets = ems_blendState["targets"];
+    auto& targets = blendState.targets;
+    const std::vector<val>& targetsVec = vecFromJSArray<val>(ems_targets);
+    len = targetsVec.size();
+    targets.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_target = targetsVec[i];
+        auto& target = targets[i];
+        ASSIGN_FROM_EMS(target, blend, blendSrc, blendDst, blendEq, blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
+    }
+
+    return this->createPipelineState(pipelineStateInfo);
+}
+
+void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet* descriptorSet, const emscripten::val& dynamicOffsets) {
+    const auto& data = convertJSArrayToNumberVector<uint32_t>(dynamicOffsets);
+    return this->bindDescriptorSet(set, descriptorSet, data.size(), data.data());
+}
+
+void CCWGPUCommandBuffer::draw(const val& info) {
+    CHECK_VOID(info);
+
+    if (!info["update"].isUndefined()) {
+        auto* ia = info.as<InputAssembler*>(allow_raw_pointers());
+        printf("draw ia\n");
+        this->draw(ia->getDrawInfo());
+    } else {
+        DrawInfo drawInfo;
+        const auto& ems_drawInfo = info;
+        ASSIGN_FROM_EMS(drawInfo, vertexCount, firstVertex, indexCount, firstVertex, vertexOffset, instanceCount, firstInstance);
+        return this->draw(drawInfo);
+    }
+}
+
+emscripten::val CCWGPUInputAssembler::getEMSAttributes() const {
+    auto arr = val::array();
+    const auto& attributes = _attributes;
+    for (size_t i = 0; i < attributes.size(); ++i) {
+        const auto& attr = attributes[i];
+        auto ems_attr = val::object();
+        SET_TO_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
+        arr.set(i, ems_attr);
+    }
+    return arr;
 }
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {

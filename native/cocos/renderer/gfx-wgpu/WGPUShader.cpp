@@ -28,10 +28,12 @@
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
 #include "WGPUUtils.h"
+#include "gfx-base/SPIRVUtils.h"
 
 namespace cc {
 namespace gfx {
 
+SPIRVUtils *CCWGPUShader::spirv = nullptr;
 using namespace emscripten;
 
 CCWGPUShader::CCWGPUShader() : wrapper<Shader>(val::object()) {
@@ -78,6 +80,37 @@ void CCWGPUShader::initialize(const ShaderInfo &info) {
 }
 
 void CCWGPUShader::doInit(const ShaderInfo &info) {
+    _gpuShaderObject = ccnew CCWGPUShaderObject;
+    if (!spirv) {
+        spirv = SPIRVUtils::getInstance();
+        spirv->initialize(2);
+    }
+
+    for (auto &stage : info.stages) {
+        spirv->compileGLSL(stage.stage, "#version 450\n" + stage.source);
+        _gpuShaderObject->name = info.name;
+
+        // const auto &data = spirv->getOutputData();
+        auto *spvData = spirv->getOutputData();
+        size_t size = spirv->getOutputSize();
+
+        WGPUShaderModuleSPIRVDescriptor spv = {};
+        spv.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;
+        spv.codeSize = size;
+        spv.code = spvData;
+        WGPUShaderModuleDescriptor desc = {};
+        desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&spv);
+        desc.label = nullptr;
+        if (stage.stage == ShaderStageFlagBit::VERTEX) {
+            _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {
+            _gpuShaderObject->wgpuShaderFragmentModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else if (stage.stage == ShaderStageFlagBit::COMPUTE) {
+            _gpuShaderObject->wgpuShaderComputeModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else {
+            printf("unsupport shader stage.");
+        }
+    }
 }
 
 void CCWGPUShader::doDestroy() {

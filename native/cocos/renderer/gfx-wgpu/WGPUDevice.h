@@ -92,9 +92,7 @@ public:
 
     InputAssembler *createInputAssembler(const emscripten::val &info);
 
-    PipelineState *createPipelineState(const ems::PipelineStateInfo &info) {
-        return Device::createPipelineState(static_cast<const PipelineStateInfo &>(info));
-    }
+    PipelineState *createPipelineState(const emscripten::val &info);
 
     CommandBuffer *createCommandBuffer(const ems::CommandBufferInfo &info) {
         return Device::createCommandBuffer(static_cast<const CommandBufferInfo &>(info));
@@ -110,6 +108,7 @@ public:
     using Device::createFramebuffer;
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
+    using Device::createPipelineState;
     using Device::createRenderPass;
     using Device::createShader;
     using Device::createSwapchain;

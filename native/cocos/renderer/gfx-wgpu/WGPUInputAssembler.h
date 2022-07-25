@@ -42,6 +42,8 @@ public:
     // ems export
     void update(const DrawInfo &info);
 
+    emscripten::val getEMSAttributes() const;
+
 protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
