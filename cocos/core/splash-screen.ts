@@ -35,7 +35,7 @@ import {
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { SetIndex } from './pipeline/define';
-import { Mat4, Vec2 } from './math';
+import { Mat4, Vec2, Size } from './math';
 import { Settings, settings } from './settings';
 
 const v2_0 = new Vec2();
@@ -48,6 +48,7 @@ interface ISplashSetting {
     clearColor: Color;
     displayRatio: number;
     displayWatermark: boolean;
+    designResolution: Size;
 }
 
 type Writable<T> = { -readonly [K in keyof T]: T[K] };
@@ -97,6 +98,7 @@ export class SplashScreen {
             clearColor: settings.querySettings<Color>(Settings.Category.SPLASH_SCREEN, 'clearColor') ?? new Color(0.88, 0.88, 0.88, 1),
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             displayWatermark: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'displayWatermark') ?? true,
+            designResolution: settings.querySettings<Size>(Settings.Category.SCREEN, 'designResolution') ?? new Size(1280, 760),
         };
         this._curTime = 0;
 
@@ -174,7 +176,7 @@ export class SplashScreen {
         const dw = swapchain.width; const dh = swapchain.height;
         const refW = dw < dh ? dw : dh;
         const deviceAspect = dw / dh;
-        const designRes = window._CCSettings.designResolution;
+        const designRes = this.settings.designResolution;
         const designAspect = designRes.width / designRes.height;
         const ratio = deviceAspect / designAspect;
         // update logo uniform
