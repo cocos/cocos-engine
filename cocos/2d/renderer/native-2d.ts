@@ -40,21 +40,12 @@ export declare class NativeRenderDrawInfo {
 }
 
 export declare class NativeRenderEntity {
-    constructor();
+    constructor(type: number);
 
     addDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo);
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);
     removeDynamicRenderDrawInfo();
     clearDynamicRenderDrawInfos();
-
-    get isMask(): boolean;
-    set isMask(val: boolean);
-
-    get isSubMask(): boolean;
-    set isSubMask(val: boolean);
-
-    get isMaskInverted(): boolean;
-    set isMaskInverted(val: boolean);
 
     get node(): Node | null;
     set node(node: Node | null);
@@ -65,10 +56,6 @@ export declare class NativeRenderEntity {
     get staticDrawInfoSize(): number;
     set staticDrawInfoSize(size: number);
 
-    get useLocal(): boolean;
-    set useLocal(val: boolean);
-
-    setRenderEntityType(type: number);
     getStaticRenderDrawInfo(index: number): NativeRenderDrawInfo;
     getEntitySharedBufferForJS(): ArrayBufferLike;
 }

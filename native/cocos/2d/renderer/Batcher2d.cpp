@@ -197,7 +197,6 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             _currDrawInfo = drawInfo;
 
             _currTexture = drawInfo->getTexture();
-            _currTextureHash = drawInfo->getTextureHash();
             _currSampler = drawInfo->getSampler();
             if (_currSampler == nullptr) {
                 _currSamplerHash = 0;
@@ -282,7 +281,6 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
 
         // if(frame)
         _currTexture = drawInfo->getTexture();
-        _currTextureHash = drawInfo->getTextureHash();
         _currSampler = drawInfo->getSampler();
         _currSamplerHash = _currSampler->getHash();
         setIndexRange(drawInfo);
@@ -363,7 +361,6 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
 void Batcher2d::resetRenderStates() {
     _currMaterial = nullptr;
     _currTexture = nullptr;
-    _currTextureHash = 0;
     _currSampler = nullptr;
     _currSamplerHash = 0;
     _currLayer = 0;

@@ -195,7 +195,6 @@ protected:
     InstancedAttributeBlock _instanceAttributeBlock;
     Float32Array _localData;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
-    std::tuple<uint8_t *, uint32_t> _instancedBuffer{nullptr, 0};
 
     // For JS
     CallbacksInvoker _eventProcessor;
