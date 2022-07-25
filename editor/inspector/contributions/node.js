@@ -169,15 +169,14 @@ exports.listeners = {
 
         /**
          * Hack：阻断
-         * 由于目前的 command 机制，
-         * 无法控制组件的属性之间的互相修改值
-         * preview-set-property 和 cancel-preview-set-property 
-         * 对某些属性无法完美配合赋值和取消，所以需要阻断
+         * 由于目前预览 preview-set-property 和 cancel-preview-set-property 是 command 机制，
+         * 无法控制组件属性之间的修改为严格的可逆修改，
+         * 所以对某些属性取消预览
          */
-        const stopTheseTooltips = [
+        const stopPreviewOnTheseTooltips = [
             'i18n:animation.default_clip',
         ];
-        if (stopTheseTooltips.includes(dump.tooltip)) {
+        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
             return;
         }
 
