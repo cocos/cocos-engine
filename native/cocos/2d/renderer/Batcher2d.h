@@ -161,7 +161,6 @@ private:
     Material* _currMaterial{nullptr};
     // weak reference
     gfx::Texture* _currTexture{nullptr};
-    ccstd::hash_t _currTextureHash{0};
     // weak reference
     gfx::Sampler* _currSampler{nullptr};
     ccstd::hash_t _currSamplerHash{0};
