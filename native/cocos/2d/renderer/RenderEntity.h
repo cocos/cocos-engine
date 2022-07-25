@@ -123,7 +123,7 @@ public:
     inline void setOpacity(float opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
     inline uint32_t getRenderDrawInfosSize() const {
-        return _renderEntityType == RenderEntityType::STATIC ? _staticDrawInfoSize : _dynamicDrawInfos.size();
+        return _renderEntityType == RenderEntityType::STATIC ? _staticDrawInfoSize : static_cast<uint32_t>(_dynamicDrawInfos.size());
     }
     inline RenderDrawInfo* getRenderDrawInfoAt(uint32_t index) {
         return _renderEntityType == RenderEntityType::STATIC ? &(_staticDrawInfos[index]) : _dynamicDrawInfos[index];
