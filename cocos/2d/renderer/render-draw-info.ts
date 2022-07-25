@@ -33,6 +33,7 @@ export enum RenderDrawInfoType {
     COMP,
     MODEL,
     IA,
+    SUB_NODE,
 }
 
 export class RenderDrawInfo {

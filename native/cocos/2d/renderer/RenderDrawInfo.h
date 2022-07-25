@@ -49,6 +49,7 @@ enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
     IA,
+    SUB_NODE
 };
 
 struct LocalDSBF {
@@ -185,8 +186,12 @@ public:
         }
     }
 
-    inline Node* getSubNode() const { return _subNode; }
+    inline Node* getSubNode() const {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE); 
+        return _subNode; 
+    }
     inline void setSubNode(Node* node) {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
         _subNode = node;
     }
 
