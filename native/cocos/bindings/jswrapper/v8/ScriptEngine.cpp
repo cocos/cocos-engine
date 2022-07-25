@@ -585,7 +585,7 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         _context.Reset(_isolate, context);
         _context.Get(isolate)->Enter();
     } else {
-        static v8::ArrayBuffer::Allocator* s_arrayBufferAllocator{nullptr};
+        static v8::ArrayBuffer::Allocator *s_arrayBufferAllocator{nullptr};
         if (s_arrayBufferAllocator == nullptr) {
             s_arrayBufferAllocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
         }
