@@ -97,15 +97,12 @@ inline bool Vec4::operator<(const Vec4& v) const
 
 inline bool Vec4::operator==(const Vec4& v) const
 {
-    return math::isEqualF(x, v.x)
-        && math::isEqualF(y, v.y)
-        && math::isEqualF(z, v.z)
-        && math::isEqualF(w, v.w);
+    return x==v.x && y==v.y && z==v.z && w==v.w;
 }
 
 inline bool Vec4::operator!=(const Vec4& v) const
 {
-    return !(*this == v);
+    return x!=v.x || y!=v.y || z!=v.z || w!=v.w;
 }
 
 inline const Vec4 operator*(float x, const Vec4& v)
