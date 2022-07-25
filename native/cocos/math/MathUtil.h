@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATHUTIL_H_
-#define MATHUTIL_H_
+#pragma once
 
 #ifdef __SSE__
     #include <xmmintrin.h>
@@ -146,4 +145,3 @@ NS_CC_MATH_END
  */
 #define MATRIX_SIZE (sizeof(float) * 16)
 
-#endif

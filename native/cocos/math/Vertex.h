@@ -24,8 +24,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#ifndef __CCVERTEX_H__
-#define __CCVERTEX_H__
+#pragma once
 
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
@@ -54,4 +53,3 @@ bool CC_DLL ccVertexLineIntersect(float ax, float ay,
 // end of base group
 /// @}
 
-#endif /* __CCVERTEX_H__ */

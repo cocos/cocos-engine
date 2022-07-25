@@ -23,8 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CCMATHBASE_H__
-#define __CCMATHBASE_H__
+#pragma once
 
 #include <memory>
 #include "base/Macros.h"
@@ -93,5 +92,3 @@ NS_CC_MATH_END
  * end of base group
  * @}
  */
-
-#endif // __CCMATHBASE_H__

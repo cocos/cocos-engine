@@ -22,8 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef MATH_MAT3_H
-#define MATH_MAT3_H
+#pragma once
 
 #define MATRIX3_SIZE (sizeof(float) * 9)
 
@@ -258,5 +257,3 @@ NS_CC_MATH_END
  end of base group
  @}
  */
-
-#endif

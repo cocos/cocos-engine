@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_MAT4_H
-#define MATH_MAT4_H
+#pragma once
 
 #include "base/Macros.h"
 
@@ -973,5 +972,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Mat4.inl"
-
-#endif // MATH_MAT4_H

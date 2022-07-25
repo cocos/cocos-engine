@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_VEC4_H
-#define MATH_VEC4_H
+#pragma once
 
 #undef __SSE__
 #ifdef __SSE__
@@ -467,4 +466,3 @@ NS_CC_MATH_END
  */
 #include "math/Vec4.inl"
 
-#endif // MATH_VEC4_H

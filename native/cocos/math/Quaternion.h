@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef QUATERNION_H_
-#define QUATERNION_H_
+#pragma once
 
 #include "math/Mat4.h"
 #include "math/Vec3.h"
@@ -447,5 +446,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Quaternion.inl"
-
-#endif
