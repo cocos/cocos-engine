@@ -648,16 +648,13 @@ export class Node extends BaseNode implements CustomSerializable {
                     child._mat.m14 = child._pos.z;
                 }
                 if (dirtyBits & TransformBit.RS) {
-                    Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
-                    Mat4.multiply(child._mat, cur._mat, child._mat);
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
                     }
-                    Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
-                    Mat3.multiplyMat4(m3_1, m3_1, child._mat);
-                    child._scale.x = m3_1.m00;
-                    child._scale.y = m3_1.m04;
-                    child._scale.z = m3_1.m08;
+                    if (dirtyBits & TransformBit.SCALE) {
+                        Vec3.multiply(child._scale, cur._scale, child._lscale);
+                    }
+                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -672,8 +669,8 @@ export class Node extends BaseNode implements CustomSerializable {
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                     }
+                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
 

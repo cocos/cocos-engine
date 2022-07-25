@@ -188,9 +188,9 @@ void Node::off(const CallbacksInvoker::KeyType &type, void *target, bool useCapt
     }
 }
 
-//void Node::dispatchEvent(event::Event *eve) {
-//    _eventProcessor->dispatchEvent(eve);
-//}
+// void Node::dispatchEvent(event::Event *eve) {
+//     _eventProcessor->dispatchEvent(eve);
+// }
 
 bool Node::hasEventListener(const CallbacksInvoker::KeyType &type) const {
     return _eventProcessor->hasEventListener(type);
@@ -285,7 +285,7 @@ void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { //NOLINT(misc-no-recursion)
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { // NOLINT(misc-no-recursion)
     if (preFunc) {
         preFunc(this);
     }
@@ -301,23 +301,23 @@ void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { //N
     }
 }
 
-//Component *Node::addComponent(Component *comp) {
-//    comp->_node = this; // cjh TODO: shared_ptr
-//    _components.emplace_back(comp);
+// Component *Node::addComponent(Component *comp) {
+//     comp->_node = this; // cjh TODO: shared_ptr
+//     _components.emplace_back(comp);
 //
-//    if (isActiveInHierarchy()) {
-//        NodeActivator::activateComp(comp);
-//    }
+//     if (isActiveInHierarchy()) {
+//         NodeActivator::activateComp(comp);
+//     }
 //
-//    return comp;
-//}
+//     return comp;
+// }
 //
-//void Node::removeComponent(Component *comp) {
-//    auto iteComp = std::find(_components.begin(), _components.end(), comp);
-//    if (iteComp != _components.end()) {
-//        _components.erase(iteComp);
-//    }
-//}
+// void Node::removeComponent(Component *comp) {
+//     auto iteComp = std::find(_components.begin(), _components.end(), comp);
+//     if (iteComp != _components.end()) {
+//         _components.erase(iteComp);
+//     }
+// }
 
 bool Node::onPreDestroyBase() {
     Flags destroyingFlag = Flags::DESTROYING;
@@ -344,14 +344,14 @@ bool Node::onPreDestroyBase() {
         }
     }
 
-    //NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
-    // and the logic will be done in TS.
-    //    emit(NodeEventType::NODE_DESTROYED, this);
-    //    for (const auto &child : _children) {
-    //        child->destroyImmediate();
-    //    }
+    // NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
+    //  and the logic will be done in TS.
+    //     emit(NodeEventType::NODE_DESTROYED, this);
+    //     for (const auto &child : _children) {
+    //         child->destroyImmediate();
+    //     }
     //
-    //    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+    //     emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
 
     _eventProcessor->destroy();
     return destroyByParent;
@@ -529,7 +529,7 @@ void Node::setScaleInternal(float x, float y, float z, bool calledFromJS) {
     }
 }
 
-void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
+void Node::updateWorldTransform() { // NOLINT(misc-no-recursion)
     if (!getDirtyFlag()) {
         return;
     }
@@ -560,17 +560,13 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
                 currChild->_worldMatrix.m[14] = currChild->_worldPosition.z;
             }
             if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
-                Mat4::fromRTS(currChild->_localRotation, currChild->_localPosition, currChild->_localScale, &currChild->_worldMatrix);
-                Mat4::multiply(curr->getWorldMatrix(), currChild->_worldMatrix, &currChild->_worldMatrix);
                 if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
                     Quaternion::multiply(curr->getWorldRotation(), currChild->_localRotation, &currChild->_worldRotation);
                 }
-                quat = currChild->_worldRotation;
-                quat.conjugate();
-                Mat3::fromQuat(quat, &mat3);
-                Mat3::fromMat4(currChild->_worldMatrix, &m43);
-                Mat3::multiply(mat3, m43, &mat3);
-                currChild->_worldScale.set(mat3.m[0], mat3.m[4], mat3.m[8]);
+                if (dirtyBits & static_cast<uint32_t>(TransformBit::SCALE)) {
+                    Vec3::multiply(curr->getWorldScale(), currChild->_localScale, &currChild->_worldScale);
+                }
+                Mat4::fromRTS(currChild->_worldRotation, currChild->_worldPosition, currChild->_worldScale, &currChild->_worldMatrix);
             }
         } else if (child) {
             if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
@@ -585,8 +581,8 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
                 }
                 if (dirtyBits & static_cast<uint32_t>(TransformBit::SCALE)) {
                     currChild->_worldScale.set(currChild->_localScale);
-                    Mat4::fromRTS(currChild->_worldRotation, currChild->_worldPosition, currChild->_worldScale, &currChild->_worldMatrix);
                 }
+                Mat4::fromRTS(currChild->_worldRotation, currChild->_worldPosition, currChild->_worldScale, &currChild->_worldMatrix);
             }
         }
         child->setDirtyFlag(static_cast<uint32_t>(TransformBit::NONE));
@@ -594,7 +590,7 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
     }
 }
 
-const Mat4 &Node::getWorldMatrix() const { //NOLINT(misc-no-recursion)
+const Mat4 &Node::getWorldMatrix() const { // NOLINT(misc-no-recursion)
     const_cast<Node *>(this)->updateWorldTransform();
     return _worldMatrix;
 }
@@ -682,7 +678,7 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
     notifyLocalRotationUpdated();
 }
 
-const Quaternion &Node::getWorldRotation() const { //NOLINT(misc-no-recursion)
+const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
     const_cast<Node *>(this)->updateWorldTransform();
     return _worldRotation;
 }
@@ -926,9 +922,9 @@ void Node::onHierarchyChanged(Node *oldParent) {
 }
 
 /* static */
-//Node *Node::find(const ccstd::string &path, Node *referenceNode /* = nullptr*/) {
-//    return cc::find(path, referenceNode);
-//}
+// Node *Node::find(const ccstd::string &path, Node *referenceNode /* = nullptr*/) {
+//     return cc::find(path, referenceNode);
+// }
 
 // For deserialization
 // void Node::_setChild(index_t i, Node *child) {
