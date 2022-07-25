@@ -38,10 +38,6 @@ class Device;
 namespace pipeline {
 struct PSOInfo;
 
-#if defined(INITIAL_CAPACITY)
-    #undef INITIAL_CAPACITY
-#endif
-
 struct CC_DLL InstancedItem {
     uint32_t count = 0;
     uint32_t capacity = 0;
