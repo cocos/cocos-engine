@@ -35,11 +35,10 @@ public:
     ~UIModelProxy();
 
     void initModel(Node* node);
-    void activeSubModel(uint8_t val);
+    void activeSubModel();
     void uploadData();
     void destroy();
     void clear();
-    inline scene::Model* getModel() const { return _model; }
     // For UIModel
     void updateModels(scene::Model* models);
     void attachDrawInfo();

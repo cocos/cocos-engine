@@ -87,11 +87,10 @@ export declare class NativeBatcher2d {
 
 export declare class NativeUIModelProxy {
     initModel(node);
-    activeSubModel(index: number);
+    activeSubModel();
     uploadData();
     destroy();
     clear();
-    getModel() :Model;
     updateModels(model);
     attachDrawInfo();
     attachNode(node);

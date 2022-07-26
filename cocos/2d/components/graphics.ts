@@ -746,12 +746,7 @@ export class Graphics extends UIRenderer {
                     for (let i = 0; i < renderDataList.length; i++) {
                         renderDataList[i].setRenderDrawInfoAttributes();
                     }
-                    const len = this._graphicsNativeProxy.getModel().subModels.length;
-                    if (renderDataList.length > len) {
-                        for (let i = len; i < renderDataList.length; i++) {
-                            this._graphicsNativeProxy.activeSubModel(i);
-                        }
-                    }
+                    this._graphicsNativeProxy.activeSubModel();
                 }
                 this._graphicsNativeProxy.uploadData();
                 this._isNeedUploadData = false;
