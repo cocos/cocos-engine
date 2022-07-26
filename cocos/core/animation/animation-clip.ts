@@ -326,6 +326,14 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Returns if this clip has any embedded player.
+     * @internal Do not use this in your code.
+     */
+    public hasAnyEmbeddedPlayer () {
+        return this._embeddedPlayers.length !== 0;
+    }
+
+    /**
      * Creates an embedded player evaluator for this animation.
      * @param targetNode Target node.
      * @internal Do not use this in your code.

@@ -222,7 +222,7 @@ export class AnimationState extends Playable {
 
     set speed (value) {
         this._speed = value;
-        this._clipEmbeddedPlayerEval.notifyHostSpeedChanged(value);
+        this._clipEmbeddedPlayerEval?.notifyHostSpeedChanged(value);
     }
 
     /**
@@ -305,7 +305,7 @@ export class AnimationState extends Playable {
     private _weight = 1.0;
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
-    private declare _clipEmbeddedPlayerEval: ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']>;
+    private _clipEmbeddedPlayerEval: ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']> | undefined;
     /**
      * @internal For internal usage. Really hack...
      */
@@ -377,8 +377,10 @@ export class AnimationState extends Playable {
             this._clipEventEval = clip.createEventEvaluator(this._targetNode);
         }
 
-        this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(this._targetNode);
-        this._clipEmbeddedPlayerEval.notifyHostSpeedChanged(this._speed);
+        if (clip.hasAnyEmbeddedPlayer()) {
+            this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(this._targetNode);
+            this._clipEmbeddedPlayerEval.notifyHostSpeedChanged(this._speed);
+        }
     }
 
     public destroy () {
@@ -507,7 +509,7 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
         this._onReplayOrResume();
         this.emit(EventType.PLAY, this);
-        this._clipEmbeddedPlayerEval.notifyHostPlay(this.current);
+        this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
     protected onStop () {
@@ -515,19 +517,19 @@ export class AnimationState extends Playable {
             this._onPauseOrStop();
         }
         this.emit(EventType.STOP, this);
-        this._clipEmbeddedPlayerEval.notifyHostStop();
+        this._clipEmbeddedPlayerEval?.notifyHostStop();
     }
 
     protected onResume () {
         this._onReplayOrResume();
         this.emit(EventType.RESUME, this);
-        this._clipEmbeddedPlayerEval.notifyHostPlay(this.current);
+        this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
     protected onPause () {
         this._onPauseOrStop();
         this.emit(EventType.PAUSE, this);
-        this._clipEmbeddedPlayerEval.notifyHostPause(this.current);
+        this._clipEmbeddedPlayerEval?.notifyHostPause(this.current);
     }
 
     /**
@@ -716,7 +718,7 @@ export class AnimationState extends Playable {
     }
 
     private _sampleEmbeddedPlayers (wrapInfo: WrappedInfo) {
-        this._clipEmbeddedPlayerEval.evaluate(
+        this._clipEmbeddedPlayerEval?.evaluate(
             wrapInfo.time,
             Math.trunc(wrapInfo.iterations),
         );
