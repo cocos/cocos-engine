@@ -102,6 +102,9 @@ Engine::Engine() {
 
 Engine::~Engine() {
     destroy();
+
+    delete _scriptEngine;
+    _scriptEngine = nullptr;
 }
 
 int32_t Engine::init() {
@@ -119,11 +122,7 @@ int32_t Engine::init() {
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
-    if (!_scriptEngine) {
-        // The script engine is created in the engine constructor for the first time.
-        // It will be destroyed when restarting, and will be recreated after it is destroyed.
-        _scriptEngine = ccnew se::ScriptEngine();
-    }
+
     EventDispatcher::init();
 
     BasePlatform *platform = BasePlatform::getPlatform();
@@ -153,8 +152,10 @@ void Engine::destroy() {
 
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
     // and ScriptEngine will hold gfx objects.
-    delete _scriptEngine;
-    _scriptEngine = nullptr;
+    // Because the user registration interface needs to be added during initialization.
+    // ScriptEngine cannot be released here.
+    _scriptEngine->cleanup();
+
 #if CC_USE_PROFILER
     delete _profiler;
 #endif
@@ -228,8 +229,6 @@ void Engine::close() { // NOLINT
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
     BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
-
-
 }
 
 uint Engine::getTotalFrames() const {
