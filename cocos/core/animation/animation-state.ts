@@ -495,7 +495,7 @@ export class AnimationState extends Playable {
 
         // var playPerfectFirstFrame = (this.time === 0);
         if (this._currentFramePlayed) {
-            this.time += (delta * this.speed);
+            this.time += (delta * this._speed);
         } else {
             this._currentFramePlayed = true;
         }
