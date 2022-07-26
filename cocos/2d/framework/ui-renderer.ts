@@ -23,9 +23,9 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, JSB } from 'internal:constants';
+import { DEBUG, EDITOR, JSB } from 'internal:constants';
 import {
-    ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
 } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -46,6 +46,7 @@ import { Renderer } from '../../core/components/renderer';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { assert, director } from '../../core';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
 // hack
 ccenum(BlendFactor);
@@ -113,7 +114,6 @@ export enum InstanceMaterialType {
  */
 @ccclass('cc.UIRenderer')
 @requireComponent(UITransform)
-@disallowMultiple
 @executeInEditMode
 export class UIRenderer extends Renderer {
     /**
@@ -285,7 +285,9 @@ export class UIRenderer extends Renderer {
     }
 
     get renderEntity () {
-        assert(this._renderEntity);
+        if (DEBUG) {
+            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+        }
         return this._renderEntity;
     }
 
@@ -380,9 +382,9 @@ export class UIRenderer extends Renderer {
      * @zh 请求新的渲染数据对象。
      * @return The new render data
      */
-    public requestRenderData () {
+    public requestRenderData (drawInfoType = RenderDrawInfoType.COMP) {
         const data = RenderData.add();
-        data.initRenderDrawInfo(this);
+        data.initRenderDrawInfo(this, drawInfoType);
         this._renderData = data;
         return data;
     }
@@ -434,8 +436,10 @@ export class UIRenderer extends Renderer {
     protected _postRender (render: IBatcher) { }
 
     protected _canRender () {
-        return this.isValid
-            && this.getMaterial(0) !== null
+        if (DEBUG) {
+            assert(this.isValid, 'this component should not be invalid!');
+        }
+        return this.getMaterial(0) !== null
             && this.enabled
             && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
             && this._color.a > 0;
@@ -464,13 +468,14 @@ export class UIRenderer extends Renderer {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
+            this.setEntityEnabled(this._renderFlag);
         }
     }
 
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
-        if (render) {
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
             render._renderEntity.colorDirty = dirty;
             render._renderEntity.color = render.color;// necessity to be considering
         }
@@ -494,6 +499,12 @@ export class UIRenderer extends Renderer {
     public setEntityOpacity (opacity: number) {
         if (JSB) {
             this._renderEntity.localOpacity = opacity;
+        }
+    }
+
+    public setEntityEnabled (enabled: boolean) {
+        if (JSB) {
+            this._renderEntity.enabled = enabled;
         }
     }
 

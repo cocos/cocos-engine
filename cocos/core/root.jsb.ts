@@ -3,8 +3,8 @@ import { warnID } from './platform/debug';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { registerRebuildLayoutGraph } from './pipeline/custom/index.jsb';
 import { DebugView } from './pipeline/debug-view';
+import { buildDeferredLayout, buildForwardLayout } from './pipeline/custom/effect';
 
 declare const nr: any;
 declare const jsb: any;
@@ -188,9 +188,15 @@ const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     let ppl;
     if (this.usesCustomPipeline) {
-        ppl = oldSetPipeline.call(this, null);
-        registerRebuildLayoutGraph();
-        
+        const result = oldSetPipeline.call(this, null);
+        const ppl = this.customPipeline;
+        if (this.useDeferredPipeline) {
+            buildDeferredLayout(ppl);
+        } else {
+            buildForwardLayout(ppl);
+        }
+        ppl.layoutGraphBuilder.compile();
+        return result;
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered

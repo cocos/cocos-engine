@@ -60,3 +60,5 @@ export * from './components';
 export * from './builtin';
 export * from './curves';
 export * from './settings';
+
+export * from './pipeline/custom/builtin-pipelines';

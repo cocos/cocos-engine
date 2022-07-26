@@ -99,6 +99,39 @@ inline const char* getName(TaskType e) noexcept {
     }
     return "";
 }
+inline const char* getName(LightingMode e) noexcept {
+    switch (e) {
+        case LightingMode::NONE: return "NONE";
+        case LightingMode::DEFAULT: return "DEFAULT";
+        case LightingMode::CLUSTERED: return "CLUSTERED";
+    }
+    return "";
+}
+inline const char* getName(AttachmentType e) noexcept {
+    switch (e) {
+        case AttachmentType::RENDER_TARGET: return "RENDER_TARGET";
+        case AttachmentType::DEPTH_STENCIL: return "DEPTH_STENCIL";
+    }
+    return "";
+}
+inline const char* getName(AccessType e) noexcept {
+    switch (e) {
+        case AccessType::READ: return "READ";
+        case AccessType::READ_WRITE: return "READ_WRITE";
+        case AccessType::WRITE: return "WRITE";
+    }
+    return "";
+}
+inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
+inline const char* getName(ClearValueType e) noexcept {
+    switch (e) {
+        case ClearValueType::FLOAT_TYPE: return "FLOAT_TYPE";
+        case ClearValueType::INT_TYPE: return "INT_TYPE";
+    }
+    return "";
+}
+inline const char* getName(const ComputeView& /*v*/) noexcept { return "ComputeView"; }
+inline const char* getName(const LightInfo& /*v*/) noexcept { return "LightInfo"; }
 
 } // namespace render
 

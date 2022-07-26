@@ -11811,7 +11811,7 @@ static bool js_gfx_SubpassDependency_set_dstSubpass(se::State& s) // NOLINT(read
 }
 SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_dstSubpass)
 
-static bool js_gfx_SubpassDependency_get_barrier(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_SubpassDependency_get_generalBarrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
     // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
@@ -11819,25 +11819,193 @@ static bool js_gfx_SubpassDependency_get_barrier(se::State& s) // NOLINT(readabi
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->barrier, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->generalBarrier, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->barrier, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->generalBarrier, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_barrier)
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_generalBarrier)
 
-static bool js_gfx_SubpassDependency_set_barrier(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_SubpassDependency_set_generalBarrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->barrier, s.thisObject());
+    ok &= sevalue_to_native(args[0], &cobj->generalBarrier, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_barrier)
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_generalBarrier)
+
+static bool js_gfx_SubpassDependency_get_bufferBarriers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->bufferBarriers, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bufferBarriers, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_bufferBarriers)
+
+static bool js_gfx_SubpassDependency_set_bufferBarriers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->bufferBarriers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_bufferBarriers)
+
+static bool js_gfx_SubpassDependency_get_buffers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->buffers, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->buffers, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_buffers)
+
+static bool js_gfx_SubpassDependency_set_buffers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->buffers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_buffers)
+
+static bool js_gfx_SubpassDependency_get_bufferBarrierCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->bufferBarrierCount, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bufferBarrierCount, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_bufferBarrierCount)
+
+static bool js_gfx_SubpassDependency_set_bufferBarrierCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->bufferBarrierCount, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_bufferBarrierCount)
+
+static bool js_gfx_SubpassDependency_get_textureBarriers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->textureBarriers, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->textureBarriers, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_textureBarriers)
+
+static bool js_gfx_SubpassDependency_set_textureBarriers(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->textureBarriers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_textureBarriers)
+
+static bool js_gfx_SubpassDependency_get_textures(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->textures, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->textures, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_textures)
+
+static bool js_gfx_SubpassDependency_set_textures(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->textures, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_textures)
+
+static bool js_gfx_SubpassDependency_get_textureBarrierCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->textureBarrierCount, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->textureBarrierCount, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_textureBarrierCount)
+
+static bool js_gfx_SubpassDependency_set_textureBarrierCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->textureBarrierCount, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_textureBarrierCount)
 
 
 template<>
@@ -11860,9 +12028,33 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassDependency * to, s
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstSubpass), ctx);
     }
-    json->getProperty("barrier", &field, true);
+    json->getProperty("generalBarrier", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->barrier), ctx);
+        ok &= sevalue_to_native(field, &(to->generalBarrier), ctx);
+    }
+    json->getProperty("bufferBarriers", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bufferBarriers), ctx);
+    }
+    json->getProperty("buffers", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->buffers), ctx);
+    }
+    json->getProperty("bufferBarrierCount", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bufferBarrierCount), ctx);
+    }
+    json->getProperty("textureBarriers", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->textureBarriers), ctx);
+    }
+    json->getProperty("textures", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->textures), ctx);
+    }
+    json->getProperty("textureBarrierCount", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->textureBarrierCount), ctx);
     }
     return ok;
 }
@@ -11906,7 +12098,25 @@ static bool js_gfx_SubpassDependency_constructor(se::State& s) // NOLINT(readabi
         ok &= sevalue_to_native(args[1], &(cobj->dstSubpass), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->barrier), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->generalBarrier), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->bufferBarriers), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->buffers), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->bufferBarrierCount), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->textureBarriers), nullptr);
+    }
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(cobj->textures), nullptr);
+    }
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(cobj->textureBarrierCount), nullptr);
     }
 
     if(!ok) {
@@ -11934,7 +12144,13 @@ bool js_register_gfx_SubpassDependency(se::Object* obj) // NOLINT(readability-id
 #endif
     cls->defineProperty("srcSubpass", _SE(js_gfx_SubpassDependency_get_srcSubpass), _SE(js_gfx_SubpassDependency_set_srcSubpass));
     cls->defineProperty("dstSubpass", _SE(js_gfx_SubpassDependency_get_dstSubpass), _SE(js_gfx_SubpassDependency_set_dstSubpass));
-    cls->defineProperty("barrier", _SE(js_gfx_SubpassDependency_get_barrier), _SE(js_gfx_SubpassDependency_set_barrier));
+    cls->defineProperty("generalBarrier", _SE(js_gfx_SubpassDependency_get_generalBarrier), _SE(js_gfx_SubpassDependency_set_generalBarrier));
+    cls->defineProperty("bufferBarriers", _SE(js_gfx_SubpassDependency_get_bufferBarriers), _SE(js_gfx_SubpassDependency_set_bufferBarriers));
+    cls->defineProperty("buffers", _SE(js_gfx_SubpassDependency_get_buffers), _SE(js_gfx_SubpassDependency_set_buffers));
+    cls->defineProperty("bufferBarrierCount", _SE(js_gfx_SubpassDependency_get_bufferBarrierCount), _SE(js_gfx_SubpassDependency_set_bufferBarrierCount));
+    cls->defineProperty("textureBarriers", _SE(js_gfx_SubpassDependency_get_textureBarriers), _SE(js_gfx_SubpassDependency_set_textureBarriers));
+    cls->defineProperty("textures", _SE(js_gfx_SubpassDependency_get_textures), _SE(js_gfx_SubpassDependency_set_textures));
+    cls->defineProperty("textureBarrierCount", _SE(js_gfx_SubpassDependency_get_textureBarrierCount), _SE(js_gfx_SubpassDependency_set_textureBarrierCount));
     cls->defineFunction("copy", _SE(js_gfx_SubpassDependency_copy));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_SubpassDependency_finalize));
     cls->install();

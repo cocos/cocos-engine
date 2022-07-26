@@ -1,108 +1,54 @@
-exports.template = /* html */`
+exports.template = /* html */ `
 <section class="asset-erp-texture-cube">
     <div class="content">
         <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.anisotropyTip"
-                    value="i18n:ENGINE.assets.erpTextureCube.anisotropy"
-                ></ui-label>
-            </span>
-            <ui-num-input slot="content"
-                id="anisotropy"
-            ></ui-num-input>
+            <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.anisotropy" tooltip="i18n:ENGINE.assets.erpTextureCube.anisotropyTip"></ui-label>
+            <ui-num-input slot="content" id="anisotropy"></ui-num-input>
         </ui-prop>
         <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.faceSize.title"
-                    value="i18n:ENGINE.assets.erpTextureCube.faceSize.name"
-                ></ui-label>
-            </span>
-            <ui-num-input slot="content"
-                id="faceSize"
-            ></ui-num-input>
+            <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.faceSize.name" tooltip="i18n:ENGINE.assets.erpTextureCube.faceSize.title"></ui-label>
+            <ui-num-input slot="content" id="faceSize"></ui-num-input>
         </ui-prop>
         <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.minFilterTip"
-                    value="i18n:ENGINE.assets.erpTextureCube.minFilter"
-                ></ui-label>
-            </span>
-            <ui-select slot="content"
-                id="minfilter"
-            >
-                <option value="nearest">nearest</option>
-                <option value="linear">linear</option>
-            </ui-select>
+            <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.filterMode" tooltip="i18n:ENGINE.assets.erpTextureCube.filterModeTip"></ui-label>
+            <ui-select slot="content" id="filterMode"></ui-select>
         </ui-prop>
+        <section id="filterAdvancedSection">
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.minFilter" tooltip="i18n:ENGINE.assets.erpTextureCube.minFilterTip"></ui-label>
+                <ui-select slot="content" id="minfilter"></ui-select>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.magFilter" tooltip="i18n:ENGINE.assets.erpTextureCube.magFilterTip"></ui-label>
+                <ui-select slot="content" id="magfilter"></ui-select>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.generateMipmaps" tooltip="i18n:ENGINE.assets.erpTextureCube.generateMipmapsTip"></ui-label>
+                <ui-checkbox slot="content" id="generateMipmaps"></ui-checkbox>
+            </ui-prop>
+            <section id="generateMipmapsSection">
+                <ui-prop>
+                    <ui-label slot="label" tooltip="i18n:ENGINE.assets.erpTextureCube.mipFilterTip" value="i18n:ENGINE.assets.erpTextureCube.mipFilter"></ui-label>
+                    <ui-select slot="content" id="mipfilter"></ui-select>
+                </ui-prop>
+            </section>
+        </section>
         <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.magFilterTip"
-                    value="i18n:ENGINE.assets.erpTextureCube.magFilter"
-                ></ui-label>
-            </span>
-            <ui-select slot="content"
-                id="magfilter"
-            >
-                <option value="nearest">nearest</option>
-                <option value="linear">linear</option>
-            </ui-select>
+            <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.wrapMode" tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeTip"></ui-label>
+            <ui-select slot="content" id="wrapMode"></ui-select>
         </ui-prop>
+        <section id="wrapAdvancedSection">
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.wrapModeS" tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeSTip"></ui-label>
+                <ui-select slot="content" id="wrapModeS"></ui-select>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.wrapModeT" tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeTTip"></ui-label>
+                <ui-select slot="content" id="wrapModeT"></ui-select>
+            </ui-prop>
+        </section>
         <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.mipFilterTip"
-                    value="i18n:ENGINE.assets.erpTextureCube.mipFilter"
-                ></ui-label>
-            </span>
-            <ui-select slot="content"
-                id="mipfilter"
-            >
-                <option value="none">none</option>
-                <option value="nearest">nearest</option>
-                <option value="linear">linear</option>
-            </ui-select>
-        </ui-prop>
-        <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeSTip"
-                    value="i18n:ENGINE.assets.erpTextureCube.wrapModeS"
-                ></ui-label>
-            </span>
-            <ui-select slot="content"
-                id="wrapModeS"
-            >
-                <option value="repeat">repeat</option>
-                <option value="clamp-to-edge">clamp-to-edge</option>
-                <option value="mirrored-repeat">mirrored-repeat</option>
-            </ui-select>
-        </ui-prop>
-        <ui-prop>
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeTTip"
-                    value="i18n:ENGINE.assets.erpTextureCube.wrapModeT"
-                ></ui-label>
-            </span>
-            <ui-select slot="content"
-                id="wrapModeT"
-            >
-                <option value="repeat">repeat</option>
-                <option value="clamp-to-edge">clamp-to-edge</option>
-                <option value="mirrored-repeat">mirrored-repeat</option>
-            </ui-select>
-        </ui-prop>
-        <ui-prop class="bake-reflection-convo">
-            <span slot="label">
-                <ui-label
-                    tooltip="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution"
-                    value="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution"
-                ></ui-label>
-            </span>
+            <ui-label slot="label" value="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution" tooltip="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution"></ui-label>
             <ui-checkbox id="mipBakeMode" slot="content" value="false"></ui-checkbox>
         </ui-prop>
     </div>
@@ -113,17 +59,28 @@ exports.style = `
 .asset-erp-texture-cube  ui-prop{
     margin-top: 4px;
 }
+.asset-erp-texture-cube #filterAdvancedSection,
+.asset-erp-texture-cube #wrapAdvancedSection,
+.asset-erp-texture-cube #generateMipmapsSection {
+    margin-left: 1.2em;
+    display: none;
+}
 `;
 
 exports.$ = {
     anisotropy: '#anisotropy',
     faceSize: '#faceSize',
+    filterMode: '#filterMode',
+    filterAdvancedSection: '#filterAdvancedSection',
     minfilter: '#minfilter',
     magfilter: '#magfilter',
+    generateMipmaps: '#generateMipmaps',
+    generateMipmapsSection: '#generateMipmapsSection',
     mipfilter: '#mipfilter',
+    wrapMode: '#wrapMode',
+    wrapAdvancedSection: '#wrapAdvancedSection',
     wrapModeS: '#wrapModeS',
     wrapModeT: '#wrapModeT',
-    bakeReflectionConvo: '.bake-reflection-convo',
     mipBakeMode: '#mipBakeMode',
 };
 
@@ -148,6 +105,45 @@ exports.update = function(assetList, metaList) {
     }
 };
 
+const ModeMap = {
+    filter: {
+        'Nearest (None)': {
+            minfilter: 'nearest',
+            magfilter: 'nearest',
+            mipfilter: 'none',
+        },
+        Bilinear: {
+            minfilter: 'linear',
+            magfilter: 'linear',
+            mipfilter: 'none',
+        },
+        'Bilinear with Mipmaps': {
+            minfilter: 'linear',
+            magfilter: 'linear',
+            mipfilter: 'nearest',
+        },
+        'Trilinear with Mipmaps': {
+            minfilter: 'linear',
+            magfilter: 'linear',
+            mipfilter: 'linear',
+        },
+    },
+    wrap: {
+        Repeat: {
+            wrapModeS: 'repeat',
+            wrapModeT: 'repeat',
+        },
+        Clamp: {
+            wrapModeS: 'clamp-to-edge',
+            wrapModeT: 'clamp-to-edge',
+        },
+        Mirror: {
+            wrapModeS: 'mirrored-repeat',
+            wrapModeT: 'mirrored-repeat',
+        },
+    },
+};
+
 const Elements = {
     anisotropy: {
         ready() {
@@ -164,10 +160,49 @@ const Elements = {
             this.$.faceSize.addEventListener('change', this.dataChange.bind(this, 'faceSize'));
         },
         update() {
-
             this.$.faceSize.value = this.meta.userData.faceSize;
             this.updateInvalid(this.$.faceSize, 'faceSize');
             this.updateReadonly(this.$.faceSize);
+        },
+    },
+    filterMode: {
+        ready() {
+            this.$.filterMode.addEventListener('change', this.dataChange.bind(this, 'filterMode'));
+        },
+        update() {
+            let optionsHtml = '';
+            // FilterMode 选项
+            const types = Object.keys(ModeMap.filter).concat('Advanced');
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            this.$.filterMode.innerHTML = optionsHtml;
+
+            // 匹配 filterMode 值，没有匹配到组合，则为自定义 Advanced
+            let value = 'Advanced';
+            for (const filterKey of Object.keys(ModeMap.filter)) {
+                const filterItem = ModeMap.filter[filterKey];
+                let flag = true;
+                for (const key of Object.keys(filterItem)) {
+                    if (this.meta.userData[key] !== filterItem[key]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    value = filterKey;
+                    break;
+                }
+            }
+            this.$.filterMode.value = value;
+
+            // 更新时需要判断是否显示自定义项
+            value === 'Advanced'
+                ? (this.$.filterAdvancedSection.style.display = 'block')
+                : (this.$.filterAdvancedSection.style.display = 'none');
+
+            this.updateInvalid(this.$.filterMode, 'filterMode');
+            this.updateReadonly(this.$.filterMode);
         },
     },
     minfilter: {
@@ -175,7 +210,14 @@ const Elements = {
             this.$.minfilter.addEventListener('change', this.dataChange.bind(this, 'minfilter'));
         },
         update() {
-            this.$.minfilter.value = this.meta.userData.minfilter;
+            let optionsHtml = '';
+            const types = ['nearest', 'linear'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type.toUpperCase()}</option>`;
+            });
+            this.$.minfilter.innerHTML = optionsHtml;
+
+            this.$.minfilter.value = this.meta.userData.minfilte || 'nearest';
             this.updateInvalid(this.$.minfilter, 'minfilter');
             this.updateReadonly(this.$.minfilter);
         },
@@ -185,9 +227,32 @@ const Elements = {
             this.$.magfilter.addEventListener('change', this.dataChange.bind(this, 'magfilter'));
         },
         update() {
-            this.$.magfilter.value = this.meta.userData.magfilter;
+            let optionsHtml = '';
+            const types = ['nearest', 'linear'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type.toUpperCase()}</option>`;
+            });
+            this.$.magfilter.innerHTML = optionsHtml;
+
+            this.$.magfilter.value = this.meta.userData.magfilter || 'nearest';
             this.updateInvalid(this.$.magfilter, 'magfilter');
             this.updateReadonly(this.$.magfilter);
+        },
+    },
+    generateMipmaps: {
+        ready() {
+            this.$.generateMipmaps.addEventListener('change', this.dataChange.bind(this, 'generateMipmaps'));
+        },
+        update() {
+            this.$.generateMipmaps.value = this.meta.userData.mipfilter ? this.meta.userData.mipfilter !== 'none' : false;
+
+            // 更新时判断是否显示 mipfilter 选项
+            this.$.generateMipmaps.value
+                ? (this.$.generateMipmapsSection.style.display = 'block')
+                : (this.$.generateMipmapsSection.style.display = 'none');
+
+            this.updateInvalid(this.$.generateMipmaps, 'generateMipmaps');
+            this.updateReadonly(this.$.generateMipmaps);
         },
     },
     mipfilter: {
@@ -195,9 +260,56 @@ const Elements = {
             this.$.mipfilter.addEventListener('change', this.dataChange.bind(this, 'mipfilter'));
         },
         update() {
-            this.$.mipfilter.value = this.meta.userData.mipfilter;
+            let optionsHtml = '';
+            const types = ['nearest', 'linear'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type.toUpperCase()}</option>`;
+            });
+            this.$.mipfilter.innerHTML = optionsHtml;
+
+            this.$.mipfilter.value = this.meta.userData.mipfilter || 'nearest';
             this.updateInvalid(this.$.mipfilter, 'mipfilter');
             this.updateReadonly(this.$.mipfilter);
+        },
+    },
+    wrapMode: {
+        ready() {
+            this.$.wrapMode.addEventListener('change', this.dataChange.bind(this, 'wrapMode'));
+        },
+        update() {
+            let optionsHtml = '';
+            // WrapMode 选项
+            const types = Object.keys(ModeMap.wrap).concat('Advanced');
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            this.$.wrapMode.innerHTML = optionsHtml;
+
+            // 匹配 wrapMode 值，没有匹配到组合，则为自定义 Advanced
+            let value = 'Advanced';
+            for (const wrapKey of Object.keys(ModeMap.wrap)) {
+                const wrapItem = ModeMap.wrap[wrapKey];
+                let flag = true;
+                for (const key of Object.keys(wrapItem)) {
+                    if (this.meta.userData[key] !== wrapItem[key]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    value = wrapKey;
+                    break;
+                }
+            }
+            this.$.wrapMode.value = value;
+
+            // 更新时需要判断是否显示自定义项
+            value === 'Advanced'
+                ? (this.$.wrapAdvancedSection.style.display = 'block')
+                : (this.$.wrapAdvancedSection.style.display = 'none');
+
+            this.updateInvalid(this.$.wrapMode, 'wrapMode');
+            this.updateReadonly(this.$.wrapMode);
         },
     },
     wrapModeS: {
@@ -205,7 +317,18 @@ const Elements = {
             this.$.wrapModeS.addEventListener('change', this.dataChange.bind(this, 'wrapModeS'));
         },
         update() {
-            this.$.wrapModeS.value = this.meta.userData.wrapModeS;
+            let optionsHtml = '';
+            const types = {
+                Repeat: 'repeat',
+                Clamp: 'clamp-to-edge',
+                Mirror: 'mirrored-repeat',
+            };
+            for (const type in types) {
+                optionsHtml += `<option value="${types[type]}">${type}</option>`;
+            }
+            this.$.wrapModeS.innerHTML = optionsHtml;
+
+            this.$.wrapModeS.value = this.meta.userData.wrapModeS || 'repeat';
             this.updateInvalid(this.$.wrapModeS, 'wrapModeS');
             this.updateReadonly(this.$.wrapModeS);
         },
@@ -215,7 +338,18 @@ const Elements = {
             this.$.wrapModeT.addEventListener('change', this.dataChange.bind(this, 'wrapModeT'));
         },
         update() {
-            this.$.wrapModeT.value = this.meta.userData.wrapModeT;
+            let optionsHtml = '';
+            const types = {
+                Repeat: 'repeat',
+                Clamp: 'clamp-to-edge',
+                Mirror: 'mirrored-repeat',
+            };
+            for (const type in types) {
+                optionsHtml += `<option value="${types[type]}">${type}</option>`;
+            }
+            this.$.wrapModeT.innerHTML = optionsHtml;
+
+            this.$.wrapModeT.value = this.meta.userData.wrapModeT || 'repeat';
             this.updateInvalid(this.$.wrapModeT, 'wrapModeT');
             this.updateReadonly(this.$.wrapModeT);
         },
@@ -228,17 +362,46 @@ const Elements = {
             this.$.mipBakeMode.value = this.meta.userData.mipBakeMode === 2 ? true : false;
             this.updateInvalid(this.$.mipBakeMode, 'mipBakeMode');
             this.updateReadonly(this.$.mipBakeMode);
-            this.updateBakeReflectionVisible(this.meta.userData.mipfilter === 'linear');
         },
     },
-
 };
 
 exports.methods = {
     updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
+        let invalid;
+        // filterMode、 wrapMode 和 generateMipmaps 需要拆解进行判断
+        switch (prop) {
+            case 'filterMode':
+                invalid = this.metaList.some((meta) => {
+                    for (const key of Object.keys(ModeMap.filter.Bilinear)) {
+                        if (meta.userData[key] !== this.meta.userData[key]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                break;
+            case 'wrapMode':
+                invalid = this.metaList.some((meta) => {
+                    for (const key of Object.keys(ModeMap.wrap.Repeat)) {
+                        if (meta.userData[key] !== this.meta.userData[key]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                break;
+            case 'generateMipmaps':
+                invalid = this.metaList.some((meta) => {
+                    return meta.userData['mipfilter'] !== this.meta.userData['mipfilter'];
+                });
+                break;
+            default:
+                invalid = this.metaList.some((meta) => {
+                    return meta.userData[prop] !== this.meta.userData[prop];
+                });
+                break;
+        }
         element.invalid = invalid;
     },
     updateReadonly(element) {
@@ -248,20 +411,50 @@ exports.methods = {
             element.removeAttribute('disabled');
         }
     },
-    updateBakeReflectionVisible(show) {
-        this.$.bakeReflectionConvo.style.display = show ? 'block' : 'none';
-
-    },
     dataChange(key, event) {
         let value = event.target.value;
         if (key === 'mipBakeMode') {
             value = event.target.value ? 2 : 1;
         }
-        if (key === 'mipfilter') {
-            this.updateBakeReflectionVisible(value === 'linear');
-        }
         this.metaList.forEach((meta) => {
-            meta.userData[key] = value || undefined;
+            if (key === 'filterMode') {
+                if (ModeMap.filter[value]) {
+                    const data = ModeMap.filter[value];
+                    for (const key of Object.keys(data)) {
+                        meta.userData[key] = data[key];
+                    }
+                    this.$.filterAdvancedSection.style.display = 'none';
+                } else {
+                    // 选择 advanced 显示自定义项
+                    this.$.filterAdvancedSection.style.display = 'block';
+                }
+            } else if (key === 'generateMipmaps') {
+                if (!value) {
+                    // 没勾选 生成 mipmaps，不显示 mipfilter 选项
+                    meta.userData.mipfilter = 'none';
+                    this.$.generateMipmapsSection.style.display = 'none';
+                } else {
+                    this.$.generateMipmapsSection.style.display = 'block';
+                    if (this.$.mipfilter.value === 'none') {
+                        this.$.mipfilter.value = 'nearest';
+                        // TODO: 目前 ui-select 通过 .value 修改组件值后没有触发 change 事件，需要手动提交
+                        this.$.mipfilter.dispatch('change');
+                    }
+                }
+            } else if (key === 'wrapMode') {
+                if (ModeMap.wrap[value]) {
+                    const data = ModeMap.wrap[value];
+                    for (const key of Object.keys(data)) {
+                        meta.userData[key] = data[key];
+                    }
+                    this.$.wrapAdvancedSection.style.display = 'none';
+                } else {
+                    // 选择 advanced 需要显示自定义项
+                    this.$.wrapAdvancedSection.style.display = 'block';
+                }
+            } else {
+                meta.userData[key] = value || undefined;
+            }
         });
 
         this.dispatch('change');

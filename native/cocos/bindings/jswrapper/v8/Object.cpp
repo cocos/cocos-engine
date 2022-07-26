@@ -577,7 +577,10 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
     _privateObject = data;
 
     if (data != nullptr) {
+        _privateData = data->getRaw();
         NativePtrToObjectMap::emplace(data->getRaw(), this);
+    } else {
+        _privateData = nullptr;
     }
 }
 

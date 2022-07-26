@@ -124,6 +124,14 @@ export const enum LayoutGraphValue {
     RenderPhase,
 }
 
+export function getLayoutGraphValueName (e: LayoutGraphValue): string {
+    switch (e) {
+    case LayoutGraphValue.RenderStage: return 'RenderStage';
+    case LayoutGraphValue.RenderPhase: return 'RenderPhase';
+    default: return '';
+    }
+}
+
 interface LayoutGraphValueType {
     [LayoutGraphValue.RenderStage]: number
     [LayoutGraphValue.RenderPhase]: RenderPhase
@@ -662,7 +670,7 @@ export class DescriptorSetLayoutData {
     slot: number;
     capacity: number;
     readonly descriptorBlocks: DescriptorBlockData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
+    readonly uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
 }
 
 export class DescriptorSetData {
@@ -701,6 +709,14 @@ export class RenderPhaseData {
 export const enum LayoutGraphDataValue {
     RenderStage,
     RenderPhase,
+}
+
+export function getLayoutGraphDataValueName (e: LayoutGraphDataValue): string {
+    switch (e) {
+    case LayoutGraphDataValue.RenderStage: return 'RenderStage';
+    case LayoutGraphDataValue.RenderPhase: return 'RenderPhase';
+    default: return '';
+    }
 }
 
 interface LayoutGraphDataValueType {
@@ -1042,6 +1058,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     getUpdate (v: number): UpdateFrequency {
         return this._updateFrequencies[v];
+    }
+    setUpdate (v: number, value: UpdateFrequency) {
+        this._updateFrequencies[v] = value;
     }
     getLayout (v: number): PipelineLayoutData {
         return this._layouts[v];

@@ -107,11 +107,7 @@ public:
     inline float getSplitCameraFar() const { return _splitCameraFar; }
     inline void setSplitCameraFar(float splitCameraFar) { _splitCameraFar = splitCameraFar; }
 
-    inline const Mat4 &getMatShadowAtlas() const { return _matShadowAtlas; }
-    inline void setMatShadowAtlas(const Mat4 &matShadowAtlas) { _matShadowAtlas = matShadowAtlas; }
-
-    inline const Mat4 &getMatShadowViewProjAtlas() const { return _matShadowViewProjAtlas; }
-    inline void setMatShadowViewProjAtlas(const Mat4 &matShadowViewProjAtlas) { _matShadowViewProjAtlas = matShadowViewProjAtlas; }
+    inline const Vec4 &getCSMAtlas() const { return _csmAtlas; }
 
 private:
     void calculateAtlas(uint32_t level);
@@ -119,8 +115,7 @@ private:
     float _splitCameraNear{0.0F};
     float _splitCameraFar{0.0F};
 
-    Mat4 _matShadowAtlas;
-    Mat4 _matShadowViewProjAtlas;
+    Vec4 _csmAtlas;
 };
 
 class CSMLayers {

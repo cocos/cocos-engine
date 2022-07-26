@@ -33,6 +33,7 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -163,6 +164,30 @@ export declare namespace EffectAsset {
     }
 }
 
+const legacyBuiltinEffectNames = [
+    'planar-shadow',
+    'skybox',
+    'deferred-lighting',
+    'bloom',
+    'post-process',
+    'profiler',
+    'splash-screen',
+    'standard',
+    'unlit',
+    'sprite',
+    'particle',
+    'particle-gpu',
+    'particle-trail',
+    'billboard',
+    'terrain',
+    'graphics',
+    'clear-stencil',
+    'spine',
+    'occlusion-query',
+    'geometry-renderer',
+    'debug-renderer',
+];
+
 /**
  * @en Effect asset is the base template for instantiating material, all effects should be unique globally.
  * All effects are managed in a static map of EffectAsset.
@@ -210,6 +235,9 @@ export class EffectAsset extends Asset {
             if (EffectAsset._effects[n]._uuid === name) {
                 return EffectAsset._effects[n];
             }
+        }
+        if (legacyBuiltinEffectNames.includes(name)) {
+            warnID(16101, name);
         }
         return null;
     }

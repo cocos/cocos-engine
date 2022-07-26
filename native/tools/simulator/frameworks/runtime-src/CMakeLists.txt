@@ -34,8 +34,13 @@ if(NOT cocosdir)
     message(FATAL_ERROR "COCOS_ROOT is not set!")
 endif()
 
+# TODO(v3.6.1): enable all modules and scripts for simulator
+set(USE_DEBUG_RENDERER OFF)
+
 include(${cocosdir}/CMakeLists.txt)
 include(${cocosdir}/tools/simulator/libsimulator/CMakeLists.txt)
+
+
 
 if(MACOSX)
     set(LIB_NAME ${APP_NAME}-Mac)

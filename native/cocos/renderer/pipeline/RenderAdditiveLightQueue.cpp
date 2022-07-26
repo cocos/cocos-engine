@@ -33,7 +33,6 @@
 #include "PipelineUBO.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "SceneCulling.h"
 #include "base/Utils.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
@@ -350,8 +349,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
             case scene::LightType::SPHERE: {
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
+                    PipelineUBO::updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 // Reserve sphere light shadow interface
@@ -366,8 +364,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
+                    PipelineUBO::updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();

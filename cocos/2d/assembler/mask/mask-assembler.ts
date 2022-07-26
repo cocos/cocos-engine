@@ -27,6 +27,7 @@ import { IBatcher } from '../../renderer/i-batcher';
 import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { StencilManager } from '../../renderer/stencil-manager';
+import { RenderDrawInfoType } from '../../renderer/render-draw-info';
 
 const _stencilManager = StencilManager.sharedManager!;
 
@@ -45,7 +46,7 @@ function applyAreaMask (mask: Mask, renderer: IBatcher) {
 
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
-        const renderData = mask.requestRenderData();
+        const renderData = mask.requestRenderData(RenderDrawInfoType.MODEL);
         return renderData;
     },
 

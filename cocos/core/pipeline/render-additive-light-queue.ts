@@ -24,7 +24,6 @@
  */
 
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
-import { RenderPipeline } from './render-pipeline';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
@@ -41,9 +40,10 @@ import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
 import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
     UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
-import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { PipelineUBO } from './pipeline-ubo';
+import { PipelineRuntime } from './custom/pipeline';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -111,7 +111,7 @@ function isInstancedOrBatched (model: Model) {
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
-    private _pipeline: RenderPipeline;
+    private _pipeline: PipelineRuntime;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
     private _instancedLightPassPool = _lightPassPool.alloc();
@@ -127,7 +127,7 @@ export class RenderAdditiveLightQueue {
     private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale = 10000.0;
 
-    constructor (pipeline: RenderPipeline) {
+    constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._device = pipeline.device;
         this._instancedQueue = new RenderInstancedQueue();
@@ -333,6 +333,7 @@ export class RenderAdditiveLightQueue {
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         const validPunctualLights = sceneData.validPunctualLights;
+        const cap = this._pipeline.device.capabilities;
 
         for (let i = 0; i < validPunctualLights.length; i++) {
             const light = validPunctualLights[i];
@@ -344,8 +345,7 @@ export class RenderAdditiveLightQueue {
             case LightType.SPHERE: {
                 // planar PROJ
                 if (mainLight) {
-                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                    PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -367,15 +367,15 @@ export class RenderAdditiveLightQueue {
 
                 // planar PROJ
                 if (mainLight) {
-                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                    PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
                 // light view
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range);
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range,
+                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
                 matShadowProj = _matShadowViewProj.clone();
                 matShadowInvProj = _matShadowViewProj.clone().invert();
 
