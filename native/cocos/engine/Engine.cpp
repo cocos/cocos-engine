@@ -120,6 +120,8 @@ int32_t Engine::init() {
     _profiler = ccnew Profiler();
 #endif
     if (!_scriptEngine) {
+        // The script engine is created in the engine constructor for the first time.
+        // It will be destroyed when restarting, and will be recreated after it is destroyed.
         _scriptEngine = ccnew se::ScriptEngine();
     }
     EventDispatcher::init();
