@@ -86,7 +86,6 @@
 
         // static dir light
         lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
-        lightingResult.ao = 1.0;
       // dynamic & stationary dir light
       #else
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
