@@ -100,8 +100,19 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - position);
 
+  float shadow = 1.0;
+  #if CC_RECEIVE_SHADOW
+    if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
+      if (cc_shadowLPNNInfo.w > 0.0) {
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      } else {
+        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      }
+    }
+  #endif
+
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    vec3 finalColor = diffuse * s.lightmap.rgb;
+    vec3 finalColor = diffuse * s.lightmap.rgb * shadow;
   #else
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
@@ -116,17 +127,6 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     // Cook-Torrance Microfacet Specular BRDF
     vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
     vec3 dirlightContrib = (diffuseContrib + specularContrib);
-  
-    float shadow = 1.0;
-    #if CC_RECEIVE_SHADOW
-      if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-        if (cc_shadowLPNNInfo.w > 0.0) {
-          shadow = CCCSMFactorBase(position, N, s.shadowBias);
-        } else {
-          shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
-        }
-      }
-    #endif
   
     dirlightContrib *= shadow;
     finalColor *= dirlightContrib;
