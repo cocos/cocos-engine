@@ -51,7 +51,7 @@ void UIModelProxy::activeSubModels() {
     if (drawInfoSize > subModelSize) {
         for (size_t i = subModelSize; i < drawInfoSize; i++) {
             if (_model->getSubModels().size() <= i) {
-                RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(i);
+                RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(static_cast<uint32_t>(i));
                 if (drawInfo == nullptr) {
                     return;
                 }
@@ -74,7 +74,7 @@ void UIModelProxy::activeSubModels() {
                 auto* renderMesh = ccnew RenderingSubMesh(vbReference, _attributes, _primitiveMode, indexBuffer);
                 renderMesh->setSubMeshIdx(0);
 
-                _model->initSubModel(i, renderMesh, drawInfo->getMaterial());
+                _model->initSubModel(static_cast<index_t>(i), renderMesh, drawInfo->getMaterial());
                 _graphicsUseSubMeshes.emplace_back(renderMesh);
             }
         }
