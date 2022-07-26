@@ -267,6 +267,7 @@ export class Graphics extends UIRenderer {
         super.onLoad();
         if (JSB) {
             this._graphicsNativeProxy.initModel(this.node);
+            this.model = this._graphicsNativeProxy.getModel();
         } else {
             this.model = director.root!.createModel(scene.Model);
             this.model.node = this.model.transform = this.node;
@@ -292,6 +293,7 @@ export class Graphics extends UIRenderer {
         this._sceneGetter = null;
         if (JSB) {
             this.graphicsNativeProxy.destroy();
+            this.model = null;
         } else {
             if (this.model) {
                 director.root!.destroyModel(this.model);

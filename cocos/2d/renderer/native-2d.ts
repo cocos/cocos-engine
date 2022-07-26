@@ -91,6 +91,7 @@ export declare class NativeUIModelProxy {
     uploadData();
     destroy();
     clear();
+    getModel(): Model;
     updateModels(model);
     attachDrawInfo();
     attachNode(node);

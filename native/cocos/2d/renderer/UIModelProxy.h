@@ -39,6 +39,7 @@ public:
     void uploadData();
     void destroy();
     void clear();
+    inline scene::Model* getModel() const { return _model; }
     // For UIModel
     void updateModels(scene::Model* models);
     void attachDrawInfo();
