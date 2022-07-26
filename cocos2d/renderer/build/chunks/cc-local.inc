@@ -4,4 +4,6 @@
 uniform CCLocal {
   mat4 cc_matWorld;
   mat4 cc_matWorldIT;
+  mat4 cc_matParent;
+  mat4 cc_matLocal;
 };

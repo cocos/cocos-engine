@@ -302,6 +302,16 @@ export default class Base {
     node.getWorldMatrix(_m4_tmp);
     device.setUniform('cc_matWorld', Mat4.toArray(_float16_pool.add(), _m4_tmp));
 
+    if (node.parent) {
+      node.parent.getWorldMatrix(_m4_tmp);
+    } else {
+      _m4_tmp.set(Mat4.IDENTITY);
+    }
+    device.setUniform('cc_matParent', Mat4.toArray(_float16_pool.add(), _m4_tmp));
+
+    node.getLocalMatrix(_m4_tmp);
+    device.setUniform('cc_matLocal', Mat4.toArray(_float16_pool.add(), _m4_tmp));
+
     // let wq = node.getWorldRotation(cc.quat());
     Mat4.invert(_m4_tmp, _m4_tmp);
     Mat4.transpose(_m4_tmp, _m4_tmp);

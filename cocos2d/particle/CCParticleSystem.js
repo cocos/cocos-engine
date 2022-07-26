@@ -121,7 +121,15 @@ var PositionType = cc.Enum({
      * 整组模式，粒子跟随发射器移动。（不会发生拖尾）
      * @property {Number} GROUPED
      */
-    GROUPED: 2
+    GROUPED: 2,
+    /**
+     * !#en
+     * Living particles are attached to the emitter and are translated along with it (with trail).
+     * !#zh
+     * 常规模式，粒子跟随发射器移动。（带拖尾）
+     * @property {Number} GROUPED
+     */
+    NORMAL: 3
 });
 
 /**
@@ -1247,6 +1255,7 @@ var ParticleSystem = cc.Class({
         if (!material) return;
 
         material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
+        material.define('CC_USE_NORMAL', this._positionType === PositionType.NORMAL);
         material.setProperty('texture', this._getTexture());
 
         BlendFunc.prototype._updateMaterial.call(this);
