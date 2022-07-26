@@ -50,13 +50,11 @@ class AudioPlayer {
 public:
     enum State {
         UNLOADED,
-        READY, // READY TO PLAY
+        READY,
         PLAYING,
-        PAUSING,
         PAUSED,
-        INTERRUPTING,
-        INTERRUPTED,
-        FINISHED,
+        STOPPING,
+        STOPPED,
     };
     /**
      * Create an audio player without audio cache, state keeps UNLOADED
@@ -111,12 +109,11 @@ public:
     /**
      * Get a copy of audio player descriptor.
      */
-    AudioPlayerDescriptor getDescriptor();
+    AudioPlayerDescriptor getDescriptor() const;
     void rotateBuffer();
     bool isForceCache();
     void setForceCache();
-    State getState() const {return _state;}
-    
+    State getState() const;
     std::function<void(int, const std::string&)> finishCallback {nullptr};
 
     bool isAttached {false};
@@ -125,11 +122,14 @@ public:
 private:
     /**
      * Loop control, if the streaming audio is playing and the game tries to loop audio,
-     * need to lock the mutex to change the value as _isLoop is uesd in multi-thread.
+     * need to lock the mutex to change the value as streaming audio is playing with multi-thread.
      */
     bool _isLoop {false};
     std::mutex _loopSettingMutex;
     
+    float _duration {0};
+    bool _isStreaming {false};
+    float _volume {0};
     /**
      * Rotate thread
      */
@@ -138,16 +138,17 @@ private:
     
     AudioCache* _cache {nullptr};
     AudioPlayerDescriptor _descriptor;
+    
+    std::mutex _stateMtx;
     State _state;
-    bool _isStreaming {false};
-    bool _isForceCache {false};
-    float _volume {0};
+    
+    
     float _startTime {0};
-    float _pausingTime {0};
-    float _duration {0};
-    bool _shouldRescheduleBuffer {false};
+    /** Cache a pausing time to return value when the player is at pause state */
+    float _pauseTime {0};
+    
 
-    std::condition_variable _rotateBarrier;
-    std::mutex _rotateBufferMutex;
+    std::condition_variable _rotateBufferBarrier;
+    std::mutex _rotateBufferThreadMutex;
 };
 } // namespace cc

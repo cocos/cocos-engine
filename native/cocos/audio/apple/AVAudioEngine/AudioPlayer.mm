@@ -146,6 +146,8 @@ void AudioPlayer::rotateBuffer() {
         if (!_descriptor.node.isPlaying) {
             [_descriptor.node play];
         }
+        
+        // Sleep in a code block, check if the thread needs to exit or a new buffer need to be loaded.
         {
             std::unique_lock<std::mutex> lck(_rotateBufferMutex);
             while (!_shouldRotateThreadExited && (bufferQCount == MAX_QUEUE_NUM)) {
