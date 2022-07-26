@@ -343,6 +343,10 @@ export class AnimationState extends Playable {
             // TODO: destroy?
             this._clipEval = undefined;
         }
+        if (this._clipEmbeddedPlayerEval) {
+            this._clipEmbeddedPlayerEval.destroy();
+            this._clipEmbeddedPlayerEval = undefined;
+        }
         this._targetNode = root;
         const clip = this._clip;
 

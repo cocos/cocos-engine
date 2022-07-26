@@ -948,6 +948,17 @@ class EmbeddedPlayerEvaluation {
         );
     }
 
+    public destroy () {
+        const {
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayerEvaluationInfos.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            embeddedPlayerEvaluationInfos[iEmbeddedPlayer]?.instantiatedPlayer.destroy();
+        }
+        this._embeddedPlayerEvaluationInfos.length = 0;
+    }
+
     /**
      * Evaluates the embedded players.
      * @param time The time([0, clipDuration]).
