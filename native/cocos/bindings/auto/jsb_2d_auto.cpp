@@ -2066,25 +2066,21 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
 se::Object* __jsb_cc_UIModelProxy_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_UIModelProxy_class = nullptr;  // NOLINT
 
-static bool js_2d_UIModelProxy_activeSubModel(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_2d_UIModelProxy_activeSubModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::UIModelProxy>(s);
     // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<uint8_t, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->activeSubModel(arg0.value());
+    if (argc == 0) {
+        cobj->activeSubModels();
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_2d_UIModelProxy_activeSubModel)
+SE_BIND_FUNC(js_2d_UIModelProxy_activeSubModels)
 
 static bool js_2d_UIModelProxy_attachDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2153,6 +2149,26 @@ static bool js_2d_UIModelProxy_destroy(se::State& s) // NOLINT(readability-ident
     return false;
 }
 SE_BIND_FUNC(js_2d_UIModelProxy_destroy)
+
+static bool js_2d_UIModelProxy_getModel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::UIModelProxy>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Model* result = cobj->getModel();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_UIModelProxy_getModel)
 
 static bool js_2d_UIModelProxy_initModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2233,11 +2249,12 @@ bool js_register_2d_UIModelProxy(se::Object* obj) // NOLINT(readability-identifi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
-    cls->defineFunction("activeSubModel", _SE(js_2d_UIModelProxy_activeSubModel));
+    cls->defineFunction("activeSubModels", _SE(js_2d_UIModelProxy_activeSubModels));
     cls->defineFunction("attachDrawInfo", _SE(js_2d_UIModelProxy_attachDrawInfo));
     cls->defineFunction("attachNode", _SE(js_2d_UIModelProxy_attachNode));
     cls->defineFunction("clear", _SE(js_2d_UIModelProxy_clear));
     cls->defineFunction("destroy", _SE(js_2d_UIModelProxy_destroy));
+    cls->defineFunction("getModel", _SE(js_2d_UIModelProxy_getModel));
     cls->defineFunction("initModel", _SE(js_2d_UIModelProxy_initModel));
     cls->defineFunction("updateModels", _SE(js_2d_UIModelProxy_updateModels));
     cls->defineFunction("uploadData", _SE(js_2d_UIModelProxy_uploadData));
