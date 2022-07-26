@@ -32,13 +32,13 @@ namespace gfx {
 
 class CCMTLSemaphore final {
 public:
-    explicit CCMTLSemaphore(uint32_t initialValue) : _semaphoreCount(initialValue), _restCount(initialValue) {
+    explicit CCMTLSemaphore(uint32_t initialValue) : _semaphoreCount(initialValue) {
         _semaphore = dispatch_semaphore_create(initialValue);
     }
     
     ~CCMTLSemaphore() {
         if(_semaphore) {
-            while(_restCount-- >0) {
+            for(size_t i = 0; i < _semaphoreCount; ++i) {
                 dispatch_semaphore_signal(_semaphore);
             }
             dispatch_release(_semaphore);
@@ -50,34 +50,29 @@ public:
     CCMTLSemaphore &operator=(const CCMTLSemaphore &) = delete;
     CCMTLSemaphore &operator=(CCMTLSemaphore &&) = delete;
 
-    void signal() {
-        dispatch_semaphore_signal(_semaphore);
-        --_restCount;
+    void signal() const {
+        auto val = dispatch_semaphore_signal(_semaphore);
     }
 
-    void wait() {
+    void wait() const {
         dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-        ++_restCount;
     }
 
     void trySyncAll(uint64_t nanoSec) {
         for (uint32_t i = 0; i < _semaphoreCount; i++) {
             dispatch_semaphore_wait(_semaphore, nanoSec);
-            ++_restCount;
         }
     }
 
     void syncAll() {
         for (uint32_t i = 0; i < _semaphoreCount; i++) {
             dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-            ++_restCount;
         }
     }
 
 protected:
     dispatch_semaphore_t _semaphore = nullptr;
     uint32_t _semaphoreCount = 0;
-    int32_t _restCount;
 };
 
 } // namespace gfx
