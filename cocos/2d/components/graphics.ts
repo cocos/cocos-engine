@@ -220,6 +220,9 @@ export class Graphics extends UIRenderer {
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
+    /**
+     * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+     */
     public model: scene.Model | null = null;
     @serializable
     protected _lineWidth = 1;
@@ -262,12 +265,14 @@ export class Graphics extends UIRenderer {
 
     public onLoad () {
         super.onLoad();
-        this.model = director.root!.createModel(scene.Model);
-        this.model.node = this.model.transform = this.node;
-        this._flushAssembler();
         if (JSB) {
             this._graphicsNativeProxy.initModel(this.node);
+            this.model = this._graphicsNativeProxy.getModel();
+        } else {
+            this.model = director.root!.createModel(scene.Model);
+            this.model.node = this.model.transform = this.node;
         }
+        this._flushAssembler();
     }
 
     // hack for mask
@@ -286,17 +291,22 @@ export class Graphics extends UIRenderer {
 
     public onDestroy () {
         this._sceneGetter = null;
-        if (this.model) {
-            director.root!.destroyModel(this.model);
+        if (JSB) {
+            this.graphicsNativeProxy.destroy();
             this.model = null;
-        }
-
-        const subMeshLength = this._graphicsUseSubMeshes.length;
-        if (subMeshLength > 0) {
-            for (let i = 0; i < subMeshLength; ++i) {
-                this._graphicsUseSubMeshes[i].destroy();
+        } else {
+            if (this.model) {
+                director.root!.destroyModel(this.model);
+                this.model = null;
             }
-            this._graphicsUseSubMeshes.length = 0;
+
+            const subMeshLength = this._graphicsUseSubMeshes.length;
+            if (subMeshLength > 0) {
+                for (let i = 0; i < subMeshLength; ++i) {
+                    this._graphicsUseSubMeshes[i].destroy();
+                }
+                this._graphicsUseSubMeshes.length = 0;
+            }
         }
 
         if (this.impl) {
@@ -560,13 +570,12 @@ export class Graphics extends UIRenderer {
 
         this.impl.clear();
         this._isDrawing = false;
-        if (this.model) {
+        if (JSB) {
+            this._graphicsNativeProxy.clear();// need native
+        } else if (this.model) {
             for (let i = 0; i < this.model.subModels.length; i++) {
                 const subModel = this.model.subModels[i];
                 subModel.inputAssembler.indexCount = 0;
-            }
-            if (JSB) {
-                this._graphicsNativeProxy.clear();// need native
             }
         }
 
@@ -726,7 +735,11 @@ export class Graphics extends UIRenderer {
             return false;
         }
 
-        return !!this.model && this._isDrawing;
+        if (JSB) {
+            return this._isDrawing;
+        } else {
+            return !!this.model && this._isDrawing;
+        }
     }
 
     public updateRenderer () {
@@ -738,12 +751,7 @@ export class Graphics extends UIRenderer {
                     for (let i = 0; i < renderDataList.length; i++) {
                         renderDataList[i].setRenderDrawInfoAttributes();
                     }
-                    const len = this.model!.subModels.length;
-                    if (renderDataList.length > len) {
-                        for (let i = len; i < renderDataList.length; i++) {
-                            this._graphicsNativeProxy.activeSubModel(i);
-                        }
-                    }
+                    this._graphicsNativeProxy.activeSubModels();
                 }
                 this._graphicsNativeProxy.uploadData();
                 this._isNeedUploadData = false;
