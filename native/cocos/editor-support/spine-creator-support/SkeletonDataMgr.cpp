@@ -68,7 +68,7 @@ SkeletonDataMgr *SkeletonDataMgr::instance = nullptr;
 
 SkeletonDataMgr::~SkeletonDataMgr() {
     _destroyCallback = nullptr;
-    for (auto& e : _dataMap) {
+    for (auto &e : _dataMap) {
         delete e.second;
     }
     _dataMap.clear();

@@ -652,7 +652,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
         objFunc->call(jsArgs, nullptr);
     });
 
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([objFunc]{
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([objFunc] {
         objFunc->decRef();
     });
 
