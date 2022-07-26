@@ -14,7 +14,7 @@ cc_set_if_undefined(CC_DEBUG_FORCE           OFF)
 cc_set_if_undefined(USE_SE_V8                ON)
 cc_set_if_undefined(USE_SE_SM                OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
-cc_set_if_undefined(USE_V8_DEBUGGER_FORCE    OFF)
+cc_set_if_undefined(USE_V8_DEBUGGER_FORCE    ON)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
@@ -2867,7 +2867,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
         # USE_V8_DEBUGGER = USE_V8_DEBUGGER && (in_debug_mode OR USE_V8_DEBUGGER_FORCEON)
-        $<IF:$<AND:$<OR:$<CONFIG:Debug>,$<BOOL:${USE_V8_DEBUGGER_FORCE}>>,$<BOOL:${USE_V8_DEBUGGER}>>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
+        $<IF:$<AND:$<OR:$<CONFIG:Debug>,$<BOOL:${USE_V8_DEBUGGER_FORCE}>>,$<BOOL:${USE_V8_DEBUGGER}>>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=1>
         $<IF:$<BOOL:${USE_MIDDLEWARE}>,CC_USE_MIDDLEWARE=1,CC_USE_MIDDLEWARE=0>
         $<IF:$<BOOL:${USE_SPINE}>,CC_USE_SPINE=1,CC_USE_SPINE=0>
         $<IF:$<BOOL:${USE_DRAGONBONES}>,CC_USE_DRAGONBONES=1,CC_USE_DRAGONBONES=0>

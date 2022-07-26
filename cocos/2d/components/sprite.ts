@@ -626,7 +626,7 @@ export class Sprite extends UIRenderer {
                 }
             }
 
-            this._activateMaterial();
+            // this._activateMaterial();
         }
     }
 
@@ -681,7 +681,7 @@ export class Sprite extends UIRenderer {
         if (oldFrame && this._type === SpriteType.SLICED) {
             oldFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
-        this._updateUVs();
+        // this._updateUVs();
 
         let textureChanged = false;
         if (spriteFrame) {
