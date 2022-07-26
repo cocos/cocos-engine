@@ -96,7 +96,9 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
 namespace cc {
 
-Engine::Engine() = default;
+Engine::Engine() {
+    _scriptEngine = ccnew se::ScriptEngine();
+}
 
 Engine::~Engine() {
     destroy();
@@ -117,8 +119,9 @@ int32_t Engine::init() {
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
-
-    _scriptEngine = ccnew se::ScriptEngine();
+    if (!_scriptEngine) {
+        _scriptEngine = ccnew se::ScriptEngine();
+    }
     EventDispatcher::init();
 
     BasePlatform *platform = BasePlatform::getPlatform();
@@ -149,7 +152,7 @@ void Engine::destroy() {
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
     // and ScriptEngine will hold gfx objects.
     delete _scriptEngine;
-
+    _scriptEngine = nullptr;
 #if CC_USE_PROFILER
     delete _profiler;
 #endif

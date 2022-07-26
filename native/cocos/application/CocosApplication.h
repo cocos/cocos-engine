@@ -67,6 +67,10 @@ public:
     BaseEngine::Ptr getEngine() const override;
 
     /**
+     * @brief Processing engine start events.
+     */
+    virtual void onStart();
+    /**
      * @brief Processing pause events..
      */
     virtual void onPause();
