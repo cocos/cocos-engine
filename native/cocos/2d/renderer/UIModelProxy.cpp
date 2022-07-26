@@ -33,6 +33,7 @@ UIModelProxy::UIModelProxy() {
 }
 
 UIModelProxy::~UIModelProxy() {
+    destroy();
 }
 
 void UIModelProxy::initModel(Node* node) {

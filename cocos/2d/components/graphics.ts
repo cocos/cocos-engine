@@ -220,6 +220,9 @@ export class Graphics extends UIRenderer {
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
+    /**
+     * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+     */
     public model: scene.Model | null = null;
     @serializable
     protected _lineWidth = 1;
