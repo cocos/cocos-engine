@@ -43,13 +43,13 @@ void UIModelProxy::initModel(Node* node) {
     _node = node;
 }
 
-void UIModelProxy::activeSubModel() {
+void UIModelProxy::activeSubModels() {
     if (_model == nullptr) return;
     auto* entity = static_cast<RenderEntity*>(_node->getUserData());
     auto drawInfoSize = entity->getDynamicRenderDrawInfos().size();
     auto subModelSize = _model->getSubModels().size();
     if (drawInfoSize > subModelSize) {
-        for (uint8_t i = subModelSize; i < drawInfoSize; i++) {
+        for (size_t i = subModelSize; i < drawInfoSize; i++) {
             if (_model->getSubModels().size() <= i) {
                 RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(i);
                 if (drawInfo == nullptr) {

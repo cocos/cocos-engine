@@ -87,7 +87,7 @@ export declare class NativeBatcher2d {
 
 export declare class NativeUIModelProxy {
     initModel(node);
-    activeSubModel();
+    activeSubModels();
     uploadData();
     destroy();
     clear();

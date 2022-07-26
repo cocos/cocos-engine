@@ -35,7 +35,7 @@ public:
     ~UIModelProxy();
 
     void initModel(Node* node);
-    void activeSubModel();
+    void activeSubModels();
     void uploadData();
     void destroy();
     void clear();
