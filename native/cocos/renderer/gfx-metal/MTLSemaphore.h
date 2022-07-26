@@ -51,7 +51,7 @@ public:
     CCMTLSemaphore &operator=(CCMTLSemaphore &&) = delete;
 
     void signal() const {
-        auto val = dispatch_semaphore_signal(_semaphore);
+        dispatch_semaphore_signal(_semaphore);
     }
 
     void wait() const {
