@@ -106,10 +106,12 @@ export class RenderDrawInfo {
     }
 
     public setAccId (accId) {
-        this._accId = accId;
         if (JSB) {
-            this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
+            if (this._accId !== accId) {
+                this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
+            }
         }
+        this._accId = accId;
     }
 
     public setBufferId (bufferId) {
@@ -120,6 +122,18 @@ export class RenderDrawInfo {
             }
         }
         this._bufferId = bufferId;
+    }
+
+    public setAccAndBuffer (accId, bufferId) {
+        if (JSB) {
+            if (this._accId !== accId || this._bufferId !== bufferId) {
+                this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
+                this._uint16SharedBuffer[AttrUInt16ArrayView.BufferID] = bufferId;
+                this._nativeObj.changeMeshBuffer();
+            }
+        }
+        this._bufferId = bufferId;
+        this._accId = accId;
     }
 
     public setVertexOffset (vertexOffset) {
