@@ -32,51 +32,49 @@
 
 namespace cc {
 namespace gfx {
-
-SPIRVUtils *CCWGPUShader::spirv = nullptr;
 using namespace emscripten;
+SPIRVUtils *CCWGPUShader::spirv = nullptr;
 
 CCWGPUShader::CCWGPUShader() : wrapper<Shader>(val::object()) {
 }
 
-void CCWGPUShader::initialize(const ShaderInfo &info) {
-    // _gpuShaderObject = ccnew CCWGPUShaderObject;
-    // const ShaderInfo &info = spvInfo.info;
+void CCWGPUShader::initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs) {
+    _gpuShaderObject = ccnew CCWGPUShaderObject;
 
-    // _name = info.name;
-    // _stages = info.stages;
-    // _attributes = info.attributes;
-    // _blocks = info.blocks;
-    // _buffers = info.buffers;
-    // _samplerTextures = info.samplerTextures;
-    // _samplers = info.samplers;
-    // _textures = info.textures;
-    // _images = info.images;
-    // _subpassInputs = info.subpassInputs;
+    _name = info.name;
+    _stages = info.stages;
+    _attributes = info.attributes;
+    _blocks = info.blocks;
+    _buffers = info.buffers;
+    _samplerTextures = info.samplerTextures;
+    _samplers = info.samplers;
+    _textures = info.textures;
+    _images = info.images;
+    _subpassInputs = info.subpassInputs;
 
-    // _gpuShaderObject->name = info.name;
-    // for (size_t i = 0; i < spvInfo.stages.size(); i++) {
-    //     const auto &stage = spvInfo.stages[i];
-    //     auto *spvData = spvInfo.stages[i].spv.data();
-    //     size_t size = spvInfo.stages[i].spv.size();
+    _gpuShaderObject->name = info.name;
+    for (size_t i = 0; i < info.stages.size(); i++) {
+        const auto &stage = info.stages[i];
+        auto *spvData = spirvs[i].data();
+        size_t size = spirvs[i].size() * sizeof(uint32_t);
 
-    //     WGPUShaderModuleSPIRVDescriptor spv = {};
-    //     spv.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;
-    //     spv.codeSize = size;
-    //     spv.code = spvData;
-    //     WGPUShaderModuleDescriptor desc = {};
-    //     desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&spv);
-    //     desc.label = nullptr;
-    //     if (stage.stage == ShaderStageFlagBit::VERTEX) {
-    //         _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
-    //     } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {
-    //         _gpuShaderObject->wgpuShaderFragmentModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
-    //     } else if (stage.stage == ShaderStageFlagBit::COMPUTE) {
-    //         _gpuShaderObject->wgpuShaderComputeModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
-    //     } else {
-    //         printf("unsupport shader stage.");
-    //     }
-    // }
+        WGPUShaderModuleSPIRVDescriptor spv = {};
+        spv.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;
+        spv.codeSize = size;
+        spv.code = spvData;
+        WGPUShaderModuleDescriptor desc = {};
+        desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&spv);
+        desc.label = nullptr;
+        if (stage.stage == ShaderStageFlagBit::VERTEX) {
+            _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {
+            _gpuShaderObject->wgpuShaderFragmentModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else if (stage.stage == ShaderStageFlagBit::COMPUTE) {
+            _gpuShaderObject->wgpuShaderComputeModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else {
+            printf("unsupport shader stage.");
+        }
+    }
 }
 
 void CCWGPUShader::doInit(const ShaderInfo &info) {

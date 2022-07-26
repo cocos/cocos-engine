@@ -125,11 +125,14 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     size_t len = stages["length"].as<size_t>();
     const std::vector<val>& stagesVec = vecFromJSArray<val>(stages);
     shaderInfo.stages.resize(len);
+    std::vector<std::vector<uint32_t>> spirvs;
     for (size_t i = 0; i < len; ++i) {
         const auto& emsStage = stagesVec[i];
         auto& gfxStage = shaderInfo.stages[i];
         gfxStage.stage = ShaderStageFlags{emsStage["stage"].as<uint32_t>()};
         gfxStage.source = emsStage["source"].as<std::string>();
+        std::vector<uint32_t> spirv = std::move(convertJSArrayToNumberVector<uint32_t>(emsStage["spvData"]));
+        spirvs.emplace_back(spirv);
     }
 
     const auto& attrs = emsInfo["attributes"];
@@ -255,7 +258,9 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
         gfxSubpassInput.count = emsSubpassInput["count"].as<uint32_t>();
     }
 
-    return this->createShader(shaderInfo);
+    auto* shader = new CCWGPUShader();
+    shader->initialize(shaderInfo, spirvs);
+    return shader;
 }
 
 void CCWGPUDevice::initialize(const val& info) {

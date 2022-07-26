@@ -112,7 +112,7 @@ target_include_directories(
 	${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
 
-message(${WGPU_EMS_EXTERNAL_LIBS})
+# message(${WGPU_EMS_EXTERNAL_LIBS})
 target_link_libraries(
     ${APP_NAME}_wasm PRIVATE PUBLIC
     ${WGPU_EMS_EXTERNAL_LIBS}

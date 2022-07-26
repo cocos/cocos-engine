@@ -24,3 +24,4 @@
  */
 
 import '../cocos/webgpu/instantiated';
+import '../cocos/core/gfx/webgpu/webgpu-define';

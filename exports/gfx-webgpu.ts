@@ -31,9 +31,10 @@
 import { BUILD } from 'internal:constants';
 import { legacyCC } from '../cocos/core/global-exports';
 import '../cocos/webgpu/instantiated';
+import * as webgpudef from '../cocos/core/gfx/webgpu/webgpu-define';
 // import { WebGPUDevice } from '../cocos/core/gfx';
 
 // legacyCC.WebGPUDevice = gfx.WebGPUDevice;
 // legacyCC.gfx = gfx;
 
-export {};
+export { webgpudef };

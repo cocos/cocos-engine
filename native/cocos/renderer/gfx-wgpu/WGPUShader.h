@@ -45,12 +45,14 @@ public:
 
     void initialize(const ShaderInfo &info);
 
+    // ems export
+    void initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs);
+
 protected:
     void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
 
     CCWGPUShaderObject *_gpuShaderObject = nullptr;
-
     static SPIRVUtils *spirv;
 };
 

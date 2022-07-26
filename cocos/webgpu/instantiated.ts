@@ -32,6 +32,7 @@ import { legacyCC } from '../core/global-exports';
 // import webgpuURL from '@cocos/webgpu/webgpu_wasm.wasmurl';
 // import glslangLoader from '@cocos/webgpu/glslang';
 import wasmDevice from './webgpu_wasm';
+// import glslangLoader from './glslang';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -49,6 +50,9 @@ export const webgpuAdapter: any = {
 
 export function waitForWebGPUInstantiation () {
     return Promise.all([
+        // glslangLoader('./glslang.wasm').then((res) => {
+        //     glslalgWasmModule.glslang = res;
+        // }),
         new Promise<void>((resolve) => {
             //http://192.168.52.147:7456
             fetch('./webgpu_wasm.wasm').then((response) => {

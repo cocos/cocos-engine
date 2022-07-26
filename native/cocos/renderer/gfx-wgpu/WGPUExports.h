@@ -912,7 +912,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createTexture", select_overload<Texture *(const emscripten::val &)>(&CCWGPUDevice::createTexture),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createShader", select_overload<Shader *(const val &)>(&CCWGPUDevice::createShader),
+        .function("createShaderNative", select_overload<Shader *(const val &)>(&CCWGPUDevice::createShader),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("createDescriptorSetLayout", select_overload<DescriptorSetLayout *(const emscripten::val &)>(&CCWGPUDevice::createDescriptorSetLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
