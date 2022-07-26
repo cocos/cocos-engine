@@ -343,6 +343,9 @@ export class AnimationState extends Playable {
             // TODO: destroy?
             this._clipEval = undefined;
         }
+        if (this._clipEventEval) {
+            this._clipEventEval = undefined;
+        }
         if (this._clipEmbeddedPlayerEval) {
             this._clipEmbeddedPlayerEval.destroy();
             this._clipEmbeddedPlayerEval = undefined;
@@ -378,7 +381,9 @@ export class AnimationState extends Playable {
         }
 
         if (!(EDITOR && !legacyCC.GAME_VIEW)) {
-            this._clipEventEval = clip.createEventEvaluator(this._targetNode);
+            if (clip.hasAnyEvent()) {
+                this._clipEventEval = clip.createEventEvaluator(this._targetNode);
+            }
         }
 
         if (clip.hasAnyEmbeddedPlayer()) {
@@ -598,12 +603,14 @@ export class AnimationState extends Playable {
         }
         this._sampleCurves(playbackStart + time);
 
-        const wrapInfo = this.getWrappedInfo(this.time, this._wrappedInfo);
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._sampleEvents(wrapInfo);
-        }
+        if (this._clipEventEval || this._clipEmbeddedPlayerEval) {
+            const wrapInfo = this.getWrappedInfo(this.time, this._wrappedInfo);
+            if (!EDITOR || legacyCC.GAME_VIEW) {
+                this._sampleEvents(wrapInfo);
+            }
 
-        this._sampleEmbeddedPlayers(wrapInfo);
+            this._sampleEmbeddedPlayers(wrapInfo);
+        }
 
         if (this._allowLastFrame) {
             if (Number.isNaN(this._lastIterations)) {
@@ -642,9 +649,13 @@ export class AnimationState extends Playable {
     private getWrappedInfo (time: number, info?: WrappedInfo) {
         info = info || new WrappedInfo();
 
-        const playbackStart = this._getPlaybackStart();
-        const playbackEnd = this._getPlaybackEnd();
-        const playbackDuration = playbackEnd - playbackStart;
+        const {
+            _playbackRange: {
+                min: playbackStart,
+            },
+            _playbackDuration: playbackDuration,
+        } = this;
+
         const repeatCount = this.repeatCount;
 
         if (playbackDuration === 0.0) {
@@ -707,10 +718,6 @@ export class AnimationState extends Playable {
 
     private _getPlaybackStart () {
         return this._playbackRange.min;
-    }
-
-    private _getPlaybackEnd () {
-        return this._playbackRange.max;
     }
 
     private _sampleEvents (wrapInfo: WrappedInfo) {

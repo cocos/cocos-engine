@@ -312,6 +312,14 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Returns if this clip has any event.
+     * @internal Do not use this in your code.
+     */
+    public hasAnyEvent () {
+        return this._events.length !== 0;
+    }
+
+    /**
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
      * @internal Do not use this in your code.
