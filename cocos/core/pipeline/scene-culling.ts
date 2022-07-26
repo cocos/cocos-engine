@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
@@ -33,6 +34,7 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
+import { isEditorVisibleOnly } from '../renderer';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -149,8 +151,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         renderObjects.push(getRenderObject(skybox.model, camera));
     }
 
-    const models = scene.models;
     const visibility = camera.visibility;
+    const models = (EDITOR && isEditorVisibleOnly(visibility)) ? scene.editorModels : scene.models;
 
     for (let i = 0; i < models.length; i++) {
         const model = models[i];

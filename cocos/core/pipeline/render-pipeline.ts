@@ -49,6 +49,7 @@ import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
+import { isEditorVisibleOnly } from '../renderer/core/render-scene';
 
 /**
  * @en Render pipeline information descriptor
@@ -463,6 +464,27 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
         decideProfilerCamera(cameras);
+
+        let numCameras = 0;
+        let numEditorCameras = 0;
+        let numEstimatedModels = 0;
+        let numRenderedModels = 0;
+        for (const camera of cameras) {
+            const scene = cameras[0].scene;
+            if (scene === null) {
+                continue;
+            }
+            ++numCameras;
+            numEstimatedModels += scene.models.length;
+            if (isEditorVisibleOnly(camera.visibility)) {
+                ++numEditorCameras;
+                numRenderedModels += scene.editorModels.length;
+            } else {
+                numRenderedModels += scene.models.length;
+            }
+        }
+        // eslint-disable-next-line max-len
+        console.log(`total cameras: ${numCameras}, editor cameras: ${numEditorCameras}, estimated models: ${numEstimatedModels}, rendered models: ${numRenderedModels}`);
 
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
@@ -891,6 +913,3 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return this._eventProcessor.hasEventListener(type, callback, target);
     }
 }
-
-// Do not delete, for the class detection of editor
-legacyCC.RenderPipeline = RenderPipeline;
