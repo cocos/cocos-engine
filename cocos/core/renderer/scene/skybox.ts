@@ -368,11 +368,12 @@ export class Skybox {
         }
 
         if (this.enabled) {
+            const envmap = this.envmap ? this.envmap : this._default;
             if (this._editableMaterial) {
-                this._editableMaterial.setProperty('environmentMap', this.envmap);
+                this._editableMaterial.setProperty('environmentMap', envmap);
                 this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             } else if (skybox_material) {
-                skybox_material.setProperty('environmentMap', this.envmap);
+                skybox_material.setProperty('environmentMap', envmap);
                 skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             }
         }

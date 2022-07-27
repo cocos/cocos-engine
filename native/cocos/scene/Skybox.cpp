@@ -349,7 +349,11 @@ void Skybox::setUseHDR(bool val) {
 
 void Skybox::updatePipeline() const {
     if (isEnabled() && _material != nullptr) {
-        _material->setProperty("environmentMap", getEnvmap());
+        auto *envmap = getEnvmap();
+        if (!envmap) {
+            envmap = _default.get();
+        }
+        _material->setProperty("environmentMap", envmap);
         _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
     }
 
