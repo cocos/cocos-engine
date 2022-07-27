@@ -1743,6 +1743,13 @@ export class Skeleton extends UIRenderer {
         renderEntity.setUseLocal(true);
         return renderEntity;
     }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugRenderer) {
+            this._debugRenderer.markForUpdateRenderData(enable);
+        }
+    }
 }
 
 legacyCC.internal.SpineSkeleton = Skeleton;

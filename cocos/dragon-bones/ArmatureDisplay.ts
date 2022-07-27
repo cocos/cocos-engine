@@ -1347,6 +1347,13 @@ export class ArmatureDisplay extends UIRenderer {
         renderEntity.setUseLocal(true);
         return renderEntity;
     }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugDraw) {
+            this._debugDraw.markForUpdateRenderData(enable);
+        }
+    }
 }
 
 legacyCC.internal.ArmatureDisplay = ArmatureDisplay;
