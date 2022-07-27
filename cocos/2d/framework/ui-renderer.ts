@@ -306,7 +306,6 @@ export class UIRenderer extends Renderer {
         this._colorDirty();
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
-        this._renderEntity.colorDirty = true;
     }
 
     // For Redo, Undo

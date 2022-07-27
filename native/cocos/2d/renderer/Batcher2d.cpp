@@ -98,17 +98,20 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             float localOpacity = entity->getLocalOpacity();
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
+            entity->setColorDirty(false);
+            entity->setVBColorDirty(true);
         }
         if (entity->isEnabled()) {
-            
             uint32_t size = entity->getRenderDrawInfosSize();
             for (uint32_t i = 0; i < size; i++) {
                 auto* drawInfo = entity->getRenderDrawInfoAt(i);
                 handleDrawInfo(entity, drawInfo, node);
             }
+            entity->setVBColorDirty(false);
         }
-        if (entity->getRenderEntityType() == RenderEntityType::CROSSED) breakWalk = true;
-        entity->setColorDirty(false);
+        if (entity->getRenderEntityType() == RenderEntityType::CROSSED) {
+            breakWalk = true;
+        }
     }
     
     if (!breakWalk) {
@@ -192,7 +195,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
                 fillVertexBuffers(entity, drawInfo);
                 drawInfo->setVertDirty(false);
             }
-            if (entity->getColorDirty()) {
+            if (entity->getVBColorDirty()) {
                 fillColors(entity, drawInfo);
             }
             
