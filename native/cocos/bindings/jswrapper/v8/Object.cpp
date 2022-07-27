@@ -52,27 +52,27 @@ uint32_t nativeObjectId = 0;
 } // namespace
 
 class JSBPersistentHandleVisitor : public v8::PersistentHandleVisitor {
- public:
+public:
     JSBPersistentHandleVisitor() = default;
 
-    void VisitPersistentHandle(v8::Persistent<v8::Value>* value, uint16_t classId) override {
+    void VisitPersistentHandle(v8::Persistent<v8::Value> *value, uint16_t classId) override {
         if (value == nullptr || classId != ObjectWrap::MAGIC_CLASS_ID_JSB) {
             return;
         }
 
-        auto& persistObj = v8::Persistent<v8::Object>::Cast(*value);
+        auto &persistObj = v8::Persistent<v8::Object>::Cast(*value);
         const int fieldCount = v8::Object::InternalFieldCount(persistObj);
         if (fieldCount != 1) {
             return;
         }
 
-        void* ptr = v8::Object::GetAlignedPointerFromInternalField(persistObj, 0);
+        void *ptr = v8::Object::GetAlignedPointerFromInternalField(persistObj, 0);
         if (ptr == nullptr) {
             return;
         }
 
-        Object* obj = reinterpret_cast<Object*>(ptr);
-        auto* nativeObj = obj->getPrivateData();
+        Object *obj = reinterpret_cast<Object *>(ptr);
+        auto *nativeObj = obj->getPrivateData();
         if (nativeObj == nullptr) {
             // Not a JSB binding object
             return;
@@ -124,8 +124,8 @@ void Object::nativeObjectFinalizeHook(Object *seObj) {
         return;
     }
 
-    if (seObj->_clearMappingInFinalizer && seObj->_privateObject != nullptr) {
-        void *nativeObj = seObj->_privateObject->getRaw();
+    if (seObj->_clearMappingInFinalizer && seObj->_privateData != nullptr) {
+        void *nativeObj = seObj->_privateData;
         auto iter = NativePtrToObjectMap::find(nativeObj);
         if (iter != NativePtrToObjectMap::end()) {
             NativePtrToObjectMap::erase(iter);
@@ -159,7 +159,7 @@ void Object::cleanup() {
 
     if (__objectMap) {
         for (const auto &e : *__objectMap) {
-            auto* obj = e.first;
+            auto *obj = e.first;
             obj->_obj.persistent().Reset();
             // NOTE: Set _rootCount to 0 to avoid invoking _obj.unref in Object's destructor which may cause crash.
             obj->_rootCount = 0;
@@ -599,7 +599,7 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
 
     if (data != nullptr) {
         _privateData = data->getRaw();
-        NativePtrToObjectMap::emplace(data->getRaw(), this);
+        NativePtrToObjectMap::emplace(_privateData, this);
     } else {
         _privateData = nullptr;
     }
@@ -612,7 +612,7 @@ PrivateObjectBase *Object::getPrivateObject() const {
 void Object::clearPrivateData(bool clearMapping) {
     if (_privateObject != nullptr) {
         if (clearMapping) {
-            NativePtrToObjectMap::erase(_privateObject->getRaw());
+            NativePtrToObjectMap::erase(_privateData);
         }
         internal::clearPrivate(__isolate, _obj);
         delete _privateObject;
