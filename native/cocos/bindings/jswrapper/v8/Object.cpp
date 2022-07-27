@@ -71,7 +71,7 @@ public:
             return;
         }
 
-        Object *obj = reinterpret_cast<Object *>(ptr);
+        auto *obj = reinterpret_cast<Object *>(ptr);
         auto *nativeObj = obj->getPrivateData();
         if (nativeObj == nullptr) {
             // Not a JSB binding object
