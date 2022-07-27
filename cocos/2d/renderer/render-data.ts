@@ -382,16 +382,16 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setSampler(this.frame ? this.frame.getGFXSampler() : null);
         }
     }
-
+    /**
+     * @internal
+     */
     public fillDrawInfoAttributes (drawInfo: RenderDrawInfo) {
         if (JSB) {
             if (!drawInfo) {
                 return;
             }
-
-            drawInfo.setAccId(this._accessor.id);
             drawInfo.setDrawInfoType(this._drawInfoType);
-            drawInfo.setBufferId(this.chunk.bufferId);
+            drawInfo.setAccAndBuffer(this._accessor.id, this.chunk.bufferId);
             drawInfo.setVertexOffset(this.chunk.vertexOffset);
             drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
             drawInfo.setVB(this.chunk.vb);
