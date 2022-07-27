@@ -406,6 +406,14 @@ export class RenderData extends BaseRenderData {
         }
     }
 
+    public fillDrawInfoAttributesForMiddleWare (drawInfo: RenderDrawInfo) {
+        if (JSB) {
+            drawInfo.setAccId(this._accessor.id);
+            drawInfo.setDrawInfoType(this._drawInfoType);
+            drawInfo.setBufferId(this.chunk.bufferId);
+        }
+    }
+
     // Initial advance render data for native
     protected syncRender2dBuffer () {
         if (JSB && this.multiOwner === false) {
