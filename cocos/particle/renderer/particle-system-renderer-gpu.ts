@@ -507,10 +507,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                     }
                     this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true);
                 } else { // mesh without vertex color
-                    let type = Format.RGBA8;
+                    const type = Format.RGBA8;
                     this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true);
                 }
-            } 
+            }
         } else {
             this._updateVertexAttribIns();
         }
@@ -529,7 +529,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 }
                 this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 1);
             } else { // mesh without vertex color
-                let type = Format.RGBA8;
+                const type = Format.RGBA8;
                 this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 1);
             }
         }
