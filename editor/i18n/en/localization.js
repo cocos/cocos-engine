@@ -347,7 +347,7 @@ module.exports = {
         trailMaterial: 'Trail material of particle',
         useGPU: 'Enable GPU particle',
     },
-    renderable2D: {
+    UIRenderer: {
         srcBlendFactor: 'Source blend factor',
         dstBlendFactor: 'Destination blend factor',
         customMaterial: 'User specified material',
