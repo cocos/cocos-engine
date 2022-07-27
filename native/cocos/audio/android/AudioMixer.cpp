@@ -15,21 +15,23 @@
 ** limitations under the License.
 */
 
+// clang-format off
 #define LOG_TAG    "AudioMixer"
 #define LOG_NDEBUG 1
 
-#include <math.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <sys/types.h>
 
-#include "audio/android/AudioMixer.h"
-#include "audio/android/AudioMixerOps.h"
 #include "audio/android/audio.h"
 #include "audio/android/audio_utils/include/audio_utils/primitives.h"
+#include "audio/android/AudioMixerOps.h"
+#include "audio/android/AudioMixer.h"
 #include "base/memory/Memory.h"
 
+// clang-format on
 // The FCC_2 macro refers to the Fixed Channel Count of 2 for the legacy integer mixer.
 #ifndef FCC_2
     #define FCC_2 2
