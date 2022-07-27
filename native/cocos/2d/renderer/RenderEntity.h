@@ -138,7 +138,6 @@ private:
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};
-    bool _vbColorDirty{true};
 
     bindings::NativeMemorySharedToScriptActor _entitySharedBufferActor;
     union {
@@ -148,5 +147,6 @@ private:
     StencilStage _stencilStage{StencilStage::DISABLED};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     uint8_t _staticDrawInfoSize{0};
+    bool _vbColorDirty{true};
 };
 } // namespace cc
