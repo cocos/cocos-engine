@@ -78,6 +78,13 @@ class JSBPersistentHandleVisitor : public v8::PersistentHandleVisitor {
             return;
         }
 
+        // Remove mapping
+        auto iter = se::NativePtrToObjectMap::find(nativeObj);
+        if (iter != se::NativePtrToObjectMap::end()) {
+            se::NativePtrToObjectMap::erase(iter);
+        }
+
+        // Invoke finalize callback
         if (obj->_finalizeCb != nullptr) {
             obj->_finalizeCb(obj);
         } else {
