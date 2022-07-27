@@ -54,6 +54,9 @@ int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
+    _engine->on(BaseEngine::ON_START, [this]() {
+        this->onStart();
+    });
 
     _engine->on(BaseEngine::ON_RESUME, [this]() {
         this->onResume();
@@ -110,6 +113,10 @@ void CocosApplication::close() {
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
+}
+
+void CocosApplication::onStart() {
+    // TODO(cc): Handling engine start events
 }
 
 void CocosApplication::onPause() {

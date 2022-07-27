@@ -104,7 +104,7 @@ public:
 
     void setParent(Node *parent, bool isKeepWorld = false);
 
-    Scene *getScene() const;
+    inline Scene *getScene() const { return _scene; };
 
     using WalkCallback = std::function<void(Node *)>;
     void walk(const WalkCallback &preFunc);
@@ -202,11 +202,13 @@ public:
         }
         return false;
     }
+
     inline void destroyAllChildren() {
         for (const auto &child : _children) {
             child->destroy();
         }
     }
+
     inline void updateSiblingIndex() {
         index_t i = 0;
         for (const auto &child : _children) {
@@ -216,6 +218,7 @@ public:
     }
 
     inline void addChild(Node *node) { node->setParent(this); }
+
     inline void removeChild(Node *node) const {
         auto idx = getIdxOfChild(_children, node);
         if (idx != -1) {
@@ -228,6 +231,7 @@ public:
         }
     }
     void removeAllChildren();
+
     bool isChildOf(Node *parent) const;
 
     void setActive(bool isActive);
@@ -302,7 +306,7 @@ public:
      * @param out Set the result to out vector
      * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
-    const Vec3 &getPosition() const { return _localPosition; }
+    inline const Vec3 &getPosition() const { return _localPosition; }
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation
@@ -325,7 +329,7 @@ public:
      * @param out Set the result to out quaternion
      * @return If `out` given, the return value equals to `out`, otherwise a new quaternion will be generated and return
      */
-    const Quaternion &getRotation() const { return _localRotation; }
+    inline const Quaternion &getRotation() const { return _localRotation; }
 
     /**
      * @en Set scale in local coordinate system
@@ -344,7 +348,7 @@ public:
      * @param out Set the result to out vector
      * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
-    const Vec3 &getScale() const { return _localScale; }
+    inline const Vec3 &getScale() const { return _localScale; }
 
     /**
      * @en Inversely transform a point from world coordinate system to local coordinate system.
@@ -451,13 +455,8 @@ public:
     void setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
     inline void setRTS(Quaternion *rot, Vec3 *pos, Vec3 *scale) { setRTSInternal(rot, pos, scale, false); }
 
-    inline void setForward(const Vec3 &dir) {
-        const float len = dir.length();
-        Vec3 v3Temp = dir * (-1.F / len);
-        Quaternion qTemp{Quaternion::identity()};
-        Quaternion::fromViewUp(v3Temp, &qTemp);
-        setWorldRotation(qTemp);
-    }
+    void setForward(const Vec3 &dir);
+    
     void setAngle(float);
 
     inline const Vec3 &getEulerAngles() {
@@ -474,19 +473,19 @@ public:
 
     inline Vec3 getForward() const {
         Vec3 forward{0, 0, -1};
-        forward.transformQuat(_worldRotation);
+        forward.transformQuat(getWorldRotation());
         return forward;
     }
 
     inline Vec3 getUp() const {
         Vec3 up{0, 1, 0};
-        up.transformQuat(_worldRotation);
+        up.transformQuat(getWorldRotation());
         return up;
     }
 
     inline Vec3 getRight() const {
         Vec3 right{1, 0, 0};
-        right.transformQuat(_worldRotation);
+        right.transformQuat(getWorldRotation());
         return right;
     }
 

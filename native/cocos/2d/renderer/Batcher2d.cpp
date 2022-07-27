@@ -98,35 +98,20 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             float localOpacity = entity->getLocalOpacity();
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
+            entity->setColorDirty(false);
+            entity->setVBColorDirty(true);
         }
         if (entity->isEnabled()) {
-            RenderEntityType entityType = entity->getRenderEntityType();
-
-            // when filling buffers, we should distinguish common components and other complex components like middleware
-            if (entityType == RenderEntityType::STATIC) {
-                std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& drawInfos = entity->getStaticRenderDrawInfos();
-                for (uint32_t i = 0; i < entity->getStaticDrawInfoSize(); i++) {
-                    handleDrawInfo(entity, &(drawInfos[i]), node);
-                }
-            } else if (entityType == RenderEntityType::DYNAMIC) {
-                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (auto* drawInfo : drawInfos) {
-                    handleDrawInfo(entity, drawInfo, node);
-                }
-            } else if (entityType == RenderEntityType::CROSSED) {
-                //for tiledmap
-                ccstd::vector<RenderDrawInfo*>& drawInfos = entity->getDynamicRenderDrawInfos();
-                for (auto* drawInfo : drawInfos) {
-                    if (drawInfo->getSubNode()) {
-                        walk(drawInfo->getSubNode(), entity->getOpacity());
-                    } else {
-                        handleDrawInfo(entity, drawInfo, node);
-                    }
-                }
-                breakWalk = true;
+            uint32_t size = entity->getRenderDrawInfosSize();
+            for (uint32_t i = 0; i < size; i++) {
+                auto* drawInfo = entity->getRenderDrawInfoAt(i);
+                handleDrawInfo(entity, drawInfo, node);
             }
+            entity->setVBColorDirty(false);
         }
-        entity->setColorDirty(false);
+        if (entity->getRenderEntityType() == RenderEntityType::CROSSED) {
+            breakWalk = true;
+        }
     }
     
     if (!breakWalk) {
@@ -158,7 +143,7 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
     }
 }
 
-CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
+CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) { //NOLINT(misc-no-recursion)
     CC_ASSERT(entity);
     CC_ASSERT(drawInfo);
     RenderDrawInfoType drawInfoType = drawInfo->getEnumDrawInfoType();
@@ -210,7 +195,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
                 fillVertexBuffers(entity, drawInfo);
                 drawInfo->setVertDirty(false);
             }
-            if (entity->getColorDirty()) {
+            if (entity->getVBColorDirty()) {
                 fillColors(entity, drawInfo);
             }
             
@@ -310,6 +295,10 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
         }
         _batches.push_back(curdrawBatch);
+    } else {
+        if (drawInfo->getSubNode()) {
+            walk(drawInfo->getSubNode(), entity->getOpacity());
+        }
     }
 }
 

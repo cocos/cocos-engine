@@ -36,7 +36,7 @@
 namespace cc {
 class Batcher2d;
 
-enum class RenderEntityType: uint8_t {
+enum class RenderEntityType : uint8_t {
     STATIC,
     DYNAMIC,
     CROSSED,
@@ -95,9 +95,13 @@ public:
     void setNode(Node* node);
 
     inline uint32_t getStencilStage() const { return static_cast<uint32_t>(_stencilStage); }
-    void setStencilStage(uint32_t stage);
+    inline void setStencilStage(uint32_t stage) {
+        _stencilStage = static_cast<StencilStage>(stage);
+    }
     inline StencilStage getEnumStencilStage() const { return _stencilStage; }
-    void setEnumStencilStage(StencilStage stage);
+    inline void setEnumStencilStage(StencilStage stage) {
+        _stencilStage = stage;
+    }
 
     inline RenderEntityType getRenderEntityType() const { return _renderEntityType; };
 
@@ -112,12 +116,20 @@ public:
     inline se::Object* getEntitySharedBufferForJS() const { return _entitySharedBufferActor.getSharedArrayBufferObject(); }
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
+    inline bool getVBColorDirty() const { return _vbColorDirty; }
+    inline void setVBColorDirty(bool vbColorDirty) { _vbColorDirty = vbColorDirty; }
     inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
     inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA) / 255.F; }
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
     inline float getOpacity() const { return _opacity; }
     inline void setOpacity(float opacity) { _opacity = opacity; }
     inline bool isEnabled() const { return _entityAttrLayout.enabledIndex != 0; }
+    inline uint32_t getRenderDrawInfosSize() const {
+        return _renderEntityType == RenderEntityType::STATIC ? _staticDrawInfoSize : static_cast<uint32_t>(_dynamicDrawInfos.size());
+    }
+    inline RenderDrawInfo* getRenderDrawInfoAt(uint32_t index) {
+        return _renderEntityType == RenderEntityType::STATIC ? &(_staticDrawInfos[index]) : _dynamicDrawInfos[index];
+    }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
@@ -135,5 +147,6 @@ private:
     StencilStage _stencilStage{StencilStage::DISABLED};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     uint8_t _staticDrawInfoSize{0};
+    bool _vbColorDirty{true};
 };
 } // namespace cc
