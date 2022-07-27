@@ -569,7 +569,6 @@ export class Camera extends Component {
      * this.convertToUINode(target.worldPosition, uiNode.parent, out);
      * uiNode.position = out;
      * ```
-     * @deprecated since v3.6, please use UITransform.convertToNodeSpaceAR instead
      */
     public convertToUINode (wpos: Vec3 | Readonly<Vec3>, uiNode: Node, out?: Vec3) {
         if (!out) {
