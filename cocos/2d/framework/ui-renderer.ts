@@ -306,6 +306,7 @@ export class UIRenderer extends Renderer {
         this._colorDirty();
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
+        this._renderEntity.colorDirty = true;
     }
 
     // For Redo, Undo
@@ -396,7 +397,6 @@ export class UIRenderer extends Renderer {
         }
         this._renderFlag = this._canRender();
         this._renderEntity.enabled = this._renderFlag;
-        this._renderEntity.colorDirty = true;
     }
 
     // test code: to replace after part updateAssembler
