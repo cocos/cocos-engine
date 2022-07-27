@@ -155,7 +155,7 @@ void Object::setup() {
 void Object::cleanup() {
     JSBPersistentHandleVisitor jsbVisitor;
     __isolate->VisitHandlesWithClassIds(&jsbVisitor);
-    NativePtrToObjectMap::clear();
+    SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 
     if (__objectMap) {
         for (const auto &e : *__objectMap) {
