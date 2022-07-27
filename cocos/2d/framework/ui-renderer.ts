@@ -396,6 +396,7 @@ export class UIRenderer extends Renderer {
         }
         this._renderFlag = this._canRender();
         this._renderEntity.enabled = this._renderFlag;
+        this._renderEntity.colorDirty = true;
     }
 
     // test code: to replace after part updateAssembler
