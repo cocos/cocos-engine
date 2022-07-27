@@ -146,7 +146,7 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret); // NOLINT(readability
 CC_DEPRECATED(3.6, "use sevalue_to_native instead")
 bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret); // NOLINT(readability-identifier-naming)
 CC_DEPRECATED(3.6, "use sevalue_to_native instead")
-bool seval_to_ccvaluemapintkey(const se::Value &from, cc::ValueMapIntKey *to); // NOLINT(readability-identifier-naming)
+bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret); // NOLINT(readability-identifier-naming)
 CC_DEPRECATED(3.6, "use sevalue_to_native instead")
 bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret); // NOLINT(readability-identifier-naming)
 CC_DEPRECATED(3.6, "use sevalue_to_native instead")

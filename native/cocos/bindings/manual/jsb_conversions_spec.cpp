@@ -43,7 +43,6 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include "v8/Object.h"
 
 ///////////////////////// utils /////////////////////////
 
@@ -120,19 +119,6 @@ enum class MathType {
     COLOR,
 };
 
-bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.x));
-    obj->setProperty("y", se::Value(v.y));
-    obj->setProperty("z", se::Value(v.z));
-    obj->setProperty("w", se::Value(v.w));
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
-    ret->setObject(obj);
-
-    return true;
-}
-
 } // namespace
 
 bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
@@ -147,7 +133,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
     return ret ? nativevalue_to_se(v, *ret, nullptr) : false;
 }
 
-bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
+bool Mat4to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(16));
 
@@ -1440,7 +1426,14 @@ bool nativevalue_to_se(const cc::extension::ManifestAsset &from, se::Value &to, 
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Quaternion &from, se::Value &to, se::Object * /*ctx*/) {
-    return Quaternion_to_seval(from, &to);
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    obj->setProperty("z", se::Value(from.z));
+    obj->setProperty("w", se::Value(from.w));
+    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
+    to.setObject(obj);
+    return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
