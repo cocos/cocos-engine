@@ -168,10 +168,10 @@ exports.listeners = {
         }
 
         /**
-         * Hack：阻断
-         * 由于目前预览 preview-set-property 和 cancel-preview-set-property 是 command 机制，
-         * 无法控制组件属性之间的修改为严格的可逆修改，
-         * 所以对某些属性取消预览
+         * Hack：stop preview
+         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
+         * Changes between component properties are not controlled to be strictly reversible.
+         * So stop preview some properties.
          */
         const stopPreviewOnTheseTooltips = [
             'i18n:animation.default_clip',
