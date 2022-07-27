@@ -151,7 +151,7 @@ export class Batcher2D implements IBatcher {
         StencilManager.sharedManager!.destroy();
     }
 
-    private syncRootNodesToNative() {
+    private syncRootNodesToNative () {
         if (JSB) {
             const rootNodes: Node[] = [];
             for (const screen of this._screens) {
@@ -388,7 +388,6 @@ export class Batcher2D implements IBatcher {
             this._currComponent = comp;
             this._currTransform = transform;
             this._currMaterial = comp.getRenderMaterial(0)!;
-            // this._currBlendTargetHash = comp.blendHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
             if (frame) {
@@ -425,13 +424,9 @@ export class Batcher2D implements IBatcher {
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
         }
-        let blendState;
         let depthStencil;
         let dssHash = 0;
-        let bsHash = 0;
         if (renderComp) {
-            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            bsHash = renderComp.blendHash;
             renderComp.stencilStage = StencilManager.sharedManager!.stage;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
@@ -451,7 +446,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.textureHash = tex.getHash();
             curDrawBatch.samplerHash = curDrawBatch.sampler.hash;
         }
-        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, blendState, bsHash, null, this);
+        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
         this._batches.push(curDrawBatch);
     }
 
@@ -501,7 +496,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.sampler = null;
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
-            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches, this);
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, subModel.patches);
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             curDrawBatch.descriptorSet = subModel.descriptorSet;
@@ -584,13 +579,9 @@ export class Batcher2D implements IBatcher {
             return;
         }
 
-        let blendState;
         let depthStencil;
         let dssHash = 0;
-        let bsHash = 0;
         if (renderComp) {
-            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            bsHash = renderComp.blendHash;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
             } else {
@@ -607,7 +598,7 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
+        curDrawBatch.fillPasses(mat, depthStencil, dssHash, null);
 
         this._batches.push(curDrawBatch);
     }

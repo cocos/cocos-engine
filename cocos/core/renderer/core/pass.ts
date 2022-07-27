@@ -628,14 +628,14 @@ export class Pass {
     }
 
     // Only for UI
-    private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState, hashFactor: number) {
+    private _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
         this._batchingScheme = target.batchingScheme;
         this._primitive = target.primitive;
         this._dynamicStates = target.dynamicStates;
-        this._bs = bs;
+        this._bs = target.blendState;
         this._dss = dss;
         this._descriptorSet = target.descriptorSet;
         this._rs = target.rasterizerState;
