@@ -52,7 +52,7 @@ export interface IRaycastResult {
     distance: number;
 }
 
-export const EditorLayers = Layers.BitMask.GIZMOS | Layers.BitMask.EDITOR | Layers.BitMask.SCENE_GIZMO;
+const EditorLayers = Layers.BitMask.GIZMOS | Layers.BitMask.EDITOR | Layers.BitMask.SCENE_GIZMO;
 
 export function isEditorModel (model: Model): boolean {
     return ((model.visFlags & EditorLayers) || (model.node.layer & EditorLayers)) !== 0;
@@ -391,8 +391,10 @@ export class RenderScene {
     public addModel (m: Model) {
         m.attachToScene(this);
         this._models.push(m);
-        if (EDITOR && isEditorModel(m)) {
-            this._editorModels.push(m);
+        if (EDITOR) {
+            if (isEditorModel(m)) {
+                this._editorModels.push(m);
+            }
         }
     }
 
@@ -409,11 +411,13 @@ export class RenderScene {
                 break;
             }
         }
-        if (EDITOR && isEditorModel(model)) {
-            for (let i = 0; i < this._editorModels.length; ++i) {
-                if (this._editorModels[i] === model) {
-                    this._editorModels.splice(i, 1);
-                    break;
+        if (EDITOR) {
+            if (isEditorModel(model)) {
+                for (let i = 0; i < this._editorModels.length; ++i) {
+                    if (this._editorModels[i] === model) {
+                        this._editorModels.splice(i, 1);
+                        break;
+                    }
                 }
             }
         }
