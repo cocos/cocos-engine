@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
+import { DEBUG, JSB } from 'internal:constants';
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -40,6 +40,7 @@ import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
 import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
+import { assert } from '../../core';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -508,24 +509,11 @@ export class RenderData extends BaseRenderData {
 
         // Hack Do not update pre frame
         if (JSB && this.multiOwner === false) {
-            // for sync vData and iData address to native
-            //this.setRenderDrawInfoAttributes();
-            // sync shared buffer to native
-            this.copyRenderDataToSharedBuffer();
-        }
-    }
-
-    copyRenderDataToSharedBuffer () {
-        if (JSB) {
-            const entity = this._renderDrawInfo;
-            const sharedBuffer = entity.render2dBuffer;
-
-            if (sharedBuffer.length < this.floatStride * this._data.length) {
-                console.error('Vertex count doesn\'t match.');
-                return;
+            if (DEBUG) {
+                assert(this._renderDrawInfo.render2dBuffer.length === this._floatStride * this._data.length, 'Vertex count doesn\'t match.');
             }
-
-            entity.fillRender2dBuffer(this._data);
+            // sync shared buffer to native
+            this._renderDrawInfo.fillRender2dBuffer(this._data);
         }
     }
 

@@ -220,14 +220,6 @@ export class UIRenderer extends Renderer {
         return this._useVertexOpacity;
     }
 
-    // Render data can be submitted even if it is not on the node tree
-    /**
-     * @internal
-     */
-    set delegateSrc (value: Node) {
-        this._delegateSrc = value;
-    }
-
     /**
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
@@ -264,10 +256,6 @@ export class UIRenderer extends Renderer {
 
     protected _renderEntity: RenderEntity;
 
-    // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
-    // Special delegate node for the renderer component, it allows standalone component to be rendered as if it's attached to the delegate node
-    // It's used by graphics stencil component in Mask
-    protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
@@ -440,8 +428,7 @@ export class UIRenderer extends Renderer {
             assert(this.isValid, 'this component should not be invalid!');
         }
         return this.getMaterial(0) !== null
-            && this.enabled
-            && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
+            && this._enabled
             && this._color.a > 0;
     }
 
