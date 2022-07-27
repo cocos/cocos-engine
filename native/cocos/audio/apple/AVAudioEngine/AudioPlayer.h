@@ -27,6 +27,7 @@
 #include "AudioCache.h"
 #include <mutex>
 #include <thread>
+#include <shared_mutex>
 #ifdef __OBJC__
 #import <AVFoundation/AVAudioPlayerNode.h>
 #else
@@ -39,7 +40,7 @@ typedef struct AudioPlayerDescriptor {
 #ifdef __OBJC__
     AVAudioPlayerNode* node;
 #else
-    void* node;
+    //void* node;
 #endif
 } AudioPlayerDescriptor;
 
@@ -50,6 +51,7 @@ class AudioPlayer {
 public:
     enum State {
         UNLOADED,
+        LOADING,
         READY,
         PLAYING,
         PAUSED,
@@ -91,8 +93,11 @@ public:
     /**
      * Interrupt the audio and seek to 0.
      */
-    bool stop();
-
+    void stop();
+    /**
+     * Post-stop should be called in AudioEngine, when the player is fully stopped.
+     */
+    void postStop();
     
     bool setVolume(float volume);
     float getVolume() const;
@@ -111,15 +116,14 @@ public:
      */
     AudioPlayerDescriptor getDescriptor() const;
     void rotateBuffer();
-    bool isForceCache();
-    void setForceCache();
     State getState() const;
     std::function<void(int, const std::string&)> finishCallback {nullptr};
 
     bool isAttached {false};
-
+    bool isFinished() const;
     
 private:
+    void setState(State state);
     /**
      * Loop control, if the streaming audio is playing and the game tries to loop audio,
      * need to lock the mutex to change the value as streaming audio is playing with multi-thread.
@@ -130,16 +134,23 @@ private:
     float _duration {0};
     bool _isStreaming {false};
     float _volume {0};
+    
+    /**
+     * Finish play in a formal way
+     */
+    bool _isFinished {false};
+    
     /**
      * Rotate thread
      */
     std::thread* _rotateBufferThread {nullptr};
-    bool _shouldRotateThreadExited {false};
+    
     
     AudioCache* _cache {nullptr};
     AudioPlayerDescriptor _descriptor;
     
-    std::mutex _stateMtx;
+    /** _state is the only way to check if the player is stopped, to make frame rate stable.*/
+    mutable std::shared_mutex _stateMtx;
     State _state;
     
     
@@ -148,7 +159,11 @@ private:
     float _pauseTime {0};
     
 
-    std::condition_variable _rotateBufferBarrier;
-    std::mutex _rotateBufferThreadMutex;
+    /**
+     * _rotateBufferThreadBarrier and _rotateBufferThreadMtx are mean to manage thread sleep and wake.
+     */
+    std::condition_variable _rotateBufferThreadBarrier;
+    std::mutex _rotateBufferThreadMtx;
+    bool _shouldReschedule {false};
 };
 } // namespace cc
