@@ -250,8 +250,10 @@ geometry::Ray Camera::screenPointToRay(float x, float y) {
         (x - cx) / cw * 2 - 1.F,
         (y - cy) / ch * 2 - 1.F,
         isProj ? 1.F : -1.F};
-    tmpVec3.x = tmpVec3.x * preTransform[0] + tmpVec3.y * preTransform[2] * ySign;
-    tmpVec3.y = tmpVec3.x * preTransform[1] + tmpVec3.y * preTransform[3] * ySign;
+    float tmpX = tmpVec3.x;
+    float tmpY = tmpVec3.y;
+    tmpVec3.x = tmpX * preTransform[0] + tmpY * preTransform[2] * ySign;
+    tmpVec3.y = tmpX * preTransform[1] + tmpY * preTransform[3] * ySign;
 
     geometry::Ray out;
     if (isProj) {
@@ -265,7 +267,7 @@ geometry::Ray Camera::screenPointToRay(float x, float y) {
         geometry::Ray::fromPoints(&out, _node->getWorldPosition(), tmpVec3);
     } else {
         out.d.set(0, 0, -1.F);
-        out.d.transformQuat(_node->getRotation());
+        out.d.transformQuat(_node->getWorldRotation());
     }
 
     return out;
