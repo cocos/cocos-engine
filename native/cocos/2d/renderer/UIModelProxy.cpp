@@ -43,35 +43,41 @@ void UIModelProxy::initModel(Node* node) {
     _node = node;
 }
 
-void UIModelProxy::activeSubModel(uint8_t val) {
+void UIModelProxy::activeSubModels() {
     if (_model == nullptr) return;
-    if (_model->getSubModels().size() <= val) {
-        auto* entity = static_cast<RenderEntity*>(_node->getUserData());
-        RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(val);
-        if (drawInfo == nullptr) {
-            return;
+    auto* entity = static_cast<RenderEntity*>(_node->getUserData());
+    auto drawInfoSize = entity->getDynamicRenderDrawInfos().size();
+    auto subModelSize = _model->getSubModels().size();
+    if (drawInfoSize > subModelSize) {
+        for (size_t i = subModelSize; i < drawInfoSize; i++) {
+            if (_model->getSubModels().size() <= i) {
+                RenderDrawInfo* drawInfo = entity->getDynamicRenderDrawInfo(static_cast<uint32_t>(i));
+                if (drawInfo == nullptr) {
+                    return;
+                }
+
+                auto* vertexBuffer = _device->createBuffer({
+                    gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+                    gfx::MemoryUsageBit::DEVICE,
+                    65535 * _stride,
+                    _stride,
+                });
+                auto* indexBuffer = _device->createBuffer({
+                    gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+                    gfx::MemoryUsageBit::DEVICE,
+                    65535 * sizeof(uint16_t) * 2,
+                    sizeof(uint16_t),
+                });
+                gfx::BufferList vbReference;
+                vbReference.emplace_back(vertexBuffer);
+
+                auto* renderMesh = ccnew RenderingSubMesh(vbReference, _attributes, _primitiveMode, indexBuffer);
+                renderMesh->setSubMeshIdx(0);
+
+                _model->initSubModel(static_cast<index_t>(i), renderMesh, drawInfo->getMaterial());
+                _graphicsUseSubMeshes.emplace_back(renderMesh);
+            }
         }
-
-        auto* vertexBuffer = _device->createBuffer({
-            gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
-            65535 * _stride,
-            _stride,
-        });
-        auto* indexBuffer = _device->createBuffer({
-            gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
-            65535 * sizeof(uint16_t) * 2,
-            sizeof(uint16_t),
-        });
-        gfx::BufferList vbReference;
-        vbReference.emplace_back(vertexBuffer);
-
-        auto* renderMesh = ccnew RenderingSubMesh(vbReference, _attributes, _primitiveMode, indexBuffer);
-        renderMesh->setSubMeshIdx(0);
-
-        _model->initSubModel(val, renderMesh, drawInfo->getMaterial());
-        _graphicsUseSubMeshes.emplace_back(renderMesh);
     }
 }
 
@@ -113,6 +119,12 @@ void UIModelProxy::destroy() {
         Root::getInstance()->destroyModel(_model);
         _model = nullptr;
     }
+
+    for (auto& subMesh: _graphicsUseSubMeshes) {
+        subMesh->destroy();
+        subMesh = nullptr;
+    }
+    _graphicsUseSubMeshes.clear();
 }
 
 void UIModelProxy::clear() {

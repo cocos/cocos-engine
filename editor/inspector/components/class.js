@@ -168,6 +168,7 @@ async function close() {
     for (const key in $panel.$groups) {
         $panel.$groups[key].remove();
     }
-    $panel.$groups = undefined;
+
+    $panel.$groups = {};
 }
 exports.close = close;

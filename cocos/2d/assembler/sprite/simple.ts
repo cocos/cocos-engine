@@ -172,23 +172,16 @@ export const simple: IAssembler = {
             t = ch - appY;
         } else {
             const frame = sprite.spriteFrame!;
-            const originSize = frame.getOriginalSize();
-            const rect = frame.getRect();
+            const originSize = frame.originalSize;
             const ow = originSize.width;
             const oh = originSize.height;
-            const rw = rect.width;
-            const rh = rect.height;
-            const offset = frame.getOffset();
             const scaleX = cw / ow;
             const scaleY = ch / oh;
-            const trimLeft = offset.x + (ow - rw) / 2;
-            const trimRight = offset.x - (ow - rw) / 2;
-            const trimBottom = offset.y + (oh - rh) / 2;
-            const trimTop = offset.y - (oh - rh) / 2;
-            l = trimLeft * scaleX - appX;
-            b = trimBottom * scaleY - appY;
-            r = cw + trimRight * scaleX - appX;
-            t = ch + trimTop * scaleY - appY;
+            const trimmedBorder = frame.trimmedBorder;
+            l = trimmedBorder.x * scaleX - appX;
+            b = trimmedBorder.z * scaleY - appY;
+            r = cw + trimmedBorder.y * scaleX - appX;
+            t = ch + trimmedBorder.w * scaleY - appY;
         }
 
         dataList[0].x = l;

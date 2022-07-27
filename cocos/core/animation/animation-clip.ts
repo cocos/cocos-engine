@@ -312,6 +312,14 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Returns if this clip has any event.
+     * @internal Do not use this in your code.
+     */
+    public containsAnyEvent () {
+        return this._events.length !== 0;
+    }
+
+    /**
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
      * @internal Do not use this in your code.
@@ -323,6 +331,14 @@ export class AnimationClip extends Asset {
             this._runtimeEvents.eventGroups,
             this.wrapMode,
         );
+    }
+
+    /**
+     * Returns if this clip has any embedded player.
+     * @internal Do not use this in your code.
+     */
+    public containsAnyEmbeddedPlayer () {
+        return this._embeddedPlayers.length !== 0;
     }
 
     /**
@@ -938,6 +954,17 @@ class EmbeddedPlayerEvaluation {
                 };
             },
         );
+    }
+
+    public destroy () {
+        const {
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayerEvaluationInfos.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            embeddedPlayerEvaluationInfos[iEmbeddedPlayer]?.instantiatedPlayer.destroy();
+        }
+        this._embeddedPlayerEvaluationInfos.length = 0;
     }
 
     /**
