@@ -49,7 +49,6 @@ import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
-import { isEditorVisibleOnly } from '../renderer/core/render-scene';
 
 /**
  * @en Render pipeline information descriptor
@@ -464,6 +463,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
         decideProfilerCamera(cameras);
+
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
@@ -891,3 +891,6 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return this._eventProcessor.hasEventListener(type, callback, target);
     }
 }
+
+// Do not delete, for the class detection of editor
+legacyCC.RenderPipeline = RenderPipeline;
