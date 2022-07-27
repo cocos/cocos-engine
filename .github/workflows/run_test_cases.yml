@@ -89,6 +89,7 @@ jobs:
           body: |
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: Windows
+            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
             - Task Result: ${{ steps.run_test_cases.outputs.task }}
             - Task URL: ${{ steps.run_test_cases.outputs.url }}
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
@@ -174,6 +175,7 @@ jobs:
           body: |
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: macOS
+            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
             - Task Result: ${{ steps.run_test_cases.outputs.task }}
             - Task URL: ${{ steps.run_test_cases.outputs.url }}
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
