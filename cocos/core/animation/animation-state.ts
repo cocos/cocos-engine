@@ -381,12 +381,12 @@ export class AnimationState extends Playable {
         }
 
         if (!(EDITOR && !legacyCC.GAME_VIEW)) {
-            if (clip.includesEvent()) {
+            if (clip.containsAnyEvent()) {
                 this._clipEventEval = clip.createEventEvaluator(this._targetNode);
             }
         }
 
-        if (clip.includesEmbeddedPlayer()) {
+        if (clip.containsAnyEmbeddedPlayer()) {
             this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(this._targetNode);
             this._clipEmbeddedPlayerEval.notifyHostSpeedChanged(this._speed);
         }

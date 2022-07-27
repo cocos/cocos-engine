@@ -315,7 +315,7 @@ export class AnimationClip extends Asset {
      * Returns if this clip has any event.
      * @internal Do not use this in your code.
      */
-    public includesEvent () {
+    public containsAnyEvent () {
         return this._events.length !== 0;
     }
 
@@ -337,7 +337,7 @@ export class AnimationClip extends Asset {
      * Returns if this clip has any embedded player.
      * @internal Do not use this in your code.
      */
-    public includesEmbeddedPlayer () {
+    public containsAnyEmbeddedPlayer () {
         return this._embeddedPlayers.length !== 0;
     }
 
