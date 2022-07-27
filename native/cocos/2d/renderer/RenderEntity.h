@@ -36,7 +36,7 @@
 namespace cc {
 class Batcher2d;
 
-enum class RenderEntityType: uint8_t {
+enum class RenderEntityType : uint8_t {
     STATIC,
     DYNAMIC,
     CROSSED,
@@ -116,6 +116,8 @@ public:
     inline se::Object* getEntitySharedBufferForJS() const { return _entitySharedBufferActor.getSharedArrayBufferObject(); }
     inline bool getColorDirty() const { return _entityAttrLayout.colorDirtyBit != 0; }
     inline void setColorDirty(bool dirty) { _entityAttrLayout.colorDirtyBit = dirty ? 1 : 0; }
+    inline bool getVBColorDirty() const { return _vbColorDirty; }
+    inline void setVBColorDirty(bool vbColorDirty) { _vbColorDirty = vbColorDirty; }
     inline Color getColor() const { return Color(_entityAttrLayout.colorR, _entityAttrLayout.colorG, _entityAttrLayout.colorB, _entityAttrLayout.colorA); }
     inline float getColorAlpha() const { return static_cast<float>(_entityAttrLayout.colorA) / 255.F; }
     inline float getLocalOpacity() const { return _entityAttrLayout.localOpacity; }
@@ -145,5 +147,6 @@ private:
     StencilStage _stencilStage{StencilStage::DISABLED};
     RenderEntityType _renderEntityType{RenderEntityType::STATIC};
     uint8_t _staticDrawInfoSize{0};
+    bool _vbColorDirty{true};
 };
 } // namespace cc
