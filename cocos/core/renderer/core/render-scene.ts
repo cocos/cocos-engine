@@ -22,8 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
-import { Node } from '../../scene-graph';
+import { Layers, Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { DirectionalLight } from '../scene/directional-light';
 import { Model } from '../scene/model';
@@ -49,6 +50,16 @@ export interface ISceneNodeInfo {
 export interface IRaycastResult {
     node: Node;
     distance: number;
+}
+
+const EditorLayers = Layers.BitMask.GIZMOS | Layers.BitMask.EDITOR | Layers.BitMask.SCENE_GIZMO;
+
+export function isEditorModel (model: Model): boolean {
+    return ((model.visFlags & EditorLayers) || (model.node.layer & EditorLayers)) !== 0;
+}
+
+export function isEditorVisibleOnly (visibility: number): boolean {
+    return (visibility & (~EditorLayers)) === 0;
 }
 
 /**
@@ -119,6 +130,10 @@ export class RenderScene {
         return this._models;
     }
 
+    get editorModels (): Model[] {
+        return this._editorModels;
+    }
+
     /**
      * @en All active 2d draw batches of the render scene
      * @zh 渲染场景管理的所有 2D 渲染批次对象
@@ -131,6 +146,7 @@ export class RenderScene {
     private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
+    private _editorModels: Model[] = [];
     private _batches: DrawBatch2D[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
@@ -375,6 +391,11 @@ export class RenderScene {
     public addModel (m: Model) {
         m.attachToScene(this);
         this._models.push(m);
+        if (EDITOR) {
+            if (isEditorModel(m)) {
+                this._editorModels.push(m);
+            }
+        }
     }
 
     /**
@@ -387,8 +408,17 @@ export class RenderScene {
             if (this._models[i] === model) {
                 model.detachFromScene();
                 this._models.splice(i, 1);
-
-                return;
+                break;
+            }
+        }
+        if (EDITOR) {
+            if (isEditorModel(model)) {
+                for (let i = 0; i < this._editorModels.length; ++i) {
+                    if (this._editorModels[i] === model) {
+                        this._editorModels.splice(i, 1);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -403,6 +433,9 @@ export class RenderScene {
             m.destroy();
         }
         this._models.length = 0;
+        if (EDITOR) {
+            this._editorModels.length = 0;
+        }
     }
 
     /**
