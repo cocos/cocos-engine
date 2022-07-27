@@ -26,7 +26,7 @@
 // @ts-expect-error jsb polyfills
 (function () {
     if (!window.middleware) return;
-    const RenderDrawInfoType_IA = 2;
+    const RenderDrawInfoType_MiddleWare = 3;
     const middleware = window.middleware;
     const middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
@@ -84,32 +84,17 @@
 
         const bufferCount = middlewareMgr.getBufferCount(nativeFormat);
         for (let i = 0; i < bufferCount; i++) {
-            const ibBytesLength = middlewareMgr.getIBTypedArrayLength(nativeFormat, i);
-            const vbBytesLength = middlewareMgr.getVBTypedArrayLength(nativeFormat, i);
-            const srcIndicesCount = ibBytesLength / 2; // USHORT
-            const srcVertexCount = vbBytesLength  / nativeFormat / 4;
-            const srcVertexFloatCount = srcVertexCount * nativeFormat;
-
             let buffer = renderInfoLookup[nativeFormat][i];
             if (!buffer)  {
                 if (!_accessors[jsFormat]) {
-                    _accessors[jsFormat] = cc.UI.RenderData.createStaticVBAccessor(jsFormat, 65535);
+                    _accessors[jsFormat] = cc.UI.RenderData.createStaticVBAccessor(jsFormat, 65535, 524280);
                 }
                 buffer = cc.UI.RenderData.add(jsFormat, _accessors[jsFormat]);
                 buffer.multiOwner = true;
-                buffer.drawInfoType = RenderDrawInfoType_IA;
+                buffer.drawInfoType = RenderDrawInfoType_MiddleWare;
+                buffer.resize(65535, 524280);
+                renderInfoLookup[nativeFormat][i] = buffer;
             }
-
-            const srcVBuf = middlewareMgr.getVBTypedArray(nativeFormat, i);
-            const srcIBuf = middlewareMgr.getIBTypedArray(nativeFormat, i);
-
-            buffer.resize(srcVertexCount, srcIndicesCount);
-            const vData = buffer.chunk.vb;
-            const iData = buffer.chunk.meshBuffer.iData;
-            vData.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
-            iData.set(srcIBuf.subarray(0, srcIndicesCount), 0);
-
-            renderInfoLookup[nativeFormat][i] = buffer;
         }
     }
 

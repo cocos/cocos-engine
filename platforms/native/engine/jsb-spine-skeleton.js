@@ -885,11 +885,11 @@ const cacheManager = require('./jsb-cache-manager');
 
             const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
             const drawInfo = this.requestDrawInfo(index);
+
+            renderData.fillDrawInfoAttributesForMiddleWare(drawInfo);
             drawInfo.setTexture(realTexture.getGFXTexture());
             drawInfo.setSampler(realTexture.getGFXSampler());
             drawInfo.setMaterial(this.material);
-            renderData.fillDrawInfoAttributes(drawInfo);
-
             drawInfo.setIndexOffset(_tempIndicesOffset);
             drawInfo.setIBCount(_tempIndicesCount);
 
