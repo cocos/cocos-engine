@@ -334,7 +334,7 @@ const cacheManager = require('./jsb-cache-manager');
     ////////////////////////////////////////////////////////////
     // override ArmatureDisplay
     ////////////////////////////////////////////////////////////
-    const superProto = cc.internal.Renderable2D.prototype;
+    const superProto = cc.internal.UIRenderer.prototype;
     const armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
     const armatureSystem = cc.internal.ArmatureSystem;
