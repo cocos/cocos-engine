@@ -2,7 +2,7 @@
     "$schema": "./cc.config.schema.json",
 
     "features": {
-        "base": { "modules": [ "base", "native" ], "dependentAssets": [
+        "base": { "modules": [ "base" ], "dependentAssets": [
             "ff9be190-20a4-4e48-b68c-76e3c7cff085",
             "970b0598-bcb0-4714-91fb-2e81440dccd8",
             "bcd64cc6-2dd9-43f6-abbe-66318d332032",
@@ -10,6 +10,7 @@
             "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
             "9361fd90-ba52-4f84-aa93-6e878fd576ca"
         ]},
+        "native": { "modules": [ "native" ] },
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
         "3d": { 

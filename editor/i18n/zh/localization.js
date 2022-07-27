@@ -760,6 +760,10 @@ module.exports = {
             label: "核心功能",
             description: "Cocos Creator 核心功能。",
         },
+        native: {
+            label: "原生接口",
+            description: "平台原生能力绑定接口",
+        },
         graphics: {
             label: "图形后端",
             description: "选择支撑渲染系统的图形后端。",

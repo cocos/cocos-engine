@@ -8,6 +8,13 @@
             "default": ["base"],
             "wechatPlugin": true
         },
+        "native": {
+            "label": "i18n:ENGINE.features.native.label",
+            "description": "i18n:ENGINE.features.native.description",
+            "required": false,
+            "default": ["native"],
+            "wechatPlugin": true
+        },
         "graphcis": {
             "label": "i18n:ENGINE.features.graphics.label",
             "multi": true,

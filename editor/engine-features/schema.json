@@ -67,6 +67,9 @@
                 "base": {
                     "$ref": "#/definitions/Item"
                 },
+                "native": {
+                    "$ref": "#/definitions/Item"
+                },
                 "dragon-bones": {
                     "$ref": "#/definitions/Item"
                 },

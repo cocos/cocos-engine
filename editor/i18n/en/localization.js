@@ -779,6 +779,10 @@ module.exports = {
             label: "Core",
             description: "Cocos Creator core functionalities.",
         },
+        native: {
+            label: "native",
+            description: "Binding interface for native ability.",
+        },
         graphics: {
             label: "Graphics Backend",
             description: "Select graphics back end used for rendering.",
