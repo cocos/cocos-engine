@@ -34,7 +34,7 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { isEditorVisibleOnly } from '../renderer';
+import { isEditorVisibleOnly } from '../renderer/core/render-scene';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
