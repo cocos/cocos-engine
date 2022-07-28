@@ -133,7 +133,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
     return ret ? nativevalue_to_se(v, *ret, nullptr) : false;
 }
 
-bool Mat4to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
+bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(16));
 
