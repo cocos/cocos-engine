@@ -1434,6 +1434,7 @@ export class SpriteFrame extends Asset {
         if (this._mesh) {
             this._updateMesh();
         }
+        this._calcTrimmedBorder();
     }
 
     public initDefault (uuid?: string) {
