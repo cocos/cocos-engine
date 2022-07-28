@@ -398,25 +398,45 @@ static bool webSocketClose(se::State &s) {
         cobj->closeAsync();
     } else if (argc == 1) {
         if (args[0].isNumber()) {
-            int reason{0};
-            sevalue_to_native(args[0], &reason);
-            cobj->closeAsync(reason, "no_reason");
+            int reasonCode{0};
+            sevalue_to_native(args[0], &reasonCode);
+            cobj->closeAsync(reasonCode, "no_reason");
         } else if (args[0].isString()) {
-            ccstd::string reason;
-            sevalue_to_native(args[0], &reason);
-            cobj->closeAsync(1005, reason);
+            ccstd::string reasonString;
+            sevalue_to_native(args[0], &reasonString);
+            cobj->closeAsync(1005, reasonString);
         } else {
             CC_ASSERT(false);
         }
     } else if (argc == 2) {
-        CC_ASSERT(args[0].isNumber());
-        CC_ASSERT(args[1].isString());
-        int reasonCode{0};
-        ccstd::string reasonString;
-        sevalue_to_native(args[0], &reasonCode);
-        sevalue_to_native(args[1], &reasonString);
-        cobj->closeAsync(reasonCode, reasonString);
+        if (args[0].isNumber()) {
+            int reasonCode{0};
+            if (args[1].isString()) {
+                ccstd::string reasonString;
+                sevalue_to_native(args[0], &reasonCode);
+                sevalue_to_native(args[1], &reasonString);
+                cobj->closeAsync(reasonCode, reasonString);
+            } else if (args[1].isNullOrUndefined()) {
+                sevalue_to_native(args[0], &reasonCode);
+                cobj->closeAsync(reasonCode, "no_reason");
+            } else {
+                CC_ASSERT(false);
+            }
+        } else if (args[0].isNullOrUndefined()) {
+            if (args[1].isString()) {
+                ccstd::string reasonString;
+                sevalue_to_native(args[1], &reasonString);
+                cobj->closeAsync(1005, reasonString);
+            } else if (args[1].isNullOrUndefined()) {
+                cobj->closeAsync();
+            } else {
+                CC_ASSERT(false);
+            }
+        } else {
+        CC_ASSERT(false);
+        }
     } else {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting <=2", argc);
         CC_ASSERT(false);
     }
     // Attach current WebSocket instance to global object to prevent WebSocket instance
