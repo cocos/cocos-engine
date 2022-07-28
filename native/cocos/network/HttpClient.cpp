@@ -31,6 +31,7 @@
 #include <errno.h>
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
+#include "base/ThreadPool.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 #include "platform/StdC.h"
@@ -44,6 +45,7 @@ typedef int int32_t;
 #endif
 
 static HttpClient *_httpClient = nullptr; // pointer to singleton
+static LegacyThreadPool *gThreadPool = nullptr;
 
 typedef size_t (*write_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
 
@@ -363,6 +365,9 @@ HttpClient::HttpClient()
   _cookie(nullptr),
   _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    if (gThreadPool == nullptr) {
+        gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
+    }
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
@@ -416,8 +421,7 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     HttpResponse *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
-    auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
-    t.detach();
+    gThreadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue

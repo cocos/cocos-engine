@@ -663,6 +663,11 @@ void ScriptEngine::cleanup() {
     for (const auto &hook : _afterCleanupHookArray) {
         hook();
     }
+
+    // Cleanup all hooks
+    _beforeInitHookArray.clear();
+    _afterInitHookArray.clear();
+    _beforeCleanupHookArray.clear();
     _afterCleanupHookArray.clear();
 
     _isInCleanup = false;

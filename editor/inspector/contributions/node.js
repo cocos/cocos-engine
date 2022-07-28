@@ -167,6 +167,19 @@ exports.listeners = {
             return;
         }
 
+        /**
+         * Hack：stop preview
+         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
+         * Changes between component properties are not controlled to be strictly reversible.
+         * So stop preview some properties.
+         */
+        const stopPreviewOnTheseTooltips = [
+            'i18n:animation.default_clip',
+        ];
+        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
+            return;
+        }
+
         const { method, value: assetUuid } = event.detail;
         if (method === 'confirm') {
             clearTimeout(panel.previewTimeId);
@@ -181,6 +194,8 @@ exports.listeners = {
                         if (dump.values) {
                             value = dump.values[i];
                         }
+
+
 
                         // 预览新的值
                         value.uuid = assetUuid;

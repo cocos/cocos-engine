@@ -134,4 +134,7 @@ export const native = {
     DebugRenderer: globalJsb.DebugRenderer,
     copyTextToClipboard: globalJsb.copyTextToClipboard?.bind(globalJsb),
     garbageCollect: globalJsb.garbageCollect,
+    reflection: globalJsb.reflection,
+    bridge: globalJsb.bridge,
+    jsbBridgeWrapper: globalJsb.jsbBridgeWrapper
 };
