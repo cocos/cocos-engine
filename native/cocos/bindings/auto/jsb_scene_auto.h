@@ -109,7 +109,6 @@ SE_DECLARE_FUNC(js_scene_Node_isActive);
 SE_DECLARE_FUNC(js_scene_Node_isChildOf);
 SE_DECLARE_FUNC(js_scene_Node_isStatic);
 SE_DECLARE_FUNC(js_scene_Node_lookAt);
-SE_DECLARE_FUNC(js_scene_Node_off);
 SE_DECLARE_FUNC(js_scene_Node_onPostActivated);
 SE_DECLARE_FUNC(js_scene_Node_onPreDestroy);
 SE_DECLARE_FUNC(js_scene_Node_onPreDestroyBase);
