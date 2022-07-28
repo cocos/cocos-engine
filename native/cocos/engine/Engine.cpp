@@ -140,6 +140,7 @@ int32_t Engine::init() {
 
 void Engine::destroy() {
     cc::DeferredReleasePool::clear();
+    cc::network::HttpClient::destroyInstance();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
     CCObject::deferredDestroy();
