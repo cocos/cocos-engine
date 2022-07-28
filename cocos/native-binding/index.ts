@@ -86,6 +86,7 @@ export declare namespace native {
          */
         constructor (hints: DownloaderHints);
 
+        abort(task: DownloaderTask): void;
         /**
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.

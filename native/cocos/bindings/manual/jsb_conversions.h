@@ -1080,7 +1080,7 @@ bool sevalue_to_native(const se::Value &from, std::shared_ptr<T> *out, se::Objec
     }
     auto *privateObject = from.toObject()->getPrivateObject();
     CC_ASSERT(privateObject->isSharedPtr());
-    *out = static_cast<se::TypedPrivateObject<T>>(privateObject).share();
+    *out = static_cast<se::TypedPrivateObject<T> *>(privateObject)->share();
     return true;
 }
 
@@ -1524,7 +1524,7 @@ inline bool nativevalue_to_se(const std::shared_ptr<T> &from, se::Value &to, se:
         to.setNull();
         return true;
     }
-    auto it = se::NativePtrToObjectMap::find(nativePtr);
+    auto it = se::NativePtrToObjectMap::find((void *)nativePtr);
     if (it == se::NativePtrToObjectMap::end()) {
         se::Class *cls = JSBClassType::findClass(nativePtr);
         CC_ASSERT(cls);

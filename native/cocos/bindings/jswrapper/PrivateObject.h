@@ -94,7 +94,7 @@ public:
 
     constexpr bool isSharedPtr() const override { return true; }
 
-    void *getRaw() const override { return _data.get(); }
+    void *getRaw() const override { return (void *)_data.get(); }
 
 private:
     std::shared_ptr<T> _data{nullptr};
