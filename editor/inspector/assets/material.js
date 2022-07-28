@@ -64,7 +64,7 @@ exports.methods = {
     },
     async restore(record) {
         record = JSON.parse(record);
-        if (!record || typeof record !== 'object' || !record.material) {
+        if (!record || typeof record !== 'object' || !record.material || !record.material.data?.length) {
             return false;
         }
 
@@ -482,6 +482,7 @@ exports.update = async function(assetList, metaList) {
     }
 
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
+    if (!this.material?.data?.length) { return; }
 
     await this.updateEffect();
 
