@@ -45,7 +45,7 @@ namespace cc {
 struct CallbackID {
     CallbackID() = default;
     explicit CallbackID(uint32_t v) : value(v) {}
-    CallbackID(const CallbackID &rhs) { value = rhs.value; }
+    CallbackID(const CallbackID &rhs) : value(rhs.value) {}
 
     inline bool operator==(const CallbackID &rhs) const { return value == rhs.value; }
     CallbackID &operator=(const CallbackID &rhs) {
