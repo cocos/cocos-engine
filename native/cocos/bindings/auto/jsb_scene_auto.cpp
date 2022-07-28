@@ -539,103 +539,6 @@ static bool js_scene_Node_lookAt(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_FUNC(js_scene_Node_lookAt)
 
-static bool js_scene_Node_off(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
-    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, true> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->off(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<unsigned int, true> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<bool, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            cobj->off(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 1) {
-            HolderType<unsigned int, true> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->off(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, true> arg0 = {};
-            HolderType<bool, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            cobj->off(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, true> arg0 = {};
-            HolderType<void*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->off(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<unsigned int, true> arg0 = {};
-            HolderType<void*, false> arg1 = {};
-            HolderType<bool, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            cobj->off(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_off)
-
 static bool js_scene_Node_onPostActivated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -1829,7 +1732,6 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("isChildOf", _SE(js_scene_Node_isChildOf));
     cls->defineFunction("isStatic", _SE(js_scene_Node_isStatic));
     cls->defineFunction("lookAt", _SE(js_scene_Node_lookAt));
-    cls->defineFunction("off", _SE(js_scene_Node_off));
     cls->defineFunction("onPostActivated", _SE(js_scene_Node_onPostActivated));
     cls->defineFunction("_onPreDestroy", _SE(js_scene_Node_onPreDestroy));
     cls->defineFunction("_onPreDestroyBase", _SE(js_scene_Node_onPreDestroyBase));
