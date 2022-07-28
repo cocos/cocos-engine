@@ -27,6 +27,8 @@ const js = require('../core/platform/js');
 const misc = require('../core/utils/misc');
 const { Quat, Mat4, Vec3 } = require('../core/value-types');
 
+let _m4_tmp = new Mat4();
+
 const ZERO_VEC2 = cc.v2(0, 0);
 let _pos = cc.v2();
 let _tpa = cc.v2();
@@ -347,6 +349,25 @@ Simulator.prototype.step = function (dt) {
         _pos.z = this._transformedPos.z / this._nodeScale.z;
     } else {
         this._worldRotation = 0;
+    }
+
+    let material = psys.getMaterial(0);
+    if (material) {
+        if (node.parent) {
+            node.parent.getWorldMatrix(_m4_tmp);
+        } else {
+            _m4_tmp.set(Mat4.IDENTITY);
+        }
+        material.setProperty('pmat', new Float32Array([_m4_tmp.m[0], _m4_tmp.m[1], _m4_tmp.m[2], _m4_tmp.m[3],
+            _m4_tmp.m[4], _m4_tmp.m[5], _m4_tmp.m[6], _m4_tmp.m[7], 
+            _m4_tmp.m[8], _m4_tmp.m[9], _m4_tmp.m[10], _m4_tmp.m[11],
+            _m4_tmp.m[12], _m4_tmp.m[13], _m4_tmp.m[14], _m4_tmp.m[15]]));
+
+        node.getLocalMatrix(_m4_tmp);
+        material.setProperty('lmat', new Float32Array([_m4_tmp.m[0], _m4_tmp.m[1], _m4_tmp.m[2], _m4_tmp.m[3],
+            _m4_tmp.m[4], _m4_tmp.m[5], _m4_tmp.m[6], _m4_tmp.m[7],
+            _m4_tmp.m[8], _m4_tmp.m[9], _m4_tmp.m[10], _m4_tmp.m[11],
+            _m4_tmp.m[12], _m4_tmp.m[13], _m4_tmp.m[14], _m4_tmp.m[15]]));
     }
 
     // Emission
