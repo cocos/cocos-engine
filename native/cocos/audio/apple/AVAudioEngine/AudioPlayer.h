@@ -104,7 +104,7 @@ public:
     bool setLoop(bool isLoop);
     bool isLoop() const;
     float getDuration() const;
-    
+    AudioCache* getCache() const;
     
     /**
      * Change the seekerTime and should reschedule buffer.
@@ -151,7 +151,7 @@ private:
     
     /** _state is the only way to check if the player is stopped, to make frame rate stable.*/
     mutable std::shared_mutex _stateMtx;
-    State _state;
+    State _state {State::UNLOADED};
     
     
     float _startTime {0};

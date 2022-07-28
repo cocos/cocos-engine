@@ -309,10 +309,9 @@ void AudioEngineImpl::update(float dt) {
         player = itr->second;
 //        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
         if ((player->getState() == AudioPlayer::State::STOPPED)) {
-            std::string filePath;
+            ccstd::string filePath;
             if (player->finishCallback) {
-                auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
-                filePath = *audioInfo.filePath;
+                filePath = player->getCache()->_fileFullPath;
             }
             player->unload();
             
@@ -332,8 +331,9 @@ void AudioEngineImpl::update(float dt) {
                 if (player->finishCallback) {
                     // When the function performs, the state of audio player might be different.
                     
-//                    CC_LOG_DEBUG("Trying to trigger finish callback");
+                    CC_LOG_DEBUG("Trying to trigger finish callback");
                     if (player->isFinished()) {
+                        CC_LOG_DEBUG("Succeed, audio is finished.");
                         if (auto sche = _scheduler.lock()) {
                             auto cb = player->finishCallback;
                             sche->performFunctionInCocosThread([audioID, cb, filePath]{

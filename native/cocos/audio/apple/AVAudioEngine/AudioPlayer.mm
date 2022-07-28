@@ -45,11 +45,14 @@ void showPlayerNodeCurrentStatus(AVAudioPlayerNode* node, AVAudioFile* file) {
 }
 // The life cycle of AudioCache does not controlled by AudioPlayer. Some part of implementation of AudioPlayer can be unified
 AudioPlayer::AudioPlayer(){
+    setState(State::UNLOADED);
     _descriptor.node = [[AVAudioPlayerNode alloc] init];
+    
 }
 AudioPlayer::AudioPlayer(AudioCache* cache){
     _cache = cache;
     _cache->useCount++;
+    setState(State::READY);
     _descriptor.node = [[AVAudioPlayerNode alloc] init];
 }
 AudioPlayer::~AudioPlayer(){
@@ -69,10 +72,15 @@ void AudioPlayer::setState(State state) {
 bool AudioPlayer::load(AudioCache* cache){
     _cache = cache;
     _isStreaming = _cache->isStreaming();
+    setState(State::READY);
     return true;
+}
+AudioCache* AudioPlayer::getCache() const {
+    return _cache;
 }
 bool AudioPlayer::unload() {
     _cache = nullptr;
+    setState(State::UNLOADED);
     return true;
 }
 //A method to update buffer if it's a streaming buffer
@@ -82,7 +90,6 @@ void AudioPlayer::rotateBuffer() {
     // Wake up thread when current frame is played.
     __block auto wake = [this, &bufferQCount](){
         std::lock_guard<std::mutex> lck(_rotateBufferThreadMtx);
-        _shouldReschedule = true;
         bufferQCount--; // need to pop
         _rotateBufferThreadBarrier.notify_all();
     };
@@ -106,6 +113,7 @@ void AudioPlayer::rotateBuffer() {
     
     // The while loop should only stop when it's in STOPPING state.
     do {
+        // _shouldReschedule is only changed outside.
         if (_shouldReschedule) {
             [_descriptor.node stop];
             bufferQCount = 0; // should clean up
@@ -144,7 +152,7 @@ void AudioPlayer::rotateBuffer() {
             if (sizeToRead == sizeLeft) {
                 // Is final cut
                 [_descriptor.node scheduleBuffer:tmpBuffer completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType type){
-                    // When it's the end of the frames, stop modify the bufferQCount and try to stop the audio.
+                    // When it's the end of the frames, stop modify the bufferQCount and try to stop the audio. cannot trust it totally.
                     finishWake();
                 }];
                 nextFrameToRead = 0;
@@ -153,15 +161,15 @@ void AudioPlayer::rotateBuffer() {
                     wake();
                 }];
             }
-            if (!_descriptor.node.isPlaying) {
-                [_descriptor.node play];
-            }
+        }
+        if (!_descriptor.node.isPlaying) {
+            [_descriptor.node play];
         }
         // Sleep in a code block, check if the thread needs to exit or a new buffer need to be loaded.
         {
             std::unique_lock<std::mutex> lck(_rotateBufferThreadMtx);
             _rotateBufferThreadBarrier.wait(lck, [&bufferQCount, this]{
-                return (getState() == STOPPING) || (bufferQCount != MAX_QUEUE_NUM);
+                return ((getState() == STOPPING) || (bufferQCount != MAX_QUEUE_NUM) || (!_descriptor.node.isPlaying));
             });
         }
             
@@ -184,7 +192,15 @@ void AudioPlayer::rotateBuffer() {
     } while (getState() != State::STOPPING);
     
     // Step to release all.
-    [_descriptor.node stop];
+    if (!_isFinished) {
+        [_descriptor.node stop];
+        // BUG: when node is stopped, all callbacks will be triggered, which cause unacceptable result.
+        _isFinished = false;
+    } else {
+        // In this situation, node is already stopped?
+        // [_descriptor.node stop];
+    }
+    
     _startTime = 0;
     while (bufferQ.size() > 0) {
         auto buf = bufferQ.front();
@@ -243,7 +259,6 @@ bool AudioPlayer::play() {
         _descriptor.node.volume = _volume;
         if (getState() == State::PLAYING || getState() == State::PAUSED) {
             std::lock_guard<std::mutex> lck(_rotateBufferThreadMtx);
-            _shouldReschedule = true; // _shouldReschedule should also resume the node.
             _rotateBufferThreadBarrier.notify_one();
         }
         else if (_state == State::READY) {
@@ -256,7 +271,7 @@ bool AudioPlayer::play() {
 }
 bool AudioPlayer::pause() {
     //update current time
-//    _pauseTime = getCurrentTime();
+    _pauseTime = (float)[_descriptor.node playerTimeForNodeTime:_descriptor.node.lastRenderTime].sampleTime / (float)_cache->getPCMHeader().sampleRate;
     [_descriptor.node pause];
     setState(State::PAUSED);
 }
@@ -315,6 +330,7 @@ float AudioPlayer::getVolume() const {
 // Thread safe done
 bool AudioPlayer::setCurrentTime(float targetTime) {
     bool ret = true;
+    _shouldReschedule = true;
     _startTime = targetTime;
     if (getState() == State::PLAYING) {
         ret = play();
@@ -324,9 +340,11 @@ bool AudioPlayer::setCurrentTime(float targetTime) {
 float AudioPlayer::getCurrentTime() const {
     float currentTime{0.f};
     std::shared_lock<std::shared_mutex> lck(_stateMtx);
-    if(_state == State::PLAYING || _state == State::PAUSED) {
+    if(_state == State::PLAYING) {
         //showPlayerNodeCurrentStatus(_descriptor.node, _cache->getDescriptor().audioFile);
         currentTime = (float)[_descriptor.node playerTimeForNodeTime:_descriptor.node.lastRenderTime].sampleTime / (float)_cache->getPCMHeader().sampleRate;
+    } else if (_state == State::PAUSED) {
+        currentTime = _pauseTime;
     }
     // update current time
     NSLog(@"return %f", _startTime + currentTime);
