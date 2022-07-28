@@ -72,8 +72,8 @@ public:
     void setDirty(bool dirty) const;
     inline uint32_t getFloatsPerVertex() const { return _meshBufferLayout->floatsPerVertex; }
     void setFloatsPerVertex(uint32_t floatsPerVertex);
-    inline bool getNeedLinkMiddleWare() const { return _needLinkMiddleWare; }
-    inline void setNeedLinkMiddleWare(bool val) { _needLinkMiddleWare = val; }
+    inline bool getUseLinkData() const { return _useLinkData; }
+    inline void setUseLinkData(bool val) { _useLinkData = val;}
 
     void linkWithMiddleWareBuffer(size_t &i, size_t &ii);
 
@@ -100,6 +100,6 @@ private:
     gfx::InputAssemblerInfo _iaInfo;
     uint32_t _nextFreeIAHandle{0};
     bool _needDeleteVData{false};
-    bool _needLinkMiddleWare{false};
+    bool _useLinkData{false};
 };
 } // namespace cc

@@ -294,55 +294,6 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
     _batches.push_back(curdrawBatch);
 }
 
-CC_FORCE_INLINE void Batcher2d::handleMiddleWareDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
-    generateBatch(_currEntity, _currDrawInfo);
-    uint32_t dataHash = drawInfo->getDataHash();
-    entity->setEnumStencilStage(_stencilManager->getStencilStage());
-    auto tempStage = static_cast<StencilStage>(entity->getStencilStage());
-    _currHash = dataHash;
-    _currMaterial = drawInfo->getMaterial();
-    _currStencilStage = tempStage;
-    _currLayer = entity->getNode()->getLayer();
-
-    // make sure next generateBatch return.
-    _currEntity = nullptr;
-    _currDrawInfo = nullptr;
-    _currMeshBuffer = nullptr;
-
-    // if(frame)
-    _currTexture = drawInfo->getTexture();
-    _currSampler = drawInfo->getSampler();
-    _currSamplerHash = _currSampler->getHash();
-    setIndexRange(drawInfo);
-
-    UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
-    currMeshBuffer->setNeedLinkMiddleWare(true);
-    currMeshBuffer->setDirty(true);
-    gfx::InputAssembler* ia = currMeshBuffer->requireFreeIA(getDevice());
-    ia->setFirstIndex(drawInfo->getIndexOffset());
-    ia->setIndexCount(drawInfo->getIbCount());
-
-    // stencilstage
-    gfx::DepthStencilState* depthStencil = nullptr;
-    ccstd::hash_t dssHash = 0;
-    StencilStage entityStage = entity->getEnumStencilStage();
-    depthStencil = _stencilManager->getDepthStencilState(entityStage, drawInfo->getMaterial());
-    dssHash = _stencilManager->getStencilHash(entityStage);
-
-    auto* curdrawBatch = _drawBatchPool.alloc();
-    curdrawBatch->setVisFlags(_currLayer);
-    curdrawBatch->setInputAssembler(ia);
-    curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
-    const auto& pass = curdrawBatch->getPasses().at(0);
-    if (entity->getUseLocal()) {
-        drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
-        curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
-    } else {
-        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
-    }
-    _batches.push_back(curdrawBatch);
-}
-
 void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT
     if (drawInfo->getSubNode()) {
         walk(drawInfo->getSubNode(), entity->getOpacity());
@@ -363,9 +314,6 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             break;
         case RenderDrawInfoType::IA:
             handleIADraw(entity, drawInfo, node);
-            break;
-        case RenderDrawInfoType::MIDDLEWARE:
-            handleMiddleWareDraw(entity, drawInfo, node);
             break;
         case RenderDrawInfoType::SUB_NODE:
             handleSubNode(entity, drawInfo);
@@ -507,7 +455,7 @@ void Batcher2d::uploadBuffers() {
     size_t ii = 0;
     for (auto& map : _meshBuffersMap) {
         for (auto& buffer : map.second) {
-            if (buffer->getNeedLinkMiddleWare()) {
+            if (buffer->getUseLinkData()) {
                 buffer->linkWithMiddleWareBuffer(i, ii);
             }
             buffer->uploadBuffers();

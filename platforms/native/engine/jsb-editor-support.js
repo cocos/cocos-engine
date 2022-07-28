@@ -26,7 +26,7 @@
 // @ts-expect-error jsb polyfills
 (function () {
     if (!window.middleware) return;
-    const RenderDrawInfoType_MiddleWare = 3;
+    const RenderDrawInfoType_IA = 2;
     const middleware = window.middleware;
     const middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
@@ -91,8 +91,10 @@
                 }
                 buffer = cc.UI.RenderData.add(jsFormat, _accessors[jsFormat]);
                 buffer.multiOwner = true;
-                buffer.drawInfoType = RenderDrawInfoType_MiddleWare;
+                buffer.drawInfoType = RenderDrawInfoType_IA;
                 buffer.resize(65535, 524280);
+                const meshBuffer = buffer.getMeshBuffer();
+                meshBuffer.useLinkedData = true;
                 renderInfoLookup[nativeFormat][i] = buffer;
             }
         }

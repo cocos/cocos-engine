@@ -33,7 +33,6 @@ export enum RenderDrawInfoType {
     COMP,
     MODEL,
     IA,
-    MIDDLEWARE,
     SUB_NODE,
 }
 

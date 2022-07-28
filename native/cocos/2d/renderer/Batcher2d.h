@@ -70,7 +70,6 @@ public:
     void handleCompentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleModelDraw(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void handleIADraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
-    void handleMiddleWareDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
