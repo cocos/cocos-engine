@@ -29,6 +29,7 @@
 #include "core/Root.h"
 #include "renderer/pipeline/Define.h"
 #include "scene/Pass.h"
+#include "editor-support/MiddlewareManager.h"
 
 namespace cc {
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
@@ -294,7 +295,7 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
     _batches.push_back(curdrawBatch);
 }
 
-void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT
+CC_FORCE_INLINE void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT
     if (drawInfo->getSubNode()) {
         walk(drawInfo->getSubNode(), entity->getOpacity());
     }
@@ -455,8 +456,23 @@ void Batcher2d::uploadBuffers() {
     size_t ii = 0;
     for (auto& map : _meshBuffersMap) {
         for (auto& buffer : map.second) {
+            // set 
             if (buffer->getUseLinkData()) {
-                buffer->linkWithMiddleWareBuffer(i, ii);
+                int nativeFormat = 9;
+                size_t index = i;
+                if (buffer->attributes().size() == 3) {
+                    i++;
+                } else {
+                    nativeFormat = 13;
+                    index = ii;
+                    ii++;
+                }
+                auto *middleWare = middleware::MiddlewareManager::getInstance();
+                auto *middleBuffer = middleWare->getMeshBuffer(nativeFormat);
+                auto *srcIBuf = middleBuffer->getIBFromBufferArray(index);
+                auto *srcVBuf = middleBuffer->getVBFromBufferArray(index);
+                buffer->setVData(reinterpret_cast<float *>(srcVBuf));
+                buffer->setIData(reinterpret_cast<uint16_t*>(srcIBuf));
             }
             buffer->uploadBuffers();
             buffer->reset();

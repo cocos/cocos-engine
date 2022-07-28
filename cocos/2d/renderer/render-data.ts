@@ -333,6 +333,7 @@ export class RenderData extends BaseRenderData {
     private _height = 0;
     private _frame: SpriteFrame | TextureBase | null = null;
     protected _accessor: StaticVBAccessor = null!;
+    get accessor () { return this._accessor; }
 
     public vertexRow = 1;
     public vertexCol = 1;
@@ -403,14 +404,6 @@ export class RenderData extends BaseRenderData {
             drawInfo.setIBCount(this._ic);
             drawInfo.setDataHash(this.dataHash);
             drawInfo.setIsMeshBuffer(this._isMeshBuffer);
-        }
-    }
-
-    public fillDrawInfoAttributesForMiddleWare (drawInfo: RenderDrawInfo) {
-        if (JSB) {
-            drawInfo.setAccId(this._accessor.id);
-            drawInfo.setDrawInfoType(this._drawInfoType);
-            drawInfo.setBufferId(this.chunk.bufferId);
         }
     }
 

@@ -92,6 +92,7 @@
                 buffer = cc.UI.RenderData.add(jsFormat, _accessors[jsFormat]);
                 buffer.multiOwner = true;
                 buffer.drawInfoType = RenderDrawInfoType_IA;
+                // vertex count 65535, indices count 8 * 65535
                 buffer.resize(65535, 524280);
                 const meshBuffer = buffer.getMeshBuffer();
                 meshBuffer.useLinkedData = true;
