@@ -136,5 +136,8 @@ export const native = {
     garbageCollect: globalJsb.garbageCollect,
     reflection: globalJsb.reflection,
     bridge: globalJsb.bridge,
-    jsbBridgeWrapper: globalJsb.jsbBridgeWrapper
+    jsbBridgeWrapper: globalJsb.jsbBridgeWrapper,
+    AssetsManager: globalJsb.AssetsManager,
+    EventAssetsManager: globalJsb.EventAssetsManager,
+    Manifest: globalJsb.Manifest,
 };
