@@ -748,7 +748,7 @@ value(Component, '_registerEditorProps', (cls, props) => {
             {
                 const frame = RF.peek();
                 let menu = val;
-                if (frame) {
+                if (frame && !menu.includes('/')) {
                     menu = `i18n:menu.custom_script/${menu}`;
                 }
 

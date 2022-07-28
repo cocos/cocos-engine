@@ -46,6 +46,7 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
     _gpuRenderPass->subpasses = _subpasses;
+    _gpuRenderPass->dependencies = _dependencies;
 
     // assign a dummy subpass if not specified
     uint32_t colorCount = utils::toUint(_gpuRenderPass->colorAttachments.size());

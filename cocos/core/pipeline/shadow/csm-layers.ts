@@ -20,7 +20,7 @@
  */
 
 import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../renderer/scene';
-import { Mat4, Vec3, Vec2, Quat } from '../../math';
+import { Mat4, Vec3, Vec2, Vec4 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { IRenderObject } from '../define';
 import { legacyCC } from '../../global-exports';
@@ -43,8 +43,6 @@ const _snap = new Vec3();
 const _maxVec3 = new Vec3(10000000, 10000000, 10000000);
 const _minVec3 = new Vec3(-10000000, -10000000, -10000000);
 const _shadowPos = new Vec3();
-const _bias = new Vec3();
-const _scale = new Vec3();
 let _maxLayerPosz = 0.0;
 let _maxLayerFarPlane = 0.0;
 
@@ -162,9 +160,10 @@ export class ShadowLayerVolume {
             orthoSizeWidth = orthoSizeHeight = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
         }
 
-        if (dirLight.csmLevel > 1 && dirLight.csmOptimizationMode
+        const csmLevel = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
+        if (csmLevel > 1 && dirLight.csmOptimizationMode
             === CSMOptimizationMode.RemoveDuplicates) {
-            if (this._level >= dirLight.csmLevel - 1) {
+            if (this._level >= csmLevel - 1) {
                 _maxLayerFarPlane = this._castLightViewBoundingBox.halfExtents.z;
                 _maxLayerPosz = this._castLightViewBoundingBox.center.z;
             } else {
@@ -217,8 +216,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
     protected _splitCameraNear = 0;
     protected _splitCameraFar = 0;
 
-    protected _matShadowAtlas: Mat4 = new Mat4();
-    protected _matShadowViewProjAtlas: Mat4 = new Mat4();
+    protected _csmAtlas: Vec4 = new Vec4();
 
     constructor (level: number) {
         super(level);
@@ -239,18 +237,11 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         this._splitCameraFar = val;
     }
 
-    get matShadowAtlas () {
-        return this._matShadowAtlas;
+    get csmAtlas () {
+        return this._csmAtlas;
     }
-    set matShadowViewAtlas (val) {
-        this._matShadowAtlas = val;
-    }
-
-    get matShadowViewProjAtlas () {
-        return this._matShadowViewProjAtlas;
-    }
-    set matShadowViewProjAtlas (val) {
-        this._matShadowViewProjAtlas = val;
+    set csmAtlas (val) {
+        this._csmAtlas = val;
     }
 
     public destroy () {
@@ -261,9 +252,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         const clipSpaceSignY =  legacyCC.director.root.device.capabilities.clipSpaceSignY;
         const x = level % 2 - 0.5;
         const y = (0.5 - Math.floor(level / 2)) * clipSpaceSignY;
-        _bias.set(x, y, 0);
-        _scale.set(0.5, 0.5, 1);
-        Mat4.fromRTS(this._matShadowAtlas, Quat.IDENTITY, _bias, _scale);
+        this._csmAtlas.set(0.5, 0.5, x, y);
     }
 }
 
@@ -310,7 +299,7 @@ export class CSMLayers {
         if (dirLight === null) { return; }
 
         const shadowInfo = sceneData.shadows;
-        const levelCount = dirLight.csmLevel;
+        const levelCount = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowDistance = dirLight.shadowDistance;
 
         if (!shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
@@ -359,7 +348,7 @@ export class CSMLayers {
         const nd = 0.1;
         const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
-        const level = dirLight.csmLevel;
+        const level = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const lambda = dirLight.csmLayerLambda;
         this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
@@ -379,7 +368,7 @@ export class CSMLayers {
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
-        const level = dirLight.csmLevel;
+        const level = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowMapWidth = level > 1 ? shadowInfo.size.x * 0.5 : shadowInfo.size.x;
 
         if (shadowMapWidth < 0.0) { return; }
@@ -391,8 +380,6 @@ export class CSMLayers {
             const far = csmLayer.splitCameraFar;
             csmLayer.calculateSplitFrustum(camera, _mat4Trans, near, far);
             csmLayer.createMatrix(dirLight, shadowMapWidth, false);
-
-            Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);
         }
 
         if (level === CSMLevel.LEVEL_1) {

@@ -31,7 +31,6 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Camera.h"
@@ -51,15 +50,6 @@ struct PersistentTextureTag;
 struct FramebufferTag;
 struct SwapchainTag;
 struct ResourceGraph;
-
-enum class AttachmentType;
-enum class AccessType;
-
-struct RasterView;
-
-enum class ClearValueType;
-
-struct ComputeView;
 struct RasterSubpass;
 struct SubpassGraph;
 struct RasterPass;
@@ -74,6 +64,9 @@ struct SceneTag;
 struct DispatchTag;
 struct BlitTag;
 struct PresentTag;
+struct ClearTag;
+struct ViewportTag;
+struct ClearView;
 struct RenderQueue;
 struct SceneData;
 struct Dispatch;

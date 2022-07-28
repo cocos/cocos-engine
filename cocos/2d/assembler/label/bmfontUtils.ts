@@ -24,13 +24,13 @@
 */
 
 import { JSB } from 'internal:constants';
-import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
+import { BitmapFont, IConfig, FontLetterDefinition, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow } from '../../components/label';
+import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
-import { shareLabelInfo } from './font-utils';
+import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 class LetterInfo {
@@ -43,6 +43,8 @@ class LetterInfo {
 }
 
 const _tmpRect = new Rect();
+const _defaultLetterAtlas = new LetterAtlas(64, 64);
+const _defaultFontAtlas = new FontAtlas(null);
 
 let _comp: Label | null = null;
 let _uiTrans: UITransform | null = null;
@@ -161,6 +163,13 @@ export const bmfontUtils = {
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
+        if (!shareLabelInfo.fontAtlas) {
+            if (comp.cacheMode === CacheMode.CHAR) {
+                shareLabelInfo.fontAtlas = _defaultLetterAtlas;
+            } else {
+                shareLabelInfo.fontAtlas = _defaultFontAtlas;
+            }
+        }
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
         // TODO update material and uv
@@ -223,6 +232,10 @@ export const bmfontUtils = {
 
         const kerningDict = _fntConfig!.kerningDict;
         const horizontalKerning = _horizontalKerning;
+
+        if (!kerningDict) {
+            return;
+        }
 
         let prev = -1;
         for (let i = 0; i < stringLen; ++i) {

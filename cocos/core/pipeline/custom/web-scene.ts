@@ -23,16 +23,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-import { intersect, Sphere } from '../../geometry';
-import { legacyCC } from '../../global-exports';
-import { Mat4, Vec3, Color } from '../../math';
+import { Frustum, intersect } from '../../geometry';
+import { Mat4, Vec3 } from '../../math';
 import { RenderScene } from '../../renderer';
-import { Camera, SphereLight, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
-import { IRenderObject, IRenderPass } from '../define';
+import { Camera, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
+import { IRenderObject, IRenderPass, UBOShadow } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
-import { ShadowLayerVolume } from '../shadow/csm-layers';
+import { PipelineUBO } from '../pipeline-ubo';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -50,69 +49,20 @@ export class RenderInfo implements IRenderPass {
     public subModel;
     public passIdx = -1;
 }
+
 export class WebSceneTask extends SceneTask {
-    constructor (scneData: PipelineSceneData, camera: Camera, visitor: SceneVisitor) {
+    constructor (scneData: PipelineSceneData, ubo: PipelineUBO, camera: Camera | null, visitor: SceneVisitor) {
         super();
-        this._scene = camera.scene!;
-        this._camera = camera;
+        if (camera) {
+            this._scene = camera.scene!;
+            this._camera = camera;
+        }
         this._visitor = visitor;
         this._sceneData = scneData;
+        this._ubo = ubo;
     }
     get taskType (): TaskType {
         return TaskType.SYNC;
-    }
-
-    public static shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
-        const csmLayers = sceneData.csmLayers;
-        const castShadowObjects = csmLayers.castShadowObjects;
-        const dirLightFrustum = layer.validFrustum;
-        const dirShadowObjects = layer.shadowObjects;
-        dirShadowObjects.length = 0;
-        const visibility = camera.visibility;
-        for (let i = 0; i < castShadowObjects.length; i++) {
-            const castShadowObject = castShadowObjects[i];
-            const model = castShadowObject.model;
-            // filter model by view visibility
-            if (model.enabled) {
-                if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
-                    // shadow render Object
-                    if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
-                        // frustum culling
-                        // eslint-disable-next-line no-lonely-if
-                        if (intersect.aabbFrustum(model.worldBounds, dirLightFrustum)) {
-                            dirShadowObjects.push(castShadowObject);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected _updateDirLight (light: DirectionalLight) {
-        const shadows = this._sceneData.shadows;
-
-        const dir = light.direction;
-        const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
-        const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
-        const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
-        const nx = n.x; const ny = n.y; const nz = n.z;
-        const m = shadows.matLight;
-        m.m00 = 1 - nx * lx;
-        m.m01 = -nx * ly;
-        m.m02 = -nx * lz;
-        m.m03 = 0;
-        m.m04 = -ny * lx;
-        m.m05 = 1 - ny * ly;
-        m.m06 = -ny * lz;
-        m.m07 = 0;
-        m.m08 = -nz * lx;
-        m.m09 = -nz * ly;
-        m.m10 = 1 - nz * lz;
-        m.m11 = 0;
-        m.m12 = lx * d;
-        m.m13 = ly * d;
-        m.m14 = lz * d;
-        m.m15 = 1;
     }
 
     protected _getRenderObject (model: Model, camera: Camera) {
@@ -127,30 +77,29 @@ export class WebSceneTask extends SceneTask {
     }
 
     protected _sceneCulling () {
-        const scene = this._scene;
-        const camera = this._camera;
-        const mainLight = scene.mainLight;
+        if (!this.camera) { return; }
+        const scene = this.renderScene;
+        const camera = this.camera;
+        const mainLight = scene!.mainLight;
         const sceneData = this._sceneData;
         const shadows = sceneData.shadows;
         const skybox = sceneData.skybox;
         const csmLayers = sceneData.csmLayers;
-
         const renderObjects = sceneData.renderObjects;
         renderObjects.length = 0;
 
         const castShadowObjects = csmLayers.castShadowObjects;
         castShadowObjects.length = 0;
+        const csmLayerObjects = csmLayers.layerObjects;
+        csmLayerObjects.clear();
 
         if (shadows.enabled) {
+            this._ubo.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
             if (shadows.type === ShadowType.ShadowMap) {
-                // update lightFrustum
-                csmLayers.update(sceneData, camera);
-            }
-        }
-
-        if (mainLight) {
-            if (shadows.type === ShadowType.Planar) {
-                this._updateDirLight(mainLight);
+                // update CSM layers
+                if (mainLight && mainLight.node) {
+                    csmLayers.update(sceneData, camera);
+                }
             }
         }
 
@@ -158,7 +107,7 @@ export class WebSceneTask extends SceneTask {
             renderObjects.push(this._getRenderObject(skybox.model, camera));
         }
 
-        const models = scene.models;
+        const models = scene!.models;
         const visibility = camera.visibility;
 
         for (let i = 0; i < models.length; i++) {
@@ -168,6 +117,7 @@ export class WebSceneTask extends SceneTask {
             if (model.enabled) {
                 if (model.castShadow) {
                     castShadowObjects.push(this._getRenderObject(model, camera));
+                    csmLayerObjects.push(this._getRenderObject(model, camera));
                 }
 
                 if (model.node && ((visibility & model.node.layer) === model.node.layer)
@@ -193,34 +143,39 @@ export class WebSceneTask extends SceneTask {
 
     }
     get camera () { return this._camera; }
-    get scene (): RenderScene {
+    get renderScene () {
         return this._scene;
     }
     get visitor () { return this._visitor; }
+    get dirLightFrustum () { return this._dirLightFrustum; }
     get sceneData (): PipelineSceneData { return this._sceneData; }
-    private _scene: RenderScene;
-    private _camera: Camera;
+    private _scene: RenderScene | null = null;
+    private _camera: Camera | null = null;
     private _visitor: SceneVisitor;
     private _sceneData: PipelineSceneData;
+    private _dirLightFrustum = new Frustum();
+    protected _ubo: PipelineUBO;
 }
 
 export class WebSceneTransversal extends SceneTransversal {
     public preRenderPass (visitor: SceneVisitor): SceneTask {
-        return new WebSceneTask(this._sceneData, this._camera, visitor);
+        return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
     public postRenderPass (visitor: SceneVisitor): SceneTask {
-        return new WebSceneTask(this._sceneData, this._camera, visitor);
+        return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
-    constructor (camera: Camera, sceneData: PipelineSceneData) {
+    constructor (camera: Camera | null, sceneData: PipelineSceneData, ubo: PipelineUBO) {
         super();
         this._camera = camera;
-        this._scene = camera.scene!;
+        if (camera) this._scene = camera.scene!;
         this._sceneData = sceneData;
+        this._ubo = ubo;
     }
     public transverse (visitor: SceneVisitor): SceneTask {
-        return new WebSceneTask(this._sceneData, this._camera, visitor);
+        return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
-    protected _scene: RenderScene;
-    protected _camera: Camera;
+    protected _scene: RenderScene | null = null;
+    protected _camera: Camera | null = null;
+    protected _ubo: PipelineUBO;
     protected _sceneData: PipelineSceneData;
 }

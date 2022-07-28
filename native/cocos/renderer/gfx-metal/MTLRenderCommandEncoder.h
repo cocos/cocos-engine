@@ -177,9 +177,9 @@ public:
 
     inline void setDepthBias(float depthBias, float clamp, float slope) {
         if (_isDepthBiasSet &&
-            math::IsEqualF(_depthBias, depthBias) &&
-            math::IsEqualF(_clamp, clamp) &&
-            math::IsEqualF(_slope, slope)) {
+            math::isEqualF(_depthBias, depthBias) &&
+            math::isEqualF(_clamp, clamp) &&
+            math::isEqualF(_slope, slope)) {
             return;
         }
 

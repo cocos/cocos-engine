@@ -82,6 +82,7 @@ jobs:
         run: |
           cd ..
           python3 -u ./python/main.py --workspace ${{github.workspace}} --pr_number ${{ steps.get_pr.outputs.pr_number }} --author ${{ steps.parse_pr.outputs.pr_author }}  --base_ref ${{ steps.parse_pr.outputs.pr_base_ref }}  --base_sha  ${{ steps.parse_pr.outputs.pr_base_sha }}  --head_ref  ${{ steps.parse_pr.outputs.pr_head_ref }} --head_sha ${{ steps.parse_pr.outputs.pr_head_sha }}
+
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -168,6 +169,7 @@ jobs:
         run: |
           cd ..
           python3 -u ./python/main.py --workspace ${{github.workspace}} --pr_number ${{ steps.get_pr.outputs.pr_number }} --author ${{ steps.parse_pr.outputs.pr_author }}  --base_ref ${{ steps.parse_pr.outputs.pr_base_ref }}  --base_sha  ${{ steps.parse_pr.outputs.pr_base_sha }}  --head_ref  ${{ steps.parse_pr.outputs.pr_head_ref }} --head_sha ${{ steps.parse_pr.outputs.pr_head_sha }}
+
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v1
         with:

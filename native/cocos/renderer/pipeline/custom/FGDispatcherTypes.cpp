@@ -42,7 +42,8 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
-  externalPasses(alloc) {}
+  externalPasses(alloc),
+  accessRecord(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
@@ -63,8 +64,9 @@ ResourceAccessGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& all
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept // NOLINT
-: resourceGraph(resourceGraphIn),
+FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
+: resourceAccessGraph(alloc),
+  resourceGraph(resourceGraphIn),
   graph(graphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),

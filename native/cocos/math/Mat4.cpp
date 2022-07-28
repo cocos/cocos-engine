@@ -523,11 +523,8 @@ void Mat4::fromRTS(const Quaternion &rotation, const Vec3 &translation, const Ve
     dst->m[15] = 1;
 }
 
-void Mat4::toRTS(Quaternion &rotation, Vec3 &translation, Vec3 &scale, Mat4 *dst) {
-    if (dst == nullptr) {
-        return;
-    }
-    dst->decompose(&scale, &rotation, &translation);
+void Mat4::toRTS(const Mat4 &src, Quaternion *rotation, Vec3 *translation, Vec3 *scale) {
+    src.decompose(scale, rotation, translation);
 }
 
 bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const {
@@ -1001,21 +998,6 @@ void Mat4::subtract(const Mat4 &m1, const Mat4 &m2, Mat4 *dst) {
 #else
     MathUtil::subtractMatrix(m1.m, m2.m, dst->m);
 #endif
-}
-
-void Mat4::transformVector(Vec3 *vector) const {
-    CC_ASSERT(vector);
-    transformVector(vector->x, vector->y, vector->z, 0.0F, vector);
-}
-
-void Mat4::transformVector(const Vec3 &vector, Vec3 *dst) const {
-    transformVector(vector.x, vector.y, vector.z, 0.0F, dst);
-}
-
-void Mat4::transformVector(float x, float y, float z, float w, Vec3 *dst) const {
-    CC_ASSERT(dst);
-
-    MathUtil::transformVec4(m, x, y, z, w, reinterpret_cast<float *>(dst));
 }
 
 void Mat4::transformVector(Vec4 *vector) const {

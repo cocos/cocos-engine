@@ -71,7 +71,7 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
     for (const auto &binding : bindings) {
         CC_ASSERT(binding.binding != INVALID_BINDING);
         CC_ASSERT(binding.descriptorType != DescriptorType::UNKNOWN);
-        CC_ASSERT(math::IsPowerOfTwo(toNumber(binding.descriptorType)));
+        CC_ASSERT(math::isPowerOfTwo(toNumber(binding.descriptorType)));
         CC_ASSERT(binding.count);
         CC_ASSERT(binding.stageFlags != ShaderStageFlagBit::NONE);
         for (const Sampler *sampler : binding.immutableSamplers) {

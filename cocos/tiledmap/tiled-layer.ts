@@ -226,7 +226,6 @@ export class TiledLayer extends UIRenderer {
 
         dataComp = node.addComponent(TiledUserNodeData);
         node.parent = this.node;
-        // node._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
         this._userNodeMap[node.uuid] = dataComp;
 
         dataComp._row = -1;
@@ -1380,12 +1379,28 @@ export class TiledLayer extends UIRenderer {
     }
 
     public requestTiledRenderData () {
+        const arr = this._tiledDataArray as any[];
+        while (arr.length > 0 && arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
+            arr.pop();
+        }
+        if (arr.length > 0) {
+            const last = arr[arr.length - 1];
+            if (last.renderData && last.renderData.vertexCount === 0) {
+                return last as TiledRenderData;
+            }
+        }
         const comb = { renderData: null, texture: null };
         this._tiledDataArray.push(comb);
         return (comb as TiledRenderData);
     }
 
     public requestSubNodesData () {
+        const arr = this._tiledDataArray as any[];
+        if (arr.length > 0) {
+            if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
+                return arr[arr.length - 1] as TiledSubNodeData;
+            }
+        }
         const renderData: (TiledUserNodeData | null)[] = [];
         const comb = { subNodes: renderData };
         this._tiledDataArray.push(comb);
@@ -1442,7 +1457,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     protected createRenderEntity () {
-        return new RenderEntity(RenderEntityType.DYNAMIC);
+        return new RenderEntity(RenderEntityType.CROSSED);
     }
 
     private fillIndicesBuffer (renderData: RenderData, drawInfo: RenderDrawInfo) {
@@ -1467,31 +1482,42 @@ export class TiledLayer extends UIRenderer {
     }
 
     public prepareDrawData () {
+        this._drawInfoList.length = 0;
         const entity = this.renderEntity;
         entity.clearDynamicRenderDrawInfos();
-        for (let i = 0; i < this._tiledDataArray.length; i++) {
-            this._tiledDataArrayIdx = i;
-            const m = this._tiledDataArray[i];
-            //const batch2d = director.root!.batcher2D;
+        const tiledDataArray = this._tiledDataArray;
+        let idx = 0;
+        tiledDataArray.forEach((m) => {
             if ((m as TiledSubNodeData).subNodes) {
                 // 提前处理 User Nodes
-                // (m as TiledSubNodeData).subNodes.forEach((c) => {
-                //     if (c) batch2d.walk(c.node);
-                // });
+                (m as TiledSubNodeData).subNodes.forEach((c) => {
+                    if (c) {
+                        if (!this._drawInfoList[idx]) {
+                            this._drawInfoList[idx] = new RenderDrawInfo();
+                        }
+                        const drawInfo = this._drawInfoList[idx];
+                        drawInfo.setDrawInfoType(RenderDrawInfoType.SUB_NODE);
+                        drawInfo.setSubNode(c.node);
+                        entity.setDynamicRenderDrawInfo(drawInfo, idx);
+                        idx++;
+                    }
+                });
             } else {
                 const td = m as TiledRenderData;
                 if (td.texture) {
-                    const drawInfo = this.requestDrawInfo(i);
+                    if (!this._drawInfoList[idx]) {
+                        this._drawInfoList[idx] = new RenderDrawInfo();
+                    }
+                    const drawInfo = this._drawInfoList[idx];
                     td.renderData!.fillDrawInfoAttributes(drawInfo);
                     drawInfo.setTexture(td.texture.getGFXTexture());
-                    drawInfo.setTextureHash(td.texture.getHash());
                     drawInfo.setSampler(td.texture.getGFXSampler());
-                    drawInfo.setBlendHash(this.blendHash);
                     drawInfo.setMaterial(this.getRenderMaterial(0)!);
                     this.fillIndicesBuffer(td.renderData!, drawInfo);
-                    entity.setDynamicRenderDrawInfo(drawInfo, i);
+                    entity.setDynamicRenderDrawInfo(drawInfo, idx);
+                    idx++;
                 }
             }
-        }
+        });
     }
 }
