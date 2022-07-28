@@ -333,6 +333,7 @@ export class RenderData extends BaseRenderData {
     private _height = 0;
     private _frame: SpriteFrame | TextureBase | null = null;
     protected _accessor: StaticVBAccessor = null!;
+    get accessor () { return this._accessor; }
 
     public vertexRow = 1;
     public vertexCol = 1;
