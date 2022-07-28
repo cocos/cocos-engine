@@ -461,7 +461,7 @@ void Batcher2d::uploadBuffers() {
             if (buffer->getUseLinkData()) {
                 int nativeFormat = 9;
                 size_t index = i;
-                if (buffer->attributes().size() == 3) {
+                if (buffer->getAttributes().size() == 3) {
                     i++;
                 } else {
                     nativeFormat = 13;

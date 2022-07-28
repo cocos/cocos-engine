@@ -72,7 +72,7 @@ public:
     void setFloatsPerVertex(uint32_t floatsPerVertex);
     inline bool getUseLinkData() const { return _useLinkData; }
     inline void setUseLinkData(bool val) { _useLinkData = val;}
-    inline ccstd::vector<gfx::Attribute> attributes() const {
+    inline const ccstd::vector<gfx::Attribute> &getAttributes() const {
         return _attributes;
     }
 
