@@ -44,6 +44,7 @@ typedef int int32_t;
 #endif
 
 static HttpClient *_httpClient = nullptr; // pointer to singleton
+static LegacyThreadPool *gThreadPool = nullptr;
 
 typedef size_t (*write_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
 
@@ -361,9 +362,11 @@ HttpClient::HttpClient()
   _timeoutForRead(60),
   _threadCount(0),
   _cookie(nullptr),
-  _requestSentinel(ccnew HttpRequest()),
-  _threadPool(LegacyThreadPool::newFixedThreadPool(4)) {
+  _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    if (gThreadPool == nullptr) {
+        gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
+    }
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
@@ -371,7 +374,6 @@ HttpClient::HttpClient()
 
 HttpClient::~HttpClient() {
     CC_SAFE_RELEASE(_requestSentinel);
-    CC_SAFE_DELETE(_threadPool);
     CC_LOG_DEBUG("HttpClient destructor");
 }
 
@@ -418,7 +420,7 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     HttpResponse *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
-    _threadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
+    gThreadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue

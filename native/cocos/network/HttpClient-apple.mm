@@ -42,6 +42,7 @@ namespace cc {
 namespace network {
 
 static HttpClient *_httpClient = nullptr; // pointer to singleton
+static LegacyThreadPool *gThreadPool = nullptr;
 
 static int processTask(HttpClient *client, HttpRequest *request, NSString *requestType, void *stream, long *errorCode, void *headerStream, char *errorBuffer);
 
@@ -334,9 +335,11 @@ HttpClient::HttpClient()
   _timeoutForConnect(30),
   _timeoutForRead(60),
   _threadCount(0),
-  _cookie(nullptr),
-  _threadPool(LegacyThreadPool::newFixedThreadPool(4)) {
+  _cookie(nullptr) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    if (gThreadPool == nullptr) {
+        gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
+    }
     _requestSentinel = ccnew HttpRequest();
     _requestSentinel->addRef();
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
@@ -346,7 +349,6 @@ HttpClient::HttpClient()
 
 HttpClient::~HttpClient() {
     CC_SAFE_RELEASE(_requestSentinel);
-    CC_SAFE_DELETE(_threadPool);
     if (!_cookieFilename.empty() && nullptr != _cookie) {
         _cookie->writeFile();
         CC_SAFE_DELETE(_cookie);
@@ -397,7 +399,7 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     HttpResponse *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
-    _threadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
+    gThreadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue

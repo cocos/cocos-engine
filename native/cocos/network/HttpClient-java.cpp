@@ -52,6 +52,7 @@ using HttpCookies = ccstd::vector<ccstd::string>;
 using HttpCookiesIter = HttpCookies::iterator;
 
 static HttpClient *gHttpClient = nullptr; // pointer to singleton
+static LegacyThreadPool *gThreadPool = nullptr;
 
 struct CookiesInfo {
     ccstd::string domain;
@@ -829,9 +830,11 @@ HttpClient::HttpClient()
   _timeoutForRead(60),
   _threadCount(0),
   _cookie(nullptr),
-  _requestSentinel(ccnew HttpRequest()),
-  _threadPool(LegacyThreadPool::newFixedThreadPool(4)) {
+  _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    if (gThreadPool == nullptr) {
+        gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
+    }
     increaseThreadCount();
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
 }
@@ -839,7 +842,6 @@ HttpClient::HttpClient()
 HttpClient::~HttpClient() {
     CC_LOG_DEBUG("In the destructor of HttpClient!");
     CC_SAFE_RELEASE(_requestSentinel);
-    CC_SAFE_DELETE(_threadPool);
 }
 
 //Lazy create semaphore & mutex & thread
@@ -885,7 +887,7 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     auto *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
-    _threadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
+    gThreadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue
