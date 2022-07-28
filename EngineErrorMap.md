@@ -2469,7 +2469,7 @@ cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will b
 
 ### 6035
 
-cc.ParticleSystem: should use proper particle material
+cc.ParticleSystem: change material failed, please use proper particle material
 
 ### 6100
 
