@@ -380,7 +380,7 @@ void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, CallbackID c
     }
 }
 
-void NodeEventProcessor::offAll(const CallbacksInvoker::KeyType &type, bool/* useCapture = false*/) {
+void NodeEventProcessor::offAll(const CallbacksInvoker::KeyType &type, bool /* useCapture = false*/) {
     //    bool touchEventExist = std::find(TOUCH_EVENTS.begin(), TOUCH_EVENTS.end(), type) != TOUCH_EVENTS.end();
     //    bool mouseEventExist = std::find(MOUSE_EVENTS.begin(), MOUSE_EVENTS.end(), type) != MOUSE_EVENTS.end();
     //    if (touchEventExist || mouseEventExist) {

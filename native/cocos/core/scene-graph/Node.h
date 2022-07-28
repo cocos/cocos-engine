@@ -456,7 +456,7 @@ public:
     inline void setRTS(Quaternion *rot, Vec3 *pos, Vec3 *scale) { setRTSInternal(rot, pos, scale, false); }
 
     void setForward(const Vec3 &dir);
-    
+
     void setAngle(float);
 
     inline const Vec3 &getEulerAngles() {

@@ -44,11 +44,11 @@ namespace cc {
 
 struct CallbackID {
     CallbackID() = default;
-    explicit CallbackID(uint32_t v): value(v) {}
+    explicit CallbackID(uint32_t v) : value(v) {}
     CallbackID(const CallbackID &rhs) { value = rhs.value; }
 
-    inline bool operator==(const CallbackID& rhs) const { return value == rhs.value; }
-    CallbackID& operator=(const CallbackID &rhs) {
+    inline bool operator==(const CallbackID &rhs) const { return value == rhs.value; }
+    CallbackID &operator=(const CallbackID &rhs) {
         if (this == &rhs) {
             return *this;
         }
@@ -150,7 +150,7 @@ public:
      *
      * @param cbID - The callback id to be removed
      */
-    void removeByCallbackID(const CallbackID& cbID);
+    void removeByCallbackID(const CallbackID &cbID);
 
     /**
      * @zh 从列表中移除与指定目标相同调用者的事件。
