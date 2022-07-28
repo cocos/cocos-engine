@@ -563,264 +563,6 @@ bool js_register_dragonbones_Transform(se::Object* obj) // NOLINT(readability-id
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_dragonBones_TextureAtlasData_proto = nullptr; // NOLINT
-se::Class* __jsb_dragonBones_TextureAtlasData_class = nullptr;  // NOLINT
-
-static bool js_dragonbones_TextureAtlasData_addTexture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<dragonBones::TextureData*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->addTexture(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureAtlasData_addTexture)
-
-static bool js_dragonbones_TextureAtlasData_createTexture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::TextureData* result = cobj->createTexture();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureAtlasData_createTexture)
-
-static bool js_dragonbones_TextureAtlasData_getTexture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::string, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        dragonBones::TextureData* result = cobj->getTexture(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureAtlasData_getTexture)
-
-static bool js_dragonbones_TextureAtlasData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_dragonbones_TextureAtlasData_get_name)
-
-static bool js_dragonbones_TextureAtlasData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_dragonbones_TextureAtlasData_set_name)
-
-bool js_register_dragonbones_TextureAtlasData(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("TextureAtlasData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
-#endif
-    cls->defineProperty("name", _SE(js_dragonbones_TextureAtlasData_get_name), _SE(js_dragonbones_TextureAtlasData_set_name));
-    cls->defineFunction("addTexture", _SE(js_dragonbones_TextureAtlasData_addTexture));
-    cls->defineFunction("createTexture", _SE(js_dragonbones_TextureAtlasData_createTexture));
-    cls->defineFunction("getTexture", _SE(js_dragonbones_TextureAtlasData_getTexture));
-    cls->install();
-    JSBClassType::registerClass<dragonBones::TextureAtlasData>(cls);
-
-    __jsb_dragonBones_TextureAtlasData_proto = cls->getProto();
-    __jsb_dragonBones_TextureAtlasData_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_dragonBones_TextureData_proto = nullptr; // NOLINT
-se::Class* __jsb_dragonBones_TextureData_class = nullptr;  // NOLINT
-
-static bool js_dragonbones_TextureData_getFrame(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const dragonBones::Rectangle* result = cobj->getFrame();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureData_getFrame)
-
-static bool js_dragonbones_TextureData_getParent(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const dragonBones::TextureAtlasData* result = cobj->getParent();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureData_getParent)
-
-static bool js_dragonbones_TextureData_getRegion(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::Rectangle* result = cobj->getRegion();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureData_getRegion)
-
-static bool js_dragonbones_TextureData_setFrame(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<dragonBones::Rectangle*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setFrame(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureData_setFrame)
-
-static bool js_dragonbones_TextureData_setParent(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<dragonBones::TextureAtlasData*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setParent(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureData_setParent)
-
-static bool js_dragonbones_TextureData_createRectangle_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::Rectangle* result = dragonBones::TextureData::createRectangle();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TextureData_createRectangle_static)
-
-bool js_register_dragonbones_TextureData(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("TextureData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("getFrame", _SE(js_dragonbones_TextureData_getFrame));
-    cls->defineFunction("getParent", _SE(js_dragonbones_TextureData_getParent));
-    cls->defineFunction("getRegion", _SE(js_dragonbones_TextureData_getRegion));
-    cls->defineFunction("setFrame", _SE(js_dragonbones_TextureData_setFrame));
-    cls->defineFunction("setParent", _SE(js_dragonbones_TextureData_setParent));
-    cls->defineStaticFunction("createRectangle", _SE(js_dragonbones_TextureData_createRectangle_static));
-    cls->install();
-    JSBClassType::registerClass<dragonBones::TextureData>(cls);
-
-    __jsb_dragonBones_TextureData_proto = cls->getProto();
-    __jsb_dragonBones_TextureData_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_dragonBones_ArmatureData_proto = nullptr; // NOLINT
 se::Class* __jsb_dragonBones_ArmatureData_class = nullptr;  // NOLINT
 
@@ -1553,191 +1295,6 @@ bool js_register_dragonbones_SlotData(se::Object* obj) // NOLINT(readability-ide
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_dragonBones_DragonBonesData_proto = nullptr; // NOLINT
-se::Class* __jsb_dragonBones_DragonBonesData_class = nullptr;  // NOLINT
-
-static bool js_dragonbones_DragonBonesData_addArmature(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<dragonBones::ArmatureData*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->addArmature(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_DragonBonesData_addArmature)
-
-static bool js_dragonbones_DragonBonesData_getArmature(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::string, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        dragonBones::ArmatureData* result = cobj->getArmature(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_DragonBonesData_getArmature)
-
-static bool js_dragonbones_DragonBonesData_getArmatureNames(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<std::string>& result = cobj->getArmatureNames();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_DragonBonesData_getArmatureNames)
-
-static bool js_dragonbones_DragonBonesData_getFrameIndices(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        std::vector<unsigned int>* result = cobj->getFrameIndices();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_DragonBonesData_getFrameIndices)
-
-static bool js_dragonbones_DragonBonesData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_dragonbones_DragonBonesData_get_name)
-
-static bool js_dragonbones_DragonBonesData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_dragonbones_DragonBonesData_set_name)
-
-bool js_register_dragonbones_DragonBonesData(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("DragonBonesData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
-#endif
-    cls->defineProperty("name", _SE(js_dragonbones_DragonBonesData_get_name), _SE(js_dragonbones_DragonBonesData_set_name));
-    cls->defineFunction("addArmature", _SE(js_dragonbones_DragonBonesData_addArmature));
-    cls->defineFunction("getArmature", _SE(js_dragonbones_DragonBonesData_getArmature));
-    cls->defineFunction("getArmatureNames", _SE(js_dragonbones_DragonBonesData_getArmatureNames));
-    cls->defineFunction("getFrameIndices", _SE(js_dragonbones_DragonBonesData_getFrameIndices));
-    cls->install();
-    JSBClassType::registerClass<dragonBones::DragonBonesData>(cls);
-
-    __jsb_dragonBones_DragonBonesData_proto = cls->getProto();
-    __jsb_dragonBones_DragonBonesData_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_dragonBones_SkinData_proto = nullptr; // NOLINT
-se::Class* __jsb_dragonBones_SkinData_class = nullptr;  // NOLINT
-
-static bool js_dragonbones_SkinData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::SkinData>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_dragonbones_SkinData_get_name)
-
-static bool js_dragonbones_SkinData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<dragonBones::SkinData>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_dragonbones_SkinData_set_name)
-
-bool js_register_dragonbones_SkinData(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("SkinData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
-#endif
-    cls->defineProperty("name", _SE(js_dragonbones_SkinData_get_name), _SE(js_dragonbones_SkinData_set_name));
-    cls->install();
-    JSBClassType::registerClass<dragonBones::SkinData>(cls);
-
-    __jsb_dragonBones_SkinData_proto = cls->getProto();
-    __jsb_dragonBones_SkinData_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_dragonBones_AnimationData_proto = nullptr; // NOLINT
 se::Class* __jsb_dragonBones_AnimationData_class = nullptr;  // NOLINT
 
@@ -2009,6 +1566,449 @@ bool js_register_dragonbones_AnimationData(se::Object* obj) // NOLINT(readabilit
 
     __jsb_dragonBones_AnimationData_proto = cls->getProto();
     __jsb_dragonBones_AnimationData_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_dragonBones_DragonBonesData_proto = nullptr; // NOLINT
+se::Class* __jsb_dragonBones_DragonBonesData_class = nullptr;  // NOLINT
+
+static bool js_dragonbones_DragonBonesData_addArmature(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<dragonBones::ArmatureData*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->addArmature(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_DragonBonesData_addArmature)
+
+static bool js_dragonbones_DragonBonesData_getArmature(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        dragonBones::ArmatureData* result = cobj->getArmature(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_DragonBonesData_getArmature)
+
+static bool js_dragonbones_DragonBonesData_getArmatureNames(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<std::string>& result = cobj->getArmatureNames();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_DragonBonesData_getArmatureNames)
+
+static bool js_dragonbones_DragonBonesData_getFrameIndices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::vector<unsigned int>* result = cobj->getFrameIndices();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_DragonBonesData_getFrameIndices)
+
+static bool js_dragonbones_DragonBonesData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_dragonbones_DragonBonesData_get_name)
+
+static bool js_dragonbones_DragonBonesData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_dragonbones_DragonBonesData_set_name)
+
+bool js_register_dragonbones_DragonBonesData(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DragonBonesData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("name", _SE(js_dragonbones_DragonBonesData_get_name), _SE(js_dragonbones_DragonBonesData_set_name));
+    cls->defineFunction("addArmature", _SE(js_dragonbones_DragonBonesData_addArmature));
+    cls->defineFunction("getArmature", _SE(js_dragonbones_DragonBonesData_getArmature));
+    cls->defineFunction("getArmatureNames", _SE(js_dragonbones_DragonBonesData_getArmatureNames));
+    cls->defineFunction("getFrameIndices", _SE(js_dragonbones_DragonBonesData_getFrameIndices));
+    cls->install();
+    JSBClassType::registerClass<dragonBones::DragonBonesData>(cls);
+
+    __jsb_dragonBones_DragonBonesData_proto = cls->getProto();
+    __jsb_dragonBones_DragonBonesData_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_dragonBones_SkinData_proto = nullptr; // NOLINT
+se::Class* __jsb_dragonBones_SkinData_class = nullptr;  // NOLINT
+
+static bool js_dragonbones_SkinData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::SkinData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_dragonbones_SkinData_get_name)
+
+static bool js_dragonbones_SkinData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<dragonBones::SkinData>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_dragonbones_SkinData_set_name)
+
+bool js_register_dragonbones_SkinData(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("SkinData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("name", _SE(js_dragonbones_SkinData_get_name), _SE(js_dragonbones_SkinData_set_name));
+    cls->install();
+    JSBClassType::registerClass<dragonBones::SkinData>(cls);
+
+    __jsb_dragonBones_SkinData_proto = cls->getProto();
+    __jsb_dragonBones_SkinData_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_dragonBones_TextureAtlasData_proto = nullptr; // NOLINT
+se::Class* __jsb_dragonBones_TextureAtlasData_class = nullptr;  // NOLINT
+
+static bool js_dragonbones_TextureAtlasData_addTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<dragonBones::TextureData*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->addTexture(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureAtlasData_addTexture)
+
+static bool js_dragonbones_TextureAtlasData_createTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::TextureData* result = cobj->createTexture();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureAtlasData_createTexture)
+
+static bool js_dragonbones_TextureAtlasData_getTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        dragonBones::TextureData* result = cobj->getTexture(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureAtlasData_getTexture)
+
+static bool js_dragonbones_TextureAtlasData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_dragonbones_TextureAtlasData_get_name)
+
+static bool js_dragonbones_TextureAtlasData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_dragonbones_TextureAtlasData_set_name)
+
+bool js_register_dragonbones_TextureAtlasData(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("TextureAtlasData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("name", _SE(js_dragonbones_TextureAtlasData_get_name), _SE(js_dragonbones_TextureAtlasData_set_name));
+    cls->defineFunction("addTexture", _SE(js_dragonbones_TextureAtlasData_addTexture));
+    cls->defineFunction("createTexture", _SE(js_dragonbones_TextureAtlasData_createTexture));
+    cls->defineFunction("getTexture", _SE(js_dragonbones_TextureAtlasData_getTexture));
+    cls->install();
+    JSBClassType::registerClass<dragonBones::TextureAtlasData>(cls);
+
+    __jsb_dragonBones_TextureAtlasData_proto = cls->getProto();
+    __jsb_dragonBones_TextureAtlasData_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_dragonBones_TextureData_proto = nullptr; // NOLINT
+se::Class* __jsb_dragonBones_TextureData_class = nullptr;  // NOLINT
+
+static bool js_dragonbones_TextureData_getFrame(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const dragonBones::Rectangle* result = cobj->getFrame();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureData_getFrame)
+
+static bool js_dragonbones_TextureData_getParent(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const dragonBones::TextureAtlasData* result = cobj->getParent();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureData_getParent)
+
+static bool js_dragonbones_TextureData_getRegion(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::Rectangle* result = cobj->getRegion();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureData_getRegion)
+
+static bool js_dragonbones_TextureData_setFrame(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<dragonBones::Rectangle*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setFrame(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureData_setFrame)
+
+static bool js_dragonbones_TextureData_setParent(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<dragonBones::TextureAtlasData*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setParent(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureData_setParent)
+
+static bool js_dragonbones_TextureData_createRectangle_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::Rectangle* result = dragonBones::TextureData::createRectangle();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TextureData_createRectangle_static)
+
+bool js_register_dragonbones_TextureData(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("TextureData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("getFrame", _SE(js_dragonbones_TextureData_getFrame));
+    cls->defineFunction("getParent", _SE(js_dragonbones_TextureData_getParent));
+    cls->defineFunction("getRegion", _SE(js_dragonbones_TextureData_getRegion));
+    cls->defineFunction("setFrame", _SE(js_dragonbones_TextureData_setFrame));
+    cls->defineFunction("setParent", _SE(js_dragonbones_TextureData_setParent));
+    cls->defineStaticFunction("createRectangle", _SE(js_dragonbones_TextureData_createRectangle_static));
+    cls->install();
+    JSBClassType::registerClass<dragonBones::TextureData>(cls);
+
+    __jsb_dragonBones_TextureData_proto = cls->getProto();
+    __jsb_dragonBones_TextureData_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -2551,148 +2551,6 @@ bool js_register_dragonbones_Armature(se::Object* obj) // NOLINT(readability-ide
 
     __jsb_dragonBones_Armature_proto = cls->getProto();
     __jsb_dragonBones_Armature_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_dragonBones_TransformObject_proto = nullptr; // NOLINT
-se::Class* __jsb_dragonBones_TransformObject_class = nullptr;  // NOLINT
-
-static bool js_dragonbones_TransformObject_getArmature(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::Armature* result = cobj->getArmature();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TransformObject_getArmature)
-
-static bool js_dragonbones_TransformObject_getGlobal(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::Transform* result = cobj->getGlobal();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TransformObject_getGlobal)
-
-static bool js_dragonbones_TransformObject_getGlobalTransformMatrix(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::Matrix* result = cobj->getGlobalTransformMatrix();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TransformObject_getGlobalTransformMatrix)
-
-static bool js_dragonbones_TransformObject_getOffset(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::Transform* result = cobj->getOffset();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TransformObject_getOffset)
-
-static bool js_dragonbones_TransformObject_getOrigin(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const dragonBones::Transform* result = cobj->getOrigin();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TransformObject_getOrigin)
-
-static bool js_dragonbones_TransformObject_updateGlobalTransform(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->updateGlobalTransform();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_TransformObject_updateGlobalTransform)
-
-bool js_register_dragonbones_TransformObject(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("TransformObject", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("getArmature", _SE(js_dragonbones_TransformObject_getArmature));
-    cls->defineFunction("getGlobal", _SE(js_dragonbones_TransformObject_getGlobal));
-    cls->defineFunction("getGlobalTransformMatrix", _SE(js_dragonbones_TransformObject_getGlobalTransformMatrix));
-    cls->defineFunction("getOffset", _SE(js_dragonbones_TransformObject_getOffset));
-    cls->defineFunction("getOrigin", _SE(js_dragonbones_TransformObject_getOrigin));
-    cls->defineFunction("updateGlobalTransform", _SE(js_dragonbones_TransformObject_updateGlobalTransform));
-    cls->install();
-    JSBClassType::registerClass<dragonBones::TransformObject>(cls);
-
-    __jsb_dragonBones_TransformObject_proto = cls->getProto();
-    __jsb_dragonBones_TransformObject_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -3369,6 +3227,148 @@ bool js_register_dragonbones_AnimationState(se::Object* obj) // NOLINT(readabili
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_dragonBones_TransformObject_proto = nullptr; // NOLINT
+se::Class* __jsb_dragonBones_TransformObject_class = nullptr;  // NOLINT
+
+static bool js_dragonbones_TransformObject_getArmature(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::Armature* result = cobj->getArmature();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TransformObject_getArmature)
+
+static bool js_dragonbones_TransformObject_getGlobal(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::Transform* result = cobj->getGlobal();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TransformObject_getGlobal)
+
+static bool js_dragonbones_TransformObject_getGlobalTransformMatrix(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::Matrix* result = cobj->getGlobalTransformMatrix();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TransformObject_getGlobalTransformMatrix)
+
+static bool js_dragonbones_TransformObject_getOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::Transform* result = cobj->getOffset();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TransformObject_getOffset)
+
+static bool js_dragonbones_TransformObject_getOrigin(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const dragonBones::Transform* result = cobj->getOrigin();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TransformObject_getOrigin)
+
+static bool js_dragonbones_TransformObject_updateGlobalTransform(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->updateGlobalTransform();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_TransformObject_updateGlobalTransform)
+
+bool js_register_dragonbones_TransformObject(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("TransformObject", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("getArmature", _SE(js_dragonbones_TransformObject_getArmature));
+    cls->defineFunction("getGlobal", _SE(js_dragonbones_TransformObject_getGlobal));
+    cls->defineFunction("getGlobalTransformMatrix", _SE(js_dragonbones_TransformObject_getGlobalTransformMatrix));
+    cls->defineFunction("getOffset", _SE(js_dragonbones_TransformObject_getOffset));
+    cls->defineFunction("getOrigin", _SE(js_dragonbones_TransformObject_getOrigin));
+    cls->defineFunction("updateGlobalTransform", _SE(js_dragonbones_TransformObject_updateGlobalTransform));
+    cls->install();
+    JSBClassType::registerClass<dragonBones::TransformObject>(cls);
+
+    __jsb_dragonBones_TransformObject_proto = cls->getProto();
+    __jsb_dragonBones_TransformObject_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_dragonBones_Bone_proto = nullptr; // NOLINT
 se::Class* __jsb_dragonBones_Bone_class = nullptr;  // NOLINT
 
@@ -4001,141 +4001,6 @@ bool js_register_dragonbones_Slot(se::Object* obj) // NOLINT(readability-identif
 
     __jsb_dragonBones_Slot_proto = cls->getProto();
     __jsb_dragonBones_Slot_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_dragonBones_WorldClock_proto = nullptr; // NOLINT
-se::Class* __jsb_dragonBones_WorldClock_class = nullptr;  // NOLINT
-
-static bool js_dragonbones_WorldClock_advanceTime(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->advanceTime(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_WorldClock_advanceTime)
-
-static bool js_dragonbones_WorldClock_clear(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->clear();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_WorldClock_clear)
-
-static bool js_dragonbones_WorldClock_getClock(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::WorldClock* result = cobj->getClock();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_WorldClock_getClock)
-
-static bool js_dragonbones_WorldClock_render(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->render();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_WorldClock_render)
-
-static bool js_dragonbones_WorldClock_setClock(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<dragonBones::WorldClock*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setClock(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_WorldClock_setClock)
-
-static bool js_dragonbones_WorldClock_getStaticClock_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        dragonBones::WorldClock* result = dragonBones::WorldClock::getStaticClock();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_WorldClock_getStaticClock_static)
-
-bool js_register_dragonbones_WorldClock(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("WorldClock", obj, nullptr, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("advanceTime", _SE(js_dragonbones_WorldClock_advanceTime));
-    cls->defineFunction("clear", _SE(js_dragonbones_WorldClock_clear));
-    cls->defineFunction("getClock", _SE(js_dragonbones_WorldClock_getClock));
-    cls->defineFunction("render", _SE(js_dragonbones_WorldClock_render));
-    cls->defineFunction("setClock", _SE(js_dragonbones_WorldClock_setClock));
-    cls->defineStaticFunction("getStaticClock", _SE(js_dragonbones_WorldClock_getStaticClock_static));
-    cls->install();
-    JSBClassType::registerClass<dragonBones::WorldClock>(cls);
-
-    __jsb_dragonBones_WorldClock_proto = cls->getProto();
-    __jsb_dragonBones_WorldClock_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -4827,6 +4692,141 @@ bool js_register_dragonbones_Animation(se::Object* obj) // NOLINT(readability-id
 
     __jsb_dragonBones_Animation_proto = cls->getProto();
     __jsb_dragonBones_Animation_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_dragonBones_WorldClock_proto = nullptr; // NOLINT
+se::Class* __jsb_dragonBones_WorldClock_class = nullptr;  // NOLINT
+
+static bool js_dragonbones_WorldClock_advanceTime(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->advanceTime(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_WorldClock_advanceTime)
+
+static bool js_dragonbones_WorldClock_clear(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_WorldClock_clear)
+
+static bool js_dragonbones_WorldClock_getClock(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::WorldClock* result = cobj->getClock();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_WorldClock_getClock)
+
+static bool js_dragonbones_WorldClock_render(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->render();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_WorldClock_render)
+
+static bool js_dragonbones_WorldClock_setClock(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<dragonBones::WorldClock*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setClock(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_WorldClock_setClock)
+
+static bool js_dragonbones_WorldClock_getStaticClock_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::WorldClock* result = dragonBones::WorldClock::getStaticClock();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_WorldClock_getStaticClock_static)
+
+bool js_register_dragonbones_WorldClock(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("WorldClock", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("advanceTime", _SE(js_dragonbones_WorldClock_advanceTime));
+    cls->defineFunction("clear", _SE(js_dragonbones_WorldClock_clear));
+    cls->defineFunction("getClock", _SE(js_dragonbones_WorldClock_getClock));
+    cls->defineFunction("render", _SE(js_dragonbones_WorldClock_render));
+    cls->defineFunction("setClock", _SE(js_dragonbones_WorldClock_setClock));
+    cls->defineStaticFunction("getStaticClock", _SE(js_dragonbones_WorldClock_getStaticClock_static));
+    cls->install();
+    JSBClassType::registerClass<dragonBones::WorldClock>(cls);
+
+    __jsb_dragonBones_WorldClock_proto = cls->getProto();
+    __jsb_dragonBones_WorldClock_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
