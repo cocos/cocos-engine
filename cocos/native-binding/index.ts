@@ -43,7 +43,7 @@ export declare namespace native {
     export function copyTextToClipboard(text:string): void;
 
     /**
-     * @en Trigger garbege collection of ScriptEngine @zh 触发 ScriptEngine 的 GC
+     * @en Trigger garbage collection of ScriptEngine @zh 触发 ScriptEngine 的 GC
      */
     export function garbageCollect():void;
 
