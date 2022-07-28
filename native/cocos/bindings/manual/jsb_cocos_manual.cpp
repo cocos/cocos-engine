@@ -651,6 +651,11 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
         jsArgs[2] = se::Value(stack);
         objFunc->call(jsArgs, nullptr);
     });
+
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([objFunc] {
+        objFunc->decRef();
+    });
+
     return true;
 }
 SE_BIND_FUNC(js_se_setExceptionCallback) // NOLINT(readability-identifier-naming)

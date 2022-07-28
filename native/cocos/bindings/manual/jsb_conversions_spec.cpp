@@ -1514,7 +1514,7 @@ bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Data &from, se::Value &to, se::Object * /*unused*/) {
-    se::Object *buffer = se::Object::createArrayBufferObject(from.getBytes(), from.getSize());
+    se::HandleObject buffer{se::Object::createArrayBufferObject(from.getBytes(), from.getSize())};
     to.setObject(buffer);
     return true;
 }
