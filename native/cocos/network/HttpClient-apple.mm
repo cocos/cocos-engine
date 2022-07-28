@@ -36,6 +36,7 @@
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/memory/Memory.h"
+#include "base/ThreadPool.h"
 
 namespace cc {
 

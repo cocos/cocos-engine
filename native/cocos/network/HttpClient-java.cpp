@@ -34,6 +34,7 @@
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
+#include "base/ThreadPool.h"
 #include "base/std/container/queue.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"

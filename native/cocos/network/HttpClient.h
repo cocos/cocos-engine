@@ -31,7 +31,6 @@
 #include <condition_variable>
 #include <thread>
 #include "base/RefVector.h"
-#include "base/ThreadPool.h"
 #include "network/HttpCookie.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
