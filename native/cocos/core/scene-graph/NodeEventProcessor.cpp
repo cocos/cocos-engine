@@ -357,7 +357,7 @@ void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, void *target
     }
 }
 
-void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, CallbackID cbID, bool /*useCapture*/) {
+void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool /*useCapture*/) {
     //    bool touchEventExist = std::find(TOUCH_EVENTS.begin(), TOUCH_EVENTS.end(), type) != TOUCH_EVENTS.end();
     //    bool mouseEventExist = std::find(MOUSE_EVENTS.begin(), MOUSE_EVENTS.end(), type) != MOUSE_EVENTS.end();
     //    if (touchEventExist || mouseEventExist) {
@@ -419,7 +419,7 @@ bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type)
     return has;
 }
 
-bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, CallbackID cbID) const {
+bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const {
     bool has = false;
     if (_bubblingTargets) {
         has = _bubblingTargets->hasEventListener(type, cbID);
@@ -440,7 +440,7 @@ bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type,
     }
     return has;
 }
-bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackID cbID) const {
+bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const {
     bool has = false;
     if (_bubblingTargets) {
         has = _bubblingTargets->hasEventListener(type, target, cbID);
@@ -558,7 +558,7 @@ void NodeEventProcessor::getBubblingTargets(const CallbacksInvoker::KeyType &typ
 //    return forDispatch;
 //}
 
-void NodeEventProcessor::offDispatch(const CallbacksInvoker::KeyType &type, CallbackID cbID, bool useCapture) {
+void NodeEventProcessor::offDispatch(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture) {
     if (cbID.value == 0) {
         if (_capturingTargets != nullptr) {
             _capturingTargets->offAll(type);

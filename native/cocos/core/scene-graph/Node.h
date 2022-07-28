@@ -174,7 +174,7 @@ public:
 
     void off(const CallbacksInvoker::KeyType &type, bool useCapture = false);
 
-    void off(const CallbacksInvoker::KeyType &type, CallbackID cbID, bool useCapture = false);
+    void off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture = false);
 
     void off(const CallbacksInvoker::KeyType &type, void *target, bool useCapture = false);
 
@@ -186,9 +186,9 @@ public:
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, CallbackID cbID) const;
+    bool hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const;
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackID cbID) const;
+    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const;
 
     template <typename Target, typename... Args>
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;

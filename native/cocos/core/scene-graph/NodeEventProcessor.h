@@ -70,11 +70,11 @@ public:
 
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
 
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, CallbackID cbID) const;
+    bool hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const;
 
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const;
 
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackID cbID) const;
+    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID & cbID) const;
 
     template <typename Target, typename... Args>
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;
@@ -115,7 +115,7 @@ public:
     std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
     once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackID &cbID, bool useCapture = false);
 
-    void off(const CallbacksInvoker::KeyType &type, CallbackID cbID, bool useCapture = false);
+    void off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture = false);
 
     void off(const CallbacksInvoker::KeyType &type, void *target, bool useCapture = false);
 
@@ -182,7 +182,7 @@ private:
     template <typename Target, typename... Args>
     void onDispatch(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackID &cbID, bool useCapture = false);
 
-    void offDispatch(const CallbacksInvoker::KeyType &type, CallbackID cbID, bool useCapture = false);
+    void offDispatch(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture = false);
     void offDispatch(const CallbacksInvoker::KeyType &type, void *target, bool useCapture = false);
 
     template <typename Target, typename... Args>

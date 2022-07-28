@@ -165,7 +165,7 @@ void Node::off(const CallbacksInvoker::KeyType &type, bool useCapture) {
     }
 }
 
-void Node::off(const CallbacksInvoker::KeyType &type, CallbackID cbID, bool useCapture) {
+void Node::off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture) {
     _eventProcessor->off(type, cbID, useCapture);
     bool hasListeners = _eventProcessor->hasEventListener(type);
     if (!hasListeners) {
@@ -193,13 +193,13 @@ bool Node::hasEventListener(const CallbacksInvoker::KeyType &type) const {
     return _eventProcessor->hasEventListener(type);
 }
 
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, CallbackID cbID) const {
+bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const {
     return _eventProcessor->hasEventListener(type, cbID);
 }
 bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const {
     return _eventProcessor->hasEventListener(type, target);
 }
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackID cbID) const {
+bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID & cbID) const {
     return _eventProcessor->hasEventListener(type, target, cbID);
 }
 
