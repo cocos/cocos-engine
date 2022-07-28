@@ -617,6 +617,7 @@ void Object::clearPrivateData(bool clearMapping) {
         internal::clearPrivate(__isolate, _obj);
         delete _privateObject;
         _privateObject = nullptr;
+        _privateData = nullptr;
     }
 }
 
