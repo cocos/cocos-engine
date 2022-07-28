@@ -43,6 +43,11 @@ export declare namespace native {
     export function copyTextToClipboard(text:string): void;
 
     /**
+     * @en Trigger garbage collection of ScriptEngine @zh 触发 ScriptEngine 的 GC
+     */
+    export function garbageCollect():void;
+
+    /**
      * @en DownloaderHints @zh 下载任务的配置接口
      * @param countOfMaxProcessingTasks
      * @en Maximum number of download tasks processed at the same time, optional, default is 6
