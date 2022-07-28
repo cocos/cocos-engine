@@ -38,11 +38,16 @@ BufferAgent::BufferAgent(Buffer *actor)
 }
 
 BufferAgent::~BufferAgent() {
-    ENQUEUE_MESSAGE_1(
+    ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),
         BufferDestruct,
         actor, _actor,
+        stagingBuffers, _stagingBuffers,
         {
+            for (auto* buffer : stagingBuffers) {
+                free(buffer);
+            }
+
             CC_SAFE_DELETE(actor);
         });
 }
