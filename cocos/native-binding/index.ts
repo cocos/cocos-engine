@@ -65,74 +65,82 @@ export declare namespace native {
         constructor(eventName: string, manager: AssetsManager, code: number, assetId: string, message: string, curleCode: number, curlmCode: number);
     }
 
-    export interface  ManifestAsset {
-        md5:string;
-        path:string;
-        compressed:boolean;
-        size:number;
-        downloadState:number;
+    export interface ManifestAsset {
+        md5: string;
+        path: string;
+        compressed: boolean;
+        size: number;
+        downloadState: number;
     }
 
     export class Manifest {
-        // methods list
         /**
-         * @brief Check whether the version informations have been fully loaded
+         * @en Check whether the version informations have been fully loaded
+         * @zh 检查是否已加载版本信息
          */
         isVersionLoaded(): boolean;
         /**
-         * @brief Check whether the manifest have been fully loaded
+         * @en Check whether the manifest have been fully loaded
+         * @zh 检查是否已加载 manifest
          */
         isLoaded(): boolean;
         /**
-         * @brief Gets remote package url.
+         * @en Gets remote package url.
+         * @zh 获取远程包的 URL
          */
         getPackageUrl(): string;
         /**
-         * @brief Gets remote manifest file url.
+         * @en Gets remote manifest file url.
+         * @zh 获取远程 manifest 文件的 URL
          */
         getManifestFileUrl(): string;
         /**
-         * @brief Gets remote version file url.
+         * @en Gets remote version file url.
+         * @zh 获取远程版本文件的 URL
          */
         getVersionFileUrl(): string;
         /**
-         * @brief Gets manifest version.
+         * @en Gets manifest version.
+         * @zh 获取远程 manifest 文件的版本
          */
         getVersion(): string;
         /**
-         * @brief Get the search paths list related to the Manifest.
+         * @en Get the search paths list related to the Manifest.
+         * @zh 返回 Manifest 相关的搜索路径
          */
         getSearchPaths(): string[];
         /**
-         * @brief Get the manifest root path, normally it should also be the local storage path.
+         * @en Get the manifest root path, normally it should also be the local storage path.
+         * @zh 获取 manifest 的根路径, 一般为本地存储目录.
          */
         getManifestRoot(): string;
+
         constructor(content: string, manifestRoot: string);
         constructor(manifestUrl: string);
         /**
-         * @brief Parse the manifest file information into this manifest
-         *
-         * @param manifestUrl Url of the local manifest
+         * @en Parse the manifest file information into this manifest
+         * @zh 解析 manifest 文件
+         * @param manifestUrl @en Url of the local manifest @zh 文件路径
          */
         parseFile(manifestUrl: string): void;
         /**
-         * @brief Parse the manifest from json string into this manifest
-         *
-         * @param content Json string content
-         *
-         * @param manifestRoot The root path of the manifest file (It should be local path, so that we can find assets path relative to the root path)
+         * @en Parse the manifest from json string into this manifest
+         * @zh 解析 manifest 的 JSON 文件
+         * @param content @en Json string content @zh JSON 文本
+         * @param manifestRoot @en The root path of the manifest file (It should be local path,
+         * so that we can find assets path relative to the root path) @zh manifest 根路径
          */
         parseJSONString(content: string, manifestRoot: string): void;
         /**
-         * @brief Get whether the manifest is being updating
-         *
-         * return Updating or not
+         * @en Get whether the manifest is being updating
+         * @en 是否在更新
+         * @return @en Updating or not @zh 是否在更新
          */
         isUpdating(): boolean;
         /**
-         * @brief Set whether the manifest is being updating
-         *
-         * @param updating Updating or not
+         * @en Set whether the manifest is being updating
+         * @zh 设置更新状态
+         * @param updating @en Updating or not @zh 是否更新
          */
         setUpdating(updating: boolean): void;
     } // endof class Manifest
@@ -140,55 +148,60 @@ export declare namespace native {
     export class AssetsManager {
         // static methods list
         /**
-         * @brief Create function for creating a new AssetsManagerEx
-         *
-         * @param manifestUrl   The url for the local manifest file
-         *
-         * @param storagePath   The storage path for downloaded assets
+         * @en Create function for creating a new AssetsManagerEx
          *
          * warning   The cached manifest in your storage path have higher priority and will be searched first,
-         *
          * only if it doesn't exist, AssetsManagerEx will use the given manifestUrl.
+         *
+         * @zh 创建 AssetManager
+         *
+         * @param manifestUrl  @en The url for the local manifest file @zh manifest 文件路径
+         * @param storagePath  @en The storage path for downloaded assets @zh 存储路径
          */
         static create(manifestUrl: string, storagePath: string): AssetsManager;
         // methods list
         constructor(manifestUrl: string, storagePath: string, handle: (arg1: string, arg2: string) => number);
         constructor(manifestUrl: string, storagePath: string);
         /**
-         * @brief  Check out if there is a new version of manifest.
-         *
+         * @en  Check out if there is a new version of manifest.
          * You may use this method before updating, then let user determine whether
-         *
          * he wants to update resources.
+         * @zh 检查更新
          */
         checkUpdate(): void; // void
         /**
-         * @brief Prepare the update process, this will cleanup download process flags,
+         * @en Prepare the update process, this will cleanup download process flags,
          * fill up download units with temporary manifest or remote manifest
+         * @zh 准备更新
          */
         prepareUpdate(): void; // void
         /**
-         * @brief Update with the current local manifest.
+         * @en Update with the current local manifest.
+         * @zh 执行更新
          */
         update(): void; // void
         /**
-         * @brief Reupdate all failed assets under the current AssetsManagerEx context
+         * @en Reupdate all failed assets under the current AssetsManagerEx context
+         * @zh 重新下载之前失败的资源
          */
         downloadFailedAssets(): void; // void
         /**
-         * @brief Gets the current update state.
+         * @en Gets the current update state.
+         * @zh 返回当前的状态码
          */
         getState(): number; // cc::extension::AssetsManagerEx::State
         /**
-         * @brief Gets storage path.
+         * @en Gets storage path.
+         * @zh 获取存储路径
          */
         getStoragePath(): string; // std::string
         /**
-         * @brief Function for retrieving the local manifest object
+         * @en Function for retrieving the local manifest object
+         * @zh 获取本地 manifest 路径
          */
         getLocalManifest(): Manifest; // cc::extension::Manifest*
         /**
-         * @brief Load a local manifest from url.
+         * @en Load a local manifest from url.
          *
          * You can only manually load local manifest when the update state is UNCHECKED, it will fail once the update process is began.
          *
@@ -203,12 +216,12 @@ export declare namespace native {
          * 4. Init temporary manifest and remote manifest
          *
          * If successfully load the given local manifest and inited other manifests, it will return true, otherwise it will return false
-         *
-         * @param manifestUrl    The local manifest url
+         * @zh 加载本地的 manifest
+         * @param manifestUrl  @en The local manifest url @zh manifest 路径
          */
         loadLocalManifest(manifestUrl: string): boolean;
         /**
-         * @brief Load a custom local manifest object, the local manifest must be loaded already.
+         * @en Load a custom local manifest object, the local manifest must be loaded already.
          *
          * You can only manually load local manifest when the update state is UNCHECKED, it will fail once the update process is began.
          *
@@ -223,77 +236,87 @@ export declare namespace native {
          * 4. Init temporary manifest and remote manifest
          *
          * If successfully load the given local manifest and inited other manifests, it will return true, otherwise it will return false
+         * @zh 加载本地的 manifest
          *
-         * @param localManifest    The local manifest object to be set
+         * @param localManifest @en The local manifest object to be set @zh manifest 对象
          *
-         * @param storagePath    The local storage path
+         * @param storagePath  @en The local storage path @zh 存储路径
          */
         loadLocalManifest(localManifest: Manifest, storagePath: string): boolean;
         /**
-         * @brief Function for retrieving the remote manifest object
+         * @en Function for retrieving the remote manifest object
+         * @zh 获取远程的 manifest 对象
          */
         getRemoteManifest(): Manifest;
         /**
-         * @brief Load a custom remote manifest object, the manifest must be loaded already.
+         * @en Load a custom remote manifest object, the manifest must be loaded already.
          *
          * You can only manually load remote manifest when the update state is UNCHECKED and local manifest is already inited,
          * it will fail once the update process is began.
-         *
-         * @param remoteManifest    The remote manifest object to be set
+         * @zh 加载自定义i的远程 manifest 对象
+         * @param remoteManifest   @en The remote manifest object to be set @zh manifest 对象
          */
         loadRemoteManifest(remoteManifest: Manifest): boolean;
         /**
-         * @brief Gets whether the current download is resuming previous unfinished job,
+         * @en Gets whether the current download is resuming previous unfinished job,
          * this will only be available after READY_TO_UPDATE state,
          * under unknown states it will return false by default.
+         * @zh 是否在恢复状态
          */
         isResuming(): boolean;
         /**
-         * @brief Gets the total byte size to be downloaded of the update, this will only be available
+         * @en Gets the total byte size to be downloaded of the update, this will only be available
          * after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 需要下载或者更新的总字节数
          */
         getTotalBytes(): number;
         /**
-         * @brief Gets the current downloaded byte size of the update, this will only be available
+         * @en Gets the current downloaded byte size of the update, this will only be available
          * after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 已下载的字节数
          */
         getDownloadedBytes(): number;
         /**
-         * @brief Gets the total files count to be downloaded of the update, this will only be available
+         * @en Gets the total files count to be downloaded of the update, this will only be available
          *  after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 需要下载的总的文件数目
          */
         getTotalFiles(): number;
         /**
-         * @brief Gets the current downloaded files count of the update, this will only be available
+         * @en Gets the current downloaded files count of the update, this will only be available
          *  after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 已下载的文件数目
          */
         getDownloadedFiles(): number;
         /**
-         * @brief Function for retrieving the max concurrent task count
+         * @en Function for retrieving the max concurrent task count
+         * @zh 下载的最大并发数
          */
         getMaxConcurrentTask(): number;
         /**
-         * @brief Function for setting the max concurrent task count
+         * @en Function for setting the max concurrent task count
+         * @zh 设置下载的最大并发数目
          */
         setMaxConcurrentTask(max: number): void;
         /**
-         * @brief Set the handle function for comparing manifests versions
+         * @en Set the handle function for comparing manifests versions
+         * @zh 设置版本比对函数
          *
-         * @param handle    The compare function
+         * @param handle  @en  The compare function @zh 比较函数
          */
-        setVersionCompareHandle(handle: (arg1:string, arg2:string)=>number): void;
+        setVersionCompareHandle(handle: (arg1: string, arg2: string) => number): void;
         /**
-         * @brief Set the verification function for checking whether downloaded asset is correct, e.g. using md5 verification
-         *
-         * @param callback  The verify callback function
+         * @en Set the verification function for checking whether downloaded asset is correct, e.g. using md5 verification
+         * @zh 设置内容校验函数
+         * @param callback  @en The verify callback function @zh 校验函数
          */
-        setVerifyCallback(callback: (arg1:string, arg:ManifestAsset) =>number): void;
+        setVerifyCallback(callback: (arg1: string, arg: ManifestAsset) => number): void;
         /**
-         * @brief Set the event callback for receiving update process events
-         *
-         * @param callback  The event callback function
+         * @en Set the event callback for receiving update process events
+         * @zh 设置更新事件处理回调
+         * @param callback @en The event callback function @zh 事件处理回调
          */
-        setEventCallback(callback: (arg:EventAssetsManager)=> void): void;
+        setEventCallback(callback: (arg: EventAssetsManager) => void): void;
     }
 
     /**
