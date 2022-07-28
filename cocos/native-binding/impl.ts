@@ -133,4 +133,5 @@ export const native = {
     fileUtils: globalJsb.fileUtils,
     DebugRenderer: globalJsb.DebugRenderer,
     copyTextToClipboard: globalJsb.copyTextToClipboard?.bind(globalJsb),
+    garbageCollect: globalJsb.garbageCollect,
 };
