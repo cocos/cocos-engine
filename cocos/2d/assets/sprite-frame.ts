@@ -1427,13 +1427,16 @@ export class SpriteFrame extends Asset {
 
         if (isReset) {
             this.reset(config);
-            this.onLoaded();
         }
 
         this._checkPackable();
         if (this._mesh) {
             this._updateMesh();
         }
+    }
+
+    public onLoaded () {
+        this._calcTrimmedBorder();
     }
 
     public initDefault (uuid?: string) {
