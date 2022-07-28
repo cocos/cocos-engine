@@ -192,10 +192,10 @@ void UIMeshBuffer::linkWithMiddleWareBuffer(size_t &i, size_t &ii) {
         index = ii;
         ii++;
     }
-    auto* middleWare = middleware::MiddlewareManager::getInstance();
-    auto buffer = middleWare->getMeshBuffer(nativeFormat);
-    auto* srcIBuf = buffer->getIBFromBufferArray(index);
-    auto* srcVBuf = buffer->getVBFromBufferArray(index);
+    auto *middleWare = middleware::MiddlewareManager::getInstance();
+    auto *buffer = middleWare->getMeshBuffer(nativeFormat);
+    auto *srcIBuf = buffer->getIBFromBufferArray(index);
+    auto *srcVBuf = buffer->getVBFromBufferArray(index);
     _vData = reinterpret_cast<float *>(srcVBuf);
     _iData = reinterpret_cast<uint16_t*>(srcIBuf);
 }

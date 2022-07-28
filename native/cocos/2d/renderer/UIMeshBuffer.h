@@ -72,7 +72,7 @@ public:
     void setDirty(bool dirty) const;
     inline uint32_t getFloatsPerVertex() const { return _meshBufferLayout->floatsPerVertex; }
     void setFloatsPerVertex(uint32_t floatsPerVertex);
-    inline bool getNeedLinkMiddleWare() { return _needLinkMiddleWare; }
+    inline bool getNeedLinkMiddleWare() const { return _needLinkMiddleWare; }
     inline void setNeedLinkMiddleWare(bool val) { _needLinkMiddleWare = val; }
 
     void linkWithMiddleWareBuffer(size_t &i, size_t &ii);

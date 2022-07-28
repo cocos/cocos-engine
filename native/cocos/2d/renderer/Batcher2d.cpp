@@ -113,7 +113,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             breakWalk = true;
         }
     }
-    
+
     if (!breakWalk) {
         const auto& children = node->getChildren();
         float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
@@ -192,12 +192,12 @@ void CC_FORCE_INLINE Batcher2d::handleCompentDraw(RenderEntity* entity, RenderDr
         if (entity->getVBColorDirty()) {
             fillColors(entity, drawInfo);
         }
-            
+
         fillIndexBuffers(drawInfo);
     }
 }
 
-CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
+CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     generateBatch(_currEntity, _currDrawInfo);
     resetRenderStates();
 
@@ -359,7 +359,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             handleCompentDraw(entity, drawInfo, node);
             break;
         case RenderDrawInfoType::MODEL:
-            handleModelDraw(entity, drawInfo, node);
+            handleModelDraw(entity, drawInfo);
             break;
         case RenderDrawInfoType::IA:
             handleIADraw(entity, drawInfo, node);
@@ -503,7 +503,8 @@ void Batcher2d::uploadBuffers() {
         meshRenderData->uploadBuffers();
     }
 
-    size_t i = 0, ii = 0;
+    size_t i = 0;
+    size_t ii = 0;
     for (auto& map : _meshBuffersMap) {
         for (auto& buffer : map.second) {
             if (buffer->getNeedLinkMiddleWare()) {
