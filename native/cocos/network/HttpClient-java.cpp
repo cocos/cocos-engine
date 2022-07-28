@@ -34,6 +34,7 @@
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
+#include "base/ThreadPool.h"
 #include "base/std/container/queue.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
@@ -52,6 +53,7 @@ using HttpCookies = ccstd::vector<ccstd::string>;
 using HttpCookiesIter = HttpCookies::iterator;
 
 static HttpClient *gHttpClient = nullptr; // pointer to singleton
+static LegacyThreadPool *gThreadPool = nullptr;
 
 struct CookiesInfo {
     ccstd::string domain;
@@ -121,8 +123,8 @@ public:
         if (!headers.empty()) {
             /* append custom headers one by one */
             for (auto &header : headers) {
-                int len = header.length();
-                int pos = header.find(':');
+                uint32_t len = header.length();
+                uint32_t pos = header.find(':');
                 if (-1 == pos || pos >= len) {
                     continue;
                 }
@@ -213,7 +215,7 @@ public:
                                            "sendRequest",
                                            "(Ljava/net/HttpURLConnection;[B)V")) {
             jbyteArray bytearray;
-            ssize_t dataSize = request->getRequestDataSize();
+            auto dataSize = static_cast<ssize_t>(request->getRequestDataSize());
             bytearray = methodInfo.env->NewByteArray(dataSize);
             methodInfo.env->SetByteArrayRegion(bytearray, 0, dataSize, reinterpret_cast<const jbyte *>(request->getRequestData()));
             methodInfo.env->CallStaticVoidMethod(
@@ -595,13 +597,13 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
         return;
     }
 
-    int64_t responseCode = -1;
+    long responseCode = -1L; // NOLINT
     int retValue = 0;
 
     HttpURLConnection urlConnection(this);
     if (!urlConnection.init(request)) {
         response->setSucceed(false);
-        response->setErrorBuffer("HttpURLConnetcion init failed");
+        response->setErrorBuffer("HttpURLConnection init failed");
         return;
     }
 
@@ -633,7 +635,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     if (0 != suc) {
         response->setSucceed(false);
         response->setErrorBuffer("connect failed");
-        response->setResponseCode(static_cast<long>(responseCode));
+        response->setResponseCode(responseCode);
         return;
     }
 
@@ -683,7 +685,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     urlConnection.disconnect();
 
     // write data to HttpResponse
-    response->setResponseCode(static_cast<long>(responseCode));
+    response->setResponseCode(responseCode);
 
     if (responseCode == -1) {
         response->setSucceed(false);
@@ -831,6 +833,9 @@ HttpClient::HttpClient()
   _cookie(nullptr),
   _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    if (gThreadPool == nullptr) {
+        gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
+    }
     increaseThreadCount();
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
 }
@@ -882,8 +887,8 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     // Create a HttpResponse object, the default setting is http access failed
     auto *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
-    auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
-    t.detach();
+
+    gThreadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue
