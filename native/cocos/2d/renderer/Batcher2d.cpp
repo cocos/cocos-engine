@@ -143,7 +143,7 @@ void Batcher2d::handlePostRender(RenderEntity* entity) {
         _stencilManager->enableMask();
     }
 }
-void CC_FORCE_INLINE Batcher2d::handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
+CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) {
     ccstd::hash_t dataHash = drawInfo->getDataHash();
     if (drawInfo->getIsMeshBuffer()) {
         dataHash = 0;
