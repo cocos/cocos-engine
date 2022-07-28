@@ -334,7 +334,8 @@ HttpClient::HttpClient()
   _timeoutForConnect(30),
   _timeoutForRead(60),
   _threadCount(0),
-  _cookie(nullptr) {
+  _cookie(nullptr),
+  _threadPool(LegacyThreadPool::newFixedThreadPool(4)) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     _requestSentinel = ccnew HttpRequest();
     _requestSentinel->addRef();
@@ -345,6 +346,7 @@ HttpClient::HttpClient()
 
 HttpClient::~HttpClient() {
     CC_SAFE_RELEASE(_requestSentinel);
+    CC_SAFE_DELETE(_threadPool);
     if (!_cookieFilename.empty() && nullptr != _cookie) {
         _cookie->writeFile();
         CC_SAFE_DELETE(_cookie);
@@ -395,8 +397,7 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     HttpResponse *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
-    auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
-    t.detach();
+    _threadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue

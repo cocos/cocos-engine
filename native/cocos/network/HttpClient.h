@@ -31,6 +31,7 @@
 #include <condition_variable>
 #include <thread>
 #include "base/RefVector.h"
+#include "base/ThreadPool.h"
 #include "network/HttpCookie.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
@@ -172,6 +173,8 @@ private: // NOLINT(readability-redundant-access-specifiers)
     char _responseMessage[RESPONSE_BUFFER_SIZE];
 
     HttpRequest *_requestSentinel;
+
+    LegacyThreadPool *_threadPool;
 };
 
 } // namespace network

@@ -121,8 +121,8 @@ public:
         if (!headers.empty()) {
             /* append custom headers one by one */
             for (auto &header : headers) {
-                int len = header.length();
-                int pos = header.find(':');
+                uint32_t len = header.length();
+                uint32_t pos = header.find(':');
                 if (-1 == pos || pos >= len) {
                     continue;
                 }
@@ -213,7 +213,7 @@ public:
                                            "sendRequest",
                                            "(Ljava/net/HttpURLConnection;[B)V")) {
             jbyteArray bytearray;
-            ssize_t dataSize = request->getRequestDataSize();
+            auto dataSize = static_cast<ssize_t>(request->getRequestDataSize());
             bytearray = methodInfo.env->NewByteArray(dataSize);
             methodInfo.env->SetByteArrayRegion(bytearray, 0, dataSize, reinterpret_cast<const jbyte *>(request->getRequestData()));
             methodInfo.env->CallStaticVoidMethod(
@@ -633,7 +633,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     if (0 != suc) {
         response->setSucceed(false);
         response->setErrorBuffer("connect failed");
-        response->setResponseCode(static_cast<long>(responseCode));
+        response->setResponseCode(static_cast<int32_t>(responseCode));
         return;
     }
 
@@ -683,7 +683,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     urlConnection.disconnect();
 
     // write data to HttpResponse
-    response->setResponseCode(static_cast<long>(responseCode));
+    response->setResponseCode(static_cast<int32_t>(responseCode));
 
     if (responseCode == -1) {
         response->setSucceed(false);
@@ -829,7 +829,8 @@ HttpClient::HttpClient()
   _timeoutForRead(60),
   _threadCount(0),
   _cookie(nullptr),
-  _requestSentinel(ccnew HttpRequest()) {
+  _requestSentinel(ccnew HttpRequest()),
+  _threadPool(LegacyThreadPool::newFixedThreadPool(4)) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     increaseThreadCount();
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
@@ -838,6 +839,7 @@ HttpClient::HttpClient()
 HttpClient::~HttpClient() {
     CC_LOG_DEBUG("In the destructor of HttpClient!");
     CC_SAFE_RELEASE(_requestSentinel);
+    CC_SAFE_DELETE(_threadPool);
 }
 
 //Lazy create semaphore & mutex & thread
@@ -882,8 +884,8 @@ void HttpClient::sendImmediate(HttpRequest *request) {
     // Create a HttpResponse object, the default setting is http access failed
     auto *response = ccnew HttpResponse(request);
     response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
-    auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
-    t.detach();
+
+    _threadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue
