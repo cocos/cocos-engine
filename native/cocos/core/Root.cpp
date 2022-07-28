@@ -42,7 +42,7 @@
 #include "scene/SpotLight.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
-#include "BasePlatform.h"
+#include "platform/BasePlatform.h"
 #include "application/ApplicationManager.h"
 
 namespace cc {
