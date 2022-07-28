@@ -343,7 +343,7 @@ CC_FORCE_INLINE void Batcher2d::handleMiddleWareDraw(RenderEntity* entity, Rende
     _batches.push_back(curdrawBatch);
 }
 
-CC_FORCE_INLINE void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo) {
+void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT
     if (drawInfo->getSubNode()) {
         walk(drawInfo->getSubNode(), entity->getOpacity());
     }
