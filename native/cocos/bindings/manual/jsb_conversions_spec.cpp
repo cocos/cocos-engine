@@ -1308,7 +1308,7 @@ bool nativevalue_to_se(const cc::Data &from, se::Value &to, se::Object * /*unuse
     return true;
 }
 
-// NOLINTNEXTLINE(readability-identifier-naming)
+// NOLINTNEXTLINE
 bool nativevalue_to_se(const cc::Value &from, se::Value &to, se::Object * /*unused*/) {
     bool ok = true;
     switch (from.getType()) {
