@@ -170,6 +170,7 @@ export default class ParticleSystemRenderer {
         } else {
             const effectName = val.effectName;
             if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
+                console.log('Should use particle effect!');
                 return;
             }
         }
@@ -198,6 +199,7 @@ export default class ParticleSystemRenderer {
         } else {
             const effectName = val.effectName;
             if (effectName.indexOf('particle-gpu') === -1) {
+                console.log('Should use gpu particle effect!');
                 return;
             }
         }
