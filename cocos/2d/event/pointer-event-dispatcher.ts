@@ -131,6 +131,7 @@ class PointerEventDispatcher implements IEventDispatcher {
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
                 if (eventTouch.type === InputEventType.TOUCH_START) {
                     // @ts-expect-error access private method
+                    //console.log('dispatchEventTouch:' + eventTouch.type);
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
                         dispatchToNextEventDispatcher = false;
@@ -143,6 +144,9 @@ class PointerEventDispatcher implements IEventDispatcher {
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
                     const index = pointerEventProcessor.claimedTouchIdList.indexOf(touch.getID());
                     if (index !== -1) {
+                        //console.log('dispatchEventTouch:' + eventTouch.type);
+                        //console.log('eventTouch:' + eventTouch.getAllTouches[0].getLocation());
+                        
                         // @ts-expect-error access private method
                         pointerEventProcessor._handleEventTouch(eventTouch);
                         if (eventTouch.type === InputEventType.TOUCH_END || eventTouch.type === InputEventType.TOUCH_CANCEL) {

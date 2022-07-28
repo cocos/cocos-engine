@@ -563,6 +563,7 @@ export class Camera {
     private _exposure = 0;
     private _clearStencil = 0;
     private _geometryRenderer: GeometryRenderer | null = null;
+    private _windowId: number = 0;
 
     constructor (device: Device) {
         this._device = device;
@@ -625,6 +626,10 @@ export class Camera {
         }
         this._name = null;
         this._geometryRenderer?.destroy();
+    }
+
+    public getSystemWindowId () {
+        return this._windowId;
     }
 
     /**

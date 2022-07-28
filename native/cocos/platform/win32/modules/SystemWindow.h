@@ -29,11 +29,16 @@
 
 #include "platform/interfaces/modules/ISystemWindow.h"
 
+struct SDL_Window;
+
 namespace cc {
 class SDLHelper;
+
 class CC_DLL SystemWindow : public ISystemWindow {
+    friend class SystemWindowManager;
+
 public:
-    explicit SystemWindow(IEventDispatch* delegate);
+    explicit SystemWindow(IEventDispatch* delegate, uint32_t windowId, void *externalHandle);
     ~SystemWindow() override;
 
     int init();
@@ -46,7 +51,10 @@ public:
                       int x, int y, int w,
                       int h, int flags) override;
     void closeWindow() override;
+
+    virtual uint32_t getWindowId() const override;
     uintptr_t getWindowHandle() const override;
+
     Size getViewSize() const override;
     void setViewSize(uint32_t width, uint32_t height) override {
         _width = width;
@@ -59,9 +67,16 @@ public:
     void copyTextToClipboard(const std::string& text) override;
 
 private:
+    SDL_Window* _getSDLWindow() const { return _window; }
+
     int _width{0};
     int _height{0};
-    std::unique_ptr<SDLHelper> _sdl;
+
+    uint32_t _windowId{0};
+
+    //std::unique_ptr<SDLHelper> _sdl;
+    SDLHelper* _sdl{nullptr};
+    SDL_Window* _window{nullptr};
 };
 
 } // namespace cc

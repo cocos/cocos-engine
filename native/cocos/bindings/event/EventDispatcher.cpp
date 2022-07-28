@@ -29,6 +29,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace {
 se::Value tickVal;
@@ -175,12 +176,15 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         jsMouseEventObj->setProperty("y", yVal);
     }
 
+    jsMouseEventObj->setProperty("windowId", se::Value(mouseEvent.windowId));
+
     const char *eventName = nullptr;
     const char *jsFunctionName = nullptr;
     switch (type) {
         case MouseEvent::Type::DOWN:
             eventName = EVENT_MOUSE_DOWN;
             jsFunctionName = "onMouseDown";
+            //CC_LOG_DEBUG("windowId: %d", mouseEvent.windowId);
             break;
         case MouseEvent::Type::MOVE:
             eventName = EVENT_MOUSE_MOVE;
@@ -326,7 +330,7 @@ void EventDispatcher::dispatchCloseEvent() {
 void EventDispatcher::dispatchDestroyWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle()));
+                                         reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
@@ -335,7 +339,7 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle()));
+                                         reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif

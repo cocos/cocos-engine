@@ -984,6 +984,7 @@ struct BindingMappingInfo {
 };
 
 struct SwapchainInfo {
+    uint32_t windowId{0};
     void *windowHandle{nullptr}; // @ts-overrides { type: 'HTMLCanvasElement' }
     VsyncMode vsyncMode{VsyncMode::ON};
 

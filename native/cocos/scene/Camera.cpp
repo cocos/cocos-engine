@@ -174,6 +174,9 @@ void Camera::update(bool forceUpdate /*false*/) {
     // projection matrix
     auto *swapchain = _window->getSwapchain();
     const auto &orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
+    if (swapchain) {
+        _systemWindowId = swapchain->getWindowId();
+    }
 
     if (_isProjDirty || _curTransform != orientation) {
         _curTransform = orientation;
@@ -217,6 +220,10 @@ void Camera::changeTargetWindow(RenderWindow *window) {
             resize(win->getHeight(), win->getWidth());
         } else {
             resize(win->getWidth(), win->getHeight());
+        }
+
+        if (swapchain) {
+            _systemWindowId = swapchain->getWindowId();
         }
     }
 }

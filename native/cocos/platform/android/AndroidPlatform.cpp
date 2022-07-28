@@ -41,11 +41,14 @@
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/SystemWindowManager.h"
 #include "platform/java/modules/Vibrator.h"
 
 #include "bindings/event/EventDispatcher.h"
 
 #include "paddleboat.h"
+#include <android/native_window_jni.h>
+#include "base/StringUtil.h"
 
 #define ABORT_GAME                          \
     {                                       \
@@ -96,6 +99,16 @@ static bool keyState[INPUT_ACTION_COUNT] = {false};
 extern void gameControllerStatusCallback(int32_t controllerIndex,
                                          Paddleboat_ControllerStatus status,
                                          void *userData);
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurface(JNIEnv* env, jobject thiz, jobject surface) {
+    ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
+    if (windowMgr) {
+        static uint8_t id = 1;
+        ISystemWindow *window = windowMgr->createWindow(StringUtil::format("Window %d", id++).c_str());
+        ANativeWindow *windowHandle = ANativeWindow_fromSurface(env, surface);
+        window->setWindowHandle(windowHandle);
+    }
+}
 
 class GameInputProxy {
 public:
@@ -479,6 +492,7 @@ int AndroidPlatform::init() {
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
     registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<SystemWindowManager>(this));
     registerInterface(std::make_shared<Vibrator>());
 
     return 0;

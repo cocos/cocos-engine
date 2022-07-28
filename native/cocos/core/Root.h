@@ -59,6 +59,9 @@ struct CC_DLL DebugViewConfig {
     bool csmLayerColoration;
 };
 
+struct ISystemWindowInfo;
+class ISystemWindow;
+
 class Root final {
 public:
     static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
@@ -119,6 +122,14 @@ public:
      * 销毁全部窗口
      */
     void destroyWindows();
+
+    /**
+     * @zh
+     * 创建一个系统窗口
+     * @param info 系统窗口描述信息
+     * @return 新创建的系统窗口 ID
+     */
+    uint32_t createSystemWindow(const cc::ISystemWindowInfo &info);
 
     /**
      * @zh
@@ -273,6 +284,8 @@ public:
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
 private:
+    scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
+
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
     Batcher2d *_batcher{nullptr};
