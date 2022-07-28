@@ -451,7 +451,7 @@ export class UITransform extends Component {
      *
      * @param screenPoint point in Screen Space.
      */
-    public hitTest (screenPoint: Vec2) {
+    public hitTest (screenPoint: Vec2, windowId?: number) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v3WorldPt = _vec3a;
@@ -461,7 +461,12 @@ export class UITransform extends Component {
         const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
-            if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) continue;
+            if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) 
+                continue;
+            //console.log('camera.getSystemWindowId:' + camera.getSystemWindowId());
+            if (camera.getSystemWindowId() != windowId) {
+                continue;
+            }
 
             // Convert Screen Space into World Space.
             Vec3.set(v3WorldPt, screenPoint.x, screenPoint.y, 0);  // vec3 screen pos

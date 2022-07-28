@@ -59,6 +59,8 @@ public:
         _app = app;
     }
 
+    ISystemWindow *createNativeWindow() override;
+
 private:
     bool _isLowFrequencyLoopEnabled{false};
     utils::Timer _lowFrequencyTimer;

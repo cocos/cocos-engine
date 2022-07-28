@@ -53,6 +53,7 @@ declare namespace jsb {
         x: number,
         y: number,
         button: number,
+        windowId: number,
     }
     type MouseEventCallback = (mouseEvent: MouseEvent) => void;
     export interface MouseWheelEvent extends MouseEvent {

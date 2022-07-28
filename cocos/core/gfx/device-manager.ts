@@ -142,6 +142,12 @@ export class DeviceManager {
                     this._gfxDevice = new deviceCtors[i]();
                     if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
+
+                const swapchainInfo = new SwapchainInfo(this._canvas!);
+                const windowSize = screen.windowSize;
+                swapchainInfo.width = windowSize.width;
+                swapchainInfo.height = windowSize.height;
+                this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
             }
         } else if (this._renderType === RenderType.HEADLESS && legacyCC.EmptyDevice) {
             this._gfxDevice = new legacyCC.EmptyDevice();
@@ -154,12 +160,6 @@ export class DeviceManager {
             this._renderType = RenderType.UNKNOWN;
             return;
         }
-
-        const swapchainInfo = new SwapchainInfo(this._canvas!);
-        const windowSize = screen.windowSize;
-        swapchainInfo.width = windowSize.width;
-        swapchainInfo.height = windowSize.height;
-        this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         if (this._canvas) { this._canvas.oncontextmenu = () => false; }
     }

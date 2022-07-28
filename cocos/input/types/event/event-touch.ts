@@ -56,6 +56,8 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
+    public windowId = 0;
+
     /**
      * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
      * If set to true, the event is allowed to be dispatched to nodes at the bottom layer.

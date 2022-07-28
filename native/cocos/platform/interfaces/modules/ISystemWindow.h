@@ -87,6 +87,12 @@ public:
                               int w, int h, int flags) {
         return true;
     }
+
+    /**
+     * Get the window's unique ID
+     */
+    virtual uint32_t getWindowId() const = 0;
+
     virtual void closeWindow() {}
     virtual uintptr_t getWindowHandle() const = 0;
     virtual Size getViewSize() const = 0;

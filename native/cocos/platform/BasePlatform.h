@@ -38,6 +38,7 @@
 namespace cc {
 
 class OSInterface;
+class ISystemWindow;
 
 class CC_DLL BasePlatform {
 public:
@@ -163,6 +164,8 @@ public:
     void unregisterAllInterfaces() {
         _osInterfaces.clear();
     }
+
+    virtual ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) = 0;
 
 private:
     static BasePlatform *createDefaultPlatform();

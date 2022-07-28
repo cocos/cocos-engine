@@ -85,6 +85,7 @@ public:
     Type type = Type::UNKNOWN;
     int width = 0;
     int height = 0;
+    uint32_t windowId = 0;
 };
 // Touch event related
 
@@ -113,6 +114,7 @@ public:
 
     ccstd::vector<TouchInfo> touches;
     Type type = Type::UNKNOWN;
+    uint32_t windowId = 0;
 };
 
 class MouseEvent : public OSEvent {
@@ -132,6 +134,7 @@ public:
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;
     Type type = Type::UNKNOWN;
+    uint32_t windowId = 0;
 };
 
 enum class KeyCode {
@@ -212,6 +215,7 @@ public:
         UNKNOWN
     };
 
+    uint32_t windowId = 0;
     int key = -1;
     Action action = Action::UNKNOWN;
     bool altKeyActive = false;

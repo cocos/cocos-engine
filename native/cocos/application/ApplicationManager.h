@@ -73,6 +73,8 @@ private:
 #define CC_CURRENT_APPLICATION_SAFE()   CC_APPLICATION_MANAGER()->getCurrentAppSafe()
 #define CC_CURRENT_ENGINE()             CC_CURRENT_APPLICATION_SAFE()->getEngine()
 #define CC_GET_PLATFORM_INTERFACE(intf) CC_CURRENT_ENGINE()->getInterface<intf>()
+#define CC_GET_SYSTEM_WINDOW(id)        CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager)->getWindow(id)
+#define CC_GET_MAIN_SYSTEM_WINDOW()     CC_GET_SYSTEM_WINDOW(1)
 
 /**
  * @brief Called at the user-defined main entry

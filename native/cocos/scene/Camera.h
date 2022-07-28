@@ -324,6 +324,8 @@ public:
 
     void detachCamera();
 
+    uint32_t getSystemWindowId() const { return _systemWindowId; }
+
 protected:
     void setExposure(float ev100);
 
@@ -383,6 +385,8 @@ private:
     uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
     float _exposure{0.F};
     uint32_t _clearStencil{0};
+
+    uint32_t _systemWindowId{0};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Camera);
 };
