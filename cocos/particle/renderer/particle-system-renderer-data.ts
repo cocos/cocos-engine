@@ -170,7 +170,7 @@ export default class ParticleSystemRenderer {
         } else {
             const effectName = val.effectName;
             if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
-                console.log('Should use particle effect!');
+                errorID(6035);
                 return;
             }
         }
@@ -199,7 +199,7 @@ export default class ParticleSystemRenderer {
         } else {
             const effectName = val.effectName;
             if (effectName.indexOf('particle-gpu') === -1) {
-                console.log('Should use gpu particle effect!');
+                errorID(6035);
                 return;
             }
         }
