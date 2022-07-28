@@ -456,7 +456,8 @@ void Batcher2d::uploadBuffers() {
     size_t ii = 0;
     for (auto& map : _meshBuffersMap) {
         for (auto& buffer : map.second) {
-            // set 
+#if CC_USE_MIDDLEWARE
+            // set vData and iData With Middleware buffer.
             if (buffer->getUseLinkData()) {
                 int nativeFormat = 9;
                 size_t index = i;
@@ -474,6 +475,7 @@ void Batcher2d::uploadBuffers() {
                 buffer->setVData(reinterpret_cast<float *>(srcVBuf));
                 buffer->setIData(reinterpret_cast<uint16_t*>(srcIBuf));
             }
+#endif
             buffer->uploadBuffers();
             buffer->reset();
         }
