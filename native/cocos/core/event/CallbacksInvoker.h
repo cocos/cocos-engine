@@ -43,19 +43,7 @@ namespace cc {
 #define CC_CALLBACK_INVOKE_3(__selector__, __target__, Arg0, Arg1, Arg2, ...) std::function<void(Arg0, Arg1, Arg2)>(std::bind(&__selector__, __target__, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)), __target__
 
 struct CallbackID {
-    CallbackID() = default;
-    explicit CallbackID(uint32_t v) : value(v) {}
-    CallbackID(const CallbackID &rhs) : value(rhs.value) {}
-
-    inline bool operator==(const CallbackID &rhs) const { return value == rhs.value; }
-    CallbackID &operator=(const CallbackID &rhs) {
-        if (this == &rhs) {
-            return *this;
-        }
-        value = rhs.value;
-        return *this;
-    }
-
+    inline bool operator==(const CallbackID &rhs) const noexcept { return value == rhs.value; }
     uint32_t value{0};
 };
 
