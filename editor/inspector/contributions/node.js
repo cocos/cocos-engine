@@ -1435,9 +1435,11 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
                     async click() {
+                        const info = JSON.parse(JSON.stringify(dump));
+                        delete info.value.__prefab;
                         Editor.Clipboard.write('_dump_component_', {
                             cid: dump.cid,
-                            dump: JSON.parse(JSON.stringify(dump)),
+                            dump: info,
                         });
                     },
                 },
