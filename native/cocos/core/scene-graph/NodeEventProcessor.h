@@ -74,7 +74,7 @@ public:
 
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const;
 
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID & cbID) const;
+    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const;
 
     template <typename Target, typename... Args>
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;

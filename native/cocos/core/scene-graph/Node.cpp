@@ -199,7 +199,7 @@ bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, const Callbac
 bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const {
     return _eventProcessor->hasEventListener(type, target);
 }
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID & cbID) const {
+bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const {
     return _eventProcessor->hasEventListener(type, target, cbID);
 }
 
