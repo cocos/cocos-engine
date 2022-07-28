@@ -597,13 +597,13 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
         return;
     }
 
-    int64_t responseCode = -1;
+    long responseCode = -1L; // NOLINT
     int retValue = 0;
 
     HttpURLConnection urlConnection(this);
     if (!urlConnection.init(request)) {
         response->setSucceed(false);
-        response->setErrorBuffer("HttpURLConnetcion init failed");
+        response->setErrorBuffer("HttpURLConnection init failed");
         return;
     }
 
@@ -635,7 +635,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     if (0 != suc) {
         response->setSucceed(false);
         response->setErrorBuffer("connect failed");
-        response->setResponseCode(static_cast<int32_t>(responseCode));
+        response->setResponseCode(responseCode);
         return;
     }
 
@@ -685,7 +685,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     urlConnection.disconnect();
 
     // write data to HttpResponse
-    response->setResponseCode(static_cast<int32_t>(responseCode));
+    response->setResponseCode(responseCode);
 
     if (responseCode == -1) {
         response->setSucceed(false);
