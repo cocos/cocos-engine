@@ -127,6 +127,8 @@ public:
     virtual void setXXTeaKey(const ccstd::string &key);
 
 private:
+    void unregisterAllEngineEvents();
+
     ISystemWindow *_systemWindow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };
