@@ -225,6 +225,7 @@ XMLHttpRequest::XMLHttpRequest()
   _httpRequest(ccnew HttpRequest()),
   _responseType(ResponseType::STRING),
   _readyState(ReadyState::UNSENT) {
+    _httpRequest->addRef();
 }
 
 XMLHttpRequest::~XMLHttpRequest() {
