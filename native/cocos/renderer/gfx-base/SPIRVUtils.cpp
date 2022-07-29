@@ -60,6 +60,8 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 2: return glslang::EShTargetVulkan_1_2;
 #if GLSLANG_VERSION_LESS_OR_EQUAL_TO(11, 10, 0)
         case 3: return glslang::EShTargetVulkan_1_3;
+#else
+        case 3: return glslang::EShTargetVulkan_1_2;
 #endif
         default: {
             CC_ASSERT(false);
@@ -75,6 +77,8 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 2: return glslang::EShTargetSpv_1_5;
 #if GLSLANG_VERSION_LESS_OR_EQUAL_TO(11, 10, 0)
         case 3: return glslang::EShTargetSpv_1_6;
+#else
+        case 3: return glslang::EShTargetSpv_1_5;
 #endif
         default: {
             CC_ASSERT(false);
