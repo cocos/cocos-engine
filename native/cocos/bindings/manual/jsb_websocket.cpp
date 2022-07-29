@@ -432,7 +432,7 @@ static bool webSocketClose(se::State &s) {
                 CC_ASSERT(false);
             }
         } else {
-        CC_ASSERT(false);
+            CC_ASSERT(false);
         }
     } else {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting <=2", argc);
