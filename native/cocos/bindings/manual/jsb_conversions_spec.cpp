@@ -118,7 +118,6 @@ enum class MathType {
     RECT,
     COLOR,
 };
-
 } // namespace
 
 bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
@@ -199,31 +198,31 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
     return sevalue_to_native(v, ret, nullptr);
 }
 
-bool sevalue_to_native(const se::Value &v, cc::ValueMap *ret, se::Object * /*unused*/) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*ctx*/) { // NOLINT
+    CC_ASSERT(to != nullptr);
 
-    if (v.isNullOrUndefined()) {
-        ret->clear();
+    if (from.isNullOrUndefined()) {
+        to->clear();
         return true;
     }
 
-    SE_PRECONDITION3(v.isObject(), false, ret->clear());
-    SE_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
+    SE_PRECONDITION3(from.isObject(), false, to->clear());
+    SE_PRECONDITION3(!from.isNullOrUndefined(), false, to->clear());
 
-    se::Object *obj = v.toObject();
+    se::Object *obj = from.toObject();
 
-    cc::ValueMap &dict = *ret;
+    cc::ValueMap &dict = *to;
 
     ccstd::vector<ccstd::string> allKeys;
-    SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
+    SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, to->clear());
 
     bool ok = false;
     se::Value value;
     cc::Value ccvalue;
     for (const auto &key : allKeys) {
-        SE_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
-        ok = seval_to_ccvalue(value, &ccvalue);
-        SE_PRECONDITION3(ok, false, ret->clear());
+        SE_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, to->clear());
+        ok = sevalue_to_native(value, &ccvalue, nullptr);
+        SE_PRECONDITION3(ok, false, to->clear());
         dict.emplace(key, ccvalue);
     }
 
@@ -358,7 +357,7 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unused*/) {
+bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
     se::Object *obj = from.toObject();
     se::Value tmp;
@@ -370,7 +369,7 @@ bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unuse
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/) {
+bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
     se::Object *obj = from.toObject();
     se::Value tmp;
@@ -383,7 +382,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/) {
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Rect failed!");
     se::Object *obj = from.toObject();
     se::Value tmp;
@@ -396,7 +395,7 @@ bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unuse
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*unused*/) {
+bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix3 failed!");
     se::Object *obj = from.toObject();
 
@@ -1239,21 +1238,25 @@ bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) { // NOLIN
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *ret) {
-    CC_ASSERT(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("md5", se::Value(v.md5));
-    obj->setProperty("path", se::Value(v.path));
-    obj->setProperty("compressed", se::Value(v.compressed));
-    obj->setProperty("size", se::Value(v.size));
-    obj->setProperty("downloadState", se::Value(v.downloadState));
-    ret->setObject(obj);
-
-    return true;
+    return ret ? nativevalue_to_se(v, *ret, nullptr) : false;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool Data_to_seval(const cc::Data &v, se::Value *ret) {
-    return ret ? nativevalue_to_se(v, *ret, nullptr) : false;
+    // NOTICE: should remove this function, kept for backward compatibility
+    return Data_to_TypedArray(v, ret);
+}
+
+bool Data_to_TypedArray(const cc::Data &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
+    // NOTICE: should remove this function, kept for backward compatibility
+    CC_ASSERT(ret != nullptr);
+    if (v.isNull()) {
+        ret->setNull();
+    } else {
+        se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
+        ret->setObject(obj, true);
+    }
+    return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -1421,7 +1424,14 @@ bool nativevalue_to_se(const cc::Size &from, se::Value &to, se::Object * /*unuse
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::extension::ManifestAsset &from, se::Value &to, se::Object * /*unused*/) {
-    return ManifestAsset_to_seval(from, &to);
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("md5", se::Value(from.md5));
+    obj->setProperty("path", se::Value(from.path));
+    obj->setProperty("compressed", se::Value(from.compressed));
+    obj->setProperty("size", se::Value(from.size));
+    obj->setProperty("downloadState", se::Value(from.downloadState));
+    to.setObject(obj);
+    return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)

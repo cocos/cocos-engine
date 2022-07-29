@@ -409,6 +409,11 @@ bool Rect_to_seval(const cc::Rect &v, se::Value *ret); // NOLINT(readability-ide
 
 //bool nativevalue_to_se(const cc::TypedArray &typedArray, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming) // NOLINT
 
+/**
+ * WARN: call nativevalue_to_se instead and it converts cc::Data to ArrayBuffer
+ */
+bool Data_to_TypedArray(const cc::Data &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming) // NOLINT
 inline bool nativevalue_to_se(cc::ArrayBuffer *arrayBuffer, se::Value &to, se::Object *ctx) {    // NOLINT(readability-identifier-naming) // NOLINT
     if (arrayBuffer == nullptr) {

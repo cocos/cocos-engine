@@ -375,7 +375,7 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= Data_to_seval(larg0, &args[0]);
+                    ok &= Data_to_TypedArray(larg0, &args[0]);
                     se::Value rval;
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
