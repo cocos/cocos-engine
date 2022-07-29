@@ -684,7 +684,7 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                if (Editor.EditMode.getMode() !== 'animation') {
+                if (panel.handlerSceneChangeMode()) {
                     panel.toggleShowAddComponentBtn(true);
                 }
                 return;
@@ -1699,8 +1699,9 @@ exports.methods = {
         this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
     },
     handlerSceneChangeMode() {
-        const mode = Editor.EditMode.getMode();
-        this.toggleShowAddComponentBtn(mode !== 'animation'); // 动画编辑模式下，要隐藏按钮
+        const show = Editor.EditMode.getMode() !== 'animation';
+        this.toggleShowAddComponentBtn(show); // 动画编辑模式下，要隐藏按钮
+        return show;
     },
 };
 
