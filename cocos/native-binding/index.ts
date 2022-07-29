@@ -65,6 +65,20 @@ export declare namespace native {
         constructor(eventName: string, manager: AssetsManager, code: number, assetId: string, message: string, curleCode: number, curlmCode: number);
     }
 
+    export namespace EventAssetsManager {
+        export const ERROR_NO_LOCAL_MANIFEST:number;
+        export const ERROR_DOWNLOAD_MANIFEST:number;
+        export const ERROR_PARSE_MANIFEST :number;
+        export const NEW_VERSION_FOUND :number;
+        export const ALREADY_UP_TO_DATE :number;
+        export const UPDATE_PROGRESSION :number;
+        export const ASSET_UPDATED :number;
+        export const ERROR_UPDATING :number;
+        export const UPDATE_FINISHED :number;
+        export const UPDATE_FAILED :number;
+        export const ERROR_DECOMPRESS :number;
+    }
+
     export interface ManifestAsset {
         md5: string;
         path: string;
@@ -144,6 +158,15 @@ export declare namespace native {
          */
         setUpdating(updating: boolean): void;
     } // endof class Manifest
+
+    export namespace Manifest {
+        export enum DownloadState {
+            UNSTARTED,
+            DOWNLOADING,
+            SUCCESSED,
+            UNMARKED,
+        }
+    }
 
     export class AssetsManager {
         // static methods list
@@ -310,13 +333,32 @@ export declare namespace native {
          * @zh 设置内容校验函数
          * @param callback  @en The verify callback function @zh 校验函数
          */
-        setVerifyCallback(callback: (arg1: string, arg: ManifestAsset) => number): void;
+        setVerifyCallback(callback: (arg1: string, arg: ManifestAsset) => boolean): void;
         /**
          * @en Set the event callback for receiving update process events
          * @zh 设置更新事件处理回调
          * @param callback @en The event callback function @zh 事件处理回调
          */
         setEventCallback(callback: (arg: EventAssetsManager) => void): void;
+    }
+
+    export namespace AssetsManager {
+        export enum State {
+            UNINITED,
+            UNCHECKED,
+            PREDOWNLOAD_VERSION,
+            DOWNLOADING_VERSION,
+            VERSION_LOADED,
+            PREDOWNLOAD_MANIFEST,
+            DOWNLOADING_MANIFEST,
+            MANIFEST_LOADED,
+            NEED_UPDATE,
+            READY_TO_UPDATE,
+            UPDATING,
+            UNZIPPING,
+            UP_TO_DATE,
+            FAIL_TO_UPDATE,
+        }
     }
 
     /**
