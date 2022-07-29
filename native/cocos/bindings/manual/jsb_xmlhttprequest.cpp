@@ -42,7 +42,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/network/HttpClient.h"
-#include "cocos/engine/Engine.h"
+#include "cocos/engine/BaseEngine.h"
 #include "application/ApplicationManager.h"
 
 using namespace cc;          //NOLINT
@@ -193,7 +193,7 @@ private:
     void sendRequest();
     void setHttpRequestHeader();
 
-    Engine::SchedulerSharePtr _scheduler;
+    BaseEngine::SchedulerPtr _scheduler;
     ccstd::unordered_map<ccstd::string, ccstd::string> _httpHeader;
     ccstd::unordered_map<ccstd::string, ccstd::string> _requestHeader;
 

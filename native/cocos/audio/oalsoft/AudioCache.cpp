@@ -319,7 +319,7 @@ void AudioCache::invokingLoadCallbacks() {
 
     auto isDestroyed = _isDestroyed;
 
-    BaseEngine::SchedulerSharePtr scheduler =
+    BaseEngine::SchedulerPtr scheduler =
         CC_CURRENT_APPLICATION() ? CC_CURRENT_APPLICATION()->getEngine()->getScheduler() : nullptr;
     if (!scheduler) {
         return;
