@@ -833,6 +833,7 @@ HttpClient::HttpClient()
   _cookie(nullptr),
   _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    _requestSentinel->addRef();
     if (gThreadPool == nullptr) {
         gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
     }

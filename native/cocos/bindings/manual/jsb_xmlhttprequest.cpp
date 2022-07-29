@@ -172,6 +172,16 @@ public:
 
     bool isDiscardedByReset() const { return _isDiscardedByReset; }
 
+    inline void clearCallbacks() {
+        onloadstart = nullptr;
+        onload = nullptr;
+        onloadend = nullptr;
+        onreadystatechange = nullptr;
+        onabort = nullptr;
+        onerror = nullptr;
+        ontimeout = nullptr;
+    }
+
 private:
     ~XMLHttpRequest() override;
 
@@ -225,6 +235,7 @@ XMLHttpRequest::XMLHttpRequest()
   _httpRequest(ccnew HttpRequest()),
   _responseType(ResponseType::STRING),
   _readyState(ReadyState::UNSENT) {
+    _httpRequest->addRef();
 }
 
 XMLHttpRequest::~XMLHttpRequest() {
@@ -576,6 +587,7 @@ se::Class *__jsb_XMLHttpRequest_class = nullptr; //NOLINT(readability-identifier
 static bool XMLHttpRequest_finalize(se::State &s) { //NOLINT(readability-identifier-naming, google-runtime-references)
     auto *request = static_cast<XMLHttpRequest *>(s.nativeThisObject());
     SE_LOGD("XMLHttpRequest_finalize, %p ... \n", request);
+    request->clearCallbacks();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(XMLHttpRequest_finalize)
