@@ -309,8 +309,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
     destroySwapchain(gpuDevice);
 
-    gpuDevice->curBackBufferIndex = 0;
-    _gpuSwapchain->curImageIndex = 0;
     _gpuSwapchain->vkSwapchain = vkSwapchain;
 
     uint32_t imageCount;
@@ -393,12 +391,15 @@ void CCVKSwapchain::destroySwapchain(const CCVKGPUDevice *gpuDevice) {
 
 void CCVKSwapchain::doDestroySurface() {
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface == VK_NULL_HANDLE) return;
-    const auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
     CCVKDevice::getInstance()->waitAllFences();
     destroySwapchain(gpuDevice);
     _gpuSwapchain->lastPresentResult = VK_NOT_READY;
+    // reset index only after device not ready
+    _gpuSwapchain->curImageIndex = 0;
+    gpuDevice->curBackBufferIndex = 0;
 
     vkDestroySurfaceKHR(gpuContext->vkInstance, _gpuSwapchain->vkSurface, nullptr);
     _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
