@@ -242,17 +242,7 @@ export class UIMeshRenderer extends Component {
     }
 
     protected _canRender () {
-        if (this.enabled && this._modelComponent) {
-            const matNum = this._modelComponent.sharedMaterials.length;
-            for (let i = 0; i < matNum; i++) {
-                const material = this._modelComponent.getMaterialInstance(i);
-                if (material == null || !material.isValid) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return (this.enabled && this._modelComponent);
     }
 
     get renderEntity () {
