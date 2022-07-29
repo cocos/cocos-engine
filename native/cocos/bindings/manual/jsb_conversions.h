@@ -1524,7 +1524,7 @@ inline bool nativevalue_to_se(const std::shared_ptr<T> &from, se::Value &to, se:
         to.setNull();
         return true;
     }
-    auto it = se::NativePtrToObjectMap::find((void *)nativePtr);
+    auto it = se::NativePtrToObjectMap::find(nativePtr);
     if (it == se::NativePtrToObjectMap::end()) {
         se::Class *cls = JSBClassType::findClass(nativePtr);
         CC_ASSERT(cls);
