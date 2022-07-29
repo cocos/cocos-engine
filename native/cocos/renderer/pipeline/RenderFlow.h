@@ -65,6 +65,7 @@ protected:
     RenderPipeline *_pipeline{nullptr};
     uint32_t _priority{0};
     uint32_t _tag{0};
+    bool _isResourceOwner{false};
 };
 
 } // namespace pipeline

@@ -49,7 +49,7 @@ enum class RenderDrawInfoType: uint8_t {
     COMP,
     MODEL,
     IA,
-    SUB_NODE
+    SUB_NODE,
 };
 
 struct LocalDSBF {

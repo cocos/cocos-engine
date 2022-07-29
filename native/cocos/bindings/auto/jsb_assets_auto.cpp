@@ -20260,7 +20260,7 @@ bool js_register_assets_Skeleton(se::Object* obj) // NOLINT(readability-identifi
 #endif
     cls->defineProperty({"_joints", "joints"}, _SE(js_assets_Skeleton_getJoints_asGetter), _SE(js_assets_Skeleton_setJoints_asSetter));
     cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHash_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
-    cls->defineProperty({"_invBindposes", "invBindposes"}, _SE(js_assets_Skeleton_getInverseBindposes_asGetter), nullptr);
+    cls->defineProperty({"_invBindposes", "inverseBindposes"}, _SE(js_assets_Skeleton_getInverseBindposes_asGetter), nullptr);
     cls->defineFunction("_getBindposes", _SE(js_assets_Skeleton_getBindposes));
     cls->defineFunction("getHash", _SE(js_assets_Skeleton_getHash));
     cls->defineFunction("getInverseBindposes", _SE(js_assets_Skeleton_getInverseBindposes));

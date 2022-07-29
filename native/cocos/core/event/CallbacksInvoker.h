@@ -42,8 +42,12 @@ namespace cc {
 #define CC_CALLBACK_INVOKE_2(__selector__, __target__, Arg0, Arg1, ...)       std::function<void(Arg0, Arg1)>(std::bind(&__selector__, __target__, std::placeholders::_1, std::placeholders::_2, ##__VA_ARGS__)), __target__
 #define CC_CALLBACK_INVOKE_3(__selector__, __target__, Arg0, Arg1, Arg2, ...) std::function<void(Arg0, Arg1, Arg2)>(std::bind(&__selector__, __target__, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)), __target__
 
+struct CallbackID {
+    inline bool operator==(const CallbackID &rhs) const noexcept { return value == rhs.value; }
+    uint32_t value{0};
+};
+
 struct CallbackInfoBase {
-    using ID = uint32_t;
     using FakeCallbackMemberFn = void (CCObject::*)();
 
     CallbackInfoBase() = default;
@@ -54,7 +58,7 @@ struct CallbackInfoBase {
     virtual FakeCallbackMemberFn getMemberFn() const = 0;
 
     void *_target{nullptr};
-    ID _id{0};
+    CallbackID _id;
     bool _once{false};
     bool _isCCObject{false};
 #if CC_DEBUG
@@ -134,7 +138,7 @@ public:
      *
      * @param cbID - The callback id to be removed
      */
-    void removeByCallbackID(CallbackInfoBase::ID cbID);
+    void removeByCallbackID(const CallbackID &cbID);
 
     /**
      * @zh 从列表中移除与指定目标相同调用者的事件。
@@ -207,18 +211,18 @@ public:
 
     //
     template <typename Target, typename... Args>
-    void on(const KeyType &key, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &outCallbackID, bool once = false);
+    void on(const KeyType &key, std::function<void(Args...)> &&callback, Target *target, CallbackID &outCallbackID, bool once = false);
 
     template <typename... Args>
-    void on(const KeyType &key, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &outCallbackID, bool once = false);
+    void on(const KeyType &key, std::function<void(Args...)> &&callback, CallbackID &outCallbackID, bool once = false);
 
     template <typename Target, typename LambdaType>
     std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const KeyType &key, LambdaType &&callback, Target *target, CallbackInfoBase::ID &outCallbackID, bool once = false);
+    on(const KeyType &key, LambdaType &&callback, Target *target, CallbackID &outCallbackID, bool once = false);
 
     template <typename LambdaType>
     std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const KeyType &key, LambdaType &&callback, CallbackInfoBase::ID &outCallbackID, bool once = false);
+    on(const KeyType &key, LambdaType &&callback, CallbackID &outCallbackID, bool once = false);
 
     /**
      * @zh 检查指定事件是否已注册回调。
@@ -227,9 +231,9 @@ public:
      * @param cbID - Callback ID
      */
     bool hasEventListener(const KeyType &key) const;
-    bool hasEventListener(const KeyType &key, CallbackInfoBase::ID cbID) const;
+    bool hasEventListener(const KeyType &key, const CallbackID &cbID) const;
     bool hasEventListener(const KeyType &key, void *target);
-    bool hasEventListener(const KeyType &key, void *target, CallbackInfoBase::ID cbID) const;
+    bool hasEventListener(const KeyType &key, void *target, const CallbackID &cbID) const;
     template <typename Target, typename... Args>
     bool hasEventListener(const KeyType &key, void (Target::*memberFn)(Args...), Target *target) const;
     /**
@@ -249,8 +253,8 @@ public:
      * @param target callback Target
      * @param cbID - The callback ID of the event listener, if absent all event listeners for the given type will be removed
      */
-    void off(const KeyType &key, CallbackInfoBase::ID cbID);
-    void off(CallbackInfoBase::ID cbID);
+    void off(const KeyType &key, const CallbackID &cbID);
+    void off(const CallbackID &cbID);
     template <typename Target, typename... Args>
     void off(const KeyType &key, void (Target::*memberFn)(Args...), Target *target);
 
@@ -285,7 +289,7 @@ public:
 
 private:
     ccstd::unordered_map<KeyType, CallbackList> _callbackTable;
-    static CallbackInfoBase::ID cbIDCounter;
+    static uint32_t cbIDCounter;
 };
 
 template <typename Target, typename... Args>
@@ -294,63 +298,62 @@ void CallbacksInvoker::on(const KeyType &key, void (Target::*memberFn)(Args...),
     using CallbackInfoType = CallbackInfo<Args...>;
     auto &list = _callbackTable[key];
     auto info = std::make_shared<CallbackInfoType>();
-    info->_id = ++cbIDCounter;
-    CallbackInfoBase::ID cbID = info->_id;
+    info->_id.value = ++cbIDCounter;
     info->set(static_cast<typename CallbackInfoType::CallbackMemberFn>(memberFn), target, once);
     list._callbackInfos.emplace_back(std::move(info));
 }
 
 template <typename Target, typename... Args>
-void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &outCallbackID, bool once) {
+void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, Target *target, CallbackID &outCallbackID, bool once) {
     auto &list = _callbackTable[key];
     auto info = std::make_shared<CallbackInfo<Args...>>();
-    info->_id = ++cbIDCounter;
-    CallbackInfoBase::ID cbID = info->_id;
+    info->_id.value = ++cbIDCounter;
+    CallbackID cbID = info->_id;
     info->set(std::forward<std::function<void(Args...)>>(callback), target, once);
     list._callbackInfos.emplace_back(std::move(info));
     outCallbackID = cbID;
 }
 
 template <typename... Args>
-void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &outCallbackID, bool once) {
+void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, CallbackID &outCallbackID, bool once) {
     on<std::nullptr_t>(key, std::forward<std::function<void(Args...)>>(callback), nullptr, outCallbackID, once);
 }
 
 template <typename Target, typename LambdaType>
 std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-CallbacksInvoker::on(const KeyType &key, LambdaType &&callback, Target *target, CallbackInfoBase::ID &outCallbackID, bool once) {
+CallbacksInvoker::on(const KeyType &key, LambdaType &&callback, Target *target, CallbackID &outCallbackID, bool once) {
     on(key, toFunction(std::forward<LambdaType>(callback)), target, outCallbackID, once);
 }
 
 template <typename LambdaType>
 std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-CallbacksInvoker::on(const KeyType &key, LambdaType &&callback, CallbackInfoBase::ID &outCallbackID, bool once) {
+CallbacksInvoker::on(const KeyType &key, LambdaType &&callback, CallbackID &outCallbackID, bool once) {
     on(key, toFunction(std::forward<LambdaType>(callback)), outCallbackID, once);
 }
 
 template <typename Target, typename... Args>
 void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, Target *target, bool once) {
-    CallbackInfoBase::ID unusedID{0};
+    CallbackID unusedID{0};
     on(key, callback, target, unusedID, once);
 }
 
 template <typename... Args>
 void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, bool once) {
-    CallbackInfoBase::ID unusedID{0};
+    CallbackID unusedID{0};
     on<std::nullptr_t>(key, std::forward<std::function<void(Args...)>>(callback), nullptr, unusedID, once);
 }
 
 template <typename Target, typename LambdaType>
 std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
 CallbacksInvoker::on(const KeyType &key, LambdaType &&callback, Target *target, bool once) {
-    CallbackInfoBase::ID unusedID{0};
+    CallbackID unusedID{0};
     on(key, toFunction(std::forward<LambdaType>(callback)), target, unusedID, once);
 }
 
 template <typename LambdaType>
 std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
 CallbacksInvoker::on(const KeyType &key, LambdaType &&callback, bool once) {
-    CallbackInfoBase::ID unusedID{0};
+    CallbackID unusedID{0};
     on(key, toFunction(std::forward<LambdaType>(callback)), unusedID, once);
 }
 
@@ -420,7 +423,7 @@ void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
                     }
                 } else {
                     const auto &callback = info->_callback;
-                    CallbackInfoBase::ID cbID = info->_id;
+                    const CallbackID &cbID = info->_id;
                     // Pre off once callbacks to avoid influence on logic in callback
                     if (info->_once) {
                         off(key, cbID);

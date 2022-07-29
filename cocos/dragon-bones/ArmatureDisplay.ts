@@ -958,10 +958,6 @@ export class ArmatureDisplay extends UIRenderer {
         return Array.from(this._cachedSockets.keys()).sort();
     }
 
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
-    }
-
     /**
      * @en Query socket path with slot or bone name.
      * @zh 查询 Socket 路径
@@ -1346,6 +1342,13 @@ export class ArmatureDisplay extends UIRenderer {
         const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
         renderEntity.setUseLocal(true);
         return renderEntity;
+    }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugDraw) {
+            this._debugDraw.markForUpdateRenderData(enable);
+        }
     }
 }
 

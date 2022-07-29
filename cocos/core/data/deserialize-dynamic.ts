@@ -28,7 +28,7 @@ import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:co
 import { legacyCC } from '../global-exports';
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
-import { CCClass } from './class';
+import { CCClass, ENUM_TAG, BITMASK_TAG } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
@@ -145,11 +145,11 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
         // function undefined object(null) string boolean number
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
-        const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
+        const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
             let isPrimitiveType;
             if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof Attr.PrimitiveType;
+                isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
             } else {
                 const defaultType = typeof defaultValue;
                 isPrimitiveType = defaultType === 'string'
@@ -217,12 +217,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             }
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
-            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
+            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
             let isPrimitiveType = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                const userType = attrs[propName + POSTFIX_TYPE];
                 if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof Attr.PrimitiveType;
+                    isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
                 } else {
                     const defaultType = typeof defaultValue;
                     isPrimitiveType = defaultType === 'string'

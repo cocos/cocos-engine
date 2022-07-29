@@ -151,6 +151,7 @@
 .component .component-header > .link {
     padding: 0 5px;
     transition: color 0.15s;
+    color: var(--color-default-contrast-emphasis);
 }
 
 .component .component-header > .menu:hover {

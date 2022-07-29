@@ -349,12 +349,12 @@ void Skybox::setUseHDR(bool val) {
 
 void Skybox::updatePipeline() const {
     if (isEnabled() && _material != nullptr) {
-        if (getReflectionMap()) {
-            _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"USE_REFLECTION_CUBEMAP", true}});
-            _material->setProperty("environmentMap", getEnvmap());
-        } else {
-            _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"USE_REFLECTION_CUBEMAP", false}});
+        auto *envmap = getEnvmap();
+        if (!envmap) {
+            envmap = _default.get();
         }
+        _material->setProperty("environmentMap", envmap);
+        _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
     }
 
     if (_model != nullptr && _material != nullptr) {
