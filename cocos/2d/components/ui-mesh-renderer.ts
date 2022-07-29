@@ -84,12 +84,11 @@ export class UIMeshRenderer extends Component {
     onEnable () {
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
-        if (this.renderEntity) this.renderEntity.enabled = true;
     }
 
     onDisable () {
         uiRendererManager.removeRenderer(this);
-        if (this.renderEntity) this.renderEntity.enabled = false;
+        if (this.renderEntity) this.renderEntity.enabled = this._canRender();
     }
 
     public onLoad () {
@@ -154,6 +153,7 @@ export class UIMeshRenderer extends Component {
     // Native updateAssembler
     public updateRenderer () {
         if (JSB) {
+            if (this.renderEntity) this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
                 // @ts-expect-error: UIMeshRenderer do not attachToScene
@@ -239,6 +239,20 @@ export class UIMeshRenderer extends Component {
     }
 
     public setTextureDirty () {
+    }
+
+    protected _canRender () {
+        if (this.enabled && this._modelComponent) {
+            const matNum = this._modelComponent.sharedMaterials.length;
+            for (let i = 0; i < matNum; i++) {
+                const material = this._modelComponent.getMaterialInstance(i);
+                if (material == null || !material.isValid) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     get renderEntity () {
