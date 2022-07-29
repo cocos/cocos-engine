@@ -915,6 +915,10 @@ module.exports = {
             label: "Marionette Animation System",
             description: "Enable the Marionette animation system",
         },
+        xr: {
+            label: "XR",
+            description: "Enable the XR function system",
+        },
         custom_pipeline: {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
@@ -989,5 +993,186 @@ module.exports = {
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    xr: {
+        hmd_ctrl: {
+            stereoRendering: 'Render mode, off when rendering the middle image copy to the binocular output',
+            perEyeCamera: 'Whether to open separate left and right eye nodes',
+            syncWithMainCamera: 'Left and right eye nodes set whether to synchronize the main camera',
+            foveationRendering: 'Foveation rendering (the device needs to support eye tracking)',
+            IPDOffset: 'Whether to open to set Interpupillary distance',
+            offsetValue: 'Value of interpupillary distance',
+            aspectRatio: 'Aspect ratio',
+            ratio: 'Aspect ratio value'
+        },
+        mr_sight: {
+            layer: 'Layer used for display',
+            streamSource: 'Video source',
+            targetCamera: 'You can only choose one camera with video',
+            gateFit: 'Method of filling Video image',
+            scaling: 'Manually scale image multiples'
+        },
+        pose_tracker: {
+            trackingSource: 'Specify the physical device to trace',
+            trackingType: 'Device tracking mode, effective tracking variable'
+        },
+        target_eye: {
+            targetEye: 'Target camera for rendering'
+        },
+        tracking_origin: {
+            offsetObject: 'The node which need to offset',
+            trackingOriginMode: 'Tracing migration mode',
+            yOffsetValue: 'The offsetObject offset in the Y axis'
+        },
+        xr_controller: {
+            inputDevice: 'Binding of physical input devices',
+            selectActionLeft: 'Select state input key bindings (left)',
+            activateActionLeft: 'Active input key bindings (left)',
+            UIPressActionLeft: 'UiPress key bindings (left)',
+            selectActionRight: 'Select state input key bindings (right)',
+            activateActionRight: 'Active input key bindings (right)',
+            UIPressActionRight: 'UiPress key bindings (right)',
+            axisToPressThreshold: 'Minimum threshold for triggering behavior',
+            model: 'Bind visual model of Controller'
+        },
+        interactable_events: {
+            hoverEnterEvents: 'Hover start event',
+            hoverExitEvents: 'Hover ends the event',
+            selectEnterEvents: 'Select start event',
+            selectExitEvents: 'Select end event',
+            activeEnterEvents: 'Activation start event',
+            activeExitEvents: 'Activation end event'
+        },
+        interactor_events: {
+            audioEvents: 'Audio trigger event',
+            hapticEvents: 'Tactile triggering event',
+            interactorEvents: 'Interaction events',
+            audio_events: {
+                onSelectEntered: 'Whether to enable the trigger audio that selects the start event',
+                onSelectEnteredAudioClip: 'Select the trigger audio for the start event',
+                onSelectExited: 'Whether to enable the trigger audio for the select end event',
+                onSelectExitedAudioClip: 'Select the trigger audio that ends the event',
+                onSelectCanceled: 'Whether to enable the triggering audio for the select cancel event',
+                onSelectCanceledAudioClip: 'Select the trigger audio to cancel the event',
+                onHoverEntered: 'Whether to enable the trigger audio for the hover start event',
+                onHoverEnteredAudioClip: 'Trigger audio for the hover start event',
+                onHoverExited: 'Whether to enable the trigger audio for the hover end event',
+                onHoverExitedAudioClip: 'Trigger audio for the hover end event',
+                onHoverCanceled: 'Whether to enable the trigger audio for the hover cancel event',
+                onHoverCanceledAudioClip: 'Trigger audio for the hover cancel event'
+            },
+            haptic_events: {
+                onSelectEntered: 'Whether to enable the tactile event that selects the start event',
+                onSelectEnteredHaptic: 'The intensity of the sense of touch',
+                onSelectEnteredDuration: 'How long haptic lasts',
+                onSelectExited: 'Whether to enable the tactile event that selects the end event',
+                onSelectExitedHaptic: 'The intensity of the sense of touch',
+                onSelectExitedDuration: 'How long haptic lasts',
+                onSelectCanceled: 'Whether to enable tactile events that select cancel events',
+                onSelectCanceledHaptic: 'The intensity of the sense of touch',
+                onSelectCanceledDuration: 'How long haptic lasts',
+                onHoverEntered: 'Whether to enable the tactile event of the hover start event',
+                onHoverEnteredHaptic: 'The intensity of the sense of touch',
+                onHoverEnteredDuration: 'How long haptic lasts',
+                onHoverExited: 'Whether to enable the tactile event for the hover end event',
+                onHoverExitedHaptic: 'The intensity of the sense of touch',
+                onHoverExitedDuration: 'How long haptic lasts',
+                onHoverCanceled: 'Whether to enable tactile events for hover cancel events',
+                onHoverCanceledHaptic: 'The intensity of the sense of touch',
+                onHoverCanceledDuration: 'How long haptic lasts'
+            },
+            sub_interactor_events: {
+                hoverEnterEvents: 'Hover start event',
+                hoverExitEvents: 'Hover ends the event',
+                selectEnterEvents: 'Select start event',
+                selectExitEvents: 'Select end event'
+            }
+        },
+        xr_interactor: {
+            attachTransform: 'Instead of the final position of the captured object, if empty, use the position of the current Interactor',
+            selectActionTrigger: 'Select the triggering mechanism for the behavior'
+        },
+        ray_interactor: {
+            interactionWithUINode: 'With this enabled, rays can interact with the UI',
+            forceGrab: 'When enabled, the captured object is attached to the AttachTransform, and when closed, the position attached to the interaction point is captured',
+            rayOriginTransform: 'The position from which Ray is emitted, null defaults to the position of the current Interactor',
+            lineType: 'There are three types of ray: straight line, parabola and Bezier curve',
+            maxRayDistance: 'The furthest distance a ray can be projected',
+            reticle: 'Ray cursor',
+            raycastMask: 'X-ray detection layer',
+            raycastTiggerInteraction: 'X-ray detects whether the trigger is triggered. IGNORE also detects the trigger',
+            hitDetectionType: 'Hit detection type',
+            hitClosestOnly: 'When enabled, only the nearest target is detected'
+        },
+        xr_interactable: {
+            rayReticle: 'When a ray touches an interaction, a reminder of the contact point display'
+        },
+        grab_interactable: {
+            attachTransform: 'Use the position of this AttachTransform as the position at which the object is fetched, or if it is empty use the position of the actual object (possibly a position of the object being fetched)',
+            attachEaseInTime: 'The time consumed by the migration process of the captured object',
+            grabTrigger: 'The event that triggers fetching',
+            hideController: 'Whether to hide the XR Controller object model. Hide the XR Controller object model when enabled',
+            selectMode: '',
+            throwOnDetach: 'When turned on, the object has physical properties that simulate the throwing behavior',
+            throwSimulationMode: 'The calculation of the velocity of an object when thrown',
+            throwSmoothingDuration: 'The time period used to calculate the average throwing speed',
+            throwSmoothingCurve: 'The curve to use to weight thrown velocity smoothing (most recent frames to the right)',
+            throwVelocityScale: 'The multiplier of speed inherited from the interactor during throwing',
+            throwAngularVelocityScale: 'The multiplier of angular velocity inherited from the interactor during throwing'
+        },
+        teleportable: {
+            teleportableType: 'Teleport type, teleport point and teleport area',
+            teleportAnchorNode: 'This is enabled when the transport type is transport point. Defines the fixed location of the final transmission',
+            teleportTrigger: 'The event that triggers the transport',
+            teleporter: 'A transport object that can be transported to this point'
+        },
+        locomotion_base: {
+            checker: 'Select to specify a Locomotion Checker, or if the user does not specify it, the default binding traverses the current sence and obtains the first Locomotion Checker',
+            inputDevice: 'Bind the input device that needs to read the signal',
+            inputControl: 'Binding input controls'
+        },
+        continuous_mover: {
+            moveSpeed: 'Speed of movement',
+            forwardSource: 'An object specified as a forward direction',
+        },
+        continuous_turner: {
+            turnSpeed: 'Speed of turning'
+        },
+        sharp_turner: {
+            turnAngle: 'Fixed steering Angle each time',
+            enableTurnAround: 'This allows XR Agent to rotate 180 degrees when the joystick is pressed',
+            activationTimeout: 'The time required to wait while performing a continuous turn'
+        },
+        locomotion_checker: {
+            timeout: 'The timeout (in seconds) for exclusive access to the XR Agent',
+            xrAgent: 'Bind XR Agent. The default bind is the first XR Agent that is iterated over the current scene'
+        },
+        teleporter: {
+            checker: 'Select to specify a Locomotion Checker, or if the user does not specify it, the default binding traverses the current sence and obtains the first Locomotion Checker'
+        },
+        camera_following: {
+            camera: ''
+        },
+        raycast_checker: {
+            ignoreReversedUI: ''
+        },
+        xr_key: {
+            key: '',
+            spriteFrameOn: '',
+            spriteFrameOff: '',
+            capitalSpriteFrameOn: '',
+            capitalSpriteFrameOff: ''
+        },
+        xr_keyboard_input_field: {
+            suspendTransform: '',
+            xRKeyboard: ''
+        },
+        xr_keyboard: {
+            showCaret: '',
+            disableUIInteractionWhenTyping: '',
+            onCommitText: '',
+            onShowKeyboard: '',
+            onHideKeyboard: ''
+        }
     },
 };

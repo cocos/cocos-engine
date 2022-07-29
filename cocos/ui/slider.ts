@@ -35,6 +35,8 @@ import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { input, Input } from '../input/input';
+import { XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const _tempPos = new Vec3();
 /**
@@ -186,6 +188,10 @@ export class Slider extends Component {
         this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+
+        this.node.on(XrUIPressEventType.XRUI_HOVER_STAY, this._xrHoverStay, this);
+        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
         if (this._handle && this._handle.isValid) {
             this._handle.node.on(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
             this._handle.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
@@ -198,6 +204,10 @@ export class Slider extends Component {
         this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
         this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+
+        this.node.off(XrUIPressEventType.XRUI_HOVER_STAY, this._xrHoverStay, this);
+        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
         if (this._handle && this._handle.isValid) {
             this._handle.node.off(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
             this._handle.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
@@ -313,6 +323,40 @@ export class Slider extends Component {
 
             this._updateHandlePosition();
         }
+    }
+
+    protected _xrHandleProgress(point: Vec3) {
+        if (!this._touchHandle) {
+            const uiTrans = this.node._uiProps.uiTransformComp!;
+            if (this.direction === Direction.Horizontal) {
+                this.progress = clamp01(0.5 + (point.x - this.node.worldPosition.x) / (uiTrans.width * this.node.worldScale.x));
+            } else {
+                this.progress = clamp01(0.5 + (point.y - this.node.worldPosition.y) / (uiTrans.height * this.node.worldScale.y));
+            }
+        }
+    }
+
+    protected _xrClick(event: XrUIPressEvent) {
+        if (!this._handle) {
+            return;
+        }
+        this._dragging = true;
+        this._xrHandleProgress(event.hitPoint);
+        this._emitSlideEvent();
+    }
+
+    protected _xrUnClick() {
+        this._dragging = false;
+        this._touchHandle = false;
+    }
+
+    protected _xrHoverStay(event: XrUIPressEvent) {
+        if (!this._dragging) {
+            return;
+        }
+
+        this._xrHandleProgress(event.hitPoint);
+        this._emitSlideEvent();
     }
 }
 

@@ -896,6 +896,10 @@ module.exports = {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
         },
+        xr: {
+            label: "XR",
+            description: "启用 XR 功能系统。",
+        },
         custom_pipeline: {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
@@ -970,5 +974,162 @@ module.exports = {
         minPos: '世界包围盒最小顶点的坐标',
         maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
+    },
+    xr: {
+        hmd_ctrl: {
+            stereoRendering: '渲染方式，off的时候渲染中间画面复制到双目输出',
+            perEyeCamera: '是否开启单独的左右眼节点',
+            syncWithMainCamera: '左右眼节点设置是否同步主相机',
+            foveationRendering: '注视点渲染(需设备支持眼动追踪)',
+            IPDOffset: '左右眼瞳距设置',
+            offsetValue: '瞳距值',
+            aspectRatio: '纵横比',
+            ratio: '纵横比值'
+        },
+        mr_sight: {
+            layer: '图层',
+            streamSource: '视频源',
+            targetCamera: '能看到视频的相机，只能选一个',
+            gateFit: '视频图像填充方式',
+            scaling: '手动缩放图像倍数'
+        },
+        pose_tracker: {
+            trackingSource: '指定需要追踪的物理设备',
+            trackingType: '设备追踪方式，生效的追踪变量'
+        },
+        target_eye: {
+            targetEye: '渲染目标相机'
+        },
+        tracking_origin: {
+            offsetObject: '指定需要偏移的节点',
+            trackingOriginMode: '追踪偏移方式',
+            yOffsetValue: '节点Y轴方向的偏移量'
+        },
+        xr_controller: {
+            inputDevice: '物理输入设备的绑定',
+            selectActionLeft: '选择状态的输入按键绑定(左)',
+            activateActionLeft: '激活状态的输入按键绑定(左)',
+            UIPressActionLeft: 'UI触发的按键绑定(左)',
+            selectActionRight: '选择状态的输入按键绑定(右)',
+            activateActionRight: '选择状态的输入按键绑定(右)',
+            UIPressActionRight: '选择状态的输入按键绑定(右)',
+            axisToPressThreshold: '行为触发的最小阈值',
+            model: '绑定Controller的可视化模型'
+        },
+        interactable_events: {
+            hoverEnterEvents: '悬停开始事件',
+            hoverExitEvents: '悬停结束事件',
+            selectEnterEvents: '选择开始事件',
+            selectExitEvents: '选择结束事件',
+            activeEnterEvents: '激活开始事件',
+            activeExitEvents: '激活结束事件'
+        },
+        interactor_events: {
+            audioEvents: '音频触发事件',
+            hapticEvents: '触觉触发事件',
+            interactorEvents: '交互事件',
+            audio_events: {
+                onSelectEntered: '是否开启选择开始事件的触发音频',
+                onSelectEnteredAudioClip: '选择开始事件的触发音频',
+                onSelectExited: '是否开启选择结束事件的触发音频',
+                onSelectExitedAudioClip: '选择结束事件的触发音频',
+                onSelectCanceled: '是否开启选择取消事件的触发音频',
+                onSelectCanceledAudioClip: '选择取消事件的触发音频',
+                onHoverEntered: '是否开启悬停开始事件的触发音频',
+                onHoverEnteredAudioClip: '悬停开始事件的触发音频',
+                onHoverExited: '是否开启悬停结束事件的触发音频',
+                onHoverExitedAudioClip: '悬停结束事件的触发音频',
+                onHoverCanceled: '是否开启悬停取消事件的触发音频',
+                onHoverCanceledAudioClip: '悬停取消事件的触发音频'
+            },
+            haptic_events: {
+                onSelectEntered: '是否开启选择开始事件的触觉事件',
+                onSelectEnteredHaptic: '触觉强度',
+                onSelectEnteredDuration: '持续时间',
+                onSelectExited: '是否开启选择结束事件的触觉事件',
+                onSelectExitedHaptic: '触觉强度',
+                onSelectExitedDuration: '持续时间',
+                onSelectCanceled: '是否开启选择取消事件的触觉事件',
+                onSelectCanceledHaptic: '触觉强度',
+                onSelectCanceledDuration: '持续时间',
+                onHoverEntered: '是否开启悬停开始事件的触觉事件',
+                onHoverEnteredHaptic: '触觉强度',
+                onHoverEnteredDuration: '持续时间',
+                onHoverExited: '是否开启悬停结束事件的触觉事件',
+                onHoverExitedHaptic: '触觉强度',
+                onHoverExitedDuration: '持续时间',
+                onHoverCanceled: '是否开启悬停取消事件的触觉事件',
+                onHoverCanceledHaptic: '触觉强度',
+                onHoverCanceledDuration: '持续时间'
+            },
+            sub_interactor_events: {
+                hoverEnterEvents: '悬停开始事件',
+                hoverExitEvents: '悬停结束事件',
+                selectEnterEvents: '选择开始事件',
+                selectExitEvents: '选择结束事件'
+            }
+        },
+        xr_interactor: {
+            attachTransform: '代替抓取的物体最终落到的位置，如果为空就用当前Interactor的位置',
+            selectActionTrigger: '选择行为的触发机制'
+        },
+        ray_interactor: {
+            interactionWithUINode: '开启后射线可以与UI进行交互',
+            forceGrab: '开启时被抓对象吸附到AttachTransform、关闭后抓取挂载在交互点的位置',
+            rayOriginTransform: '发出Ray的起始位置，为空就默认是当前Interactor的位置',
+            lineType: '射线类型，共分为三种，直线、抛物线、贝塞尔曲线',
+            maxRayDistance: '射线最远投射距离',
+            reticle: '射线光标',
+            raycastMask: '射线检测的图层',
+            raycastTiggerInteraction: '射线检测是否触发触发器，IGNORE时触发器也检测',
+            hitDetectionType: '命中检测类型',
+            hitClosestOnly: '开启时，只检测最近的目标'
+        },
+        xr_interactable: {
+            rayReticle: '射线触碰到交互物时，接触点显示的提示物'
+        },
+        grab_interactable: {
+            attachTransform: '用此AttachTransform的位置作为此物被抓取的位置，如果为空就用实际对象的位置(可能是被抓取物体的某一个位置点)',
+            attachEaseInTime: '被抓取物体迁移过程消耗的时间',
+            grabTrigger: '触发抓取的事件',
+            hideController: '是否隐藏XR Controller对象模型,开启后隐藏XR Controller对象模型',
+            selectMode: '',
+            throwOnDetach: '开启后，物体具有模拟抛出行为的物理属性',
+            throwSimulationMode: '抛出时物体速度的计算方式',
+            throwSmoothingDuration: '用于计算平均投掷速度的时间段',
+            throwSmoothingCurve: '用于加权投掷速度平滑的曲线(右侧最近的帧)',
+            throwVelocityScale: '在投掷时从交互器继承的速度的倍率',
+            throwAngularVelocityScale: '在投掷时从交互器继承的角速度的倍率'
+        },
+        teleportable: {
+            teleportableType: '传送地的传送类型，有传送点和传送区域两种形式',
+            teleportAnchorNode: '当传送类型为传送点时开启此项，定义最终传送的固定位置',
+            teleportTrigger: '触发传送的事件',
+            teleporter: '能够传送至此的传送对象'
+        },
+        locomotion_base: {
+            checker: '选择参与此运动行为检查的LocomotionChecker，如果用户没有指定，则默认绑定遍历当前Object组得到的第一个Locomotion Checker',
+            inputDevice: '绑定需要读取信号的输入设备',
+            inputControl: '绑定输入控件'
+        },
+        continuous_mover: {
+            moveSpeed: '移动的速度',
+            forwardSource: '指定为正向方向的对象',
+        },
+        continuous_turner: {
+            turnSpeed: '转向的速度'
+        },
+        sharp_turner: {
+            turnAngle: '每次固定的转向角度',
+            enableTurnAround: '开启后允许按下摇杆时XR Agent旋转180度',
+            activationTimeout: '执行连续的转弯时需要等待的时间'
+        },
+        locomotion_checker: {
+            timeout: '独占访问XR Agent的超时时间(以秒为单位)',
+            xrAgent: '绑定XR Agent,默认绑定遍历当前场景得到的第一个XR Agent'
+        },
+        teleporter: {
+            checker: '选择特定Locomotion Checker,如果用户没有指定，则默认绑定遍历当前Object组得到的第一个Locomotion Checker'
+        }
     },
 };

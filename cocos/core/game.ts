@@ -686,6 +686,14 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.timeEnd('Init Base');
                 }
+
+                if (sys.isXR) {
+                    const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
+                    const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+                    xr.XrEntry.getInstance().setMultisamplesRTT(xrMSAA);
+                    xr.XrEntry.getInstance().setRenderingScale(xrRenderingScale);
+                }
+
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
