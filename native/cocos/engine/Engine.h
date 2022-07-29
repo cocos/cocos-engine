@@ -122,7 +122,7 @@ public:
     /**
      @brief Get engine scheduler.
      */
-    SchedulerPtr getScheduler() const override;
+    SchedulerSharePtr getScheduler() const override;
 
     bool isInited() const override { return _inited; }
 
@@ -137,7 +137,7 @@ private:
     bool _close{false};
     bool _pause{false};
     bool _resune{false};
-    std::shared_ptr<Scheduler> _scheduler{nullptr};
+    SchedulerSharePtr _scheduler{nullptr};
     int64_t _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
     uint _totalFrames{0};
     cc::Vec2 _viewLogicalSize{0, 0};

@@ -104,11 +104,11 @@ public:
      */
     virtual void removeEventCallback(OSEventType evtype) = 0;
 
-    using SchedulerPtr = std::shared_ptr<Scheduler>;
+    using SchedulerSharePtr = std::shared_ptr<Scheduler>;
     /**
      @brief Get engine scheduler.
      */
-    virtual SchedulerPtr getScheduler() const = 0;
+    virtual SchedulerSharePtr getScheduler() const = 0;
 
     virtual bool isInited() const = 0;
 };

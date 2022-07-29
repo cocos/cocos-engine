@@ -340,7 +340,7 @@ bool Engine::handleTouchEvent(const TouchEvent &ev) { // NOLINT(readability-conv
     return dispatchEventToApp(OSEventType::TOUCH_OSEVENT, ev);
 }
 
-Engine::SchedulerPtr Engine::getScheduler() const {
+Engine::SchedulerSharePtr Engine::getScheduler() const {
     return _scheduler;
 }
 
