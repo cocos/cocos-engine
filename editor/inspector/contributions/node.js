@@ -684,7 +684,9 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.toggleShowAddComponentBtn(true);
+                if (Editor.EditMode.getMode() !== 'animation') {
+                    panel.toggleShowAddComponentBtn(true);
+                }
                 return;
             }
             panel.toggleShowAddComponentBtn(false);
