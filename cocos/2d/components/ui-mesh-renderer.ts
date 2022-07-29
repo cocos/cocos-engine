@@ -84,6 +84,7 @@ export class UIMeshRenderer extends Component {
     onEnable () {
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
+        if (this.renderEntity) this.renderEntity.enabled = true;
     }
 
     onDisable () {
