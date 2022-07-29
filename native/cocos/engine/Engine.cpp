@@ -323,6 +323,9 @@ bool Engine::handleEvent(const OSEvent &ev) {
     } else if (type == OSEventType::KEYBOARD_OSEVENT) {
         cc::EventDispatcher::dispatchKeyboardEvent(OSEvent::castEvent<KeyboardEvent>(ev));
         isHandled = true;
+    } else if (type == OSEventType::CONTROLLER_OSEVENT) {
+        cc::EventDispatcher::dispatchControllerEvent(OSEvent::castEvent<ControllerEvent>(ev));
+        isHandled = true;
     } else if (type == OSEventType::CUSTOM_OSEVENT) {
         cc::EventDispatcher::dispatchCustomEvent(OSEvent::castEvent<CustomEvent>(ev));
         isHandled = true;

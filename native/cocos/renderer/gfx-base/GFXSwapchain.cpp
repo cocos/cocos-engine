@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "GFXSwapchain.h"
+#include "GFXDevice.h"
 
 namespace cc {
 namespace gfx {
@@ -46,6 +47,7 @@ void Swapchain::initialize(const SwapchainInfo &info) {
 }
 
 void Swapchain::destroy() {
+    gfx::Device::getInstance()->removeSwapchain(this);
     doDestroy();
 
     _windowHandle = nullptr;

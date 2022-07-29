@@ -135,6 +135,8 @@ public:
 #endif
     }
 
+    inline void resetRenderQueue(bool reset) { _resetRenderQueue = reset; }
+    inline bool isResetRenderQueue() { return _resetRenderQueue; }
 protected:
     static RenderPipeline *instance;
 
@@ -188,6 +190,8 @@ protected:
     bool _bloomEnabled{false};
     bool _occlusionQueryEnabled{false};
     bool _isResourceOwner{false};
+
+    bool _resetRenderQueue{true};
 };
 
 } // namespace pipeline

@@ -63,7 +63,7 @@ public:
      */
     void resize(uint32_t width, uint32_t height);
 
-    void extractRenderCameras(ccstd::vector<Camera *> &cameras);
+    void extractRenderCameras(ccstd::vector<Camera *> &cameras, int xrEye = -1);
 
     /**
      * @zh

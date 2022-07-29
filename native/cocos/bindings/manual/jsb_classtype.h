@@ -48,6 +48,7 @@ public:
             iter = jsbClassTypeMap.find(typeName);
             if (iter != jsbClassTypeMap.end()) {
                 found = true;
+                jsbClassTypeMap.emplace(typeid(*nativeObj).name(), iter->second);
             }
         } else {
             found = true;

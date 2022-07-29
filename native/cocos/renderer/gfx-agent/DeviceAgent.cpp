@@ -145,19 +145,30 @@ void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void DeviceAgent::present() {
-    ENQUEUE_MESSAGE_2(
-        _mainMessageQueue, DevicePresent,
-        actor, _actor,
-        frameBoundarySemaphore, &_frameBoundarySemaphore,
-        {
-            actor->present();
-            frameBoundarySemaphore->signal();
-        });
+    if (!_xr)
+        _xr = CC_GET_XR_INTERFACE();
+    if (_xr) {
+        ENQUEUE_MESSAGE_1(
+            _mainMessageQueue, DevicePresent,
+            actor, _actor,
+            {
+                actor->present();
+            });
+    } else {
+        ENQUEUE_MESSAGE_2(
+            _mainMessageQueue, DevicePresent,
+            actor, _actor,
+            frameBoundarySemaphore, &_frameBoundarySemaphore,
+            {
+                actor->present();
+                frameBoundarySemaphore->signal();
+            });
 
-    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
-    _mainMessageQueue->finishWriting();
-    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
-    _frameBoundarySemaphore.wait();
+        MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+        _mainMessageQueue->finishWriting();
+        _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
+        _frameBoundarySemaphore.wait();
+    }
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
@@ -409,6 +420,17 @@ void DeviceAgent::getQueryPoolResults(QueryPool *queryPool) {
     auto *queryPoolAgent = static_cast<QueryPoolAgent *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolAgent->_mutex);
     queryPoolAgent->_results = actorQueryPoolAgent->_results;
+}
+
+void DeviceAgent::presentSignal() {
+    _frameBoundarySemaphore.signal();
+}
+
+void DeviceAgent::presentWait() {
+    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+    _mainMessageQueue->finishWriting();
+    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
+    _frameBoundarySemaphore.wait();
 }
 
 } // namespace gfx

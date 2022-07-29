@@ -33,6 +33,7 @@
 #if CC_USE_GEOMETRY_RENDERER
     #include "renderer/pipeline/GeometryRenderer.h"
 #endif
+#include "platform/BasePlatform.h"
 
 namespace cc {
 namespace scene {
@@ -86,6 +87,8 @@ Camera::Camera(gfx::Device *device)
 Camera::~Camera() = default;
 
 bool Camera::initialize(const ICameraInfo &info) {
+    _trackingType = info.trackingType;
+    _cameraType = info.cameraType;
     _node = info.node;
     _width = 1.F;
     _height = 1.F;
@@ -153,9 +156,23 @@ void Camera::syncCameraEditor(const Camera &camera) {
 #endif
 }
 
-void Camera::update(bool forceUpdate /*false*/) {
+void Camera::update(bool forceUpdate /*false*/, int xrEye /*-1*/) {
     if (!_node) {
         return;
+    }
+
+    if(!_xr)
+        _xr = CC_GET_XR_INTERFACE();
+    if (_xr && xrEye >= 0) {
+        if (_proj == CameraProjection::PERSPECTIVE) {
+            _isProjDirty = true;
+        }
+        if (_cameraType == CameraType::MAIN || _cameraType == CameraType::DEFAULT) {
+            auto win = Root::getInstance()->getWindows().at(xrEye);
+            if (win) {
+                _window = win;
+            }
+        }
     }
 
     bool viewProjDirty = false;
@@ -180,8 +197,23 @@ void Camera::update(bool forceUpdate /*false*/) {
         const float projectionSignY = _device->getCapabilities().clipSpaceSignY;
         // Only for rendertexture processing
         if (_proj == CameraProjection::PERSPECTIVE) {
-            Mat4::createPerspective(_fov, _aspect, _nearClip, _farClip,
-                                    _fovAxis == CameraFOVAxis::VERTICAL, _device->getCapabilities().clipSpaceMinZ, projectionSignY, static_cast<int>(orientation), &_matProj);
+            if (xrEye < 0 || _cameraType == CameraType::DEFAULT) {
+                Mat4::createPerspective(_fov, _aspect, _nearClip, _farClip,
+                                        _fovAxis == CameraFOVAxis::VERTICAL, _device->getCapabilities().clipSpaceMinZ, projectionSignY, static_cast<int>(orientation), &_matProj);
+            } else if (_xr) {
+                if (_xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool()) {
+                    // xr flow
+                    const auto &projFloat = _xr->getXRViewProjectionData(xrEye, _nearClip, _farClip);
+                    int i = 0;
+                    for (auto value : projFloat) {
+                        _matProj.m[i] = value;
+                        i++;
+                    }
+                } else {
+                    Mat4::createPerspective(_fov, _aspect, _nearClip, _farClip,
+                                            _fovAxis == CameraFOVAxis::VERTICAL, _device->getCapabilities().clipSpaceMinZ, projectionSignY, static_cast<int>(orientation), &_matProj);
+                }
+            }
         } else {
             const float x = _orthoHeight * _aspect;
             const float y = _orthoHeight;
@@ -201,11 +233,45 @@ void Camera::update(bool forceUpdate /*false*/) {
         _frustum->update(_matViewProj, _matViewProjInv);
     }
 }
+
 void Camera::changeTargetWindow(RenderWindow *window) {
     if (_window) {
         _window->detachCamera(this);
     }
-    RenderWindow *win = window ? window : Root::getInstance()->getMainWindow();
+
+    if(!_xr)
+        _xr= BasePlatform::getPlatform()->getInterface<class IXRInterface>();
+    if (_xr) {
+        if (_cameraType == CameraType::MAIN || _cameraType == CameraType::DEFAULT) {
+            auto windows = Root::getInstance()->getWindows();
+            if (window) {
+                // detach camera from other window
+                for (const auto &win : windows) {
+                    win->detachCamera(this);
+                }
+                // add camera to rt window
+                attachCamera(window);
+            } else {
+                // add ui camera(without rt) or hmd camera or other camera(without rt) to xr window
+                for (int i = 0, size = windows.size(); i < size; i++) {
+                    // 0,1 is left+right eye xr window
+                    if (i <= 1) attachCamera(windows[i]);
+                }
+            }
+        } else {
+            // hmd/left/right camera to xr window
+            if (_cameraType < Root::getInstance()->getWindows().size()) {
+                const auto &win = Root::getInstance()->getWindows().at(_cameraType);
+                attachCamera(win);
+            }
+        }
+    } else {
+        RenderWindow *win = window ? window : Root::getInstance()->getMainWindow();
+        attachCamera(win);
+    }
+}
+
+void Camera::attachCamera(RenderWindow *win) {
     if (win) {
         win->attachCamera(this);
         _window = win;
@@ -219,6 +285,14 @@ void Camera::changeTargetWindow(RenderWindow *window) {
             resize(win->getWidth(), win->getHeight());
         }
     }
+}
+
+void Camera::setNodePosition(const Vec3 &position) {
+    if (!_node) {
+        return;
+    }
+
+    _node->setPosition(position);
 }
 
 void Camera::initGeometryRenderer() {

@@ -308,10 +308,12 @@ public class CocosHelper {
         return array;
     }
 
+    private static Display displayCache = null;
     public static int getDeviceRotation() {
         try {
-            Display display = ((WindowManager) sActivity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-            return display.getRotation();
+            if(displayCache == null)
+                displayCache = ((WindowManager) sActivity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            return displayCache.getRotation();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

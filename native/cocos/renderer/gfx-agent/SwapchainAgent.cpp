@@ -39,6 +39,7 @@ SwapchainAgent::SwapchainAgent(Swapchain *actor)
 }
 
 SwapchainAgent::~SwapchainAgent() {
+    gfx::Device::getInstance()->removeSwapchain(this);
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(), SwapchainDestruct,
         actor, _actor,

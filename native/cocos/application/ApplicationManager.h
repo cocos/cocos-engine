@@ -73,6 +73,7 @@ private:
 #define CC_CURRENT_APPLICATION_SAFE()   CC_APPLICATION_MANAGER()->getCurrentAppSafe()
 #define CC_CURRENT_ENGINE()             CC_CURRENT_APPLICATION_SAFE()->getEngine()
 #define CC_GET_PLATFORM_INTERFACE(intf) CC_CURRENT_ENGINE()->getInterface<intf>()
+#define CC_GET_XR_INTERFACE() BasePlatform::getPlatform()->getInterface<IXRInterface>()
 
 /**
  * @brief Called at the user-defined main entry

@@ -160,7 +160,7 @@ public:
 
     void destroyLight(scene::Light *light);
 
-    scene::Camera *createCamera() const;
+    scene::Camera *createCamera();
     /**
      * @zh
      * GFX 设备
@@ -294,9 +294,11 @@ private:
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
+    IXRInterface *_xr{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;
+    ccstd::vector<scene::Camera *>  _allCameraList;
     ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };
