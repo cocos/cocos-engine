@@ -95,7 +95,9 @@ public:
             }
         }
 
-        CC_ASSERT(obj->getRefCount() == 1);
+        if (obj->getRefCount() != 1) {
+            CC_LOG_WARNING("se::Object (%p) reference count (%u) is not 1", obj, obj->getRefCount());
+        }
         obj->decRef();
     }
 };
