@@ -48,7 +48,7 @@ AUX_SOURCE_DIRECTORY(
     ../../../cocos/renderer/gfx-base
     GFX_BASE
 )
-# list(FILTER GFX_BASE EXCLUDE REGEX "[\\w+]*SPIRVUtils.cpp")
+list(FILTER GFX_BASE EXCLUDE REGEX "[\\w+]*SPIRVUtils.cpp")
 
 AUX_SOURCE_DIRECTORY(
     ../../../cocos/renderer/gfx-base/states
@@ -115,7 +115,7 @@ target_include_directories(
 # message(${WGPU_EMS_EXTERNAL_LIBS})
 target_link_libraries(
     ${APP_NAME}_wasm PRIVATE PUBLIC
-    ${WGPU_EMS_EXTERNAL_LIBS}
+    # ${WGPU_EMS_EXTERNAL_LIBS}
 )
 
 set(EMS_LINK_FLAGS

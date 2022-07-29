@@ -26,6 +26,7 @@
 #pragma once
 
 #include <emscripten/bind.h>
+#include <emscripten/val.h>
 #include "gfx-base/GFXQueue.h"
 
 namespace cc {
@@ -42,6 +43,8 @@ public:
     void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
     inline CCWGPUQueueObject *gpuQueueObject() { return _gpuQueueObject; }
+
+    void submit(const emscripten::val &cmdBuffs);
 
 protected:
     void doInit(const QueueInfo &info) override;

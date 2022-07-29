@@ -74,6 +74,7 @@ CCWGPUDevice::CCWGPUDevice() : wrapper<Device>(val::object()) {
     _caps.clipSpaceMinZ = 0.0F;
     _caps.screenSpaceSignY = -1.0F;
     _caps.clipSpaceSignY = -1.0F;
+    _caps.uboOffsetAlignment = 256;
     instance = this;
 }
 

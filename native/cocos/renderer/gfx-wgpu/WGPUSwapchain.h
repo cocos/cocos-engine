@@ -44,15 +44,17 @@ public:
 
     CCWGPUTexture *getColorTexture();
 
-    inline void setColorTexture(Texture* tex) { _colorTexture = tex; }
+    inline void setColorTexture(Texture *tex) { _colorTexture = tex; }
 
-    CCWGPUTexture* getDepthStencilTexture();
+    CCWGPUTexture *getDepthStencilTexture();
 
-    inline void setDepthStencilTexture(Texture* tex) { _depthStencilTexture = tex; }
+    inline void setDepthStencilTexture(Texture *tex) { _depthStencilTexture = tex; }
 
     void update();
 
-    //ems export
+    // ems export
+    uint32_t getTransform() const { return static_cast<uint32_t>(_transform); }
+
 protected:
     CCWGPUSwapchain() = delete;
 

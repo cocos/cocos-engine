@@ -43,7 +43,7 @@ public:
 
     inline CCWGPUShaderObject *gpuShaderObject() { return _gpuShaderObject; }
 
-    void initialize(const ShaderInfo &info);
+    void initialize(const ShaderInfo &info) { doInit(info); }
 
     // ems export
     void initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs);

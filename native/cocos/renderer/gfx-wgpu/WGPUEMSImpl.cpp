@@ -15,6 +15,7 @@
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
 #include "WGPUInputAssembler.h"
+#include "WGPUQueue.h"
 #include "WGPURenderPass.h"
 #include "WGPUShader.h"
 #include "WGPUSwapchain.h"
@@ -22,7 +23,6 @@
 #include "states/WGPUBufferBarrier.h"
 #include "states/WGPUGeneralBarrier.h"
 #include "states/WGPUTextureBarrier.h"
-
 namespace cc::gfx {
 
 using ems::vecFromEMS;
@@ -259,6 +259,7 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     auto* shader = new CCWGPUShader();
+    // shader->initialize(shaderInfo);
     shader->initialize(shaderInfo, spirvs);
     return shader;
 }
@@ -383,7 +384,7 @@ RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
     const std::vector<val>& subpassesVec = vecFromJSArray<val>(emsSubpasses);
     len = subpassesVec.size();
     auto& gfxSubpasses = renderPassInfo.subpasses;
-    gfxColors.resize(len);
+    gfxSubpasses.resize(len);
     for (size_t i = 0; i < len; ++i) {
         const auto& ems_subpass = subpassesVec[i];
         auto& subpass = gfxSubpasses[i];
@@ -639,6 +640,17 @@ emscripten::val CCWGPUInputAssembler::getEMSAttributes() const {
         arr.set(i, ems_attr);
     }
     return arr;
+}
+
+void CCWGPUQueue::submit(const val& info) {
+    ccstd::vector<CommandBuffer*> cmdBuffs;
+    const std::vector<val>& ems_cmdBuffs = vecFromJSArray<val>(info);
+    size_t len = ems_cmdBuffs.size();
+    cmdBuffs.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        cmdBuffs[i] = ems_cmdBuffs[i].as<CommandBuffer*>(allow_raw_pointers());
+    }
+    return this->submit(cmdBuffs.data(), cmdBuffs.size());
 }
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {

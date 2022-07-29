@@ -123,6 +123,8 @@ public:
 
     Sampler *getSampler(const emscripten::val &info);
 
+    inline MemoryStatus getMemStatus() const { return _memoryStatus; }
+
     void debug();
 
     uint32_t getFormatFeatures(uint32_t format) {

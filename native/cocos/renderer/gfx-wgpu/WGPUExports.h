@@ -875,7 +875,12 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("getColorTexture", &CCWGPUSwapchain::getColorTexture, allow_raw_pointers())
         .function("setColorTexture", &CCWGPUSwapchain::setColorTexture, allow_raw_pointers())
         .function("getDepthStencilTexture", &CCWGPUSwapchain::getDepthStencilTexture, allow_raw_pointers())
-        .function("setDepthStencilTexture", &CCWGPUSwapchain::setDepthStencilTexture, allow_raw_pointers());
+        .function("setDepthStencilTexture", &CCWGPUSwapchain::setDepthStencilTexture, allow_raw_pointers())
+        .function("getTransform", &CCWGPUSwapchain::getTransform);
+
+    value_object<MemoryStatus>("MemoryStatus")
+        .field("bufferSize", &MemoryStatus::bufferSize)
+        .field("textureSize", &MemoryStatus::textureSize);
 
     class_<Device>("Device")
         // .function("initialize", &Device::initialize, allow_raw_pointer<arg<0>>())
@@ -890,6 +895,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         //           /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("getCommandBuffer", &Device::getCommandBuffer, allow_raw_pointers())
         .function("getQueue", &Device::getQueue, allow_raw_pointers())
+        // .function("flushCommands", &Device::flushCommands, allow_raw_pointers())
         .function("present", select_overload<void(void)>(&Device::present),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .property("capabilities", &Device::getCapabilities);
@@ -933,6 +939,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("getSampler", select_overload<Sampler *(const emscripten::val &)>(&CCWGPUDevice::getSampler), allow_raw_pointer<arg<0>>())
         .function("getFormatFeatures", select_overload<uint32_t(uint32_t)>(&CCWGPUDevice::getFormatFeatures))
         .property("gfxAPI", &CCWGPUDevice::getGFXAPI)
+        .property("memoryStatus", &CCWGPUDevice::getMemStatus)
         .function("hasFeature", &CCWGPUDevice::hasFeature);
 
     class_<cc::gfx::RenderPass>("RenderPass")
@@ -1059,10 +1066,10 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint32_t)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers());
 
     class_<Queue>("Queue")
-        .function("destroy", &Queue::destroy)
-        .function("submit", select_overload<void(const CommandBufferList &)>(&Queue::submit));
+        .function("destroy", &Queue::destroy);
     class_<CCWGPUQueue, base<Queue>>("CCWGPUQueue")
         .function("initialize", &CCWGPUQueue::initialize)
+        .function("submit", select_overload<void(const emscripten::val &)>(&CCWGPUQueue::submit))
         .constructor<>();
 
     class_<PipelineState>("PipelineState")

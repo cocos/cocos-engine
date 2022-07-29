@@ -168,11 +168,11 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         WGPUPrimitiveState primitiveState = {
             .nextInChain = nullptr,
             .topology = toWGPUPrimTopology(_primitive),
-            .stripIndexFormat = stripTopology ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Undefined, //TODO_Zeqiang: ???
+            .stripIndexFormat = stripTopology ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Undefined, // TODO_Zeqiang: ???
             .frontFace = _rasterizerState.isFrontFaceCCW ? WGPUFrontFace::WGPUFrontFace_CCW : WGPUFrontFace::WGPUFrontFace_CW,
-            .cullMode = _rasterizerState.cullMode == CullMode::FRONT ? WGPUCullMode::WGPUCullMode_Front
-                                                                     : _rasterizerState.cullMode == CullMode::BACK ? WGPUCullMode::WGPUCullMode_Back
-                                                                                                                   : WGPUCullMode::WGPUCullMode_None,
+            .cullMode = _rasterizerState.cullMode == CullMode::FRONT  ? WGPUCullMode::WGPUCullMode_Front
+                        : _rasterizerState.cullMode == CullMode::BACK ? WGPUCullMode::WGPUCullMode_Back
+                                                                      : WGPUCullMode::WGPUCullMode_None,
         };
 
         WGPUStencilFaceState stencilFront = {
@@ -181,7 +181,6 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .depthFailOp = toWGPUStencilOperation(_depthStencilState.stencilZFailOpFront),
             .passOp = toWGPUStencilOperation(_depthStencilState.stencilPassOpFront),
         };
-
         WGPUStencilFaceState stencilBack = {
             .compare = toWGPUCompareFunction(_depthStencilState.stencilFuncBack),
             .failOp = toWGPUStencilOperation(_depthStencilState.stencilFailOpBack),

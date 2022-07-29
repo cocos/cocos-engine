@@ -86,7 +86,7 @@ void CCWGPUCommandBuffer::end() {
             wgpuCommandEncoderRelease(_gpuCommandBufferObj->wgpuCommandEncoder);
             _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDefaultHandle;
         } else {
-            wgpuComputePassEncoderEndPass(_gpuCommandBufferObj->wgpuComputeEncoder);
+            wgpuComputePassEncoderEnd(_gpuCommandBufferObj->wgpuComputeEncoder);
             wgpuComputePassEncoderRelease(_gpuCommandBufferObj->wgpuComputeEncoder);
             auto wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
             wgpuQueueSubmit(static_cast<CCWGPUQueue *>(_queue)->gpuQueueObject()->wgpuQueue, 1, &wgpuCommandBuffer);
@@ -119,7 +119,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
             .resolveTarget = nullptr,       // TODO_Zeqiang: wgpu offscr msaa
             .loadOp = WGPULoadOp_Clear,     // toWGPULoadOp(colorConfigs[0].loadOp),
             .storeOp = WGPUStoreOp_Discard, // toWGPUStoreOp(colorConfigs[0].storeOp),
-            .clearColor = WGPUColor{0.2, 0.2, 0.2, 1.0},
+            .clearValue = WGPUColor{0.2, 0.2, 0.2, 1.0},
         };
         colorAttachments.emplace_back(color);
     } else {
@@ -133,7 +133,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
                 .resolveTarget = nullptr, // TODO_Zeqiang: wgpu offscr msaa
                 .loadOp = toWGPULoadOp(colorConfigs[i].loadOp),
                 .storeOp = toWGPUStoreOp(colorConfigs[i].storeOp),
-                .clearColor = toWGPUColor(colors[i]),
+                .clearValue = toWGPUColor(colors[i]),
             };
             colorAttachments.emplace_back(color);
         }
@@ -145,11 +145,11 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
             .view = static_cast<CCWGPUTexture *>(dsTexture)->gpuTextureObject()->selfView,
             .depthLoadOp = WGPULoadOp_Clear, // toWGPULoadOp(depthStencilConfig.depthLoadOp),
             .depthStoreOp = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
-            .clearDepth = depth,
+            .depthClearValue = depth,
             .depthReadOnly = false,
             .stencilLoadOp = toWGPULoadOp(depthStencilConfig.stencilLoadOp),
             .stencilStoreOp = toWGPUStoreOp(depthStencilConfig.stencilStoreOp),
-            .clearStencil = stencil,
+            .stencilClearValue = stencil,
             .stencilReadOnly = false,
         };
         depthStencils.emplace_back(depthStencil);
@@ -161,11 +161,11 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
                 .view = swapchain->gpuSwapchainObject()->swapchainDepthStencil->gpuTextureObject()->selfView,
                 .depthLoadOp = WGPULoadOp_Clear, // toWGPULoadOp(depthStencilConfig.depthLoadOp),
                 .depthStoreOp = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
-                .clearDepth = depth,
+                .depthClearValue = depth,
                 .depthReadOnly = false,
                 .stencilLoadOp = toWGPULoadOp(depthStencilConfig.stencilLoadOp),
                 .stencilStoreOp = toWGPUStoreOp(depthStencilConfig.stencilStoreOp),
-                .clearStencil = stencil,
+                .stencilClearValue = stencil,
                 .stencilReadOnly = false,
             };
             depthStencils.emplace_back(depthStencil);
@@ -185,7 +185,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
 
 void CCWGPUCommandBuffer::endRenderPass() {
     //  printf("endr\n");
-    wgpuRenderPassEncoderEndPass(_gpuCommandBufferObj->wgpuRenderPassEncoder);
+    wgpuRenderPassEncoderEnd(_gpuCommandBufferObj->wgpuRenderPassEncoder);
     wgpuRenderPassEncoderRelease(_gpuCommandBufferObj->wgpuRenderPassEncoder);
     _gpuCommandBufferObj->wgpuRenderPassEncoder = wgpuDefaultHandle;
 
@@ -652,15 +652,15 @@ void CCWGPUCommandBuffer::dispatch(const DispatchInfo &info) {
 
     if (info.indirectBuffer) {
         auto *indirectBuffer = static_cast<CCWGPUBuffer *>(info.indirectBuffer);
-        wgpuComputePassEncoderDispatchIndirect(_gpuCommandBufferObj->wgpuComputeEncoder,
-                                               indirectBuffer->gpuBufferObject()->wgpuBuffer,
-                                               info.indirectOffset);
+        wgpuComputePassEncoderDispatchWorkgroupsIndirect(_gpuCommandBufferObj->wgpuComputeEncoder,
+                                                         indirectBuffer->gpuBufferObject()->wgpuBuffer,
+                                                         info.indirectOffset);
 
     } else {
-        wgpuComputePassEncoderDispatch(_gpuCommandBufferObj->wgpuComputeEncoder,
-                                       info.groupCountX,
-                                       info.groupCountY,
-                                       info.groupCountZ);
+        wgpuComputePassEncoderDispatchWorkgroups(_gpuCommandBufferObj->wgpuComputeEncoder,
+                                                 info.groupCountX,
+                                                 info.groupCountY,
+                                                 info.groupCountZ);
     }
 }
 

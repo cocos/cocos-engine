@@ -28,9 +28,10 @@
 import { gfx, webgpuAdapter, glslalgWasmModule } from '../../../webgpu/instantiated';
 import {
     Texture, CommandBuffer, DescriptorSet, Device, Framebuffer,
-    InputAssembler, RenderPass, Swapchain, Sampler, Buffer,
+    InputAssembler, RenderPass, Swapchain, Sampler, Buffer, Shader,
 } from '../override';
-import { DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit } from '../base/define';
+import { DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, FramebufferInfo, RenderPassInfo, InputAssemblerInfo, ObjectType } from '../base/define';
+import { murmurhash2_32_gc } from '../../utils';
 
 const originDeviceInitializeFunc = Device.prototype.initialize;
 Device.prototype.initialize = function (info: DeviceInfo) {
@@ -63,6 +64,17 @@ Device.prototype.initialize = function (info: DeviceInfo) {
     return true;
 };
 
+Device.prototype.flushCommands = function () {
+};
+
+Object.defineProperties(Device.prototype, {
+    queue: {
+        get () {
+            return this.getQueue();
+        },
+    },
+});
+
 Object.defineProperties(Swapchain.prototype, {
     colorTexture: {
         get () {
@@ -80,23 +92,108 @@ Object.defineProperties(Swapchain.prototype, {
             this.setDepthStencilTexture(val);
         },
     },
+    surfaceTransform: {
+        get () {
+            return this.getTransform();
+        },
+    },
 });
+
+Object.defineProperties(Framebuffer.prototype, {
+    renderPass: { writable: true },
+    colorTextures: { writable: true },
+    depthStencilTexture: { writable: true },
+});
+
+Object.defineProperties(RenderPass.prototype, {
+    colorAttachments: { writable: true },
+    depthStencilAttachment: { writable: true },
+    subpasses: { writable: true },
+    dependencies: { writable: true },
+    hash: { writable: true },
+});
+
+Object.defineProperties(InputAssembler.prototype, {
+    attributesHash: { writable: true },
+    attributes: { writable: true },
+});
+
+Object.defineProperties(Shader.prototype, {
+    typedID: { writable: true },
+});
+
+const oldCreateInputAssembler = Device.prototype.createInputAssembler;
+Device.prototype.createInputAssembler = function (info: InputAssemblerInfo) {
+    const ia = oldCreateInputAssembler.call(this, info);
+    let res = 'attrs';
+    for (let i = 0; i < info.attributes.length; ++i) {
+        const at = info.attributes[i];
+        res += `,${at.name},${at.format},${at.isNormalized},${at.stream},${at.isInstanced},${at.location}`;
+    }
+    ia.attributesHash = murmurhash2_32_gc(res, 666);
+    ia.attributes = info.attributes;
+    return ia;
+};
+
+const oldCreateFramebuffer = Device.prototype.createFramebuffer;
+Device.prototype.createFramebuffer = function (info: FramebufferInfo) {
+    const framebuffer = oldCreateFramebuffer.call(this, info);
+    framebuffer.renderPass = info.renderPass;
+    framebuffer.colorTextures = info.colorTextures;
+    framebuffer.depthStencilTexture = info.depthStencilTexture;
+    return framebuffer;
+};
+
+const oldCreateRenderPass = Device.prototype.createRenderPass;
+Device.prototype.createRenderPass = function (info: RenderPassInfo) {
+    const renderPass = oldCreateRenderPass.call(this, info);
+    renderPass.colorAttachments = info.colorAttachments;
+    renderPass.depthStencilAttachment = info.depthStencilAttachment;
+    renderPass.subpasses = info.subpasses;
+    renderPass.dependencies = info.dependencies;
+
+    let res = '';
+    if (renderPass.subpasses.length) {
+        for (let i = 0; i < renderPass.subpasses.length; ++i) {
+            const subpass = renderPass.subpasses[i];
+            if (subpass.inputs.length) {
+                res += 'ia';
+                for (let j = 0; j < subpass.inputs.length; ++j) {
+                    const ia = renderPass.colorAttachments[subpass.inputs[j]];
+                    res += `,${ia.format},${ia.sampleCount}`;
+                }
+            }
+            if (subpass.colors.length) {
+                res += 'ca';
+                for (let j = 0; j < subpass.inputs.length; ++j) {
+                    const ca = renderPass.colorAttachments[subpass.inputs[j]];
+                    res += `,${ca.format},${ca.sampleCount}`;
+                }
+            }
+            if (subpass.depthStencil >= 0) {
+                const ds = renderPass.colorAttachments[subpass.depthStencil];
+                res += `ds,${ds.format},${ds.sampleCount}`;
+            }
+        }
+    } else {
+        res += 'ca';
+        for (let i = 0; i < renderPass.colorAttachments.length; ++i) {
+            const ca = renderPass.colorAttachments[i];
+            res += `,${ca.format},${ca.sampleCount}`;
+        }
+        const ds = renderPass.depthStencilAttachment;
+        if (ds) {
+            res += `ds,${ds.format},${ds.sampleCount}`;
+        }
+    }
+
+    renderPass.hash = murmurhash2_32_gc(res, 666);
+    return renderPass;
+};
 
 Object.defineProperty(Device.prototype, 'commandBuffer', {
     get () {
         return this.getCommandBuffer();
-    },
-});
-
-Object.defineProperty(Framebuffer.prototype, 'renderPass', {
-    get () {
-        return this.getRenderPass();
-    },
-});
-
-Object.defineProperty(InputAssembler.prototype, 'attributes', {
-    get () {
-        return this.getAttributes();
     },
 });
 
@@ -499,16 +596,18 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
     return code;
 }
 
-// const createShader = Device.prototype.createShader;
-// Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
-//     for (let i = 0; i < shaderInfo.stages.length; ++i) {
-//         shaderInfo.stages[i].source = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
-//         const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
-//             : shaderInfo.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
-//         const sourceCode = `#version 450\n${shaderInfo.stages[i].source}`;
-//         const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
-//         shaderInfo.stages[i].spvData = code;
-//     }
+const createShader = Device.prototype.createShader;
+Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
+    for (let i = 0; i < shaderInfo.stages.length; ++i) {
+        shaderInfo.stages[i].source = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
+        const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
+            : shaderInfo.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
+        const sourceCode = `#version 450\n${shaderInfo.stages[i].source}`;
+        const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
+        shaderInfo.stages[i].spvData = code;
+    }
 
-//     return this.createShaderNative(shaderInfo);
-// };
+    const shader = this.createShaderNative(shaderInfo);
+    shader.typedID = ObjectType.SHADER;
+    return shader;
+};
