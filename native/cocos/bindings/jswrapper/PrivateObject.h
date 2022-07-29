@@ -95,14 +95,10 @@ public:
     constexpr bool isSharedPtr() const override { return true; }
 
     void *getRaw() const override {
-        if constexpr (!std::is_void_v<T>) {
-            if constexpr (std::is_const_v<T>) {
-                return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_data.get()));
-            } else {
-                return reinterpret_cast<void *>(_data.get());
-            }
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_data.get()));
         } else {
-            return _data.get();
+            return reinterpret_cast<void *>(_data.get());
         }
     }
 
@@ -119,14 +115,10 @@ public:
     ~CCSharedPtrPrivateObject() override = default;
 
     inline void *getRaw() const override {
-        if constexpr (!std::is_void_v<T>) {
-            if constexpr (std::is_const_v<T>) {
-                return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr.get()));
-            } else {
-                return reinterpret_cast<void *>(_ptr.get());
-            }
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr.get()));
         } else {
-            return _ptr.get();
+            return reinterpret_cast<void *>(_ptr.get());
         }
     }
     inline bool isCCShared() const override { return true; }
@@ -169,14 +161,10 @@ public:
 
     void *getRaw() const override {
         //CC_ASSERT(_validate);
-        if constexpr (!std::is_void_v<T>) {
-            if constexpr (std::is_const_v<T>) {
-                return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr));
-            } else {
-                return reinterpret_cast<void *>(_ptr);
-            }
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr));
         } else {
-            return _ptr;
+            return reinterpret_cast<void *>(_ptr);
         }
     }
 
