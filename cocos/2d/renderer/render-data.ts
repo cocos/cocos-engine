@@ -294,14 +294,6 @@ export class RenderData extends BaseRenderData {
         this._textureHash = val;
     }
 
-    protected _blendHash = -1;
-    get blendHash () {
-        return this._blendHash;
-    }
-    set blendHash (val: number) {
-        this._blendHash = val;
-    }
-
     public indices: Uint16Array | null = null;
 
     public set frame (val: SpriteFrame | TextureBase | null) {
@@ -450,7 +442,6 @@ export class RenderData extends BaseRenderData {
 
     public updatePass (comp: UIRenderer) {
         this.material = comp.getRenderMaterial(0)!;
-        this.blendHash = comp.blendHash;
         this.passDirty = false;
         this.hashDirty = true;
     }
@@ -464,7 +455,7 @@ export class RenderData extends BaseRenderData {
 
     public updateHash () {
         const bid = this.chunk ? this.chunk.bufferId : -1;
-        const hashString = `${bid}${this.layer} ${this.blendHash} ${this.textureHash}`;
+        const hashString = `${bid}${this.layer} ${this.textureHash}`;
         this.dataHash = murmurhash2_32_gc(hashString, 666);
         this.hashDirty = false;
     }
@@ -472,7 +463,6 @@ export class RenderData extends BaseRenderData {
     public updateRenderData (comp: UIRenderer, frame: SpriteFrame | TextureBase) {
         if (this.passDirty) {
             this.material = comp.getRenderMaterial(0)!;
-            this.blendHash = comp.blendHash;
             this.passDirty = false;
             this.hashDirty = true;
 
@@ -548,7 +538,6 @@ export class RenderData extends BaseRenderData {
         this.hashDirty = true;
 
         this.layer = 0;
-        this.blendHash = -1;
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
