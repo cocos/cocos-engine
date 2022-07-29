@@ -88,7 +88,7 @@ export class UIMeshRenderer extends Component {
 
     onDisable () {
         uiRendererManager.removeRenderer(this);
-        if (this.renderEntity) this.renderEntity.enabled = this._canRender();
+        this.renderEntity.enabled = this._canRender();
     }
 
     public onLoad () {
@@ -153,7 +153,7 @@ export class UIMeshRenderer extends Component {
     // Native updateAssembler
     public updateRenderer () {
         if (JSB) {
-            if (this.renderEntity) this.renderEntity.enabled = this._canRender();
+            this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
                 // @ts-expect-error: UIMeshRenderer do not attachToScene
@@ -242,7 +242,7 @@ export class UIMeshRenderer extends Component {
     }
 
     protected _canRender () {
-        return (this.enabled && this._modelComponent);
+        return (this.enabled && this._modelComponent !== null);
     }
 
     get renderEntity () {
