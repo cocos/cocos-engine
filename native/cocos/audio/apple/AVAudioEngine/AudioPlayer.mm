@@ -73,6 +73,7 @@ bool AudioPlayer::load(AudioCache* cache){
     _cache = cache;
     _isStreaming = _cache->isStreaming();
     setState(State::READY);
+    _isFinished = false;
     return true;
 }
 AudioCache* AudioPlayer::getCache() const {
@@ -83,9 +84,24 @@ bool AudioPlayer::unload() {
     setState(State::UNLOADED);
     return true;
 }
+bool AudioPlayer::ready() {
+    bool ret{true};
+    do {
+        std::lock_guard<std::shared_mutex> lck(_stateMtx);
+        if (_state == STOPPED ) {
+            _state = READY;
+            _isFinished = false;
+            break;
+        }
+        ret = false;
+    } while(false);
+    return ret;
+}
 //A method to update buffer if it's a streaming buffer
 void AudioPlayer::rotateBuffer() {
     std::queue<AVAudioPCMBuffer*> bufferQ;
+//    std::mutex bufferQCountMtx;
+//    std::condition_variable bufferQCV;
     uint32_t bufferQCount {0};
     // Wake up thread when current frame is played.
     __block auto wake = [this, &bufferQCount](){
@@ -94,10 +110,11 @@ void AudioPlayer::rotateBuffer() {
         _rotateBufferThreadBarrier.notify_all();
     };
     // Wake up thread when all rendered.
-    __block auto finishWake = [this, &bufferQCount](){
+    __block auto finishWake = [&](){
         std::lock_guard<std::mutex> lck(_rotateBufferThreadMtx);
         _isFinished = true;
         bufferQCount--;
+        // NSLog(@"Finish wake from tail buffer with bufferQCount %d", bufferQCount);
         _rotateBufferThreadBarrier.notify_all();
     };
     
@@ -116,12 +133,18 @@ void AudioPlayer::rotateBuffer() {
         // _shouldReschedule is only changed outside.
         if (_shouldReschedule) {
             [_descriptor.node stop];
-            bufferQCount = 0; // should clean up
+            while (bufferQCount != 0) {
+                //Wait until bufferQCount is 0;
+            }
+            // NSLog(@"Set bufferQCount to %d", bufferQCount);
             nextFrameToRead = _startTime * _cache->getPCMHeader().sampleRate;
             // Startframe might be invalid, as _startTime is smaller than duration but startFrame is bigger than totalframe.
             if ( nextFrameToRead > _cache->getPCMHeader().totalFrames ) {
                 nextFrameToRead = _cache->getPCMHeader().totalFrames - 1;
             }
+            // NSLog(@"[AUDIO PLAYER RESCHEDULE] next frame to read is %d", nextFrameToRead);
+            _shouldReschedule = false;
+            _isFinished = false;
         }
         // Dump out buffer rendered.
         while (bufferQ.size() > bufferQCount) {
@@ -133,7 +156,7 @@ void AudioPlayer::rotateBuffer() {
         
         // Load buffers
         while (bufferQ.size() < MAX_QUEUE_NUM) {
-            CC_LOG_DEBUG("nextFrameToRead is %d", nextFrameToRead);
+            //NSLog(@"[AUDIO PLAYER ROTATE THREAD] nextFrameToRead is %d", nextFrameToRead);
             sizeLeft = (uint32_t)_cache->getPCMHeader().totalFrames - (uint32_t)nextFrameToRead;
             if (sizeLeft > MAX_FRAMES_LENGTH) {
                 sizeToRead = MAX_FRAMES_LENGTH;
@@ -156,6 +179,7 @@ void AudioPlayer::rotateBuffer() {
                     finishWake();
                 }];
                 nextFrameToRead = 0;
+                // NSLog(@"[AUDIO PLAYER ROTATE THREAD] Is tail buffer, next frame to read is reset to 0");
             } else {
                 [_descriptor.node scheduleBuffer:tmpBuffer completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType type){
                     wake();
@@ -164,12 +188,14 @@ void AudioPlayer::rotateBuffer() {
         }
         if (!_descriptor.node.isPlaying) {
             [_descriptor.node play];
+            NSLog(@"[AudioPlayer] GOTO Playing");
         }
         // Sleep in a code block, check if the thread needs to exit or a new buffer need to be loaded.
+        // It will only sleep when no buffer to reload or reschedule.
         {
             std::unique_lock<std::mutex> lck(_rotateBufferThreadMtx);
             _rotateBufferThreadBarrier.wait(lck, [&bufferQCount, this]{
-                return ((getState() == STOPPING) || (bufferQCount != MAX_QUEUE_NUM) || (!_descriptor.node.isPlaying));
+                return ((getState() == STOPPING) || (bufferQCount != MAX_QUEUE_NUM) || (_shouldReschedule) || (!_descriptor.node.isPlaying));
             });
         }
             
@@ -185,7 +211,7 @@ void AudioPlayer::rotateBuffer() {
                 // replay the node to easy get current time
             } else {
                 setState(State::STOPPING);
-                NSLog(@"is rendered, stopping thread");
+                // NSLog(@"is rendered, stopping thread");
             }
             _loopSettingMutex.unlock();
         }
@@ -211,7 +237,7 @@ void AudioPlayer::rotateBuffer() {
     // Release buffers at the end of thread
     // When trying to read 0 buffer, load to buffer will failed. then there would be release nothing.
 
-    NSLog(@"Rotate buffer thread exit");
+    // NSLog(@"Rotate buffer thread exit");
     setState(State::STOPPED);
 }
 
@@ -221,6 +247,7 @@ bool AudioPlayer::play() {
         {
             std::shared_lock<std::shared_mutex> lck(_stateMtx);
             if (_state != State::READY && _state != State::PLAYING && _state != State::PAUSED) {
+                // NSLog(@"[State is incorrect]");
                 ret = false;
                 break;
             }
@@ -233,19 +260,18 @@ bool AudioPlayer::play() {
             AVAudioFramePosition currentFrame = _startTime * _cache->getPCMHeader().sampleRate;
             // Calculate the number of frames to load
             AVAudioFrameCount sizeOfFrameToLoad = (uint32_t)_cache->getPCMHeader().totalFrames - (uint32_t)currentFrame;
-            
-            AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:sizeOfFrameToLoad];
+            // NON ARC environment, tmpbuffer should be declared as __block so that it can be release in finishPlay procedure.
+            __block AVAudioPCMBuffer* tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_cache->getDescriptor().audioFile.processingFormat frameCapacity:sizeOfFrameToLoad];
             __block auto finishPlay = [&] {
                 setState(State::STOPPED);
                 _isFinished = true;
-                // TODO: will this be detected as memory leaks?
-                [tmpBuffer release];
             };
             _cache->loadToBuffer(currentFrame, tmpBuffer, sizeOfFrameToLoad);
             // Set state to playing before truly play it, otherwise it's not thread safe.
             setState(State::PLAYING);
             [_descriptor.node scheduleBuffer:tmpBuffer atTime:nil options:AVAudioPlayerNodeBufferInterrupts completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
                 finishPlay();
+                [tmpBuffer release];
             }];
             // If _isLoop, loop the _cache buffer.
             if (_isLoop) {
@@ -253,6 +279,7 @@ bool AudioPlayer::play() {
             }
             _descriptor.node.volume = _volume;
             [_descriptor.node play];
+            
             break;
         }
         
@@ -264,6 +291,7 @@ bool AudioPlayer::play() {
         else if (_state == State::READY) {
             // start to play
             _rotateBufferThread = new std::thread(&AudioPlayer::rotateBuffer, this);
+            _rotateBufferThread->detach();
         }
         setState(State::PLAYING);
     } while(false);
@@ -333,6 +361,7 @@ bool AudioPlayer::setCurrentTime(float targetTime) {
     _shouldReschedule = true;
     _startTime = targetTime;
     if (getState() == State::PLAYING) {
+        //NSLog(@"State is playing, call play");
         ret = play();
     }
     return ret;
@@ -347,7 +376,7 @@ float AudioPlayer::getCurrentTime() const {
         currentTime = _pauseTime;
     }
     // update current time
-    NSLog(@"return %f", _startTime + currentTime);
+    //NSLog(@"return %f", _startTime + currentTime);
     return _startTime + currentTime;
 }
     

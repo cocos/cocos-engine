@@ -78,6 +78,7 @@ public:
      */
     bool unload();
     
+    bool ready();
     /**
      * Play the audio, if it's playing, nothing will happen.
      */

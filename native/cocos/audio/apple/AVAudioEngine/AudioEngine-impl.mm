@@ -76,7 +76,7 @@ AudioCache* AudioEngineImpl::preload(const ccstd::string &filePath, const LoadCa
     AudioCache* cache = nullptr;
     auto itr = _caches.find(filePath);
     
-    if(itr != _caches.end()){
+    if (itr != _caches.end()) {
         cache = itr->second;
     } else {
         auto fileFullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
@@ -87,7 +87,7 @@ AudioCache* AudioEngineImpl::preload(const ccstd::string &filePath, const LoadCa
         });
         _caches[filePath] = cache;
     }
-    if(cache && callback) {
+    if (cache && callback) {
         cache->addLoadCallback(callback);
     }
     return cache;
@@ -126,9 +126,7 @@ int32_t AudioEngineImpl::registerAudio() {
         player = _unusedPlayers[audioID];
         _unusedPlayers.erase(audioID);
     }
-    _threadMutex.lock();
     _players[audioID] = player;
-    _threadMutex.unlock();
     return audioID;
 }
 ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(char const* url, uint32_t channelID){
@@ -160,13 +158,14 @@ int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float 
     if (cache == nullptr) {
         _players.erase(audioID);//ptr will be removed
         _unusedPlayers[audioID] = player;
+        CC_LOG_DEBUG("Audio Cache is invalid, plz check if audio resource exist");
         return AudioEngine::INVALID_AUDIO_ID;
     }
     cache->addLoadCallback([player, cache](bool){
         player->load(cache);
+        player->ready();
     });
     if (!player->isAttached) {
-        
         [engine_instance attachNode:player->getDescriptor().node];
         
         [engine_instance connect:player->getDescriptor().node to:(AVAudioNode*)engine_instance.mainMixerNode format:cache->getDescriptor().audioFile.processingFormat]; // TODO: err: -10878 format
@@ -245,8 +244,6 @@ void AudioEngineImpl::stopAll() {
     for (auto itr : _players) {
         NSLog(@"[Engine Impl] player stop called %d in stop all", itr.first);
         itr.second->stop();
-        _unusedPlayers[itr.first] = itr.second;
-        _players.erase(itr.first);
     }
     update(0.0f);
 }
@@ -268,6 +265,7 @@ float AudioEngineImpl::getDurationFromFile(const ccstd::string &filePath){
 }
 float AudioEngineImpl::getCurrentTime(int audioID) {
     if(!checkAudioIdValid(audioID)){
+        CC_LOG_DEBUG("[AENGINE] audio id is invalid");
         return 0.0f;
     }
     return _players[audioID]->getCurrentTime();
@@ -295,6 +293,9 @@ void AudioEngineImpl::uncache(const std::string &filePath){
 }
 
 void AudioEngineImpl::uncacheAll() {
+    for (auto cache: _caches) {
+        delete cache.second;
+    }
     _caches.clear();
 }
 
@@ -303,12 +304,13 @@ void AudioEngineImpl::update(float dt) {
     int32_t audioID;
     AudioPlayer* player;
     
-    // release all players ran out.
+    // release all players with state STOPPED.
     for (auto itr = _players.begin(); itr != _players.end();) {
         audioID = itr->first;
         player = itr->second;
 //        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
         if ((player->getState() == AudioPlayer::State::STOPPED)) {
+            player->postStop();
             ccstd::string filePath;
             if (player->finishCallback) {
                 filePath = player->getCache()->_fileFullPath;
@@ -322,25 +324,15 @@ void AudioEngineImpl::update(float dt) {
                 player->isAttached = false;
             }
             AudioEngine::remove(audioID);
-            _threadMutex.lock();
             itr = _players.erase(itr);
-            _threadMutex.unlock();
-            
             _unusedPlayers[audioID] = player;
             if (auto sche = _scheduler.lock()) {
-                if (player->finishCallback) {
-                    // When the function performs, the state of audio player might be different.
-                    
-                    CC_LOG_DEBUG("Trying to trigger finish callback");
-                    if (player->isFinished()) {
-                        CC_LOG_DEBUG("Succeed, audio is finished.");
-                        if (auto sche = _scheduler.lock()) {
-                            auto cb = player->finishCallback;
-                            sche->performFunctionInCocosThread([audioID, cb, filePath]{
-                                cb(audioID, filePath);
-                            });
-                        }
-                    }
+                if (player->isFinished() && player->finishCallback) {
+                    CC_LOG_DEBUG("Succeed, audio is finished.");
+                    auto cb = player->finishCallback;
+                    sche->performFunctionInCocosThread([audioID, cb, filePath]{
+                        cb(audioID, filePath);
+                    });
                 }
                 
             }
