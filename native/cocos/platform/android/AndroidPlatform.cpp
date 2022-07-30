@@ -206,13 +206,24 @@ public:
         if (motionEvent->pointerCount > 0) {
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
+            int index = -1;
 
             if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
                 actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
+                if (actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
+                    index = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                } else {
+                    index = 0;
+                }
                 touchEvent.type = cc::TouchEvent::Type::BEGAN;
             } else if (actionMasked == AMOTION_EVENT_ACTION_UP ||
                        actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
+                if (actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
+                    index = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                } else {
+                    index = 0;
+                }
             } else if (actionMasked == AMOTION_EVENT_ACTION_CANCEL) {
                 touchEvent.type = cc::TouchEvent::Type::CANCELLED;
             } else if (actionMasked == AMOTION_EVENT_ACTION_MOVE) {
@@ -222,10 +233,16 @@ public:
             }
 
             for (int i = 0; i < motionEvent->pointerCount; i++) {
+                if (index >= 0) {
+                    i = index;
+                }
                 int id = motionEvent->pointers[i].id;
                 float x = GameActivityPointerAxes_getX(&motionEvent->pointers[i]);
                 float y = GameActivityPointerAxes_getY(&motionEvent->pointers[i]);
                 touchEvent.touches.emplace_back(x, y, id);
+                if (index >= 0) {
+                    break;
+                }
             }
             _androidPlatform->dispatchEvent(touchEvent);
             touchEvent.touches.clear();
