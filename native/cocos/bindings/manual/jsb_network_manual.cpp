@@ -47,7 +47,7 @@ static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLI
                          "js_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1);
-        ok &= DownloadTask_to_seval(*result, &s.rval());
+        ok &= nativevalue_to_se(*result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -66,7 +66,7 @@ static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLI
                          "js_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1, arg2);
-        ok &= DownloadTask_to_seval(*result, &s.rval());
+        ok &= nativevalue_to_se(*result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -96,7 +96,7 @@ static bool js_network_Downloader_createDownloadTask(se::State &s) { // NOLINT(r
                          "js_network_Downloader_createDownloadTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1);
-        ok &= DownloadTask_to_seval(*result, &s.rval());
+        ok &= nativevalue_to_se(*result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -115,7 +115,7 @@ static bool js_network_Downloader_createDownloadTask(se::State &s) { // NOLINT(r
                          "js_network_Downloader_createDownloadTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1, arg2);
-        ok &= DownloadTask_to_seval(*result, &s.rval());
+        ok &= nativevalue_to_se(*result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -151,7 +151,7 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= DownloadTask_to_seval(larg0, &args[0]);
+                    ok &= nativevalue_to_se(larg0, args[0]);
                     se::Value rval;
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
@@ -197,7 +197,7 @@ static bool js_network_Downloader_setOnSuccess(se::State &s) { // NOLINT(readabi
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= DownloadTask_to_seval(larg0, &args[0]);
+                    ok &= nativevalue_to_se(larg0, args[0]);
                     se::Value rval;
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
@@ -244,7 +244,7 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(4);
-                    ok &= DownloadTask_to_seval(larg0, &args[0]);
+                    ok &= nativevalue_to_se(larg0, args[0]);
                     ok &= nativevalue_to_se(larg1, args[1]);
                     ok &= nativevalue_to_se(larg2, args[2]);
                     ok &= nativevalue_to_se(larg3, args[3]);
@@ -293,7 +293,7 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(4);
-                    ok &= DownloadTask_to_seval(larg0, &args[0]);
+                    ok &= nativevalue_to_se(larg0, args[0]);
                     ok &= nativevalue_to_se(larg1, args[1]);
                     ok &= nativevalue_to_se(larg2, args[2]);
                     ok &= nativevalue_to_se(larg3, args[3]);
@@ -321,7 +321,7 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
 }
 SE_BIND_FUNC_AS_PROP_SET(js_network_Downloader_setOnError)
 
-bool register_all_network_manual(se::Object * /*obj*/) {
+bool register_all_network_manual(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_network_Downloader_proto->defineProperty("onSuccess", nullptr, _SE(js_network_Downloader_setOnSuccess_asSetter));
     __jsb_cc_network_Downloader_proto->defineProperty("onError", nullptr, _SE(js_network_Downloader_setOnError_asSetter));
     __jsb_cc_network_Downloader_proto->defineFunction("createDownloadTask",

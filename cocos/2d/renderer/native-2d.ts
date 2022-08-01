@@ -65,6 +65,8 @@ export declare class NativeUIMeshBuffer {
     set vData(val: Float32Array);
     get iData(): Uint16Array;
     set iData(val: Uint16Array);
+    get useLinkData(): boolean;
+    set useLinkData(val: boolean);
 
     syncSharedBufferToNative(data: TypedArray);
 
@@ -87,10 +89,11 @@ export declare class NativeBatcher2d {
 
 export declare class NativeUIModelProxy {
     initModel(node);
-    activeSubModel(index: number);
+    activeSubModels();
     uploadData();
     destroy();
     clear();
+    getModel(): Model;
     updateModels(model);
     attachDrawInfo();
     attachNode(node);

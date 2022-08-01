@@ -62,24 +62,8 @@
 
       CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, -cc_mainLitDir.xyz);
 
-      // CCSurfacesLightingCalculateBaked:
-      lightingResult.lightmapColor = vec3(0.0);
-      #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
-        vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
-        lightingResult.lightmapColor = lightmap.rgb;
-        // lightingResult.shadow/ao *= lightmap.a;
-
-        // static dir light
-        lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
-        lightingResult.shadow = lightingResult.ao = 1.0;
-      // dynamic & stationary dir light
-      #else
-        CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
-  
-        CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
-        
-        // CCSurfacesLightingCalculateShadow:
-        lightingResult.shadow = 1.0;
+      // CCSurfacesLightingCalculateShadow:
+      lightingResult.shadow = 1.0;
       #if CC_RECEIVE_SHADOW
         if (cc_mainLitDir.w > 0.0) {
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
@@ -92,7 +76,22 @@
           }
         }
       #endif
-    #endif
+
+      // CCSurfacesLightingCalculateBaked:
+      lightingResult.lightmapColor = vec3(0.0);
+      #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
+        vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
+        lightingResult.lightmapColor = lightmap.rgb;
+        // lightingResult.shadow/ao *= lightmap.a;
+
+        // static dir light
+        lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
+      // dynamic & stationary dir light
+      #else
+        CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+  
+        CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
+      #endif
 
       // apply SSR, local probe & global probe
       CCSurfacesLightingCalculateEnvironment(lightingResult, lightingData);

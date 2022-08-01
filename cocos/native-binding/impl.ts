@@ -133,4 +133,11 @@ export const native = {
     fileUtils: globalJsb.fileUtils,
     DebugRenderer: globalJsb.DebugRenderer,
     copyTextToClipboard: globalJsb.copyTextToClipboard?.bind(globalJsb),
+    garbageCollect: globalJsb.garbageCollect,
+    reflection: globalJsb.reflection,
+    bridge: globalJsb.bridge,
+    jsbBridgeWrapper: globalJsb.jsbBridgeWrapper,
+    AssetsManager: globalJsb.AssetsManager,
+    EventAssetsManager: globalJsb.EventAssetsManager,
+    Manifest: globalJsb.Manifest,
 };

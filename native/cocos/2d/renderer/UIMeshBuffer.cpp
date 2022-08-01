@@ -180,4 +180,5 @@ void UIMeshBuffer::setDirty(bool dirty) const {
 void UIMeshBuffer::setFloatsPerVertex(uint32_t floatsPerVertex) {
     _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
+
 } // namespace cc

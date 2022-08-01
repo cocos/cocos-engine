@@ -52,9 +52,7 @@ public:
     void destroy();
     void setDirty();
     void uploadBuffers();
-
     void syncSharedBufferToNative(uint32_t* buffer);
-
     void resetIA();
     void recycleIA(gfx::InputAssembler* ia);
     void parseLayout();
@@ -72,6 +70,11 @@ public:
     void setDirty(bool dirty) const;
     inline uint32_t getFloatsPerVertex() const { return _meshBufferLayout->floatsPerVertex; }
     void setFloatsPerVertex(uint32_t floatsPerVertex);
+    inline bool getUseLinkData() const { return _useLinkData; }
+    inline void setUseLinkData(bool val) { _useLinkData = val;}
+    inline const ccstd::vector<gfx::Attribute> &getAttributes() const {
+        return _attributes;
+    }
 
 protected:
     CC_DISALLOW_COPY_MOVE_ASSIGN(UIMeshBuffer);
@@ -96,5 +99,6 @@ private:
     gfx::InputAssemblerInfo _iaInfo;
     uint32_t _nextFreeIAHandle{0};
     bool _needDeleteVData{false};
+    bool _useLinkData{false};
 };
 } // namespace cc

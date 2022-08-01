@@ -167,6 +167,19 @@ exports.listeners = {
             return;
         }
 
+        /**
+         * Hack：stop preview
+         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
+         * Changes between component properties are not controlled to be strictly reversible.
+         * So stop preview some properties.
+         */
+        const stopPreviewOnTheseTooltips = [
+            'i18n:animation.default_clip',
+        ];
+        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
+            return;
+        }
+
         const { method, value: assetUuid } = event.detail;
         if (method === 'confirm') {
             clearTimeout(panel.previewTimeId);
@@ -181,6 +194,8 @@ exports.listeners = {
                         if (dump.values) {
                             value = dump.values[i];
                         }
+
+
 
                         // 预览新的值
                         value.uuid = assetUuid;
@@ -669,9 +684,12 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.toggleShowAddComponentBtn(true);
+                if (!panel.isAnimationMode()) {
+                    panel.toggleShowAddComponentBtn(true);
+                }
                 return;
             }
+            // 场景模式要隐藏按钮
             panel.toggleShowAddComponentBtn(false);
 
             panel.$this.setAttribute('sub-type', 'scene');
@@ -1420,9 +1438,11 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
                     async click() {
+                        const info = JSON.parse(JSON.stringify(dump));
+                        delete info.value.__prefab;
                         Editor.Clipboard.write('_dump_component_', {
                             cid: dump.cid,
-                            dump: JSON.parse(JSON.stringify(dump)),
+                            dump: info,
                         });
                     },
                 },
@@ -1679,9 +1699,11 @@ exports.methods = {
     toggleShowAddComponentBtn(show) {
         this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
     },
+    isAnimationMode() {
+        return Editor.EditMode.getMode() === 'animation';
+    },
     handlerSceneChangeMode() {
-        const mode = Editor.EditMode.getMode();
-        this.toggleShowAddComponentBtn(mode !== 'animation'); // 动画编辑模式下，要隐藏按钮
+        this.toggleShowAddComponentBtn(!this.isAnimationMode()); // 动画编辑模式下，要隐藏按钮
     },
 };
 
