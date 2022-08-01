@@ -849,7 +849,7 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @internal
+     * @internal only for game-view
      */
     public _loadProjectBundles () {
         const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
