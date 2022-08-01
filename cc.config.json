@@ -344,9 +344,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.ems.ts",
-                "cocos/core/gfx/pipeline-state.ts": "",
-                "cocos/core/pipeline/index.ts": "cocos/core/pipeline/index.ems.ts"
+                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.ems.ts"
             }
         },
         {

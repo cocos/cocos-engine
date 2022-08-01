@@ -242,12 +242,48 @@ DescriptorSet.prototype.bindTexture = function (binding: number, texture: typeof
     }
 };
 
+const oldGetBuffer = DescriptorSet.prototype.getBuffer;
+DescriptorSet.prototype.getBuffer = function (binding: number, index?: number) {
+    if (index === undefined) {
+        return oldGetBuffer.call(this, binding, 0);
+    } else {
+        return oldGetBuffer.call(this, binding, index);
+    }
+};
+
+const oldGetSampler = DescriptorSet.prototype.getSampler;
+DescriptorSet.prototype.getSampler = function (binding: number, index?: number) {
+    if (index === undefined) {
+        return oldGetSampler.call(this, binding, 0);
+    } else {
+        return oldGetSampler.call(this, binding, index);
+    }
+};
+
+const oldGetTexture = DescriptorSet.prototype.getTexture;
+DescriptorSet.prototype.getTexture = function (binding: number, index?: number) {
+    if (index === undefined) {
+        return oldGetTexture.call(this, binding, 0);
+    } else {
+        return oldGetTexture.call(this, binding, index);
+    }
+};
+
 const oldUpdateBuffer = Buffer.prototype.update;
 Buffer.prototype.update = function (data: BufferSource, size?: number) {
     if (size === undefined) {
         oldUpdateBuffer.call(this, data, data.byteLength);
     } else {
         oldUpdateBuffer.call(this, data, size);
+    }
+};
+
+const oldCmdUpdateBuffer = CommandBuffer.prototype.updateBuffer;
+CommandBuffer.prototype.updateBuffer = function (buffer: typeof Buffer, data: BufferSource, size?: number) {
+    if (size === undefined) {
+        oldCmdUpdateBuffer.call(this, buffer, data, data.byteLength);
+    } else {
+        oldCmdUpdateBuffer.call(this, buffer, data, size);
     }
 };
 
@@ -601,7 +637,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
                     funcTemplate = funcTemplate!.replace(new RegExp(samplerReStr, 'g'), pair[2]);
                     funcTemplate = funcTemplate.replace(new RegExp(textureStr, 'g'), textureName);
                     funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC', 'g'), `_${pair[2]}_specialized`);
-                    funcTemplate = funcTemplate.replace(new RegExp(`texture${pair[1]}\\s+\\w+,`, 'g'),  '');
+                    funcTemplate = funcTemplate.replace(new RegExp(`texture${pair[1]}\\s+\\w+,`, 'g'), '');
                     // funcTemplate = funcTemplate.replace('SAMPLER_SPEC', `_${pair[2]}_specialized`);
 
                     for (let i = 0; i < depsFuncs.length; ++i) {

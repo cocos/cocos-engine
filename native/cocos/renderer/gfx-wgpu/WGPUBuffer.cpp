@@ -52,13 +52,14 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
     }
 
     _size = ceil(info.size / 4.0) * 4;
+    printf("buffer size %d\n", _size);
 
     WGPUBufferDescriptor descriptor = {
         .nextInChain = nullptr,
         .label = nullptr,
         .usage = toWGPUBufferUsage(info.usage),
         .size = _size,
-        .mappedAtCreation = false, //hasFlag(info.memUsage, MemoryUsageBit::DEVICE),
+        .mappedAtCreation = false, // hasFlag(info.memUsage, MemoryUsageBit::DEVICE),
     };
 
     _gpuBufferObject->mapped = descriptor.mappedAtCreation;
@@ -113,8 +114,9 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         .label = nullptr,
         .usage = toWGPUBufferUsage(_usage),
         .size = _size,
-        .mappedAtCreation = false, //hasFlag(_memUsage, MemoryUsageBit::DEVICE),
+        .mappedAtCreation = false, // hasFlag(_memUsage, MemoryUsageBit::DEVICE),
     };
+    printf("buffer resize %d\n", _size);
     _gpuBufferObject->wgpuBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
 
     _internalChanged = true;
@@ -161,7 +163,7 @@ void CCWGPUBuffer::update(const void *buffer, uint32_t size) {
     uint32_t alignedSize = ceil(size / 4.0) * 4;
     size_t buffSize = alignedSize;
     wgpuQueueWriteBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, _gpuBufferObject->wgpuBuffer, offset, buffer, buffSize);
-    //wgpuBufferUnmap(_gpuBufferObject->wgpuBuffer);
+    // wgpuBufferUnmap(_gpuBufferObject->wgpuBuffer);
 }
 
 void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
@@ -170,7 +172,7 @@ void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
         void const *data = nullptr;
         size_t offset = _isBufferView ? _offset : 0;
         size_t buffSize = 0;
-        //if (hasFlag(_usage, BufferUsageBit::INDIRECT))
+        // if (hasFlag(_usage, BufferUsageBit::INDIRECT))
         if (drawInfos[0].indexCount) {
             auto &indexedIndirectObjs = _gpuBufferObject->indexedIndirectObjs;
             for (size_t i = 0; i < drawInfoCount; i++) {
@@ -178,7 +180,7 @@ void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
                 indexedIndirectObjs[i].instanceCount = drawInfos[i].instanceCount /*  ? drawInfos[i]->instanceCoun : 1 */;
                 indexedIndirectObjs[i].firstIndex = drawInfos[i].firstIndex;
                 indexedIndirectObjs[i].baseVertex = drawInfos[i].vertexOffset;
-                indexedIndirectObjs[i].firstInstance = 0; //check definition of indexedIndirectObj;
+                indexedIndirectObjs[i].firstInstance = 0; // check definition of indexedIndirectObj;
             }
             data = indexedIndirectObjs.data();
             buffSize = indexedIndirectObjs.size() * sizeof(CCWGPUDrawIndexedIndirectObject);

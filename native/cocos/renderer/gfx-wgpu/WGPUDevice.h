@@ -43,6 +43,7 @@ struct CCWGPUDeviceObject;
 
 class CCWGPUSwapchain;
 class CCWGPUTexture;
+class WGPUGeneralBarrier;
 
 class CCWGPUDevice final : public emscripten::wrapper<Device> {
 public:
@@ -68,9 +69,6 @@ public:
     }
 
     // ems export override
-    bool hasFeature(ems::Feature::type feature) const {
-        return Device::hasFeature(Feature(feature));
-    };
 
     void initialize(const emscripten::val &info);
 
@@ -94,13 +92,11 @@ public:
 
     PipelineState *createPipelineState(const emscripten::val &info);
 
-    CommandBuffer *createCommandBuffer(const ems::CommandBufferInfo &info) {
-        return Device::createCommandBuffer(static_cast<const CommandBufferInfo &>(info));
-    }
-
     RenderPass *createRenderPass(const emscripten::val &info);
 
     emscripten::val copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions);
+
+    WGPUGeneralBarrier *getGeneralBarrier(const emscripten::val &info);
 
     using Device::createBuffer;
     using Device::createDescriptorSet;
@@ -112,6 +108,7 @@ public:
     using Device::createRenderPass;
     using Device::createShader;
     using Device::createSwapchain;
+    using Device::getGeneralBarrier;
     using Device::getSampler;
     using Device::initialize;
 

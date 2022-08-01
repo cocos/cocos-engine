@@ -55,17 +55,6 @@ public:
 
     void print() const;
 
-    // ems export
-    void setEMSBindings(emscripten::val vals);
-    void setEMSDynamicBindings(emscripten::val vals);
-    void setEMSBindingIndices(emscripten::val vals);
-    void setEMSDescriptorIndices(emscripten::val vals);
-
-    emscripten::val getEMSBindings() const;
-    emscripten::val getEMSDynamicBindings() const;
-    emscripten::val getEMSBindingIndices() const;
-    emscripten::val getEMSDescriptorIndices() const;
-
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;

@@ -77,21 +77,22 @@ public:
 
     void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
 
-    // emscripten binding
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
+        this->CommandBuffer::beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
+    }
+
+    // emscripten export
     void beginRenderPass(RenderPass *renderpass, Framebuffer *framebuffer, const emscripten::val &area, const emscripten::val &colors, float depth, uint32_t stencil);
-
     void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const emscripten::val &dynamicOffsets);
-
     void draw(const emscripten::val &info);
-
     void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size) {
         ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
     }
-
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
-        this->CommandBuffer::beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
-    }
+    void setViewport(const emscripten::val &info);
+    void setScissor(const emscripten::val &info);
+    void bindPipelineState(const emscripten::val &info);
+    void bindInputAssembler(const emscripten::val &info);
 
 protected:
     virtual void doInit(const CommandBufferInfo &info);

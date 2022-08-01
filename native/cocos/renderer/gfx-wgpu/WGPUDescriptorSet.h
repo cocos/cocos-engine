@@ -56,6 +56,8 @@ public:
 
     inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
+    // ems export
+
     // void* bgl() const{return _bgl;}
 
     // DescriptorSetLayout* local()const {return _local;}

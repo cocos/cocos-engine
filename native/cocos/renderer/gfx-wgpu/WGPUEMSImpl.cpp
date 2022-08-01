@@ -71,38 +71,6 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
         BOOST_PP_SEQ_FOR_EACH(ASSIGN_VEC_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
-void CCWGPUDescriptorSetLayout::setEMSBindings(val bindings) {
-    _bindings = std::move(vecFromEMS<gfx::DescriptorSetLayoutBinding, ems::DescriptorSetLayoutBinding>(bindings));
-}
-
-void CCWGPUDescriptorSetLayout::setEMSDynamicBindings(val bindings) {
-    _dynamicBindings = std::move(vecFromEMS<uint32_t>(bindings));
-}
-
-void CCWGPUDescriptorSetLayout::setEMSBindingIndices(val bindingIndices) {
-    _bindingIndices = std::move(vecFromEMS<uint32_t>(bindingIndices));
-}
-
-void CCWGPUDescriptorSetLayout::setEMSDescriptorIndices(val descriptorIndices) {
-    _descriptorIndices = std::move(vecFromEMS<uint32_t>(descriptorIndices));
-}
-
-val CCWGPUDescriptorSetLayout::getEMSBindings() const {
-    return vecToEMS<gfx::DescriptorSetLayoutBinding, ems::DescriptorSetLayoutBinding>(_bindings);
-}
-
-val CCWGPUDescriptorSetLayout::getEMSDynamicBindings() const {
-    return vecToEMS<uint32_t>(_dynamicBindings);
-}
-
-val CCWGPUDescriptorSetLayout::getEMSBindingIndices() const {
-    return vecToEMS<uint32_t>(_bindingIndices);
-}
-
-val CCWGPUDescriptorSetLayout::getEMSDescriptorIndices() const {
-    return vecToEMS<uint32_t>(_descriptorIndices);
-}
-
 #define CHECK_INCOMPLETE(v) \
     if (v.isUndefined() || v.isNull()) {
 #define CHECK_VOID(v)   \
@@ -610,26 +578,6 @@ PipelineState* CCWGPUDevice::createPipelineState(const emscripten::val& info) {
     return this->createPipelineState(pipelineStateInfo);
 }
 
-void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet* descriptorSet, const emscripten::val& dynamicOffsets) {
-    const auto& data = convertJSArrayToNumberVector<uint32_t>(dynamicOffsets);
-    return this->bindDescriptorSet(set, descriptorSet, data.size(), data.data());
-}
-
-void CCWGPUCommandBuffer::draw(const val& info) {
-    CHECK_VOID(info);
-
-    if (!info["update"].isUndefined()) {
-        auto* ia = info.as<InputAssembler*>(allow_raw_pointers());
-        printf("draw ia\n");
-        this->draw(ia->getDrawInfo());
-    } else {
-        DrawInfo drawInfo;
-        const auto& ems_drawInfo = info;
-        ASSIGN_FROM_EMS(drawInfo, vertexCount, firstVertex, indexCount, firstVertex, vertexOffset, instanceCount, firstInstance);
-        return this->draw(drawInfo);
-    }
-}
-
 emscripten::val CCWGPUInputAssembler::getEMSAttributes() const {
     auto arr = val::array();
     const auto& attributes = _attributes;
@@ -651,6 +599,62 @@ void CCWGPUQueue::submit(const val& info) {
         cmdBuffs[i] = ems_cmdBuffs[i].as<CommandBuffer*>(allow_raw_pointers());
     }
     return this->submit(cmdBuffs.data(), cmdBuffs.size());
+}
+
+WGPUGeneralBarrier* CCWGPUDevice::getGeneralBarrier(const emscripten::val& info) {
+    CHECK_PTR(info);
+    GeneralBarrierInfo barrierInfo;
+    const auto& ems_barrierInfo = info;
+    ASSIGN_FROM_EMS(barrierInfo, prevAccesses, nextAccesses, type);
+    return static_cast<WGPUGeneralBarrier*>(this->getGeneralBarrier(barrierInfo));
+}
+
+void CCWGPUCommandBuffer::setViewport(const val& info) {
+    CHECK_VOID(info);
+    Viewport viewportInfo;
+    const auto& ems_viewportInfo = info;
+    ASSIGN_FROM_EMS(viewportInfo, left, top, width, height, minDepth, maxDepth);
+    return this->setViewport(viewportInfo);
+}
+
+void CCWGPUCommandBuffer::setScissor(const val& info) {
+    CHECK_VOID(info);
+    Rect scissorRectInfo;
+    const auto& ems_scissorRectInfo = info;
+    ASSIGN_FROM_EMS(scissorRectInfo, x, y, width, height);
+    return this->setScissor(scissorRectInfo);
+}
+
+void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet* descriptorSet, const emscripten::val& dynamicOffsets) {
+    const auto& data = convertJSArrayToNumberVector<uint32_t>(dynamicOffsets);
+    return this->bindDescriptorSet(set, descriptorSet, data.size(), data.data());
+}
+
+void CCWGPUCommandBuffer::draw(const val& info) {
+    CHECK_VOID(info);
+
+    if (!info["update"].isUndefined()) {
+        auto* ia = info.as<InputAssembler*>(allow_raw_pointers());
+        printf("draw ia\n");
+        this->draw(ia->getDrawInfo());
+    } else {
+        DrawInfo drawInfo;
+        const auto& ems_drawInfo = info;
+        ASSIGN_FROM_EMS(drawInfo, vertexCount, firstVertex, indexCount, firstVertex, vertexOffset, instanceCount, firstInstance);
+        return this->draw(drawInfo);
+    }
+}
+
+void CCWGPUCommandBuffer::bindPipelineState(const emscripten::val& info) {
+    CHECK_VOID(info);
+    auto* pipelineState = info.as<PipelineState*>(allow_raw_pointers());
+    return this->bindPipelineState(pipelineState);
+}
+
+void CCWGPUCommandBuffer::bindInputAssembler(const emscripten::val& info) {
+    CHECK_VOID(info);
+    auto* ia = info.as<InputAssembler*>(allow_raw_pointers());
+    return this->bindInputAssembler(ia);
 }
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {
