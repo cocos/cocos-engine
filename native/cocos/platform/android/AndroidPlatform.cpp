@@ -206,13 +206,24 @@ public:
         if (motionEvent->pointerCount > 0) {
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
+            int eventChangedIndex = -1;
 
             if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
                 actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
+                if (actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
+                    eventChangedIndex = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                } else {
+                    eventChangedIndex = 0;
+                }
                 touchEvent.type = cc::TouchEvent::Type::BEGAN;
             } else if (actionMasked == AMOTION_EVENT_ACTION_UP ||
                        actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
+                if (actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
+                    eventChangedIndex = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                } else {
+                    eventChangedIndex = 0;
+                }
             } else if (actionMasked == AMOTION_EVENT_ACTION_CANCEL) {
                 touchEvent.type = cc::TouchEvent::Type::CANCELLED;
             } else if (actionMasked == AMOTION_EVENT_ACTION_MOVE) {
@@ -221,12 +232,14 @@ public:
                 return false;
             }
 
-            for (int i = 0; i < motionEvent->pointerCount; i++) {
-                int id = motionEvent->pointers[i].id;
-                float x = GameActivityPointerAxes_getX(&motionEvent->pointers[i]);
-                float y = GameActivityPointerAxes_getY(&motionEvent->pointers[i]);
-                touchEvent.touches.emplace_back(x, y, id);
+            if (eventChangedIndex >= 0) {
+                addTouchEvent(eventChangedIndex, motionEvent);
+            } else {
+                for (int i = 0; i < motionEvent->pointerCount; i++) {
+                    addTouchEvent(i, motionEvent);
+                }
             }
+
             _androidPlatform->dispatchEvent(touchEvent);
             touchEvent.touches.clear();
             return true;
@@ -409,6 +422,17 @@ public:
     }
 
 private:
+
+    static void addTouchEvent(int index, GameActivityMotionEvent *motionEvent) {
+        if (index < 0 || index >= motionEvent->pointerCount) {
+            ABORT_IF(false);
+        }
+        int id = motionEvent->pointers[index].id;
+        float x = GameActivityPointerAxes_getX(&motionEvent->pointers[index]);
+        float y = GameActivityPointerAxes_getY(&motionEvent->pointers[index]);
+        touchEvent.touches.emplace_back(x, y, id);
+    }
+
     AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
