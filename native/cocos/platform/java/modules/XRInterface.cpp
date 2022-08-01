@@ -524,6 +524,7 @@ const std::vector<cc::xr::XRSwapchain> &XRInterface::getXRSwapchains() {
 }
 
 gfx::Format XRInterface::getXRSwapchainFormat() {
+#if USE_XR
      int swapchainFormat = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::SWAPCHAIN_FORMAT).getInt();
 #if CC_USE_GLES3
     if(swapchainFormat == GL_SRGB_ALPHA_EXT) {
@@ -544,7 +545,8 @@ gfx::Format XRInterface::getXRSwapchainFormat() {
         return gfx::Format::BGRA8;
     }
 #endif
-    return gfx::Format::SRGB8_A8;
+#endif
+    return gfx::Format::BGRA8;
 }
 
 void XRInterface::updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) {
