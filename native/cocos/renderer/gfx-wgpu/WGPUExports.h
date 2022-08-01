@@ -204,6 +204,10 @@ using ccstd::vector;
 //              DescriptorSetLayoutInfo, DescriptorSetLayoutBinding, PipelineLayoutInfo, UniformStorageImage, ShaderStage, Attribute, UniformBlock, UniformStorageBuffer>;
 
 EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
+    EXPORT_STRUCT(Size, x, y, z);
+    EXPORT_STRUCT(DeviceCaps, maxVertexAttributes, maxVertexUniformVectors, maxFragmentUniformVectors, maxTextureUnits, maxImageUnits, maxVertexTextureUnits, maxColorRenderTargets,
+                  maxShaderStorageBufferBindings, maxShaderStorageBlockSize, maxUniformBufferBindings, maxUniformBlockSize, maxTextureSize, maxCubeMapTextureSize, uboOffsetAlignment,
+                  maxComputeSharedMemorySize, maxComputeWorkGroupInvocations, maxComputeWorkGroupSize, maxComputeWorkGroupCount, supportQuery, clipSpaceMinZ, screenSpaceSignY, clipSpaceSignY);
     //--------------------------------------------------CLASS---------------------------------------------------------------------------
     class_<cc::gfx::Swapchain>("Swapchain")
         .function("initialize", &cc::gfx::Swapchain::initialize, allow_raw_pointer<arg<0>>())
@@ -220,7 +224,9 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("setColorTexture", &CCWGPUSwapchain::setColorTexture, allow_raw_pointers())
         .function("getDepthStencilTexture", &CCWGPUSwapchain::getDepthStencilTexture, allow_raw_pointers())
         .function("setDepthStencilTexture", &CCWGPUSwapchain::setDepthStencilTexture, allow_raw_pointers())
-        .function("getTransform", &CCWGPUSwapchain::getTransform);
+        .function("getTransform", &CCWGPUSwapchain::getTransform)
+        .property("width", &CCWGPUSwapchain::getWidth)
+        .property("height", &CCWGPUSwapchain::getHeight);
 
     value_object<MemoryStatus>("MemoryStatus")
         .field("bufferSize", &MemoryStatus::bufferSize)
@@ -272,9 +278,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("copyTextureToBuffers", select_overload<emscripten::val(Texture *, const BufferTextureCopyList &)>(&CCWGPUDevice::copyTextureToBuffers),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("copyBuffersToTextureWithRawCopyList", select_overload<void(const emscripten::val &, Texture *, const std::vector<BufferTextureCopy> &)>(&CCWGPUDevice::copyBuffersToTexture),
-                  /* pure_virtual(), */ allow_raw_pointers())
-        .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *, const val &)>(&CCWGPUDevice::copyBuffersToTexture),
+        .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *, const emscripten::val &)>(&CCWGPUDevice::copyBuffersToTexture),
                   /* pure_virtual(), */ allow_raw_pointers())
         .function("createPipelineLayout", select_overload<PipelineLayout *(const emscripten::val &)>(&CCWGPUDevice::createPipelineLayout),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
@@ -305,6 +309,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("destroy", &cc::gfx::Texture::destroy)
         .function("resize", &cc::gfx::Texture::resize);
     class_<CCWGPUTexture, base<cc::gfx::Texture>>("CCWGPUTexture")
+        .property("format", &CCWGPUTexture::getEMSFormat)
         .constructor<>();
 
     class_<cc::gfx::Framebuffer>("Framebuffer")
@@ -331,6 +336,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("update", select_overload<void(const emscripten::val &v, uint32_t)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         // .function("update", select_overload<void(const emscripten::val &v)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         .function("updateDrawInfo", select_overload<void(const DrawInfoList &infos)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
+        .property("size", &Buffer::getSize)
         .constructor<>();
 
     class_<DescriptorSetLayout>("DescriptorSetLayout")
