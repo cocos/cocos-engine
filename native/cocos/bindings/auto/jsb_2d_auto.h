@@ -61,6 +61,8 @@ SE_DECLARE_FUNC(js_2d_RenderEntity_getIsMaskInverted);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getIsSubMask);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getLocalOpacity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getOpacity);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getRenderDrawInfoAt);
+SE_DECLARE_FUNC(js_2d_RenderEntity_getRenderDrawInfosSize);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfo);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getStaticRenderDrawInfos);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getUseLocal);
@@ -92,11 +94,12 @@ extern se::Class * __jsb_cc_UIModelProxy_class; // NOLINT
 
 bool js_register_cc_UIModelProxy(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_2d_UIModelProxy_activeSubModel);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_activeSubModels);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_attachDrawInfo);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_attachNode);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_clear);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_destroy);
+SE_DECLARE_FUNC(js_2d_UIModelProxy_getModel);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_initModel);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_updateModels);
 SE_DECLARE_FUNC(js_2d_UIModelProxy_uploadData);

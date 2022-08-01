@@ -75,7 +75,7 @@ function(cc_gen_plugin_cmake_hook)
         file(APPEND ${plugin_args_info} "${abs_dir}\n")
     endforeach()
     if("${NODE_EXECUTABLE}" STREQUAL "NODE_EXECUTABLE-NOTFOUND")
-        message(AUTHOR_WARNING "NodeJS is not found in $PATH")
+        message(STATUS "NodeJS is not found in $PATH, skip searching native plugins.")
     else()
         message(STATUS " execute plugin_parser.js ${NODE_EXECUTABLE-NOTFOUND}")
         execute_process(COMMAND ${NODE_EXECUTABLE} ${COCOS_X_PATH}/cmake/scripts/plugins_parser.js

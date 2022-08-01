@@ -67,6 +67,10 @@ public:
     BaseEngine::Ptr getEngine() const override;
 
     /**
+     * @brief Processing engine start events.
+     */
+    virtual void onStart();
+    /**
      * @brief Processing pause events..
      */
     virtual void onPause();
@@ -123,6 +127,8 @@ public:
     virtual void setXXTeaKey(const ccstd::string &key);
 
 private:
+    void unregisterAllEngineEvents();
+
     ISystemWindow *_systemWindow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };

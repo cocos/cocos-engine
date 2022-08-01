@@ -141,13 +141,20 @@ class Map;
 ////////////////////////////////////////////////////////////////////////////
 
 // se value -> native value
-bool seval_to_ccvalue(const se::Value &v, cc::Value *ret);                               // NOLINT(readability-identifier-naming)
-bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret);                         // NOLINT(readability-identifier-naming)
-bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret);             // NOLINT(readability-identifier-naming)
-bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret);                   // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
+bool seval_to_ccvalue(const se::Value &v, cc::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
+bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
+bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
+bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
 bool sevals_variadic_to_ccvaluevector(const se::ValueArray &args, cc::ValueVector *ret); // NOLINT(readability-identifier-naming)
 
-bool seval_to_Data(const se::Value &v, cc::Data *ret);                                // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
+bool seval_to_Data(const se::Value &v, cc::Data *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use sevalue_to_native instead")
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object *ctx);                    // NOLINT(readability-identifier-naming)
@@ -251,13 +258,9 @@ inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*
 //    return false;
 //}
 
-inline bool sevalue_to_native(const se::Value &from, cc::Data *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    return seval_to_Data(from, to);
-}
+bool sevalue_to_native(const se::Value &from, cc::Data *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
-inline bool sevalue_to_native(const se::Value &from, cc::Value *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
-    return seval_to_ccvalue(from, to);
-}
+bool sevalue_to_native(const se::Value &from, cc::Value *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 inline bool sevalue_to_native(const se::Value &from, se::Value *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     *to = from;
@@ -280,7 +283,7 @@ bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /
 
 bool sevalue_to_native(const se::Value &from, cc::Color *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
-bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*unused*/);      // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::gfx::Rect *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
@@ -340,9 +343,7 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::string **to, se::Obj
     return true;
 }
 
-inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    return seval_to_ccvaluemap(from, to);
-}
+bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
@@ -377,16 +378,41 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Spline *to, se::Obje
 ////////////////////////////////////////////////////////////////////////////
 
 // native value -> se value
-bool ccvalue_to_seval(const cc::Value &v, se::Value *ret);                   // NOLINT(readability-identifier-naming)
-bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret);             // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool ccvalue_to_seval(const cc::Value &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
 bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret); // NOLINT(readability-identifier-naming)
-bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret);       // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret); // NOLINT(readability-identifier-naming)
 
+CC_DEPRECATED(3.6, "use native_to_se instead")
 bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *ret); // NOLINT(readability-identifier-naming)
-bool Data_to_seval(const cc::Data &v, se::Value *ret);                              // NOLINT(readability-identifier-naming)
-bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret);     // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Data_to_seval(const cc::Data &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Size_to_seval(const cc::Size &v, se::Value *ret); // NOLINT(readability-identifier-naming)
+CC_DEPRECATED(3.6, "use native_to_se instead")
+bool Rect_to_seval(const cc::Rect &v, se::Value *ret); // NOLINT(readability-identifier-naming)
 
 //bool nativevalue_to_se(const cc::TypedArray &typedArray, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming) // NOLINT
+
+/**
+ * WARN: call nativevalue_to_se instead and it converts cc::Data to ArrayBuffer
+ */
+bool Data_to_TypedArray(const cc::Data &v, se::Value *ret); // NOLINT(readability-identifier-naming)
 
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming) // NOLINT
 inline bool nativevalue_to_se(cc::ArrayBuffer *arrayBuffer, se::Value &to, se::Object *ctx) {    // NOLINT(readability-identifier-naming) // NOLINT
@@ -526,9 +552,7 @@ bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object *ctx); //
 
 bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
-inline bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    return DownloadTask_to_seval(from, &to);
-}
+bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
 inline bool nativevalue_to_se(const ccstd::monostate & /*from*/, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setUndefined();

@@ -341,7 +341,7 @@ module.exports = {
         trailMaterial: '拖尾使用的材质',
         useGPU: '是否启用GPU粒子',
     },
-    renderable2D: {
+    UIRenderer: {
         srcBlendFactor: '原始混合因子',
         dstBlendFactor: '目标混合因子',
         customMaterial: '用户指定的材质',

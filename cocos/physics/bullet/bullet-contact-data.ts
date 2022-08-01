@@ -33,12 +33,15 @@ import { bullet2CocosQuat, bullet2CocosVec3 } from './bullet-utils';
 export class BulletContactData implements IContactEquation {
     get isBodyA (): boolean {
         const sb = (this.event.selfCollider.shape as BulletShape).sharedBody.body;
-        return sb === bt.PersistentManifold_getBody0(this.impl);
+        return sb === bt.PersistentManifold_getBody0(this.event.impl);
     }
 
-    impl: Bullet.ptr = 0;
+    impl: Bullet.ptr = 0;  //btManifoldPoint
+    event: ICollisionEvent;
 
-    constructor (public event: ICollisionEvent) { }
+    constructor (event: ICollisionEvent) {
+        this.event = event;
+    }
 
     getLocalPointOnA (out: IVec3Like): void {
         if (this.impl) bullet2CocosVec3(out, bt.ManifoldPoint_get_m_localPointA(this.impl));
@@ -59,7 +62,7 @@ export class BulletContactData implements IContactEquation {
     getLocalNormalOnA (out: IVec3Like): void {
         if (this.impl) {
             const bt_rot = BulletCache.instance.BT_QUAT_0;
-            const body = bt.PersistentManifold_getBody0(this.impl);
+            const body = bt.PersistentManifold_getBody0(this.event.impl);
             const trans = bt.CollisionObject_getWorldTransform(body);
             bt.Transform_getRotation(trans, bt_rot);
             const inv_rot = CC_QUAT_0;
@@ -74,7 +77,7 @@ export class BulletContactData implements IContactEquation {
     getLocalNormalOnB (out: IVec3Like): void {
         if (this.impl) {
             const bt_rot = BulletCache.instance.BT_QUAT_0;
-            const body = bt.PersistentManifold_getBody1(this.impl);
+            const body = bt.PersistentManifold_getBody1(this.event.impl);
             const trans = bt.CollisionObject_getWorldTransform(body);
             bt.Transform_getRotation(trans, bt_rot);
             const inv_rot = CC_QUAT_0;

@@ -3,8 +3,7 @@
     "features": {
         "base": {
             "modules": [
-                "base",
-                "native"
+                "base"
             ],
             "dependentAssets": [
                 "ff9be190-20a4-4e48-b68c-76e3c7cff085",
