@@ -232,18 +232,14 @@ public:
                 return false;
             }
 
-            for (int i = 0; i < motionEvent->pointerCount; i++) {
-                if (index >= 0) {
-                    i = index;
-                }
-                int id = motionEvent->pointers[i].id;
-                float x = GameActivityPointerAxes_getX(&motionEvent->pointers[i]);
-                float y = GameActivityPointerAxes_getY(&motionEvent->pointers[i]);
-                touchEvent.touches.emplace_back(x, y, id);
-                if (index >= 0) {
-                    break;
+            if (index >= 0) {
+                addTouchEvent(index, motionEvent);
+            } else {
+                for (int i = 0; i < motionEvent->pointerCount; i++) {
+                    addTouchEvent(i, motionEvent);
                 }
             }
+
             _androidPlatform->dispatchEvent(touchEvent);
             touchEvent.touches.clear();
             return true;
@@ -423,6 +419,15 @@ public:
 
     inline bool isActive() const {
         return _isActive;
+    }
+
+private:
+
+    void addTouchEvent(int index, GameActivityMotionEvent *motionEvent) {
+        int id = motionEvent->pointers[index].id;
+        float x = GameActivityPointerAxes_getX(&motionEvent->pointers[index]);
+        float y = GameActivityPointerAxes_getY(&motionEvent->pointers[index]);
+        touchEvent.touches.emplace_back(x, y, id);
     }
 
 private:
