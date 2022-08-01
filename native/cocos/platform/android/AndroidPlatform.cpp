@@ -423,7 +423,10 @@ public:
 
 private:
 
-    void addTouchEvent(int index, GameActivityMotionEvent *motionEvent) {
+    static void addTouchEvent(int index, GameActivityMotionEvent *motionEvent) {
+        if (index < 0 || index >= motionEvent->pointerCount) {
+            ABORT_IF(false);
+        }
         int id = motionEvent->pointers[index].id;
         float x = GameActivityPointerAxes_getX(&motionEvent->pointers[index]);
         float y = GameActivityPointerAxes_getY(&motionEvent->pointers[index]);
