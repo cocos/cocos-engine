@@ -198,7 +198,7 @@ float CCGetLinearDepth(vec3 worldPos) {
 
       /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
       if (pcf > 2.9) {
-        realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
+        return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
       } else */
     if (pcf > 1.9) {
       return CCGetSpotLightShadowFactorSoft3X(pos, worldPos);
