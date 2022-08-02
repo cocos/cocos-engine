@@ -489,7 +489,10 @@ export class UIRenderer extends Renderer {
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            this.getMaterialInstance(0)!.passes[0].blendState.setTarget(0, target);
+            const targetPass = this.getMaterialInstance(0)!.passes[0];
+            targetPass.blendState.setTarget(0, target);
+            // @ts-expect-error hack for UI use pass object
+            targetPass._updatePassHash();
             this._dstBlendFactorCache = this._dstBlendFactor;
             this._srcBlendFactorCache = this._srcBlendFactor;
         }
