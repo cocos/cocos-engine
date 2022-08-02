@@ -177,10 +177,10 @@ void CCWGPUDescriptorSet::update() {
 
 void CCWGPUDescriptorSet::prepare() {
     auto buffIter = std::find_if(_buffers.begin(), _buffers.end(), [](const Buffer *buffer) {
-        return buffer ? static_cast<const CCWGPUBuffer *>(buffer)->internalChanged() : false;
+        return buffer && static_cast<const CCWGPUBuffer *>(buffer)->internalChanged();
     });
     auto texIter = std::find_if(_textures.begin(), _textures.end(), [](const Texture *texture) {
-        return texture ? static_cast<const CCWGPUTexture *>(texture)->internalChanged() : false;
+        return texture && static_cast<const CCWGPUTexture *>(texture)->internalChanged();
     });
 
     bool forceUpdate = buffIter != _buffers.end() || texIter != _textures.end();

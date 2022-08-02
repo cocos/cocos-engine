@@ -54,6 +54,9 @@ public:
     // resource handler changed?
     inline bool internalChanged() const { return _internalChanged; }
 
+    // ems export
+    uint32_t getEMSFormat() const { return static_cast<uint32_t>(Texture::getFormat()); }
+
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;

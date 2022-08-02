@@ -337,25 +337,25 @@ Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[],
         }
     }
 
-    const bufferTextureCopyList = new gfx.BufferTextureCopyList();
-    for (let i = 0; i < regions.length; i++) {
-        const bufferTextureCopy = new gfx.BufferTextureCopy();
-        bufferTextureCopy.buffOffset = regions[i].buffOffset;
-        bufferTextureCopy.buffStride = regions[i].buffStride;
-        bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
-        bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
-        bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
-        bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
-        bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
-        bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
-        bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
-        bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
-        bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
-        bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
-        bufferTextureCopyList.push_back(regions[i]);
-    }
+    // const bufferTextureCopyList = new gfx.BufferTextureCopyList();
+    // for (let i = 0; i < regions.length; i++) {
+    //     const bufferTextureCopy = new gfx.BufferTextureCopy();
+    //     bufferTextureCopy.buffOffset = regions[i].buffOffset;
+    //     bufferTextureCopy.buffStride = regions[i].buffStride;
+    //     bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+    //     bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+    //     bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+    //     bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+    //     bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+    //     bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+    //     bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+    //     bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+    //     bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+    //     bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+    //     bufferTextureCopyList.push_back(regions[i]);
+    // }
 
-    this.copyBuffersToTextureWithRawCopyList(buffers, texture, bufferTextureCopyList);
+    this.copyBuffersToTexture(buffers, texture, regions);
 };
 
 export function seperateCombinedSamplerTexture (shaderSource: string) {

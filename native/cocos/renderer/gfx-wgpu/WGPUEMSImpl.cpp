@@ -495,8 +495,6 @@ InputAssembler* CCWGPUDevice::createInputAssembler(const val& info) {
         ASSIGN_FROM_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
     }
 
-    printf("ia %d\n", len);
-
     return this->createInputAssembler(inputAssemblerInfo);
 }
 
@@ -517,6 +515,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass* renderpass, Framebuffer* f
     const auto& ems_rect = area;
     Rect rect;
     ASSIGN_FROM_EMS(rect, width, height, x, y);
+    printf("rect %d, %d\n", rect.width, rect.height);
 
     ccstd::vector<Color> clearColors;
     const std::vector<val>& ems_clearColorsVec = vecFromJSArray<val>(colors);
@@ -635,7 +634,6 @@ void CCWGPUCommandBuffer::draw(const val& info) {
 
     if (!info["update"].isUndefined()) {
         auto* ia = info.as<InputAssembler*>(allow_raw_pointers());
-        printf("draw ia\n");
         this->draw(ia->getDrawInfo());
     } else {
         DrawInfo drawInfo;
@@ -655,6 +653,38 @@ void CCWGPUCommandBuffer::bindInputAssembler(const emscripten::val& info) {
     CHECK_VOID(info);
     auto* ia = info.as<InputAssembler*>(allow_raw_pointers());
     return this->bindInputAssembler(ia);
+}
+
+void CCWGPUDevice::copyBuffersToTexture(const emscripten::val& v, Texture* dst, const emscripten::val& vals) {
+    CHECK_VOID(v);
+
+    const auto& regions = vecFromJSArray<val>(vals);
+    size_t len = regions.size();
+    ccstd::vector<BufferTextureCopy> copies(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_copy = regions[i];
+        auto& copy = copies[i];
+        ASSIGN_FROM_EMS(copy, buffOffset, buffStride, buffTexHeight);
+        const auto& ems_texOffset = ems_copy["texOffset"];
+        auto& texOffset = copy.texOffset;
+        ASSIGN_FROM_EMS(texOffset, x, y, z);
+        const auto& ems_texExtent = ems_copy["texExtent"];
+        auto& texExtent = copy.texExtent;
+        ASSIGN_FROM_EMS(texExtent, width, height, depth);
+        const auto& ems_texSubres = ems_copy["texSubres"];
+        auto& texSubres = copy.texSubres;
+        ASSIGN_FROM_EMS(texSubres, mipLevel, baseArrayLayer, layerCount);
+    }
+
+    len = v["length"].as<unsigned>();
+    std::vector<std::vector<uint8_t>> lifeProlonger(len);
+    std::vector<const uint8_t*> buffers;
+    for (size_t i = 0; i < len; i++) {
+        lifeProlonger[i] = EMSArraysToU8Vec(v, i);
+        buffers.push_back(lifeProlonger[i].data());
+    }
+
+    return copyBuffersToTexture(buffers.data(), dst, copies.data(), copies.size());
 }
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {

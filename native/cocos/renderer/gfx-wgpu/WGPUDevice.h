@@ -116,8 +116,6 @@ public:
 
     void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const emscripten::val &regions);
 
-    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const std::vector<BufferTextureCopy> &regions);
-
     Sampler *getSampler(const emscripten::val &info);
 
     inline MemoryStatus getMemStatus() const { return _memoryStatus; }
@@ -131,6 +129,10 @@ public:
     uint32_t getGFXAPI() const {
         return static_cast<uint32_t>(Device::getGfxAPI());
     }
+
+    uint32_t hasFeature(uint32_t feature) {
+        return static_cast<uint32_t>(Device::hasFeature(Feature{feature}));
+    };
 
 protected:
     static CCWGPUDevice *instance;
