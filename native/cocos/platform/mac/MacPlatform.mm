@@ -82,7 +82,7 @@ extern int cocos_main(int argc, const char **argv);
     [self start];
 }
 
-- (void)changeFPS:(int)fps {
+- (void)changeFPS {
     [self pause];
     [self resume];
 }
@@ -129,7 +129,7 @@ int32_t MacPlatform::run(int argc, const char **argv) {
 void MacPlatform::setFps(int32_t fps) {
     if(fps != getFps()) {
         UniversalPlatform::setFps(fps);
-        [_timer changeFPS:fps];
+        [_timer changeFPS];
     }
 }
 
