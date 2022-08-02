@@ -214,7 +214,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.disableMeshSplitCheckbox.value = panel.getDefault(panel.meta.userData.disableMeshSplit, false);
+            panel.$.disableMeshSplitCheckbox.value = panel.getDefault(panel.meta.userData.disableMeshSplit, true);
 
             panel.updateInvalid(panel.$.disableMeshSplitCheckbox, 'disableMeshSplit');
             panel.updateReadonly(panel.$.disableMeshSplitCheckbox);
@@ -363,7 +363,7 @@ const Elements = {
     },
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -377,7 +377,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -386,7 +386,7 @@ exports.ready = function() {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
