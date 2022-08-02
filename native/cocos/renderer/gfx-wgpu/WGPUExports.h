@@ -333,7 +333,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("resize", &Buffer::resize)
         .function("destroy", &Buffer::destroy);
     class_<CCWGPUBuffer, base<Buffer>>("CCWGPUBuffer")
-        .function("update", select_overload<void(const emscripten::val &v, uint32_t)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
+        .function("update", select_overload<void(const emscripten::val &v, uint32_t, uint32_t)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         // .function("update", select_overload<void(const emscripten::val &v)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         .function("updateDrawInfo", select_overload<void(const DrawInfoList &infos)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         .property("size", &Buffer::getSize)
@@ -410,7 +410,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("bindInputAssembler", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::bindInputAssembler), allow_raw_pointer<arg<0>>())
         .function("draw", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::draw))
         .function("updateIndirectBuffer", select_overload<void(Buffer *, const DrawInfoList &)>(&CCWGPUCommandBuffer::updateIndirectBuffer), allow_raw_pointers())
-        .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint32_t)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers());
+        .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint32_t, uint32_t)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers());
 
     class_<Queue>("Queue")
         .function("destroy", &Queue::destroy);

@@ -271,19 +271,29 @@ DescriptorSet.prototype.getTexture = function (binding: number, index?: number) 
 
 const oldUpdateBuffer = Buffer.prototype.update;
 Buffer.prototype.update = function (data: BufferSource, size?: number) {
+    const stride = data.length ? data.byteLength / data.length : 1;
     if (size === undefined) {
-        oldUpdateBuffer.call(this, data, data.byteLength);
+        if ('buffer' in data) {
+            oldUpdateBuffer.call(this, data, data.byteLength, stride);
+        } else {
+            oldUpdateBuffer.call(this, new Uint8Array(data), data.byteLength, stride);
+        }
     } else {
-        oldUpdateBuffer.call(this, data, size);
+        oldUpdateBuffer.call(this, data, size, stride);
     }
 };
 
 const oldCmdUpdateBuffer = CommandBuffer.prototype.updateBuffer;
 CommandBuffer.prototype.updateBuffer = function (buffer: typeof Buffer, data: BufferSource, size?: number) {
+    const stride = data.length ? data.byteLength / data.length : 1;
     if (size === undefined) {
-        oldCmdUpdateBuffer.call(this, buffer, data, data.byteLength);
+        if ('buffer' in data) {
+            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer), data.byteLength, stride);
+        } else {
+            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), data.byteLength, stride);
+        }
     } else {
-        oldCmdUpdateBuffer.call(this, buffer, data, size);
+        oldCmdUpdateBuffer.call(this, buffer, data, size, stride);
     }
 };
 

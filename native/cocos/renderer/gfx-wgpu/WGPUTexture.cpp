@@ -144,10 +144,11 @@ void CCWGPUTexture::doDestroy() {
         if (_gpuTextureObj->wgpuTextureView) {
             wgpuTextureViewRelease(_gpuTextureObj->wgpuTextureView);
         }
-        if (_gpuTextureObj->selfView) {
+        if (_gpuTextureObj->selfView && !_isTextureView) {
             wgpuTextureViewRelease(_gpuTextureObj->selfView);
         }
         delete _gpuTextureObj;
+        _gpuTextureObj = nullptr;
     }
     _internalChanged = true;
 }
