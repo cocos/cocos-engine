@@ -60,6 +60,10 @@ void MeshBuffer::clear() {
     _vbArr.clear();
 }
 
+void MeshBuffer::afterCleanupHandle() {
+    clear();
+    se::ScriptEngine::getInstance()->addAfterInitHook([this] { init(); });
+}
 
 void MeshBuffer::init() {
     auto *rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
@@ -68,6 +72,7 @@ void MeshBuffer::init() {
     auto *rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
     _vbArr.push_back(rVB);
 
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 void MeshBuffer::uploadVB() {
