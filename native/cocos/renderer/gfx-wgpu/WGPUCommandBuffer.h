@@ -86,31 +86,9 @@ public:
     void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const emscripten::val &dynamicOffsets);
     void draw(const emscripten::val &info);
 
-    template <typename T>
-    void updateByType(Buffer *buff, const emscripten::val &v, uint32_t size) {
-        ccstd::vector<T> buffer = emscripten::convertJSArrayToNumberVector<T>(v);
+    void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size) {
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
-    }
-
-    void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size, uint32_t stride) {
-        auto len = size / stride;
-        switch (stride) {
-            case 1:
-                updateByType<uint8_t>(buff, v, size);
-                break;
-            case 2:
-                updateByType<uint16_t>(buff, v, size);
-                break;
-            case 4:
-                updateByType<uint32_t>(buff, v, size);
-                break;
-            case 8:
-                updateByType<uint64_t>(buff, v, size);
-                break;
-            default:
-                while (1) {
-                }
-        }
     }
 
     void setViewport(const emscripten::val &info);

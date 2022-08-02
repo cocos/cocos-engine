@@ -50,48 +50,9 @@ public:
 
     inline uint32_t getOffset() const { return _offset; }
 
-    template <typename T>
-    void updateByType(const emscripten::val &v, uint32_t size, uint32_t len) {
-        std::vector<T> rv;
-        rv.resize(len);
-        emscripten::val memoryView{emscripten::typed_memory_view(len, rv.data())};
-        memoryView.call<void>("set", v);
-        update(reinterpret_cast<const void *>(rv.data()), size);
-        if (size == 576) {
-            auto *data = reinterpret_cast<float *>(rv.data());
-            printf("try float %f, %f, %f, %f, %f, %d, %d, %d, %d, %d, %d, %d, %d\n", data[0], data[1], data[2], data[3], data[4], rv.data()[0],
-                   rv.data()[1], rv.data()[2], rv.data()[3], rv.data()[4], _stride, len, size);
-        }
-    }
-
-    void update(const emscripten::val &v, uint32_t size, uint32_t stride) {
-        auto length = size / stride;
-        switch (stride) {
-            case 1:
-                updateByType<uint8_t>(v, size, length);
-                break;
-            case 2:
-                updateByType<uint16_t>(v, size, length);
-                break;
-            case 4:
-                updateByType<uint32_t>(v, size, length);
-                break;
-            case 8:
-                updateByType<uint64_t>(v, size, length);
-                break;
-            default:
-                while (1) {
-                }
-        }
-    }
-
-    void update(const emscripten::val &v) {
-        const size_t l = v["byteLength"].as<size_t>();
-        std::vector<uint8_t> rv;
-        rv.resize(l);
-        emscripten::val memoryView{emscripten::typed_memory_view(l, rv.data())};
-        memoryView.call<void>("set", v);
-        update(reinterpret_cast<const void *>(rv.data()), rv.size());
+    void update(const emscripten::val &v, uint32_t size) {
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        update(reinterpret_cast<const void *>(buffer.data()), size);
     }
 
     void update(const DrawInfoList &drawInfos);

@@ -515,7 +515,6 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass* renderpass, Framebuffer* f
     const auto& ems_rect = area;
     Rect rect;
     ASSIGN_FROM_EMS(rect, width, height, x, y);
-    printf("rect %d, %d\n", rect.width, rect.height);
 
     ccstd::vector<Color> clearColors;
     const std::vector<val>& ems_clearColorsVec = vecFromJSArray<val>(colors);

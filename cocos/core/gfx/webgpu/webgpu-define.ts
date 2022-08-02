@@ -271,29 +271,22 @@ DescriptorSet.prototype.getTexture = function (binding: number, index?: number) 
 
 const oldUpdateBuffer = Buffer.prototype.update;
 Buffer.prototype.update = function (data: BufferSource, size?: number) {
-    const stride = data.length ? data.byteLength / data.length : 1;
-    if (size === undefined) {
-        if ('buffer' in data) {
-            oldUpdateBuffer.call(this, data, data.byteLength, stride);
-        } else {
-            oldUpdateBuffer.call(this, new Uint8Array(data), data.byteLength, stride);
-        }
+    const updateSize = size === undefined ? data.byteLength : size;
+    if ('buffer' in data) {
+        oldUpdateBuffer.call(this, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
     } else {
-        oldUpdateBuffer.call(this, data, size, stride);
+        oldUpdateBuffer.call(this, new Uint8Array(data), updateSize);
     }
 };
 
 const oldCmdUpdateBuffer = CommandBuffer.prototype.updateBuffer;
 CommandBuffer.prototype.updateBuffer = function (buffer: typeof Buffer, data: BufferSource, size?: number) {
-    const stride = data.length ? data.byteLength / data.length : 1;
-    if (size === undefined) {
-        if ('buffer' in data) {
-            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer), data.byteLength, stride);
-        } else {
-            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), data.byteLength, stride);
-        }
+    const updateSize = size === undefined ? data.byteLength : size;
+
+    if ('buffer' in data) {
+        oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
     } else {
-        oldCmdUpdateBuffer.call(this, buffer, data, size, stride);
+        oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), updateSize);
     }
 };
 
