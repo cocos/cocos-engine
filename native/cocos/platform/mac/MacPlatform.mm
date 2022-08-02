@@ -51,7 +51,7 @@ extern int cocos_main(int argc, const char **argv);
 }
 - (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps;
 - (void)start;
-- (void)changeFPS:(int)fps;
+- (void)changeFPS;
 - (void)pause;
 - (void)resume;
 @end
