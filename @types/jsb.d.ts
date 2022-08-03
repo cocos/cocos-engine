@@ -66,7 +66,7 @@ declare namespace jsb {
     export let onMouseUp: MouseEventCallback | undefined;
     export let onMouseWheel: MouseWheelEventCallback | undefined;
 
-    type TouchEventCallback = (touchList: TouchList) =>  void;
+    type TouchEventCallback = (touchList: TouchList, windowId: number) =>  void;
     export let onTouchStart: TouchEventCallback | undefined;
     export let onTouchMove: TouchEventCallback | undefined;
     export let onTouchEnd: TouchEventCallback | undefined;
