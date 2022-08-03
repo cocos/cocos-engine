@@ -408,7 +408,6 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     }
 
     if (_isAborted || _readyState == ReadyState::UNSENT) {
-        CC_LOG_DEBUG("request (%p) is abort", this);
         return;
     }
 
