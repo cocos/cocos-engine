@@ -131,10 +131,10 @@ public:
     void define(const AABB &aabb);
     void mergeAABB(const AABB *aabb);
     void mergePoint(const Vec3 &point);
+    void mergePoints(const ccstd::vector<Vec3> &points);
     void mergeFrustum(const Frustum &frustum);
     inline void merge(const AABB *aabb) { mergeAABB(aabb); }
     inline void merge(const Vec3 &point) { mergePoint(point); }
-    void merge(const ccstd::vector<Vec3> &points);
     inline void merge(const Frustum &frustum) { mergeFrustum(frustum); }
     bool interset(const Frustum &frustum) const;
     int interset(const Plane &plane) const;
