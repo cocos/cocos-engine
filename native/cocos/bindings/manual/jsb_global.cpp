@@ -96,7 +96,7 @@ static void localDownloaderCreateTask(const ccstd::string &url, const std::funct
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
     auto task = localDownloader()->createDataTask(url, key);
-    gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
+    gLocalDownloaderHandlers.emplace(task->identifier, callback);
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
