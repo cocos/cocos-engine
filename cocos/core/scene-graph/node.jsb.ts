@@ -48,6 +48,10 @@ export type Node = jsb.Node;
 legacyCC.Node = Node;
 
 const NodeCls: any = Node;
+
+
+NodeCls.reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
+
 /**
  * @en Event types emitted by Node
  * @zh 节点可能发出的事件类型
