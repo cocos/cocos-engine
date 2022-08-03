@@ -215,7 +215,7 @@ rootProto.addBatch = function (batch) {
 }
 
 rootProto.removeBatch = function (batch) {
-    console.error('The Draw Batch class is implemented differently in the native platform and does not support calling this interface using jsb.')
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
 }
 
 rootProto.removeBatches = function () {
