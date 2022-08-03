@@ -230,10 +230,16 @@ export class UIRenderer extends Renderer {
     @type(Material)
     protected _customMaterial: Material | null = null;
 
+    /**
+     * @internal
+    */
     @serializable
-    protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
+    public _srcBlendFactor = BlendFactor.SRC_ALPHA;
     @serializable
-    protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
+    /**
+     * @internal
+    */
+    public _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
     @serializable
     protected _color: Color = Color.WHITE.clone();
 
