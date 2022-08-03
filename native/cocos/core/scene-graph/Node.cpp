@@ -890,7 +890,7 @@ ccstd::string Node::getPathInHierarchy() const {
     ccstd::string result = getName();
     Node *curNode = getParent();
     while (curNode && dynamic_cast<Scene *>(curNode) == nullptr) {
-        result = ccstd::string(curNode->getName()).append("/").append(result);
+        result.insert(0, "/").insert(0, curNode->getName());
         curNode = curNode->getParent();
     }
     return result;
