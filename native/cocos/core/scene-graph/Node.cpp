@@ -886,6 +886,16 @@ void Node::clearNodeArray() {
     }
 }
 
+ccstd::string Node::getPathInHierarchy() const {
+    ccstd::string result = getName();
+    Node *curNode = getParent();
+    while (curNode && dynamic_cast<Scene *>(curNode) == nullptr) {
+        result = ccstd::string(curNode->getName()).append("/").append(result);
+        curNode = curNode->getParent();
+    }
+    return result;
+}
+
 void Node::translate(const Vec3 &trans, NodeSpace ns) {
     Vec3 v3Temp{trans};
     if (ns == NodeSpace::LOCAL) {
