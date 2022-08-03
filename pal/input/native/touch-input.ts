@@ -22,7 +22,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (changedTouches: TouchList) => {
+        return (changedTouches: TouchList, windowId: number) => {
             const handleTouches: Touch[] = [];
             const length = changedTouches.length;
             const windowSize = screenAdapter.windowSize;
@@ -45,6 +45,7 @@ export class TouchInputSource {
             if (handleTouches.length > 0) {
                 const eventTouch = new EventTouch(handleTouches, false, eventType,
                     macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                eventTouch.windowId = windowId;
                 this._eventTarget.emit(eventType, eventTouch);
             }
         };

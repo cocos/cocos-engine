@@ -29,25 +29,38 @@
 
 namespace cc {
 
-SystemWindowManager *SystemWindowManager::_instance = nullptr;
+uint32_t SystemWindowManager::_nextWindowId = 1;
 
- SystemWindowManager::SystemWindowManager(IEventDispatch *delegate) {
-    _instance = this;
+SystemWindowManager::SystemWindowManager() {
 }
 
 int SystemWindowManager::init() {
     return 0;
 }
 
-void SystemWindowManager::poolEvent(bool *quit) {
+void SystemWindowManager::processEvent(bool *quit) {
 }
 
 void SystemWindowManager::swapWindows() {
 }
 
-ISystemWindow *SystemWindowManager::createWindow(const char *name) {
-    auto window = BasePlatform::getPlatform()->createNativeWindow();
-    _windows.insert(std::make_pair(std::string(name), window));
+ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
+    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
+    if (window) {
+        window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+        _nextWindowId++;
+    }
     return window;
+}
+
+ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
+    if (windowId <= 0)
+        return nullptr;
+
+    auto iter = _windows.find(windowId);
+    if (iter != _windows.end())
+        return iter->second.get();
+    return nullptr;
 }
 } // namespace cc

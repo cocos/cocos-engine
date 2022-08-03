@@ -28,27 +28,24 @@
 #include <string>
 #include <memory>
 #include "base/std/container/unordered_map.h"
-#include "interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 class ISystemWindow;
 
 class SystemWindowManager : public ISystemWindowManager {
 public:
-    static SystemWindowManager *getInstance() {
-        return _instance;
-    }
-
-    SystemWindowManager(IEventDispatch *delegate);
+    SystemWindowManager();
 
     int init() override;
-    void poolEvent(bool *quit) override;
+    void processEvent(bool *quit) override;
     void swapWindows() override;
-    ISystemWindow *createWindow(const char *name) override;
-    const ccstd::unordered_map<std::string, std::shared_ptr<ISystemWindow>> &getWindows() override { return _windows; }
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
 
 private:
-    static SystemWindowManager *_instance;
-    ccstd::unordered_map<std::string, std::shared_ptr<ISystemWindow>> _windows;
+    static uint32_t _nextWindowId; // start from 1, 0 means an invalid ID
+    SystemWindowMap _windows;
 };
 }

@@ -30,6 +30,7 @@
 #include "core/Root.h"
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
@@ -9996,6 +9997,29 @@ static bool js_scene_Root_createScene(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Root_createScene)
 
+static bool js_scene_Root_createSystemWindow(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::ISystemWindowInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        unsigned int result = cobj->createSystemWindow(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Root_createSystemWindow)
+
 static bool js_scene_Root_createWindow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
@@ -10796,6 +10820,7 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("activeWindow", _SE(js_scene_Root_activeWindow));
     cls->defineFunction("createCamera", _SE(js_scene_Root_createCamera));
     cls->defineFunction("createScene", _SE(js_scene_Root_createScene));
+    cls->defineFunction("createSystemWindow", _SE(js_scene_Root_createSystemWindow));
     cls->defineFunction("createWindow", _SE(js_scene_Root_createWindow));
     cls->defineFunction("destroy", _SE(js_scene_Root_destroy));
     cls->defineFunction("destroyLight", _SE(js_scene_Root_destroyLight));
@@ -16762,6 +16787,26 @@ static bool js_scene_Camera_getSurfaceTransform(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getSurfaceTransform)
 
+static bool js_scene_Camera_getSystemWindowId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getSystemWindowId();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getSystemWindowId)
+
 static bool js_scene_Camera_getViewport(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -17595,6 +17640,7 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("scene", _SE(js_scene_Camera_getScene_asGetter), nullptr);
     cls->defineProperty("name", _SE(js_scene_Camera_getName_asGetter), nullptr);
     cls->defineProperty("window", _SE(js_scene_Camera_getWindow_asGetter), _SE(js_scene_Camera_setWindow_asSetter));
+    cls->defineProperty("systemWindowId", _SE(js_scene_Camera_getSystemWindowId_asGetter), nullptr);
     cls->defineProperty("forward", _SE(js_scene_Camera_getForward_asGetter), _SE(js_scene_Camera_setForward_asSetter));
     cls->defineProperty("aperture", _SE(js_scene_Camera_getAperture_asGetter), _SE(js_scene_Camera_setAperture_asSetter));
     cls->defineProperty("position", _SE(js_scene_Camera_getPosition_asGetter), _SE(js_scene_Camera_setPosition_asSetter));
@@ -19591,6 +19637,344 @@ bool js_register_scene_Octree(se::Object* obj) // NOLINT(readability-identifier-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_ISystemWindowInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_ISystemWindowInfo_class = nullptr;  // NOLINT
+
+static bool js_scene_ISystemWindowInfo_get_title(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->title, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->title, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_title)
+
+static bool js_scene_ISystemWindowInfo_set_title(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->title, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_title)
+
+static bool js_scene_ISystemWindowInfo_get_x(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->x, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->x, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_x)
+
+static bool js_scene_ISystemWindowInfo_set_x(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->x, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_x)
+
+static bool js_scene_ISystemWindowInfo_get_y(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->y, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->y, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_y)
+
+static bool js_scene_ISystemWindowInfo_set_y(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->y, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_y)
+
+static bool js_scene_ISystemWindowInfo_get_width(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->width, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->width, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_width)
+
+static bool js_scene_ISystemWindowInfo_set_width(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->width, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_width)
+
+static bool js_scene_ISystemWindowInfo_get_height(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->height, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->height, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_height)
+
+static bool js_scene_ISystemWindowInfo_set_height(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->height, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_height)
+
+static bool js_scene_ISystemWindowInfo_get_flags(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->flags, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->flags, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_flags)
+
+static bool js_scene_ISystemWindowInfo_set_flags(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->flags, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_flags)
+
+static bool js_scene_ISystemWindowInfo_get_externalHandle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->externalHandle, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->externalHandle, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ISystemWindowInfo_get_externalHandle)
+
+static bool js_scene_ISystemWindowInfo_set_externalHandle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->externalHandle, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ISystemWindowInfo_set_externalHandle)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::ISystemWindowInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::ISystemWindowInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("title", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->title), ctx);
+    }
+    json->getProperty("x", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->x), ctx);
+    }
+    json->getProperty("y", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->y), ctx);
+    }
+    json->getProperty("width", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->width), ctx);
+    }
+    json->getProperty("height", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->height), ctx);
+    }
+    json->getProperty("flags", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flags), ctx);
+    }
+    json->getProperty("externalHandle", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->externalHandle), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_ISystemWindowInfo_finalize)
+
+static bool js_scene_ISystemWindowInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ISystemWindowInfo);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ISystemWindowInfo);
+        auto cobj = ptr->get<cc::ISystemWindowInfo>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ISystemWindowInfo);
+    auto cobj = ptr->get<cc::ISystemWindowInfo>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->title), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->x), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->y), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->width), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->height), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->flags), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->externalHandle), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_scene_ISystemWindowInfo_constructor, __jsb_cc_ISystemWindowInfo_class, js_cc_ISystemWindowInfo_finalize)
+
+static bool js_cc_ISystemWindowInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_ISystemWindowInfo_finalize)
+
+bool js_register_scene_ISystemWindowInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("ISystemWindowInfo", obj, nullptr, _SE(js_scene_ISystemWindowInfo_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("title", _SE(js_scene_ISystemWindowInfo_get_title), _SE(js_scene_ISystemWindowInfo_set_title));
+    cls->defineProperty("x", _SE(js_scene_ISystemWindowInfo_get_x), _SE(js_scene_ISystemWindowInfo_set_x));
+    cls->defineProperty("y", _SE(js_scene_ISystemWindowInfo_get_y), _SE(js_scene_ISystemWindowInfo_set_y));
+    cls->defineProperty("width", _SE(js_scene_ISystemWindowInfo_get_width), _SE(js_scene_ISystemWindowInfo_set_width));
+    cls->defineProperty("height", _SE(js_scene_ISystemWindowInfo_get_height), _SE(js_scene_ISystemWindowInfo_set_height));
+    cls->defineProperty("flags", _SE(js_scene_ISystemWindowInfo_get_flags), _SE(js_scene_ISystemWindowInfo_set_flags));
+    cls->defineProperty("externalHandle", _SE(js_scene_ISystemWindowInfo_get_externalHandle), _SE(js_scene_ISystemWindowInfo_set_externalHandle));
+    cls->defineFinalizeFunction(_SE(js_cc_ISystemWindowInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::ISystemWindowInfo>(cls);
+
+    __jsb_cc_ISystemWindowInfo_proto = cls->getProto();
+    __jsb_cc_ISystemWindowInfo_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_scene(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -19622,6 +20006,7 @@ bool register_all_scene(se::Object* obj)    // NOLINT
     js_register_scene_IProgramInfo(ns);
     js_register_scene_IRenderSceneInfo(ns);
     js_register_scene_IRenderWindowInfo(ns);
+    js_register_scene_ISystemWindowInfo(ns);
     js_register_scene_InstancedAttributeBlock(ns);
     js_register_scene_MaterialInstance(ns);
     js_register_scene_Node(ns);

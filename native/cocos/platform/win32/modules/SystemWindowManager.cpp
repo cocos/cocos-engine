@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "SystemWindowManager.h"
-#include "BasePlatform.h"
+#include "platform/BasePlatform.h"
 #include "platform/SDLHelper.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/win32/modules/SystemWindow.h"
@@ -32,17 +32,14 @@
 
 namespace cc {
 
-SystemWindowManager *SystemWindowManager::_instance = nullptr;
 uint32_t SystemWindowManager::_nextWindowId = 1;
 
-SystemWindowManager::SystemWindowManager(IEventDispatch *delegate):
-    _sdl(std::make_unique<SDLHelper>(delegate)),
-    _eventDispatcher(delegate) {
-    _instance = this;
+SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
+    : _eventDispatcher(delegate) {
 }
 
 int SystemWindowManager::init() {
-    return _sdl->init();
+    return SDLHelper::init();
 }
 
 void SystemWindowManager::processEvent(bool *quit) {
@@ -55,7 +52,7 @@ void SystemWindowManager::processEvent(bool *quit) {
         if (window) {
             windowId = window->getWindowId();
         }
-        _sdl->dispatchSDLEvent(windowId, sdlEvent, quit);
+        SDLHelper::dispatchSDLEvent(_eventDispatcher, windowId, sdlEvent, quit);
         if (*quit) {
             break;
         }
@@ -63,8 +60,8 @@ void SystemWindowManager::processEvent(bool *quit) {
 }
 
 void SystemWindowManager::swapWindows() {
-    for (auto pair : _windows) {
-        SystemWindow *window = dynamic_cast<SystemWindow *>(pair.second.get());
+    for (const auto &pair : _windows) {
+        SystemWindow *window = static_cast<SystemWindow *>(pair.second.get());
         if (window) {
             window->swapWindow();
         }
@@ -75,7 +72,7 @@ ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) 
     ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
     if (window) {
         window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
-        _windows.insert(std::make_pair(_nextWindowId, window));
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
         _nextWindowId++;
     }
     return window;
@@ -92,8 +89,8 @@ ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
 }
 
 cc::ISystemWindow *SystemWindowManager::getWindowFromSDLWindow(SDL_Window *window) const {
-    for (auto iter : _windows) {
-        SystemWindow *sysWindow = dynamic_cast<SystemWindow *>(iter.second.get());
+    for (const auto &iter : _windows) {
+        SystemWindow *sysWindow = static_cast<SystemWindow *>(iter.second.get());
         SDL_Window *sdlWindow = sysWindow->_getSDLWindow();
         if (sdlWindow == window) {
             return sysWindow;

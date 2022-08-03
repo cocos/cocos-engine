@@ -145,19 +145,10 @@ int windowFlagsToSDLWindowFlag(int flags) {
 } // namespace
 
 namespace cc {
-SDLHelper::SDLHelper(IEventDispatch *delegate)
-: _delegate(delegate) {
-    _instance = this;
-}
+SDLHelper::SDLHelper() {}
 
 SDLHelper::~SDLHelper() {
-    if (_handle) {
-        SDL_DestroyWindow(_handle);
-        _handle = nullptr;
-    }
-    if (_isWindowCreated) {
-        SDL_Quit();
-    }
+    SDL_Quit();
 }
 
 int SDLHelper::init() {
@@ -169,43 +160,43 @@ int SDLHelper::init() {
     return 0;
 }
 
-void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &wevent) {
+void SDLHelper::dispatchWindowEvent(IEventDispatch *delegate, uint32_t windowId, const SDL_WindowEvent &wevent) {
     WindowEvent ev;
     ev.windowId = windowId;
 
     switch (wevent.event) {
         case SDL_WINDOWEVENT_SHOWN: {
             ev.type = WindowEvent::Type::SHOW;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESTORED: {
             ev.type = WindowEvent::Type::RESTORED;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             ev.type = WindowEvent::Type::SIZE_CHANGED;
             ev.width = wevent.data1;
             ev.height = wevent.data2;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESIZED: {
             ev.type = WindowEvent::Type::RESIZED;
             ev.width = wevent.data1;
             ev.height = wevent.data2;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_HIDDEN: {
             ev.type = WindowEvent::Type::HIDDEN;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_MINIMIZED: {
             ev.type = WindowEvent::Type::MINIMIZED;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT_ENTER: {
@@ -214,19 +205,17 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
         }
         case SDL_WINDOWEVENT_CLOSE: {
             ev.type = WindowEvent::Type::CLOSE;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
     }
 }
 
-SDLHelper *SDLHelper::_instance = nullptr;
-
 void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
-    dispatchSDLEvent(0, sdlEvent, quit);
+    dispatchSDLEvent(nullptr, 0, sdlEvent, quit);
 }
 
-void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
+void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
     cc::TouchEvent touch;
     cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
@@ -244,11 +233,11 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             }
             WindowEvent ev;
             ev.type = WindowEvent::Type::QUIT;
-            _delegate->dispatchEvent(ev);
+            delegate->dispatchEvent(ev);
             break;
         }
         case SDL_WINDOWEVENT: {
-            dispatchWindowEvent(windowId, sdlEvent.window);
+            dispatchWindowEvent(delegate, windowId, sdlEvent.window);
             break;
         }
         case SDL_MOUSEBUTTONDOWN: {
@@ -263,7 +252,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
-            _delegate->dispatchEvent(mouse);
+            delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_MOUSEBUTTONUP: {
@@ -272,7 +261,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
-            _delegate->dispatchEvent(mouse);
+            delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_MOUSEMOTION: {
@@ -281,7 +270,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = 0;
-            _delegate->dispatchEvent(mouse);
+            delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_MOUSEWHEEL: {
@@ -290,28 +279,28 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = 0; //TODO: direction
-            _delegate->dispatchEvent(mouse);
+            delegate->dispatchEvent(mouse);
             break;
         }
         case SDL_FINGERUP: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::ENDED;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchTouchEvent(touch);
+            delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERDOWN: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::BEGAN;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchTouchEvent(touch);
+            delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERMOTION: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::MOVED;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchTouchEvent(touch);
+            delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_KEYDOWN: {
@@ -323,7 +312,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             keyboard.ctrlKeyActive = mode & KMOD_CTRL;
             keyboard.shiftKeyActive = mode & KMOD_SHIFT;
             //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
-            _delegate->dispatchEvent(keyboard);
+            delegate->dispatchEvent(keyboard);
             break;
         }
         case SDL_KEYUP: {
@@ -334,7 +323,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             keyboard.altKeyActive = mode & KMOD_ALT;
             keyboard.ctrlKeyActive = mode & KMOD_CTRL;
             keyboard.shiftKeyActive = mode & KMOD_SHIFT;
-            _delegate->dispatchEvent(keyboard);
+            delegate->dispatchEvent(keyboard);
             break;
         }
         default:
@@ -360,9 +349,6 @@ int SDLHelper::pollEvent(SDL_Event *event) {
 
 SDL_Window *SDLHelper::createWindow(const char *title,
                              int w, int h, int flags) {
-    //if (_isWindowCreated) {
-    //    return true;
-    //}
     SDL_Rect screenRect;
     if (SDL_GetDisplayUsableBounds(0, &screenRect) != 0) {
         return nullptr;
@@ -375,9 +361,6 @@ SDL_Window *SDLHelper::createWindow(const char *title,
 SDL_Window *SDLHelper::createWindow(const char *title,
                              int x, int y, int w,
                              int h, int flags) {
-    //if (_isWindowCreated) {
-    //    return true;
-    //}
     // Create window
     int sdlFlags = windowFlagsToSDLWindowFlag(flags);
     SDL_Window *handle = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
@@ -387,20 +370,11 @@ SDL_Window *SDLHelper::createWindow(const char *title,
         return nullptr;
     }
 
-    SDL_GetWindowID(handle);
-
-    //_isWindowCreated = true;
-    _handles.emplace_back(handle);
     return handle;
 }
 
 void SDLHelper::setCursorEnabled(bool value) {
     SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
-}
-
-void SDLHelper::swapWindow() {
-    //SDL_GL_SwapWindow(_handle);
-    swapWindow(_handle);
 }
 
 void SDLHelper::swapWindow(SDL_Window *window) {
@@ -416,7 +390,7 @@ uintptr_t SDLHelper::getDisplay() const {
 }
 #endif
 
-uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) const {
+uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
@@ -428,10 +402,6 @@ uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) const {
 #endif
     CC_ASSERT(false);
     return 0;
-}
-
-SDL_Window *SDLHelper::getSDLWindowHandle() const {
-    return _handle;
 }
 
 } // namespace cc

@@ -463,8 +463,8 @@ export class UITransform extends Component {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) 
                 continue;
-            //console.log('camera.getSystemWindowId:' + camera.getSystemWindowId());
-            if (camera.getSystemWindowId() != windowId) {
+            //console.log('SystemWindowId:' + systemWindowId);
+            if (camera.systemWindowId != windowId) {
                 continue;
             }
 

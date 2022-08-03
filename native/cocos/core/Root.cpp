@@ -73,15 +73,14 @@ Root::~Root() {
 }
 
 void Root::initialize(gfx::Swapchain *swapchain) {
-    //_swapchain = swapchain;
-
     ISystemWindowManager *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     const auto &windows = windowMgr->getWindows();
-    for (auto pair : windows) {
+    for (const auto &pair : windows) {
         auto *window = pair.second.get();
-        _mainWindow = createRenderWindowFromSystemWindow(window);
+        if (!_mainRenderWindow)
+            _mainRenderWindow = createRenderWindowFromSystemWindow(window);
     }
-    _curWindow = _mainWindow;
+    _curRenderWindow = _mainRenderWindow;
 
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
@@ -282,7 +281,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         }
         _pipeline->setBloomEnabled(false);
 
-        if (!_pipeline->activate(_mainWindow->getSwapchain())) {
+        if (!_pipeline->activate(_mainRenderWindow->getSwapchain())) {
             if (isCreateDefaultPipeline) {
                 CC_SAFE_DESTROY(_pipeline);
             }
@@ -293,7 +292,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     } else {
         _pipelineRuntime = std::make_unique<render::NativePipeline>(
             boost::container::pmr::get_default_resource());
-        if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
+        if (!_pipelineRuntime->activate(_mainRenderWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
             return false;
@@ -328,7 +327,7 @@ void Root::onGlobalPipelineStateChanged() {
 }
 
 void Root::activeWindow(scene::RenderWindow *window) {
-    _curWindow = window;
+    _curRenderWindow = window;
 }
 
 void Root::resetCumulativeTime() {
@@ -467,7 +466,7 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
         windowInfo.height = swapchain->getHeight();
         windowInfo.renderPassInfo = renderPassInfo;
         windowInfo.swapchain = swapchain;
-        _mainWindow = createWindow(windowInfo);
+        _mainRenderWindow = createWindow(windowInfo);
 
         return windowId;
     }

@@ -103,10 +103,16 @@ extern void gameControllerStatusCallback(int32_t controllerIndex,
 extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurface(JNIEnv* env, jobject thiz, jobject surface) {
     ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
     if (windowMgr) {
-        static uint8_t id = 1;
-        ISystemWindow *window = windowMgr->createWindow(StringUtil::format("Window %d", id++).c_str());
         ANativeWindow *windowHandle = ANativeWindow_fromSurface(env, surface);
-        window->setWindowHandle(windowHandle);
+
+        ISystemWindowInfo info;
+        info.title = ccstd::string("");
+        info.x = 0;
+        info.y = 0;
+        info.width  = 800;
+        info.height = 600;
+        info.externalHandle = windowHandle;
+        ISystemWindow *window = windowMgr->createWindow(info);
     }
 }
 
@@ -217,6 +223,8 @@ public:
 
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
+            touchEvent.windowId = 1;
+
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
 
@@ -290,8 +298,14 @@ public:
                 break;
             case APP_CMD_INIT_WINDOW: {
                 _hasWindow = true;
-                auto *systemWindow = _androidPlatform->getInterface<SystemWindow>();
-                systemWindow->setWindowHandle(_androidPlatform->_app->window);
+
+                ANativeWindow *nativeWindow = _androidPlatform->_app->window;
+                ISystemWindowInfo info;
+                info.width  = ANativeWindow_getWidth(nativeWindow);
+                info.height = ANativeWindow_getHeight(nativeWindow);
+                info.externalHandle = nativeWindow;
+                _androidPlatform->getInterface<SystemWindowManager>()->createWindow(info);
+
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
                 if (!_launched) {
@@ -491,8 +505,7 @@ int AndroidPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
-    registerInterface(std::make_shared<SystemWindowManager>(this));
+    registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
 
     return 0;
@@ -502,6 +515,10 @@ void AndroidPlatform::onDestroy() {
     UniversalPlatform::onDestroy();
     unregisterAllInterfaces();
     CC_SAFE_DELETE(_inputProxy)
+}
+
+cc::ISystemWindow *AndroidPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 int AndroidPlatform::getSdkVersion() const {

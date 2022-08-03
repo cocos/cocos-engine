@@ -40,7 +40,7 @@ struct ISystemWindowInfo {
     void *externalHandle{nullptr};
 };
 
-typedef ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>> SystemWindowList;
+typedef ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>> SystemWindowMap;
 
 /**
  * 负责创建、查找 ISystemWindow 及消息处理
@@ -80,6 +80,6 @@ public:
     /**
      * 获取所有窗口
      */
-    virtual const SystemWindowList &getWindows() const = 0;
+    virtual const SystemWindowMap &getWindows() const = 0;
 };
 }

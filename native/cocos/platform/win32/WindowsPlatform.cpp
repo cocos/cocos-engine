@@ -147,7 +147,6 @@ int32_t WindowsPlatform::loop() {
     onResume();
     while (!_quit) {
         desiredInterval = (LONGLONG)(1.0 / getFps() * nFreq.QuadPart);
-        //_window->pollEvent(&_quit);
         _windowManager->processEvent(&_quit);
 
         QueryPerformanceCounter(&nNow);
@@ -155,7 +154,6 @@ int32_t WindowsPlatform::loop() {
         if (actualInterval >= desiredInterval) {
             nLast.QuadPart = nNow.QuadPart;
             runTask();
-            //_window->swapWindow();
             _windowManager->swapWindows();
         } else {
             // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
@@ -177,7 +175,7 @@ int32_t WindowsPlatform::loop() {
 }
 
 ISystemWindow *WindowsPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
-    return ccnew SystemWindow(this, windowId, externalHandle);
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 } // namespace cc

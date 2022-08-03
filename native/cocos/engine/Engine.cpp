@@ -73,7 +73,6 @@ namespace {
 bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
-    //auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
     auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
@@ -366,9 +365,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
                ev.type == WindowEvent::Type::RESIZED) {
         cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
-        if (w) {
-            w->setViewSize(ev.width, ev.height);
-        }
+        CC_ASSERT(w && "MainSystemWindow is null.");
+        w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

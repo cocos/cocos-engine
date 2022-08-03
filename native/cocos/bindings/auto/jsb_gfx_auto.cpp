@@ -4249,6 +4249,34 @@ static bool js_gfx_SwapchainInfo_copy(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_gfx_SwapchainInfo_copy)
 
+static bool js_gfx_SwapchainInfo_get_windowId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SwapchainInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->windowId, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->windowId, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SwapchainInfo_get_windowId)
+
+static bool js_gfx_SwapchainInfo_set_windowId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SwapchainInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->windowId, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SwapchainInfo_set_windowId)
+
 static bool js_gfx_SwapchainInfo_get_windowHandle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::SwapchainInfo>(s);
@@ -4374,6 +4402,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SwapchainInfo * to, se::O
     }
     se::Value field;
     bool ok = true;
+    json->getProperty("windowId", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->windowId), ctx);
+    }
     json->getProperty("windowHandle", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->windowHandle), ctx);
@@ -4426,16 +4458,19 @@ static bool js_gfx_SwapchainInfo_constructor(se::State& s) // NOLINT(readability
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SwapchainInfo);
     auto cobj = ptr->get<cc::gfx::SwapchainInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->windowHandle), nullptr);
+        ok &= sevalue_to_native(args[0], &(cobj->windowId), nullptr);
     }
     if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->vsyncMode), nullptr);
+        ok &= sevalue_to_native(args[1], &(cobj->windowHandle), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->width), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->vsyncMode), nullptr);
     }
     if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->height), nullptr);
+        ok &= sevalue_to_native(args[3], &(cobj->width), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->height), nullptr);
     }
 
     if(!ok) {
@@ -4461,6 +4496,7 @@ bool js_register_gfx_SwapchainInfo(se::Object* obj) // NOLINT(readability-identi
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_gfx_getter_return_true), nullptr);
 #endif
+    cls->defineProperty("windowId", _SE(js_gfx_SwapchainInfo_get_windowId), _SE(js_gfx_SwapchainInfo_set_windowId));
     cls->defineProperty("windowHandle", _SE(js_gfx_SwapchainInfo_get_windowHandle), _SE(js_gfx_SwapchainInfo_set_windowHandle));
     cls->defineProperty("vsyncMode", _SE(js_gfx_SwapchainInfo_get_vsyncMode), _SE(js_gfx_SwapchainInfo_set_vsyncMode));
     cls->defineProperty("width", _SE(js_gfx_SwapchainInfo_get_width), _SE(js_gfx_SwapchainInfo_set_width));
@@ -22095,6 +22131,26 @@ static bool js_gfx_Swapchain_getWindowHandle(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_gfx_Swapchain_getWindowHandle)
 
+static bool js_gfx_Swapchain_getWindowId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Swapchain>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getWindowId();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Swapchain_getWindowId)
+
 static bool js_gfx_Swapchain_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Swapchain>(s);
@@ -22172,6 +22228,7 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
     cls->defineFunction("destroySurface", _SE(js_gfx_Swapchain_destroySurface));
     cls->defineFunction("getVSyncMode", _SE(js_gfx_Swapchain_getVSyncMode));
     cls->defineFunction("getWindowHandle", _SE(js_gfx_Swapchain_getWindowHandle));
+    cls->defineFunction("getWindowId", _SE(js_gfx_Swapchain_getWindowId));
     cls->defineFunction("initialize", _SE(js_gfx_Swapchain_initialize));
     cls->defineFunction("resize", _SE(js_gfx_Swapchain_resize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Swapchain_finalize));

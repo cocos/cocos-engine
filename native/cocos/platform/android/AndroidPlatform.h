@@ -59,7 +59,7 @@ public:
         _app = app;
     }
 
-    ISystemWindow *createNativeWindow() override;
+    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:
     bool _isLowFrequencyLoopEnabled{false};

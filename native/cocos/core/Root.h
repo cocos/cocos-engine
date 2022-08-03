@@ -183,15 +183,15 @@ public:
      * @zh
      * 主窗口
      */
-    inline scene::RenderWindow *getMainWindow() const { return _mainWindow.get(); }
+    inline scene::RenderWindow *getMainWindow() const { return _mainRenderWindow.get(); }
 
     /**
      * @zh
      * 当前窗口
      */
-    inline void setCurWindow(scene::RenderWindow *window) { _curWindow = window; }
+    inline void setCurWindow(scene::RenderWindow *window) { _curRenderWindow = window; }
 
-    inline scene::RenderWindow *getCurWindow() const { return _curWindow.get(); }
+    inline scene::RenderWindow *getCurWindow() const { return _curRenderWindow.get(); }
 
     /**
      * @zh
@@ -289,8 +289,8 @@ private:
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
     Batcher2d *_batcher{nullptr};
-    IntrusivePtr<scene::RenderWindow> _mainWindow;
-    IntrusivePtr<scene::RenderWindow> _curWindow;
+    IntrusivePtr<scene::RenderWindow> _mainRenderWindow;
+    IntrusivePtr<scene::RenderWindow> _curRenderWindow;
     IntrusivePtr<scene::RenderWindow> _tempWindow;
     ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
     IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};

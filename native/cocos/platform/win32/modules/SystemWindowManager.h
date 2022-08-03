@@ -28,20 +28,16 @@
 #include <string>
 #include <memory>
 #include "base/std/container/unordered_map.h"
-#include "SDLHelper.h"
-#include "interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+
+struct SDL_Window;
 
 namespace cc {
 
 class ISystemWindow;
-class SDLHelper;
 
 class SystemWindowManager : public ISystemWindowManager {
 public:
-    static SystemWindowManager *getInstance() {
-        return _instance;
-    }
-
     SystemWindowManager(IEventDispatch *delegate);
 
     int init() override;
@@ -50,17 +46,14 @@ public:
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
-    const SystemWindowList &getWindows() const override { return _windows; }
+    const SystemWindowMap &getWindows() const override { return _windows; }
 
-    const SDLHelper *getSDLHelper() const { return _sdl.get(); }
     ISystemWindow *getWindowFromSDLWindow(SDL_Window *window) const;
 
 private:
-    static SystemWindowManager *_instance;
-    static uint32_t _nextWindowId; // start from 1
+    static uint32_t _nextWindowId; // start from 1, 0 means an invalid ID
 
-    SystemWindowList _windows;
-    std::unique_ptr<SDLHelper> _sdl;
+    SystemWindowMap _windows;
     IEventDispatch *_eventDispatcher = nullptr;
 };
 }

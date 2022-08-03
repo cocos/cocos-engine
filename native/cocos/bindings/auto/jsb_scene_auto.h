@@ -34,6 +34,7 @@
 #include "cocos/core/Root.h"
 #include "cocos/renderer/core/ProgramLib.h"
 #include "cocos/scene/Octree.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 
 bool register_all_scene(se::Object *obj);                   // NOLINT
 
@@ -78,6 +79,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::IProgramInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::ProgramLib);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::OctreeInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Octree);
+JSB_REGISTER_OBJECT_TYPE(cc::ISystemWindowInfo);
 
 
 extern se::Object *__jsb_cc_BaseNode_proto;   // NOLINT
@@ -402,6 +404,7 @@ bool js_register_cc_Root(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_scene_Root_activeWindow);
 SE_DECLARE_FUNC(js_scene_Root_createCamera);
 SE_DECLARE_FUNC(js_scene_Root_createScene);
+SE_DECLARE_FUNC(js_scene_Root_createSystemWindow);
 SE_DECLARE_FUNC(js_scene_Root_createWindow);
 SE_DECLARE_FUNC(js_scene_Root_destroy);
 SE_DECLARE_FUNC(js_scene_Root_destroyLight);
@@ -662,4 +665,12 @@ SE_DECLARE_FUNC(js_scene_Octree_setMaxPos);
 SE_DECLARE_FUNC(js_scene_Octree_setMinPos);
 SE_DECLARE_FUNC(js_scene_Octree_update);
 SE_DECLARE_FUNC(js_scene_Octree_Octree);
+
+extern se::Object *__jsb_cc_ISystemWindowInfo_proto;   // NOLINT
+extern se::Class *__jsb_cc_ISystemWindowInfo_class;    // NOLINT
+
+bool js_register_cc_ISystemWindowInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::ISystemWindowInfo *, se::Object *ctx); //NOLINT
 // clang-format on

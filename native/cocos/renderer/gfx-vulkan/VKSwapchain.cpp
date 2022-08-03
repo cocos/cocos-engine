@@ -34,6 +34,7 @@
 
 #include "application/ApplicationManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
@@ -214,7 +215,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     initTexture(textureInfo, _depthStencilTexture);
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto viewSize = window->getViewSize();
     checkSwapchainStatus(viewSize.x, viewSize.y);
 

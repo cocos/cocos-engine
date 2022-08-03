@@ -32,29 +32,20 @@
 #include "platform/SDLHelper.h"
 #include "platform/win32/WindowsPlatform.h"
 #include "sdl2/SDL_clipboard.h"
-#include "platform/win32/modules/SystemWindowManager.h"
 
 namespace cc {
-SystemWindow::SystemWindow(IEventDispatch *delegate, uint32_t windowId, void *externalHandle)
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
     : _windowId(windowId)
-{
-    _sdl = SDLHelper::getInstance();
+    , _externalHandle(externalHandle) {
 }
 
 SystemWindow::~SystemWindow() {
-}
-
-int SystemWindow::init() {
-    //return _sdl->init();
-    return 0;
-}
-
-void SystemWindow::pollEvent(bool *quit) {
-    //return _sdl->pollEvent(quit);
+    _externalHandle = nullptr;
+    _windowId = 0;
 }
 
 void SystemWindow::swapWindow() {
-    _sdl->swapWindow(_window);
+    SDLHelper::swapWindow(_window);
 }
 
 bool SystemWindow::createWindow(const char *title,
@@ -71,7 +62,7 @@ bool SystemWindow::createWindow(const char *title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    _window = _sdl->createWindow(title, x, y, w, h, flags);
+    _window = SDLHelper::createWindow(title, x, y, w, h, flags);
     if (!_window) {
         return false;
     }
@@ -93,11 +84,14 @@ uint32_t SystemWindow::getWindowId() const {
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
-    return _sdl->getWindowHandle(_window);
+    if (_externalHandle) {
+        return reinterpret_cast<uintptr_t>(_externalHandle);
+    }
+    return SDLHelper::getWindowHandle(_window);
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-    _sdl->setCursorEnabled(value);
+    SDLHelper::setCursorEnabled(value);
 }
 
 void SystemWindow::copyTextToClipboard(const ccstd::string &text) {

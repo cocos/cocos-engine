@@ -57,14 +57,14 @@ int BaseGame::init() {
 
         ISystemWindowInfo info;
         info.title = _windowInfo.title;
-        info.x = _windowInfo.x == -1 ? 0 : _windowInfo.x;
-        info.y = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-        info.width = _windowInfo.width;
+        info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x;
+        info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y;
+        info.width  = _windowInfo.width;
         info.height = _windowInfo.height;
-        info.flags = _windowInfo.flags;
+        info.flags  = _windowInfo.flags;
 
         ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
-        ISystemWindow* window1 = windowMgr->createWindow(info);
+        windowMgr->createWindow(info);
     });
 
 #endif

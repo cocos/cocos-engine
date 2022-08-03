@@ -26,7 +26,6 @@
 #pragma once
 
 #include <iostream>
-
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 struct SDL_Window;
@@ -38,11 +37,9 @@ class CC_DLL SystemWindow : public ISystemWindow {
     friend class SystemWindowManager;
 
 public:
-    explicit SystemWindow(IEventDispatch* delegate, uint32_t windowId, void *externalHandle);
+    explicit SystemWindow(uint32_t windowId, void *externalHandle);
     ~SystemWindow() override;
 
-    int init();
-    void pollEvent(bool* quit);
     void swapWindow();
 
     bool createWindow(const char* title,
@@ -73,9 +70,7 @@ private:
     int _height{0};
 
     uint32_t _windowId{0};
-
-    //std::unique_ptr<SDLHelper> _sdl;
-    SDLHelper* _sdl{nullptr};
+    void* _externalHandle{nullptr};
     SDL_Window* _window{nullptr};
 };
 

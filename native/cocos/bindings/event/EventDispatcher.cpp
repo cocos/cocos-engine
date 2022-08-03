@@ -150,6 +150,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
 
     se::ValueArray args;
     args.emplace_back(se::Value(jsTouchObjArray));
+    args.emplace_back(se::Value(touchEvent.windowId));
     EventDispatcher::doDispatchJsEvent(eventName, args);
     EventDispatcher::dispatchCustomEvent(eventName, 0);
 }
