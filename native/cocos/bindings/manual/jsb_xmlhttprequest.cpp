@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <functional>
 #include <sstream>
+#include "application/ApplicationManager.h"
 #include "base/Config.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
@@ -41,9 +42,8 @@
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/network/HttpClient.h"
 #include "cocos/engine/BaseEngine.h"
-#include "application/ApplicationManager.h"
+#include "cocos/network/HttpClient.h"
 
 using namespace cc;          //NOLINT
 using namespace cc::network; //NOLINT
@@ -243,7 +243,7 @@ XMLHttpRequest::XMLHttpRequest()
 XMLHttpRequest::~XMLHttpRequest() {
     if (_scheduler) {
         _scheduler->unscheduleAllForTarget(this);
-    }    
+    }
     // Avoid HttpClient response call a released object!
     _httpRequest->setResponseCallback(nullptr);
     CC_SAFE_RELEASE(_httpRequest);
@@ -317,6 +317,9 @@ void XMLHttpRequest::abort() {
     _isSending = false;
 
     setReadyState(ReadyState::DONE);
+
+    // Unregister timeout timer while abort is invoked.
+    _scheduler->unscheduleAllForTarget(this);
 
     if (onabort != nullptr) {
         onabort();
@@ -502,7 +505,7 @@ void XMLHttpRequest::sendRequest() {
             _isTimeout = true;
             _readyState = ReadyState::UNSENT;
         },
-                                                      this, static_cast<float>(_timeoutInMilliseconds) / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
+                             this, static_cast<float>(_timeoutInMilliseconds) / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
     }
     setHttpRequestHeader();
 
