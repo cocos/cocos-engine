@@ -211,7 +211,7 @@ rootProto.setRenderPipeline = function (pipeline) {
 }
 
 rootProto.addBatch = function (batch) {
-    console.error('The Draw Batch class is implemented differently in the native platform and does not support calling this interface using jsb.')
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
 }
 
 rootProto.removeBatch = function (batch) {
