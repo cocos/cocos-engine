@@ -53,8 +53,12 @@ void jsToSeValue(const target_value& value, Value* v) {
             NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_string_utf8(ScriptEngine::getEnv(), value, nullptr, 0, &len));
             if (status == napi_ok) {
                 std::string valueStr;
+                len += 1;
                 valueStr.resize(len);
                 NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_string_utf8(ScriptEngine::getEnv(), value, const_cast<char*>(valueStr.data()), valueStr.size(), &len));
+                if (valueStr.length() != len) {
+                    valueStr.resize(len);
+                }
                 v->setString(valueStr);
             } else {
                 v->setUndefined();
@@ -151,6 +155,13 @@ void seToJsArgs(napi_env env, const ValueArray& args, std::vector<target_value>*
 
 bool setReturnValue(const Value& data, target_value& argv) {
     LOGI("setReturnValue");
+    napi_status status;
+    if (data.getType() == Value::Type::BigInt) {
+        // TODO: fix 'TypeError: Cannot mix BigInt and other types, use explicit conversions' for spine & dragonbones
+        NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), data.toDouble(), &argv));
+        return true;
+    }
+
     return seToJsValue(data, &argv);
 }
 } // namespace internal
