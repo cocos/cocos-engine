@@ -410,7 +410,7 @@ export class RenderScene {
      * @zh 增加一个 2D 渲染批次，渲染场景上挂载的所有 2D 渲染批次都会被提交渲染。
      * @param batch The draw batch.
      * @internal
-     * @deprecated
+     * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
      */
     public addBatch (batch: DrawBatch2D) {
         this._batches.push(batch);
@@ -421,7 +421,7 @@ export class RenderScene {
      * @zh 删除一个 2D 渲染批次，移除的 2D 渲染批次将不再被提交渲染。
      * @param batch The draw batch.
      * @internal
-     * @deprecated
+     * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
      */
     public removeBatch (batch: DrawBatch2D) {
         for (let i = 0; i < this._batches.length; ++i) {
@@ -436,7 +436,7 @@ export class RenderScene {
      * @en Remove all 2d draw batches.
      * @zh 删除所有 2D 渲染批次。
      * @internal
-     * @deprecated
+     * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
      */
     public removeBatches () {
         this._batches.length = 0;
