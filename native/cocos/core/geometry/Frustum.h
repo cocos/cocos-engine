@@ -145,6 +145,8 @@ public:
     void updatePlanes();
     void update(const Mat4 &m, const Mat4 &inv);
 
+
+    void zero();
     /**
      * @en
      * Set whether to use accurate intersection testing function on this frustum.

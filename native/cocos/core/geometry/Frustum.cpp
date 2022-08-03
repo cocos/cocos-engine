@@ -159,6 +159,13 @@ void Frustum::update(const Mat4 &m, const Mat4 &inv) {
     }
 }
 
+void Frustum::zero() {
+    for (auto & vertice : vertices) {
+        vertice.set(0.0F, 0.0F, 0.0F);
+    }
+    updatePlanes();
+}
+
 void Frustum::transform(const Mat4 &mat) {
     if (getType() != ShapeEnum::SHAPE_FRUSTUM_ACCURATE) {
         return;

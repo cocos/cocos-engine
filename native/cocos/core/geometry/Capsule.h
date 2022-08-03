@@ -99,7 +99,6 @@ public:
      */
     void transform(const Mat4 &m, const Vec3 &pos, const Quaternion &rot, const Vec3 &scale, Capsule *out) const;
 
-private:
     void updateCache();
     void updateLocalCenter();
 };
