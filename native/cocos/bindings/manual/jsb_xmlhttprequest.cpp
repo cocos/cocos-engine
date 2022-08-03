@@ -318,6 +318,9 @@ void XMLHttpRequest::abort() {
 
     setReadyState(ReadyState::DONE);
 
+    // Unregister timeout timer while abort is invoked.
+    _scheduler->unscheduleAllForTarget(this);
+
     if (onabort != nullptr) {
         onabort();
     }
@@ -405,6 +408,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     }
 
     if (_isAborted || _readyState == ReadyState::UNSENT) {
+        CC_LOG_DEBUG("request (%p) is abort", this);
         return;
     }
 
