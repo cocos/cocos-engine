@@ -129,7 +129,7 @@ public class CanvasRenderingContext2DImpl {
                 if (url.startsWith("/")) {
                     /// No error reported here, but font render incorrect.
                     //  typeface = new Font.Builder(url);
-                    /// TODO: Opt. 
+                    /// TODO: Opt.
                     /// After copying to temporary location, we can load font successfully.
                     /// I don't know why.
                     fontTmpFile = CocosHelper.copyToTempFile(url, "fontFile");
@@ -304,6 +304,22 @@ public class CanvasRenderingContext2DImpl {
 
     public void setLineJoin(String lineJoin) {
         mLineJoin = lineJoin;
+    }
+
+    public void setShadowBlur(float blur) {
+        //
+    }
+
+    public void setShadowColor(float r, float g, float b, float a) {
+        //
+    }
+
+    public void setShadowOffsetX(float offsetX) {
+        //
+    }
+
+    public void setShadowOffsetY(float offsetY) {
+        //
     }
 
     public void saveContext() {

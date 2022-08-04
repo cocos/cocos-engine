@@ -432,6 +432,18 @@ static void setCanvasRenderingContext2DProps(cc::ICanvasRenderingContext2D *cont
 
     props->getProperty("globalCompositeOperation", &propVal);
     if (!propVal.isUndefined()) context->setGlobalCompositeOperation(propVal.toString());
+
+    props->getProperty("shadowBlur", &propVal);
+    if (!propVal.isUndefined()) context->setShadowBlur(propVal.toFloat());
+
+    props->getProperty("shadowColor", &propVal);
+    if (!propVal.isUndefined()) context->setShadowColor(propVal.toString());
+
+    props->getProperty("shadowOffsetX", &propVal);
+    if (!propVal.isUndefined()) context->setShadowOffsetX(propVal.toFloat());
+
+    props->getProperty("shadowOffsetY", &propVal);
+    if (!propVal.isUndefined()) context->setShadowOffsetY(propVal.toFloat());
 }
 
 static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NOLINT(readability-identifier-naming)

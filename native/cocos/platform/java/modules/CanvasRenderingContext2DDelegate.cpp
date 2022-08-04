@@ -296,4 +296,21 @@ void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint3
         }
     }
 }
+
+void CanvasRenderingContext2DDelegate::setShadowBlur(float blur) {
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowBlur", blur);
+}
+
+void CanvasRenderingContext2DDelegate::setShadowColor(float r, float g, float b, float a) {
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowColor", r, g, b, a);
+}
+
+void CanvasRenderingContext2DDelegate::setShadowOffsetX(float offsetX) {
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowOffsetX", offsetX);
+}
+
+void CanvasRenderingContext2DDelegate::setShadowOffsetY(float offsetY) {
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowOffsetY", offsetY);
+}
+
 } // namespace cc

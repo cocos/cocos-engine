@@ -385,6 +385,26 @@ void CanvasRenderingContext2D::setStrokeStyle(const ccstd::string &strokeStyle) 
                               color.a);
 }
 
+void CanvasRenderingContext2D::setShadowBlur(float blur) {
+    _delegate->setShadowBlur(blur);
+}
+
+void CanvasRenderingContext2D::setShadowColor(const ccstd::string &shadowColor) {
+    CSSColorParser::Color color = CSSColorParser::parse(shadowColor);
+    _delegate->setShadowColor(static_cast<float>(color.r) / 255.0F,
+                              static_cast<float>(color.g) / 255.0F,
+                              static_cast<float>(color.b) / 255.0F,
+                              color.a);
+}
+
+void CanvasRenderingContext2D::setShadowOffsetX(float offsetX) {
+    _delegate->setShadowOffsetX(offsetX);
+}
+
+void CanvasRenderingContext2D::setShadowOffsetY(float offsetY) {
+    _delegate->setShadowOffsetY(offsetY);
+}
+
 void CanvasRenderingContext2D::setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }

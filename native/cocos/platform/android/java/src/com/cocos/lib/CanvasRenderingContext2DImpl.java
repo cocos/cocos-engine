@@ -74,6 +74,14 @@ public class CanvasRenderingContext2DImpl {
     private String mFontName = "Arial";
     private float mFontSize = 40.0f;
     private float mLineWidth = 0.0f;
+    private float mShadowBlur = 0.0f;
+    private float mShadowOffsetX = 0.0f;
+    private float mShadowOffsetY = 0.0f;
+    private int mShadowColorA = 0;
+    private int mShadowColorB = 0;
+    private int mShadowColorG = 0;
+    private int mShadowColorR = 0;
+
     private static float _sApproximatingOblique = -0.25f;//please check paint api documentation
     private boolean mIsBoldFont = false;
     private boolean mIsItalicFont = false;
@@ -311,6 +319,25 @@ public class CanvasRenderingContext2DImpl {
         mLineJoin = lineJoin;
     }
 
+    private void setShadowBlur(float blur) {
+        mShadowBlur = blur * 0.5f;
+    }
+
+    private void setShadowColor(float r, float g, float b, float a) {
+        mShadowColorR = (int) Math.ceil(r * 255.0f);
+        mShadowColorG = (int) Math.ceil(g * 255.0f);
+        mShadowColorB = (int) Math.ceil(b * 255.0f);
+        mShadowColorA = (int) Math.ceil(a * 255.0f);
+    }
+
+    private void setShadowOffsetX(float offsetX) {
+        mShadowOffsetX = offsetX;
+    }
+
+    private void setShadowOffsetY(float offsetY) {
+        mShadowOffsetY = offsetY;
+    }
+
     private void saveContext() {
         mCanvas.save();
     }
@@ -370,6 +397,7 @@ public class CanvasRenderingContext2DImpl {
     private void fillText(String text, float x, float y, float maxWidth) {
 //        Log.d(TAG, "this: " + this + ", fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
+        _configShadow(mTextPaint);
         mTextPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
         mTextPaint.setStyle(Paint.Style.FILL);
         scaleX(mTextPaint, text, maxWidth);
@@ -380,12 +408,22 @@ public class CanvasRenderingContext2DImpl {
     private void strokeText(String text, float x, float y, float maxWidth) {
         // Log.d(TAG, "strokeText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
+        _configShadow(mTextPaint);
         mTextPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mTextPaint.setStyle(Paint.Style.STROKE);
         mTextPaint.setStrokeWidth(mLineWidth);
         scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
         mCanvas.drawText(text, pt.x, pt.y, mTextPaint);
+    }
+
+    private void _configShadow(Paint paint) {
+        if (mShadowColorA > 0 && (Math.abs(mShadowOffsetX) > Float.MIN_VALUE ||
+                                  Math.abs(mShadowOffsetX) > Float.MIN_VALUE ||
+                                  mShadowBlur > Float.MIN_VALUE)) {
+            paint.setShadowLayer(mShadowBlur, mShadowOffsetX, mShadowOffsetY,
+                Color.argb(mShadowColorA, mShadowColorR, mShadowColorG, mShadowColorB));
+        }
     }
 
     private float measureText(String text) {

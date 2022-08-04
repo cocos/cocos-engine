@@ -83,6 +83,10 @@ public:
     const cc::Data &getDataRef() const override;
     void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
     void updateData() override;
+    void setShadowBlur(float blur) override;
+    void setShadowColor(float r, float g, float b, float a) override;
+    void setShadowOffsetX(float offsetX) override;
+    void setShadowOffsetY(float offsetY) override;
 
 private:
     void unMultiplyAlpha(unsigned char *ptr, uint32_t size);
