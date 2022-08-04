@@ -240,7 +240,7 @@ public:
         _subNode = nullptr;
         _model = nullptr;
         _sharedBuffer = nullptr;
-        _iadrawInfo = nullptr;
+        _iaInfo = nullptr;
         _iaPool = nullptr;
         _localDSBF = nullptr;
     }
