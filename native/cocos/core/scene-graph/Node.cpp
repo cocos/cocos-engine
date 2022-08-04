@@ -889,7 +889,7 @@ void Node::clearNodeArray() {
 ccstd::string Node::getPathInHierarchy() const {
     ccstd::string result = getName();
     Node *curNode = getParent();
-    while (curNode && curNode->getParent()) {
+    while (curNode) {
         result.insert(0, "/").insert(0, curNode->getName());
         curNode = curNode->getParent();
     }
