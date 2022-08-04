@@ -808,7 +808,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
             funcDecls += `\n${key}\n`;
             funcImpls += `\n${value}\n`;
         }
-        funcDecls += '\nvec3 SRGBToLinear (vec3 gamma);\n';
+        funcDecls += '\nvec3 SRGBToLinear (vec3 gamma);\nfloat getDisplacementWeight(int index);\n';
         let idx = code.indexOf('precision');
         idx = code.indexOf(';', idx);
         idx += 1;

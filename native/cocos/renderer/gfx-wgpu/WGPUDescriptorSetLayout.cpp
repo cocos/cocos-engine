@@ -70,7 +70,7 @@ void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
                 .nextInChain = nullptr,
                 .binding = _bindings[i].binding + CC_WGPU_MAX_ATTACHMENTS,
                 .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                .sampler.type = WGPUSamplerBindingType_Filtering,
+                .sampler.type = WGPUSamplerBindingType_NonFiltering,
             };
             _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(samplerLayout);
         } else if (hasFlag(DESCRIPTOR_BUFFER_TYPE, _bindings[i].descriptorType)) {
@@ -100,7 +100,7 @@ void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
                 .nextInChain = nullptr,
                 .binding = _bindings[i].binding,
                 .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                .sampler = {nullptr, WGPUSamplerBindingType::WGPUSamplerBindingType_Comparison},
+                .sampler = {nullptr, WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering},
             };
             _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(layout);
         } else if (_bindings[i].descriptorType == DescriptorType::STORAGE_IMAGE) {
@@ -138,11 +138,24 @@ void CCWGPUDescriptorSetLayout::updateLayout(uint8_t binding, const CCWGPUBuffer
             //
         }
         if (sampler) {
+            bool flag = false;
             const SamplerInfo &info = sampler->getInfo();
-            if (info.minFilter == Filter::POINT && info.magFilter == Filter::POINT && info.mipFilter == Filter::POINT)
+            if ((info.minFilter == Filter::POINT || info.minFilter == Filter::NONE) &&
+                (info.magFilter == Filter::POINT || info.magFilter == Filter::NONE) &&
+                (info.mipFilter == Filter::POINT || info.mipFilter == Filter::NONE)) {
                 (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
-            else
+                flag = true;
+            } else {
                 (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+            }
+
+            if ((*iter).sampler.type == WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering && (binding == 22 || binding == 23)) {
+                if (flag) {
+                    printf("sampler by updateLayout\n");
+                } else {
+                    printf("sampler by default\n");
+                }
+            }
         }
         if (tex) {
             if (tex->getInfo().usage == TextureUsageBit::STORAGE) {
@@ -278,7 +291,7 @@ void CCWGPUDescriptorSetLayout::prepare(bool forceUpdate) {
         };
         _gpuLayoutEntryObj->bindGroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
     }
-    // printf("bgl %p\n", _gpuLayoutEntryObj->bindGroupLayout);
+    printf("bgl %p\n", _gpuLayoutEntryObj->bindGroupLayout);
     layoutPool.insert({hashVal, _gpuLayoutEntryObj->bindGroupLayout});
 }
 

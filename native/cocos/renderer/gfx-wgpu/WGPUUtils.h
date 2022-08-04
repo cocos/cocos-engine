@@ -146,6 +146,10 @@ static WGPUTextureSampleType textureSampleTypeTrait(Format format) {
     }
 }
 
+static bool isFilterable(Format format) {
+    return textureSampleTypeTrait(format) != WGPUTextureSampleType_UnfilterableFloat;
+}
+
 static WGPUTextureAspect textureAspectTrait(Format format) {
     switch (format) {
         case Format::DEPTH:
@@ -283,7 +287,7 @@ static WGPUAddressMode toWGPUAddressMode(Address addrMode) {
 static WGPUFilterMode toWGPUFilterMode(Filter filter) {
     switch (filter) {
         case Filter::NONE:
-            return WGPUFilterMode::WGPUFilterMode_Linear;
+            return WGPUFilterMode::WGPUFilterMode_Nearest;
         case Filter::POINT:
             return WGPUFilterMode::WGPUFilterMode_Nearest;
         case Filter::LINEAR:
@@ -364,9 +368,9 @@ static WGPUShaderStageFlags toWGPUShaderStageFlag(ShaderStageFlagBit flag) {
     return result;
 }
 
-//TODO_Zeqiang: more flexible strategy
+// TODO_Zeqiang: more flexible strategy
 static uint32_t toWGPUSampleCount(SampleCount sampleCount) {
-    //TODO_Zeqiang: msaa
+    // TODO_Zeqiang: msaa
     return 1;
     switch (sampleCount) {
         case SampleCount::ONE:

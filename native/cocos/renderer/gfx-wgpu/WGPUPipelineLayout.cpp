@@ -45,20 +45,24 @@ void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
 void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
     ccstd::vector<WGPUBindGroupLayout> layouts;
     // _bgLayouts.clear();
+    printf("layout size: %d\n", _setLayouts.size());
     for (size_t i = 0; i < _setLayouts.size(); i++) {
         auto *descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout *>(_setLayouts[i]);
         if (setInUse.find(i) == setInUse.end()) {
             // give it default bindgrouplayout if not in use
             layouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
+            printf("dflayout: %d\n", i);
             // _bgLayouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
         } else {
             if (!descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout) {
                 descriptorSetLayout->prepare();
             }
+            printf("layout: %p\n", descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
             layouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
             //  _bgLayouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
         }
     }
+    printf("layout size2: %d\n", layouts.size());
 
     WGPUPipelineLayoutDescriptor descriptor = {
         .nextInChain = nullptr,

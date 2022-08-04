@@ -93,7 +93,8 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj->defaultResources.storageBuffer = CCWGPUBuffer::defaultStorageBuffer();
     _gpuDeviceObj->defaultResources.commonTexture = CCWGPUTexture::defaultCommonTexture();
     _gpuDeviceObj->defaultResources.storageTexture = CCWGPUTexture::defaultStorageTexture();
-    _gpuDeviceObj->defaultResources.sampler = CCWGPUSampler::defaultSampler();
+    _gpuDeviceObj->defaultResources.filterableSampler = CCWGPUSampler::defaultFilterableSampler();
+    _gpuDeviceObj->defaultResources.unfilterableSampler = CCWGPUSampler::defaultUnfilterableSampler();
 
     QueueInfo queueInfo = {
         .type = QueueType::GRAPHICS,
@@ -190,8 +191,12 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
             .depthOrArrayLayers = regions[i].texExtent.depth,
         };
 
+        auto *ccTexture = static_cast<CCWGPUTexture *>(texture);
+        if (ccTexture->isTextureView()) {
+            ccTexture = static_cast<CCWGPUTexture *>(ccTexture->getViewInfo().texture);
+        }
         WGPUImageCopyTexture imageCopyTexture = {
-            .texture = texture->gpuTextureObject()->wgpuTexture,
+            .texture = ccTexture->gpuTextureObject()->wgpuTexture,
             .mipLevel = regions[i].texSubres.mipLevel,
             .origin = WGPUOrigin3D{
                 static_cast<uint32_t>(regions[i].texOffset.x),

@@ -41,7 +41,7 @@ public:
     CCWGPUTexture();
     ~CCWGPUTexture() = default;
 
-    inline CCWGPUTextureObject *gpuTextureObject() { return _gpuTextureObj; }
+    inline CCWGPUTextureObject *gpuTextureObject() const { return _gpuTextureObj; }
 
     static CCWGPUTexture *defaultCommonTexture();
 

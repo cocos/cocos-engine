@@ -568,8 +568,12 @@ void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Te
             .z = static_cast<uint32_t>(regions[i].texOffset.z),
         };
 
+        auto *ccTexture = static_cast<CCWGPUTexture *>(texture);
+        if (ccTexture->isTextureView()) {
+            ccTexture = static_cast<CCWGPUTexture *>(ccTexture->getViewInfo().texture);
+        }
         WGPUImageCopyTexture imageCopyTexture = {
-            .texture = static_cast<CCWGPUTexture *>(texture)->gpuTextureObject()->wgpuTexture,
+            .texture = ccTexture->gpuTextureObject()->wgpuTexture,
             .mipLevel = 0,
             .origin = origin,
             .aspect = WGPUTextureAspect_All,

@@ -49,7 +49,7 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
     if (info.type == TextureType::CUBE) {
         depthOrArrayLayers = 6;
     }
-    printf("tex %d, %d\n", info.width, info.height);
+
     WGPUTextureDescriptor descriptor = {
         .nextInChain = nullptr,
         .label = nullptr,

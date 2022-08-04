@@ -64,7 +64,8 @@ struct CCWGPUResource {
     CCWGPUTexture *commonTexture = nullptr;
     CCWGPUTexture *storageTexture = nullptr;
 
-    CCWGPUSampler *sampler = nullptr;
+    CCWGPUSampler *filterableSampler = nullptr;
+    CCWGPUSampler *unfilterableSampler = nullptr;
 };
 
 struct CCWGPUDeviceObject {

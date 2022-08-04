@@ -32,9 +32,10 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-CCWGPUSampler *defaultSampler = nullptr;
-}
+namespace {
+CCWGPUSampler *dftFilterableSampler = nullptr;
+CCWGPUSampler *dftUnfilterableSampler = nullptr;
+} // namespace
 
 using namespace emscripten;
 
@@ -62,21 +63,38 @@ CCWGPUSampler::~CCWGPUSampler() {
     wgpuSamplerRelease(_wgpuSampler);
 }
 
-CCWGPUSampler *CCWGPUSampler::defaultSampler() {
-    if (!anoymous::defaultSampler) {
+CCWGPUSampler *CCWGPUSampler::defaultFilterableSampler() {
+    if (!dftFilterableSampler) {
         SamplerInfo info = {
             .minFilter = Filter::LINEAR,
             .magFilter = Filter::LINEAR,
-            .mipFilter = Filter::NONE,
+            .mipFilter = Filter::LINEAR,
             .addressU = Address::WRAP,
             .addressV = Address::WRAP,
             .addressW = Address::WRAP,
             .maxAnisotropy = 0,
             .cmpFunc = ComparisonFunc::ALWAYS,
         };
-        anoymous::defaultSampler = ccnew CCWGPUSampler(info);
+        dftFilterableSampler = ccnew CCWGPUSampler(info);
     }
-    return anoymous::defaultSampler;
+    return dftFilterableSampler;
+}
+
+CCWGPUSampler *CCWGPUSampler::defaultUnfilterableSampler() {
+    if (!dftUnfilterableSampler) {
+        SamplerInfo info = {
+            .minFilter = Filter::POINT,
+            .magFilter = Filter::POINT,
+            .mipFilter = Filter::POINT,
+            .addressU = Address::WRAP,
+            .addressV = Address::WRAP,
+            .addressW = Address::WRAP,
+            .maxAnisotropy = 0,
+            .cmpFunc = ComparisonFunc::ALWAYS,
+        };
+        dftUnfilterableSampler = ccnew CCWGPUSampler(info);
+    }
+    return dftUnfilterableSampler;
 }
 
 } // namespace gfx
