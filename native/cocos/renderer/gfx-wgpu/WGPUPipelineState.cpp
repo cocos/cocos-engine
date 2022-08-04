@@ -225,7 +225,8 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 .srcFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendSrcAlpha),
                 .dstFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendDstAlpha),
             };
-            colorTargetStates[i].blend = &blendState[i];
+            // only textureSampleType with float can be blended.
+            colorTargetStates[i].blend = textureSampleTypeTrait(colors[i].format) == WGPUTextureSampleType_Float ? &blendState[i] : nullptr;
             colorTargetStates[i].writeMask = toWGPUColorWriteMask(_blendState.targets[targetIndex].blendColorMask);
             if (targetIndex < _blendState.targets.size() - 1) {
                 ++targetIndex;

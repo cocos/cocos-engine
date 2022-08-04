@@ -237,58 +237,17 @@ void CCWGPUDescriptorSet::prepare() {
 
         const auto &entries = _gpuBindGroupObj->bindGroupEntries;
 
-        for (size_t i = 0; i < _samplers.size(); i++) {
-            auto *sampler = _samplers[i];
-            if (sampler) {
-                // auto smpIter = _samplerIdxMap.find(i);
-                // uint8_t samplerIdx = smpIter != _samplerIdxMap.end() ? smpIter->second : 255;
-
-                // auto info = sampler->getInfo();
-                // if (dsLayout->gpuLayoutEntryObject()->bindGroupLayoutEntries[samplerIdx].sampler.type == WGPUSamplerBindingType_NonFiltering &&
-                //     !((info.minFilter == Filter::POINT || info.minFilter == Filter::NONE) &&
-                //       (info.magFilter == Filter::POINT || info.magFilter == Filter::NONE) &&
-                //       (info.mipFilter == Filter::POINT || info.mipFilter == Filter::NONE))) {
-                //     printf("conflict sampler type index %d binding %d\n", i, samplerIdx);
-                //     while (1) {
-                //     }
-                // }
-            }
-        }
-
         for (size_t j = 0; j < entries.size(); j++) {
             const auto &entry = entries[j];
-            if (entry.sampler) {
-                auto wsampler = entry.sampler;
-                auto iter = std::find_if(_samplers.begin(), _samplers.end(), [wsampler](const Sampler *ccSampler) {
-                    return ccSampler ? static_cast<const CCWGPUSampler *>(ccSampler)->gpuSampler() == wsampler : false;
-                });
-                if (iter != _samplers.end()) {
-                    const auto &info = (*iter)->getInfo();
-                    printf("***************binding, b, t, s %d, %d, %p, %d, %d, %d\n", j, entry.binding, entry.sampler, info.mipFilter, info.magFilter, info.minFilter);
-                } else {
-                    if (entry.sampler == CCWGPUDevice::getInstance()->gpuDeviceObject()->defaultResources.unfilterableSampler->gpuSampler()) {
-                        printf("***************unfil binding, b, t, s %d, %d, %p\n", j, entry.binding, entry.sampler);
-                    } else if (entry.sampler == CCWGPUDevice::getInstance()->gpuDeviceObject()->defaultResources.filterableSampler->gpuSampler()) {
-                        printf("***************fil binding, b, t, s %d, %d, %p\n", j, entry.binding, entry.sampler);
-                    } else {
-                        printf("ggggggg\n");
-                    }
-                }
-            }
-            if (entry.textureView) {
-                auto wtexture = entry.textureView;
-                auto iter = std::find_if(_textures.begin(), _textures.end(), [wtexture](const Texture *ccTexture) {
-                    return ccTexture ? static_cast<const CCWGPUTexture *>(ccTexture)->gpuTextureObject()->selfView == wtexture : false;
-                });
-                const auto &info = (*iter)->getInfo();
-                printf("***************binding, b, t, s %d, %d, %p\n", j, entry.binding, entry.textureView);
-            }
+            // if ((entry.buffer != 0) + (entry.textureView != 0) + (entry.sampler != 0) != 1) {
+            printf("binding, b, t, s %d,  %p, %p, %p\n", entry.binding, entry.buffer, entry.textureView, entry.sampler);
+            //}
         }
 
         auto &entryLayouts = dsLayout->gpuLayoutEntryObject()->bindGroupLayoutEntries;
         for (size_t i = 0; i < entryLayouts.size(); i++) {
             // if (entryLayouts[i].sampler.type == WGPUSamplerBindingType_NonFiltering) {
-            printf("sampler type %d, %d, %d\n", i, entryLayouts[i].binding, entryLayouts[i].sampler.type);
+            printf("bgl  %d, %d, %d,%d\n", i, entryLayouts[i].binding, entryLayouts[i].buffer.type, entryLayouts[i].texture.sampleType, entryLayouts[i].sampler.type);
 
             // }
         }

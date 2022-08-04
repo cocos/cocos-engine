@@ -40,7 +40,7 @@ namespace gfx {
 namespace anoymous {
 WGPUBindGroupLayout defaultBindgroupLayout = wgpuDefaultHandle;
 
-ccstd::unordered_map<size_t, WGPUBindGroupLayout> layoutPool;
+ccstd::unordered_map<ccstd::hash_t, WGPUBindGroupLayout> layoutPool;
 } // namespace anoymous
 
 using namespace emscripten;
@@ -173,54 +173,34 @@ void CCWGPUDescriptorSetLayout::updateLayout(uint8_t binding, const CCWGPUBuffer
                 (*iter).texture.multisampled = ccTex->getInfo().samples != SampleCount::ONE;
             }
         }
+        _internalChanged = true;
     }
 }
 
-size_t CCWGPUDescriptorSetLayout::hash() const {
+ccstd::hash_t CCWGPUDescriptorSetLayout::hash() {
     const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
-    // size_t seed = 129;
-    // boost::hash_combine(seed, entries.size());
-    // for(size_t i = 0; i < entries.size(); i++) {
-    //     boost::hash_combine(seed, i);
-    //     boost::hash_combine(seed, entries[i].binding);
-    //     boost::hash_combine(seed, entries[i].buffer.type);
-    //     boost::hash_combine(seed, entries[i].sampler.type);
-    //     boost::hash_combine(seed, entries[i].texture.sampleType);
-    //     boost::hash_combine(seed, entries[i].storageTexture.access);
-    // }
-
-    ccstd::string hashStr = "";
-
-    std::size_t seed = entries.size();
+    _hash = entries.size() * 12 + 1;
+    ccstd::hash_combine(_hash, entries.size());
     for (size_t i = 0; i < entries.size(); i++) {
-        const auto &entry = entries[i];
-        hashStr += std::to_string(entry.binding);
-        hashStr += std::to_string(entry.visibility);
-        if (entry.buffer.type != WGPUBufferBindingType_Undefined) {
-            hashStr += std::to_string(entry.buffer.type);
-            hashStr += std::to_string(entry.buffer.hasDynamicOffset ? 1 : 0);
-            hashStr += std::to_string(entry.buffer.minBindingSize);
-        }
-        if (entry.sampler.type == WGPUSamplerBindingType_Undefined) {
-            hashStr += std::to_string(entry.sampler.type);
-        }
-        if (entry.texture.sampleType != WGPUTextureSampleType_Undefined) {
-            hashStr += std::to_string(entry.texture.sampleType);
-            hashStr += std::to_string(entry.texture.viewDimension);
-            hashStr += std::to_string(entry.texture.multisampled ? 1 : 0);
-        }
-        if (entry.storageTexture.access != WGPUStorageTextureAccess_Undefined) {
-            hashStr += std::to_string(entry.storageTexture.access);
-            hashStr += std::to_string(entry.storageTexture.format);
-            hashStr += std::to_string(entry.storageTexture.viewDimension);
-        }
+        ccstd::hash_combine(_hash, i);
+        ccstd::hash_combine(_hash, entries[i].binding);
+        ccstd::hash_combine(_hash, entries[i].visibility);
+        ccstd::hash_combine(_hash, entries[i].buffer.type);
+        ccstd::hash_combine(_hash, entries[i].buffer.hasDynamicOffset);
+        ccstd::hash_combine(_hash, entries[i].buffer.minBindingSize);
+        ccstd::hash_combine(_hash, entries[i].sampler.type);
+        ccstd::hash_combine(_hash, entries[i].texture.sampleType);
+        ccstd::hash_combine(_hash, entries[i].texture.viewDimension);
+        ccstd::hash_combine(_hash, entries[i].texture.multisampled);
+        ccstd::hash_combine(_hash, entries[i].storageTexture.access);
+        ccstd::hash_combine(_hash, entries[i].storageTexture.format);
+        ccstd::hash_combine(_hash, entries[i].storageTexture.viewDimension);
     }
-
-    return std::hash<ccstd::string>{}(hashStr);
+    return _hash;
 }
 
 void CCWGPUDescriptorSetLayout::print() const {
-    size_t hashVal = this->hash();
+    size_t hashVal = _hash;
     printf("pr this %p %p %zu\n", _gpuLayoutEntryObj, this, hashVal);
     const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
     for (size_t j = 0; j < entries.size(); j++) {
@@ -260,11 +240,15 @@ void CCWGPUDescriptorSetLayout::prepare(bool forceUpdate) {
     //                                  }),
     //                              bindGroupLayoutEntries.end());
 
-    size_t hashVal = hash();
+    size_t hashVal = _hash || _internalChanged ? hash() : _hash;
     auto iter = layoutPool.find(hashVal);
     if (iter != layoutPool.end()) {
         _gpuLayoutEntryObj->bindGroupLayout = iter->second;
+
+        printf("get bgl from pool %d, %d\n", _gpuLayoutEntryObj->bindGroupLayoutEntries.size(), _hash);
         return;
+    } else {
+        printf("create bgl\n");
     }
     const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
 

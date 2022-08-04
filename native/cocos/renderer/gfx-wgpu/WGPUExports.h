@@ -342,7 +342,8 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .constructor<>();
 
     class_<Sampler>("Sampler")
-        .function("getInfo", &Sampler::getInfo);
+        .function("getInfo", &Sampler::getInfo)
+        .property("hash", &Sampler::getHash);
     class_<CCWGPUSampler, base<Sampler>>("CCWGPUSampler")
         .constructor<const SamplerInfo &>();
 
