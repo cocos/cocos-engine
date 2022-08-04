@@ -512,6 +512,7 @@ SE_DECLARE_FUNC(js_scene_Pass_setUniform);
 SE_DECLARE_FUNC(js_scene_Pass_setUniformArray);
 SE_DECLARE_FUNC(js_scene_Pass_tryCompile);
 SE_DECLARE_FUNC(js_scene_Pass_update);
+SE_DECLARE_FUNC(js_scene_Pass_updatePassHash);
 SE_DECLARE_FUNC(js_scene_Pass_fillPipelineInfo);
 SE_DECLARE_FUNC(js_scene_Pass_getBindingFromHandle);
 SE_DECLARE_FUNC(js_scene_Pass_getCountFromHandle);

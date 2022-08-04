@@ -416,6 +416,26 @@ bool js_register_geometry_Capsule(se::Object* obj) // NOLINT(readability-identif
 se::Object* __jsb_cc_geometry_Plane_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_geometry_Plane_class = nullptr;  // NOLINT
 
+static bool js_geometry_Plane_clone(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::geometry::Plane result = cobj->clone();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_clone)
+
 static bool js_geometry_Plane_define(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -563,6 +583,86 @@ static bool js_geometry_Plane_getZ(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_geometry_Plane_getZ)
 
+static bool js_geometry_Plane_setW(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setW(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_setW)
+
+static bool js_geometry_Plane_setX(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setX(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_setX)
+
+static bool js_geometry_Plane_setY(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setY(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_setY)
+
+static bool js_geometry_Plane_setZ(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setZ(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_setZ)
+
 static bool js_geometry_Plane_transform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Plane>(s);
@@ -582,6 +682,48 @@ static bool js_geometry_Plane_transform(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC(js_geometry_Plane_transform)
+
+static bool js_geometry_Plane_clone_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::geometry::Plane, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cc::geometry::Plane* result = cc::geometry::Plane::clone(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_clone_static)
+
+static bool js_geometry_Plane_copy_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::Plane*, false> arg0 = {};
+        HolderType<cc::geometry::Plane, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cc::geometry::Plane* result = cc::geometry::Plane::copy(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_copy_static)
 
 static bool js_geometry_Plane_create_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -608,6 +750,106 @@ static bool js_geometry_Plane_create_static(se::State& s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC(js_geometry_Plane_create_static)
+
+static bool js_geometry_Plane_fromNormalAndPoint_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::geometry::Plane*, false> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cc::geometry::Plane* result = cc::geometry::Plane::fromNormalAndPoint(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_fromNormalAndPoint_static)
+
+static bool js_geometry_Plane_fromPoints_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::geometry::Plane*, false> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        ok &= sevalue_to_native(args[3], &arg3, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cc::geometry::Plane* result = cc::geometry::Plane::fromPoints(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_fromPoints_static)
+
+static bool js_geometry_Plane_normalize_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::Plane*, false> arg0 = {};
+        HolderType<cc::geometry::Plane, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cc::geometry::Plane* result = cc::geometry::Plane::normalize(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_normalize_static)
+
+static bool js_geometry_Plane_set_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 5) {
+        HolderType<cc::geometry::Plane*, false> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        ok &= sevalue_to_native(args[3], &arg3, nullptr);
+        ok &= sevalue_to_native(args[4], &arg4, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cc::geometry::Plane* result = cc::geometry::Plane::set(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Plane_set_static)
 
 static bool js_geometry_Plane_get_n(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -718,14 +960,25 @@ bool js_register_geometry_Plane(se::Object* obj) // NOLINT(readability-identifie
 #endif
     cls->defineProperty("n", _SE(js_geometry_Plane_get_n), _SE(js_geometry_Plane_set_n));
     cls->defineProperty("d", _SE(js_geometry_Plane_get_d), _SE(js_geometry_Plane_set_d));
+    cls->defineFunction("clone", _SE(js_geometry_Plane_clone));
     cls->defineFunction("define", _SE(js_geometry_Plane_define));
     cls->defineFunction("distance", _SE(js_geometry_Plane_distance));
     cls->defineFunction("getW", _SE(js_geometry_Plane_getW));
     cls->defineFunction("getX", _SE(js_geometry_Plane_getX));
     cls->defineFunction("getY", _SE(js_geometry_Plane_getY));
     cls->defineFunction("getZ", _SE(js_geometry_Plane_getZ));
+    cls->defineFunction("setW", _SE(js_geometry_Plane_setW));
+    cls->defineFunction("setX", _SE(js_geometry_Plane_setX));
+    cls->defineFunction("setY", _SE(js_geometry_Plane_setY));
+    cls->defineFunction("setZ", _SE(js_geometry_Plane_setZ));
     cls->defineFunction("transform", _SE(js_geometry_Plane_transform));
+    cls->defineStaticFunction("clone", _SE(js_geometry_Plane_clone_static));
+    cls->defineStaticFunction("copy", _SE(js_geometry_Plane_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Plane_create_static));
+    cls->defineStaticFunction("fromNormalAndPoint", _SE(js_geometry_Plane_fromNormalAndPoint_static));
+    cls->defineStaticFunction("fromPoints", _SE(js_geometry_Plane_fromPoints_static));
+    cls->defineStaticFunction("normalize", _SE(js_geometry_Plane_normalize_static));
+    cls->defineStaticFunction("set", _SE(js_geometry_Plane_set_static));
     cls->defineFinalizeFunction(_SE(js_cc_geometry_Plane_finalize));
     cls->install();
     JSBClassType::registerClass<cc::geometry::Plane>(cls);
