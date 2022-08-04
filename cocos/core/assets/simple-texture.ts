@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy, TextureType } from '../gfx';
+import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
 import { assertID, error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -55,12 +55,12 @@ function canGenerateMipmap (device: Device, w: number, h: number) {
 }
 
 /**
- * @en The simple texture base class.
- * It create the GFX Texture and can set mipmap levels.
- * @zh 简单贴图基类。
- * 简单贴图内部创建了 GFX 贴图和该贴图上的 GFX 贴图视图。
- * 简单贴图允许指定不同的 Mipmap 层级。
- */
+  * @en The simple texture base class.
+  * It create the GFX Texture and can set mipmap levels.
+  * @zh 简单贴图基类。
+  * 简单贴图内部创建了 GFX 贴图和该贴图上的 GFX 贴图视图。
+  * 简单贴图允许指定不同的 Mipmap 层级。
+  */
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
     protected _gfxTexture: Texture | null = null;
@@ -74,17 +74,17 @@ export class SimpleTexture extends TextureBase {
     protected _maxLevel = 1000;
 
     /**
-     * @en The mipmap level of the texture
-     * @zh 贴图中的 Mipmap 层级数量
-     */
+      * @en The mipmap level of the texture
+      * @zh 贴图中的 Mipmap 层级数量
+      */
     get mipmapLevel () {
         return this._mipmapLevel;
     }
 
     /**
-     * @en The GFX Texture resource
-     * @zh 获取此贴图底层的 GFX 贴图对象。
-     */
+      * @en The GFX Texture resource
+      * @zh 获取此贴图底层的 GFX 贴图对象。
+      */
     public getGFXTexture () {
         return this._gfxTextureView;
     }
@@ -96,41 +96,41 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en Update the level 0 mipmap image.
-     * @zh 更新 0 级 Mipmap。
-     */
+      * @en Update the level 0 mipmap image.
+      * @zh 更新 0 级 Mipmap。
+      */
     public updateImage () {
         this.updateMipmaps(0);
     }
 
     /**
-     * @en Update the given level mipmap image.
-     * @zh 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
-     * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
-     * @param firstLevel First level to be updated
-     * @param count Mipmap level count to be updated
-     */
+      * @en Update the given level mipmap image.
+      * @zh 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
+      * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
+      * @param firstLevel First level to be updated
+      * @param count Mipmap level count to be updated
+      */
     public updateMipmaps (firstLevel = 0, count?: number) {
 
     }
 
     /**
-     * @en Upload data to the given mipmap level.
-     * The size of the image will affect how the mipmap is updated.
-     * - When the image is an ArrayBuffer, the size of the image must match the mipmap size.
-     * - If the image size matches the mipmap size, the mipmap data will be updated entirely.
-     * - If the image size is smaller than the mipmap size, the mipmap will be updated from top left corner.
-     * - If the image size is larger, an error will be raised
-     * @zh 上传图像数据到指定层级的 Mipmap 中。
-     * 图像的尺寸影响 Mipmap 的更新范围：
-     * - 当图像是 `ArrayBuffer` 时，图像的尺寸必须和 Mipmap 的尺寸一致；否则，
-     * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
-     * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
-     * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
-     * @param source The source image or image data
-     * @param level Mipmap level to upload the image to
-     * @param arrayIndex The array index
-     */
+      * @en Upload data to the given mipmap level.
+      * The size of the image will affect how the mipmap is updated.
+      * - When the image is an ArrayBuffer, the size of the image must match the mipmap size.
+      * - If the image size matches the mipmap size, the mipmap data will be updated entirely.
+      * - If the image size is smaller than the mipmap size, the mipmap will be updated from top left corner.
+      * - If the image size is larger, an error will be raised
+      * @zh 上传图像数据到指定层级的 Mipmap 中。
+      * 图像的尺寸影响 Mipmap 的更新范围：
+      * - 当图像是 `ArrayBuffer` 时，图像的尺寸必须和 Mipmap 的尺寸一致；否则，
+      * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
+      * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
+      * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
+      * @param source The source image or image data
+      * @param level Mipmap level to upload the image to
+      * @param arrayIndex The array index
+      */
     public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level = 0, arrayIndex = 0) {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
@@ -191,13 +191,13 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en
-     * Set mipmap level of this texture.
-     * The value is passes as presumed info to `this._getGfxTextureCreateInfo()`.
-     * @zh
-     * 设置此贴图的 mipmap 层级
-     * @param value The mipmap level.
-     */
+      * @en
+      * Set mipmap level of this texture.
+      * The value is passes as presumed info to `this._getGfxTextureCreateInfo()`.
+      * @zh
+      * 设置此贴图的 mipmap 层级
+      * @param value The mipmap level.
+      */
     protected _setMipmapLevel (value: number) {
         this._mipmapLevel = value < 1 ? 1 : value;
     }
@@ -208,11 +208,11 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en Set mipmap level range for this texture.
-     * @zh 设置当前贴图的 mipmap 范围。
-     * @param baseLevel The base mipmap level.
-     * @param maxLevel The maximum mipmap level.
-     */
+      * @en Set mipmap level range for this texture.
+      * @zh 设置当前贴图的 mipmap 范围。
+      * @param baseLevel The base mipmap level.
+      * @param maxLevel The maximum mipmap level.
+      */
     public setMipRange (baseLevel: number, maxLevel: number) {
         assertID(baseLevel <= maxLevel, 3124);
 
@@ -230,19 +230,19 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en This method is override by derived classes to provide GFX texture info.
-     * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
-     * @param presumed The presumed GFX texture info.
-     */
+      * @en This method is override by derived classes to provide GFX texture info.
+      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
+      * @param presumed The presumed GFX texture info.
+      */
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo | null {
         return null;
     }
 
     /**
-     * @en This method is overrided by derived classes to provide GFX TextureViewInfo.
-     * @zh 这个方法被派生类重写以提供 GFX 纹理视图信息。
-     * @param presumed The presumed GFX TextureViewInfo.
-     */
+      * @en This method is overrided by derived classes to provide GFX TextureViewInfo.
+      * @zh 这个方法被派生类重写以提供 GFX 纹理视图信息。
+      * @param presumed The presumed GFX TextureViewInfo.
+      */
     protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo | null {
         return null;
     }
@@ -262,9 +262,9 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en Whether mipmaps are baked convolutional maps.
-     * @zh mipmaps是否为烘焙出来的卷积图。
-     */
+      * @en Whether mipmaps are baked convolutional maps.
+      * @zh mipmaps是否为烘焙出来的卷积图。
+      */
     public isUsingOfflineMipmaps (): boolean {
         return false;
     }
@@ -300,13 +300,12 @@ export class SimpleTexture extends TextureBase {
             return null;
         }
         const maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
-        const textureViewCreateInfo = this._getGfxTextureViewCreateInfo(new TextureViewInfo(
-            this._gfxTexture,
-            TextureType.TEX2D,
-            this._getGFXFormat(),
-            this._baseLevel,
-            maxLevel - this._baseLevel + 1,
-        ));
+        const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
+            texture: this._gfxTexture,
+            format: this._getGFXFormat(),
+            baseLevel: this._baseLevel,
+            levelCount: maxLevel - this._baseLevel + 1,
+        });
         if (!textureViewCreateInfo) {
             return null;
         }

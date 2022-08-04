@@ -488,8 +488,7 @@ export class TextureCube extends SimpleTexture {
         texViewInfo.type = TextureType.CUBE;
         texViewInfo.baseLayer = 0;
         texViewInfo.layerCount = 6;
-        texViewInfo.texture = presumed.texture;
-        texViewInfo.format = presumed.format;
+        Object.assign(texViewInfo, presumed);
         return texViewInfo;
     }
 

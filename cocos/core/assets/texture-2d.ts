@@ -304,10 +304,7 @@ export class Texture2D extends SimpleTexture {
     protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
         const texViewInfo = new TextureViewInfo();
         texViewInfo.type = TextureType.TEX2D;
-        texViewInfo.baseLevel = presumed.baseLevel;
-        texViewInfo.levelCount = presumed.levelCount;
-        texViewInfo.texture = presumed.texture;
-        texViewInfo.format = presumed.format;
+        Object.assign(texViewInfo, presumed);
         return texViewInfo;
     }
 
