@@ -54,8 +54,18 @@ AudioEngineImpl::~AudioEngineImpl() {
     
     //TODO: release all player nodes attached?
     [engine_instance release];
+    for (auto player : _players) {
+        delete player.second;
+    }
     _players.clear();
-    _caches.clear();
+    for (auto player : _unusedPlayers) {
+        delete player.second;
+    }
+    _players.clear();
+    for (auto cache : _caches) {
+        delete cache.second;
+    }
+    _unusedPlayers.clear();
     s_instance = nullptr;
 }
 
