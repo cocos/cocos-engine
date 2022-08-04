@@ -26,6 +26,7 @@
 #pragma once
 
 #include "math/Vec3.h"
+#include "pipeline/RenderPipeline.h"
 #include "scene/Ambient.h"
 #include "scene/Light.h"
 #include "scene/Shadow.h"
@@ -42,13 +43,23 @@ public:
     void update() override;
 
     inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
-    inline void setShadowPcf(PCFType pcf) { _shadowPcf = pcf; }
+    inline void setShadowPcf(PCFType pcf) {
+        _shadowPcf = pcf;
+        if (pipeline::RenderPipeline::getInstance()) {
+            pipeline::RenderPipeline::getInstance()->setValue("CC_DIR_LIGHT_SHADOW_PCF_TYPE", static_cast<int32_t>(pcf));
+        }
+    }
     inline void setShadowBias(float bias) { _shadowBias = bias; }
     inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
     inline void setShadowSaturation(float saturation) { _shadowSaturation = saturation; }
     inline void setShadowDistance(float distance) { _shadowDistance = distance; }
     inline void setShadowInvisibleOcclusionRange(float invisibleOcclusionRange) { _shadowInvisibleOcclusionRange = invisibleOcclusionRange; }
-    inline void setCSMLevel(CSMLevel csmLevel) { _csmLevel = csmLevel; }
+    inline void setCSMLevel(CSMLevel csmLevel) {
+        _csmLevel = csmLevel;
+        if (pipeline::RenderPipeline::getInstance()) {
+            pipeline::RenderPipeline::getInstance()->setValue("CC_DIR_LIGHT_SHADOW_TYPE", csmLevel == CSMLevel::LEVEL_1 ? 0 : 1);
+        }
+    }
     inline void setCSMLayerLambda(float lambda) { _csmLayerLambda = lambda; }
     inline void setCSMNeedUpdate(bool isCSMNeedUpdate) { _isCSMNeedUpdate = isCSMNeedUpdate; }
     inline void setCSMOptimizationMode(CSMOptimizationMode csmOptimizationMode) { _csmOptimizationMode = csmOptimizationMode; }

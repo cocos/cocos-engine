@@ -138,6 +138,10 @@ export class DirectionalLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        pipeline.macros.CC_DIR_LIGHT_SHADOW_PCF_TYPE = val;
+        root.onGlobalPipelineStateChanged();
     }
 
     /**
@@ -204,6 +208,10 @@ export class DirectionalLight extends Light {
     }
     set csmLevel (val) {
         this._csmLevel = val;
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = val > 1 ? 1 : 0;
+        root.onGlobalPipelineStateChanged();
     }
 
     /**
