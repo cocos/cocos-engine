@@ -129,9 +129,17 @@ int32_t MacPlatform::loop(void) {
 }
 
 int32_t MacPlatform::run(int argc, const char **argv) {
+#if defined(CC_SERVER_MODE)
+    cocos_main(argc, argv);
+    while (true) {
+        runTask();
+    }
+    return 0;
+#else
     id delegate = [[AppDelegate alloc] init];
     NSApplication.sharedApplication.delegate = delegate;
     return NSApplicationMain(argc, argv);
+#endif
 }
 
 void MacPlatform::setFps(int32_t fps) {
