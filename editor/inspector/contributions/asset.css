@@ -63,15 +63,15 @@
     cursor: pointer;
 }
 
-:host > .container > .header > ui-button {
+:host > .container > .header > .tiny {
     display: none;
-    padding: 0 6px;
-    height: 22px;
-    margin-left: 6px;
-    margin-right: 6px;
+    padding: 0 4px;
+    height: 20px;
+    line-height: 20px;
+    margin-left: 8px;
 }
 
-:host > .container > .header[dirty] > ui-button {
+:host > .container > .header[dirty] > .tiny {
     display: inline-block;
 }
 
