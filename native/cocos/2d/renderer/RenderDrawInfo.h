@@ -290,7 +290,7 @@ private:
         scene::Model* _model;
         uint8_t* _sharedBuffer;
     };
-    gfx::InputAssemblerInfo* _iadrawInfo{nullptr};
+    gfx::InputAssemblerInfo* _iaInfo{nullptr};
     ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
     LocalDSBF* _localDSBF{nullptr};
 };
