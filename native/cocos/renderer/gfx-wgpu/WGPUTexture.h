@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "WGPUDef.h"
 #include "gfx-base/GFXTexture.h"
 
@@ -34,9 +36,8 @@ namespace gfx {
 struct CCWGPUTextureObject;
 class CCWGPUSwapchain;
 
-class CCWGPUTexture final : public emscripten::wrapper<Texture> {
+class CCWGPUTexture final : public Texture {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUTexture);
     CCWGPUTexture();
     ~CCWGPUTexture() = default;
 
@@ -54,8 +55,19 @@ public:
     // resource handler changed?
     inline bool internalChanged() const { return _internalChanged; }
 
-    // ems export
-    uint32_t getEMSFormat() const { return static_cast<uint32_t>(Texture::getFormat()); }
+    EXPORT_EMS(
+        inline uint32_t getDepth() const { return _info.depth; };
+        inline uint32_t getLayerCount() const { return _info.layerCount; };
+        inline uint32_t getLevelCount() const { return _info.levelCount; };
+        inline uint32_t getTextureType() const { return static_cast<uint32_t>(_info.type); };
+        inline uint32_t getTextureUsage() const { return static_cast<uint32_t>(_info.usage); };
+        inline uint32_t getTextureFormat() const { return static_cast<uint32_t>(_info.format); };
+        inline uint32_t getTextureSamples() const { return static_cast<uint32_t>(_info.samples); };
+        inline uint32_t getTextureFlags() const { return static_cast<uint32_t>(_info.flags); };
+        emscripten::val getTextureInfo() const;
+        emscripten::val getTextureViewInfo() const;
+
+    )
 
 protected:
     void doInit(const TextureInfo &info) override;

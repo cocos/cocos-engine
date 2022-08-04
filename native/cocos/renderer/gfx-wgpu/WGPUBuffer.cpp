@@ -39,7 +39,7 @@ CCWGPUBuffer *defaultStorageBuffer = nullptr;
 
 using namespace emscripten;
 
-CCWGPUBuffer::CCWGPUBuffer() : wrapper<Buffer>(val::object()) {
+CCWGPUBuffer::CCWGPUBuffer() : Buffer() {
 }
 
 void CCWGPUBuffer::doInit(const BufferInfo &info) {

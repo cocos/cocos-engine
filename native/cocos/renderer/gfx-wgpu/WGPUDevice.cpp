@@ -68,7 +68,7 @@ CCWGPUDevice *CCWGPUDevice::getInstance() {
     return instance;
 }
 
-CCWGPUDevice::CCWGPUDevice() : wrapper<Device>(val::object()) {
+CCWGPUDevice::CCWGPUDevice() : Device() {
     _api = API::WEBGPU;
     _deviceName = "WebGPU";
     _caps.clipSpaceMinZ = 0.0F;

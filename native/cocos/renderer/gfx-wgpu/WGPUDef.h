@@ -31,13 +31,25 @@ function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
         BOOST_PP_SEQ_FOR_EACH(EXPORT_ENUMFIELD_BY_SEQ, ENUMNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
-namespace cc::gfx::ems {
+#ifdef CC_WGPU_WASM
+    #define EXPORT_EMS(expr) expr
+#else
+    #define EXPORT_EMS(expr)
+#endif
+
+namespace cc::gfx {
 
 using ::emscripten::allow_raw_pointers;
 using ::emscripten::convertJSArrayToNumberVector;
 using ::emscripten::val;
 
 using String = ccstd::string;
+
+class CCWGPUInputAssembler;
+class CCWGPUBuffer;
+class CCWGPUCommandBuffer;
+class CCWGPUDescriptorSetLayout;
+class CCWGPUTexture;
 
 // template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
 // std::vector<T> ptrVecFromEMS(const val& vals) {
@@ -73,13 +85,4 @@ val vecToEMS(const std::vector<T>& Ts) {
     return arr;
 }
 
-/*--------------------------------------------------------------------------------------------*/
-// struct with pointers, getter setter template function should be visible here
-
-// EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
-
-// }
-
-/*--------------------------------------------------------------------------------------------*/
-
-} // namespace cc::gfx::ems
+} // namespace cc::gfx

@@ -47,8 +47,7 @@ namespace {
 uint32_t dynamicOffsetBuffer[256];
 }
 
-using namespace emscripten;
-CCWGPUCommandBuffer::CCWGPUCommandBuffer() : wrapper<CommandBuffer>(val::object()) {
+CCWGPUCommandBuffer::CCWGPUCommandBuffer() : CommandBuffer() {
 }
 
 void CCWGPUCommandBuffer::doInit(const CommandBufferInfo &info) {

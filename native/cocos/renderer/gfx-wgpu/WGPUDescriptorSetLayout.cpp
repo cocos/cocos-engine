@@ -46,7 +46,7 @@ ccstd::unordered_map<size_t, WGPUBindGroupLayout> layoutPool;
 using namespace emscripten;
 using namespace anoymous;
 
-CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : wrapper<DescriptorSetLayout>(val::object()) {
+CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : DescriptorSetLayout() {
 }
 
 void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {

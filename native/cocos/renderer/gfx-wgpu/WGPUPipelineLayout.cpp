@@ -35,7 +35,7 @@ namespace gfx {
 
 using namespace emscripten;
 
-CCWGPUPipelineLayout::CCWGPUPipelineLayout() : wrapper<PipelineLayout>(val::object()) {
+CCWGPUPipelineLayout::CCWGPUPipelineLayout() : PipelineLayout() {
 }
 
 void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {

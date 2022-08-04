@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineLayout.h"
 
@@ -33,14 +35,14 @@ namespace gfx {
 
 struct CCWGPUPipelineLayoutObject;
 
-class CCWGPUPipelineLayout final : public emscripten::wrapper<PipelineLayout> {
+class CCWGPUPipelineLayout final : public PipelineLayout {
 public:
     CCWGPUPipelineLayout();
     ~CCWGPUPipelineLayout() = default;
 
     inline CCWGPUPipelineLayoutObject *gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
 
-    //bindgroup not ready yet so delay creation
+    // bindgroup not ready yet so delay creation
     void prepare(const ccstd::set<uint8_t> &setInUse);
 
     // const ccstd::vector<void*> & layouts()const{return _bgLayouts;}

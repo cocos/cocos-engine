@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDescriptorSet.h"
@@ -36,9 +37,8 @@ struct CCWGPUBindGroupObject;
 
 using Pairs = ccstd::vector<std::pair<uint8_t, uint8_t>>;
 
-class CCWGPUDescriptorSet final : public emscripten::wrapper<DescriptorSet> {
+class CCWGPUDescriptorSet final : public DescriptorSet {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUDescriptorSet);
     CCWGPUDescriptorSet();
     ~CCWGPUDescriptorSet() = default;
 

@@ -42,7 +42,7 @@ WGPUBindGroup defaultBindGroup = wgpuDefaultHandle;
 
 using namespace emscripten;
 
-CCWGPUDescriptorSet::CCWGPUDescriptorSet() : wrapper<DescriptorSet>(val::object()) {
+CCWGPUDescriptorSet::CCWGPUDescriptorSet() : DescriptorSet() {
 }
 
 void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
@@ -55,7 +55,7 @@ void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
     for (size_t i = 0; i < bindings.size(); i++) {
         // effect.ts: INPUT_ATTACHMENT as combined texture but no sampler_texture desc type.
         if (hasFlag(COMBINED_ST_IN_USE, bindings[i].descriptorType)) {
-            //1. texture
+            // 1. texture
             CCWGPUTexture *texture = deviceObj->defaultResources.commonTexture;
             WGPUBindGroupEntry texEntry = {
                 .binding = bindings[i].binding,
@@ -137,14 +137,14 @@ void CCWGPUDescriptorSet::update() {
                     auto iter = std::find_if(_dynamicOffsets.begin(), _dynamicOffsets.end(), [bindIndex](const std::pair<uint8_t, uint8_t> dynIndex) {
                         return dynIndex.first == bindIndex;
                     });
-                    //assert(iter != _dynamicOffsets.end()); //can't happen
+                    // assert(iter != _dynamicOffsets.end()); //can't happen
                     (*iter).second = 1;
                 }
             }
         } else if (hasFlag(COMBINED_ST_IN_USE, bindings[i].descriptorType)) {
             auto texIter = _textureIdxMap.find(binding.binding);
             auto smpIter = _samplerIdxMap.find(binding.binding);
-            //assert((texIter != _textureIdxMap.end()) + (smpIter != _samplerIdxMap.end()) == 1);
+            // assert((texIter != _textureIdxMap.end()) + (smpIter != _samplerIdxMap.end()) == 1);
             uint8_t textureIdx = texIter != _textureIdxMap.end() ? texIter->second : 255;
             uint8_t samplerIdx = smpIter != _samplerIdxMap.end() ? smpIter->second : 255;
             if (textureIdx != 255 && _textures[resourceIndex]) {

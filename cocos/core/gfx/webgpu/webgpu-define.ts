@@ -28,11 +28,16 @@
 
 import { gfx, webgpuAdapter, glslalgWasmModule } from '../../../webgpu/instantiated';
 import {
-    Texture, CommandBuffer, DescriptorSet, Device, Framebuffer,
-    InputAssembler, RenderPass, Swapchain, Sampler, Buffer, Shader,
+    Texture, CommandBuffer, DescriptorSet, Device, Framebuffer, DescriptorSetLayout,
+    InputAssembler, RenderPass, Swapchain, Sampler, Buffer, Shader, PipelineLayout,
+    PipelineState, Queue,
 } from '../override';
-import { DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, FramebufferInfo, RenderPassInfo, InputAssemblerInfo, ObjectType } from '../base/define';
+import {
+    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, FramebufferInfo, RenderPassInfo,
+    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo,
+} from '../base/define';
 import { murmurhash2_32_gc } from '../../utils';
+import { PipelineStateInfo } from '../base/pipeline-state';
 
 const originDeviceInitializeFunc = Device.prototype.initialize;
 Device.prototype.initialize = function (info: DeviceInfo) {
@@ -68,34 +73,94 @@ Device.prototype.initialize = function (info: DeviceInfo) {
 Device.prototype.flushCommands = function () {
 };
 
-Object.defineProperties(Device.prototype, {
-    queue: {
-        get () {
-            return this.getQueue();
-        },
-    },
-});
-
 Object.defineProperties(Swapchain.prototype, {
     colorTexture: {
         get () {
             return this.getColorTexture();
-        },
-        set (val: any) {
-            this.setColorTexture(val);
         },
     },
     depthStencilTexture: {
         get () {
             return this.getDepthStencilTexture();
         },
-        set (val: any) {
-            this.setDepthStencilTexture(val);
-        },
     },
     surfaceTransform: {
         get () {
             return this.getTransform();
+        },
+    },
+});
+
+Object.defineProperties(Queue.prototype, {
+    type: { writable: true },
+});
+const oldCreateQueue = Device.prototype.createQueue;
+Device.prototype.createQueue = function (info: QueueInfo) {
+    const queue = oldCreateQueue.call(this, info);
+    queue.type = info.type;
+    return queue;
+};
+
+Object.defineProperties(Texture.prototype, {
+    type: {
+        get () {
+            return this.getType();
+        },
+    },
+    usage: {
+        get () {
+            return this.getUsage();
+        },
+    },
+    format: {
+        get () {
+            return this.getFormat();
+        },
+    },
+    samples: {
+        get () {
+            return this.getSamples();
+        },
+    },
+    flags: {
+        get () {
+            return this.getFlags();
+        },
+    },
+});
+
+Object.defineProperties(Buffer.prototype, {
+    usage: {
+        get () {
+            return this.getUsage();
+        },
+    },
+    memUsage: {
+        get () {
+            return this.getMemUsage();
+        },
+    },
+    flags: {
+        get () {
+            return this.getFlags();
+        },
+    },
+});
+
+Object.defineProperties(DescriptorSetLayout.prototype, {
+    bindings: {
+        get () {
+            return this.getBindings();
+        },
+    },
+    bindingIndices: {
+        get () {
+            return this.getBindingIndices();
+        },
+    },
+    descriptorIndices: {
+        get () {
+            return this.getDescriptorIndices();
         },
     },
 });
@@ -117,11 +182,54 @@ Object.defineProperties(RenderPass.prototype, {
 Object.defineProperties(InputAssembler.prototype, {
     attributesHash: { writable: true },
     attributes: { writable: true },
+    vertexBuffers: { writable: true },
+    indexBuffer: { writable: true },
+    indirectBuffer: { writable: true },
 });
 
 Object.defineProperties(Shader.prototype, {
     typedID: { writable: true },
+    name: { writable: true },
+    attributes: { writable: true },
+    blocks: { writable: true },
+    samplers: { writable: true },
 });
+
+Object.defineProperties(PipelineLayout.prototype, {
+    setLayouts: { writable: true },
+});
+const oldCreatePipelineLayout = Device.prototype.createPipelineLayout;
+Device.prototype.createPipelineLayout = function (info: PipelineLayoutInfo) {
+    const layout = oldCreatePipelineLayout.call(this, info);
+    layout.setLayouts = info.setLayouts;
+    return layout;
+};
+
+Object.defineProperties(PipelineState.prototype, {
+    shader: { writable: true },
+    pipelineLayout: { writable: true },
+    primitive: { writable: true },
+    rasterizerState: { writable: true },
+    depthStencilState: { writable: true },
+    blendState: { writable: true },
+    inputState: { writable: true },
+    dynamicStates: { writable: true },
+    renderPass: { writable: true },
+});
+const oldCreatePipelineState = Device.prototype.createPipelineState;
+Device.prototype.createPipelineState = function (info: PipelineStateInfo) {
+    const pso = oldCreatePipelineState.call(this, info);
+    pso.shader = info.shader;
+    pso.pipelineLayout = info.pipelineLayout;
+    pso.primitive = info.primitive;
+    pso.rasterizerState = info.rasterizerState;
+    pso.depthStencilState = info.depthStencilState;
+    pso.blendState = info.blendState;
+    pso.inputState = info.inputState;
+    pso.dynamicStates = info.dynamicStates;
+    pso.renderPass = info.renderPass;
+    return pso;
+};
 
 const oldCreateInputAssembler = Device.prototype.createInputAssembler;
 Device.prototype.createInputAssembler = function (info: InputAssemblerInfo) {
@@ -133,6 +241,9 @@ Device.prototype.createInputAssembler = function (info: InputAssemblerInfo) {
     }
     ia.attributesHash = murmurhash2_32_gc(res, 666);
     ia.attributes = info.attributes;
+    ia.vertexBuffers = info.vertexBuffers;
+    ia.indexBuffer = info.indexBuffer;
+    ia.indirectBuffer = info.indirectBuffer;
     return ia;
 };
 
@@ -192,9 +303,30 @@ Device.prototype.createRenderPass = function (info: RenderPassInfo) {
     return renderPass;
 };
 
-Object.defineProperty(Device.prototype, 'commandBuffer', {
-    get () {
-        return this.getCommandBuffer();
+Object.defineProperties(Device.prototype, {
+    commandBuffer: {
+        get () {
+            return this.getCommandBuffer();
+        },
+    },
+    queue: {
+        get () {
+            return this.getQueue();
+        },
+    },
+
+});
+
+Object.defineProperties(CommandBuffer.prototype, {
+    queue: {
+        get () {
+            return this.getQueue();
+        },
+    },
+    type: {
+        get () {
+            return this.getType();
+        },
     },
 });
 
@@ -214,6 +346,12 @@ CommandBuffer.prototype.begin = function (renderpass?: typeof RenderPass, subpas
         return this.begin3(renderpass, subpass, framebuffer);
     }
 };
+
+Object.defineProperty(DescriptorSet.prototype, 'layout', {
+    get () {
+        return this.getLayout();
+    },
+});
 
 const oldBindBuffer = DescriptorSet.prototype.bindBuffer;
 DescriptorSet.prototype.bindBuffer = function (binding: number, buffer: typeof Buffer, index?: number) {
@@ -694,5 +832,9 @@ Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
 
     const shader = this.createShaderNative(shaderInfo);
     shader.typedID = ObjectType.SHADER;
+    shader.name = shaderInfo.name;
+    shader.attributes = shaderInfo.attributes;
+    shader.blocks = shaderInfo.blocks;
+    shader.samplers = shaderInfo.samplers;
     return shader;
 };

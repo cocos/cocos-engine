@@ -40,7 +40,7 @@ CCWGPUTexture *defaultStorageTexture = nullptr;
 
 using namespace emscripten;
 
-CCWGPUTexture::CCWGPUTexture() : wrapper<Texture>(val::object()) {
+CCWGPUTexture::CCWGPUTexture() : Texture() {
     _gpuTextureObj = ccnew CCWGPUTextureObject;
 }
 

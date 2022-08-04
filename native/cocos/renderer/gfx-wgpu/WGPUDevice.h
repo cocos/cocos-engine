@@ -28,10 +28,9 @@
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include <windows.h>
 #endif
-
-#include <emscripten/bind.h>
-#include <emscripten/val.h>
-#include "WGPUDef.h"
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDevice.h"
 
@@ -45,10 +44,8 @@ class CCWGPUSwapchain;
 class CCWGPUTexture;
 class WGPUGeneralBarrier;
 
-class CCWGPUDevice final : public emscripten::wrapper<Device> {
+class CCWGPUDevice final : public Device {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUDevice);
-
     static CCWGPUDevice *getInstance();
 
     CCWGPUDevice();
@@ -68,71 +65,50 @@ public:
         }
     }
 
-    // ems export override
-
-    void initialize(const emscripten::val &info);
-
-    Swapchain *createSwapchain(const emscripten::val &info);
-
-    Framebuffer *createFramebuffer(const emscripten::val &info);
-
-    Texture *createTexture(const emscripten::val &info);
-
-    using Device::createTexture;
-
-    Buffer *createBuffer(const emscripten::val &info);
-
-    DescriptorSet *createDescriptorSet(const emscripten::val &info);
-
-    DescriptorSetLayout *createDescriptorSetLayout(const emscripten::val &info);
-
-    PipelineLayout *createPipelineLayout(const emscripten::val &info);
-
-    InputAssembler *createInputAssembler(const emscripten::val &info);
-
-    PipelineState *createPipelineState(const emscripten::val &info);
-
-    RenderPass *createRenderPass(const emscripten::val &info);
-
-    emscripten::val copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions);
-
-    WGPUGeneralBarrier *getGeneralBarrier(const emscripten::val &info);
-
-    using Device::createBuffer;
-    using Device::createDescriptorSet;
-    using Device::createDescriptorSetLayout;
-    using Device::createFramebuffer;
-    using Device::createInputAssembler;
-    using Device::createPipelineLayout;
-    using Device::createPipelineState;
-    using Device::createRenderPass;
-    using Device::createShader;
-    using Device::createSwapchain;
-    using Device::getGeneralBarrier;
-    using Device::getSampler;
-    using Device::initialize;
-
-    Shader *createShader(const emscripten::val &info);
-
-    void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const emscripten::val &regions);
-
-    Sampler *getSampler(const emscripten::val &info);
-
-    inline MemoryStatus getMemStatus() const { return _memoryStatus; }
-
     void debug();
 
-    uint32_t getFormatFeatures(uint32_t format) {
-        return static_cast<uint32_t>(Device::getFormatFeatures(Format{format}));
-    }
+    // ems export override
+    EXPORT_EMS(
+        using Device::createTexture;
+        using Device::createBuffer;
+        using Device::createDescriptorSet;
+        using Device::createDescriptorSetLayout;
+        using Device::createFramebuffer;
+        using Device::createInputAssembler;
+        using Device::createPipelineLayout;
+        using Device::createPipelineState;
+        using Device::createRenderPass;
+        using Device::createShader;
+        using Device::createSwapchain;
+        using Device::getGeneralBarrier;
+        using Device::getSampler;
+        using Device::initialize;
 
-    uint32_t getGFXAPI() const {
-        return static_cast<uint32_t>(Device::getGfxAPI());
-    }
-
-    uint32_t hasFeature(uint32_t feature) {
-        return static_cast<uint32_t>(Device::hasFeature(Feature{feature}));
-    };
+        void initialize(const emscripten::val &info);
+        Swapchain * createSwapchain(const emscripten::val &info);
+        Framebuffer * createFramebuffer(const emscripten::val &info);
+        Texture * createTexture(const emscripten::val &info);
+        Buffer * createBuffer(const emscripten::val &info);
+        DescriptorSet * createDescriptorSet(const emscripten::val &info);
+        DescriptorSetLayout * createDescriptorSetLayout(const emscripten::val &info);
+        PipelineLayout * createPipelineLayout(const emscripten::val &info);
+        InputAssembler * createInputAssembler(const emscripten::val &info);
+        PipelineState * createPipelineState(const emscripten::val &info);
+        RenderPass * createRenderPass(const emscripten::val &info);
+        emscripten::val copyTextureToBuffers(Texture * src, const BufferTextureCopyList &regions);
+        WGPUGeneralBarrier * getGeneralBarrier(const emscripten::val &info);
+        Shader * createShader(const emscripten::val &info);
+        void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const emscripten::val &regions);
+        Sampler * getSampler(const emscripten::val &info);
+        inline MemoryStatus getMemStatus() const { return _memoryStatus; } uint32_t getFormatFeatures(uint32_t format) {
+            return static_cast<uint32_t>(Device::getFormatFeatures(Format{format}));
+        };
+        uint32_t getGFXAPI() const {
+            return static_cast<uint32_t>(Device::getGfxAPI());
+        };
+        uint32_t hasFeature(uint32_t feature) {
+            return static_cast<uint32_t>(Device::hasFeature(Feature{feature}));
+        };)
 
 protected:
     static CCWGPUDevice *instance;

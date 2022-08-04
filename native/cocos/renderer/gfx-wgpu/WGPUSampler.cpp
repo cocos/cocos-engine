@@ -38,7 +38,7 @@ CCWGPUSampler *defaultSampler = nullptr;
 
 using namespace emscripten;
 
-CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : wrapper<Sampler>(val::object(), info) {
+CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : Sampler(info) {
     WGPUSamplerDescriptor descriptor = {
         .nextInChain = nullptr,
         .label = nullptr,
@@ -50,7 +50,7 @@ CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : wrapper<Sampler>(val::ob
         .mipmapFilter = toWGPUFilterMode(info.mipFilter),
         .lodMinClamp = 0.0f,
         .lodMaxClamp = std::numeric_limits<float>::max(),
-        .compare = WGPUCompareFunction_Undefined, //toWGPUCompareFunction(info.cmpFunc),
+        .compare = WGPUCompareFunction_Undefined, // toWGPUCompareFunction(info.cmpFunc),
         .maxAnisotropy = static_cast<uint16_t>(info.maxAnisotropy),
     };
 

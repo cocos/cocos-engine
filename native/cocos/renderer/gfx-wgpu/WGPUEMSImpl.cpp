@@ -17,16 +17,16 @@
 #include "WGPUInputAssembler.h"
 #include "WGPUQueue.h"
 #include "WGPURenderPass.h"
+#include "WGPUSampler.h"
 #include "WGPUShader.h"
 #include "WGPUSwapchain.h"
+#include "WGPUTexture.h"
 #include "gfx-base/GFXDef-common.h"
 #include "states/WGPUBufferBarrier.h"
 #include "states/WGPUGeneralBarrier.h"
 #include "states/WGPUTextureBarrier.h"
 namespace cc::gfx {
 
-using ems::vecFromEMS;
-using ems::vecToEMS;
 using ::emscripten::allow_raw_pointers;
 using ::emscripten::convertJSArrayToNumberVector;
 using ::emscripten::val;
@@ -588,6 +588,61 @@ emscripten::val CCWGPUInputAssembler::getEMSAttributes() const {
     return arr;
 }
 
+emscripten::val CCWGPUInputAssembler::getEMSVertexBuffers() const {
+    auto arr = val::array();
+    const auto& vertexBuffers = _vertexBuffers;
+    for (size_t i = 0; i < vertexBuffers.size(); ++i) {
+        const auto& vertexBuffer = static_cast<CCWGPUBuffer*>(vertexBuffers[i]);
+        arr.set(i, vertexBuffer);
+    }
+    return arr;
+}
+
+CCWGPUBuffer* CCWGPUInputAssembler::getEMSIndexBuffer() const {
+    return static_cast<CCWGPUBuffer*>(_indexBuffer);
+}
+
+CCWGPUBuffer* CCWGPUInputAssembler::getEMSIndirectBuffer() const {
+    return static_cast<CCWGPUBuffer*>(_indirectBuffer);
+}
+
+uint32_t CCWGPUBuffer::getBufferUsage() const {
+    return static_cast<uint32_t>(_usage);
+}
+
+uint32_t CCWGPUBuffer::getBufferMemUsage() const {
+    return static_cast<uint32_t>(_memUsage);
+}
+
+uint32_t CCWGPUBuffer::getBufferFlags() const {
+    return static_cast<uint32_t>(_flags);
+}
+
+val CCWGPUDescriptorSetLayout::getDSLayoutBindings() const {
+    auto arr = val::array();
+    const auto& bindings = _bindings;
+    for (size_t i = 0; i < bindings.size(); ++i) {
+        const auto& gfxbinding = bindings[i];
+        auto ems_gfxbinding = val::object();
+        SET_TO_EMS(gfxbinding, binding, descriptorType, count, stageFlags);
+        auto samplers = val::array();
+        for (size_t j = 0; j < gfxbinding.immutableSamplers.size(); ++j) {
+            samplers.set(j, static_cast<CCWGPUSampler*>(gfxbinding.immutableSamplers[j]));
+        }
+        ems_gfxbinding.set("immutableSamplers", samplers);
+        arr.set(i, ems_gfxbinding);
+    }
+    return arr;
+}
+
+val CCWGPUDescriptorSetLayout::getDSLayoutBindingIndices() const {
+    return vecToEMS<uint32_t>(_bindingIndices);
+}
+
+val CCWGPUDescriptorSetLayout::getDSLayoutIndices() const {
+    return vecToEMS<uint32_t>(_descriptorIndices);
+}
+
 void CCWGPUQueue::submit(const val& info) {
     ccstd::vector<CommandBuffer*> cmdBuffs;
     const std::vector<val>& ems_cmdBuffs = vecFromJSArray<val>(info);
@@ -685,6 +740,21 @@ void CCWGPUDevice::copyBuffersToTexture(const emscripten::val& v, Texture* dst, 
 
     return copyBuffersToTexture(buffers.data(), dst, copies.data(), copies.size());
 }
+
+val CCWGPUTexture::getTextureInfo() const {
+    const auto& info = _info;
+    val ems_info = val::object();
+    SET_TO_EMS(info, type, usage, format, width, height, flags, layerCount, levelCount, samples, depth);
+    ems_info.set("externalRes", reinterpret_cast<uintptr_t>(info.externalRes));
+    return ems_info;
+};
+val CCWGPUTexture::getTextureViewInfo() const {
+    const auto& viewInfo = _viewInfo;
+    val ems_viewInfo = val::object();
+    SET_TO_EMS(viewInfo, type, format, baseLevel, levelCount, baseLayer, layerCount);
+    ems_viewInfo.set("texture", static_cast<CCWGPUTexture*>(viewInfo.texture));
+    return ems_viewInfo;
+};
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {
     CHECK_VOID(info);

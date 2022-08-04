@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
@@ -32,7 +34,7 @@ namespace gfx {
 
 class CCWGPUSwapchain;
 
-class CCWGPUFramebuffer final : public emscripten::wrapper<Framebuffer> {
+class CCWGPUFramebuffer final : public Framebuffer {
 public:
     CCWGPUFramebuffer();
     ~CCWGPUFramebuffer() = default;

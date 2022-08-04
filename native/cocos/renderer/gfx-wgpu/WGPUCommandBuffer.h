@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
-#include <emscripten/val.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include <functional>
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -37,9 +38,8 @@ struct CCWGPUCommandBufferObject;
 
 typedef std::function<void(CCWGPUCommandBufferObject *)> EncodeFunc;
 
-class CCWGPUCommandBuffer final : public emscripten::wrapper<CommandBuffer> {
+class CCWGPUCommandBuffer final : public CommandBuffer {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUCommandBuffer);
     CCWGPUCommandBuffer();
     ~CCWGPUCommandBuffer() = default;
 
@@ -82,19 +82,23 @@ public:
     }
 
     // emscripten export
-    void beginRenderPass(RenderPass *renderpass, Framebuffer *framebuffer, const emscripten::val &area, const emscripten::val &colors, float depth, uint32_t stencil);
-    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const emscripten::val &dynamicOffsets);
-    void draw(const emscripten::val &info);
+    EXPORT_EMS(
+        void beginRenderPass(RenderPass *renderpass, Framebuffer *framebuffer, const emscripten::val &area, const emscripten::val &colors, float depth, uint32_t stencil);
+        void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const emscripten::val &dynamicOffsets);
+        void draw(const emscripten::val &info);
 
-    void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size) {
-        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
-    }
+        void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size) {
+            ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+            updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
+        }
 
-    void setViewport(const emscripten::val &info);
-    void setScissor(const emscripten::val &info);
-    void bindPipelineState(const emscripten::val &info);
-    void bindInputAssembler(const emscripten::val &info);
+        void setViewport(const emscripten::val &info);
+        void setScissor(const emscripten::val &info);
+        void bindPipelineState(const emscripten::val &info);
+        void bindInputAssembler(const emscripten::val &info);
+        inline uint32_t getCommandBufferType() const { return static_cast<uint32_t>(_type); };
+
+    )
 
 protected:
     virtual void doInit(const CommandBufferInfo &info);

@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include <set>
 #include "gfx-base/GFXDescriptorSetLayout.h"
 
@@ -37,9 +38,8 @@ class CCWGPUTexture;
 class CCWGPUBuffer;
 class CCWGPUSampler;
 
-class CCWGPUDescriptorSetLayout final : public emscripten::wrapper<DescriptorSetLayout> {
+class CCWGPUDescriptorSetLayout final : public DescriptorSetLayout {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUDescriptorSetLayout);
     CCWGPUDescriptorSetLayout();
     ~CCWGPUDescriptorSetLayout() = default;
 
@@ -54,6 +54,13 @@ public:
     static void *defaultBindGroupLayout();
 
     void print() const;
+
+    EXPORT_EMS(
+        emscripten::val getDSLayoutBindings() const;
+        emscripten::val getDSLayoutBindingIndices() const;
+        emscripten::val getDSLayoutIndices() const;
+
+    )
 
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
