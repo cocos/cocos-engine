@@ -10657,7 +10657,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setPropertyVec3Array", _SE(js_assets_Material_setPropertyVec3Array));
     cls->defineFunction("setPropertyVec4", _SE(js_assets_Material_setPropertyVec4));
     cls->defineFunction("setPropertyVec4Array", _SE(js_assets_Material_setPropertyVec4Array));
-    cls->defineStaticFunction("getHashForMaterial", _SE(js_assets_Material_getHashForMaterial_static));
+    cls->defineStaticFunction("getHash", _SE(js_assets_Material_getHashForMaterial_static));
     cls->defineFinalizeFunction(_SE(js_cc_Material_finalize));
     cls->install();
     JSBClassType::registerClass<cc::Material>(cls);
