@@ -189,6 +189,8 @@ export class BaseRenderData {
             const renderEntity: RenderEntity = comp.renderEntity;
             if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
                 renderEntity.removeDynamicRenderDrawInfo();
+            } else if (renderEntity.renderEntityType === RenderEntityType.STATIC) {
+                renderEntity.clearStaticRenderDrawInfos();
             }
         }
     }
