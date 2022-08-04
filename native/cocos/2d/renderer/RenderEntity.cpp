@@ -68,6 +68,11 @@ void RenderEntity::clearDynamicRenderDrawInfos() {
 
 void RenderEntity::clearStaticRenderDrawInfos() {
     CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
+  
+    for (uint32_t i = 0; i < _staticDrawInfoSize; i++) {
+        RenderDrawInfo& drawInfo = _staticDrawInfos[i];
+        drawInfo.resetDrawInfo();
+    }
     _staticDrawInfoSize = 0;
 }
 
