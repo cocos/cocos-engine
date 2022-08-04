@@ -26,7 +26,7 @@ CCEffect %{
         metallicRoughnessMap:     { value: grey }
         occlusionMap:             { value: white }
         emissiveMap:              { value: grey }
-        anisotropyRotationMap:    { value: black, editor : { parent: IS_ANISOTROPY } }
+        anisotropyMap:            { value: black, editor : { parent: IS_ANISOTROPY } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -170,8 +170,8 @@ CCProgram surface-fragment %{
     uniform sampler2D emissiveMap;
     #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
-  #if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
-    uniform sampler2D anisotropyRotationMap;
+  #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+    uniform sampler2D anisotropyMap;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r
@@ -241,8 +241,10 @@ CCProgram surface-fragment %{
   {
     float anisotropyRotation = anisotropyParam.y;
     float anisotropyShape = anisotropyParam.x;
-    #if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
-      anisotropyRotation = fract(anisotropyRotation + texture(anisotropyRotationMap, DEFAULT_UV).x);
+    #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+	  vec4 tex = texture(anisotropyMap, DEFAULT_UV);
+      anisotropyRotation = fract(anisotropyRotation + tex.x);
+	  anisotropyShape = tex.y;
     #endif
       return vec4(anisotropyRotation, anisotropyShape, 0.0, 0.0);
   }
