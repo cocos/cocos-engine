@@ -140,7 +140,7 @@ export class DirectionalLight extends Light {
         this._shadowPcf = val;
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        pipeline.macros.CC_DIR_LIGHT_SHADOW_PCF_TYPE = val;
+        pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = val;
         root.onGlobalPipelineStateChanged();
     }
 

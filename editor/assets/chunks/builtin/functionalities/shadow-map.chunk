@@ -217,16 +217,16 @@ float CCGetLinearDepth(vec3 worldPos) {
     pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
   
     float realtimeShadow = 1.0;
-    #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_SOFT_5X
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
       realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
     #endif
-    #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_SOFT_3X
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
       realtimeShadow =  CCGetDirLightShadowFactorSoft3X(pos);
     #endif
-    #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_SOFT
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
     #endif
-    #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_HARD
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
       realtimeShadow = CCGetDirLightShadowFactorHard(pos); 
     #endif
 
@@ -268,16 +268,16 @@ float CCGetLinearDepth(vec3 worldPos) {
       pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
 
       float realtimeShadow = 1.0;
-      #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_SOFT_5X
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
         realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
       #endif
-      #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_SOFT_3X
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
         realtimeShadow = CCGetDirLightShadowFactorSoft3X(pos);
       #endif
-      #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_SOFT
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
         realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
       #endif
-      #if CC_DIR_LIGHT_SHADOW_PCF_TYPE == CC_DIR_LIGHT_SHADOW_PCF_HARD
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
         realtimeShadow = CCGetDirLightShadowFactorHard(pos);
       #endif
 

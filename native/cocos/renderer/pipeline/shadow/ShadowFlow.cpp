@@ -86,7 +86,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     pipeline->setValue("CC_SUPPORT_CASCADED_SHADOW_MAP", csmSupported);
 
     // 0: PCFType.HARD, 1: PCFType.SOFT, 2: PCFType.SOFT_2X, 3: PCFType.SOFT_4X
-    pipeline->setValue("CC_DIR_LIGHT_SHADOW_PCF_TYPE", static_cast<int32_t>(scene::PCFType::HARD));
+    pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(scene::PCFType::HARD));
 
     // 0: CC_DIR_LIGHT_SHADOW_UNIFORM, 1: CC_DIR_LIGHT_SHADOW_CASCADED, 2: CC_DIR_LIGHT_SHADOW_VARIANCE
     pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 0);

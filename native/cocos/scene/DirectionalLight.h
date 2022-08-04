@@ -46,7 +46,7 @@ public:
     inline void setShadowPcf(PCFType pcf) {
         _shadowPcf = pcf;
         if (pipeline::RenderPipeline::getInstance()) {
-            pipeline::RenderPipeline::getInstance()->setValue("CC_DIR_LIGHT_SHADOW_PCF_TYPE", static_cast<int32_t>(pcf));
+            pipeline::RenderPipeline::getInstance()->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(pcf));
         }
     }
     inline void setShadowBias(float bias) { _shadowBias = bias; }
