@@ -47,8 +47,9 @@ AudioEngineImpl::~AudioEngineImpl() {
     if (auto sche = _scheduler.lock()) {
         sche->unschedule("AudioEngine", this);
     }
-
-    AUDIO_RELEASE(gAvaudioEngine); // Should be released totally, otherwise a leak occurs
+    // Should be released totally, otherwise a leak occurs, and should run in main thread.
+    [gAvaudioEngine stop];
+    AUDIO_RELEASE(gAvaudioEngine);
     for (auto& player : _players) {
         delete player.second;
     }
@@ -296,11 +297,12 @@ void AudioEngineImpl::update() {
             player->postStop();
             if (player->isFinished() && player->finishCallback) {
                 const ccstd::string fileFullPath{player->getCache()->_fileFullPath};
-                CC_LOG_DEBUG("Succeed, audio is finished.");
+                CC_LOG_DEBUG("Succeed, audio %d is finished.", audioID);
                 auto callback = player->finishCallback;
                 if (auto sche = _scheduler.lock()) {
                     // Translate copy but not reference as error occurs.
                     sche->performFunctionInCocosThread([audioID, callback, fileFullPath] {
+                        CC_LOG_DEBUG("Finish Callback is called %d", audioID);
                         callback(audioID, fileFullPath);
                     });
                 }

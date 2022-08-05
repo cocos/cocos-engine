@@ -30,6 +30,7 @@
 #include <condition_variable>
 #include <queue>
 #include "base/Log.h"
+#include "cocos/profiler/Profiler.h"
 namespace cc {
 void showPlayerNodeCurrentStatus(AVAudioPlayerNode* node, AVAudioFile* file) {
     CC_LOG_DEBUG("=== SHOW DEBUG INFO FOR AUDIO PLAYER ==");
@@ -111,6 +112,7 @@ void AudioPlayer::rotateBuffer() {
     __block auto finishWake = [&]() {
         std::lock_guard<std::mutex> lck(_rotateBufferThreadMtx);
         _isFinished = true;
+        NSLog(@"Finish wake");
         bufferQCount--;
         // NSLog(@"Finish wake from tail buffer with bufferQCount %d", bufferQCount);
         _rotateBufferThreadBarrier.notify_all();
@@ -221,6 +223,7 @@ void AudioPlayer::rotateBuffer() {
     // Step to release all.
     if (!_isFinished) {
         [_descriptor.node stop];
+        NSLog(@"Finish reset");
         // BUG: when node is stopped, all callbacks will be triggered, which cause unacceptable result.
         _isFinished = false;
     } else {
@@ -286,17 +289,19 @@ bool AudioPlayer::play() {
 
             break;
         }
-
-        _descriptor.node.volume = _volume;
-        if (getState() == State::PLAYING || getState() == State::PAUSED) {
-            std::lock_guard<std::mutex> lck(_rotateBufferThreadMtx);
-            _rotateBufferThreadBarrier.notify_one();
-        } else if (_state == State::READY) {
-            // start to play
-            _rotateBufferThread = new std::thread(&AudioPlayer::rotateBuffer, this);
-            _rotateBufferThread->detach();
+        {
+            CC_PROFILE(AUDIO_PLAY_SHORT);
+            _descriptor.node.volume = _volume;
+            if (getState() == State::PLAYING || getState() == State::PAUSED) {
+                std::lock_guard<std::mutex> lck(_rotateBufferThreadMtx);
+                _rotateBufferThreadBarrier.notify_one();
+            } else if (_state == State::READY) {
+                // start to play
+                _rotateBufferThread = new std::thread(&AudioPlayer::rotateBuffer, this);
+                _rotateBufferThread->detach();
+            }
+            setState(State::PLAYING);
         }
-        setState(State::PLAYING);
     } while (false);
     return ret;
 }
@@ -320,6 +325,7 @@ void AudioPlayer::stop() {
     } else {
         [_descriptor.node stop];
         setState(State::STOPPED);
+        _isFinished = false;
     }
 }
 

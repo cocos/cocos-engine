@@ -377,6 +377,7 @@ void AudioEngine::onEnterForeground(const CustomEvent & /*event*/) {
 }
 
 void AudioEngine::stop(int audioID) {
+    CC_LOG_DEBUG("Calling stop for audioID %d", audioID);
     auto it = sAudioIDInfoMap.find(audioID);
     if (it != sAudioIDInfoMap.end()) {
         sAudioEngineImpl->stop(audioID);
@@ -398,6 +399,7 @@ void AudioEngine::remove(int audioID) {
 }
 
 void AudioEngine::stopAll() {
+    CC_LOG_DEBUG("Trying to stop all ");
     if (!sAudioEngineImpl) {
         return;
     }

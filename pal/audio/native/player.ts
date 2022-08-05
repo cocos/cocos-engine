@@ -66,12 +66,14 @@ export class OneShotAudio {
     }
     public play (): void {
         this._id = jsb.AudioEngine.play2d(this._url, false, this._volume);
+        console.log(`Trying to play audio, id : ${this._id}`);
         jsb.AudioEngine.setFinishCallback(this._id, () => {
             this.onEnd?.();
         });
         this.onPlay?.();
     }
     public stop (): void {
+        console.log(`Trying to stop audio, id : ${this._id}`);
         if (this._id === INVALID_AUDIO_ID) {
             return;
         }
@@ -257,12 +259,14 @@ export class AudioPlayer implements OperationQueueable {
                 }
             } else {
                 this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume);
+                console.log(`Trying to play audio, id : ${this._id}`);
                 if (this._isValid) {
                     if (this._cachedState.currentTime !== 0) {
                         audioEngine.setCurrentTime(this._id, this._cachedState.currentTime);
                         this._cachedState.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
+                        console.log(`Finish callback is called, id : ${this._id}`);
                         this._cachedState.currentTime = 0;
                         this._id = INVALID_AUDIO_ID;
                         this._state = AudioState.INIT;
@@ -289,6 +293,7 @@ export class AudioPlayer implements OperationQueueable {
     @enqueueOperation
     stop (): Promise<void> {
         return new Promise((resolve) => {
+            console.log(`Trying to stop audio, id : ${this._id}, isValid : ${this._isValid}`);
             if (this._isValid) {
                 audioEngine.stop(this._id);
             }
