@@ -171,8 +171,17 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<cc::MacroRecord> *to
 bool sevalue_to_native(const se::Value &from, cc::MaterialProperty *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
 inline bool sevalue_to_native(const se::Value &from, ccstd::string *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    assert(to);
-    *to = from.toStringForce();
+    if (!from.isNullOrUndefined()) {
+        *to = from.toString();
+    } else {
+        to->clear();
+    }
+    return true;
+}
+
+inline bool seval_to_std_string(const se::Value &from, ccstd::string *ret) { // NOLINT(readability-identifier-naming)
+    assert(ret);
+    *ret = from.toStringForce();
     return true;
 }
 

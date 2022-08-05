@@ -22,6 +22,7 @@
 // deprecated conversion functions
 
 // native value -> se value
+#include "v8/Object.h"
 CC_DEPRECATED(3.6, "use nativevalue_to_se instead")
 inline bool int8_to_seval(int8_t v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se(v, *ret, nullptr);
@@ -102,9 +103,4 @@ inline bool std_vector_float_to_seval(const std::vector<float> &v, se::Value *re
 CC_DEPRECATED(3.6, "use nativevalue_to_se instead")
 inline bool std_map_string_string_to_seval(const std::map<std::string, std::string> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se(v, *ret, nullptr);
-}
-
-CC_DEPRECATED(3.6, "use sevalue_to_native instead")
-bool seval_to_std_string(const se::Value &v, std::string *ret) { // NOLINT(readability-identifier-naming)
-    return sevalue_to_native(value, ret, nullptr);;
 }
