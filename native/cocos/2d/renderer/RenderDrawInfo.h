@@ -219,6 +219,8 @@ public:
     void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
 
     inline void resetDrawInfo() {
+        destroy();
+
         _drawInfoAttrs._bufferId = 0;
         _drawInfoAttrs._accId = 0;
         _drawInfoAttrs._vertexOffset = 0;
@@ -240,9 +242,6 @@ public:
         _subNode = nullptr;
         _model = nullptr;
         _sharedBuffer = nullptr;
-        _iaInfo = nullptr;
-        _iaPool = nullptr;
-        _localDSBF = nullptr;
     }
 
 private:
