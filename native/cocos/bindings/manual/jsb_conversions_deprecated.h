@@ -22,7 +22,6 @@
 // deprecated conversion functions
 
 // native value -> se value
-#include "v8/Object.h"
 CC_DEPRECATED(3.6, "use nativevalue_to_se instead")
 inline bool int8_to_seval(int8_t v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se(v, *ret, nullptr);
