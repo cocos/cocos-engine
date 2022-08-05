@@ -316,7 +316,7 @@ export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange,
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
@@ -342,7 +342,7 @@ export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
@@ -368,7 +368,7 @@ export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRang
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }

@@ -10,11 +10,13 @@ void DragonBonesData::_onClear() {
     }
 
     if (binary != nullptr) {
-        delete binary;
+        free(const_cast<char*>(binary));
+        binary = nullptr;
     }
 
     if (userData != nullptr) {
         userData->returnToPool();
+        userData = nullptr;
     }
 
     autoSearch = false;
@@ -25,14 +27,13 @@ void DragonBonesData::_onClear() {
     cachedFrames.clear();
     armatureNames.clear();
     armatures.clear();
-    binary = nullptr;
+
     intArray = nullptr;
     floatArray = nullptr;
     frameIntArray = nullptr;
     frameFloatArray = nullptr;
     frameArray = nullptr;
     timelineArray = nullptr;
-    userData = nullptr;
 }
 
 void DragonBonesData::addArmature(ArmatureData* value) {

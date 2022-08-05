@@ -8,8 +8,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: scroll;
-    padding-left: 10px;
+    overflow-y: scroll;
+    overflow-x: auto;
+    padding-left: 6px;
     padding-right: 2px;
 }
 
@@ -152,6 +153,7 @@
 .component .component-header > .link {
     padding: 0 5px;
     transition: color 0.15s;
+    color: var(--color-default-contrast-emphasis);
 }
 
 .component .component-header > .menu:hover {

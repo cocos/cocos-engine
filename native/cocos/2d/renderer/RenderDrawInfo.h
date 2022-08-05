@@ -45,84 +45,204 @@ struct Render2dLayout {
     Vec4 color;
 };
 
-struct DrawInfoAttrLayout {
-    uint32_t enabledIndex{1};
-};
-
-enum class RenderDrawInfoType {
+enum class RenderDrawInfoType : uint8_t {
     COMP,
     MODEL,
-    IA
+    IA,
+    SUB_NODE,
+};
+
+struct LocalDSBF {
+    gfx::DescriptorSet* ds;
+    gfx::Buffer* uboBuf;
 };
 
 class Batcher2d;
+
 class RenderDrawInfo final {
 public:
     RenderDrawInfo();
-    explicit RenderDrawInfo(Batcher2d* batcher);
-    RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset);
     ~RenderDrawInfo();
 
-    inline index_t getAccId() const { return _accId; }
-    void setAccId(index_t id);
-    inline index_t getBufferId() const { return _bufferId; }
-    void setBufferId(index_t bufferId);
-    inline uint32_t getVertexOffset() const { return _vertexOffset; }
-    void setVertexOffset(uint32_t vertexOffset);
-    inline uint32_t getIndexOffset() const { return _indexOffset; }
-    void setIndexOffset(uint32_t indexOffset);
-    inline UIMeshBuffer* getMeshBuffer() const { return _meshBuffer; };
-    inline float* getVbBuffer() const { return _vbBuffer; }
-    void setVbBuffer(float* vbBuffer);
-    inline uint16_t* getIbBuffer() const { return _ibBuffer; }
-    void setIbBuffer(uint16_t* ibBuffer);
-    inline float* getVDataBuffer() const { return _vDataBuffer; }
-    void setVDataBuffer(float* vDataBuffer);
-    inline uint16_t* getIDataBuffer() const { return _iDataBuffer; }
-    void setIDataBuffer(uint16_t* iDataBuffer);
-    inline uint32_t getVbCount() const { return _vbCount; }
-    void setVbCount(uint32_t vbCount);
-    inline uint32_t getIbCount() const { return _ibCount; }
-    void setIbCount(uint32_t ibCount);
-    inline bool getVertDirty() const { return _vertDirty; }
-    void setVertDirty(bool val);
-    inline ccstd::hash_t getDataHash() const { return _dataHash; }
-    void setDataHash(ccstd::hash_t dataHash);
-    inline bool getIsMeshBuffer() const { return _isMeshBuffer; }
-    void setIsMeshBuffer(bool isMeshBuffer);
+    inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoAttrs._drawInfoType); }
+    inline void setDrawInfoType(uint32_t type) {
+        _drawInfoAttrs._drawInfoType = static_cast<RenderDrawInfoType>(type);
+    }
+
+    inline uint16_t getAccId() const { return _drawInfoAttrs._accId; }
+    inline void setAccId(uint16_t id) {
+        _drawInfoAttrs._accId = id;
+    }
+
+    inline uint16_t getBufferId() const { return _drawInfoAttrs._bufferId; }
+    inline void setBufferId(uint16_t bufferId) {
+        _drawInfoAttrs._bufferId = bufferId;
+    }
+
+    inline uint32_t getVertexOffset() const { return _drawInfoAttrs._vertexOffset; }
+    inline void setVertexOffset(uint32_t vertexOffset) {
+        _drawInfoAttrs._vertexOffset = vertexOffset;
+    }
+
+    inline uint32_t getIndexOffset() const { return _drawInfoAttrs._indexOffset; }
+    inline void setIndexOffset(uint32_t indexOffset) {
+        _drawInfoAttrs._indexOffset = indexOffset;
+    }
+
+    inline uint32_t getVbCount() const { return _drawInfoAttrs._vbCount; }
+    inline void setVbCount(uint32_t vbCount) {
+        _drawInfoAttrs._vbCount = vbCount;
+    }
+
+    inline uint32_t getIbCount() const { return _drawInfoAttrs._ibCount; }
+    inline void setIbCount(uint32_t ibCount) {
+        _drawInfoAttrs._ibCount = ibCount;
+    }
+
+    inline bool getVertDirty() const { return _drawInfoAttrs._vertDirty; }
+    inline void setVertDirty(bool val) {
+        _drawInfoAttrs._vertDirty = val;
+    }
+
+    inline ccstd::hash_t getDataHash() const { return _drawInfoAttrs._dataHash; }
+    inline void setDataHash(ccstd::hash_t dataHash) {
+        _drawInfoAttrs._dataHash = dataHash;
+    }
+
+    inline bool getIsMeshBuffer() const { return _drawInfoAttrs._isMeshBuffer; }
+    inline void setIsMeshBuffer(bool isMeshBuffer) {
+        _drawInfoAttrs._isMeshBuffer = isMeshBuffer;
+    }
+
+    inline uint8_t getStride() const { return _drawInfoAttrs._stride; }
+    inline void setStride(uint8_t stride) {
+        _drawInfoAttrs._stride = stride;
+    }
+
     inline Material* getMaterial() const { return _material; }
-    void setMaterial(Material* material);
-    inline gfx::Texture* getTexture() const { return _texture; }
-    void setTexture(gfx::Texture* texture);
-    inline uint32_t getTextureHash() const { return _textureHash; }
-    void setTextureHash(uint32_t textureHash);
-    inline gfx::Sampler* getSampler() const { return _sampler; }
-    void setSampler(gfx::Sampler* sampler);
-    inline uint32_t getBlendHash() const { return _blendHash; }
-    void setBlendHash(uint32_t blendHash);
-    inline scene::Model* getModel() const { return _model; }
-    void setModel(scene::Model* model);
-    inline uint32_t getDrawInfoType() const { return static_cast<uint32_t>(_drawInfoType); }
-    void setDrawInfoType(uint32_t type);
+    inline void setMaterial(Material* material) {
+        _material = material;
+    }
 
-    inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoType; }
+    inline UIMeshBuffer* getMeshBuffer() const {
+        return _meshBuffer;
+    }
 
-    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
+    inline float* getVDataBuffer() const {
+        return _vDataBuffer;
+    }
+    inline void setVDataBuffer(float* vDataBuffer) {
+        _vDataBuffer = vDataBuffer;
+    }
+    inline uint16_t* getIDataBuffer() const {
+        return _iDataBuffer;
+    }
 
-    inline Batcher2d* getBatcher() const { return _batcher; }
-    void setBatcher(Batcher2d* batcher);
-    se::Object* getAttrSharedBufferForJS() const;
+    inline void setIDataBuffer(uint16_t* iDataBuffer) {
+        _iDataBuffer = iDataBuffer;
+    }
 
-    inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) {
+    inline gfx::Texture* getTexture() const {
+        return _texture;
+    }
+
+    inline void setTexture(gfx::Texture* texture) {
+        _texture = texture;
+    }
+
+    inline gfx::Sampler* getSampler() const {
+        return _sampler;
+    }
+
+    inline void setSampler(gfx::Sampler* sampler) {
+        _sampler = sampler;
+    }
+
+    inline float* getVbBuffer() const {
+        return _vbBuffer;
+    }
+
+    inline void setVbBuffer(float* vbBuffer) {
+        _vbBuffer = vbBuffer;
+    }
+
+    inline uint16_t* getIbBuffer() const {
+        return _ibBuffer;
+    }
+
+    inline void setIbBuffer(uint16_t* ibBuffer) {
+        _ibBuffer = ibBuffer;
+    }
+
+    inline scene::Model* getModel() const {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
+        return _model;
+    }
+
+    inline void setModel(scene::Model* model) {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
+        if (_drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL) {
+            _model = model;
+        }
+    }
+
+    inline Node* getSubNode() const {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
+        return _subNode;
+    }
+    inline void setSubNode(Node* node) {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
+        _subNode = node;
+    }
+
+    void changeMeshBuffer();
+
+    inline RenderDrawInfoType getEnumDrawInfoType() const { return _drawInfoAttrs._drawInfoType; }
+
+    inline void setRender2dBufferToNative(uint8_t* buffer) { // NOLINT(bugprone-easily-swappable-parameters)
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP && !_drawInfoAttrs._isMeshBuffer);
+        _sharedBuffer = buffer;
+    }
+
+    inline Render2dLayout* getRender2dLayout(uint32_t dataOffset) const {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP && !_drawInfoAttrs._isMeshBuffer);
         return reinterpret_cast<Render2dLayout*>(_sharedBuffer + dataOffset * sizeof(float));
     }
 
-    inline uint8_t getStride() const { return _stride; }
-    inline uint32_t getSize() const { return _size; }
+    inline se::Object* getAttrSharedBufferForJS() const { return _attrSharedBufferActor.getSharedArrayBufferObject(); }
 
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
     void resetMeshIA();
+
+    inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
+    void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
+
+    inline void resetDrawInfo() {
+        destroy();
+
+        _drawInfoAttrs._bufferId = 0;
+        _drawInfoAttrs._accId = 0;
+        _drawInfoAttrs._vertexOffset = 0;
+        _drawInfoAttrs._indexOffset = 0;
+        _drawInfoAttrs._vbCount = 0;
+        _drawInfoAttrs._ibCount = 0;
+        _drawInfoAttrs._stride = 0;
+        _drawInfoAttrs._dataHash = 0;
+        _drawInfoAttrs._vertDirty = false;
+        _drawInfoAttrs._isMeshBuffer = false;
+
+        _vbBuffer = nullptr;
+        _ibBuffer = nullptr;
+        _vDataBuffer = nullptr;
+        _iDataBuffer = nullptr;
+        _material = nullptr;
+        _texture = nullptr;
+        _sampler = nullptr;
+        _subNode = nullptr;
+        _model = nullptr;
+        _sharedBuffer = nullptr;
+    }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
@@ -130,72 +250,47 @@ private:
 
     gfx::InputAssembler* initIAInfo(gfx::Device* device);
 
-    // weak reference
-    Batcher2d* _batcher{nullptr};
+    struct DrawInfoAttrs {
+        RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
+        bool _vertDirty{false};
+        bool _isMeshBuffer{false};
+        uint8_t _stride{0};
+        uint16_t _bufferId{0};
+        uint16_t _accId{0};
+        uint32_t _vertexOffset{0};
+        uint32_t _indexOffset{0};
+        uint32_t _vbCount{0};
+        uint32_t _ibCount{0};
+        ccstd::hash_t _dataHash{0};
+    } _drawInfoAttrs{};
 
-    // weak reference
-    uint8_t* _sharedBuffer{nullptr};
-    uint8_t _stride{0};
-    uint32_t _size{0};
+    uint16_t _nextFreeIAHandle{0};
 
-    DrawInfoAttrLayout _drawInfoAttrLayout;
     bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
-
-    index_t _bufferId{0};
-    index_t _accId{0};
-    uint32_t _vertexOffset{0};
-
-    uint32_t _indexOffset{0};
-
     // weak reference
-    float* _vbBuffer{nullptr};
-    // weak reference
-    uint16_t* _ibBuffer{nullptr};
+    Material* _material{nullptr};
     // weak reference
     float* _vDataBuffer{nullptr};
     // weak reference
     uint16_t* _iDataBuffer{nullptr};
     // weak reference
     UIMeshBuffer* _meshBuffer{nullptr};
-
-    uint32_t _vbCount{0};
-    uint32_t _ibCount{0};
-
-    bool _vertDirty{false};
-
-    // weak reference
-    scene::Model* _model{nullptr};
-
-    ccstd::hash_t _dataHash{0};
-    uint32_t _stencilStage{0};
-    bool _isMeshBuffer{false};
-    // weak reference
-    Material* _material{nullptr};
     // weak reference
     gfx::Texture* _texture{nullptr};
-    uint32_t _textureHash{0};
     // weak reference
     gfx::Sampler* _sampler{nullptr};
+    // weak reference
+    float* _vbBuffer{nullptr};
+    // weak reference
+    uint16_t* _ibBuffer{nullptr};
 
-    uint32_t _blendHash{0};
-
-    RenderDrawInfoType _drawInfoType{RenderDrawInfoType::COMP};
-
-    gfx::InputAssemblerInfo _iaInfo;
-    ccstd::vector<gfx::Attribute> _attributes{
-        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    union {
+        Node* _subNode{nullptr};
+        scene::Model* _model;
+        uint8_t* _sharedBuffer;
     };
-    uint32_t _vertexFormatBytes = 9 * sizeof(float); // Affected by _attributes // magic Number
-
-    //TODO(): it is not a good way to cache IA here.
-    // manage memory manually
-    ccstd::vector<gfx::InputAssembler*> _iaPool;
-    uint32_t _nextFreeIAHandle{0};
-    // weak reference
-    gfx::Buffer* _vbGFXBuffer{nullptr};
-    // weak reference
-    gfx::Buffer* _ibGFXBuffer{nullptr};
+    gfx::InputAssemblerInfo* _iaInfo{nullptr};
+    ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
+    LocalDSBF* _localDSBF{nullptr};
 };
 } // namespace cc

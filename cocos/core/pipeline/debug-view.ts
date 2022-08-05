@@ -211,6 +211,15 @@ export class DebugView {
     }
 
     /**
+     * @en Disable all debug view modes, reset to standard rendering mode.
+     * @zh 关闭所有的渲染调试模式，恢复到正常渲染。
+     */
+    public reset () {
+        this._activate();
+        this._updatePipeline();
+    }
+
+    /**
      * @internal
      */
     protected _activate () {

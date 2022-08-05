@@ -25,7 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { BYTEDANCE, EDITOR } from 'internal:constants';
+import { BYTEDANCE, EDITOR, JSB } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
@@ -38,7 +38,9 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { legacyCC } from '../../core/global-exports';
 import { BlendFactor } from '../../core/gfx';
+import { Color } from '../../core';
 
+const tempColor = Color.WHITE.clone();
 /**
  * @en Enum for horizontal text alignment.
  *
@@ -745,6 +747,17 @@ export class Label extends UIRenderer {
     protected _updateColor () {
         super._updateColor();
         this.markForUpdateRenderData();
+    }
+
+    public setEntityColor (color: Color) {
+        if (JSB) {
+            if (this._font instanceof BitmapFont || this.cacheMode === CacheMode.CHAR) {
+                this._renderEntity.color = color;
+            } else {
+                tempColor.set(255, 255, 255, color.a);
+                this._renderEntity.color = tempColor;
+            }
+        }
     }
 
     protected _canRender () {

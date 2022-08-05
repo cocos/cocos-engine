@@ -64,7 +64,9 @@ static JsbBridge *instance = nil;
 - (id)init {
     if (self = [super init]) {
         cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
-            [[JsbBridge sharedInstance] release];
+            if ([JsbBridge sharedInstance] != nil) {
+                [[JsbBridge sharedInstance] release];
+            }
         });
     }
     return self;

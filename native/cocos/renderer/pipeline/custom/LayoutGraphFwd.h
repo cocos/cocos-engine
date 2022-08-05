@@ -32,7 +32,6 @@
 #pragma once
 #include <functional>
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 
 namespace cc {

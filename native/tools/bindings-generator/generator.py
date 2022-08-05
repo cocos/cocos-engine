@@ -355,8 +355,7 @@ def native_name_from_type(ntype, underlying=False):
         decl = ntype.get_declaration()
         etype = ntype.element_type
         esize = ntype.element_count
-        logger.info("found a const array: " +
-                    str(etype.spelling) + "[" + str(esize) + "], treat as std::array<,"+ str(esize)+">")
+        # logger.info("found a const array: " + str(etype.spelling) + "[" + str(esize) + "], treat as std::array<,"+ str(esize)+">")
         # return  "decltype(" + str(etype.spelling) + " _[" + str(esize) + "])"
         return "std::array<%s, %s>" % (etype.spelling, esize)
     else:
@@ -2167,7 +2166,7 @@ class Generator(object):
                     if len(parts) > 1:
                         nn = parts.pop()
                         return self.scriptname_from_native("::".join(parts)+"::", nn)
-                logger.error("The namespace (%s), '%s' conversion wasn't set in 'ns_map' section of the conversions.yaml" % (namespace_class_name, namespace_name))
+                # logger.error("The namespace (%s), '%s' conversion wasn't set in 'ns_map' section of the conversions.yaml" % (namespace_class_name, namespace_name))
                 return "nowhere"
         else:
             return namespace_class_name.replace("*", "").replace("const ", "")

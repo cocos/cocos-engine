@@ -42,10 +42,11 @@ public:
     static void updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView);
     static void updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
     static void updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
-                                    const scene::Camera *camera);
+                                    ccstd::array<float, UBOCSM::COUNT> *csmBufferView, const scene::Camera *camera);
     static void updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
         const scene::Light *light, uint32_t level);
     static uint8_t getCombineSignY();
+    static void updatePlanarNormalAndDistance(const ::cc::scene::Shadows *shadowInfo, ccstd::array<float, UBOShadow::COUNT> *shadowUBO);
 
     PipelineUBO() = default;
     ~PipelineUBO() = default;
@@ -69,19 +70,21 @@ private:
     RenderPipeline *_pipeline{nullptr};
     // weak reference
     gfx::Device *_device{nullptr};
+    // weak reference, it is recorded in _ubos
+    gfx::Buffer *_cameraBuffer{nullptr};
+
+    uint32_t _currentCameraUBOOffset{0};
+    uint32_t _alignedCameraUBOSize{0};
+
+    bool _shadowUBOUpdated{false};
 
     ccstd::array<float, UBOGlobal::COUNT> _globalUBO;
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO;
+    ccstd::array<float, UBOCSM::COUNT> _csmUBO;
 
     // manage memory manually
     ccstd::vector<gfx::Buffer *> _ubos;
     ccstd::vector<float> _cameraUBOs;
-
-    // weak reference, it is recorded in _ubos
-    gfx::Buffer *_cameraBuffer{nullptr};
-    uint32_t _currentCameraUBOOffset{0};
-    uint32_t _alignedCameraUBOSize{0};
-    bool _shadowUBOUpdated{false};
 };
 
 } // namespace pipeline

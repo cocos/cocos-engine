@@ -42,6 +42,7 @@ const builtinResMgrProto = BuiltinResMgr.prototype;
 
 builtinResMgrProto.init = function (): Promise<void> {
     this._resources = {};
+    this._materialsToBeCompiled = [];
     const resources = this._resources;
     const len = 2;
     const numChannels = 4;
@@ -88,6 +89,18 @@ builtinResMgrProto.get = function (uuid: string) {
     return res || this.getAsset(uuid);
 };
 
+
+builtinResMgrProto.compileBuiltinMaterial = function () {
+    // NOTE: Builtin material should be compiled again after the render pipeline setup
+    for (let i = 0; i < this._materialsToBeCompiled.length; ++i) {
+        const mat = this._materialsToBeCompiled[i];
+        for (let j = 0; j < mat.passes.length; ++j) {
+            mat.passes[j].tryCompile();
+        }
+    }
+    this._materialsToBeCompiled.length = 0;
+};
+
 builtinResMgrProto.loadBuiltinAssets = function () {
    const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
    if (TEST || !builtinAssets) return Promise.resolve();
@@ -107,6 +120,9 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                         const url = asset.nativeUrl;
                         releaseManager.addIgnoredAsset(asset);
                         this.addAsset(asset.name, asset);
+                        if (asset instanceof legacyCC.Material) {
+                            this._materialsToBeCompiled.push(asset);
+                        }
                     });
                    resolve();
                }

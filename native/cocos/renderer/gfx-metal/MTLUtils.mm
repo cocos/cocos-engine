@@ -878,9 +878,9 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
 int mu::toMTLSamplerBorderColor(const Color &color) {
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)
     float diff = color.x - 0.5f;
-    if (math::IsEqualF(color.w, 0.f))
+    if (math::isEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
-    else if (math::IsEqualF(diff, 0.f))
+    else if (math::isEqualF(diff, 0.f))
         return MTLSamplerBorderColorOpaqueBlack;
     else
         return MTLSamplerBorderColorOpaqueWhite;
@@ -1198,6 +1198,22 @@ uint32_t mu::getMaxVertexAttributes(uint32_t family) {
             return 31;
     }
 }
+
+uint32_t mu::getMaxUniformBufferBindings(uint32_t family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+            return 31;
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return 14;
+    }
+}
+
 
 uint32_t mu::getMaxEntriesInBufferArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {

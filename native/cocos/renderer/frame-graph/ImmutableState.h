@@ -1,3 +1,4 @@
+
 /****************************************************************************
  Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
@@ -25,15 +26,60 @@
 
 #pragma once
 
-#include "base/Macros.h"
+#include "frame-graph/Resource.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
+namespace framegraph {
 
-class CC_DLL OSInterfaceManager {
-public:
-    virtual ~OSInterfaceManager() = default;
+class DevicePassResourceTable;
 
-private:
+struct Range {
+    size_t base{0};
+    size_t len{0};
 };
 
+struct AccessStatus {
+    gfx::PassType passType{gfx::PassType::RASTER};
+    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
+    gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
+};
+
+enum class ResourceType : uint32_t {
+    UNKNOWN,
+    BUFFER,
+    TEXTURE,
+};
+
+struct ResourceBarrier {
+    ResourceType resourceType{ResourceType::UNKNOWN};
+    gfx::BarrierType barrierType{gfx::BarrierType::FULL};
+
+    Handle handle;
+
+    AccessStatus beginStatus;
+    AccessStatus endStatus;
+    Range layerRange;
+
+    union {
+        Range mipRange;
+        Range bufferRange;
+    };
+};
+
+struct PassBarrierPair {
+    ccstd::vector<ResourceBarrier> frontBarriers;
+    ccstd::vector<ResourceBarrier> rearBarriers;
+};
+
+using BarriersList = std::vector<PassBarrierPair>;
+
+struct PassBarriers {
+    PassBarrierPair blockBarrier;
+    BarriersList subpassBarriers;
+};
+
+std::pair<gfx::GFXObject* /*barrier*/, gfx::GFXObject* /*resource*/> getBarrier(const ResourceBarrier& barrierInfo, const DevicePassResourceTable* dict) noexcept;
+
+} // namespace framegraph
 } // namespace cc

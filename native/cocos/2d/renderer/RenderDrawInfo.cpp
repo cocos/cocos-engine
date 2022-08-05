@@ -27,200 +27,138 @@
 #include "2d/renderer/Batcher2d.h"
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
+#include "core/Root.h"
 
 namespace cc {
-RenderDrawInfo::RenderDrawInfo() : RenderDrawInfo(nullptr) {
+
+static gfx::DescriptorSetInfo gDsInfo;
+static float matrixData[pipeline::UBOLocal::COUNT] = {0.F};
+void mat4ToFloatArray(const cc::Mat4& mat, float* out, index_t ofs = 0) {
+    memcpy(out + ofs, mat.m, 16 * sizeof(float));
 }
 
-RenderDrawInfo::RenderDrawInfo(Batcher2d* batcher) : _batcher(batcher) {
-    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
-}
-
-RenderDrawInfo::RenderDrawInfo(index_t bufferId, uint32_t vertexOffset, uint32_t indexOffset) { // NOLINT(bugprone-easily-swappable-parameters)
-    _bufferId = bufferId;
-    _vertexOffset = vertexOffset;
-    _indexOffset = indexOffset;
-    _stride = 0;
-    _size = 0;
-    _batcher = nullptr;
-
-    _attrSharedBufferActor.initialize(&_drawInfoAttrLayout, sizeof(DrawInfoAttrLayout));
+RenderDrawInfo::RenderDrawInfo() {
+    _attrSharedBufferActor.initialize(&_drawInfoAttrs, sizeof(_drawInfoAttrs));
 }
 
 RenderDrawInfo::~RenderDrawInfo() {
     destroy();
 }
 
-void RenderDrawInfo::setBatcher(Batcher2d* batcher) {
-    _batcher = batcher;
-}
-
-void RenderDrawInfo::setAccId(index_t id) {
-    _accId = id;
-}
-
-void RenderDrawInfo::setBufferId(index_t bufferId) {
-    _bufferId = bufferId;
-    _meshBuffer = _batcher->getMeshBuffer(_accId, _bufferId);
-}
-
-void RenderDrawInfo::setVertexOffset(uint32_t vertexOffset) {
-    _vertexOffset = vertexOffset;
-}
-
-void RenderDrawInfo::setIndexOffset(uint32_t indexOffset) {
-    _indexOffset = indexOffset;
-}
-
-void RenderDrawInfo::setVbBuffer(float* vbBuffer) {
-    _vbBuffer = vbBuffer;
-}
-
-void RenderDrawInfo::setIbBuffer(uint16_t* ibBuffer) {
-    _ibBuffer = ibBuffer;
-}
-
-void RenderDrawInfo::setVDataBuffer(float* vDataBuffer) {
-    _vDataBuffer = vDataBuffer;
-}
-
-void RenderDrawInfo::setIDataBuffer(uint16_t* iDataBuffer) {
-    _iDataBuffer = iDataBuffer;
-}
-
-void RenderDrawInfo::setVbCount(uint32_t vbCount) {
-    _vbCount = vbCount;
-}
-
-void RenderDrawInfo::setIbCount(uint32_t ibCount) {
-    _ibCount = ibCount;
-}
-
-void RenderDrawInfo::setVertDirty(bool val) {
-    _vertDirty = val;
-}
-
-void RenderDrawInfo::setDataHash(ccstd::hash_t dataHash) {
-    _dataHash = dataHash;
-}
-
-void RenderDrawInfo::setIsMeshBuffer(bool isMeshBuffer) {
-    _isMeshBuffer = isMeshBuffer;
-}
-
-void RenderDrawInfo::setMaterial(Material* material) {
-    _material = material;
-}
-
-void RenderDrawInfo::setTexture(gfx::Texture* texture) {
-    _texture = texture;
-}
-
-void RenderDrawInfo::setTextureHash(uint32_t textureHash) {
-    _textureHash = textureHash;
-}
-
-void RenderDrawInfo::setSampler(gfx::Sampler* sampler) {
-    _sampler = sampler;
-}
-
-void RenderDrawInfo::setBlendHash(uint32_t blendHash) {
-    _blendHash = blendHash;
-}
-
-void RenderDrawInfo::setModel(scene::Model* model) {
-    _model = model;
-}
-
-void RenderDrawInfo::setDrawInfoType(uint32_t type) {
-    _drawInfoType = static_cast<RenderDrawInfoType>(type);
-}
-
-void RenderDrawInfo::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) { // NOLINT(bugprone-easily-swappable-parameters)
-    _stride = stride;
-    _size = size;
-    _sharedBuffer = buffer;
-}
-
-se::Object* RenderDrawInfo::getAttrSharedBufferForJS() const {
-    return _attrSharedBufferActor.getSharedArrayBufferObject();
+void RenderDrawInfo::changeMeshBuffer() {
+    CC_ASSERT(Root::getInstance()->getBatcher2D());
+    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(_drawInfoAttrs._accId, _drawInfoAttrs._bufferId);
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
-    if (_nextFreeIAHandle >= _iaPool.size()) {
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    if (!_iaPool) {
+        _iaPool = ccnew ccstd::vector<gfx::InputAssembler*>;
+    }
+    if (_nextFreeIAHandle >= _iaPool -> size()) {
         initIAInfo(device);
     }
-    auto* ia = _iaPool[_nextFreeIAHandle++]; // 需要 reset
+    auto* ia = (*_iaPool)[_nextFreeIAHandle++];
     ia->setFirstIndex(getIndexOffset());
     ia->setIndexCount(getIbCount());
     return ia;
 }
 
 void RenderDrawInfo::uploadBuffers() {
-    if (_vbCount == 0 || _ibCount == 0) return;
-    auto size = _vbCount * _vertexFormatBytes;
-    gfx::Buffer* vBuffer = _vbGFXBuffer;
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+    if (_drawInfoAttrs._vbCount == 0 || _drawInfoAttrs._ibCount == 0) return;
+    uint32_t size = _drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
+    gfx::Buffer* vBuffer = _iaInfo->vertexBuffers[0];
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
-    gfx::Buffer* iBuffer = _ibGFXBuffer;
-    auto iSize = _ibCount * 2;
+    gfx::Buffer* iBuffer = _iaInfo->indexBuffer;
+    uint32_t iSize = _drawInfoAttrs._ibCount * 2;
     iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
 
 void RenderDrawInfo::resetMeshIA() {
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     _nextFreeIAHandle = 0;
 }
 
 void RenderDrawInfo::destroy() {
     _nextFreeIAHandle = 0;
-    _attributes.clear();
-
-    //TODO(): Should use _iaPool to delete vb, ib.
-    delete _iaInfo.indexBuffer;
-    if (!_iaInfo.vertexBuffers.empty()) {
-        // only one vb
-        delete _iaInfo.vertexBuffers[0];
-        _iaInfo.vertexBuffers.clear();
+    if (_iaInfo) {
+        CC_SAFE_DELETE(_iaInfo->indexBuffer);
+        if (!_iaInfo->vertexBuffers.empty()) {
+            // only one vb
+            CC_SAFE_DELETE(_iaInfo->vertexBuffers[0]);
+            _iaInfo->vertexBuffers.clear();
+        }
+        CC_SAFE_DELETE(_iaInfo);
     }
 
-    for (auto* ia : _iaPool) {
-        //TODO(): should use these codes to delete all ib, vb.
-        //        delete ia->getIndexBuffer();
-        //        // only one vertex buffer
-        //        delete ia->getVertexBuffers()[0];
-        delete ia;
+    if (_iaPool) {
+        for (auto* ia : *_iaPool) {
+            CC_SAFE_DELETE(ia);
+        }
+        _iaPool->clear();
+        CC_SAFE_DELETE(_iaPool);
     }
-    _iaPool.clear();
+
+    if (_localDSBF) {
+        CC_SAFE_DELETE(_localDSBF->ds);
+        CC_SAFE_DELETE(_localDSBF->uboBuf);
+        CC_SAFE_DELETE(_localDSBF);
+    }
 }
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
-    if (_iaPool.empty()) {
-        uint32_t vbStride = _vertexFormatBytes; // hack
+    if (_iaPool->empty()) {
+        _iaInfo = ccnew gfx::InputAssemblerInfo();
+        uint32_t vbStride = 9 * sizeof(float);// magic Number
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
         auto* indexBuffer = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });
 
-        _vbGFXBuffer = vertexBuffer;
-        _ibGFXBuffer = indexBuffer;
-
-        _iaInfo.attributes = _attributes;
-        _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
-        _iaInfo.indexBuffer = indexBuffer;
+        _iaInfo->attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        _iaInfo->vertexBuffers.emplace_back(vertexBuffer);
+        _iaInfo->indexBuffer = indexBuffer;
     }
-    auto* ia = device->createInputAssembler(_iaInfo);
-    _iaPool.emplace_back(ia);
+    auto* ia = device->createInputAssembler(*_iaInfo);
+    _iaPool->emplace_back(ia);
 
     return ia;
 }
+
+void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout) {
+    if (_localDSBF == nullptr) {
+        _localDSBF = new LocalDSBF();
+        auto *device = Root::getInstance()->getDevice();
+        gDsInfo.layout = dsLayout;
+        _localDSBF->ds = device->createDescriptorSet(gDsInfo);
+        _localDSBF->uboBuf = device->createBuffer({
+            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            pipeline::UBOLocal::SIZE,
+            pipeline::UBOLocal::SIZE,
+        });
+    }
+    if (_texture != nullptr && _sampler != nullptr) {
+        _localDSBF->ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), _texture);
+        _localDSBF->ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), _sampler);
+    }
+    _localDSBF->ds->bindBuffer(pipeline::UBOLocal::BINDING, _localDSBF->uboBuf);
+    _localDSBF->ds->update();
+    const auto& worldMatrix = transform->getWorldMatrix();
+    mat4ToFloatArray(worldMatrix, matrixData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
+    _localDSBF->uboBuf->update(matrixData);
+}
+
 } // namespace cc

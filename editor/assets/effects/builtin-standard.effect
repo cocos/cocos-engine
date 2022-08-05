@@ -368,11 +368,10 @@ CCProgram shadow-caster-fs %{
   vec4 frag () {
     vec4 baseColor = albedo;
 
-    #if USE_ALBEDO_MAP
-      baseColor *= texture(albedoMap, ALBEDO_UV);
-    #endif
-
     #if USE_ALPHA_TEST
+      #if USE_ALBEDO_MAP
+        baseColor *= texture(albedoMap, ALBEDO_UV);
+      #endif
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
@@ -380,9 +379,9 @@ CCProgram shadow-caster-fs %{
     // spot use linear
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
-      if (cc_shadowNFLSInfo.z > 0.000001) {
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
         clipDepth = CCGetLinearDepth(v_worldPos.xyz);
-      }
+      #endif
     }
 
     #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8

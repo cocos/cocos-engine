@@ -55,6 +55,13 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
+    public get csmSupported () {
+        return this._csmSupported;
+    }
+    public set csmSupported (val: boolean) {
+        this._csmSupported = val;
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
@@ -85,6 +92,7 @@ export class PipelineSceneData {
     protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = true;
     protected _shadingScale = 1.0;
+    protected _csmSupported = true;
 
     constructor () {
         this._shadingScale = 1.0;
@@ -132,12 +140,14 @@ export class PipelineSceneData {
             mat._uuid = 'default-occlusion-query-material';
             mat.initialize({ effectName: 'builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
-            this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+            if (mat.passes.length > 0) {
+                this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+            }
         }
     }
 
     public getOcclusionQueryPass (): Pass | null {
-        if (this._occlusionQueryMaterial) {
+        if (this._occlusionQueryMaterial && this._occlusionQueryMaterial.passes.length > 0) {
             return this._occlusionQueryMaterial.passes[0];
         }
 

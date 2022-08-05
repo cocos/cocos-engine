@@ -123,11 +123,6 @@ export class Batcher2D implements IBatcher {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
-
-        if (JSB) {
-            this._nativeObj = new NativeBatcher2d();
-            //this.initAttrBuffer();
-        }
     }
 
     public initialize () {
@@ -156,6 +151,16 @@ export class Batcher2D implements IBatcher {
         StencilManager.sharedManager!.destroy();
     }
 
+    private syncRootNodesToNative () {
+        if (JSB) {
+            const rootNodes: Node[] = [];
+            for (const screen of this._screens) {
+                rootNodes.push(screen.node);
+            }
+            this._nativeObj.syncRootNodesToNative(rootNodes);
+        }
+    }
+
     /**
      * @en
      * Add the managed Canvas.
@@ -169,6 +174,9 @@ export class Batcher2D implements IBatcher {
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     /**
@@ -183,12 +191,17 @@ export class Batcher2D implements IBatcher {
         if (idx === -1) {
             return;
         }
-
         this._screens.splice(idx, 1);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     public sortScreens () {
         this._screens.sort(this._screenSort);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
@@ -205,44 +218,40 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
-        const screens = this._screens;
         if (JSB) {
-            for (let i = 0; i < screens.length; ++i) {
-                this._nativeObj.addRootNode(screens[i].node);
+            return;
+        }
+        const screens = this._screens;
+        let offset = 0;
+        for (let i = 0; i < screens.length; ++i) {
+            const screen = screens[i];
+            const scene = screen._getRenderScene();
+            if (!screen.enabledInHierarchy || !scene) {
+                continue;
             }
-            this._nativeObj.update();
-        } else {
-            let offset = 0;
-            for (let i = 0; i < screens.length; ++i) {
-                const screen = screens[i];
-                const scene = screen._getRenderScene();
-                if (!screen.enabledInHierarchy || !scene) {
-                    continue;
-                }
-                // Reset state and walk
-                this._opacityDirty = 0;
-                this._pOpacity = 1;
+            // Reset state and walk
+            this._opacityDirty = 0;
+            this._pOpacity = 1;
 
-                this.walk(screen.node);
+            this.walk(screen.node);
 
-                this.autoMergeBatches(this._currComponent!);
-                this.resetRenderStates();
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
 
-                let batchPriority = 0;
-                if (this._batches.length > offset) {
-                    for (; offset < this._batches.length; ++offset) {
-                        const batch = this._batches.array[offset];
+            let batchPriority = 0;
+            if (this._batches.length > offset) {
+                for (; offset < this._batches.length; ++offset) {
+                    const batch = this._batches.array[offset];
 
-                        if (batch.model) {
-                            const subModels = batch.model.subModels;
-                            for (let j = 0; j < subModels.length; j++) {
-                                subModels[j].priority = batchPriority++;
-                            }
-                        } else {
-                            batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                    if (batch.model) {
+                        const subModels = batch.model.subModels;
+                        for (let j = 0; j < subModels.length; j++) {
+                            subModels[j].priority = batchPriority++;
                         }
-                        scene.addBatch(batch);
+                    } else {
+                        batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                     }
+                    scene.addBatch(batch);
                 }
             }
         }
@@ -379,7 +388,6 @@ export class Batcher2D implements IBatcher {
             this._currComponent = comp;
             this._currTransform = transform;
             this._currMaterial = comp.getRenderMaterial(0)!;
-            // this._currBlendTargetHash = comp.blendHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
             if (frame) {
@@ -416,13 +424,9 @@ export class Batcher2D implements IBatcher {
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
         }
-        let blendState;
         let depthStencil;
         let dssHash = 0;
-        let bsHash = 0;
         if (renderComp) {
-            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            bsHash = renderComp.blendHash;
             renderComp.stencilStage = StencilManager.sharedManager!.stage;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
@@ -442,7 +446,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.textureHash = tex.getHash();
             curDrawBatch.samplerHash = curDrawBatch.sampler.hash;
         }
-        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, blendState, bsHash, null, this);
+        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
         this._batches.push(curDrawBatch);
     }
 
@@ -492,7 +496,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.sampler = null;
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
-            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches, this);
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, subModel.patches);
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             curDrawBatch.descriptorSet = subModel.descriptorSet;
@@ -575,13 +579,9 @@ export class Batcher2D implements IBatcher {
             return;
         }
 
-        let blendState;
         let depthStencil;
         let dssHash = 0;
-        let bsHash = 0;
         if (renderComp) {
-            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            bsHash = renderComp.blendHash;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
             } else {
@@ -598,7 +598,7 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
+        curDrawBatch.fillPasses(mat, depthStencil, dssHash, null);
 
         this._batches.push(curDrawBatch);
     }

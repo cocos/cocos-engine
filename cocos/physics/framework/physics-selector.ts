@@ -156,7 +156,6 @@ function switchTo (id: IPhysicsEngineId) {
         const world = mutableSelector.physicsWorld;
         world.setGravity(worldInitData.gravity);
         world.setAllowSleep(worldInitData.allowSleep);
-        world.setDefaultMaterial(worldInitData.defaultMaterial);
     }
 }
 
@@ -187,7 +186,6 @@ export function constructDefaultWorld (data: IWorldInitData) {
         const world = mutableSelector.physicsWorld = createPhysicsWorld();
         world.setGravity(worldInitData.gravity);
         world.setAllowSleep(worldInitData.allowSleep);
-        world.setDefaultMaterial(worldInitData.defaultMaterial);
     }
 }
 

@@ -229,6 +229,11 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         this._timelineStatsDirty = true;
     }
 
+    public setRelativeDestinationStart(value: boolean) {
+        this._relativeDestinationStart = value;
+        this._timelineStatsDirty = true;
+    }
+
     public calculateExitTimesFromTimelineLength(value: number) {
         assertIsNonNullable(this._source);
         return value / this._source.duration;
@@ -257,6 +262,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
             _transitionDuration: transitionDuration,
             _relativeDuration: relativeDuration,
             _destinationStart: destinationStart,
+            _relativeDestinationStart: relativeDestinationStart,
         } = this;
 
         if (!source || !target) {
@@ -274,12 +280,14 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
             ? sourceDuration * transitionDuration
             : transitionDuration;
 
+        const destinationStartAbsolute = relativeDestinationStart ? destinationStart * targetDuration : destinationStart;
+
         if (time < exitTimeAbsolute) {
             source.sample(time / sourceDuration, 1.0);
         } else {
             const transitionTime = time - exitTimeAbsolute;
             if (transitionTime > transitionDurationAbsolute) {
-                target.sample(destinationStart + transitionTime / targetDuration, 1.0);
+                target.sample((destinationStartAbsolute + transitionTime) / targetDuration, 1.0);
             } else {
                 const transitionRatio = transitionTime / transitionDurationAbsolute;
                 const sourceWeight = 1.0 - transitionRatio;
@@ -298,6 +306,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
     private _exitConditionEnabled: boolean = false;
     private _exitCondition: number = 0.0;
     private _destinationStart = 0.0;
+    private _relativeDestinationStart = false;
     private _source: MotionEval | null = null;
     private _target: MotionEval | null = null;
     private _timelineStatsDirty = true;
@@ -324,6 +333,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
             _transitionDuration: transitionDuration,
             _relativeDuration: relativeDuration,
             _destinationStart: destinationStart,
+            _relativeDestinationStart: relativeDestinationStart,
         } = this;
 
         assertIsNonNullable(source);
@@ -340,7 +350,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         const sourceMotionRepeatCount = sourceMotionLiveTime / sourceMotionDuration;
 
         const targetMotionDuration = target.duration;
-        const destinationStartAbsolute = targetMotionDuration * destinationStart;
+        const destinationStartAbsolute = relativeDestinationStart ? targetMotionDuration * destinationStart : destinationStart;
         const targetMotionStart = exitTimeAbsolute - destinationStartAbsolute;
         const targetMotionLiveTime = Math.max(transitionDurationAbsolute, targetMotionDuration);
         const targetMotionRepeatCount = targetMotionLiveTime / targetMotionDuration;

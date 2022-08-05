@@ -25,7 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { DEBUG, JSB } from 'internal:constants';
 import { ModelRenderer } from '../../core/components/model-renderer';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
@@ -88,7 +88,7 @@ export class UIMeshRenderer extends Component {
 
     onDisable () {
         uiRendererManager.removeRenderer(this);
-        if (this.renderEntity) this.renderEntity.enabled = false;
+        this.renderEntity.enabled = this._canRender();
     }
 
     public onLoad () {
@@ -153,6 +153,7 @@ export class UIMeshRenderer extends Component {
     // Native updateAssembler
     public updateRenderer () {
         if (JSB) {
+            this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
                 // @ts-expect-error: UIMeshRenderer do not attachToScene
@@ -240,8 +241,14 @@ export class UIMeshRenderer extends Component {
     public setTextureDirty () {
     }
 
+    protected _canRender () {
+        return (this.enabled && this._modelComponent !== null);
+    }
+
     get renderEntity () {
-        assert(this._renderEntity);
+        if (DEBUG) {
+            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+        }
         return this._renderEntity;
     }
 
