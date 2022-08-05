@@ -477,8 +477,8 @@ void Skybox::updateGlobalBinding() {
 
 void Skybox::updateSubModes() const {
     if (_model) {
-        const auto& subModels = _model->getSubModels();
-        for (const auto& subModel : subModels) {
+        const auto &subModels = _model->getSubModels();
+        for (const auto &subModel : subModels) {
             subModel->update();
         }
     }
