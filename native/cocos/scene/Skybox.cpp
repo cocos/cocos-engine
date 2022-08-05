@@ -424,7 +424,7 @@ void Skybox::updatePipeline() const {
         valueChanged = true;
     }
 
-    if (_model != nullptr && _material != nullptr) {
+    if (isEnabled() && _model != nullptr && _material != nullptr) {
         _model->setSubModelMaterial(0, _material);
     }
 
