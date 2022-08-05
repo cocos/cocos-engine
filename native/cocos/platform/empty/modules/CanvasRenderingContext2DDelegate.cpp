@@ -95,11 +95,11 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     //
 }
 
-void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
+void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     //
 }
 
-void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
+void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     //
 }
 

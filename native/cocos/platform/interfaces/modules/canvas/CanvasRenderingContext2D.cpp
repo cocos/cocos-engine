@@ -370,13 +370,13 @@ void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline
 
 void CanvasRenderingContext2D::setFillStyle(const ccstd::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
-    _delegate->setFillStyle(color.r, color.g, color.b, color.a);
+    _delegate->setFillStyle(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
     //SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::setStrokeStyle(const ccstd::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
-    _delegate->setStrokeStyle(color.r, color.g, color.b, color.a);
+    _delegate->setStrokeStyle(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
 }
 
 void CanvasRenderingContext2D::setShadowBlur(float blur) {
@@ -385,7 +385,7 @@ void CanvasRenderingContext2D::setShadowBlur(float blur) {
 
 void CanvasRenderingContext2D::setShadowColor(const ccstd::string &shadowColor) {
     CSSColorParser::Color color = CSSColorParser::parse(shadowColor);
-    _delegate->setShadowColor(color.r, color.g, color.b, color.a);
+    _delegate->setShadowColor(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
 }
 
 void CanvasRenderingContext2D::setShadowOffsetX(float offsetX) {

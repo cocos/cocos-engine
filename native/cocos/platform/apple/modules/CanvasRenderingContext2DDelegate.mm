@@ -612,12 +612,12 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _impl.textBaseLine = baseline;
 }
 
-void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
-    [_impl setFillStyleWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a];
+void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    [_impl setFillStyleWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a / 255.0f];
 }
 
-void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
-    [_impl setStrokeStyleWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a];
+void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    [_impl setStrokeStyleWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a / 255.0f];
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {
