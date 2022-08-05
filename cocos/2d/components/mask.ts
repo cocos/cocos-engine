@@ -347,6 +347,7 @@ export class Mask extends UIRenderer {
     public onLoad () {
         super.onLoad();
         this._createClearModel();
+        this._changeRenderType();
 
         if (JSB) {
             if (this.renderData && this.subComp) {
