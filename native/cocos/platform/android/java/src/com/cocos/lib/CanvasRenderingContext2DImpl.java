@@ -36,8 +36,6 @@ import android.text.TextPaint;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 
 public class CanvasRenderingContext2DImpl {
@@ -324,10 +322,10 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private void setShadowColor(float r, float g, float b, float a) {
-        mShadowColorR = (int) Math.ceil(r * 255.0f);
-        mShadowColorG = (int) Math.ceil(g * 255.0f);
-        mShadowColorB = (int) Math.ceil(b * 255.0f);
-        mShadowColorA = (int) Math.ceil(a * 255.0f);
+        mShadowColorR = (int) r;
+        mShadowColorG = (int) g;
+        mShadowColorB = (int) b;
+        mShadowColorA = (int) a;
     }
 
     private void setShadowOffsetX(float offsetX) {
@@ -397,7 +395,7 @@ public class CanvasRenderingContext2DImpl {
     private void fillText(String text, float x, float y, float maxWidth) {
 //        Log.d(TAG, "this: " + this + ", fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
-        _configShadow(mTextPaint);
+        configShadow(mTextPaint);
         mTextPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
         mTextPaint.setStyle(Paint.Style.FILL);
         scaleX(mTextPaint, text, maxWidth);
@@ -408,7 +406,7 @@ public class CanvasRenderingContext2DImpl {
     private void strokeText(String text, float x, float y, float maxWidth) {
         // Log.d(TAG, "strokeText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
-        _configShadow(mTextPaint);
+        configShadow(mTextPaint);
         mTextPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mTextPaint.setStyle(Paint.Style.STROKE);
         mTextPaint.setStrokeWidth(mLineWidth);
@@ -417,9 +415,9 @@ public class CanvasRenderingContext2DImpl {
         mCanvas.drawText(text, pt.x, pt.y, mTextPaint);
     }
 
-    private void _configShadow(Paint paint) {
+    private void configShadow(Paint paint) {
         if (mShadowColorA > 0 && (Math.abs(mShadowOffsetX) > Float.MIN_VALUE ||
-                                  Math.abs(mShadowOffsetX) > Float.MIN_VALUE ||
+                                  Math.abs(mShadowOffsetY) > Float.MIN_VALUE ||
                                   mShadowBlur > Float.MIN_VALUE)) {
             paint.setShadowLayer(mShadowBlur, mShadowOffsetX, mShadowOffsetY,
                 Color.argb(mShadowColorA, mShadowColorR, mShadowColorG, mShadowColorB));
@@ -456,18 +454,18 @@ public class CanvasRenderingContext2DImpl {
 
     private void setFillStyle(float r, float g, float b, float a) {
         // Log.d(TAG, "setFillStyle: " + r + ", " + g + ", " + b + ", " + a);
-        mFillStyleR = (int)(r * 255.0f);
-        mFillStyleG = (int)(g * 255.0f);
-        mFillStyleB = (int)(b * 255.0f);
-        mFillStyleA = (int)(a * 255.0f);
+        mFillStyleR = (int) r;
+        mFillStyleG = (int) g;
+        mFillStyleB = (int) b;
+        mFillStyleA = (int) a;
     }
 
     private void setStrokeStyle(float r, float g, float b, float a) {
         // Log.d(TAG, "setStrokeStyle: " + r + ", " + g + ", " + b + ", " + a);
-        mStrokeStyleR = (int)(r * 255.0f);
-        mStrokeStyleG = (int)(g * 255.0f);
-        mStrokeStyleB = (int)(b * 255.0f);
-        mStrokeStyleA = (int)(a * 255.0f);
+        mStrokeStyleR = (int) r;
+        mStrokeStyleG = (int) g;
+        mStrokeStyleB = (int) b;
+        mStrokeStyleA = (int) a;
     }
 
     private void setLineWidth(float lineWidth) {

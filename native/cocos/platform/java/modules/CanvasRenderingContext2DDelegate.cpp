@@ -298,19 +298,35 @@ void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint3
 }
 
 void CanvasRenderingContext2DDelegate::setShadowBlur(float blur) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowBlur", blur);
+#else
+    CC_LOG_WARNING("shadowBlur not implemented");
+#endif
 }
 
 void CanvasRenderingContext2DDelegate::setShadowColor(float r, float g, float b, float a) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowColor", r, g, b, a);
+#else
+    CC_LOG_WARNING("shadowColor not implemented");
+#endif
 }
 
 void CanvasRenderingContext2DDelegate::setShadowOffsetX(float offsetX) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowOffsetX", offsetX);
+#else
+    CC_LOG_WARNING("shadowOffsetX not implemented");
+#endif
 }
 
 void CanvasRenderingContext2DDelegate::setShadowOffsetY(float offsetY) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowOffsetY", offsetY);
+#else
+    CC_LOG_WARNING("shadowOffsetY not implemented");
+#endif
 }
 
 } // namespace cc

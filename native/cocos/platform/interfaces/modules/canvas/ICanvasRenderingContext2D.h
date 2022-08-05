@@ -83,10 +83,10 @@ public:
         virtual void setFillStyle(float r, float g, float b, float a) = 0;
         virtual void setStrokeStyle(float r, float g, float b, float a) = 0;
         virtual void setLineWidth(float lineWidth) = 0;
-        virtual void setShadowBlur(float blur) {}
-        virtual void setShadowColor(float r, float g, float b, float a) {}
-        virtual void setShadowOffsetX(float offsetX) {}
-        virtual void setShadowOffsetY(float offsetY) {}
+        virtual void setShadowBlur(float blur) = 0;
+        virtual void setShadowColor(float r, float g, float b, float a) = 0;
+        virtual void setShadowOffsetX(float offsetX) = 0;
+        virtual void setShadowOffsetY(float offsetY) = 0;
         virtual const cc::Data &getDataRef() const = 0;
         virtual void updateData() = 0;
     };

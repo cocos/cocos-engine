@@ -223,11 +223,11 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
 }
 
 void CanvasRenderingContext2DDelegate::setFillStyle(float r, float g, float b, float a) {
-    _fillStyle = RGBA(r * 255, g * 255, b * 255, a * 255);
+    _fillStyle = RGBA(r, g, b, a);
 }
 
 void CanvasRenderingContext2DDelegate::setStrokeStyle(float r, float g, float b, float a) {
-    _strokeStyle = RGBA(r * 255, g * 255, b * 255, a * 255);
+    _strokeStyle = RGBA(r, g, b, a);
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {

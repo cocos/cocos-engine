@@ -370,19 +370,33 @@ void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline
 
 void CanvasRenderingContext2D::setFillStyle(const ccstd::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
+#if (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     _delegate->setFillStyle(static_cast<float>(color.r) / 255.0F,
                             static_cast<float>(color.g) / 255.0F,
                             static_cast<float>(color.b) / 255.0F,
                             color.a);
+#else
+    _delegate->setFillStyle(static_cast<float>(color.r),
+                            static_cast<float>(color.g),
+                            static_cast<float>(color.b),
+                            color.a * 255);
+#endif
     //SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::setStrokeStyle(const ccstd::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
+#if (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     _delegate->setStrokeStyle(static_cast<float>(color.r) / 255.0F,
                               static_cast<float>(color.g) / 255.0F,
                               static_cast<float>(color.b) / 255.0F,
                               color.a);
+#else
+    _delegate->setStrokeStyle(static_cast<float>(color.r),
+                              static_cast<float>(color.g),
+                              static_cast<float>(color.b),
+                              color.a * 255);
+#endif
 }
 
 void CanvasRenderingContext2D::setShadowBlur(float blur) {
@@ -391,10 +405,17 @@ void CanvasRenderingContext2D::setShadowBlur(float blur) {
 
 void CanvasRenderingContext2D::setShadowColor(const ccstd::string &shadowColor) {
     CSSColorParser::Color color = CSSColorParser::parse(shadowColor);
+#if (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     _delegate->setShadowColor(static_cast<float>(color.r) / 255.0F,
                               static_cast<float>(color.g) / 255.0F,
                               static_cast<float>(color.b) / 255.0F,
                               color.a);
+#else
+    _delegate->setShadowColor(static_cast<float>(color.r),
+                              static_cast<float>(color.g),
+                              static_cast<float>(color.b),
+                              color.a * 255);
+#endif
 }
 
 void CanvasRenderingContext2D::setShadowOffsetX(float offsetX) {

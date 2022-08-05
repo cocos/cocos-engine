@@ -306,22 +306,6 @@ public class CanvasRenderingContext2DImpl {
         mLineJoin = lineJoin;
     }
 
-    public void setShadowBlur(float blur) {
-        //
-    }
-
-    public void setShadowColor(float r, float g, float b, float a) {
-        //
-    }
-
-    public void setShadowOffsetX(float offsetX) {
-        //
-    }
-
-    public void setShadowOffsetY(float offsetY) {
-        //
-    }
-
     public void saveContext() {
         mCanvas.save();
     }
@@ -434,17 +418,17 @@ public class CanvasRenderingContext2DImpl {
     }
 
     public void setFillStyle(float r, float g, float b, float a) {
-        mFillStyleR = (int) (r * 255.0f);
-        mFillStyleG = (int) (g * 255.0f);
-        mFillStyleB = (int) (b * 255.0f);
-        mFillStyleA = (int) (a * 255.0f);
+        mFillStyleR = (int) r;
+        mFillStyleG = (int) g;
+        mFillStyleB = (int) b;
+        mFillStyleA = (int) a;
     }
 
     public void setStrokeStyle(float r, float g, float b, float a) {
-        mStrokeStyleR = (int) (r * 255.0f);
-        mStrokeStyleG = (int) (g * 255.0f);
-        mStrokeStyleB = (int) (b * 255.0f);
-        mStrokeStyleA = (int) (a * 255.0f);
+        mStrokeStyleR = (int) r;
+        mStrokeStyleG = (int) g;
+        mStrokeStyleB = (int) b;
+        mStrokeStyleA = (int) a;
     }
 
     public void setLineWidth(float lineWidth) {

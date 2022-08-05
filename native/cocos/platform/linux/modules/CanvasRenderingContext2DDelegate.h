@@ -79,6 +79,10 @@ public:
     void strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void rect(float x, float y, float w, float h) override;
     void updateData() override {}
+    void setShadowBlur(float blur) override {}
+    void setShadowColor(float r, float g, float b, float a) override {}
+    void setShadowOffsetX(float offsetX) override {}
+    void setShadowOffsetY(float offsetY) override {}
 
 private:
     static wchar_t *utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);

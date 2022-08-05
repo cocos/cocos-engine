@@ -75,27 +75,13 @@ public:
     void strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void rect(float x, float y, float w, float h) override;
     void updateData() override {}
+    void setShadowBlur(float blur) override {}
+    void setShadowColor(float r, float g, float b, float a) override {}
+    void setShadowOffsetX(float offsetX) override {}
+    void setShadowOffsetY(float offsetY) override {}
 
 private:
-    int32_t _x{0};
-    int32_t _y{0};
-    int32_t _lineCap{0};
-    int32_t _lineJoin{0};
-
     cc::Data _imageData;
-    ccstd::string _curFontPath;
-    int _savedDC{0};
-    float _lineWidth{0.0F};
-    float _bufferWidth{0.0F};
-    float _bufferHeight{0.0F};
-
-    ccstd::string _fontName;
-    int _fontSize{0};
-    Size _textSize;
-    TextAlign _textAlign{TextAlign::CENTER};
-    TextBaseline _textBaseLine{TextBaseline::TOP};
-    unsigned long _fillStyle{0};
-    unsigned long _strokeStyle{0};
 };
 
 } // namespace cc
