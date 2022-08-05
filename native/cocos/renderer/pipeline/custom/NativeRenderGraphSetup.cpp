@@ -143,134 +143,77 @@ render::NameLocalID getNameID(
     return iter->second;
 }
 
-ccstd::pmr::vector<uint8_t>& getConstantData(RenderData& data, boost::string_view name) {
-    auto iter = data.constants.find(name);
-    if (iter == data.constants.end()) {
-        bool added = false;
-        std::tie(iter, added) = data.constants.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.data()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    return iter->second;
-}
-
 void addMat4(
     const LayoutGraphData &lg, boost::string_view name,
     const cc::Mat4 &v, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
-    auto &buffer = getConstantData(data, name);
-    buffer.resize(sizeof(Mat4));
-    memcpy(buffer.data(), v.m, sizeof(v));
+    data.constants[nameID.value].resize(sizeof(Mat4));
+    memcpy(data.constants[nameID.value].data(), v.m, sizeof(v));
 }
 
 void addQuaternion(const LayoutGraphData &lg, const ccstd::string &name, const Quaternion &quat, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(Quaternion) == 4 * 4, "sizeof(Quaternion) is not 16 bytes");
     static_assert(std::is_trivially_copyable<Quaternion>::value, "Quaternion is not trivially copyable");
-    auto &buffer = getConstantData(data, name);
-    buffer.resize(sizeof(Quaternion));
-    memcpy(buffer.data(), &quat, sizeof(quat));
+    data.constants[nameID.value].resize(sizeof(Quaternion));
+    memcpy(data.constants[nameID.value].data(), &quat, sizeof(quat));
 }
 
 void addColor(const LayoutGraphData &lg, const ccstd::string &name, const gfx::Color &color, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(gfx::Color) == 4 * 4, "sizeof(Color) is not 16 bytes");
     static_assert(std::is_trivially_copyable<gfx::Color>::value, "Color is not trivially copyable");
-    auto &buffer = getConstantData(data, name);
-    buffer.resize(sizeof(gfx::Color));
-    memcpy(buffer.data(), &color, sizeof(color));
+    data.constants[nameID.value].resize(sizeof(gfx::Color));
+    memcpy(data.constants[nameID.value].data(), &color, sizeof(color));
 }
 
 void addVec4(const LayoutGraphData &lg, const ccstd::string &name, const Vec4 &vec, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
     // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
-    auto &buffer = getConstantData(data, name);
-    buffer.resize(sizeof(Vec4));
-    memcpy(buffer.data(), &vec.x, sizeof(vec));
+    data.constants[nameID.value].resize(sizeof(Vec4));
+    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
 }
 
 void addVec2(const LayoutGraphData &lg, const ccstd::string &name, const Vec2 &vec, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(Vec2) == 2 * 4, "sizeof(Vec2) is not 8 bytes");
     // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec2 is not trivially copyable");
-    auto &buffer = getConstantData(data, name);
-    buffer.resize(sizeof(Vec2));
-    memcpy(buffer.data(), &vec.x, sizeof(vec));
+    data.constants[nameID.value].resize(sizeof(Vec2));
+    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
 }
 
 void addFloat(const LayoutGraphData &lg, const ccstd::string &name, float v, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(float) == 4, "sizeof(float) is not 4 bytes");
-    auto &buffer = getConstantData(data, name);
-    buffer.resize(sizeof(float));
-    memcpy(buffer.data(), &v, sizeof(v));
-}
-
-IntrusivePtr<gfx::Buffer>& getBuffer(RenderData& data, boost::string_view name) {
-    auto iter = data.buffers.find(name);
-    if (iter == data.buffers.end()) {
-        bool added = false;
-        std::tie(iter, added) = data.buffers.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.data()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    return iter->second;
-}
-
-IntrusivePtr<gfx::Texture>& getTexture(RenderData& data, boost::string_view name) {
-    auto iter = data.textures.find(name);
-    if (iter == data.textures.end()) {
-        bool added = false;
-        std::tie(iter, added) = data.textures.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.data()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    return iter->second;
-}
-
-ObserverPtr<gfx::Sampler>& getSampler(RenderData& data, boost::string_view name) {
-    auto iter = data.samplers.find(name);
-    if (iter == data.samplers.end()) {
-        bool added = false;
-        std::tie(iter, added) = data.samplers.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.data()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    return iter->second;
+    data.constants[nameID.value].resize(sizeof(float));
+    memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
 }
 
 void addBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
     auto nameID = getNameID(lg.attributeIndex, name);
-    getBuffer(data, name) = IntrusivePtr<gfx::Buffer>(buffer);
+    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
 }
 
 void addTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
     auto nameID = getNameID(lg.attributeIndex, name);
-   getTexture(data, name) = IntrusivePtr<gfx::Texture>(texture);
+    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
 }
 
 void addReadWriteBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
     auto nameID = getNameID(lg.attributeIndex, name);
-    getBuffer(data, name) = IntrusivePtr<gfx::Buffer>(buffer);
+    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
 }
 
 void addReadWriteTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
     auto nameID = getNameID(lg.attributeIndex, name);
-    getTexture(data, name) = IntrusivePtr<gfx::Texture>(texture);
+    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
 }
 
 void addSampler(const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler, RenderData &data) {
     auto nameID = getNameID(lg.attributeIndex, name);
-    getSampler(data, name).ptr = sampler;
+    data.samplers[nameID.value].ptr = sampler;
 }
 
 } // namespace
