@@ -52,7 +52,6 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
     }
 
     _size = ceil(info.size / 4.0) * 4;
-    printf("buffer size %d\n", _size);
 
     WGPUBufferDescriptor descriptor = {
         .nextInChain = nullptr,
@@ -73,6 +72,7 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
     }
 
     _gpuBufferObject->wgpuBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize += _size;
     _internalChanged = true;
 } // namespace gfx
 
@@ -86,6 +86,7 @@ void CCWGPUBuffer::doDestroy() {
     if (_gpuBufferObject) {
         if (_gpuBufferObject->wgpuBuffer) {
             wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
+            CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
         }
         delete _gpuBufferObject;
     }
@@ -100,6 +101,7 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
     if (_gpuBufferObject->wgpuBuffer) {
         wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
     }
+    CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         const size_t drawInfoCount = _size / sizeof(DrawInfo);
@@ -116,8 +118,8 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         .size = _size,
         .mappedAtCreation = false, // hasFlag(_memUsage, MemoryUsageBit::DEVICE),
     };
-    printf("buffer resize %d\n", _size);
     _gpuBufferObject->wgpuBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize += _size;
 
     _internalChanged = true;
 } // namespace gfx

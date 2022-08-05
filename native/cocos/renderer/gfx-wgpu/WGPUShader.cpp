@@ -42,7 +42,7 @@ namespace gfx {
 using namespace emscripten;
 SPIRVUtils *CCWGPUShader::spirv = nullptr;
 
-CCWGPUShader::CCWGPUShader() : wrapper<Shader>(val::object()) {
+CCWGPUShader::CCWGPUShader() : Shader() {
 }
 
 void CCWGPUShader::initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs) {

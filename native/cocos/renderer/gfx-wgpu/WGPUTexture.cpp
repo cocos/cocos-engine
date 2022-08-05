@@ -62,6 +62,7 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
     };
 
     _gpuTextureObj->wgpuTexture = wgpuDeviceCreateTexture(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += _size;
 
     WGPUTextureViewDescriptor texViewDesc = {
         .nextInChain = nullptr,
@@ -114,6 +115,7 @@ void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
                 .sampleCount = 1,
             };
             _gpuTextureObj->wgpuTexture = wgpuDeviceCreateTexture(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+            CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += _size;
 
             WGPUTextureAspect aspect = info.format == Format::DEPTH ? WGPUTextureAspect_DepthOnly : WGPUTextureAspect_All;
             WGPUTextureViewDescriptor texViewDesc = {
@@ -140,6 +142,7 @@ void CCWGPUTexture::doDestroy() {
         if (_gpuTextureObj->wgpuTexture) {
             wgpuTextureDestroy(_gpuTextureObj->wgpuTexture);
             wgpuTextureRelease(_gpuTextureObj->wgpuTexture);
+            CCWGPUDevice::getInstance()->getMemoryStatus().textureSize -= _size;
         }
         if (_gpuTextureObj->wgpuTextureView) {
             wgpuTextureViewRelease(_gpuTextureObj->wgpuTextureView);
@@ -175,6 +178,9 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (_gpuTextureObj->selfView) {
         wgpuTextureViewRelease(_gpuTextureObj->selfView);
     }
+
+    CCWGPUDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+    CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += size;
 
     uint8_t depthOrArrayLayers = _info.depth;
     if (_info.type == TextureType::CUBE) {

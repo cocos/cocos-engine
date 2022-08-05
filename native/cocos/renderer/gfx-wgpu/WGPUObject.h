@@ -193,7 +193,6 @@ struct CCWGPUQueueObject {
 };
 
 struct CCWGPUDescriptorSetObject {
-    uint32_t index = 0;
     CCWGPUDescriptorSet *descriptorSet = nullptr;
     uint32_t dynamicOffsetCount = 0;
     const uint32_t *dynamicOffsets = nullptr;

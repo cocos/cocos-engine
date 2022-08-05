@@ -437,6 +437,20 @@ CommandBuffer.prototype.bindDescriptorSet = function (set: number, descriptorSet
     }
 };
 
+const oldDeviceCopyBuffersToTexture = Device.prototype.copyBuffersToTexture;
+Device.prototype.copyBuffersToTexture = function (buffers: Readonly<ArrayBufferView[]>, texture: typeof Texture, regions: Readonly<BufferTextureCopy[]>) {
+    const ucharBuffers: Uint8Array[] = [];
+    for (let i = 0; i < buffers.length; ++i) {
+        const buffer = buffers[i];
+        if ('buffer' in buffer) {
+            ucharBuffers.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
+        } else {
+            ucharBuffers.push(new Uint8Array(buffer as any));
+        }
+    }
+    oldDeviceCopyBuffersToTexture.call(this, ucharBuffers, texture, regions);
+};
+
 Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[], texture: typeof Texture, regions: BufferTextureCopy[]) {
     const buffers: Uint8Array[] = [];
     for (let i = 0; i < regions.length; i++) {

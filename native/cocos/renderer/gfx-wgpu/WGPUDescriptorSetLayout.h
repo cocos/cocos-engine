@@ -62,6 +62,10 @@ public:
 
     )
 
+    ccstd::hash_t getHash() {
+        return _hash;
+    }
+
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;

@@ -35,7 +35,7 @@ namespace gfx {
 
 using namespace emscripten;
 
-CCWGPUQueue::CCWGPUQueue() : wrapper<Queue>(val::object()) {
+CCWGPUQueue::CCWGPUQueue() : Queue() {
 }
 
 void CCWGPUQueue::doInit(const QueueInfo &info) {
@@ -64,6 +64,13 @@ void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     //     auto* commandBuff = static_cast<CCWGPUCommandBuffer*>(cmdBuffs[i]);
     //     wgpuCommandBufferRelease(commandBuff->gpuCommandBufferObject()->wgpuCommandBuffer);
     // }
+
+    for (size_t i = 0; i < count; ++i) {
+        const auto *cmdBuff = cmdBuffs[i];
+        _numDrawCalls += cmdBuff->getNumDrawCalls();
+        _numInstances += cmdBuff->getNumInstances();
+        _numTriangles += cmdBuff->getNumTris();
+    }
 }
 
 } // namespace gfx

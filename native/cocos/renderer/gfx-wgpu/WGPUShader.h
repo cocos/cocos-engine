@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-
-#include <emscripten/bind.h>
-#include "WGPUDef.h"
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "gfx-base/GFXShader.h"
 
 namespace cc {
@@ -35,9 +35,8 @@ namespace gfx {
 struct CCWGPUShaderObject;
 class SPIRVUtils;
 
-class CCWGPUShader final : public emscripten::wrapper<Shader> {
+class CCWGPUShader final : public Shader {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUShader);
     CCWGPUShader();
     ~CCWGPUShader() = default;
 

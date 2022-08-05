@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineState.h"
 
@@ -33,7 +35,7 @@ namespace gfx {
 
 struct CCWGPUPipelineStateObject;
 
-class CCWGPUPipelineState final : public emscripten::wrapper<PipelineState> {
+class CCWGPUPipelineState final : public PipelineState {
 public:
     CCWGPUPipelineState();
     ~CCWGPUPipelineState() = default;

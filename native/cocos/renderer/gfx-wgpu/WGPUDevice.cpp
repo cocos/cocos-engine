@@ -334,6 +334,11 @@ Sampler *CCWGPUDevice::createSampler(const SamplerInfo &info) {
 }
 
 void CCWGPUDevice::present() {
+    auto *queue = static_cast<CCWGPUQueue *>(_queue);
+    _numDrawCalls = queue->getNumDrawCalls();
+    _numInstances = queue->getNumInstances();
+    _numTriangles = queue->getNumTris();
+    queue->resetStatus();
 }
 
 void CCWGPUDevice::getQueryPoolResults(QueryPool *queryPool) {

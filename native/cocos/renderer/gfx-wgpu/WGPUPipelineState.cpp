@@ -40,7 +40,7 @@ namespace gfx {
 
 using namespace emscripten;
 
-CCWGPUPipelineState::CCWGPUPipelineState() : wrapper<PipelineState>(val::object()) {
+CCWGPUPipelineState::CCWGPUPipelineState() : PipelineState() {
 }
 
 void CCWGPUPipelineState::doInit(const PipelineStateInfo &info) {
@@ -148,13 +148,6 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             };
         }
 
-        // WGPUVertexBufferLayout vertexBufferLayout = {
-        //     .arrayStride    = stride, // TODO_Zeqiang: ???
-        //     .stepMode       = isInstance ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex,
-        //     .attributeCount = wgpuAttrs.size(),
-        //     .attributes     = wgpuAttrs.data(),
-        // };
-
         WGPUVertexState vertexState = {
             .nextInChain = nullptr,
             .module = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderVertexModule,
@@ -241,18 +234,10 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         };
 
         pipelineLayout->prepare(setInUse);
-        // const auto setLayouts = pipelineLayout->getSetLayouts();
-        // for (size_t i = 0; i < setLayouts.size(); ++i) {
-        //     const auto* layout = setLayouts[i];
-        //     if (layout) {
-        //         printf("---set %d---\n", i);
-        //         static_cast<const CCWGPUDescriptorSetLayout*>(layout)->print();
-        //     }
-        // }
 
         WGPURenderPipelineDescriptor piplineDesc = {
             .nextInChain = nullptr,
-            .label = nullptr,
+            .label = static_cast<CCWGPUShader *>(_shader)->getName().c_str(),
             .layout = pipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout,
             .vertex = vertexState,
             .primitive = primitiveState,
@@ -260,6 +245,8 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .multisample = msState,
             .fragment = &fragmentState,
         };
+
+        printf("ppl %s\n", static_cast<CCWGPUShader *>(_shader)->getName().c_str());
         _gpuPipelineStateObj->wgpuRenderPipeline = wgpuDeviceCreateRenderPipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
         _ppl = pipelineLayout;
         _forceUpdate = false;

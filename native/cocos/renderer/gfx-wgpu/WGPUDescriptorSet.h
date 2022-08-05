@@ -58,9 +58,11 @@ public:
 
     // ems export
 
-    // void* bgl() const{return _bgl;}
+    void *bgl() const { return _bgl; }
 
     // DescriptorSetLayout* local()const {return _local;}
+
+    void *ccbgl() const { return _ccbgl; }
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
@@ -75,7 +77,9 @@ protected:
     // dynamic offsets, inuse ? 1 : 0;
     Pairs _dynamicOffsets;
 
-    // void* _bgl = nullptr;
+    void *_bgl = nullptr;
+
+    void *_ccbgl = nullptr;
 
     // DescriptorSetLayout* _local = nullptr;
 };

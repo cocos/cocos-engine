@@ -36,6 +36,7 @@
 #include "WGPUPipelineLayout.h"
 #include "WGPUPipelineState.h"
 #include "WGPUQueue.h"
+#include "WGPUShader.h"
 #include "WGPUSwapchain.h"
 #include "WGPUTexture.h"
 #include "WGPUUtils.h"
@@ -54,6 +55,7 @@ void CCWGPUCommandBuffer::doInit(const CommandBufferInfo &info) {
     _gpuCommandBufferObj = ccnew CCWGPUCommandBufferObject;
     _gpuCommandBufferObj->type = info.type;
     _gpuCommandBufferObj->queue = static_cast<CCWGPUQueue *>(info.queue);
+    _gpuCommandBufferObj->stateCache.descriptorSets.resize(4); //(info.queue->getDevice()->getMaxDescriptorSetLayoutBindings());
 }
 
 void CCWGPUCommandBuffer::doDestroy() {
@@ -71,6 +73,10 @@ void CCWGPUCommandBuffer::doDestroy() {
 void CCWGPUCommandBuffer::begin(RenderPass * /*renderPass*/, uint32_t /*subpass*/, Framebuffer * /*frameBuffer*/) {
     // TODO_Zeqiang: subpass support
     //    printf("begin\n");
+    _numTriangles = 0;
+    _numDrawCalls = 0;
+    _numInstances = 0;
+
     _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
 }
 
@@ -188,7 +194,11 @@ void CCWGPUCommandBuffer::endRenderPass() {
     wgpuRenderPassEncoderRelease(_gpuCommandBufferObj->wgpuRenderPassEncoder);
     _gpuCommandBufferObj->wgpuRenderPassEncoder = wgpuDefaultHandle;
 
-    _gpuCommandBufferObj->stateCache.descriptorSets.clear();
+    for (auto &descObj : _gpuCommandBufferObj->stateCache.descriptorSets) {
+        descObj.descriptorSet = nullptr;
+        descObj.dynamicOffsetCount = 0;
+        descObj.dynamicOffsets = nullptr;
+    }
     _gpuCommandBufferObj->renderPassBegan = false;
 }
 
@@ -200,9 +210,6 @@ void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descrip
     uint32_t dynOffsetCount = dynamicOffsetCount;
     const uint32_t *dynOffsets = dynamicOffsets;
     auto &descriptorSets = _gpuCommandBufferObj->stateCache.descriptorSets;
-    auto iter = std::find_if(descriptorSets.begin(), descriptorSets.end(), [set](const CCWGPUDescriptorSetObject &descriptorSet) {
-        return descriptorSet.index == set;
-    });
 
     auto *ccDescriptorSet = static_cast<CCWGPUDescriptorSet *>(descriptorSet);
     if (ccDescriptorSet->dynamicOffsetCount() == 0) {
@@ -211,17 +218,12 @@ void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descrip
     }
 
     CCWGPUDescriptorSetObject dsObj = {
-        .index = set,
         .descriptorSet = ccDescriptorSet,
         .dynamicOffsetCount = dynOffsetCount, // dynamicOffsetCount,
         .dynamicOffsets = dynOffsets,         // dynamicOffsets,
     };
 
-    if (iter != descriptorSets.end()) {
-        (*iter) = dsObj;
-    } else {
-        descriptorSets.push_back(dsObj);
-    }
+    descriptorSets[set] = dsObj;
 }
 
 void CCWGPUCommandBuffer::bindInputAssembler(InputAssembler *ia) {
@@ -271,49 +273,52 @@ void CCWGPUCommandBuffer::bindStates() {
     }
 
     ccstd::set<uint8_t> setInUse;
-    for (const auto &descriptorSet : _gpuCommandBufferObj->stateCache.descriptorSets) {
-        setInUse.insert(descriptorSet.index);
+    for (size_t i = 0; i < _gpuCommandBufferObj->stateCache.descriptorSets.size(); i++) {
+        auto &descriptorSetObj = _gpuCommandBufferObj->stateCache.descriptorSets[i];
+        if (descriptorSetObj.descriptorSet) {
+            setInUse.insert(i);
+        }
     }
 
     // printf("ppl binding %p\n", pipelineState);
 
-    // ccstd::vector<void*> wgpuLayouts;
+    ccstd::vector<void *> wgpuLayouts(3);
 
     if (pipelineState->getBindPoint() == PipelineBindPoint::GRAPHICS) {
         // bindgroup & descriptorset
         const auto &descriptorSets = _gpuCommandBufferObj->stateCache.descriptorSets;
         for (size_t i = 0; i < descriptorSets.size(); i++) {
-            descriptorSets[i].descriptorSet->prepare();
+            if (descriptorSets[i].descriptorSet) {
+                descriptorSets[i].descriptorSet->prepare();
 
-            if (descriptorSets[i].descriptorSet->dynamicOffsetCount() != descriptorSets[i].dynamicOffsetCount) {
-                uint32_t *dynOffsets = dynamicOffsetBuffer;
-                const Pairs &dynamicOffsets = descriptorSets[i].descriptorSet->dynamicOffsets();
-                uint32_t givenOffsetIndex = 0;
-                for (size_t j = 0; j < descriptorSets[i].descriptorSet->dynamicOffsetCount(); ++j) {
-                    if (j >= descriptorSets[i].dynamicOffsetCount || dynamicOffsets[j].second == 0) {
-                        dynOffsets[j] = 0;
-                    } else {
-                        dynOffsets[j] = descriptorSets[i].dynamicOffsets[givenOffsetIndex++];
+                if (descriptorSets[i].descriptorSet->dynamicOffsetCount() != descriptorSets[i].dynamicOffsetCount) {
+                    uint32_t *dynOffsets = dynamicOffsetBuffer;
+                    const Pairs &dynamicOffsets = descriptorSets[i].descriptorSet->dynamicOffsets();
+                    uint32_t givenOffsetIndex = 0;
+                    for (size_t j = 0; j < descriptorSets[i].descriptorSet->dynamicOffsetCount(); ++j) {
+                        if (j >= descriptorSets[i].dynamicOffsetCount || dynamicOffsets[j].second == 0) {
+                            dynOffsets[j] = 0;
+                        } else {
+                            dynOffsets[j] = descriptorSets[i].dynamicOffsets[givenOffsetIndex++];
+                        }
                     }
-                }
-                // printf("set %d %p %p\n", descriptorSets[i].index, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
-                //     descriptorSets[i].descriptorSet->bgl());
-                // wgpuLayouts.push_back(descriptorSets[i].descriptorSet->bgl());
-                wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
-                                                  descriptorSets[i].index,
-                                                  descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
-                                                  descriptorSets[i].descriptorSet->dynamicOffsetCount(),
-                                                  dynOffsets);
+                    // printf("set %d %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup);
+                    wgpuLayouts[i] = descriptorSets[i].descriptorSet->bgl();
+                    wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
+                                                      i,
+                                                      descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
+                                                      descriptorSets[i].descriptorSet->dynamicOffsetCount(),
+                                                      dynOffsets);
 
-            } else {
-                wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
-                                                  descriptorSets[i].index,
-                                                  descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
-                                                  descriptorSets[i].dynamicOffsetCount,
-                                                  descriptorSets[i].dynamicOffsets);
-                //   printf("set %d %p %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
-                //   descriptorSets[i].descriptorSet->bgl());
-                //   wgpuLayouts.push_back(descriptorSets[i].descriptorSet->bgl());
+                } else {
+                    wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
+                                                      i,
+                                                      descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
+                                                      descriptorSets[i].dynamicOffsetCount,
+                                                      descriptorSets[i].dynamicOffsets);
+                    // printf("set2 %d %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup);
+                    wgpuLayouts[i] = descriptorSets[i].descriptorSet->bgl();
+                }
             }
         }
 
@@ -327,28 +332,35 @@ void CCWGPUCommandBuffer::bindStates() {
                                                       static_cast<WGPUBindGroup>(CCWGPUDescriptorSet::defaultBindGroup()),
                                                       0,
                                                       nullptr);
-                    //   printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
-                    //   wgpuLayouts.push_back(CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
+                    // printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
+                    wgpuLayouts[i] = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
                 }
             }
         }
         pipelineState->check(_renderPass);
         pipelineState->prepare(setInUse);
 
-        // printf("ppshn: %s\n", static_cast<CCWGPUShader*>(pipelineState->getShader())->gpuShaderObject()->name.c_str());
+        // printf("ppshn: %s\n", static_cast<CCWGPUShader *>(pipelineState->getShader())->gpuShaderObject()->name.c_str());
 
         const auto &pplLayout = static_cast<const CCWGPUPipelineLayout *>(pipelineState->ppl());
-        // for(size_t i = 0; i < pplLayout->layouts().size(); ++i) {
+        // for (size_t i = 0; i < pplLayout->layouts().size(); ++i) {
         //     // printf("bgl in ppl: %p\n", pplLayout->layouts()[i]);
-        //     if(pplLayout->layouts()[i] != wgpuLayouts[i]) {
+        //     if (pplLayout->layouts()[i] != wgpuLayouts[i]) {
         //         printf("oooooooooooops %d %p %p\n", i, pplLayout->layouts()[i], wgpuLayouts[i]);
-        //         static_cast<CCWGPUDescriptorSetLayout*>(descriptorSets[i].descriptorSet->getLayout())->print();
-        //         static_cast<CCWGPUDescriptorSetLayout*>(pplLayout->getSetLayouts()[i])->print();
+        //         if (setInUse.find(i) != setInUse.end()) {
+        //             printf("setlayout %p, %p\n", pplLayout->cclayouts()[i], descriptorSets[i].descriptorSet->ccbgl());
+
+        //             auto *lytInPpl = static_cast<CCWGPUDescriptorSetLayout *>(pplLayout->cclayouts()[i]);
+        //             auto *lytInSet = static_cast<CCWGPUDescriptorSetLayout *>(descriptorSets[i].descriptorSet->ccbgl());
+        //             printf("hash %d, %d\n", lytInPpl->getHash(), lytInSet->getHash());
+        //             lytInPpl->print();
+        //             lytInSet->print();
+        //         } else
+        //             printf("set %d not in use\n");
+        //         // static_cast<CCWGPUDescriptorSetLayout *>(pplLayout->getSetLayouts()[i])->print();
         //     }
         // }
-        // if(pipelineState->ppl() != pipelineState->getPipelineLayout()){
-        //     printf("oooooooooooooooooooooooooooooooops\n");
-        // }
+
         // pipeline state
         wgpuRenderPassEncoderSetPipeline(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                          pipelineState->gpuPipelineStateObject()->wgpuRenderPipeline);
@@ -382,6 +394,7 @@ void CCWGPUCommandBuffer::bindStates() {
                     buffer = ccnew CCWGPUBuffer;
                     buffer->initialize(info);
                     _gpuCommandBufferObj->redundantVertexBufferMap.insert({maxAttrLen, buffer});
+                    printf("new vert buffer\n");
                 }
                 wgpuRenderPassEncoderSetVertexBuffer(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                                      vertexBufferList.size(),
@@ -447,7 +460,7 @@ void CCWGPUCommandBuffer::bindStates() {
         for (size_t i = 0; i < descriptorSets.size(); i++) {
             if (descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup) {
                 wgpuComputePassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuComputeEncoder,
-                                                   descriptorSets[i].index,
+                                                   i,
                                                    descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
                                                    descriptorSets[i].dynamicOffsetCount,
                                                    descriptorSets[i].dynamicOffsets);
@@ -507,20 +520,37 @@ void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
     } else {
         auto *indexBuffer = static_cast<CCWGPUBuffer *>(ia->getIndexBuffer());
         bool drawIndexed = indexBuffer && info.indexCount;
+        uint32_t instanceCount = std::max(info.instanceCount, 1U);
 
         if (drawIndexed) {
             wgpuRenderPassEncoderDrawIndexed(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                              info.indexCount,
-                                             info.instanceCount > 1 ? info.instanceCount : 1,
+                                             instanceCount,
                                              info.firstIndex,
                                              info.vertexOffset,
                                              info.firstInstance);
         } else {
             wgpuRenderPassEncoderDraw(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                       info.vertexCount,
-                                      info.instanceCount > 1 ? info.instanceCount : 1,
+                                      instanceCount,
                                       info.firstVertex,
                                       info.firstInstance);
+        }
+
+        ++_numDrawCalls;
+        _numInstances += info.instanceCount;
+        if (_gpuCommandBufferObj->stateCache.pipelineState) {
+            uint32_t indexCount = drawIndexed ? info.indexCount : info.vertexCount;
+            switch (_gpuCommandBufferObj->stateCache.pipelineState->getPrimitive()) {
+                case PrimitiveMode::TRIANGLE_LIST:
+                    _numTriangles += indexCount / 3 * instanceCount;
+                    break;
+                case PrimitiveMode::TRIANGLE_STRIP:
+                case PrimitiveMode::TRIANGLE_FAN:
+                    _numTriangles += (indexCount - 2) * instanceCount;
+                    break;
+                default: break;
+            }
         }
     }
 }
@@ -644,7 +674,7 @@ void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, 
 }
 
 void CCWGPUCommandBuffer::execute(CommandBuffer *const * /*cmdBuffs*/, uint32_t /*count*/) {
-    printf(".....");
+    printf(".....\n");
 }
 
 void CCWGPUCommandBuffer::dispatch(const DispatchInfo &info) {
