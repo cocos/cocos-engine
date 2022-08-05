@@ -180,11 +180,19 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
 }
 
 void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
-    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setFillStyle", (jint) r, (jint) g, (jint) b, (jint) (a * 255));
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setFillStyle",
+                                    static_cast<jint> (r),
+                                    static_cast<jint> (g),
+                                    static_cast<jint> (b),
+                                    static_cast<jint>(a * 255));
 }
 
 void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
-    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setStrokeStyle", (jint) r, (jint) g, (jint) b, (jint) (a * 255));
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setStrokeStyle",
+                                    static_cast<jint> (r),
+                                    static_cast<jint> ( g),
+                                    static_cast<jint> (b),
+                                    static_cast<jint>(a * 255));
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {
@@ -307,7 +315,11 @@ void CanvasRenderingContext2DDelegate::setShadowBlur(float blur) {
 
 void CanvasRenderingContext2DDelegate::setShadowColor(uint8_t r, uint8_t g, uint8_t b, float a) {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowColor", (jint) r, (jint) g, (jint) b, (jint) (a * 255));
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowColor",
+                                    static_cast<jint> (r),
+                                    static_cast<jint> (g),
+                                    static_cast<jint> (b),
+                                    static_cast<jint> (a * 255));
 #else
     CC_LOG_WARNING("shadowColor not implemented");
 #endif
