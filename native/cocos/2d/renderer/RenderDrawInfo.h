@@ -218,7 +218,6 @@ public:
     inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
     void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
 
-private:
     inline void resetDrawInfo() {
         destroy();
 
@@ -245,6 +244,7 @@ private:
         _sharedBuffer = nullptr;
     }
 
+private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
     void destroy();
 
