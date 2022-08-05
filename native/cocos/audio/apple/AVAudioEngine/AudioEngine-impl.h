@@ -25,12 +25,13 @@
 ****************************************************************************/
 
 #pragma once
+#include <sys/_types/_int32_t.h>
 #include <cstdint>
-#include "base/std/container/unordered_map.h"
 #include <functional>
-#include "base/RefCounted.h"
-#include "audio/apple/AVAudioEngine/AudioPlayer.h"
 #include "audio/apple/AVAudioEngine/AudioCache.h"
+#include "audio/apple/AVAudioEngine/AudioPlayer.h"
+#include "base/RefCounted.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 class Scheduler;
@@ -38,19 +39,18 @@ class Scheduler;
 /**
  @common
  */
-typedef std::function<void(uint32_t, const ccstd::string &)> FinishCallback;
-typedef std::function<void(bool)> LoadCallback;
-#define MAX_AUDIOINSTANCES 80
+
+#define MAX_AUDIOINSTANCES 24
 
 class AudioEngineImpl : public cc::RefCounted {
 public:
     AudioEngineImpl();
-    ~AudioEngineImpl();
+    ~AudioEngineImpl() override;
 
     // Life cycle related
     bool init();
     bool release();
-    
+
     /**
      @deprecated
      Play2d is a terrible method specification, it contains 3 steps at once.
@@ -59,54 +59,46 @@ public:
      3. Play audio.
      The audio engine should actually make these steps accessible, and then developers can control themselves.
      */
-    int play2d(const ccstd::string &fileFullPath, bool loop, float volume);
-    
-    int32_t getUsablePlayer();
-    
+    int32_t play2d(const ccstd::string &filePath, bool loop, float volume);
+
     // Register audio with fileFullPath
-    int registerAudio();
-    
-    // Cache audio with audioID specified.
-//    bool cacheAudio(uint32_t audioID);
-    
+    int32_t createAudioPlayer();
+
     /**
      * Player control.
      */
     // Play from the beginning
-    bool play(int32_t audioID, bool loop, float volume);
+    void play(int32_t audioID, bool loop, float volume);
     void setVolume(int32_t audioID, float volume);
     float getVolume(int32_t audioID);
     void setLoop(int32_t audioID, bool loop);
     bool isLoop(int32_t audioID);
-    bool pause(int32_t audioID);
-    bool resume(int32_t audioID);
+    void pause(int32_t audioID);
+    void resume(int32_t audioID);
     void stop(int32_t audioID);
     void stopAll();
     float getDuration(int32_t audioID);
-    float getDurationFromFile(const ccstd::string &fileFullPath);
+    float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int32_t audioID);
     bool setCurrentTime(int32_t audioID, float time);
     void setFinishCallback(int32_t audioID, const FinishCallback &callback);
 
     void uncache(const ccstd::string &filePath);
     void uncacheAll();
-    PCMHeader getPCMHeader(const char* url);
-    ccstd::vector<uint8_t> getOriginalPCMBuffer(char const* url, uint32_t channelID);
+    PCMHeader getPCMHeader(const char *url);
+    ccstd::vector<uint8_t> getOriginalPCMBuffer(char const *url, uint32_t channelID);
     // return CacheID
-    AudioCache* forceLoad(const ccstd::string &filePath, const LoadCallback &callback);
-    AudioCache* preload(const ccstd::string &filePath, const LoadCallback &callback);
-    void update(float dt);
+    AudioCache *preload(const ccstd::string &filePath, const LoadCallback &callback, bool isSync = false);
+    void update();
 
 private:
     bool checkAudioIdValid(int32_t audioID);
-    std::unordered_map<int32_t, AudioPlayer*> _players;
-    std::unordered_map<std::string, AudioCache*> _caches;
-    std::unordered_map<int32_t, AudioPlayer*> _unusedPlayers;
+    std::unordered_map<int32_t, AudioPlayer *> _players;
+    std::unordered_map<std::string, AudioCache *> _caches;
+    std::unordered_map<int32_t, AudioPlayer *> _unusedPlayers;
     std::weak_ptr<Scheduler> _scheduler;
     std::mutex _threadMutex;
-    bool _lazyInitLoop {false};
+    bool _lazyInitLoop{false};
     int32_t _currentID;
 };
 } // namespace cc
-
-

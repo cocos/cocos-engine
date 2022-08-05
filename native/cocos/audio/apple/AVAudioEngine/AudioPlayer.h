@@ -24,29 +24,28 @@
  THE SOFTWARE.
 ****************************************************************************/
 #pragma once
-#include "AudioCache.h"
 #include <mutex>
-#include <thread>
 #include <shared_mutex>
+#include <thread>
+#include "AudioCache.h"
 #ifdef __OBJC__
-#import <AVFoundation/AVAudioPlayerNode.h>
+    #import <AVFoundation/AVAudioPlayerNode.h>
 #else
 // other platforms implementation
 #endif
 /**
  * An AudioPlayerDescriptor is to adapt different platform as we are trying to use an unified AudioPlayer class, or an IAudioPlayer who offers common methods
  */
-typedef struct AudioPlayerDescriptor {
+using AudioPlayerDescriptor = struct AudioPlayerDescriptor {
 #ifdef __OBJC__
     AVAudioPlayerNode* node;
 #else
-    //void* node;
+    // void* node;
 #endif
-} AudioPlayerDescriptor;
-
-
+} ;
 
 namespace cc {
+using FinishCallback = std::function<void(uint32_t, const ccstd::string&)>;
 class AudioPlayer {
 public:
     enum State {
@@ -65,9 +64,9 @@ public:
     /**
      * Create an audio player with an audio cache, state turns to READY
      */
-    AudioPlayer(AudioCache* cache);
+    explicit AudioPlayer(AudioCache* cache);
     ~AudioPlayer();
-    
+
     /**
      * If UNLOADED, turns to READY, otherwise reload a new cache.
      * If it's playing, stop itself.
@@ -77,7 +76,7 @@ public:
      * unload audio cache, and if it's playing, stop itself.
      */
     bool unload();
-    
+
     bool ready();
     /**
      * Play the audio, if it's playing, nothing will happen.
@@ -99,14 +98,14 @@ public:
      * Post-stop should be called in AudioEngine, when the player is fully stopped.
      */
     void postStop();
-    
+
     bool setVolume(float volume);
     float getVolume() const;
     bool setLoop(bool isLoop);
     bool isLoop() const;
     float getDuration() const;
     AudioCache* getCache() const;
-    
+
     /**
      * Change the seekerTime and should reschedule buffer.
      */
@@ -118,53 +117,50 @@ public:
     AudioPlayerDescriptor getDescriptor() const;
     void rotateBuffer();
     State getState() const;
-    std::function<void(int, const std::string&)> finishCallback {nullptr};
+    std::function<void(int, const std::string&)> finishCallback{nullptr};
 
-    bool isAttached {false};
+    bool isAttached{false};
     bool isFinished() const;
-    
+
 private:
     void setState(State state);
     /**
      * Loop control, if the streaming audio is playing and the game tries to loop audio,
      * need to lock the mutex to change the value as streaming audio is playing with multi-thread.
      */
-    bool _isLoop {false};
+    bool _isLoop{false};
     std::mutex _loopSettingMutex;
-    
-    float _duration {0};
-    bool _isStreaming {false};
-    float _volume {0};
-    
+
+    float _duration{0};
+    bool _isStreaming{false};
+    float _volume{0};
+
     /**
      * Finish play in a formal way
      */
-    bool _isFinished {false};
-    
+    bool _isFinished{false};
+
     /**
      * Rotate thread
      */
-    std::thread* _rotateBufferThread {nullptr};
-    
-    
-    AudioCache* _cache {nullptr};
+    std::thread* _rotateBufferThread{nullptr};
+
+    AudioCache* _cache{nullptr};
     AudioPlayerDescriptor _descriptor;
-    
+
     /** _state is the only way to check if the player is stopped, to make frame rate stable.*/
     mutable std::shared_mutex _stateMtx;
-    State _state {State::UNLOADED};
-    
-    
-    float _startTime {0};
+    State _state{State::UNLOADED};
+
+    float _startTime{0};
     /** Cache a pausing time to return value when the player is at pause state */
-    float _pauseTime {0};
-    
+    float _pauseTime{0};
 
     /**
      * _rotateBufferThreadBarrier and _rotateBufferThreadMtx are mean to manage thread sleep and wake.
      */
     std::condition_variable _rotateBufferThreadBarrier;
     std::mutex _rotateBufferThreadMtx;
-    bool _shouldReschedule {false};
+    bool _shouldReschedule{false};
 };
 } // namespace cc

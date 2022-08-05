@@ -39,9 +39,48 @@ enum class AudioDataFormat {
     FLOAT_64,
 };
 struct PCMHeader {
-    uint32_t totalFrames {0};
-    uint32_t bytesPerFrame {0};
-    uint32_t sampleRate {0};
-    uint32_t channelCount {0};
-    AudioDataFormat dataFormat {AudioDataFormat::UNKNOWN};
+    uint32_t totalFrames{0};
+    uint32_t bytesPerFrame{0};
+    uint32_t sampleRate{0};
+    uint32_t channelCount{0};
+    AudioDataFormat dataFormat{AudioDataFormat::UNKNOWN};
 };
+
+#if CC_DEBUG > 0
+    #define AUDIO_CHECK(x)                         \
+        do {                                       \
+            bool ret = x;                          \
+            if (ret != true) {                     \
+                CC_LOG_ERROR("%s run failed", #x); \
+                assert(false);                     \
+            }                                      \
+        } while (0)
+    #ifdef __OBJC__
+        #define AUDIO_RELEASE(x)  \
+            do {                  \
+                [x release];      \
+                assert(x == nil); \
+            } while (0)
+        #define NSERROR_CHECK(xinit, nserror)                                               \
+            do {                                                                               \
+                if (nserror) {                                                                 \
+                    NSLog(@"%s failed with error %@", #xinit, [nserror localizedDescription]); \
+                    assert(false);                                                             \
+                    [nserror release];                                                         \
+                }                                                                              \
+            } while (0)
+    #endif
+#else
+    #define AUDIO_CHECK(x) x
+    #define AUDIO_RELEASE(x) \
+        do {                 \
+            [x release];     \
+        } while (0)
+    #define NSERROR_CHECK(xinit, nserror)                                                     \
+        do {                                                                               \
+            if (nserror) {                                                                 \
+                NSLog(@"%s failed with error %@", #xinit, [nserror localizedDescription]); \
+                [nserror release];                                                         \
+            }                                                                              \
+        } while (0)
+#endif

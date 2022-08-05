@@ -24,78 +24,76 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "audio/apple/AVAudioEngine/AudioEngine-impl.h"
 #import "AVFoundation/AVAudioEngine.h"
-#import "AVFoundation/AVAudioPlayerNode.h"
 #import "AVFoundation/AVAudioFile.h"
 #import "AVFoundation/AVAudioFormat.h"
-#include "audio/apple/AVAudioEngine/AudioEngine-impl.h"
-#include "audio/include/AudioEngine.h"
+#import "AVFoundation/AVAudioPlayerNode.h"
 #include "application/ApplicationManager.h"
+#include "audio/include/AudioEngine.h"
 #include "platform/FileUtils.h"
 
-static AVAudioEngine* engine_instance = nullptr;
-static AVAudioFormat* uniform_format = nullptr;
+#include "cocos/profiler/Profiler.h"
+static AVAudioEngine* gAvaudioEngine = nullptr;
+static AVAudioFormat* gAvaudioFormat = nullptr;
 namespace cc {
-static AudioEngineImpl* s_instance = nullptr;
 class Scheduler;
 
-
-AudioEngineImpl::AudioEngineImpl():_currentID(0), _lazyInitLoop(true){
-    engine_instance = [[AVAudioEngine alloc] init];
-    AVAudioFormat* outputFormat = [engine_instance.outputNode outputFormatForBus:0];
-    [engine_instance connect:(AVAudioNode*)engine_instance.mainMixerNode to:engine_instance.outputNode format:outputFormat];
-    s_instance = this;
-}
+AudioEngineImpl::AudioEngineImpl()
+: _currentID(0),
+  _lazyInitLoop(true) {}
 
 AudioEngineImpl::~AudioEngineImpl() {
     if (auto sche = _scheduler.lock()) {
         sche->unschedule("AudioEngine", this);
     }
-    
-    //TODO: release all player nodes attached?
-    [engine_instance release];
-    for (auto player : _players) {
+
+    AUDIO_RELEASE(gAvaudioEngine); // Should be released totally, otherwise a leak occurs
+    for (auto& player : _players) {
         delete player.second;
     }
     _players.clear();
-    for (auto player : _unusedPlayers) {
+    for (auto& player : _unusedPlayers) {
         delete player.second;
-    }
-    _players.clear();
-    for (auto cache : _caches) {
-        delete cache.second;
     }
     _unusedPlayers.clear();
-    s_instance = nullptr;
+    for (auto& cache : _caches) {
+        delete cache.second;
+    }
+    _caches.clear();
 }
 
 bool AudioEngineImpl::init() {
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
+    // Init with error?
+    gAvaudioEngine = [[AVAudioEngine alloc] init];
+    AVAudioFormat* outputFormat = [gAvaudioEngine.outputNode outputFormatForBus:0];
+    [gAvaudioEngine connect:(AVAudioNode*)gAvaudioEngine.mainMixerNode to:gAvaudioEngine.outputNode format:outputFormat];
+    [gAvaudioEngine prepare];
+    AudioEngine::addTask([&]{
+        NSError* err;
+        [gAvaudioEngine startAndReturnError:&err];
+        NSERROR_CHECK(AVAUDIOENGINE_START_FAILED, err);
+    });
     return true;
-    
 }
 
-// Return player in memo pool
-int32_t AudioEngineImpl::getUsablePlayer() {
-    if(_unusedPlayers.empty()) {
-        return -1;
-    }
-    return _unusedPlayers.begin()->first;
-}
-AudioCache* AudioEngineImpl::preload(const ccstd::string &filePath, const LoadCallback &callback) {
+AudioCache* AudioEngineImpl::preload(const ccstd::string& filePath, const LoadCallback& callback, bool isSync) {
     AudioCache* cache = nullptr;
     auto itr = _caches.find(filePath);
-    
+
     if (itr != _caches.end()) {
         cache = itr->second;
     } else {
-        auto fileFullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
-        cache = new AudioCache(fileFullPath);
+        cache = new AudioCache(filePath);
         _caches[filePath] = cache;
-        AudioEngine::addTask([cache](){
-            cache->load();
-        });
-        _caches[filePath] = cache;
+        if (isSync) {
+            AUDIO_CHECK(cache->load());
+        } else {
+            AudioEngine::addTask([cache]() {
+                AUDIO_CHECK(cache->load());
+            });
+        }
     }
     if (cache && callback) {
         cache->addLoadCallback(callback);
@@ -103,151 +101,125 @@ AudioCache* AudioEngineImpl::preload(const ccstd::string &filePath, const LoadCa
     return cache;
 }
 
-AudioCache* AudioEngineImpl::forceLoad(const ccstd::string &filePath, const LoadCallback &callback) {
-    AudioCache* cache;
-    auto itr = _caches.find(filePath);
-    
-    if(itr != _caches.end()){
-        cache = itr->second;
-        cache->load(); // force load async
-        if(callback) {
-            cache->addLoadCallback(callback);
-        }
-    } else {
-        auto fileFullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
-        cache = new AudioCache(fileFullPath);
-        _caches[filePath] = cache;
-        cache->load(); // force load
-        if(callback) {
-            cache->addLoadCallback(callback);
-        }
-    }
-    return cache;
-}
-
-int32_t AudioEngineImpl::registerAudio() {
+int32_t AudioEngineImpl::createAudioPlayer() {
+    CC_PROFILE(CREATE_PLAYER);
+    int32_t audioID{-1};
     AudioPlayer* player;
-    int32_t audioID = getUsablePlayer();
-    if (audioID == -1) {
+    if (_unusedPlayers.empty()) {
         player = new AudioPlayer();
         audioID = _currentID;
         _currentID++;
     } else {
+        audioID = _unusedPlayers.begin()->first;
         player = _unusedPlayers[audioID];
         _unusedPlayers.erase(audioID);
     }
     _players[audioID] = player;
     return audioID;
 }
-ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(char const* url, uint32_t channelID){
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(char const* url, uint32_t channelID) {
     ccstd::string str(url);
     AudioCache* cache;
     auto itr = _caches.find(str);
-    if(itr == _caches.end()) {
-        cache = forceLoad(str, nullptr);
+    if (itr == _caches.end()) {
+        cache = preload(str, nullptr, true);
     } else {
         cache = itr->second;
     }
-    
+
     return cache->getPCMBuffer(channelID);
 }
 
-PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
+PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
     ccstd::string str(url);
-    AudioCache* cache = preload(str, nullptr);
+    AudioCache* cache = preload(str, nullptr, true);
     return cache->getPCMHeader();
 }
 
-// return audio id, but not really play it.
-int32_t AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
-    int32_t audioID = registerAudio();
+int32_t AudioEngineImpl::play2d(const ccstd::string& filePath, bool loop, float volume) {
+    CC_PROFILE(AUDIOENGINE_PLAY2D);
+    int32_t audioID = createAudioPlayer();
     AudioPlayer* player = _players[audioID];
-    player->setLoop(loop);
-    player->setVolume(volume);
+    AUDIO_CHECK(player->setLoop(loop));
+    AUDIO_CHECK(player->setVolume(volume));
     AudioCache* cache = preload(filePath, nullptr);
     if (cache == nullptr) {
-        _players.erase(audioID);//ptr will be removed
+        _players.erase(audioID); // ptr will be removed
         _unusedPlayers[audioID] = player;
         CC_LOG_DEBUG("Audio Cache is invalid, plz check if audio resource exist");
+#if CC_DEBUG > 0
+        assert(false);
+#endif
         return AudioEngine::INVALID_AUDIO_ID;
     }
-    cache->addLoadCallback([player, cache](bool){
-        player->load(cache);
-        player->ready();
-    });
     if (!player->isAttached) {
-        [engine_instance attachNode:player->getDescriptor().node];
-        
-        [engine_instance connect:player->getDescriptor().node to:(AVAudioNode*)engine_instance.mainMixerNode format:cache->getDescriptor().audioFile.processingFormat]; // TODO: err: -10878 format
+        CC_PROFILE(ATTACH_PLAYERNODE);
+        [gAvaudioEngine attachNode:player->getDescriptor().node];
+        [gAvaudioEngine connect:player->getDescriptor().node
+                             to:(AVAudioNode*)gAvaudioEngine.mainMixerNode
+                         format:cache->getDescriptor().audioFile.processingFormat]; // TODO(timlyeee): err: -10878 format
         player->isAttached = true;
     }
-
-    if(_lazyInitLoop) {
-        _lazyInitLoop = false;
-        NSError* err;
-        if(![engine_instance startAndReturnError: &err]){
-            NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
-            [err release];
-            return false;
-        }
-        
-    }
-    cache->addPlayCallback([player, audioID, this](){
-        if (!engine_instance.running) {
-            NSError* err;
-            if(![engine_instance startAndReturnError: &err]){
-                NSLog(@"%@AudioEngine initialize failed ", [err localizedDescription]);
-                [err release];
-            }
+    {
+        CC_PROFILE(CACHE_ADD);
+    cache->addLoadCallback([&player, &cache](bool) {
+        AUDIO_CHECK(player->load(cache));
+        AUDIO_CHECK(player->ready());
+    });
+    
+    cache->addPlayCallback([&player, &audioID, this]() {
+        if (_lazyInitLoop) {
+            CC_PROFILE(START_AND_SETLAZYINIT);
+            _lazyInitLoop = false;
             
         }
-        player->play();
+        AUDIO_CHECK(player->play());
         CC_LOG_DEBUG("[AudioEngine impl] audio player played, with audio id %d", audioID);
         if (auto sche = _scheduler.lock()) {
-            sche->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05f, false, "AudioEngine");
+            sche->schedule([this](auto &&  /*pH1*/) { 
+                update(); 
+            }, this, 0.05F, false, "AudioEngine");
         }
     });
+    }
     return audioID;
 }
 
-void AudioEngineImpl::setVolume(int audioID, float volume) {
-    if(!checkAudioIdValid(audioID)){
+void AudioEngineImpl::setVolume(int32_t audioID, float volume) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
-    _players[audioID]->setVolume(volume);
-
+    AUDIO_CHECK(_players[audioID]->setVolume(volume));
 }
 
-void AudioEngineImpl::setLoop(int audioID, bool loop) {
-    if(!checkAudioIdValid(audioID)){
+void AudioEngineImpl::setLoop(int32_t audioID, bool loop) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
-    _players[audioID]->setLoop(loop);
+    AUDIO_CHECK(_players[audioID]->setLoop(loop));
 }
 
-bool AudioEngineImpl::pause(int audioID) {
-    if(!checkAudioIdValid(audioID)){
-        return false;
+void AudioEngineImpl::pause(int32_t audioID) {
+    if (!checkAudioIdValid(audioID)) {
+        return;
     }
-    return _players[audioID]->pause();
+    AUDIO_CHECK(_players[audioID]->pause());
 }
 
-bool AudioEngineImpl::resume(int audioID) {
-    if(!checkAudioIdValid(audioID)){
-        return false;
+void AudioEngineImpl::resume(int32_t audioID) {
+    if (!checkAudioIdValid(audioID)) {
+        return;
     }
-    return _players[audioID]->resume();
+    AUDIO_CHECK(_players[audioID]->resume());
 }
 
 void AudioEngineImpl::stop(int audioID) {
-    if(!checkAudioIdValid(audioID)){
+    if (!checkAudioIdValid(audioID)) {
         NSLog(@"audio id is not valid");
         return;
     }
     NSLog(@"[Engine Impl] player stop called %d", audioID);
     _players[audioID]->stop();
-    update(0.0f);
-    return;
 }
 void AudioEngineImpl::stopAll() {
     NSLog(@"[Engine Impl] player stop all called");
@@ -255,46 +227,45 @@ void AudioEngineImpl::stopAll() {
         NSLog(@"[Engine Impl] player stop called %d in stop all", itr.first);
         itr.second->stop();
     }
-    update(0.0f);
 }
-float AudioEngineImpl::getDuration(int audioID) {
-    if(!checkAudioIdValid(audioID)){
-        return 0.0f;
+float AudioEngineImpl::getDuration(int32_t audioID) {
+    if (!checkAudioIdValid(audioID)) {
+        return 0.0F;
     }
     return _players[audioID]->getDuration();
 }
-float AudioEngineImpl::getDurationFromFile(const ccstd::string &filePath){
+float AudioEngineImpl::getDurationFromFile(const ccstd::string& filePath) {
     auto itr = _caches.find(filePath);
-    if(itr == _caches.end()) {
+    if (itr == _caches.end()) {
         preload(filePath, nullptr);
-        return 0.0f;
+        return 0.0F;
     }
     uint32_t frameCount = itr->second->getPCMHeader().totalFrames;
     uint32_t sampleRate = itr->second->getPCMHeader().sampleRate;
-    return (float)frameCount/(float)sampleRate;
+    return (float)frameCount / (float)sampleRate;
 }
 float AudioEngineImpl::getCurrentTime(int audioID) {
-    if(!checkAudioIdValid(audioID)){
+    if (!checkAudioIdValid(audioID)) {
         CC_LOG_DEBUG("[AENGINE] audio id is invalid");
-        return 0.0f;
+        return 0.0F;
     }
     return _players[audioID]->getCurrentTime();
 }
-bool AudioEngineImpl::setCurrentTime(int audioID, float time){
-    if(!checkAudioIdValid(audioID)){
+bool AudioEngineImpl::setCurrentTime(int32_t audioID, float time) {
+    if (!checkAudioIdValid(audioID)) {
         return false;
     }
     return _players[audioID]->setCurrentTime(time);
 }
-void AudioEngineImpl::setFinishCallback(int audioID, const FinishCallback &callback){
-    if(!checkAudioIdValid(audioID)){
+void AudioEngineImpl::setFinishCallback(int audioID, const FinishCallback& callback) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
     CC_LOG_DEBUG("[Audioengine impl] set finish callback for audio id %d", audioID);
     _players[audioID]->finishCallback = callback;
 }
 
-void AudioEngineImpl::uncache(const std::string &filePath){
+void AudioEngineImpl::uncache(const std::string& filePath) {
     if (_caches[filePath]->useCount > 0) {
         NSLog(@"use count > 0, could not uncache file");
     }
@@ -303,69 +274,63 @@ void AudioEngineImpl::uncache(const std::string &filePath){
 }
 
 void AudioEngineImpl::uncacheAll() {
-    for (auto cache: _caches) {
+    for (auto& cache : _caches) {
         delete cache.second;
     }
     _caches.clear();
 }
 
 // Update audio engine to uncache or cache audio
-void AudioEngineImpl::update(float dt) {
+void AudioEngineImpl::update() {
+    CC_LOG_DEBUG("Updating .......");
+    CC_PROFILE(AUDIO_UPDATE);
     int32_t audioID;
     AudioPlayer* player;
-    
+
     // release all players with state STOPPED.
     for (auto itr = _players.begin(); itr != _players.end();) {
         audioID = itr->first;
         player = itr->second;
-//        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
+        //        NSLog(@"Audio ID %d, state is %d", audioID, player->getState());
         if ((player->getState() == AudioPlayer::State::STOPPED)) {
             player->postStop();
-            ccstd::string filePath;
-            if (player->finishCallback) {
-                filePath = player->getCache()->_fileFullPath;
+            if (player->isFinished() && player->finishCallback) {
+                const ccstd::string fileFullPath{player->getCache()->_fileFullPath};
+                CC_LOG_DEBUG("Succeed, audio is finished.");
+                auto callback = player->finishCallback;
+                if (auto sche = _scheduler.lock()) {
+                    // Translate copy but not reference as error occurs.
+                    sche->performFunctionInCocosThread([audioID, callback, fileFullPath] {
+                        callback(audioID, fileFullPath);
+                    });
+                }
+                
             }
             player->unload();
-            
+
             if (player->isAttached) {
-//                NSLog(@"player node detached");
-                [engine_instance disconnectNodeOutput:player->getDescriptor().node];
-                [engine_instance detachNode:player->getDescriptor().node];
+                // NSLog(@"player node detached");
+                [gAvaudioEngine disconnectNodeOutput:player->getDescriptor().node];
+                [gAvaudioEngine detachNode:player->getDescriptor().node];
                 player->isAttached = false;
             }
             AudioEngine::remove(audioID);
             itr = _players.erase(itr);
             _unusedPlayers[audioID] = player;
-            if (auto sche = _scheduler.lock()) {
-                if (player->isFinished() && player->finishCallback) {
-                    CC_LOG_DEBUG("Succeed, audio is finished.");
-                    auto cb = player->finishCallback;
-                    sche->performFunctionInCocosThread([audioID, cb, filePath]{
-                        cb(audioID, filePath);
-                    });
-                }
-                
-            }
         } else {
             ++itr;
         }
     }
     if (_players.empty()) {
-//        NSLog(@"players emply");
         _lazyInitLoop = true;
         if (auto sche = _scheduler.lock()) {
             sche->unschedule("AudioEngine", this);
         }
-        [engine_instance pause];
-//        NSLog(@"engine_instance stopped");
+//      [gAvaudioEngine pause];
     }
 }
 
-bool AudioEngineImpl::checkAudioIdValid(int audioID){
-    if(_players.find(audioID) != _players.end()){
-        return true;
-    }
-    return false;
+bool AudioEngineImpl::checkAudioIdValid(int audioID) {
+    return _players.find(audioID) != _players.end();
 }
-} //namespace cc
-
+} // namespace cc

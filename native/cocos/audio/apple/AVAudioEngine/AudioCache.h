@@ -33,23 +33,22 @@
 //#import <AVFoundation/AVAudioPCMBuffer.h>
 #else
 #endif
-#ifdef __OBJC__
-typedef struct AudioFileDescriptor {
+
+using AudioFileDescriptor = struct AudioFileDescriptor {
+    #ifdef __OBJC__
     AVAudioFile* audioFile;
     AVAudioPCMBuffer* buffer;
-} AudioFileDescriptor;
-#else
-typedef struct AudioFileDescriptor {
-} AudioFileDescriptor;
-#endif
+    #else
+    #endif
+};
 
 // Macro: decided by build phase, Variable: decided by running phase
 // By default, memory use of audio data in total is 32 mb, de/increase MAX_BUFFER_LENGTH and MAX_CACHE_COUNT to change memory usage.
 #define MAX_FRAMES_LENGTH 262144 // 256 frames for float data, 1 float data = 4 bytes
 #define MAX_CACHE_COUNT 128 // 128 audio cache can be create.
 #define MAX_QUEUE_NUM 3 // Max buffer count that can be stored in memory.
-typedef std::function<void(bool)> LoadCallback;
 namespace cc {
+using LoadCallback = std::function<void (bool)>;
 class AudioCache {
 public:
 
@@ -60,8 +59,9 @@ public:
         UNLOADED, // Unloaded.
         FAILED
     };
+    AudioCache() = delete;
     // Once constructed, state become READY
-    AudioCache(std::string& fileFullPath);
+    explicit AudioCache(const ccstd::string& filePath);
     // If not unloaded, force unload the audio buffer
     ~AudioCache();
 
@@ -94,8 +94,8 @@ private:
     PCMHeader                               _pcmHeader; // Smaller than MAX_BUFFER_LENGTH
     std::shared_ptr<std::vector<char>>      _pcmBuffer {nullptr}; // nullptr when it's on Apple platform.
     bool                                    _isStreaming {false};
-    ccstd::vector<std::function<void(bool)>>  _loadCallbacks;
+    ccstd::vector<LoadCallback>  _loadCallbacks;
     ccstd::vector<std::function<void()>>      _playCallbacks;
     friend class AudioEngineImpl;
 };
-}
+} // namespace cc
