@@ -347,7 +347,6 @@ export class Mask extends UIRenderer {
     public onLoad () {
         super.onLoad();
         this._createClearModel();
-        this._changeRenderType();
 
         if (JSB) {
             if (this.renderData && this.subComp) {
@@ -364,6 +363,7 @@ export class Mask extends UIRenderer {
         super.onEnable();
         this._updateGraphics();
         this._enableGraphics();
+        this._changeRenderType();
         this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._anchorChange, this);
         this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
