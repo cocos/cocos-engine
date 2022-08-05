@@ -417,18 +417,18 @@ public class CanvasRenderingContext2DImpl {
         mTextBaseline = baseline;
     }
 
-    public void setFillStyle(float r, float g, float b, float a) {
-        mFillStyleR = (int) r;
-        mFillStyleG = (int) g;
-        mFillStyleB = (int) b;
-        mFillStyleA = (int) a;
+    public void setFillStyle(int r, int g, int b, int a) {
+        mFillStyleR = r;
+        mFillStyleG = g;
+        mFillStyleB = b;
+        mFillStyleA = a;
     }
 
-    public void setStrokeStyle(float r, float g, float b, float a) {
-        mStrokeStyleR = (int) r;
-        mStrokeStyleG = (int) g;
-        mStrokeStyleB = (int) b;
-        mStrokeStyleA = (int) a;
+    public void setStrokeStyle(int r, int g, int b, int a) {
+        mStrokeStyleR = r;
+        mStrokeStyleG = g;
+        mStrokeStyleB = b;
+        mStrokeStyleA = a;
     }
 
     public void setLineWidth(float lineWidth) {

@@ -321,11 +321,11 @@ public class CanvasRenderingContext2DImpl {
         mShadowBlur = blur * 0.5f;
     }
 
-    private void setShadowColor(float r, float g, float b, float a) {
-        mShadowColorR = (int) r;
-        mShadowColorG = (int) g;
-        mShadowColorB = (int) b;
-        mShadowColorA = (int) a;
+    private void setShadowColor(int r, int g, int b, int a) {
+        mShadowColorR = r;
+        mShadowColorG = g;
+        mShadowColorB = b;
+        mShadowColorA = a;
     }
 
     private void setShadowOffsetX(float offsetX) {
@@ -452,20 +452,20 @@ public class CanvasRenderingContext2DImpl {
         mTextBaseline = baseline;
     }
 
-    private void setFillStyle(float r, float g, float b, float a) {
+    private void setFillStyle(int r, int g, int b, int a) {
         // Log.d(TAG, "setFillStyle: " + r + ", " + g + ", " + b + ", " + a);
-        mFillStyleR = (int) r;
-        mFillStyleG = (int) g;
-        mFillStyleB = (int) b;
-        mFillStyleA = (int) a;
+        mFillStyleR = r;
+        mFillStyleG = g;
+        mFillStyleB = b;
+        mFillStyleA = a;
     }
 
-    private void setStrokeStyle(float r, float g, float b, float a) {
+    private void setStrokeStyle(int r, int g, int b, int a) {
         // Log.d(TAG, "setStrokeStyle: " + r + ", " + g + ", " + b + ", " + a);
-        mStrokeStyleR = (int) r;
-        mStrokeStyleG = (int) g;
-        mStrokeStyleB = (int) b;
-        mStrokeStyleA = (int) a;
+        mStrokeStyleR = r;
+        mStrokeStyleG = g;
+        mStrokeStyleB = b;
+        mStrokeStyleA = a;
     }
 
     private void setLineWidth(float lineWidth) {

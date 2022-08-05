@@ -268,12 +268,12 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
-void CanvasRenderingContext2DDelegate::setFillStyle(float r, float g, float b, float a) {
-    _fillStyle = {r, g, b, a};
+void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
+    _fillStyle = {r / 255.0F, g / 255.0F, b / 255.0F, a};
 }
 
-void CanvasRenderingContext2DDelegate::setStrokeStyle(float r, float g, float b, float a) {
-    _strokeStyle = {r, g, b, a};
+void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, float a) {
+    _strokeStyle = {r / 255.0F, g / 255.0F, b / 255.0F, a};
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {
