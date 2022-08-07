@@ -179,6 +179,12 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::string *to, se::Obje
     return true;
 }
 
+inline bool seval_to_std_string(const se::Value &from, ccstd::string *ret) { // NOLINT(readability-identifier-naming)
+    assert(ret);
+    *ret = from.toStringForce();
+    return true;
+}
+
 inline bool sevalue_to_native(const se::Value &from, std::string_view *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (from.isString()) {
         *to = from.toString();
