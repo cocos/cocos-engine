@@ -1,5 +1,6 @@
 #pragma once
 #include <webgpu/webgpu.h>
+#include "base/std/container/vector.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/TypeDef.h"
 #include "gfx-base/GFXDef-common.h"
@@ -437,7 +438,7 @@ static WGPUBufferUsageFlags toWGPUBufferUsage(BufferUsageBit usage) {
     return res;
 }
 
-static WGPUColor toWGPUColor(const Color &color) {
+static WGPUColor toWGPUColor(const Color& color) {
     return WGPUColor{color.x, color.y, color.z, color.w};
 }
 
@@ -586,6 +587,11 @@ static WGPUFlags toWGPUColorWriteMask(ColorMask mask) {
 
     return result;
 }
+
+class DescriptorSet;
+class PipelineLayout;
+// descriptor set layout in descriptor set not consistent with the binding in pipeline layout.
+void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout);
 
 static constexpr WGPUColor defaultClearColor{0.2, 0.2, 0.2, 1.0};
 

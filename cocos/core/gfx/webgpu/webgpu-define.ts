@@ -432,9 +432,27 @@ const oldBindDescriptorSet = CommandBuffer.prototype.bindDescriptorSet;
 CommandBuffer.prototype.bindDescriptorSet = function (set: number, descriptorSet: typeof DescriptorSet, dynamicOffsets?: Readonly<number[]>) {
     if (dynamicOffsets === undefined) {
         oldBindDescriptorSet.call(this, set, descriptorSet, []);
+    } else if ('buffer' in dynamicOffsets) {
+        oldBindDescriptorSet.call(this, set, descriptorSet, new Uint32Array((dynamicOffsets as any).buffer, (dynamicOffsets as any).byteOffset, (dynamicOffsets as any).byteLength));
+        console.log(dynamicOffsets[0]);
     } else {
-        oldBindDescriptorSet.call(this, set, descriptorSet, dynamicOffsets);
+        oldBindDescriptorSet.call(this, set, descriptorSet, new Uint32Array(dynamicOffsets));
+        console.log(dynamicOffsets[0]);
     }
+};
+
+const oldCmdCopyBuffersToTexture = CommandBuffer.prototype.copyBuffersToTexture;
+CommandBuffer.prototype.copyBuffersToTexture = function (buffers: Readonly<ArrayBufferView[]>, texture: typeof Texture, regions: Readonly<BufferTextureCopy[]>) {
+    const ucharBuffers: Uint8Array[] = [];
+    for (let i = 0; i < buffers.length; ++i) {
+        const buffer = buffers[i];
+        if ('buffer' in buffer) {
+            ucharBuffers.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
+        } else {
+            ucharBuffers.push(new Uint8Array(buffer as any));
+        }
+    }
+    oldCmdCopyBuffersToTexture.call(this, ucharBuffers, texture, regions);
 };
 
 const oldDeviceCopyBuffersToTexture = Device.prototype.copyBuffersToTexture;
@@ -492,25 +510,7 @@ Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[],
         }
     }
 
-    // const bufferTextureCopyList = new gfx.BufferTextureCopyList();
-    // for (let i = 0; i < regions.length; i++) {
-    //     const bufferTextureCopy = new gfx.BufferTextureCopy();
-    //     bufferTextureCopy.buffOffset = regions[i].buffOffset;
-    //     bufferTextureCopy.buffStride = regions[i].buffStride;
-    //     bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
-    //     bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
-    //     bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
-    //     bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
-    //     bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
-    //     bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
-    //     bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
-    //     bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
-    //     bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
-    //     bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
-    //     bufferTextureCopyList.push_back(regions[i]);
-    // }
-
-    this.copyBuffersToTexture(buffers, texture, regions);
+    oldDeviceCopyBuffersToTexture.call(this, buffers, texture, regions);
 };
 
 export function seperateCombinedSamplerTexture (shaderSource: string) {

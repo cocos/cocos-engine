@@ -42,7 +42,7 @@ public:
 
     inline CCWGPUPipelineStateObject *gpuPipelineStateObject() { return _gpuPipelineStateObj; }
 
-    void check(RenderPass *renderPass);
+    void check(RenderPass *renderPass, bool forceUpdate = false);
 
     void prepare(const ccstd::set<uint8_t> &setInUse);
 

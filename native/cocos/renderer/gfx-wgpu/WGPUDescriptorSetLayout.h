@@ -27,7 +27,7 @@
 #ifdef CC_WGPU_WASM
     #include "WGPUDef.h"
 #endif
-#include <set>
+#include "base/std/container/set.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
 
 namespace cc {
@@ -47,7 +47,7 @@ public:
 
     void updateLayout(uint8_t binding, const CCWGPUBuffer *buffer = nullptr, const CCWGPUTexture *tex = nullptr, const CCWGPUSampler *sampler = nullptr);
 
-    void prepare(bool forceUpdate = false);
+    void prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate = false);
 
     inline uint8_t dynamicOffsetCount() { return _dynamicOffsetCount; }
 

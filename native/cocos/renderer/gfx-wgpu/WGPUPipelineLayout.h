@@ -43,7 +43,7 @@ public:
     inline CCWGPUPipelineLayoutObject *gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
 
     // bindgroup not ready yet so delay creation
-    void prepare(const ccstd::set<uint8_t> &setInUse);
+    bool prepare(const ccstd::set<uint8_t> &setInUse);
 
     const ccstd::vector<void *> &layouts() const { return _bgLayouts; }
     const ccstd::vector<void *> &cclayouts() const { return _ccbgLayouts; }

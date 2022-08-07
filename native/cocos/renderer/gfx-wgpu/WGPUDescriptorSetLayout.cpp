@@ -223,14 +223,14 @@ void CCWGPUDescriptorSetLayout::print() const {
     }
 }
 
-void CCWGPUDescriptorSetLayout::prepare(bool forceUpdate) {
+void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate) {
     if (_gpuLayoutEntryObj->bindGroupLayout && !forceUpdate) {
         return;
     }
     // ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
     // bindGroupLayoutEntries.assign(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end());
     // bindGroupLayoutEntries.erase(std::remove_if(
-    //                                  bindGroupLayoutEntries.begin(), bindGroupLayoutEntries.end(), [&bindingInUse, &bindGroupLayoutEntries](const WGPUBindGroupLayoutEntry& entry) {
+    //                                  bindGroupLayoutEntries.begin(), bindGroupLayoutEntries.end(), [&bindingInUse, &bindGroupLayoutEntries](const WGPUBindGroupLayoutEntry &entry) {
     //                                      return bindingInUse.find(entry.binding) == bindingInUse.end();
     //                                  }),
     //                              bindGroupLayoutEntries.end());
@@ -258,9 +258,10 @@ void CCWGPUDescriptorSetLayout::prepare(bool forceUpdate) {
     if (entries.empty()) {
         _gpuLayoutEntryObj->bindGroupLayout = anoymous::defaultBindgroupLayout;
     } else {
+        static uint64_t counter = 0;
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
-            .label = nullptr,
+            .label = (std::to_string(_objectID) + " " + std::to_string(counter++)).c_str(),
             .entryCount = entries.size(),
             .entries = entries.data(),
         };
@@ -281,7 +282,7 @@ void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
 
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
-            .label = nullptr,
+            .label = "defaultBindgroupLayout",
             .entryCount = 1,
             .entries = &layout,
         };

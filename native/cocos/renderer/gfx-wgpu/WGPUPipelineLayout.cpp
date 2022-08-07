@@ -42,23 +42,22 @@ void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayoutObj = ccnew CCWGPUPipelineLayoutObject;
 }
 
-void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
+bool CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
+    if (_gpuPipelineLayoutObj->wgpuPipelineLayout) {
+        return true;
+    }
     ccstd::vector<WGPUBindGroupLayout> layouts;
-    _bgLayouts.clear();
     for (size_t i = 0; i < _setLayouts.size(); i++) {
         auto *descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout *>(_setLayouts[i]);
         if (setInUse.find(i) == setInUse.end()) {
             // give it default bindgrouplayout if not in use
             layouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
-            _bgLayouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
-            _ccbgLayouts.push_back(nullptr);
         } else {
             if (!descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout) {
-                descriptorSetLayout->prepare();
+                printf("bgl in ppl is null\n");
+                return false;
             }
             layouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
-            _bgLayouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
-            _ccbgLayouts.push_back(descriptorSetLayout);
         }
     }
 
@@ -70,6 +69,7 @@ void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
     };
 
     _gpuPipelineLayoutObj->wgpuPipelineLayout = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    return true;
 }
 
 void CCWGPUPipelineLayout::doDestroy() {

@@ -46,7 +46,8 @@ namespace gfx {
 
 namespace {
 uint32_t dynamicOffsetBuffer[256];
-}
+uint32_t dynBufferStartIndex = 0;
+} // namespace
 
 CCWGPUCommandBuffer::CCWGPUCommandBuffer() : CommandBuffer() {
 }
@@ -56,6 +57,8 @@ void CCWGPUCommandBuffer::doInit(const CommandBufferInfo &info) {
     _gpuCommandBufferObj->type = info.type;
     _gpuCommandBufferObj->queue = static_cast<CCWGPUQueue *>(info.queue);
     _gpuCommandBufferObj->stateCache.descriptorSets.resize(4); //(info.queue->getDevice()->getMaxDescriptorSetLayoutBindings());
+    memset(dynamicOffsetBuffer, 0, sizeof(dynamicOffsetBuffer));
+    dynBufferStartIndex = 0;
 }
 
 void CCWGPUCommandBuffer::doDestroy() {
@@ -198,6 +201,7 @@ void CCWGPUCommandBuffer::endRenderPass() {
         descObj.descriptorSet = nullptr;
         descObj.dynamicOffsetCount = 0;
         descObj.dynamicOffsets = nullptr;
+        dynBufferStartIndex = 0;
     }
     _gpuCommandBufferObj->renderPassBegan = false;
 }
@@ -213,8 +217,11 @@ void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descrip
 
     auto *ccDescriptorSet = static_cast<CCWGPUDescriptorSet *>(descriptorSet);
     if (ccDescriptorSet->dynamicOffsetCount() == 0) {
-        dynOffsetCount = 0;
         dynOffsets = nullptr;
+    } else {
+        memcpy(dynamicOffsetBuffer + dynBufferStartIndex, dynamicOffsets, sizeof(uint32_t) * dynamicOffsetCount);
+        dynOffsets = dynamicOffsetBuffer + dynBufferStartIndex;
+        dynBufferStartIndex += dynamicOffsetCount;
     }
 
     CCWGPUDescriptorSetObject dsObj = {
@@ -273,21 +280,18 @@ void CCWGPUCommandBuffer::bindStates() {
     }
 
     ccstd::set<uint8_t> setInUse;
-    for (size_t i = 0; i < _gpuCommandBufferObj->stateCache.descriptorSets.size(); i++) {
-        auto &descriptorSetObj = _gpuCommandBufferObj->stateCache.descriptorSets[i];
-        if (descriptorSetObj.descriptorSet) {
-            setInUse.insert(i);
-        }
-    }
 
     // printf("ppl binding %p\n", pipelineState);
 
     ccstd::vector<void *> wgpuLayouts(3);
+    auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(pipelineState->getPipelineLayout());
+    const auto &setLayouts = pipelineLayout->getSetLayouts();
+    bool pipelineLayoutChanged = false;
 
     if (pipelineState->getBindPoint() == PipelineBindPoint::GRAPHICS) {
         // bindgroup & descriptorset
         const auto &descriptorSets = _gpuCommandBufferObj->stateCache.descriptorSets;
-        for (size_t i = 0; i < descriptorSets.size(); i++) {
+        for (size_t i = 0; i < setLayouts.size(); i++) {
             if (descriptorSets[i].descriptorSet) {
                 descriptorSets[i].descriptorSet->prepare();
 
@@ -301,6 +305,7 @@ void CCWGPUCommandBuffer::bindStates() {
                         } else {
                             dynOffsets[j] = descriptorSets[i].dynamicOffsets[givenOffsetIndex++];
                         }
+                        // printf("dynOffsets[%zu] = %d\n", j, dynOffsets[j]);
                     }
                     // printf("set %d %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup);
                     wgpuLayouts[i] = descriptorSets[i].descriptorSet->bgl();
@@ -309,7 +314,10 @@ void CCWGPUCommandBuffer::bindStates() {
                                                       descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
                                                       descriptorSets[i].descriptorSet->dynamicOffsetCount(),
                                                       dynOffsets);
-
+                    setInUse.insert(i);
+                    if (setLayouts[i] != descriptorSets[i].descriptorSet->getLayout()) {
+                        pipelineLayoutChanged = true;
+                    }
                 } else {
                     wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                                       i,
@@ -319,25 +327,42 @@ void CCWGPUCommandBuffer::bindStates() {
                     // printf("set2 %d %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup);
                     wgpuLayouts[i] = descriptorSets[i].descriptorSet->bgl();
                 }
+                setInUse.insert(i);
+            } else {
+                // missing
+                wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
+                                                  i,
+                                                  static_cast<WGPUBindGroup>(CCWGPUDescriptorSet::defaultBindGroup()),
+                                                  0,
+                                                  nullptr);
+                // printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
+                wgpuLayouts[i] = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
             }
         }
 
-        // missing
-        if (setInUse.size() != pipelineState->getPipelineLayout()->getSetLayouts().size()) {
-            const auto &setLayouts = pipelineState->getPipelineLayout()->getSetLayouts();
-            for (size_t i = 0; i < setLayouts.size(); i++) {
-                if (setInUse.find(i) == setInUse.end()) {
-                    wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
-                                                      i,
-                                                      static_cast<WGPUBindGroup>(CCWGPUDescriptorSet::defaultBindGroup()),
-                                                      0,
-                                                      nullptr);
-                    // printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
-                    wgpuLayouts[i] = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
-                }
+        for (size_t i = 0; i < setLayouts.size(); i++) {
+            if (setInUse.find(i) == setInUse.end()) {
+                wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
+                                                  i,
+                                                  static_cast<WGPUBindGroup>(CCWGPUDescriptorSet::defaultBindGroup()),
+                                                  0,
+                                                  nullptr);
+                // printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
+                wgpuLayouts[i] = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
             }
         }
-        pipelineState->check(_renderPass);
+
+        if (pipelineLayoutChanged) {
+            ccstd::vector<DescriptorSet *> dsSets;
+            for (size_t i = 0; i < setLayouts.size(); i++) {
+                dsSets.push_back(descriptorSets[i].descriptorSet);
+            }
+            createPipelineLayoutFallback(dsSets, pipelineLayout);
+        } else {
+            pipelineLayout->prepare(setInUse);
+        }
+
+        pipelineState->check(_renderPass, pipelineLayoutChanged);
         pipelineState->prepare(setInUse);
 
         // printf("ppshn: %s\n", static_cast<CCWGPUShader *>(pipelineState->getShader())->gpuShaderObject()->name.c_str());

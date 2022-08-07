@@ -211,6 +211,7 @@ void CCWGPUDescriptorSet::prepare() {
     });
 
     bool forceUpdate = buffIter != _buffers.end() || texIter != _textures.end();
+
     if (forceUpdate) {
         _isDirty = true;
         update();
@@ -218,12 +219,11 @@ void CCWGPUDescriptorSet::prepare() {
 
     if (_isDirty || forceUpdate || !_gpuBindGroupObj->bindgroup) {
         auto *dsLayout = static_cast<CCWGPUDescriptorSetLayout *>(_layout);
-        dsLayout->prepare(forceUpdate);
-        // ccstd::vector<WGPUBindGroupEntry>
-        //     bindGroupEntries;
+        dsLayout->prepare(_gpuBindGroupObj->bindingSet, forceUpdate);
+        // ccstd::vector<WGPUBindGroupEntry> bindGroupEntries;
         // bindGroupEntries.assign(_gpuBindGroupObj->bindGroupEntries.begin(), _gpuBindGroupObj->bindGroupEntries.end());
         // bindGroupEntries.erase(std::remove_if(
-        //                            bindGroupEntries.begin(), bindGroupEntries.end(), [this, &bindGroupEntries](const WGPUBindGroupEntry& entry) {
+        //                            bindGroupEntries.begin(), bindGroupEntries.end(), [this, &bindGroupEntries](const WGPUBindGroupEntry &entry) {
         //                                return _gpuBindGroupObj->bindingSet.find(entry.binding) == _gpuBindGroupObj->bindingSet.end();
         //                            }),
         //                        bindGroupEntries.end());
@@ -240,17 +240,19 @@ void CCWGPUDescriptorSet::prepare() {
             _bgl = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
             _ccbgl = nullptr;
         } else {
+            static uint32_t count = 0;
+            _label = std::to_string(_objectID) + "-" + std::to_string(count++);
             WGPUBindGroupDescriptor bindGroupDesc = {
                 .nextInChain = nullptr,
-                .label = nullptr,
+                .label = _label.c_str(),
                 .layout = dsLayout->gpuLayoutEntryObject()->bindGroupLayout,
                 .entryCount = entries.size(),
                 .entries = entries.data(),
             };
             _gpuBindGroupObj->bindgroup = wgpuDeviceCreateBindGroup(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &bindGroupDesc);
-            CCWGPUDevice::getInstance()->debug();
             _bgl = dsLayout->gpuLayoutEntryObject()->bindGroupLayout;
             _ccbgl = dsLayout;
+            printf("create new bgp\n");
             // _local = dsLayout;
         }
         _isDirty = false;
@@ -285,7 +287,7 @@ void *CCWGPUDescriptorSet::defaultBindGroup() {
 
         WGPUBindGroupDescriptor bindGroupDesc = {
             .nextInChain = nullptr,
-            .label = nullptr,
+            .label = "defaultBindGroup",
             .layout = static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()),
             .entryCount = 1,
             .entries = &bufferEntry,

@@ -47,11 +47,12 @@ void CCWGPUPipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineStateObj = ccnew CCWGPUPipelineStateObject;
 }
 
-void CCWGPUPipelineState::check(RenderPass *renderPass) {
+void CCWGPUPipelineState::check(RenderPass *renderPass, bool forceUpdate) {
     if (_renderPass != renderPass) {
         _renderPass = renderPass;
-        _forceUpdate = true;
+        // _forceUpdate = true;
     }
+    _forceUpdate |= forceUpdate;
 }
 
 void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
@@ -83,6 +84,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         bool isInstance = attrs.empty() ? false : attrs[0].isInstanced;
         uint8_t index = 0;
 
+        printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             ccstd::string attrName = attrs[i].name;
@@ -119,6 +121,8 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                     wgpuAttrsVec[mostToleranceStream].push_back(attr);
                 }
             }
+
+            // printf("sl %s, %d, %d\n", attrName.c_str(), attrs[i].location, attrs[i].stream);
         }
 
         // input state has attr which shader hasnt.
@@ -132,12 +136,10 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 Format format = attribute.format;
                 offset[attribute.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
             }
+            // printf("is %s, %d, %d\n", attrName.c_str(), attribute.location, attribute.stream);
         }
 
-        if (_gpuPipelineStateObj->maxAttrLength > 0) {
-            wgpuAttrsVec.push_back(_gpuPipelineStateObj->redundantAttr);
-            vbLayouts.resize(vbLayouts.size() + 1);
-        }
+        std::set<uint32_t> locSet;
 
         for (size_t i = 0; i < wgpuAttrsVec.size(); ++i) {
             vbLayouts[i] = {
@@ -146,6 +148,16 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 .attributeCount = wgpuAttrsVec[i].size(),
                 .attributes = wgpuAttrsVec[i].data(),
             };
+            for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
+                // printf("wg %d, %d, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
+
+                // if (locSet.find(wgpuAttrsVec[i][j].shaderLocation) != locSet.end() && wgpuAttrsVec[i][j].shaderLocation != 0) {
+                //     printf("duplicate location %d\n", wgpuAttrsVec[i][j].shaderLocation);
+                //     while (1) {
+                //     }
+                // }
+                // locSet.insert(wgpuAttrsVec[i][j].shaderLocation);
+            }
         }
 
         WGPUVertexState vertexState = {
@@ -233,7 +245,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .targets = colorTargetStates.data(),
         };
 
-        pipelineLayout->prepare(setInUse);
+        // pipelineLayout->prepare(setInUse);
 
         WGPURenderPipelineDescriptor piplineDesc = {
             .nextInChain = nullptr,

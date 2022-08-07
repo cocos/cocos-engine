@@ -63,6 +63,7 @@ public:
     // DescriptorSetLayout* local()const {return _local;}
 
     void *ccbgl() const { return _ccbgl; }
+    ccstd::string _label;
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
