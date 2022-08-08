@@ -63,7 +63,7 @@ function beginTrans (fn, minBytes) {
     }
 
     let offset = 4;         // reserved for block total length
-    if (window.__OH__) {
+    if (window.oh) {
         dataView.setBigUint64(startPos + offset, BigInt(fn), isLittleEndian);
     } else {
         dataView.setBigUint64(startPos + offset, fn, isLittleEndian);
@@ -75,7 +75,7 @@ function beginTrans (fn, minBytes) {
             offset += 4;
         },
         writeBigUint64: (value) => {
-            if (window.__OH__) {
+            if (window.oh) {
                 dataView.setBigUint64(startPos + offset, BigInt(value), isLittleEndian);
             } else {
                 dataView.setBigUint64(startPos + offset, value, isLittleEndian);
@@ -90,7 +90,7 @@ function beginTrans (fn, minBytes) {
         },
         writePointer (e) {
             if (e) {
-                if (window.__OH__) {
+                if (window.oh) {
                     dataView.setBigUint64(startPos + offset, BigInt(e.__native_ptr__), isLittleEndian);
                 } else {
                     dataView.setBigUint64(startPos + offset, e.__native_ptr__, isLittleEndian);

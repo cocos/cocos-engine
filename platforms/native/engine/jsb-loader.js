@@ -442,7 +442,7 @@ var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
     // JsbDownloader and cacheManager is not supported for OpenHarmony for now
-    if (!window.__OH__) {
+    if (!window.oh) {
         initJsbDownloader(options.jsbDownloaderMaxTasks, options.jsbDownloaderTimeout);
         cacheManager.init();
     }
