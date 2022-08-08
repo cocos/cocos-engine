@@ -128,7 +128,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 // Debug view
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surfaceData)
+void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
 {
     float scalar;
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
