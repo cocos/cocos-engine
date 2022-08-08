@@ -149,7 +149,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
     return std::array<float, 2>{static_cast<float>(OH_Drawing_TypographyGetMaxWidth(_typographyStyle)),
                                 static_cast<float>(OH_Drawing_TypographyGetHeight(_typographyStyle))};
 #endif
-return {0.f, 0.f};
+    return {0.f, 0.f};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
