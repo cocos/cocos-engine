@@ -1,0 +1,24 @@
+{
+    "files.exclude": {
+        ".git": true,
+        "node_modules": true,
+    },
+    "search.exclude": {
+        ".git": true,
+        "node_modules": true,
+        ".github": true,
+        "bin": true
+    },
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "eslint.validate": [
+        "javascript",
+        "typescript"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+    },
+    "files.associations": {
+        "chrono": "cpp"
+    },
+}
