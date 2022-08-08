@@ -1363,6 +1363,22 @@ static bool js_2d_RenderEntity_clearDynamicRenderDrawInfos(se::State& s) // NOLI
 }
 SE_BIND_FUNC(js_2d_RenderEntity_clearDynamicRenderDrawInfos)
 
+static bool js_2d_RenderEntity_clearStaticRenderDrawInfos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clearStaticRenderDrawInfos();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderEntity_clearStaticRenderDrawInfos)
+
 static bool js_2d_RenderEntity_getEntitySharedBufferForJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -1840,6 +1856,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("stencilStage", _SE(js_2d_RenderEntity_getStencilStage_asGetter), _SE(js_2d_RenderEntity_setStencilStage_asSetter));
     cls->defineFunction("addDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_addDynamicRenderDrawInfo));
     cls->defineFunction("clearDynamicRenderDrawInfos", _SE(js_2d_RenderEntity_clearDynamicRenderDrawInfos));
+    cls->defineFunction("clearStaticRenderDrawInfos", _SE(js_2d_RenderEntity_clearStaticRenderDrawInfos));
     cls->defineFunction("getEntitySharedBufferForJS", _SE(js_2d_RenderEntity_getEntitySharedBufferForJS));
     cls->defineFunction("getIsMask", _SE(js_2d_RenderEntity_getIsMask));
     cls->defineFunction("getIsMaskInverted", _SE(js_2d_RenderEntity_getIsMaskInverted));

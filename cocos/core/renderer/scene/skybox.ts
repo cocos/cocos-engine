@@ -376,15 +376,14 @@ export class Skybox {
                 skybox_material.setProperty('environmentMap', envmap);
                 skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             }
-        }
-
-        if (this._model) {
-            if (this._editableMaterial) {
-                this._model.setSubModelMaterial(0, this._editableMaterial);
-            } else {
-                this._model.setSubModelMaterial(0, skybox_material!);
+            if (this._model) {
+                if (this._editableMaterial) {
+                    this._model.setSubModelMaterial(0, this._editableMaterial);
+                } else {
+                    this._model.setSubModelMaterial(0, skybox_material!);
+                }
+                this._updateSubModes();
             }
-            this._updateSubModes();
         }
     }
 

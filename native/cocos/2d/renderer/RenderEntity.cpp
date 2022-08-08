@@ -66,6 +66,16 @@ void RenderEntity::clearDynamicRenderDrawInfos() {
     _dynamicDrawInfos.clear();
 }
 
+void RenderEntity::clearStaticRenderDrawInfos() {
+    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
+  
+    for (uint32_t i = 0; i < _staticDrawInfoSize; i++) {
+        RenderDrawInfo& drawInfo = _staticDrawInfos[i];
+        drawInfo.resetDrawInfo();
+    }
+    _staticDrawInfoSize = 0;
+}
+
 void RenderEntity::setNode(Node* node) {
     if (_node) {
         _node->setUserData(nullptr);

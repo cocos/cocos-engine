@@ -46,6 +46,7 @@ export declare class NativeRenderEntity {
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);
     removeDynamicRenderDrawInfo();
     clearDynamicRenderDrawInfos();
+    clearStaticRenderDrawInfos();
 
     get node(): Node | null;
     set node(node: Node | null);
