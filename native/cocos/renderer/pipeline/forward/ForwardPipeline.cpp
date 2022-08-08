@@ -115,7 +115,8 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *camera : cameras) {
         validPunctualLightsCulling(this, camera);
         sceneCulling(this, camera);
-        for (auto *const flow : _flows) {
+        for (int i = 0; i < _flows.size(); i++) {
+            const auto &flow = _flows[i];
             flow->render(camera);
         }
         _fg.compile();

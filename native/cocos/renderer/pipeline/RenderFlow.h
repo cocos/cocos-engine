@@ -26,6 +26,8 @@
 #pragma once
 
 #include "Define.h"
+#include "RenderStage.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace scene {
@@ -43,7 +45,7 @@ struct CC_DLL RenderFlowInfo {
     RenderStageList stages;
 };
 
-class CC_DLL RenderFlow {
+class CC_DLL RenderFlow : public RefCounted {
 public:
     RenderFlow();
     virtual ~RenderFlow();

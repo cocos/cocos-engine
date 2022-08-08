@@ -97,15 +97,21 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     // pipeline construct.
     generateConstantMacros();
 
-    for (auto *const flow : _flows) {
+    for (int i = 0; i < _flows.size(); i++) {
+        const auto &flow = _flows[i];
         flow->activate(this);
     }
+
+    //for (auto *const flow : _flows) {
+    //    flow->activate(this);
+    //}
 
     return true;
 }
 
 void RenderPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
-    for (auto *const flow : _flows) {
+    for (int i = 0; i < _flows.size(); i++) {
+        const auto &flow = _flows[i];
         for (auto *camera : cameras) {
             flow->render(camera);
         }
@@ -151,12 +157,16 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
 
 bool RenderPipeline::destroy() {
     if (_isResourceOwner) {
-        for (auto *flow : _flows) {
-            CC_SAFE_DESTROY_AND_DELETE(flow);
+        for (int i = 0; i < _flows.size(); i++) {
+            auto &flow = _flows[i];
+            CC_SAFE_DESTROY(flow);
+            CC_SAFE_RELEASE(flow);
         }
     } else {
-        for (auto *flow : _flows) {
+        for (int i = 0; i < _flows.size(); i++) {
+            const auto &flow = _flows[i];
             CC_SAFE_DESTROY(flow);
+            CC_SAFE_RELEASE(flow);
         }
     }
     _flows.clear();
@@ -349,7 +359,8 @@ void RenderPipeline::generateConstantMacros() {
 gfx::DescriptorSetLayout *RenderPipeline::getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
 
 RenderStage *RenderPipeline::getRenderstageByName(const ccstd::string &name) const {
-    for (auto *flow : _flows) {
+    for (int i = 0; i < _flows.size(); i++) {
+        const auto &flow = _flows[i];
         auto *val = flow->getRenderstageByName(name);
         if (val) {
             return val;

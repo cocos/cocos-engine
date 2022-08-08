@@ -135,7 +135,8 @@ void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             _clusterComp->clusterLightCulling(camera);
         }
 
-        for (auto *const flow : _flows) {
+        for (int i = 0; i < _flows.size(); i++) {
+            const auto &flow = _flows[i];
             flow->render(camera);
         }
         _fg.compile();
