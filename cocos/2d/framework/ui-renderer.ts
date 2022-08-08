@@ -366,6 +366,7 @@ export class UIRenderer extends Renderer {
         if (!this.renderData) {
             return;
         }
+        this.renderData.removeRenderDrawInfo(this);
         RenderData.remove(this.renderData);
         this._renderData = null;
     }

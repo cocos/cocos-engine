@@ -355,11 +355,11 @@ void Skybox::updatePipeline() const {
         }
         _material->setProperty("environmentMap", envmap);
         _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
-    }
 
-    if (_model != nullptr && _material != nullptr) {
-        _model->setSubModelMaterial(0, _material);
-        updateSubModes();
+        if (_model != nullptr) {
+            _model->setSubModelMaterial(0, _material);
+            updateSubModes();
+        }
     }
 
     Root *root = Root::getInstance();
@@ -424,12 +424,7 @@ void Skybox::updatePipeline() const {
         valueChanged = true;
     }
 
-    //set the macro value first before update the material
-    if (isEnabled() && _material != nullptr) {
-        _material->recompileShaders({ {"USE_RGBE_CUBEMAP", isRGBE()} });
-    }
-
-    if (_model != nullptr && _material != nullptr) {
+    if (isEnabled() && _model != nullptr && _material != nullptr) {
         _model->setSubModelMaterial(0, _material);
     }
 

@@ -101,6 +101,7 @@ SE_DECLARE_FUNC(js_scene_Node_getChildByUuid);
 SE_DECLARE_FUNC(js_scene_Node_getDirtyFlag);
 SE_DECLARE_FUNC(js_scene_Node_getLayer);
 SE_DECLARE_FUNC(js_scene_Node_getParent);
+SE_DECLARE_FUNC(js_scene_Node_getPathInHierarchy);
 SE_DECLARE_FUNC(js_scene_Node_getScene);
 SE_DECLARE_FUNC(js_scene_Node_getSiblingIndex);
 SE_DECLARE_FUNC(js_scene_Node_insertChild);
