@@ -64,6 +64,7 @@ function beginTrans (fn, minBytes) {
 
     let offset = 4;         // reserved for block total length
     if (window.oh) {
+        // TODO: setBigUint64 doesn't auto convert number into BigInt on OpenHarmony.
         dataView.setBigUint64(startPos + offset, BigInt(fn), isLittleEndian);
     } else {
         dataView.setBigUint64(startPos + offset, fn, isLittleEndian);
@@ -76,6 +77,7 @@ function beginTrans (fn, minBytes) {
         },
         writeBigUint64: (value) => {
             if (window.oh) {
+                // TODO: setBigUint64 doesn't auto convert number into BigInt on OpenHarmony.
                 dataView.setBigUint64(startPos + offset, BigInt(value), isLittleEndian);
             } else {
                 dataView.setBigUint64(startPos + offset, value, isLittleEndian);
@@ -91,6 +93,7 @@ function beginTrans (fn, minBytes) {
         writePointer (e) {
             if (e) {
                 if (window.oh) {
+                    // TODO: setBigUint64 doesn't auto convert number into BigInt on OpenHarmony.
                     dataView.setBigUint64(startPos + offset, BigInt(e.__native_ptr__), isLittleEndian);
                 } else {
                     dataView.setBigUint64(startPos + offset, e.__native_ptr__, isLittleEndian);
