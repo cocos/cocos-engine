@@ -77,12 +77,16 @@ public:
     void updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
     void setTextAlign(TextAlign align) override;
     void setTextBaseline(TextBaseline baseline) override;
-    void setFillStyle(float r, float g, float b, float a) override;
-    void setStrokeStyle(float r, float g, float b, float a) override;
+    void setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
+    void setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
     void setLineWidth(float lineWidth) override;
     const cc::Data &getDataRef() const override;
     void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
     void updateData() override;
+    void setShadowBlur(float blur) override;
+    void setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
+    void setShadowOffsetX(float offsetX) override;
+    void setShadowOffsetY(float offsetY) override;
 
 private:
     void unMultiplyAlpha(unsigned char *ptr, uint32_t size);
