@@ -318,6 +318,7 @@ void CCWGPUCommandBuffer::bindStates() {
                     if (setLayouts[i] != descriptorSets[i].descriptorSet->getLayout()) {
                         pipelineLayoutChanged = true;
                     }
+                    printf("descriptorSets[i].descriptorSet %d, %s\n", i, descriptorSets[i].descriptorSet->_label.c_str());
                 } else {
                     wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                                       i,
@@ -364,7 +365,7 @@ void CCWGPUCommandBuffer::bindStates() {
 
         pipelineState->check(_renderPass, 1);
         pipelineState->prepare(setInUse);
-
+        printf("draw %s\n", pipelineState->getShader()->getName().c_str());
         // printf("ppshn: %s\n", static_cast<CCWGPUShader *>(pipelineState->getShader())->gpuShaderObject()->name.c_str());
 
         const auto &pplLayout = static_cast<const CCWGPUPipelineLayout *>(pipelineState->ppl());
@@ -507,6 +508,9 @@ void CCWGPUCommandBuffer::nextSubpass() {
 
 void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
     bindStates();
+    if (info.indexCount == 7140 || info.vertexCount == 7140) {
+        printf("draw 7140\n");
+    }
 
     auto *ia = static_cast<CCWGPUInputAssembler *>(_gpuCommandBufferObj->stateCache.inputAssembler);
     if (ia->getIndirectBuffer()) {

@@ -45,9 +45,9 @@ public:
 
     inline CCWGPUBindGroupLayoutObject *gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
 
-    void udpateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer);
-    void udpateTextureLayout(uint8_t binding, const CCWGPUTexture *texture);
-    void udpateSamplerLayout(uint8_t binding, const CCWGPUSampler *sampler);
+    void updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer);
+    void updateTextureLayout(uint8_t binding, const CCWGPUTexture *texture);
+    void updateSamplerLayout(uint8_t binding, const CCWGPUSampler *sampler);
 
     void prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate = false);
 
@@ -73,7 +73,7 @@ protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;
 
-    ccstd::hash_t hash();
+    ccstd::hash_t hash() const;
     ccstd::hash_t _hash{0};
     bool _internalChanged{false};
 

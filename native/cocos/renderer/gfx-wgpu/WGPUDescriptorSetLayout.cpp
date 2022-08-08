@@ -128,84 +128,110 @@ void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
 
     (void)defaultBindGroupLayout();
 
-    (void)hash();
+    _hash = hash();
 }
 
-void CCWGPUDescriptorSetLayout::updateLayout(uint8_t binding, const CCWGPUBuffer *buffer, const CCWGPUTexture *tex, const CCWGPUSampler *sampler) {
+void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer) {
+    // auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
+    //     return entry.binding == binding;
+    // });
+
+    // if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
+    //     auto bindingIter = std::find_if(_bindings.begin(), _bindings.end(), [binding](const auto &binding) {
+    //         return binding.binding == binding;
+    //     });
+    // }
+
+    // _internalChanged = true;
+}
+
+void CCWGPUDescriptorSetLayout::updateTextureLayout(uint8_t binding, const CCWGPUTexture *texture) {
     auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
         return entry.binding == binding;
     });
 
     if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
-        if (buffer) {
-            //
-        }
-        if (sampler) {
-            bool flag = false;
-            const SamplerInfo &info = sampler->getInfo();
-            if ((info.minFilter == Filter::POINT || info.minFilter == Filter::NONE) &&
-                (info.magFilter == Filter::POINT || info.magFilter == Filter::NONE) &&
-                (info.mipFilter == Filter::POINT || info.mipFilter == Filter::NONE)) {
-                (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
-                flag = true;
-            } else {
-                (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
-            }
-        }
-        if (tex) {
-            if (tex->getInfo().usage == TextureUsageBit::STORAGE) {
+        auto bindingIter = std::find_if(_bindings.begin(), _bindings.end(), [binding](const auto &bindingElem) {
+            return bindingElem.binding == binding;
+        });
+        if (texture) {
+            if (texture->getInfo().usage == TextureUsageBit::STORAGE) {
                 (*iter).storageTexture.nextInChain = nullptr;
                 (*iter).storageTexture.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
-                (*iter).storageTexture.format = toWGPUTextureFormat(tex->getFormat());
-                TextureType type = tex->isTextureView() ? tex->getViewInfo().type : tex->getInfo().type;
+                (*iter).storageTexture.format = toWGPUTextureFormat(texture->getFormat());
+                TextureType type = texture->isTextureView() ? texture->getViewInfo().type : texture->getInfo().type;
                 (*iter).storageTexture.viewDimension = toWGPUTextureViewDimension(type);
             } else {
                 (*iter).texture.nextInChain = nullptr;
-                (*iter).texture.sampleType = textureSampleTypeTrait(tex->getFormat());
-                const CCWGPUTexture *ccTex = static_cast<const CCWGPUTexture *>(tex->isTextureView() ? tex->getViewInfo().texture : tex);
+                (*iter).texture.sampleType = textureSampleTypeTrait(texture->getFormat());
+                const CCWGPUTexture *ccTex = static_cast<const CCWGPUTexture *>(texture->isTextureView() ? texture->getViewInfo().texture : texture);
                 TextureType type = ccTex->getViewInfo().type;
                 (*iter).texture.viewDimension = toWGPUTextureViewDimension(type);
                 (*iter).texture.multisampled = ccTex->getInfo().samples != SampleCount::ONE;
             }
+        } else {
+            (*iter).texture.nextInChain = nullptr;
+            (*iter).texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+            (*iter).texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+            (*iter).texture.multisampled = false;
         }
         _internalChanged = true;
     }
 }
 
-void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer) {
+void CCWGPUDescriptorSetLayout::updateSamplerLayout(uint8_t binding, const CCWGPUSampler *sampler) {
     auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
         return entry.binding == binding;
     });
 
     if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
-        if (buffer) {
+        auto bindingIter = std::find_if(_bindings.begin(), _bindings.end(), [binding](const auto &bindingElem) {
+            return bindingElem.binding == binding;
+        });
+        if (sampler) {
+            const SamplerInfo &info = sampler->getInfo();
+            if ((info.minFilter == Filter::POINT || info.minFilter == Filter::NONE) &&
+                (info.magFilter == Filter::POINT || info.magFilter == Filter::NONE) &&
+                (info.mipFilter == Filter::POINT || info.mipFilter == Filter::NONE)) {
+                (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
+            } else {
+                (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+            }
         } else {
+            (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
         }
+        _internalChanged = true;
     }
-
-    _internalChanged = true;
 }
 
-ccstd::hash_t CCWGPUDescriptorSetLayout::hash() {
+ccstd::hash_t CCWGPUDescriptorSetLayout::hash() const {
     const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
-    _hash = entries.size() * 12 + 1;
-    ccstd::hash_combine(_hash, entries.size());
+    ccstd::hash_t hash = 9527;
+    ccstd::hash_combine(hash, entries.size());
     for (size_t i = 0; i < entries.size(); i++) {
-        ccstd::hash_combine(_hash, i);
-        ccstd::hash_combine(_hash, entries[i].binding);
-        ccstd::hash_combine(_hash, entries[i].visibility);
-        ccstd::hash_combine(_hash, entries[i].buffer.type);
-        ccstd::hash_combine(_hash, entries[i].buffer.hasDynamicOffset);
-        ccstd::hash_combine(_hash, entries[i].buffer.minBindingSize);
-        ccstd::hash_combine(_hash, entries[i].sampler.type);
-        ccstd::hash_combine(_hash, entries[i].texture.sampleType);
-        ccstd::hash_combine(_hash, entries[i].texture.viewDimension);
-        ccstd::hash_combine(_hash, entries[i].texture.multisampled);
-        ccstd::hash_combine(_hash, entries[i].storageTexture.access);
-        ccstd::hash_combine(_hash, entries[i].storageTexture.format);
-        ccstd::hash_combine(_hash, entries[i].storageTexture.viewDimension);
+        ccstd::hash_combine(hash, i);
+        ccstd::hash_combine(hash, entries[i].binding);
+        ccstd::hash_combine(hash, entries[i].visibility);
+        if (entries[i].buffer.type != WGPUBufferBindingType_Undefined) {
+            ccstd::hash_combine(hash, entries[i].buffer.type);
+            ccstd::hash_combine(hash, entries[i].buffer.hasDynamicOffset);
+            ccstd::hash_combine(hash, entries[i].buffer.minBindingSize);
+        }
+        if (entries[i].sampler.type != WGPUSamplerBindingType_Undefined) {
+            ccstd::hash_combine(hash, entries[i].sampler.type);
+        }
+        if (entries[i].texture.sampleType != WGPUTextureSampleType_Undefined) {
+            ccstd::hash_combine(hash, entries[i].texture.sampleType);
+            ccstd::hash_combine(hash, entries[i].texture.viewDimension);
+            ccstd::hash_combine(hash, entries[i].texture.multisampled);
+        }
+        if (entries[i].storageTexture.access != WGPUStorageTextureAccess_Undefined) {
+            ccstd::hash_combine(hash, entries[i].storageTexture.access);
+            ccstd::hash_combine(hash, entries[i].storageTexture.format);
+            ccstd::hash_combine(hash, entries[i].storageTexture.viewDimension);
+        }
     }
-    return _hash;
+    return hash;
 }
 
 void CCWGPUDescriptorSetLayout::print() const {
@@ -250,6 +276,7 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     //                              bindGroupLayoutEntries.end());
 
     size_t hashVal = (!_hash || _internalChanged) ? hash() : _hash;
+    _hash = hashVal;
     auto iter = layoutPool.find(hashVal);
     if (iter != layoutPool.end()) {
         _gpuLayoutEntryObj->bindGroupLayout = iter->second;
@@ -283,6 +310,9 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
         _gpuLayoutEntryObj->bindGroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
     }
     layoutPool.insert({hashVal, _gpuLayoutEntryObj->bindGroupLayout});
+    if (hashVal == 3403178261 || hashVal == 3974136007) {
+        print();
+    }
 }
 
 void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {

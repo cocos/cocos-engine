@@ -68,6 +68,7 @@ public:
 protected:
     void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
+    ccstd::hash_t hash() const;
 
     CCWGPUBindGroupObject *_gpuBindGroupObj = nullptr;
 
@@ -81,6 +82,8 @@ protected:
     void *_bgl = nullptr;
 
     void *_ccbgl = nullptr;
+
+    ccstd::hash_t _hash{0};
 
     // DescriptorSetLayout* _local = nullptr;
 };
