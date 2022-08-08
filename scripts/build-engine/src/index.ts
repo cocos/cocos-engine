@@ -273,17 +273,33 @@ async function doBuild ({
 
     const featureUnits = statsQuery.getUnitsOfFeatures(features);
 
-    // HACK: get flags from build time constants
+    // HACK: get platform, mode, flags from build time constants
     const flags: Record<string, any> = {};
     ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE'].forEach(key => {
         flags[key] = buildTimeConstants[key];
+    });
+    let platform!: PlatformType;
+    ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE"].some(key => {
+        if (buildTimeConstants[key]) {
+            platform = key as PlatformType;
+            return true;
+        }
+        return false;
+    });
+    let mode!: ModeType;
+    ["EDITOR", "PREVIEW", "BUILD", "TEST"].some(key => {
+        if (buildTimeConstants[key]) {
+            mode = key as ModeType;
+            return true;
+        }
+        return false;
     });
 
     const rpVirtualOptions: Record<string, string> = {};
     
     const vmInternalConstants = statsQuery.constantManager.exportStaticConstants({
-        platform: options.platform as PlatformType,
-        mode: options.mode as ModeType,
+        platform,
+        mode,
         flags,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
