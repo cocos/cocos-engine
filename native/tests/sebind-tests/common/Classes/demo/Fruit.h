@@ -13,13 +13,13 @@ public:
     std::string toString() const { return fullInfo(); }
 
     void setSweetness(int value) { _sweetness = value; }
-    double getSweetness() const {return _sweetness; };
+    double getSweetness() const { return _sweetness; };
 
     int uid{-1};
 
     std::string getName() const { return _name; }
 
-    double getPrice() const {return _price;}
+    double getPrice() const { return _price; }
 
 private:
     std::string _name;

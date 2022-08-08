@@ -30,11 +30,11 @@
 #ifndef Spine_Atlas_h
 #define Spine_Atlas_h
 
-#include <spine/Vector.h>
 #include <spine/Extension.h>
+#include <spine/HasRendererObject.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
-#include <spine/HasRendererObject.h>
+#include <spine/Vector.h>
 
 namespace spine {
 enum Format {

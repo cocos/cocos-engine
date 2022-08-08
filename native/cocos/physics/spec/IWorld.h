@@ -128,7 +128,7 @@ public:
     virtual uint32_t createTrimesh(TrimeshDesc &desc) = 0;
     virtual uint32_t createHeightField(HeightFieldDesc &desc) = 0;
     virtual bool createMaterial(uint16_t id, float f, float df, float r,
-                                     uint8_t m0, uint8_t m1) = 0;
+                                uint8_t m0, uint8_t m1) = 0;
 };
 
 } // namespace physics

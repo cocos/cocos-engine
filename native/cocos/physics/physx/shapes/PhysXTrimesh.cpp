@@ -34,7 +34,7 @@ namespace physics {
 PhysXTrimesh::PhysXTrimesh() : _mMeshHandle(0),
                                _mConvex(false),
                                _mIsTrigger(false){};
-                               
+
 void PhysXTrimesh::setMesh(uint32_t objectID) {
     uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
     if (handle == 0) return;

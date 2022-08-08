@@ -29,8 +29,8 @@
 
 #include "../core/BaseObject.h"
 #include "../geom/Matrix.h"
-#include "../geom/Transform.h"
 #include "../geom/Point.h"
+#include "../geom/Transform.h"
 #include "../model/ArmatureData.h"
 #include "../model/ConstraintData.h"
 

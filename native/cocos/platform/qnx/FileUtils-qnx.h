@@ -32,7 +32,7 @@ public:
     friend class FileUtils;
     FileUtilsQNX();
     ~FileUtilsQNX() override = default;
- 
+
     bool isFileExistInternal(const ccstd::string &filename) const override;
     ccstd::string getWritablePath() const override;
     bool init() override;

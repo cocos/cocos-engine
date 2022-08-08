@@ -61,7 +61,7 @@ RenderObject genRenderObject(const scene::Model *model, const scene::Camera *cam
     return {depth, model};
 }
 
-void validPunctualLightsCulling(const RenderPipeline* pipeline, const scene::Camera* camera) {
+void validPunctualLightsCulling(const RenderPipeline *pipeline, const scene::Camera *camera) {
     const auto *const scene = camera->getScene();
     PipelineSceneData *sceneData = pipeline->getPipelineSceneData();
     sceneData->clearValidPunctualLights();
@@ -93,8 +93,8 @@ void validPunctualLightsCulling(const RenderPipeline* pipeline, const scene::Cam
     }
 }
 
- // Todo If you want to optimize the cutting efficiency, you can get it from the octree
-void shadowCulling(const RenderPipeline* pipeline, const scene::Camera* camera, ShadowTransformInfo* layer) {
+// Todo If you want to optimize the cutting efficiency, you can get it from the octree
+void shadowCulling(const RenderPipeline *pipeline, const scene::Camera *camera, ShadowTransformInfo *layer) {
     const auto *sceneData = pipeline->getPipelineSceneData();
     auto *csmLayers = sceneData->getCSMLayers();
     const auto *const scene = camera->getScene();
@@ -126,7 +126,7 @@ void shadowCulling(const RenderPipeline* pipeline, const scene::Camera* camera, 
     }
 }
 
-void sceneCulling(const RenderPipeline* pipeline, scene::Camera* camera) {
+void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     CC_PROFILE(SceneCulling);
     PipelineSceneData *const sceneData = pipeline->getPipelineSceneData();
     const scene::Shadows *shadowInfo = sceneData->getShadows();
@@ -210,7 +210,7 @@ void sceneCulling(const RenderPipeline* pipeline, scene::Camera* camera) {
         }
     }
 
-csmLayers = nullptr;
+    csmLayers = nullptr;
 }
 
 } // namespace pipeline

@@ -77,6 +77,10 @@ public:
     void setFillStyle(const ccstd::string &fillStyle) override;
     void setStrokeStyle(const ccstd::string &strokeStyle) override;
     void setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) override;
+    void setShadowBlur(float blur) override;
+    void setShadowColor(const ccstd::string &shadowColor) override;
+    void setShadowOffsetX(float offsetX) override;
+    void setShadowOffsetY(float offsetY) override;
 
     // fill image data into Context2D
     void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;

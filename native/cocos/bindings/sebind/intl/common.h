@@ -32,10 +32,10 @@
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 
-#include "base/std/container/string.h"
-#include "base/std/container/vector.h"
 #include "base/std/container/array.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 
 namespace sebind {
 
@@ -85,7 +85,7 @@ struct FunctionWrapper<R (*)(C *, ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline static R invoke(type func, C *self, ARGS2 &&... args) {
+    inline static R invoke(type func, C *self, ARGS2 &&...args) {
         return (*func)(self, std::forward<ARGS2>(args)...);
     }
 };
@@ -97,7 +97,7 @@ struct FunctionWrapper<R (C::*)(ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline static R invoke(type func, C *self, ARGS2 &&... args) {
+    inline static R invoke(type func, C *self, ARGS2 &&...args) {
         return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -109,7 +109,7 @@ struct FunctionWrapper<R (C::*)(ARGS...) const> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline static R invoke(type func, C *self, ARGS2 &&... args) {
+    inline static R invoke(type func, C *self, ARGS2 &&...args) {
         return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -121,7 +121,7 @@ struct FunctionWrapper<std::nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
-    static void invoke(type /*func*/, C * /*self*/, ARGS &&... /*args*/) {
+    static void invoke(type /*func*/, C * /*self*/, ARGS &&.../*args*/) {
     }
 };
 
@@ -135,7 +135,7 @@ struct StaticFunctionWrapper<R (*)(ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline static R invoke(type func, ARGS2 &&... args) {
+    inline static R invoke(type func, ARGS2 &&...args) {
         return (*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -147,7 +147,7 @@ struct StaticFunctionWrapper<std::nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename... ARGS>
-    static void invoke(type /*func*/, ARGS &&... /*args*/) {
+    static void invoke(type /*func*/, ARGS &&.../*args*/) {
     }
 };
 
@@ -804,18 +804,17 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     }
 
     bool set(se::State &state) const override {
-        if
-            CC_CONSTEXPR(HAS_SETTER) {
-                T *self = reinterpret_cast<T *>(state.nativeThisObject());
-                se::Object *thisObject = state.thisObject();
-                const auto &args = state.args();
-                HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
-                sevalue_to_native(args[0], &(temp.data), thisObject);
+        if CC_CONSTEXPR (HAS_SETTER) {
+            T *self = reinterpret_cast<T *>(state.nativeThisObject());
+            se::Object *thisObject = state.thisObject();
+            const auto &args = state.args();
+            HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
+            sevalue_to_native(args[0], &(temp.data), thisObject);
 
-                using func_type = FunctionWrapper<setter_type>;
-                func_type::invoke(setterPtr, self, temp.value());
-                return true;
-            }
+            using func_type = FunctionWrapper<setter_type>;
+            func_type::invoke(setterPtr, self, temp.value());
+            return true;
+        }
         return false;
     }
 };
@@ -963,15 +962,14 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     }
 
     bool set(se::State &state) const override {
-        if
-            CC_CONSTEXPR(HAS_SETTER) {
-                const auto &args = state.args();
-                HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
-                sevalue_to_native(args[0], &(temp.data), nullptr);
-                using func_type = StaticFunctionWrapper<setter_type>;
-                func_type::invoke(setterPtr, temp.value());
-                return true;
-            }
+        if CC_CONSTEXPR (HAS_SETTER) {
+            const auto &args = state.args();
+            HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
+            sevalue_to_native(args[0], &(temp.data), nullptr);
+            using func_type = StaticFunctionWrapper<setter_type>;
+            func_type::invoke(setterPtr, temp.value());
+            return true;
+        }
         return false;
     }
 };

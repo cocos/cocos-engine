@@ -181,7 +181,7 @@ uint32_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
 }
 
 bool PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
-                                     uint8_t m0, uint8_t m1) {
+                                uint8_t m0, uint8_t m1) {
     physx::PxMaterial *mat;
     auto &m = getPxMaterialMap();
     if (m.find(id) == m.end()) {
@@ -207,8 +207,7 @@ uintptr_t PhysXWorld::getPXMaterialPtrWithMaterialID(uint32_t materialID) {
     auto const &it = m.find(materialID);
     if (it == m.end()) {
         return 0;
-    }
-    else{
+    } else {
         return it->second;
     }
 }
@@ -346,7 +345,7 @@ void PhysXWorld::removePXObject(uint32_t pxObjectID) {
 }
 
 uintptr_t PhysXWorld::getPXPtrWithPXObjectID(uint32_t pxObjectID) {
-    auto const & iter = _mPXObjects.find(pxObjectID);
+    auto const &iter = _mPXObjects.find(pxObjectID);
     if (iter == _mPXObjects.end()) {
         return 0;
     }
@@ -367,12 +366,11 @@ void PhysXWorld::removeWrapperObject(uint32_t wrapperObjectID) {
 }
 
 uintptr_t PhysXWorld::getWrapperPtrWithObjectID(uint32_t wrapperObjectID) {
-    auto const & iter = _mWrapperObjects.find(wrapperObjectID);
+    auto const &iter = _mWrapperObjects.find(wrapperObjectID);
     if (iter == _mWrapperObjects.end())
         return 0;
     return iter->second;
 };
-
 
 } // namespace physics
 } // namespace cc

@@ -33,8 +33,8 @@
 
 #include <spine/SkeletonClipping.h>
 
-#include <spine/Slot.h>
 #include <spine/ClippingAttachment.h>
+#include <spine/Slot.h>
 
 using namespace spine;
 

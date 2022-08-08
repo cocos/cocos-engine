@@ -23,8 +23,8 @@
 #ifndef DRAGONBONES_ARMATURE_H
 #define DRAGONBONES_ARMATURE_H
 
-#include "../core/BaseObject.h"
 #include "../animation/IAnimatable.h"
+#include "../core/BaseObject.h"
 #include "../model/ArmatureData.h"
 #include "IArmatureProxy.h"
 

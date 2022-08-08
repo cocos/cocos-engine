@@ -25,15 +25,15 @@
 
 #include <thread>
 
-#include "platform/ohos/OhosPlatform.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/Vibrator.h"
-#include "modules/Screen.h"
-#include "modules/System.h"
+#include "platform/ohos/OhosPlatform.h"
 
 namespace cc {
 OhosPlatform::OhosPlatform() {
