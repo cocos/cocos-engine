@@ -37,8 +37,95 @@
 
 namespace cc {
 namespace gfx {
+ccstd::map<ccstd::hash_t, void *> CCWGPUPipelineState::pipelineMap;
 
-using namespace emscripten;
+namespace {
+using ccstd::hash_combine;
+ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
+    ccstd::hash_t hash = 9527;
+    hash_combine(hash, desc.layout);
+    hash_combine(hash, desc.vertex.module);
+    hash_combine(hash, desc.vertex.entryPoint);
+    hash_combine(hash, desc.vertex.constantCount);
+    for (uint32_t i = 0; i < desc.vertex.constantCount; ++i) {
+        hash_combine(hash, desc.vertex.constants[i].key);
+        hash_combine(hash, desc.vertex.constants[i].value);
+    }
+
+    hash_combine(hash, desc.vertex.bufferCount);
+    for (size_t i = 0; i < desc.vertex.bufferCount; ++i) {
+        const auto &buffer = desc.vertex.buffers[i];
+        hash_combine(hash, buffer.arrayStride);
+        hash_combine(hash, buffer.stepMode);
+        hash_combine(hash, buffer.attributeCount);
+        for (size_t j = 0; j < buffer.attributeCount; ++j) {
+            const auto &attribute = buffer.attributes[j];
+            hash_combine(hash, attribute.shaderLocation);
+            hash_combine(hash, attribute.offset);
+            hash_combine(hash, attribute.format);
+        }
+    }
+
+    hash_combine(hash, desc.primitive.topology);
+    hash_combine(hash, desc.primitive.stripIndexFormat);
+    hash_combine(hash, desc.primitive.frontFace);
+    hash_combine(hash, desc.primitive.cullMode);
+
+    if (desc.depthStencil) {
+        hash_combine(hash, desc.depthStencil->format);
+        hash_combine(hash, desc.depthStencil->depthWriteEnabled);
+        hash_combine(hash, desc.depthStencil->depthCompare);
+        hash_combine(hash, desc.depthStencil->stencilFront.compare);
+        hash_combine(hash, desc.depthStencil->stencilFront.failOp);
+        hash_combine(hash, desc.depthStencil->stencilFront.depthFailOp);
+        hash_combine(hash, desc.depthStencil->stencilFront.passOp);
+        hash_combine(hash, desc.depthStencil->stencilBack.compare);
+        hash_combine(hash, desc.depthStencil->stencilBack.failOp);
+        hash_combine(hash, desc.depthStencil->stencilBack.depthFailOp);
+        hash_combine(hash, desc.depthStencil->stencilBack.passOp);
+        hash_combine(hash, desc.depthStencil->stencilReadMask);
+        hash_combine(hash, desc.depthStencil->stencilWriteMask);
+        hash_combine(hash, desc.depthStencil->depthBias);
+        hash_combine(hash, desc.depthStencil->depthBiasSlopeScale);
+        hash_combine(hash, desc.depthStencil->depthBiasClamp);
+    } else {
+        hash_combine(hash, 0);
+    }
+
+    hash_combine(hash, desc.multisample.count);
+    hash_combine(hash, desc.multisample.mask);
+    hash_combine(hash, desc.multisample.alphaToCoverageEnabled);
+
+    if (desc.fragment) {
+        hash_combine(hash, desc.fragment->module);
+        hash_combine(hash, desc.fragment->entryPoint);
+        hash_combine(hash, desc.fragment->constantCount);
+        for (uint32_t i = 0; i < desc.fragment->constantCount; ++i) {
+            hash_combine(hash, desc.fragment->constants[i].key);
+            hash_combine(hash, desc.fragment->constants[i].value);
+        }
+        hash_combine(hash, desc.fragment->targetCount);
+        for (uint32_t i = 0; i < desc.fragment->targetCount; ++i) {
+            hash_combine(hash, desc.fragment->targets[i].format);
+            if (desc.fragment->targets[i].blend) {
+                hash_combine(hash, desc.fragment->targets[i].blend->color.operation);
+                hash_combine(hash, desc.fragment->targets[i].blend->color.srcFactor);
+                hash_combine(hash, desc.fragment->targets[i].blend->color.dstFactor);
+                hash_combine(hash, desc.fragment->targets[i].blend->alpha.operation);
+                hash_combine(hash, desc.fragment->targets[i].blend->alpha.srcFactor);
+                hash_combine(hash, desc.fragment->targets[i].blend->alpha.dstFactor);
+            } else {
+                hash_combine(hash, 0);
+            }
+            hash_combine(hash, desc.fragment->targets[i].writeMask);
+        }
+    } else {
+        hash_combine(hash, 0);
+    }
+    return hash;
+}
+
+} // namespace
 
 CCWGPUPipelineState::CCWGPUPipelineState() : PipelineState() {
 }
@@ -84,7 +171,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         bool isInstance = attrs.empty() ? false : attrs[0].isInstanced;
         uint8_t index = 0;
 
-        printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
+        // printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             ccstd::string attrName = attrs[i].name;
@@ -110,16 +197,17 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                     .shaderLocation = attrs[i].location,
                 };
 
-                if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].size) {
-                    printf("found attr %s %s in shader exceed size of longest attr %s %s\n", attrName.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].name.c_str(),
-                           (*longestAttr).name.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].name.c_str());
-                    _gpuPipelineStateObj->redundantAttr.push_back(attr);
-                    if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > _gpuPipelineStateObj->maxAttrLength) {
-                        _gpuPipelineStateObj->maxAttrLength = GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-                    }
-                } else {
-                    wgpuAttrsVec[mostToleranceStream].push_back(attr);
-                }
+                // if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].size) {
+                //     printf("found attr %s %s in shader exceed size of longest attr %s %s\n", attrName.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].name.c_str(),
+                //            (*longestAttr).name.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].name.c_str());
+                //     _gpuPipelineStateObj->redundantAttr.push_back(attr);
+                //     if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > _gpuPipelineStateObj->maxAttrLength) {
+                //         _gpuPipelineStateObj->maxAttrLength = GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+                //     }
+                // } else {
+                //     wgpuAttrsVec[mostToleranceStream].push_back(attr);
+                // }
+                wgpuAttrsVec[mostToleranceStream].push_back(attr);
             }
 
             // printf("sl %s, %d, %d\n", attrName.c_str(), attrs[i].location, attrs[i].stream);
@@ -148,16 +236,16 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 .attributeCount = wgpuAttrsVec[i].size(),
                 .attributes = wgpuAttrsVec[i].data(),
             };
-            for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
-                // printf("wg %d, %d, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
+            // for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
+            //     printf("wg %d, %d, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
 
-                // if (locSet.find(wgpuAttrsVec[i][j].shaderLocation) != locSet.end() && wgpuAttrsVec[i][j].shaderLocation != 0) {
-                //     printf("duplicate location %d\n", wgpuAttrsVec[i][j].shaderLocation);
-                //     while (1) {
-                //     }
-                // }
-                // locSet.insert(wgpuAttrsVec[i][j].shaderLocation);
-            }
+            //     if (locSet.find(wgpuAttrsVec[i][j].shaderLocation) != locSet.end() && wgpuAttrsVec[i][j].shaderLocation != 0) {
+            //         printf("duplicate location %d\n", wgpuAttrsVec[i][j].shaderLocation);
+            //         while (1) {
+            //         }
+            //     }
+            //     locSet.insert(wgpuAttrsVec[i][j].shaderLocation);
+            // }
         }
 
         WGPUVertexState vertexState = {
@@ -258,8 +346,16 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .fragment = &fragmentState,
         };
 
-        printf("ppl %s\n", static_cast<CCWGPUShader *>(_shader)->getName().c_str());
-        _gpuPipelineStateObj->wgpuRenderPipeline = wgpuDeviceCreateRenderPipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+        auto hashVal = hash(piplineDesc);
+
+        auto iter = pipelineMap.find(hashVal);
+        if (iter == pipelineMap.end()) {
+            _gpuPipelineStateObj->wgpuRenderPipeline = wgpuDeviceCreateRenderPipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+            printf("ppl %s\n", static_cast<CCWGPUShader *>(_shader)->getName().c_str());
+            pipelineMap[hashVal] = _gpuPipelineStateObj->wgpuRenderPipeline;
+        } else {
+            _gpuPipelineStateObj->wgpuRenderPipeline = static_cast<WGPURenderPipeline>(iter->second);
+        }
         _ppl = pipelineLayout;
         _forceUpdate = false;
     } else if (_bindPoint == PipelineBindPoint::COMPUTE) {

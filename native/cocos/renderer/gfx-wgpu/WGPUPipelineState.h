@@ -27,6 +27,7 @@
 #ifdef CC_WGPU_WASM
     #include "WGPUDef.h"
 #endif
+#include "base/std/container/map.h"
 #include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineState.h"
 
@@ -43,10 +44,12 @@ public:
     inline CCWGPUPipelineStateObject *gpuPipelineStateObject() { return _gpuPipelineStateObj; }
 
     void check(RenderPass *renderPass, bool forceUpdate = false);
-
     void prepare(const ccstd::set<uint8_t> &setInUse);
+    PipelineLayout *layout() const { return _pipelineLayout; }
 
     void *ppl() const { return _ppl; }
+
+    static ccstd::map<ccstd::hash_t, void *> pipelineMap;
 
 protected:
     void doInit(const PipelineStateInfo &info) override;

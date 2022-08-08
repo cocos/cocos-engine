@@ -33,6 +33,8 @@
 namespace cc {
 namespace gfx {
 
+ccstd::map<ccstd::hash_t, void *> CCWGPUPipelineLayout::layoutMap;
+
 using namespace emscripten;
 
 CCWGPUPipelineLayout::CCWGPUPipelineLayout() : PipelineLayout() {
@@ -42,24 +44,30 @@ void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayoutObj = ccnew CCWGPUPipelineLayoutObject;
 }
 
-bool CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
-    if (_gpuPipelineLayoutObj->wgpuPipelineLayout) {
-        return true;
-    }
+void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
+    ccstd::hash_t hash = _setLayouts.size() * 2 + 1;
+    ccstd::hash_combine(hash, _setLayouts.size());
     ccstd::vector<WGPUBindGroupLayout> layouts;
     for (size_t i = 0; i < _setLayouts.size(); i++) {
         auto *descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout *>(_setLayouts[i]);
         if (setInUse.find(i) == setInUse.end()) {
             // give it default bindgrouplayout if not in use
             layouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
+            ccstd::hash_combine(hash, i);
+            ccstd::hash_combine(hash, "defaultBindgroupLayout");
         } else {
             if (!descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout) {
                 printf("bgl in ppl is null\n");
-                return false;
+                while (1) {
+                }
             }
             layouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
+            ccstd::hash_combine(hash, i);
+            ccstd::hash_combine(hash, descriptorSetLayout->_label);
         }
     }
+
+    _hash = hash;
 
     WGPUPipelineLayoutDescriptor descriptor = {
         .nextInChain = nullptr,
@@ -67,9 +75,12 @@ bool CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
         .bindGroupLayoutCount = layouts.size(),
         .bindGroupLayouts = layouts.data(),
     };
-
-    _gpuPipelineLayoutObj->wgpuPipelineLayout = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-    return true;
+    if (layoutMap.find(hash) != layoutMap.end()) {
+        _gpuPipelineLayoutObj->wgpuPipelineLayout = static_cast<WGPUPipelineLayout>(layoutMap[hash]);
+    } else {
+        _gpuPipelineLayoutObj->wgpuPipelineLayout = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+        layoutMap.emplace(hash, _gpuPipelineLayoutObj->wgpuPipelineLayout);
+    }
 }
 
 void CCWGPUPipelineLayout::doDestroy() {

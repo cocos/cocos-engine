@@ -81,7 +81,7 @@ public:
     int sampleCount = 1;
 };
 
-CCWGPURenderPass::CCWGPURenderPass() : wrapper<RenderPass>(val::object()) {
+CCWGPURenderPass::CCWGPURenderPass() : RenderPass() {
 }
 
 void CCWGPURenderPass::doInit(const RenderPassInfo &info) {

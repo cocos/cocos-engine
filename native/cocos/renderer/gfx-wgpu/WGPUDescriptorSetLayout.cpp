@@ -172,6 +172,20 @@ void CCWGPUDescriptorSetLayout::updateLayout(uint8_t binding, const CCWGPUBuffer
     }
 }
 
+void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer) {
+    auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
+        return entry.binding == binding;
+    });
+
+    if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
+        if (buffer) {
+        } else {
+        }
+    }
+
+    _internalChanged = true;
+}
+
 ccstd::hash_t CCWGPUDescriptorSetLayout::hash() {
     const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
     _hash = entries.size() * 12 + 1;
@@ -235,7 +249,7 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     //                                  }),
     //                              bindGroupLayoutEntries.end());
 
-    size_t hashVal = _hash || _internalChanged ? hash() : _hash;
+    size_t hashVal = (!_hash || _internalChanged) ? hash() : _hash;
     auto iter = layoutPool.find(hashVal);
     if (iter != layoutPool.end()) {
         _gpuLayoutEntryObj->bindGroupLayout = iter->second;
@@ -255,19 +269,20 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     //     // printf("l binding, b, t, s  %d, %d, %d, %d, %d\n", entry.binding, entry.buffer.type, entry.sampler.type, entry.texture.sampleType, entry.storageTexture.access);
     // }
 
+    static uint64_t counter = 0;
     if (entries.empty()) {
         _gpuLayoutEntryObj->bindGroupLayout = anoymous::defaultBindgroupLayout;
     } else {
-        static uint64_t counter = 0;
+        _label = std::to_string(_objectID) + " " + std::to_string(counter++) + " " + std::to_string(_hash);
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
-            .label = (std::to_string(_objectID) + " " + std::to_string(counter++)).c_str(),
+            .label = _label.c_str(),
             .entryCount = entries.size(),
             .entries = entries.data(),
         };
         _gpuLayoutEntryObj->bindGroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-        layoutPool.insert({hashVal, _gpuLayoutEntryObj->bindGroupLayout});
     }
+    layoutPool.insert({hashVal, _gpuLayoutEntryObj->bindGroupLayout});
 }
 
 void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {

@@ -41,6 +41,11 @@ public:
 
     inline CCWGPUSwapchain *swapchain() { return _swapchain; }
 
+    using Framebuffer::initialize;
+
+    EXPORT_EMS(
+        void initialize(const emscripten::val &info);)
+
 protected:
     void doInit(const FramebufferInfo &info) override;
     void doDestroy() override;

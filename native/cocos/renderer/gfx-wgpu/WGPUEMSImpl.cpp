@@ -14,6 +14,7 @@
 #include "WGPUDescriptorSet.h"
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
+#include "WGPUFrameBuffer.h"
 #include "WGPUInputAssembler.h"
 #include "WGPUQueue.h"
 #include "WGPURenderPass.h"
@@ -82,6 +83,78 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
     CHECK_INCOMPLETE(v) \
     return nullptr;     \
     }
+
+const FramebufferInfo fromEmsFramebufferInfo(const val& info) {
+    FramebufferInfo frameBufferInfo;
+    const auto& ems_frameBufferInfo = info;
+    ASSIGN_FROM_EMS(frameBufferInfo, renderPass, depthStencilTexture);
+
+    const auto& ems_colorTextures = info["colorTextures"];
+    if (!ems_colorTextures.isUndefined() || !ems_colorTextures.isNull()) {
+        const std::vector<val>& colorTexturesVec = vecFromJSArray<val>(ems_colorTextures);
+        size_t len = colorTexturesVec.size();
+        auto& gfxColorTextures = frameBufferInfo.colorTextures;
+        gfxColorTextures.resize(len);
+        for (size_t i = 0; i < len; ++i) {
+            gfxColorTextures[i] = colorTexturesVec[i].as<Texture*>(allow_raw_pointers());
+        }
+    }
+    return frameBufferInfo;
+}
+
+RenderPassInfo fromEmsRenderPassInfo(const val& info) {
+    RenderPassInfo renderPassInfo;
+    const auto& emsColors = info["colorAttachments"];
+    const std::vector<val>& colorsVec = vecFromJSArray<val>(emsColors);
+    size_t len = colorsVec.size();
+    auto& gfxColors = renderPassInfo.colorAttachments;
+    gfxColors.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        gfxColors[i].format = Format{colorsVec[i]["format"].as<uint32_t>()};
+        gfxColors[i].sampleCount = SampleCount{colorsVec[i]["sampleCount"].as<uint32_t>()};
+        gfxColors[i].loadOp = LoadOp{colorsVec[i]["loadOp"].as<uint32_t>()};
+        gfxColors[i].storeOp = StoreOp{colorsVec[i]["storeOp"].as<uint32_t>()};
+        gfxColors[i].barrier = colorsVec[i]["barrier"].as<WGPUGeneralBarrier*>(allow_raw_pointers());
+        gfxColors[i].isGeneralLayout = colorsVec[i]["isGeneralLayout"].as<bool>();
+    }
+
+    const auto& ems_depthStencil = info["depthStencilAttachment"];
+    auto& depthStencil = renderPassInfo.depthStencilAttachment;
+    // gfxDepthStencil.format = Format{colorsVec[i]["format"].as<uint32_t>()};
+    // gfxDepthStencil.sampleCount = SampleCount{colorsVec[i]["sampleCount"].as<uint32_t>()};
+    // gfxDepthStencil.depthLoadOp = LoadOp{colorsVec[i]["depthLoadOp"].as<uint32_t>()};
+    // gfxDepthStencil.depthStoreOp = StoreOp{colorsVec[i]["depthStoreOp"].as<uint32_t>()};
+    // gfxDepthStencil.stencilLoadOp = LoadOp{colorsVec[i]["stencilLoadOp"].as<uint32_t>()};
+    // gfxDepthStencil.stencilStoreOp = StoreOp{colorsVec[i]["stencilStoreOp"].as<uint32_t>()};
+    // gfxDepthStencil.barrier = colorsVec[i]["barrier"].as<GeneralBarrier*>();
+    // gfxDepthStencil.isGeneralLayout = colorsVec[i]["isGeneralLayout"].as<bool>();
+
+    ASSIGN_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, isGeneralLayout);
+
+    const auto& emsSubpasses = info["subpasses"];
+    const std::vector<val>& subpassesVec = vecFromJSArray<val>(emsSubpasses);
+    len = subpassesVec.size();
+    auto& gfxSubpasses = renderPassInfo.subpasses;
+    gfxSubpasses.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_subpass = subpassesVec[i];
+        auto& subpass = gfxSubpasses[i];
+        ASSIGN_FROM_EMSARRAY(subpass, inputs, colors, resolves, preserves);
+        ASSIGN_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
+    }
+
+    const auto& emsDependencies = info["dependencies"];
+    const std::vector<val>& dependenciesVec = vecFromJSArray<val>(emsDependencies);
+    len = dependenciesVec.size();
+    auto& gfxDependencies = renderPassInfo.dependencies;
+    gfxDependencies.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        const auto& ems_dependency = dependenciesVec[i];
+        auto& dependency = gfxDependencies[i];
+        ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
+    }
+    return renderPassInfo;
+}
 
 Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     CHECK_PTR(emsInfo);
@@ -319,80 +392,17 @@ Sampler* CCWGPUDevice::getSampler(const val& info) {
 
 RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
     CHECK_PTR(info);
+    return this->createRenderPass(fromEmsRenderPassInfo(info));
+}
 
-    RenderPassInfo renderPassInfo;
-    const auto& emsColors = info["colorAttachments"];
-    const std::vector<val>& colorsVec = vecFromJSArray<val>(emsColors);
-    size_t len = colorsVec.size();
-    auto& gfxColors = renderPassInfo.colorAttachments;
-    gfxColors.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        gfxColors[i].format = Format{colorsVec[i]["format"].as<uint32_t>()};
-        gfxColors[i].sampleCount = SampleCount{colorsVec[i]["sampleCount"].as<uint32_t>()};
-        gfxColors[i].loadOp = LoadOp{colorsVec[i]["loadOp"].as<uint32_t>()};
-        gfxColors[i].storeOp = StoreOp{colorsVec[i]["storeOp"].as<uint32_t>()};
-        gfxColors[i].barrier = colorsVec[i]["barrier"].as<WGPUGeneralBarrier*>(allow_raw_pointers());
-        gfxColors[i].isGeneralLayout = colorsVec[i]["isGeneralLayout"].as<bool>();
-    }
-
-    const auto& ems_depthStencil = info["depthStencilAttachment"];
-    auto& depthStencil = renderPassInfo.depthStencilAttachment;
-    // gfxDepthStencil.format = Format{colorsVec[i]["format"].as<uint32_t>()};
-    // gfxDepthStencil.sampleCount = SampleCount{colorsVec[i]["sampleCount"].as<uint32_t>()};
-    // gfxDepthStencil.depthLoadOp = LoadOp{colorsVec[i]["depthLoadOp"].as<uint32_t>()};
-    // gfxDepthStencil.depthStoreOp = StoreOp{colorsVec[i]["depthStoreOp"].as<uint32_t>()};
-    // gfxDepthStencil.stencilLoadOp = LoadOp{colorsVec[i]["stencilLoadOp"].as<uint32_t>()};
-    // gfxDepthStencil.stencilStoreOp = StoreOp{colorsVec[i]["stencilStoreOp"].as<uint32_t>()};
-    // gfxDepthStencil.barrier = colorsVec[i]["barrier"].as<GeneralBarrier*>();
-    // gfxDepthStencil.isGeneralLayout = colorsVec[i]["isGeneralLayout"].as<bool>();
-
-    ASSIGN_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, isGeneralLayout);
-
-    const auto& emsSubpasses = info["subpasses"];
-    const std::vector<val>& subpassesVec = vecFromJSArray<val>(emsSubpasses);
-    len = subpassesVec.size();
-    auto& gfxSubpasses = renderPassInfo.subpasses;
-    gfxSubpasses.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& ems_subpass = subpassesVec[i];
-        auto& subpass = gfxSubpasses[i];
-        ASSIGN_FROM_EMSARRAY(subpass, inputs, colors, resolves, preserves);
-        ASSIGN_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
-    }
-
-    const auto& emsDependencies = info["dependencies"];
-    const std::vector<val>& dependenciesVec = vecFromJSArray<val>(emsDependencies);
-    len = dependenciesVec.size();
-    auto& gfxDependencies = renderPassInfo.dependencies;
-    gfxDependencies.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& ems_dependency = dependenciesVec[i];
-        auto& dependency = gfxDependencies[i];
-        ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
-    }
-
-    return this->createRenderPass(renderPassInfo);
+void CCWGPURenderPass::initialize(const val& info) {
+    CHECK_VOID(info);
+    this->initialize(fromEmsRenderPassInfo(info));
 }
 
 Framebuffer* CCWGPUDevice::createFramebuffer(const val& info) {
     CHECK_PTR(info);
-
-    FramebufferInfo frameBufferInfo;
-    const auto& ems_frameBufferInfo = info;
-    ASSIGN_FROM_EMS(frameBufferInfo, renderPass, depthStencilTexture);
-
-    const auto& ems_colorTextures = info["colorTextures"];
-    if (!ems_colorTextures.isUndefined() || !ems_colorTextures.isNull()) {
-        const std::vector<val>& colorTexturesVec = vecFromJSArray<val>(ems_colorTextures);
-        size_t len = colorTexturesVec.size();
-        auto& gfxColorTextures = frameBufferInfo.colorTextures;
-        gfxColorTextures.resize(len);
-        for (size_t i = 0; i < len; ++i) {
-            gfxColorTextures[i] = colorTexturesVec[i].as<Texture*>(allow_raw_pointers());
-        }
-    }
-
-    return this->createFramebuffer(frameBufferInfo);
+    return this->createFramebuffer(fromEmsFramebufferInfo(info));
 }
 
 DescriptorSetLayout* CCWGPUDevice::createDescriptorSetLayout(const val& info) {
@@ -755,6 +765,12 @@ val CCWGPUTexture::getTextureViewInfo() const {
     ems_viewInfo.set("texture", static_cast<CCWGPUTexture*>(viewInfo.texture));
     return ems_viewInfo;
 };
+
+void CCWGPUFramebuffer::initialize(const val& info) {
+    CHECK_VOID(info);
+
+    return this->initialize(fromEmsFramebufferInfo(info));
+}
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {
     CHECK_VOID(info);
