@@ -297,7 +297,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
 
     class_<RenderPass>("RenderPass")
         .class_function("computeHash", select_overload<ccstd::hash_t(const RenderPassInfo &)>(&RenderPass::computeHash), allow_raw_pointer<arg<0>>())
-        .function("initialize", &RenderPass::initialize, allow_raw_pointer<arg<0>>())
         .function("destroy", &RenderPass::destroy)
         .function("getColorAttachments", &RenderPass::getColorAttachments)
         .function("DepthStencilAttachment", &RenderPass::getDepthStencilAttachment)
@@ -306,7 +305,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("getHash", &RenderPass::getHash);
     class_<CCWGPURenderPass, base<RenderPass>>("CCWGPURenderPass")
         .constructor<>()
-        .function("getThis", select_overload<CCWGPURenderPass *(CCWGPURenderPass *)>(&getThis), allow_raw_pointer<arg<0>>());
+        .function("initialize", select_overload<void(const val &)>(&CCWGPURenderPass::initialize), allow_raw_pointer<arg<0>>());
 
     class_<Texture>("Texture")
         .class_function("computeHash", select_overload<ccstd::hash_t(const TextureInfo &)>(&Texture::computeHash), allow_raw_pointer<arg<0>>())
@@ -333,12 +332,12 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
 
     class_<Framebuffer>("Framebuffer")
         .class_function("computeHash", select_overload<ccstd::hash_t(const FramebufferInfo &)>(&Framebuffer::computeHash), allow_raw_pointer<arg<0>>())
-        .function("initialize", &Framebuffer::initialize, allow_raw_pointer<arg<0>>())
         .function("destroy", &Framebuffer::destroy)
         .function("getRenderPass", &Framebuffer::getRenderPass, allow_raw_pointer<arg<0>>())
         .function("getColorTextures", &Framebuffer::getColorTextures, allow_raw_pointer<arg<0>>())
         .function("getDepthStencilTexture", &Framebuffer::getDepthStencilTexture, allow_raw_pointer<arg<0>>());
     class_<CCWGPUFramebuffer, base<Framebuffer>>("CCWGPUFramebuffer")
+        .function("initialize", select_overload<void(const emscripten::val &)>(&CCWGPUFramebuffer::initialize), allow_raw_pointer<arg<0>>())
         .constructor<>();
 
     class_<Sampler>("Sampler")

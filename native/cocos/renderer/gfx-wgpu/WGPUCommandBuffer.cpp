@@ -284,7 +284,7 @@ void CCWGPUCommandBuffer::bindStates() {
     // printf("ppl binding %p\n", pipelineState);
 
     ccstd::vector<void *> wgpuLayouts(3);
-    auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(pipelineState->getPipelineLayout());
+    auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(pipelineState->layout());
     const auto &setLayouts = pipelineLayout->getSetLayouts();
     bool pipelineLayoutChanged = false;
 
@@ -352,17 +352,17 @@ void CCWGPUCommandBuffer::bindStates() {
             }
         }
 
-        if (pipelineLayoutChanged) {
+        if (1) {
             ccstd::vector<DescriptorSet *> dsSets;
             for (size_t i = 0; i < setLayouts.size(); i++) {
                 dsSets.push_back(descriptorSets[i].descriptorSet);
             }
             createPipelineLayoutFallback(dsSets, pipelineLayout);
         } else {
-            pipelineLayout->prepare(setInUse);
+            // pipelineLayout->prepare(setInUse);
         }
 
-        pipelineState->check(_renderPass, pipelineLayoutChanged);
+        pipelineState->check(_renderPass, 1);
         pipelineState->prepare(setInUse);
 
         // printf("ppshn: %s\n", static_cast<CCWGPUShader *>(pipelineState->getShader())->gpuShaderObject()->name.c_str());
