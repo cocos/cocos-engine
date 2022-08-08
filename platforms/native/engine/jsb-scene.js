@@ -63,7 +63,11 @@ function beginTrans (fn, minBytes) {
     }
 
     let offset = 4;         // reserved for block total length
-    dataView.setBigUint64(startPos + offset, fn, isLittleEndian);
+    if (window.__OH__) {
+        dataView.setBigUint64(startPos + offset, BigInt(fn), isLittleEndian);
+    } else {
+        dataView.setBigUint64(startPos + offset, fn, isLittleEndian);
+    }
     offset += 8;
     return {
         writeUint32: (value) => {
@@ -71,7 +75,11 @@ function beginTrans (fn, minBytes) {
             offset += 4;
         },
         writeBigUint64: (value) => {
-            dataView.setBigUint64(startPos + offset, value, isLittleEndian);
+            if (window.__OH__) {
+                dataView.setBigUint64(startPos + offset, BigInt(value), isLittleEndian);
+            } else {
+                dataView.setBigUint64(startPos + offset, value, isLittleEndian);
+            }
             offset += 8;
         },
         commit: () => {
@@ -82,7 +90,11 @@ function beginTrans (fn, minBytes) {
         },
         writePointer (e) {
             if (e) {
-                dataView.setBigUint64(startPos + offset, e.__native_ptr__, isLittleEndian);
+                if (window.__OH__) {
+                    dataView.setBigUint64(startPos + offset, BigInt(e.__native_ptr__), isLittleEndian);
+                } else {
+                    dataView.setBigUint64(startPos + offset, e.__native_ptr__, isLittleEndian);
+                }
                 if (refMap.indexOf(e) < 0) {
                      refMap.push(e);
                 }
