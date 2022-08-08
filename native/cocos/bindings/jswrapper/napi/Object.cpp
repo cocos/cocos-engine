@@ -502,8 +502,6 @@ void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /
         if (nativeObject == nullptr) {
             return;
         }
-        const char* clsName = obj->_getClass()->getName();
-        LOGD("gc debug clsName %{public}s", clsName);
         auto iter = NativePtrToObjectMap::find(nativeObject);
         if (iter != NativePtrToObjectMap::end()) {
             Object* obj = iter->second;
