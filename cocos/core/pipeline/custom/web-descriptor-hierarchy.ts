@@ -30,7 +30,9 @@ import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor, IncidenceGraph, vertex_descriptor } from './graph';
+import { ccclass } from '../../data/decorators';
 
+@ccclass('cc.WebDescriptorHierarchy')
 export class WebDescriptorHierarchy {
     public uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
     public blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;
@@ -169,6 +171,8 @@ export class WebDescriptorHierarchy {
 
     public addEffect (asset: EffectAsset, parent: number): void {
         const sz = asset.shaders.length;
+
+        const dbsMap: Map<string, DescriptorDB> = new Map<string, DescriptorDB>();
 
         for (let i = 0; i !== sz; ++i) {
             const shader: EffectAsset.IShaderInfo = asset.shaders[i];
@@ -309,18 +313,96 @@ export class WebDescriptorHierarchy {
                 }
             }
 
-            const phase: RenderPhase = new RenderPhase();
-            phase.shaders.add(shader.name);
-            this._layoutGraph.addVertex<LayoutGraphValue.RenderPhase>(LayoutGraphValue.RenderPhase, phase, shader.name, queueDB, parent);
+            dbsMap.set(shader.name, queueDB);
+        }
 
-            this.merge(queueDB);
-            this.sort(queueDB);
+        for (let i = 0; i < asset.techniques.length; ++i) {
+            const tech = asset.techniques[i];
+            for (let j = 0; j < tech.passes.length; ++j) {
+                const pass = tech.passes[j];
+                const passPhase = pass.phase;
+                let phase = '';
+                if (passPhase === undefined) {
+                    phase = '_';
+                } else if (typeof passPhase === 'number') {
+                    phase = passPhase.toString();
+                } else {
+                    phase = passPhase;
+                }
+                const db2add = dbsMap.get(pass.program);
+                if (db2add) {
+                    const v2add = this._layoutGraph.locate(`/default/${phase}`);
+                    if (v2add === 0xFFFFFFFF) {
+                        const v = this.addRenderPhase(phase, parent);
+                        const dbStored = this._layoutGraph.getDescriptors(v);
+                        for (const ee of db2add.blocks) {
+                            const blockIndex = ee[0];
+                            const block = ee[1];
+                            const b2add = new DescriptorBlock();
+                            for (const dd of block.descriptors) {
+                                b2add.descriptors.set(dd[0], dd[1]);
+                                b2add.count++;
+                                b2add.capacity++;
+                            }
+                            for (const uu of block.uniformBlocks) {
+                                b2add.uniformBlocks.set(uu[0], uu[1]);
+                                b2add.count++;
+                                b2add.capacity++;
+                            }
+                            if (b2add.capacity > 0 || b2add.count > 0) {
+                                dbStored.blocks.set(blockIndex, b2add);
+                            }
+                        }
+                    } else {
+                        const dbStored = this._layoutGraph.getDescriptors(v2add);
+                        for (const ee of db2add.blocks) {
+                            const blockIndex = ee[0];
+                            const block = ee[1];
+                            const blockStored = dbStored.blocks.get(blockIndex);
+                            if (blockStored === undefined) {
+                                const b2add = new DescriptorBlock();
+                                for (const dd of block.descriptors) {
+                                    b2add.descriptors.set(dd[0], dd[1]);
+                                    b2add.count++;
+                                    b2add.capacity++;
+                                }
+                                for (const uu of block.uniformBlocks) {
+                                    b2add.uniformBlocks.set(uu[0], uu[1]);
+                                    b2add.count++;
+                                    b2add.capacity++;
+                                }
+                                if (b2add.capacity > 0 || b2add.count > 0) {
+                                    dbStored.blocks.set(blockIndex, b2add);
+                                }
+                            } else {
+                                for (const dd of block.descriptors) {
+                                    if (blockStored.descriptors.get(dd[0]) === undefined) {
+                                        blockStored.descriptors.set(dd[0], dd[1]);
+                                        blockStored.count++;
+                                        blockStored.capacity++;
+                                    }
+                                }
+                                for (const uu of block.uniformBlocks) {
+                                    if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
+                                        blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                        blockStored.count++;
+                                        blockStored.capacity++;
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-            const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
-            if (this.dbsToMerge.get(parentDB) === undefined) {
-                this.dbsToMerge.set(parentDB, []);
+                    this.merge(db2add);
+                    this.sort(db2add);
+
+                    const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
+                    if (this.dbsToMerge.get(parentDB) === undefined) {
+                        this.dbsToMerge.set(parentDB, []);
+                    }
+                    this.dbsToMerge.get(parentDB)?.push(db2add);
+                }
             }
-            this.dbsToMerge.get(parentDB)?.push(queueDB);
         }
     }
 
