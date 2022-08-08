@@ -123,7 +123,11 @@
             7.5,
             0
           ]
-        }
+        },
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0
       },
       "displayName": "default_progressbar",
       "id": "f9941",

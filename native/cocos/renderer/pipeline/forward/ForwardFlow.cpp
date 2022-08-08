@@ -45,6 +45,8 @@ bool ForwardFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
     if (_stages.empty()) {
+        _isResourceOwner = true;
+
         auto *forwardStage = ccnew ForwardStage;
         forwardStage->initialize(ForwardStage::getInitializeInfo());
         _stages.emplace_back(forwardStage);

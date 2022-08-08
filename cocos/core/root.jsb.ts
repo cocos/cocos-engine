@@ -209,3 +209,15 @@ rootProto.setRenderPipeline = function (pipeline) {
     this._createBatcher2D();
     return ppl;
 }
+
+rootProto.addBatch = function (batch) {
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
+}
+
+rootProto.removeBatch = function (batch) {
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
+}
+
+rootProto.removeBatches = function () {
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
+}

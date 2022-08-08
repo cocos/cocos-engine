@@ -625,8 +625,6 @@ export class Sprite extends UIRenderer {
                     this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
                 }
             }
-
-            this._activateMaterial();
         }
     }
 
@@ -681,7 +679,6 @@ export class Sprite extends UIRenderer {
         if (oldFrame && this._type === SpriteType.SLICED) {
             oldFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
-        this._updateUVs();
 
         let textureChanged = false;
         if (spriteFrame) {

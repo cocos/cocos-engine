@@ -151,6 +151,7 @@ private:
 
     friend class ScriptEngine;
     friend class Object;
+    friend class JSBPersistentHandleVisitor;
 };
 
 } // namespace se

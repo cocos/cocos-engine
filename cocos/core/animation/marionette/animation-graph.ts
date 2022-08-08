@@ -94,11 +94,20 @@ class AnimationTransition extends Transition {
 
     /**
      * @en The start time of (final) destination motion state when this transition starts.
-     * Its unit is the duration of destination motion state.
-     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。其单位是目标动作状态的周期。
+     * Its unit is seconds if `relativeDestinationStart` is `false`,
+     * Otherwise, its unit is the duration of destination motion state.
+     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。
+     * 如果 `relativeDestinationStart`为 `false`，其单位是秒，否则其单位是目标动作状态的周期。
      */
     @serializable
     public destinationStart = 0.0;
+
+    /**
+     * @en Determines the unit of destination start time. See `destinationStart`.
+     * @zh 决定了目标起始时间的单位。见 `destinationStart`。
+     */
+    @serializable
+    public relativeDestinationStart = false;
 
     get exitCondition () {
         return this._exitCondition;
@@ -158,11 +167,20 @@ export class EmptyStateTransition extends Transition {
 
     /**
      * @en The start time of (final) destination motion state when this transition starts.
-     * Its unit is the duration of destination motion state.
-     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。其单位是目标动作状态的周期。
+     * Its unit is seconds if `relativeDestinationStart` is `false`,
+     * Otherwise, its unit is the duration of destination motion state.
+     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。
+     * 如果 `relativeDestinationStart`为 `false`，其单位是秒，否则其单位是目标动作状态的周期。
      */
     @serializable
     public destinationStart = 0.0;
+
+    /**
+      * @en Determines the unit of destination start time. See `destinationStart`.
+      * @zh 决定了目标起始时间的单位。见 `destinationStart`。
+      */
+    @serializable
+    public relativeDestinationStart = false;
 }
 
 @ccclass('cc.animation.StateMachine')

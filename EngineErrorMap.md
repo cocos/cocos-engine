@@ -2467,6 +2467,10 @@ cc.ParticleSystem: not allowing create to be invoked twice with different partic
 
 cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
 
+### 6035
+
+cc.ParticleSystem: change material failed, please use proper particle material
+
 ### 6100
 
 <!-- DEPRECATED -->

@@ -119,7 +119,7 @@ bool Class::init(const ccstd::string &clsName, Object *parent, Object *parentPro
     }
 
     _ctorTemplate.Get(__isolate)->SetClassName(jsNameVal.ToLocalChecked());
-    _ctorTemplate.Get(__isolate)->InstanceTemplate()->SetInternalFieldCount(2);
+    _ctorTemplate.Get(__isolate)->InstanceTemplate()->SetInternalFieldCount(1);
 
     return true;
 }
