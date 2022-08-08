@@ -44,6 +44,8 @@ export { legacyCC as cclegacy };
 export * from '../cocos/input/types';
 export * from '../cocos/input';
 
+export * from '../cocos/native-binding/index';
+
 type Constructor_<T = unknown> = Constructor<T>;
 
 export type { Constructor_ as Constructor };

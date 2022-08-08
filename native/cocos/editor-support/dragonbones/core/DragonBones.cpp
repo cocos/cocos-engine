@@ -28,6 +28,7 @@ DragonBones::~DragonBones() {
     }
 
     _clock = nullptr;
+    delete _eventManager;
     _eventManager = nullptr;
 }
 

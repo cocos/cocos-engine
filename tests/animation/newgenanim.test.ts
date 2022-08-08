@@ -74,8 +74,15 @@ describe('NewGen Anim', () => {
         expect(animTransition.exitConditionEnabled).toBe(true);
         expect(animTransition.exitCondition).toBe(1.0);
         expect(animTransition.destinationStart).toBe(0.0);
+        expect(animTransition.relativeDestinationStart).toBe(false);
         expect(animTransition.interruptionSource).toBe(TransitionInterruptionSource.NONE);
         expect(animTransition.interruptible).toBe(false);
+
+        const emptyState = layerGraph.addEmpty();
+        const emptyTransition = layerGraph.connect(emptyState, animState);
+        expect(emptyTransition.duration).toBe(0.3);
+        expect(emptyTransition.destinationStart).toBe(0.0);
+        expect(emptyTransition.relativeDestinationStart).toBe(false);
 
         function testGraphDefaults(graph: StateMachine) {
             expect(Array.from(graph.states())).toStrictEqual(expect.arrayContaining([
@@ -1478,7 +1485,90 @@ describe('NewGen Anim', () => {
             });
         });
 
-        test(`Transition destination start`, () => {
+        test(`Transition destination start: absolute`, () => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const animState1 = graph.addMotion();
+            animState1.name = 'Motion1';
+            animState1.motion = createClipMotionPositionXLinear(4.0, 0.6, 0.8);
+            const animState2 = graph.addMotion();
+            animState2.name = 'Motion2';
+            animState2.motion = createClipMotionPositionXLinear(2.2, 3.0, 0.1415);
+            graph.connect(graph.entryState, animState1);
+            const transition = graph.connect(animState1, animState2);
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 0.1;
+            transition.duration = 0.3;
+            transition.relativeDuration = false;
+            const TRANSITION_DESTINATION_START = 0.17;
+            transition.destinationStart = TRANSITION_DESTINATION_START * 2.2; // 2.2: duration of `animState2`
+            transition.relativeDestinationStart = false;
+
+            // Also test the attribute on empty transition
+            const layer2 = animationGraph.addLayer();
+            const emptyState = layer2.stateMachine.addEmpty();
+            layer2.stateMachine.connect(layer2.stateMachine.entryState, emptyState);
+            const animState3 = layer2.stateMachine.addMotion();
+            animState3.name = 'Motion3';
+            animState3.motion = createClipMotionPositionXLinear(6.0, 7.0, -1.9);
+            const emptyTransition = layer2.stateMachine.connect(emptyState, animState3);
+            emptyTransition.duration = 0.4;
+            const EMPTY_TRANSITION_DESTINATION_START = 0.13;
+            emptyTransition.destinationStart = EMPTY_TRANSITION_DESTINATION_START * 6.0; // 6.0: duration of `animState3`
+            const [emptyTransitionCondition] = emptyTransition.conditions = [new UnaryCondition()];
+            emptyTransitionCondition.operator = UnaryCondition.Operator.TRUTHY;
+            const emptyTransitionEnablingVarName = emptyTransitionCondition.operand.variable = 'EmptyTransitionEnabling';
+            animationGraph.addBoolean(emptyTransitionEnablingVarName);
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+
+            const graphUpdater = new GraphUpdater(graphEval);
+            graphUpdater.goto(4.0 * 0.1 + 0.2);
+
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: {
+                    __DEBUG_ID__: 'Motion1',
+                    progress: 0.1 + 0.2 / 4.0,
+                },
+                transition: {
+                    nextNode: {
+                        __DEBUG_ID__: 'Motion2',
+                        progress: TRANSITION_DESTINATION_START + 0.2 / 2.2,
+                    },
+                },
+            });
+
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    lerp(0.6, 0.8, 0.1 + 0.2 / 4.0),
+                    lerp(3.0, 0.1415, TRANSITION_DESTINATION_START + 0.2 / 2.2),
+                    0.2 / 0.3,
+                ),
+            );
+
+            // Start the empty transition
+            graphEval.setValue(emptyTransitionEnablingVarName, true);
+            graphUpdater.step(0.16);
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    lerp( // Layer 1
+                        3.0,
+                        0.1415,
+                        TRANSITION_DESTINATION_START + (0.2 + 0.16) / 2.2,
+                    ),
+                    lerp( // Layer 2
+                        7.0,
+                        -1.9,
+                        EMPTY_TRANSITION_DESTINATION_START + 0.16 / 6.0,
+                    ),
+                    0.16 / 0.4, // Empty transition ratio
+                ),
+            );
+        });
+
+        test(`Transition destination start: relative`, () => {
             const animationGraph = new AnimationGraph();
             const layer = animationGraph.addLayer();
             const graph = layer.stateMachine;
@@ -1495,6 +1585,7 @@ describe('NewGen Anim', () => {
             transition.duration = 0.3;
             transition.relativeDuration = false;
             const TRANSITION_DESTINATION_START = transition.destinationStart = 0.17;
+            transition.relativeDestinationStart = true;
 
             // Also test the attribute on empty transition
             const layer2 = animationGraph.addLayer();
@@ -1506,6 +1597,7 @@ describe('NewGen Anim', () => {
             const emptyTransition = layer2.stateMachine.connect(emptyState, animState3);
             emptyTransition.duration = 0.4;
             const EMPTY_TRANSITION_DESTINATION_START = emptyTransition.destinationStart = 0.13;
+            emptyTransition.relativeDestinationStart = true;
             const [emptyTransitionCondition] = emptyTransition.conditions = [new UnaryCondition()];
             emptyTransitionCondition.operator = UnaryCondition.Operator.TRUTHY;
             const emptyTransitionEnablingVarName = emptyTransitionCondition.operand.variable = 'EmptyTransitionEnabling';

@@ -364,7 +364,9 @@ export class Mask extends UIRenderer {
         super.onEnable();
         this._updateGraphics();
         this._enableGraphics();
+        this._changeRenderType();
         this.node.on(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._anchorChange, this);
         this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
         this.node.on(NodeEventType.LAYER_CHANGED, this._layerChange, this);
         this._sizeChange();
@@ -387,6 +389,7 @@ export class Mask extends UIRenderer {
         super.onDisable();
         this._disableGraphics();
         this.node.off(NodeEventType.SIZE_CHANGED, this._sizeChange, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._anchorChange, this);
         this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._siblingChange, this);
         this.node.off(NodeEventType.LAYER_CHANGED, this._layerChange, this);
     }
@@ -513,6 +516,12 @@ export class Mask extends UIRenderer {
         }
     }
 
+    private _anchorChange () {
+        if (this._sprite) {
+            this._maskNode!._uiProps.uiTransformComp!.setAnchorPoint(this.node._uiProps.uiTransformComp!.anchorPoint);
+        }
+    }
+
     private _siblingChange () {
         if (this._maskNode && this._maskNode.getSiblingIndex() !== 0) {
             this._maskNode.setSiblingIndex(0);
@@ -534,6 +543,7 @@ export class Mask extends UIRenderer {
             sprite._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
             sprite.sizeMode = 0;
             this._sizeChange();
+            this._anchorChange();
         }
         this._sprite.spriteFrame = this._spriteFrame;
         this._updateMaterial();
@@ -562,7 +572,7 @@ export class Mask extends UIRenderer {
             // @ts-expect-error hack for graphics protected attributes
             graphics._postAssembler = Mask.ChildPostAssembler!.getAssembler(this);
         }
-
+        this.node.insertChild(this._maskNode!, 0);
         this._updateMaterial();
     }
 

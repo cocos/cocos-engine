@@ -56,7 +56,7 @@ protected:
     void doCreateSurface(void *windowHandle) override;
 
     void createVkSurface();
-    void destroySwapchain(const CCVKGPUDevice *gpuDevice);
+    void destroySwapchain(CCVKGPUDevice *gpuDevice);
 
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;
 };

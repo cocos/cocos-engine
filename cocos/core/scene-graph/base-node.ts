@@ -1289,12 +1289,6 @@ export class BaseNode extends CCObject implements ISchedulable {
                 // PrefabUtils.unlinkPrefab(cloned);
             }
         }
-        if (EDITOR && legacyCC.GAME_VIEW) {
-            const syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
-            if (!syncing) {
-                cloned._name += ' (Clone)';
-            }
-        }
 
         // reset and init
         cloned._parent = null;

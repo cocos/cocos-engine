@@ -8,7 +8,7 @@ exports.template = `
                 tooltip="i18n:ENGINE.assets.particle.spriteFrameTip"
                 value="i18n:ENGINE.assets.particle.spriteFrame"
             ></ui-label>
-            <ui-asset readonly
+            <ui-asset disabled
                 id="asset"
                 slot="content" 
                 droppable="cc.SpriteFrame" 
