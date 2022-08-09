@@ -171,7 +171,7 @@ export class ShadowFlow extends RenderFlow {
                 if (!frameBuffer) { continue; }
                 const renderTargets = frameBuffer.colorTextures;
                 for (let j = 0; j < renderTargets.length; j++) {
-                    const renderTarget = renderTargets[i];
+                    const renderTarget = renderTargets[j];
                     if (renderTarget) { renderTarget.destroy(); }
                 }
                 renderTargets.length = 0;
