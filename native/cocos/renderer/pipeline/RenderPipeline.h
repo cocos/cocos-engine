@@ -188,7 +188,6 @@ protected:
     bool _clusterEnabled{false};
     bool _bloomEnabled{false};
     bool _occlusionQueryEnabled{false};
-    bool _isResourceOwner{false};
 };
 
 } // namespace pipeline

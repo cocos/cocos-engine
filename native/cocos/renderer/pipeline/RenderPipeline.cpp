@@ -75,7 +75,6 @@ RenderPipeline::~RenderPipeline() {
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     _flows = info.flows;
     _tag = info.tag;
-    _isResourceOwner = false;
     return true;
 }
 
@@ -97,8 +96,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     // pipeline construct.
     generateConstantMacros();
 
-    for (int i = 0; i < _flows.size(); i++) {
-        const auto &flow = _flows[i];
+    for (auto const &flow : _flows) {
         flow->activate(this);
     }
 
@@ -110,8 +108,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
 }
 
 void RenderPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
-    for (int i = 0; i < _flows.size(); i++) {
-        const auto &flow = _flows[i];
+    for (auto const &flow : _flows) {
         for (auto *camera : cameras) {
             flow->render(camera);
         }
@@ -156,18 +153,8 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
 #endif
 
 bool RenderPipeline::destroy() {
-    if (_isResourceOwner) {
-        for (int i = 0; i < _flows.size(); i++) {
-            auto &flow = _flows[i];
-            CC_SAFE_DESTROY(flow);
-            CC_SAFE_RELEASE(flow);
-        }
-    } else {
-        for (int i = 0; i < _flows.size(); i++) {
-            const auto &flow = _flows[i];
-            CC_SAFE_DESTROY(flow);
-            CC_SAFE_RELEASE(flow);
-        }
+    for (auto const &flow : _flows) {
+        CC_SAFE_DESTROY(flow);
     }
     _flows.clear();
 
@@ -359,8 +346,7 @@ void RenderPipeline::generateConstantMacros() {
 gfx::DescriptorSetLayout *RenderPipeline::getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
 
 RenderStage *RenderPipeline::getRenderstageByName(const ccstd::string &name) const {
-    for (int i = 0; i < _flows.size(); i++) {
-        const auto &flow = _flows[i];
+    for (auto const &flow : _flows) {
         auto *val = flow->getRenderstageByName(name);
         if (val) {
             return val;

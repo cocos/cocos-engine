@@ -63,14 +63,8 @@ void RenderFlow::render(scene::Camera *camera) {
 }
 
 void RenderFlow::destroy() {
-    if (_isResourceOwner) {
-        for (auto &stage : _stages) {
-            CC_SAFE_DESTROY_AND_DELETE(stage);
-        }
-    } else {
-        for (auto &stage : _stages) {
-            CC_SAFE_DESTROY(stage);
-        }
+    for (auto &stage : _stages) {
+        CC_SAFE_DESTROY(stage);
     }
 
     _stages.clear();
