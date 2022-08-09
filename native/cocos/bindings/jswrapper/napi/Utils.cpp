@@ -155,9 +155,9 @@ void seToJsArgs(napi_env env, const ValueArray& args, std::vector<target_value>*
 
 bool setReturnValue(const Value& data, target_value& argv) {
     LOGI("setReturnValue");
-    napi_status status;
     if (data.getType() == Value::Type::BigInt) {
         // TODO: fix 'TypeError: Cannot mix BigInt and other types, use explicit conversions' for spine & dragonbones
+        napi_status status;
         NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), data.toDouble(), &argv));
         return true;
     }
