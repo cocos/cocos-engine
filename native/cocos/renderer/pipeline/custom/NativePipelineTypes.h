@@ -53,6 +53,7 @@ public:
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addShader(const ccstd::string& name, uint32_t parentPhaseID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
+    void addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const ccstd::string& name, const gfx::UniformBlock& uniformBlock) override;
     void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
     int compile() override;
 
@@ -65,17 +66,20 @@ public:
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
-    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
     : renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
-      queueID(queueIDIn),
-      layoutID(layoutIDIn) {}
+      queueID(queueIDIn) {}
 
-    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) override;
+    void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
-    void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) override;
-    void addFullscreenQuad(const ccstd::string& shader) override;
+    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
+    void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
+    void setViewport(const gfx::Viewport &viewport) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
@@ -93,7 +97,6 @@ public:
     RenderGraph*           renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t               queueID{RenderGraph::null_vertex()};
-    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeRasterPassBuilder final : public RasterPassBuilder {
@@ -105,14 +108,15 @@ public:
       passID(passIDIn),
       layoutID(layoutIDIn) {}
 
-    void                addRasterView(const ccstd::string& name, const RasterView& view) override;
-    void                addComputeView(const ccstd::string& name, const ComputeView& view) override;
-    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName, const ccstd::string& name) override;
-    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& layoutName) override;
+    void addRasterView(const ccstd::string& name, const RasterView& view) override;
+    void addComputeView(const ccstd::string& name, const ComputeView& view) override;
+    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) override;
     RasterQueueBuilder *addQueue(QueueHint hint) override;
-    void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName, const ccstd::string& name) override;
-    void                addFullscreenQuad(const ccstd::string& shader, const ccstd::string& layoutName) override;
-    void                addFullscreenQuad(const ccstd::string& shader) override;
+    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
+    void setViewport(const gfx::Viewport &viewport) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
@@ -136,14 +140,12 @@ public:
 class NativeComputeQueueBuilder final : public ComputeQueueBuilder {
 public:
     NativeComputeQueueBuilder() = default;
-    NativeComputeQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    NativeComputeQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
     : renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
-      queueID(queueIDIn),
-      layoutID(layoutIDIn) {}
+      queueID(queueIDIn) {}
 
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) override;
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) override;
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) override;
     void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -162,7 +164,6 @@ public:
     RenderGraph*           renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t               queueID{RenderGraph::null_vertex()};
-    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeComputePassBuilder final : public ComputePassBuilder {
@@ -176,12 +177,10 @@ public:
 
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
 
-    ComputeQueueBuilder *addQueue(const ccstd::string& layoutName, const ccstd::string& name) override;
-    ComputeQueueBuilder *addQueue(const ccstd::string& layoutName) override;
+    ComputeQueueBuilder *addQueue(const ccstd::string& name) override;
     ComputeQueueBuilder *addQueue() override;
 
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) override;
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) override;
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) override;
     void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -251,18 +250,20 @@ public:
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
 
-    uint32_t            addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
-    uint32_t            addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    uint32_t            addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    void                beginFrame() override;
-    void                endFrame() override;
-    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) override;
-    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) override;
+    bool containsResource(const ccstd::string& name) const override;
+    uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
+    uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+
+    void beginFrame() override;
+    void endFrame() override;
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) override;
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) override;
     ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) override;
     ComputePassBuilder *addComputePass(const ccstd::string& layoutName) override;
-    MovePassBuilder    *addMovePass(const ccstd::string& name) override;
-    CopyPassBuilder    *addCopyPass(const ccstd::string& name) override;
-    void                presentAll() override;
+    MovePassBuilder *addMovePass(const ccstd::string& name) override;
+    CopyPassBuilder *addCopyPass(const ccstd::string& name) override;
+    void presentAll() override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     LayoutGraphBuilder *getLayoutGraphBuilder() override;
@@ -272,17 +273,24 @@ public:
     bool destroy() noexcept override;
     void render(const ccstd::vector<scene::Camera*>& cameras) override;
 
-    const MacroRecord           &getMacros() const override;
-    pipeline::GlobalDSManager   *getGlobalDSManager() const override;
-    gfx::DescriptorSetLayout    *getDescriptorSetLayout() const override;
+    gfx::Device* getDevice() const override;
+    const MacroRecord &getMacros() const override;
+    pipeline::GlobalDSManager *getGlobalDSManager() const override;
+    gfx::DescriptorSetLayout *getDescriptorSetLayout() const override;
+    gfx::DescriptorSet *getDescriptorSet() const override;
+    ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const override;
     pipeline::PipelineSceneData *getPipelineSceneData() const override;
-    const ccstd::string         &getConstantMacros() const override;
-    scene::Model                *getProfiler() const override;
-    void                         setProfiler(scene::Model *profiler) override;
+    const ccstd::string &getConstantMacros() const override;
+    scene::Model *getProfiler() const override;
+    void setProfiler(scene::Model *profiler) override;
     pipeline::GeometryRenderer  *getGeometryRenderer() const override;
 
     float getShadingScale() const override;
-    void  setShadingScale(float scale) override;
+    void setShadingScale(float scale) override;
+
+    const ccstd::string& getMacroString(const ccstd::string& name) const override;
+    int32_t getMacroInt(const ccstd::string& name) const override;
+    bool getMacroBool(const ccstd::string& name) const override;
 
     void setMacroString(const ccstd::string& name, const ccstd::string& value) override;
     void setMacroInt(const ccstd::string& name, int32_t value) override;
@@ -301,6 +309,7 @@ public:
     ccstd::string                              constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
     scene::Model*                              profiler{nullptr};
+    LightingMode                               lightingMode{LightingMode::DEFAULT};
     IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
     LayoutGraphData                            layoutGraph;
     framegraph::FrameGraph                     frameGraph;

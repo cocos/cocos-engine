@@ -65,7 +65,7 @@ gfx::DepthStencilState* StencilManager::getDepthStencilState(StencilStage stage,
     gfx::ComparisonFunc depthFunc = gfx::ComparisonFunc::LESS;
     auto* cacheMap = &_cacheStateMap;
 
-    if (mat && mat->getPasses()->at(0)) {
+    if (mat && !mat->getPasses()->empty()) {
         IntrusivePtr<scene::Pass>& pass = mat->getPasses()->at(0);
         const gfx::DepthStencilState* dss = pass->getDepthStencilState();
         uint32_t depthTestValue = 0;

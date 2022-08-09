@@ -61,37 +61,42 @@
       CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
 
       CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, -cc_mainLitDir.xyz);
-      CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
 
-      CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
-      
       // CCSurfacesLightingCalculateShadow:
       lightingResult.shadow = 1.0;
-    #if CC_RECEIVE_SHADOW
-      if (cc_mainLitDir.w > 0.0) {
-        if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-          if (cc_shadowLPNNInfo.w > 0.0) {
-            lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
-          } else {
-            vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-            lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+      #if CC_RECEIVE_SHADOW
+        if (cc_mainLitDir.w > 0.0) {
+          if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
+            if (cc_shadowLPNNInfo.w > 0.0) {
+              lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+            } else {
+              vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+              lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+            }
           }
         }
-      }
-    #endif
+      #endif
+
+      // CCSurfacesLightingCalculateBaked:
+      lightingResult.lightmapColor = vec3(0.0);
+      #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
+        vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
+        lightingResult.lightmapColor = lightmap.rgb;
+        // lightingResult.shadow/ao *= lightmap.a;
+
+        // static dir light
+        lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
+      // dynamic & stationary dir light
+      #else
+        CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+  
+        CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
+      #endif
 
       // apply SSR, local probe & global probe
       CCSurfacesLightingCalculateEnvironment(lightingResult, lightingData);
       
       // CCSurfacesLightingCalculateTransmittence(lightingResult, lightingData, shadowPos);
-
-      // CCSurfacesLightingCalculateBaked:
-        lightingResult.lightmapColor = vec3(0.0);
-      #if CC_SURFACES_USE_LIGHT_MAP && !USE_BATCHING && !CC_FORWARD_ADD
-        vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
-        lightingResult.lightmapColor = lightmap.rgb;
-        // lightingResult.shadow/ao *= lightmap.a;
-      #endif
 
       // apply screen-space shadow and ao
       // lightingResult.shadow/ao *= XXX;

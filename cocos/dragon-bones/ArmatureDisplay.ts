@@ -516,7 +516,6 @@ export class ArmatureDisplay extends UIRenderer {
     private _drawInfoList : RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
-            const batch2d = director.root!.batcher2D;
             this._drawInfoList[idx] = new RenderDrawInfo();
         }
         return this._drawInfoList[idx];
@@ -586,11 +585,7 @@ export class ArmatureDisplay extends UIRenderer {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        if (JSB) {
-            inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
-        } else {
-            inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
-        }
+        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -961,10 +956,6 @@ export class ArmatureDisplay extends UIRenderer {
             this._indexBoneSockets();
         }
         return Array.from(this._cachedSockets.keys()).sort();
-    }
-
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**
@@ -1348,7 +1339,16 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected createRenderEntity () {
-        return new RenderEntity(RenderEntityType.DYNAMIC);
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
+    }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugDraw) {
+            this._debugDraw.markForUpdateRenderData(enable);
+        }
     }
 }
 

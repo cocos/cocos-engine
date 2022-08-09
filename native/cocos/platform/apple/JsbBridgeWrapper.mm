@@ -57,7 +57,9 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
 
 - (void)addScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener {
     if (![cbDictionnary objectForKey:eventName]) {
-        [cbDictionnary setValue:[NSMutableArray<OnScriptEventListener> new] forKey:eventName];
+        NSMutableArray *newArr = [[NSMutableArray<OnScriptEventListener> alloc] init];
+        [cbDictionnary setValue:newArr forKey:eventName];
+        [newArr release];
     }
     NSMutableArray* arr = [cbDictionnary objectForKey:eventName];
     if (![arr containsObject:listener]) {
@@ -115,7 +117,9 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
         }
         [jb setCallback:cb];
         cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
-            [[JsbBridge sharedInstance] release];
+            if ([JsbBridgeWrapper sharedInstance] != nil) {
+                [[JsbBridgeWrapper sharedInstance] release];
+            }
         });
     }
     return self;

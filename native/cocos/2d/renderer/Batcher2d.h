@@ -39,7 +39,7 @@
 namespace cc {
 class Root;
 using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
-using UIMeshBufferMap = ccstd::unordered_map<uint32_t, UIMeshBufferArray>;
+using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
 class Batcher2d final {
 public:
@@ -47,7 +47,7 @@ public:
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
-    void syncMeshBuffersToNative(uint32_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
+    void syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
 
     bool initialize();
     void update();
@@ -57,16 +57,20 @@ public:
     void syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes);
     void releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler);
 
-    UIMeshBuffer* getMeshBuffer(uint32_t accId, uint32_t bufferId);
+    UIMeshBuffer* getMeshBuffer(uint16_t accId, uint16_t bufferId);
     gfx::Device* getDevice();
+    inline ccstd::vector<gfx::Attribute>* getDefaultAttribute() { return &_attributes; }
 
     void updateDescriptorSet();
 
     void fillBuffersAndMergeBatches();
     void walk(Node* node, float parentOpacity);
     void handlePostRender(RenderEntity* entity);
-    void handleColor(RenderEntity* entity, RenderDrawInfo* drawInfo, float parentOpacity);
-    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node, float parentOpacity);
+    void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleModelDraw(RenderEntity* entity, RenderDrawInfo* drawInfo);
+    void handleIADraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
@@ -74,7 +78,6 @@ private:
     bool _isInit = false;
 
     inline void fillIndexBuffers(RenderDrawInfo* drawInfo) { // NOLINT(readability-convert-member-functions-to-static)
-        uint32_t vertexOffset = drawInfo->getVertexOffset();
         uint16_t* ib = drawInfo->getIDataBuffer();
 
         UIMeshBuffer* buffer = drawInfo->getMeshBuffer();
@@ -95,17 +98,12 @@ private:
         uint8_t stride = drawInfo->getStride();
         uint32_t size = drawInfo->getVbCount() * stride;
         float* vbBuffer = drawInfo->getVbBuffer();
-
-        Vec3 temp;
-        uint32_t offset = 0;
         for (int i = 0; i < size; i += stride) {
             Render2dLayout* curLayout = drawInfo->getRender2dLayout(i);
-            temp.transformMat4(curLayout->position, matrix);
-
-            offset = i;
-            vbBuffer[offset++] = temp.x;
-            vbBuffer[offset++] = temp.y;
-            vbBuffer[offset++] = temp.z;
+            // make sure that the layout of Vec3 is three consecutive floats
+            static_assert(sizeof(Vec3) == 3 * sizeof(float));
+            // cast to reduce value copy instructions
+            reinterpret_cast<Vec3*>(vbBuffer + i)->transformMat4(curLayout->position, matrix);
         }
     }
 
@@ -167,7 +165,6 @@ private:
     Material* _currMaterial{nullptr};
     // weak reference
     gfx::Texture* _currTexture{nullptr};
-    ccstd::hash_t _currTextureHash{0};
     // weak reference
     gfx::Sampler* _currSampler{nullptr};
     ccstd::hash_t _currSamplerHash{0};
@@ -180,6 +177,13 @@ private:
     gfx::DescriptorSetInfo _dsInfo;
 
     UIMeshBufferMap _meshBuffersMap;
+
+    // DefaultAttribute
+    ccstd::vector<gfx::Attribute> _attributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    };
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
 };

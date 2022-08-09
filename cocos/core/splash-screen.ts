@@ -100,7 +100,7 @@ export class SplashScreen {
         };
         this._curTime = 0;
 
-        if (EDITOR || (PREVIEW && !NATIVE) || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
+        if (EDITOR || PREVIEW || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
         } else {
             this.device = legacyCC.director.root!.device;

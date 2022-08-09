@@ -15,12 +15,12 @@ module.exports = {
         save: '保存',
         locate_asset: '资源面板上定位该资源',
         'label-atlas': {
-            SpriteFrameTip: 'SpriteFrame',
+            SpriteFrameTip: 'Sprite Frame',
             ItemWidthTip: 'Item Width',
             ItemHeightTip: 'Item Height',
             StartCharTip: 'Start Char',
             FontSizeTip: 'Font Size',
-            SpriteFrame: 'SpriteFrame',
+            SpriteFrame: 'Sprite Frame',
             ItemWidth: 'Item Width',
             ItemHeight: 'Item Height',
             StartChar: 'Start Char',
@@ -32,22 +32,28 @@ module.exports = {
         },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
+            filterMode: '过滤模式',
             minFilter: 'Min Filter',
             magFilter: 'Mag Filter',
+            generateMipmaps: '生成 Mipmaps',
             mipFilter: 'Mip Filter',
+            wrapMode: '拼接模式',
             wrapModeS: 'Wrap Mode S',
             wrapModeT: 'Wrap Mode T',
-            anisotropyTip: 'Anisotropy',
-            minFilterTip: 'Min Filter',
-            magFilterTip: 'Mag Filter',
-            mipFilterTip: 'Mip Filter',
-            wrapModeSTip: 'Wrap Mode S',
-            wrapModeTTip: 'Wrap Mode T',
+            anisotropyTip: '应用各向异性过滤算法的最大阈值',
+            filterModeTip: '选择贴图在应用三维图形变换时的过滤模式',
+            minFilterTip: '缩小贴图时采用的过滤算法',
+            magFilterTip: '放大贴图时采用的过滤算法',
+            generateMipmapsTip:
+                '勾选此选项以自动生成 Mipmaps。Mipmaps 是一系列缩小到不同尺寸的原贴图，在物体占屏幕空间小的时候使用以提升性能和减少闪烁',
+            mipFilterTip: '采用多级纹理时的过滤算法',
+            wrapModeTip: '选择在贴图小于填充空间时的填充方式，默认模式为循环',
+            wrapModeSTip: '像素对纹理在 S（U）方向上的映射模式',
+            wrapModeTTip: '像素对纹理在 T（V）方向上的映射模式',
             bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
-                title:
-                    '每个面的尺寸。如果未指定或指定为0，将使用默认尺寸——最接近贴图宽度 / 4 的2次幂。',
+                title: '每个面的尺寸。如果未指定或指定为0，将使用默认尺寸——最接近贴图宽度 / 4 的2次幂。',
             },
         },
         javascript: {
@@ -69,7 +75,7 @@ module.exports = {
             loadPluginInWebTip: 'Load In Web',
             loadPluginInEditorTip: 'Load In Editor',
             loadPluginInNativeTip: 'Load In Native',
-            simulateGlobalsTip: 'Simulate global variables',
+            simulateGlobalsTip: 'Simulate Global Variables',
         },
         scene: {
             asyncLoadAssets: '异步加载',
@@ -129,29 +135,36 @@ module.exports = {
             edit: 'Edit',
             editTip: '编辑',
             meshType: 'Mesh Type',
-            meshTypeTip: 'SpriteFrame 生成的网格类型',
+            meshTypeTip: 'Sprite Frame 生成的网格类型',
             pixelsToUnit: 'Pixels To Unit',
-            pixelsToUnitTip: 'SpriteFrame 像素对应世界空间内单位长度的比例尺',
+            pixelsToUnitTip: 'Sprite Frame 像素对应世界空间内单位长度的比例尺',
             pivotX: 'Pivot X',
-            pivotXTip: 'SpriteFrame 本地坐标系原点的 X 轴位置',
+            pivotXTip: 'Sprite Frame 本地坐标系原点的 X 轴位置',
             pivotY: 'Pivot Y',
-            pivotYTip: 'SpriteFrame 本地坐标系原点的 Y 轴位置',
+            pivotYTip: 'Sprite Frame 本地坐标系原点的 Y 轴位置',
         },
         texture: {
             anisotropy: 'Anisotropy',
             anisotropyTip: '应用各向异性过滤算法的最大阈值',
+            filterMode: '过滤模式',
+            filterModeTip: '选择贴图在应用三维图形变换时的过滤模式',
             minfilter: 'Min Filter',
             minfilterTip: '缩小贴图时采用的过滤算法',
             magfilter: 'Mag Filter',
             magfilterTip: '放大贴图时采用的过滤算法',
+            generateMipmaps: '生成 Mipmaps',
+            generateMipmapsTip:
+                '勾选此选项以自动生成 Mipmaps。Mipmaps 是一系列缩小到不同尺寸的原贴图，在物体占屏幕空间小的时候使用以提升性能和减少闪烁',
             mipfilter: 'Mip Filter',
             mipfilterTip: '采用多级纹理时的过滤算法',
+            wrapMode: '拼接模式',
+            wrapModeTip: '选择在贴图小于填充空间时的填充方式，默认模式为循环',
             wrapModeS: 'Wrap Mode S',
             wrapModeSTip: '像素对纹理在 S（U）方向上的映射模式',
             wrapModeT: 'Wrap Mode T',
             wrapModeTTip: '像素对纹理在 T（V）方向上的映射模式',
             modeWarn:
-                '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
+                '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 Repeat 过滤模式，运行时会自动改为 Clamp 模式，这会使材质的 tilingOffset 等属性完全失效。',
         },
         fbx: {
             browse: '更换贴图',
@@ -237,7 +250,7 @@ module.exports = {
                 },
                 depthWriteInAlphaModeBlend: {
                     name: '混合模式下的深度写入',
-                    title: '当 alpha 模式为 "BLEND" 时开启深度写入。',
+                    title: '当 Alpha 模式为 "BLEND" 时开启深度写入。',
                 },
                 skipValidation: {
                     name: '跳过验证',
@@ -245,7 +258,7 @@ module.exports = {
                 },
             },
             addEvent: {
-                shouldSave: '新建的 clip 需要先提交修改后，才能添加/编辑事件',
+                shouldSave: '新建的 Clip 需要先提交修改后，才能添加/编辑事件',
                 ok: '知道了',
             },
             ImageRemap: {
@@ -262,10 +275,10 @@ module.exports = {
             disableMeshSplit: {
                 name: '是否禁用 Mesh 拆分',
                 title:
-                    '为了解决实时骨骼动画系统下 uniform vector 数量限制问题，<br> ' +
+                    '为了解决实时骨骼动画系统下 Uniform Vector 数量限制问题，<br> ' +
                     '目前在资源导入期会根据骨骼数量做拆分，这会对其他系统也产生影响。<br>' +
                     '如果确定不会使用实时计算模式 (对应 SkeletalAnimation 组件的 <br> ' +
-                    'useBakedAnimation 选项未勾选时)，可以勾选此项以提升性能。<br>' +
+                    'UseBakedAnimation 选项未勾选时)，可以勾选此项以提升性能。<br>' +
                     '但注意改变此选项会影响生成的 prefab 内容，需要对应更新场景中的引用。<br>' +
                     '后续重构会移除此流程。',
             },
@@ -282,36 +295,36 @@ module.exports = {
                     name: 'Simplification',
                     title: 'Simplification',
                     si: {
-                        name: 'Achieve the ratio R',
-                        title: 'Achieve the ratio R',
+                        name: 'Achieve The Ratio R',
+                        title: 'Achieve The Ratio R',
                     },
                     sa: {
-                        name: 'Aggressively simplify',
-                        title: 'Aggressively simplify',
+                        name: 'Aggressively Simplify',
+                        title: 'Aggressively Simplify',
                     },
                 },
                 scene: {
                     name: 'Scene',
                     title: 'Scene',
                     kn: {
-                        name: 'Keep nodes transform',
-                        title: 'Keep nodes transform',
+                        name: 'Keep Nodes Transform',
+                        title: 'Keep Nodes Transform',
                     },
                     ke: {
-                        name: 'Keep extras data',
-                        title: 'Keep extras data',
+                        name: 'Keep Extras Data',
+                        title: 'Keep Extras Data',
                     },
                 },
                 miscellaneous: {
                     name: 'Miscellaneous',
                     title: 'Miscellaneous',
                     noq: {
-                        name: 'Disable quantization',
-                        title: 'Disable quantization',
+                        name: 'Disable Quantization',
+                        title: 'Disable Quantization',
                     },
                     v: {
-                        name: 'Verbose output',
-                        title: 'Verbose output',
+                        name: 'Verbose Output',
+                        title: 'Verbose Output',
                     },
                 },
                 warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
@@ -349,11 +362,11 @@ module.exports = {
             wrapModeT: 'Wrap Mode T',
             wrapModeTTip: 'Wrap Mode T',
             modeWarn:
-                '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
+                '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 Repeat 过滤模式，运行时会自动改为 Clamp-To-Edge 模式，这会使材质的 Tiling Offset 等属性完全失效。',
         },
         material: {
-            'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',
-            'illegal-inspector-url': "Inspector的路径不合法",
+            'fail-to-load-custom-inspector': 'Material: 自定义 Effect {effect} 的 Inspector 加载失败',
+            'illegal-inspector-url': "Inspector 的路径不合法",
         },
         animationGraph: {
             edit: '编辑',
@@ -362,7 +375,7 @@ module.exports = {
             importSkeleton: '导入骨骼',
             clearAllNodes: '清空',
             clearAllNodesWarn: '确定清空所有遮罩数据吗？',
-            illegalFbx: '导入骨骼失败：此 fbx 文件不含有 prefab 子资源。',
+            illegalFbx: '导入骨骼失败：此 FBX 文件不含有 Prefab 子资源。',
             nodeEnableTip: '是否启用该节点及其子孙节点<br>按住 Alt + 点击，只切换自身的状态。',
         },
         multipleWarning: '不支持此类型资源的多选编辑',

@@ -167,6 +167,19 @@ exports.listeners = {
             return;
         }
 
+        /**
+         * Hack：stop preview
+         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
+         * Changes between component properties are not controlled to be strictly reversible.
+         * So stop preview some properties.
+         */
+        const stopPreviewOnTheseTooltips = [
+            'i18n:animation.default_clip',
+        ];
+        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
+            return;
+        }
+
         const { method, value: assetUuid } = event.detail;
         if (method === 'confirm') {
             clearTimeout(panel.previewTimeId);
@@ -181,6 +194,8 @@ exports.listeners = {
                         if (dump.values) {
                             value = dump.values[i];
                         }
+
+
 
                         // 预览新的值
                         value.uuid = assetUuid;
@@ -255,16 +270,14 @@ exports.template = /* html*/`
                 </ui-link>
             </div>
             <div class="before"></div>
-            <div class="reflection" hidden>
-                <ui-prop>
-                    <ui-label slot="label">Reflection Convolution</ui-label>
-                    <div slot="content">
-                        <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
-                        <ui-button class="blue bake" mipBakeMode="2" style="display:none;">Bake</ui-button>
-                        <ui-button class="red remove" mipBakeMode="1" style="display:none;">Remove</ui-button>
-                    </div>
-                </ui-prop>
-            </div>
+            <ui-prop class="reflection">
+                <ui-label slot="label">Reflection Convolution</ui-label>
+                <div slot="content">
+                    <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
+                    <ui-button class="blue bake" style="display:none;">Bake</ui-button>
+                    <ui-button class="red remove" style="display:none;">Remove</ui-button>
+                </div>
+            </ui-prop>
             <div class="after"></div>
         </ui-section>
         <ui-prop class="postProcess" type="dump"></ui-prop>
@@ -664,18 +677,19 @@ const Elements = {
                 event.preventDefault();
             });
 
-            panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionChange.bind(panel));
-            panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionChange.bind(panel));
-            panel.skyboxReflectionConvolutionWatchBind = Elements.scene.skyboxReflectionConvolutionWatch.bind(panel);
-            Editor.Message.addBroadcastListener('asset-db:asset-change', panel.skyboxReflectionConvolutionWatchBind);
+            panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionBake.bind(panel));
+            panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionRemove.bind(panel));
         },
         async update() {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.toggleShowAddComponentBtn(true);
+                if (!panel.isAnimationMode()) {
+                    panel.toggleShowAddComponentBtn(true);
+                }
                 return;
             }
+            // 场景模式要隐藏按钮
             panel.toggleShowAddComponentBtn(false);
 
             panel.$this.setAttribute('sub-type', 'scene');
@@ -716,13 +730,7 @@ const Elements = {
                 }
             }
 
-            const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (envMapData.value && envMapData.value.uuid) {
-                panel.$.sceneSkyboxReflection.removeAttribute('hidden');
-                envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
-            } else {
-                panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
-            }
+            Elements.scene.skyboxReflectionConvolution.call(panel);
             // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
@@ -778,49 +786,55 @@ const Elements = {
         async skyboxReflectionConvolution() {
             const panel = this;
 
-            const meta = await Editor.Message.request('asset-db', 'query-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid);
             panel.$.sceneSkyboxReflectionLoading.style.display = 'none';
 
-            if (meta.userData.mipBakeMode !== 1) {
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            if (reflectionMap.value && reflectionMap.value.uuid) {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'none';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
-
             } else {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
-            }
 
-            return meta;
+                // 在 bake 按钮显示的状态下，如果 envmap 都没有配置，那 bake 也不需要显示
+                const envMapData = panel.dump._globals.skybox.value['envmap'];
+                if (envMapData.value && envMapData.value.uuid) {
+                    panel.$.sceneSkyboxReflection.removeAttribute('hidden');
+                } else {
+                    panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
+                }
+            }
         },
-        skyboxReflectionConvolutionChange(event) {
+        async skyboxReflectionConvolutionBake() {
             const panel = this;
 
             const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (!envMapData.meta) {
+            if (!envMapData.value || !envMapData.value.uuid) {
                 return;
             }
 
             panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
             panel.$.sceneSkyboxReflectionBake.style.display = 'none';
-            panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
 
-            const mipBakeMode = event.target.getAttribute('mipBakeMode') || 0;
-            envMapData.meta.userData.mipBakeMode = parseInt(mipBakeMode);
-            Editor.Message.send('asset-db', 'save-asset-meta', envMapData.value.uuid, JSON.stringify(envMapData.meta));
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'bakeReflectionConvolution',
+                args: [envMapData.value.uuid],
+            });
         },
-        async skyboxReflectionConvolutionWatch(uuid) {
+        skyboxReflectionConvolutionRemove() {
             const panel = this;
-            if (panel.dump && panel.dump._globals && panel.dump._globals.skybox) {
-                const envMapData = panel.dump._globals.skybox.value['envmap'];
-                if (envMapData.value && envMapData.value.uuid === uuid) {
-                    envMapData.meta = await Elements.scene.skyboxReflectionConvolution.call(panel);
-                }
+
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            if (reflectionMap.value && reflectionMap.value.uuid) {
+                const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
+                $skyProps.forEach(($prop) => {
+                    if ($prop.dump.name === 'reflectionMap') {
+                        $prop.dump.value.uuid = '';
+                        $prop.dispatch('change');
+                    }
+                });
             }
-        },
-        close() {
-            const panel = this;
-
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.skyboxReflectionConvolutionWatchBind);
         },
     },
     node: {
@@ -1234,7 +1248,7 @@ const Elements = {
                         panel.$.sectionAsset.prepend(materialPanel);
                     }
 
-                    materialPanel.addEventListener('focus', () => {
+                    materialPanel.focusEventInNode = () => {
                         const children = Array.from(materialPanel.parentElement.children);
                         children.forEach((child) => {
                             if (child === materialPanel) {
@@ -1243,14 +1257,16 @@ const Elements = {
                                 child.removeAttribute('focused');
                             }
                         });
-                    });
-                    materialPanel.addEventListener('blur', () => {
+                    };
+                    materialPanel.blurEventInNode = () => {
                         if (panel.blurSleep) {
                             return;
                         }
 
                         materialPanel.removeAttribute('focused');
-                    });
+                    };
+                    materialPanel.addEventListener('focus', materialPanel.focusEventInNode);
+                    materialPanel.addEventListener('blur', materialPanel.blurEventInNode);
                 }
                 materialPanels.push(materialPanel);
                 materialPrevPanel = materialPanel;
@@ -1260,6 +1276,10 @@ const Elements = {
             for (const oldChild of oldChildren) {
                 if (oldChild && materialPanels.indexOf(oldChild) === -1) {
                     await oldChild.panel.beforeClose.call(oldChild.panelObject);
+                    oldChild.removeEventListener('focus', oldChild.focusEventInNode);
+                    oldChild.removeEventListener('blur', oldChild.blurEventInNode);
+                    oldChild.focusEventInNode = undefined;
+                    oldChild.blurEventInNode = undefined;
                     oldChild.remove();
                 }
             }
@@ -1275,6 +1295,10 @@ const Elements = {
                 if (next === false) {
                     return false;
                 } else {
+                    materialPanel.removeEventListener('focus', materialPanel.focusEventInNode);
+                    materialPanel.removeEventListener('blur', materialPanel.blurEventInNode);
+                    materialPanel.focusEventInNode = undefined;
+                    materialPanel.blurEventInNode = undefined;
                     materialPanel.remove();
                 }
             }
@@ -1424,9 +1448,11 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
                     async click() {
+                        const info = JSON.parse(JSON.stringify(dump));
+                        delete info.value.__prefab;
                         Editor.Clipboard.write('_dump_component_', {
                             cid: dump.cid,
-                            dump: JSON.parse(JSON.stringify(dump)),
+                            dump: info,
                         });
                     },
                 },
@@ -1473,7 +1499,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
@@ -1596,7 +1622,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
@@ -1683,9 +1709,11 @@ exports.methods = {
     toggleShowAddComponentBtn(show) {
         this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
     },
+    isAnimationMode() {
+        return Editor.EditMode.getMode() === 'animation';
+    },
     handlerSceneChangeMode() {
-        const mode = Editor.EditMode.getMode();
-        this.toggleShowAddComponentBtn(mode !== 'animation'); // 动画编辑模式下，要隐藏按钮
+        this.toggleShowAddComponentBtn(!this.isAnimationMode()); // 动画编辑模式下，要隐藏按钮
     },
 };
 

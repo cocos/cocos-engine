@@ -3,6 +3,8 @@ CCEffect %{
   - passes:
     - vert: sky-vs:vert
       frag: sky-fs:frag
+      properties: &props
+        environmentMap:     { value: grey }
       priority: max - 10
       rasterizerState:
         cullMode: none
@@ -57,11 +59,12 @@ CCProgram sky-fs %{
 
   in mediump vec4 viewDir;
 
+  uniform samplerCube environmentMap;
   vec4 frag () {
     #if USE_RGBE_CUBEMAP
-      vec3 c = unpackRGBE(fragTextureLod(cc_environment, viewDir.xyz, 0.0));
+      vec3 c = unpackRGBE(fragTextureLod(environmentMap, viewDir.xyz, 0.0));
     #else
-      vec3 c = SRGBToLinear(fragTextureLod(cc_environment, viewDir.xyz, 0.0).rgb);
+      vec3 c = SRGBToLinear(fragTextureLod(environmentMap, viewDir.xyz, 0.0).rgb);
     #endif
     return CCFragOutput(vec4(c * cc_ambientSky.w, 1.0));
   }

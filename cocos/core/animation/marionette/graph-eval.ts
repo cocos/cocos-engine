@@ -499,6 +499,7 @@ class LayerEval {
                     duration: 0.0,
                     normalizedDuration: false,
                     destinationStart: 0.0,
+                    relativeDestinationStart: false,
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                     interruption: TransitionInterruptionSource.NONE,
@@ -510,10 +511,12 @@ class LayerEval {
                     transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
                     transitionEval.exitCondition = outgoing.exitCondition;
                     transitionEval.destinationStart = outgoing.destinationStart;
+                    transitionEval.relativeDestinationStart = outgoing.relativeDestinationStart;
                     transitionEval.interruption = outgoing.interruptionSource;
                 } else if (outgoing instanceof EmptyStateTransition) {
                     transitionEval.duration = outgoing.duration;
                     transitionEval.destinationStart = outgoing.destinationStart;
+                    transitionEval.relativeDestinationStart = outgoing.relativeDestinationStart;
                 }
 
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
@@ -961,8 +964,14 @@ class LayerEval {
         if (targetNode.kind === NodeKind.animation) {
             const {
                 destinationStart,
+                relativeDestinationStart,
             } = currentTransitionPath[0];
-            targetNode.resetToPort(destinationStart);
+            const destinationStartRatio = relativeDestinationStart
+                ? destinationStart
+                : targetNode.duration === 0
+                    ? 0.0
+                    : destinationStart / targetNode.duration;
+            targetNode.resetToPort(destinationStartRatio);
         }
         this._callEnterMethods(targetNode);
     }
@@ -1759,6 +1768,7 @@ interface TransitionEval {
     exitConditionEnabled: boolean;
     exitCondition: number;
     destinationStart: number;
+    relativeDestinationStart: boolean;
     /**
      * Bound triggers, once this transition satisfied. All triggers would be reset.
      */

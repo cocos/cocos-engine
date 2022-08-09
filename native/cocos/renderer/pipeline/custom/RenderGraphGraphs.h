@@ -2161,6 +2161,12 @@ id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [](const impl::ValueHandle<DispatchTag, vertex_descriptor>& h) {
                 return h.value;
+            },
+            [](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
+                return h.value;
+            },
+            [](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
+                return h.value;
             }),
         g.vertices[u].handle);
 }
@@ -2199,6 +2205,12 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [](const impl::ValueHandle<DispatchTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{DispatchTag{}};
+            },
+            [](const impl::ValueHandle<ClearTag, vertex_descriptor>&) {
+                return RenderGraph::VertexTag{ClearTag{}};
+            },
+            [](const impl::ValueHandle<ViewportTag, vertex_descriptor>&) {
+                return RenderGraph::VertexTag{ViewportTag{}};
             }),
         g.vertices[u].handle);
 }
@@ -2237,6 +2249,12 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<DispatchTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.dispatches[h.value]};
+            },
+            [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexValue{&g.clearViews[h.value]};
+            },
+            [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexValue{&g.viewports[h.value]};
             }),
         g.vertices[u].handle);
 }
@@ -2275,6 +2293,12 @@ value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<DispatchTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.dispatches[h.value]};
+            },
+            [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexConstValue{&g.clearViews[h.value]};
+            },
+            [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexConstValue{&g.viewports[h.value]};
             }),
         g.vertices[u].handle);
 }
@@ -2363,6 +2387,22 @@ holds<DispatchTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexc
         g.vertices[v].handle);
 }
 
+template <>
+inline bool
+holds<ClearTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<ViewportTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
 template <class ValueT>
 inline bool
 holds_alternative(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept; // NOLINT
@@ -2444,6 +2484,22 @@ inline bool
 holds_alternative<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<gfx::Viewport>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -2541,6 +2597,24 @@ get<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.dispatches[handle.value];
 }
 
+template <>
+inline ccstd::pmr::vector<ClearView>&
+get<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.clearViews[handle.value];
+}
+
+template <>
+inline gfx::Viewport&
+get<gfx::Viewport>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.viewports[handle.value];
+}
+
 template <class ValueT>
 inline const ValueT&
 get(RenderGraph::vertex_descriptor /*v*/, const RenderGraph& /*g*/);
@@ -2635,6 +2709,24 @@ get<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.dispatches[handle.value];
 }
 
+template <>
+inline const ccstd::pmr::vector<ClearView>&
+get<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.clearViews[handle.value];
+}
+
+template <>
+inline const gfx::Viewport&
+get<gfx::Viewport>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.viewports[handle.value];
+}
+
 inline RasterPass&
 get(RasterTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
@@ -2715,6 +2807,22 @@ get(DispatchTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.dispatches[handle.value];
 }
 
+inline ccstd::pmr::vector<ClearView>&
+get(ClearTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.clearViews[handle.value];
+}
+
+inline gfx::Viewport&
+get(ViewportTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.viewports[handle.value];
+}
+
 inline const RasterPass&
 get(RasterTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
@@ -2793,6 +2901,22 @@ get(DispatchTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g)
         impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.dispatches[handle.value];
+}
+
+inline const ccstd::pmr::vector<ClearView>&
+get(ClearTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.clearViews[handle.value];
+}
+
+inline const gfx::Viewport&
+get(ViewportTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.viewports[handle.value];
 }
 
 template <class ValueT>
@@ -2965,6 +3089,40 @@ get_if<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.dispatches[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline ccstd::pmr::vector<ClearView>*
+get_if<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    ccstd::pmr::vector<ClearView>* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.clearViews[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline gfx::Viewport*
+get_if<gfx::Viewport>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    gfx::Viewport* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.viewports[pHandle->value];
     }
     return ptr;
 }
@@ -3143,6 +3301,40 @@ get_if<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) no
     return ptr;
 }
 
+template <>
+inline const ccstd::pmr::vector<ClearView>*
+get_if<ccstd::pmr::vector<ClearView>>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const ccstd::pmr::vector<ClearView>* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.clearViews[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const gfx::Viewport*
+get_if<gfx::Viewport>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const gfx::Viewport* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.viewports[pHandle->value];
+    }
+    return ptr;
+}
+
 // Vertex Constant Getter
 template <class Tag>
 inline decltype(auto)
@@ -3284,6 +3476,20 @@ inline void remove_vertex_value_impl(const RenderGraph::VertexHandle& h, RenderG
                     return;
                 }
                 impl::reindexVectorHandle<DispatchTag>(g.vertices, h.value);
+            },
+            [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
+                g.clearViews.erase(g.clearViews.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.clearViews.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ClearTag>(g.vertices, h.value);
+            },
+            [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
+                g.viewports.erase(g.viewports.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.viewports.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ViewportTag>(g.vertices, h.value);
             }),
         h);
 }
@@ -3390,6 +3596,24 @@ void addVertexImpl( // NOLINT
     vert.handle = impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>{
         gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.dispatches.size())};
     g.dispatches.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ccstd::pmr::vector<ClearView>>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearViews.size())};
+    g.clearViews.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, gfx::Viewport>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.viewports.size())};
+    g.viewports.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class Component0, class Component1, class Component2, class Component3, class ValueT>
@@ -3522,6 +3746,28 @@ void addVertexImpl(DispatchTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph
             vert.handle = impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.dispatches.size())};
             g.dispatches.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ClearTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearViews.size())};
+            g.clearViews.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ViewportTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.viewports.size())};
+            g.viewports.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }

@@ -51,6 +51,7 @@ class SceneTask;
 class SceneTransversal;
 class LayoutGraphBuilder;
 class Pipeline;
+class PipelineBuilder;
 class Factory;
 
 } // namespace render

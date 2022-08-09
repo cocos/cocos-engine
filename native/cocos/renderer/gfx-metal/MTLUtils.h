@@ -78,6 +78,7 @@ const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint32_t length);
 NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);
 uint32_t getGPUFamily(MTLFeatureSet featureSet);
 uint32_t getMaxVertexAttributes(uint32_t family);
+uint32_t getMaxUniformBufferBindings(uint32_t family);
 uint32_t getMaxEntriesInBufferArgumentTable(uint32_t family);
 uint32_t getMaxEntriesInTextureArgumentTable(uint32_t family);
 uint32_t getMaxEntriesInSamplerStateArgumentTable(uint32_t family);

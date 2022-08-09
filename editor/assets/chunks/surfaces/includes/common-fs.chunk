@@ -23,6 +23,9 @@
 
 // Uniforms--Tex
 #include <builtin/uniforms/cc-shadow>
+#if CC_SUPPORT_CASCADED_SHADOW_MAP
+  #include <builtin/uniforms/cc-csm>
+#endif
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
   #if CC_USE_DIFFUSEMAP

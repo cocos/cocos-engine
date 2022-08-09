@@ -101,7 +101,7 @@ void CCSurfacesLightingCalculateEnvironment(inout LightingResult lightingResult,
     #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
       envSpec = EnvAnisotropicReflection(R, roughness, cc_ambientGround.w, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
     #else
-      #if CC_SURFACES_USE_REFLECTION_DENOISE
+      #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
         envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, cc_ambientGround.w, 0.6);
       #else
         envSpec = EnvReflection(R, roughness, cc_ambientGround.w);

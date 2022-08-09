@@ -288,6 +288,7 @@ export class AssetManager {
 
     private _parsed = parsed;
     private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);
+    private _projectBundles: string[] = [];
 
     /**
      * @en
@@ -345,6 +346,7 @@ export class AssetManager {
         }
         this.generalImportBase = importBase;
         this.generalNativeBase = nativeBase;
+        this._projectBundles = settings.querySettings(Settings.Category.ASSETS, 'projectBundles') || [];
     }
 
     /**

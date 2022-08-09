@@ -101,7 +101,6 @@ void UIMeshBuffer::uploadBuffers() {
 
     uint32_t indexCount = getIndexOffset();
     uint32_t byteCount = getByteOffset();
-    uint32_t dataCount = byteCount >> 2;
 
     gfx::InputAssembler* ia = _iaPool[0];
     gfx::BufferList vBuffers = ia->getVertexBuffers();
@@ -181,4 +180,5 @@ void UIMeshBuffer::setDirty(bool dirty) const {
 void UIMeshBuffer::setFloatsPerVertex(uint32_t floatsPerVertex) {
     _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
+
 } // namespace cc

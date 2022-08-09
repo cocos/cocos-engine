@@ -25,17 +25,21 @@
 
 declare const render: any;
 
-import { Pipeline } from './pipeline';
-import { rebuildLayoutGraph } from './effect';
 import { legacyCC } from '../../global-exports';
+import { Pipeline, PipelineBuilder } from './pipeline';
+import { buildDeferredLayout, buildForwardLayout } from './effect';
 
 export function createCustomPipeline (): Pipeline {
-    return render.Factory.createPipeline();
+    const root = legacyCC.director.root;
+    const ppl = render.Factory.createPipeline();
+    if (root.useDeferredPipeline) {
+        buildDeferredLayout(ppl);
+    } else {
+        buildForwardLayout(ppl);
+    }
+    return ppl;
 }
 
-export function registerRebuildLayoutGraph() {
-    const director = legacyCC.director;
-    if (director.root.usesCustomPipeline) {
-        director.on(legacyCC.Director.EVENT_BEFORE_DRAW, rebuildLayoutGraph);
-    }
+export function setCustomPipelineBuilder (builder: PipelineBuilder) {
+    // not implemented yet
 }

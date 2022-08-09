@@ -1,5 +1,8 @@
 // used for replacing cc-shadow-map-base.chunk
 #include <builtin/uniforms/cc-shadow>
+#if CC_SUPPORT_CASCADED_SHADOW_MAP
+  #include <builtin/uniforms/cc-csm>
+#endif
 #include <common/common-define>
 #include <common/math/coordinates>
 
@@ -38,6 +41,18 @@ float CCGetLinearDepth(vec3 worldPos) {
   	}
   	CC_HANDLE_NDC_SAMPLE_FLIP(shadowNDCPos.xy);
   	return true;
+  }
+
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias, vec3 matViewDir0, vec3 matViewDir1, vec3 matViewDir2, vec2 projScaleXY)
+  {
+    vec4 newShadowPos = shadowPos;
+    if (normalBias > EPSILON_LOWP)
+    {
+      vec3 viewNormal = vec3(dot(matViewDir0, worldNormal), dot(matViewDir1, worldNormal), dot(matViewDir2, worldNormal));
+      if (viewNormal.z < 0.1)
+        newShadowPos.xy += viewNormal.xy * projScaleXY * normalBias * clamp(viewNormal.z, 0.001, 0.1);
+    }
+    return newShadowPos; 
   }
   
   vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias, mat4 matLightView, vec2 projScaleXY)
@@ -181,9 +196,11 @@ float CCGetLinearDepth(vec3 worldPos) {
       pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
     #endif
 
-    if (pcf > 2.9) {
-      return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
-    } else if (pcf > 1.9) { 
+      /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
+      if (pcf > 2.9) {
+        return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
+      } else */
+    if (pcf > 1.9) {
       return CCGetSpotLightShadowFactorSoft3X(pos, worldPos);
     }else if (pcf > 0.9) { 
       return CCGetSpotLightShadowFactorSoft(pos, worldPos);
@@ -199,9 +216,11 @@ float CCGetLinearDepth(vec3 worldPos) {
     pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
   
     float pcf = cc_shadowWHPBInfo.z;
-    if (pcf > 2.9) {
-      realtimeShadow =  CCGetDirLightShadowFactorSoft5X(pos);
-    } else if (pcf > 1.9) {
+      /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
+      if (pcf > 2.9) {
+        realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
+      } else */
+    if (pcf > 1.9) {
       realtimeShadow =  CCGetDirLightShadowFactorSoft3X(pos);
     }else if (pcf > 0.9) {
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
@@ -211,50 +230,64 @@ float CCGetLinearDepth(vec3 worldPos) {
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
   
-
-  int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec4 matShadowViewLine0, out vec4 matShadowViewLine1, out vec4 matShadowViewLine2, out vec4 matShadowViewLine3, vec3 worldPos) {
-    int layer = -1;
-    for (int i = 0; i < NUMCASCADES; i++) {
-      vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
-      vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
-      if (clipPos.x >= (0.0 + cc_csmInfo.y) && clipPos.x <= (1.0 - cc_csmInfo.y) &&
-          clipPos.y >= (0.0 + cc_csmInfo.y) && clipPos.y <= (1.0 - cc_csmInfo.y) &&
-          clipPos.z >= 0.0 && clipPos.z <= 1.0 && layer < 0) {
-        csmPos = cc_matCSMViewProjAtlas[i] * vec4(worldPos.xyz, 1.0);
-        shadowProjDepthInfo = cc_csmProjDepthInfo[i];
-        shadowProjInfo = cc_csmProjInfo[i];
-        matShadowViewLine0 = cc_matCSMView[i][0];
-        matShadowViewLine1 = cc_matCSMView[i][1];
-        matShadowViewLine2 = cc_matCSMView[i][2];
-        matShadowViewLine3 = cc_matCSMView[i][3];
-        layer = i;
+  #if CC_SUPPORT_CASCADED_SHADOW_MAP
+    int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos) {
+      int layer = -1;
+      highp float layerThreshold = cc_csmViewDir0[0].w;
+      for (int i = 0; i < NUMCASCADES; i++) {
+        vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
+        vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+        if (clipPos.x >= (0.0 + layerThreshold) && clipPos.x <= (1.0 - layerThreshold) &&
+            clipPos.y >= (0.0 + layerThreshold) && clipPos.y <= (1.0 - layerThreshold) &&
+            clipPos.z >= 0.0 && clipPos.z <= 1.0 && layer < 0) {
+          csmPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
+          csmPos.xy = csmPos.xy * cc_csmAtlas[i].xy + cc_csmAtlas[i].zw;
+          shadowProjDepthInfo = cc_csmProjDepthInfo[i];
+          shadowProjInfo = cc_csmProjInfo[i];
+          shadowViewDir0 = cc_csmViewDir0[i].xyz;
+          shadowViewDir1 = cc_csmViewDir1[i].xyz;
+          shadowViewDir2 = cc_csmViewDir2[i].xyz;
+          layer = i;
+        }
       }
+      return layer;
     }
-    return layer;
-  }
 
-  float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
-  {
-    vec4 csmPos = vec4(1.0);
-    vec4 shadowProjDepthInfo, shadowProjInfo;
-    mat4 matLightView;
-    int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView[0], matLightView[1], matLightView[2], matLightView[3], worldPos);
-    if (level < 0) { return 1.0; }
-    float realtimeShadow = 1.0;
+    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
+    {
+      vec4 csmPos = vec4(1.0);
+      vec4 shadowProjDepthInfo, shadowProjInfo;
+      vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
+      int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+      if (level < 0) { return 1.0; }
+      float realtimeShadow = 1.0;
 
-    vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, matLightView, shadowProjInfo.xy);
-    pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
-  
-    float pcf = cc_shadowWHPBInfo.z;
-    if (pcf > 2.9) {
-      realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
-    } else if (pcf > 1.9) {
-      realtimeShadow = CCGetDirLightShadowFactorSoft3X(pos);
-    } else if (pcf > 0.9) {
-      realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
-    }else { 
-      realtimeShadow = CCGetDirLightShadowFactorHard(pos);
+      vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
+      pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+
+      float pcf = cc_shadowWHPBInfo.z;
+      /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
+      if (pcf > 2.9) {
+        realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
+      } else */
+      if (pcf > 1.9) {
+        realtimeShadow = CCGetDirLightShadowFactorSoft3X(pos);
+      } else if (pcf > 0.9) {
+        realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
+      }else { 
+        realtimeShadow = CCGetDirLightShadowFactorHard(pos);
+      }
+      return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
     }
-    return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
-  }
+  #else
+    int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos) {
+      return -1;
+    }
+
+    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias) {
+      vec4 shadowPos = cc_matLightViewProj * vec4(worldPos, 1.0);
+      return CCShadowFactorBase(shadowPos, N, shadowBias);
+    }
+  #endif
+
 #endif

@@ -1667,6 +1667,86 @@ static bool js_engine_ICanvasRenderingContext2D_setLineWidth(se::State& s) // NO
 }
 SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineWidth)
 
+static bool js_engine_ICanvasRenderingContext2D_setShadowBlur(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setShadowBlur(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_setShadowBlur)
+
+static bool js_engine_ICanvasRenderingContext2D_setShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setShadowColor(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_setShadowColor)
+
+static bool js_engine_ICanvasRenderingContext2D_setShadowOffsetX(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setShadowOffsetX(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_setShadowOffsetX)
+
+static bool js_engine_ICanvasRenderingContext2D_setShadowOffsetY(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setShadowOffsetY(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_setShadowOffsetY)
+
 static bool js_engine_ICanvasRenderingContext2D_setStrokeStyle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
@@ -1907,6 +1987,10 @@ bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(rea
     cls->defineFunction("save", _SE(js_engine_ICanvasRenderingContext2D_save));
     cls->defineFunction("scale", _SE(js_engine_ICanvasRenderingContext2D_scale));
     cls->defineFunction("setCanvasBufferUpdatedCallback", _SE(js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
+    cls->defineFunction("setShadowBlur", _SE(js_engine_ICanvasRenderingContext2D_setShadowBlur));
+    cls->defineFunction("setShadowColor", _SE(js_engine_ICanvasRenderingContext2D_setShadowColor));
+    cls->defineFunction("setShadowOffsetX", _SE(js_engine_ICanvasRenderingContext2D_setShadowOffsetX));
+    cls->defineFunction("setShadowOffsetY", _SE(js_engine_ICanvasRenderingContext2D_setShadowOffsetY));
     cls->defineFunction("setTransform", _SE(js_engine_ICanvasRenderingContext2D_setTransform));
     cls->defineFunction("stroke", _SE(js_engine_ICanvasRenderingContext2D_stroke));
     cls->defineFunction("strokeText", _SE(js_engine_ICanvasRenderingContext2D_strokeText));

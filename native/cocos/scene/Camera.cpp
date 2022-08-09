@@ -250,8 +250,9 @@ geometry::Ray Camera::screenPointToRay(float x, float y) {
         (x - cx) / cw * 2 - 1.F,
         (y - cy) / ch * 2 - 1.F,
         isProj ? 1.F : -1.F};
-    tmpVec3.x = tmpVec3.x * preTransform[0] + tmpVec3.y * preTransform[2] * ySign;
-    tmpVec3.y = tmpVec3.x * preTransform[1] + tmpVec3.y * preTransform[3] * ySign;
+    float tmpX = tmpVec3.x;
+    tmpVec3.x = tmpX * preTransform[0] + tmpVec3.y * preTransform[2] * ySign;
+    tmpVec3.y = tmpX * preTransform[1] + tmpVec3.y * preTransform[3] * ySign;
 
     geometry::Ray out;
     if (isProj) {
@@ -265,7 +266,7 @@ geometry::Ray Camera::screenPointToRay(float x, float y) {
         geometry::Ray::fromPoints(&out, _node->getWorldPosition(), tmpVec3);
     } else {
         out.d.set(0, 0, -1.F);
-        out.d.transformQuat(_node->getRotation());
+        out.d.transformQuat(_node->getWorldRotation());
     }
 
     return out;
@@ -288,8 +289,9 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
             1.0F);
 
         // transform to world
-        out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
-        out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
+        float tmpX = out.x;
+        out.x = tmpX * preTransform[0] + out.y * preTransform[2] * ySign;
+        out.y = tmpX * preTransform[1] + out.y * preTransform[3] * ySign;
         out.transformMat4(out, _matViewProjInv);
         // lerp to depth z
         Vec3 tmpVec3;
@@ -305,8 +307,9 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
             screenPos.z * 2 - 1);
 
         // transform to world
-        out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
-        out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
+        float tmpX = out.x;
+        out.x = tmpX * preTransform[0] + out.y * preTransform[2] * ySign;
+        out.y = tmpX * preTransform[1] + out.y * preTransform[3] * ySign;
         out.transformMat4(out, _matViewProjInv);
     }
 
@@ -319,8 +322,9 @@ Vec3 Camera::worldToScreen(const Vec3 &worldPos) {
     Vec3 out;
     Vec3::transformMat4(worldPos, _matViewProj, &out);
 
-    out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
-    out.y = out.x * preTransform[1] + out.y * preTransform[3] * ySign;
+    float tmpX = out.x;
+    out.x = tmpX * preTransform[0] + out.y * preTransform[2] * ySign;
+    out.y = tmpX * preTransform[1] + out.y * preTransform[3] * ySign;
 
     const float cx = _orientedViewport.x * static_cast<float>(_width);
     const float cy = _orientedViewport.y * static_cast<float>(_height);

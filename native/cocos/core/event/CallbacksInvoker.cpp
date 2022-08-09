@@ -27,11 +27,11 @@
 
 namespace cc {
 
-CallbackInfoBase::ID CallbacksInvoker::cbIDCounter{0};
+uint32_t CallbacksInvoker::cbIDCounter{0};
 
-void CallbackList::removeByCallbackID(CallbackInfoBase::ID cbID) {
+void CallbackList::removeByCallbackID(const CallbackID &cbID) {
     for (int32_t i = 0; i < _callbackInfos.size(); ++i) {
-        auto &info = _callbackInfos[i];
+        const auto &info = _callbackInfos[i];
         if (info->_id == cbID) {
             utils::array::fastRemoveAt(_callbackInfos, i);
             --i;
@@ -111,7 +111,7 @@ bool CallbacksInvoker::hasEventListener(const KeyType &key) const {
     return !infos.empty();
 }
 
-bool CallbacksInvoker::hasEventListener(const KeyType &key, CallbackInfoBase::ID cbID) const {
+bool CallbacksInvoker::hasEventListener(const KeyType &key, const CallbackID &cbID) const {
     auto iter = _callbackTable.find(key);
     if (iter == _callbackTable.end()) {
         return false;
@@ -149,7 +149,7 @@ bool CallbacksInvoker::hasEventListener(const KeyType &key, void *target) {
     return false;
 }
 
-bool CallbacksInvoker::hasEventListener(const KeyType &key, void *target, CallbackInfoBase::ID cbID) const {
+bool CallbacksInvoker::hasEventListener(const KeyType &key, void *target, const CallbackID &cbID) const {
     auto iter = _callbackTable.find(key);
     if (iter == _callbackTable.end()) {
         return false;
@@ -212,7 +212,7 @@ void CallbacksInvoker::offAll() {
     }
 }
 
-void CallbacksInvoker::off(const KeyType &key, CallbackInfoBase::ID cbID) {
+void CallbacksInvoker::off(const KeyType &key, const CallbackID &cbID) {
     auto iter = _callbackTable.find(key);
     if (iter != _callbackTable.end()) {
         auto &list = iter->second;
@@ -247,7 +247,7 @@ void CallbacksInvoker::offAll(const KeyType &key, void *target) {
     }
 }
 
-void CallbacksInvoker::off(CallbackInfoBase::ID cbID) {
+void CallbacksInvoker::off(const CallbackID &cbID) {
     for (auto &cbInfo : _callbackTable) {
         auto &list = cbInfo.second;
         const auto &infos = list._callbackInfos;

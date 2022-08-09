@@ -192,7 +192,7 @@ static void registerOnSiblingOrderChanged(cc::Node *node, se::Object *jsObject) 
 }
 
 static void registerOnActiveNode(cc::Node *node, se::Object *jsObject) {
-    cc::CallbackInfoBase::ID skip;
+    cc::CallbackID skip;
     node->on(
         cc::EventTypesToJS::NODE_ACTIVE_NODE,
         [jsObject](bool shouldActiveNow) {
@@ -205,7 +205,7 @@ static void registerOnActiveNode(cc::Node *node, se::Object *jsObject) {
 }
 
 static void registerOnBatchCreated(cc::Node *node, se::Object *jsObject) {
-    cc::CallbackInfoBase::ID skip;
+    cc::CallbackID skip;
     node->on(
         cc::EventTypesToJS::NODE_ON_BATCH_CREATED,
         [jsObject](bool dontChildPrefab) {
@@ -622,7 +622,6 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
-    auto *thiz = s.thisObject();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         ccstd::string name;

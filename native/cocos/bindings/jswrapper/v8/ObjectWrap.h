@@ -57,6 +57,8 @@ namespace se {
 
 class ObjectWrap {
 public:
+    static constexpr uint16_t MAGIC_CLASS_ID_JSB = 0x1234;
+
     ObjectWrap();
     ~ObjectWrap();
 

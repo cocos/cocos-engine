@@ -297,7 +297,8 @@ public:
     inline gfx::PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
 
     // Only for UI
-    void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor);
+    void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor);
+    void updatePassHash();
 
     //  internal use
     /**

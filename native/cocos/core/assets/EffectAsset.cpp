@@ -26,6 +26,7 @@
 #include "core/assets/EffectAsset.h"
 #include "cocos.h"
 #include "core/Root.h"
+#include "core/platform/Debug.h"
 #include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
 
@@ -132,6 +133,34 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
             return iter->second;
         }
     }
+    static ccstd::vector<ccstd::string> legacyBuiltinEffectNames{
+        "planar-shadow",
+        "skybox",
+        "deferred-lighting",
+        "bloom",
+        "post-process",
+        "profiler",
+        "splash-screen",
+        "standard",
+        "unlit",
+        "sprite",
+        "particle",
+        "particle-gpu",
+        "particle-trail",
+        "billboard",
+        "terrain",
+        "graphics",
+        "clear-stencil",
+        "spine",
+        "occlusion-query",
+        "geometry-renderer",
+        "debug-renderer"};
+    for (auto &legacyName : legacyBuiltinEffectNames) {
+        if (name == legacyName) {
+            debug::warnID(16101, name);
+        }
+    }
+
     return nullptr;
 }
 

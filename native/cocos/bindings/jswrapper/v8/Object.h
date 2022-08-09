@@ -300,7 +300,7 @@ public:
      *  @return A void* that is the object's private data, if the object has private data, otherwise nullptr.
      */
     inline void *getPrivateData() const {
-        return _privateObject ? _privateObject->getRaw() : nullptr;
+        return _privateData;
     }
 
     /**
@@ -455,6 +455,7 @@ private:
     uint32_t _rootCount{0};
 
     PrivateObjectBase *_privateObject{nullptr};
+    void *_privateData{nullptr};
     V8FinalizeFunc _finalizeCb{nullptr};
 
     bool _clearMappingInFinalizer{true};
@@ -465,7 +466,9 @@ private:
     #if JSB_TRACK_OBJECT_CREATION
     ccstd::string _objectCreationStackFrame;
     #endif
+
     friend class ScriptEngine;
+    friend class JSBPersistentHandleVisitor;
 };
 // NOLINTNEXTLINE
 extern std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr

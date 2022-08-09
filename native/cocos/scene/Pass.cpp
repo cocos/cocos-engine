@@ -613,7 +613,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
 void Pass::syncBatchingScheme() {
     auto iter = _defines.find("USE_INSTANCING");
     if (iter != _defines.end()) {
-        if (_device->hasFeature(gfx::Feature::INSTANCED_ARRAYS)) {
+        if (_device->hasFeature(gfx::Feature::INSTANCED_ARRAYS) && ccstd::get<bool>(iter->second)) {
             _batchingScheme = BatchingSchemes::INSTANCING;
         } else {
             iter->second = false;
@@ -621,7 +621,7 @@ void Pass::syncBatchingScheme() {
         }
     } else {
         auto iter = _defines.find("USE_BATCHING");
-        if (iter != _defines.end()) {
+        if (iter != _defines.end() && ccstd::get<bool>(iter->second)) {
             _batchingScheme = BatchingSchemes::VB_MERGING;
         } else {
             _batchingScheme = BatchingSchemes::NONE;
@@ -629,14 +629,14 @@ void Pass::syncBatchingScheme() {
     }
 }
 
-void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor) {
+void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor) {
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;
     _dynamicStates = target->_dynamicStates;
-    _blendState = bs; // cjh lifecycle?
+    _blendState = *target->getBlendState();
     _depthStencilState = dss;
     _descriptorSet = target->_descriptorSet;
     _rs = *target->getRasterizerState();
@@ -654,6 +654,10 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
 
     _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
     _hash = target->_hash ^ hashFactor;
+}
+
+void Pass::updatePassHash() {
+    _hash = Pass::getPassHash(this);
 }
 
 gfx::DescriptorSetLayout *Pass::getLocalSetLayout() const {

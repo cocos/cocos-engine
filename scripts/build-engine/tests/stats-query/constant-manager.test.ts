@@ -48,6 +48,8 @@ test('genBuildTimeConstants', () => {
           "LINKSURE": false,
           "MINIGAME": false,
           "NATIVE": true,
+          "NET_MODE": 0,
+          "NOT_PACK_PHYSX_LIBS": false,
           "OPPO": false,
           "PREVIEW": false,
           "QTT": false,
