@@ -632,7 +632,7 @@ export const bmfontUtils = {
                     py -= clipTop;
                 }
 
-                if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
+                if ((py - _tmpRect.height * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY) / _bmfontScale;
                 }
             }
