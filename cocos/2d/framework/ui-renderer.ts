@@ -23,9 +23,9 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, JSB } from 'internal:constants';
+import { DEBUG, EDITOR, JSB } from 'internal:constants';
 import {
-    ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
 } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -43,11 +43,10 @@ import { Stage } from '../renderer/stencil-manager';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { Renderer } from '../../core/components/renderer';
-import { Batcher2D } from '../renderer/batcher-2d';
-import { RenderDrawInfo } from '../renderer/render-draw-info';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
-import { director } from '../../core';
+import { assert, director } from '../../core';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
 // hack
 ccenum(BlendFactor);
@@ -115,7 +114,6 @@ export enum InstanceMaterialType {
  */
 @ccclass('cc.UIRenderer')
 @requireComponent(UITransform)
-@disallowMultiple
 @executeInEditMode
 export class UIRenderer extends Renderer {
     /**
@@ -134,6 +132,11 @@ export class UIRenderer extends Renderer {
      * @zh 后置渲染数据组装器
      */
     public static PostAssembler: IAssemblerManager | null = null;
+
+    constructor () {
+        super();
+        this._renderEntity = this.createRenderEntity();
+    }
 
     @override
     @visible(false)
@@ -162,7 +165,7 @@ export class UIRenderer extends Renderer {
      */
     @type(Material)
     @displayOrder(0)
-    @tooltip('i18n:renderable2D.customMaterial')
+    @tooltip('i18n:UIRenderer.customMaterial')
     @displayName('CustomMaterial')
     @disallowAnimation
     get customMaterial () {
@@ -172,10 +175,6 @@ export class UIRenderer extends Renderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
-
-        if (this.renderEntity) {
-            this.renderEntity.setCustomMaterial(val);
-        }
     }
 
     /**
@@ -183,7 +182,7 @@ export class UIRenderer extends Renderer {
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(1)
-    @tooltip('i18n:renderable2D.color')
+    @tooltip('i18n:UIRenderer.color')
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -204,42 +203,7 @@ export class UIRenderer extends Renderer {
      * @internal
      */
     get renderData () {
-        // if (!this.renderData) {
-        //     const entity = this._renderEntity;
-        //     if (!entity || entity.renderDataArr.length === 0) {
-        //         this.requestRenderData();
-        //     }
-        // }
         return this._renderData;
-    }
-
-    set renderData (val: RenderData | null) {
-        if (val === this._renderData) {
-            return;
-        }
-        this._renderData = val;
-        const entity = this.renderEntity;
-        if (entity) {
-            if (val) {
-                if (entity.renderDrawInfoArr.length === 0) {
-                    entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
-                } else if (entity.renderDrawInfoArr.length > 0) {
-                    if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
-                        entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
-                    }
-                }
-            } else {
-                //TODO:remove draw info
-                //entity.removeDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
-            }
-        }
-    }
-
-    /**
-     * @internal
-     */
-    get blendHash () {
-        return this._blendHash;
     }
 
     /**
@@ -247,14 +211,6 @@ export class UIRenderer extends Renderer {
      */
     get useVertexOpacity () {
         return this._useVertexOpacity;
-    }
-
-    // Render data can be submitted even if it is not on the node tree
-    /**
-     * @internal
-     */
-    set delegateSrc (value: Node) {
-        this._delegateSrc = value;
     }
 
     /**
@@ -266,10 +222,7 @@ export class UIRenderer extends Renderer {
     }
     set stencilStage (val: Stage) {
         this._stencilStage = val;
-        if (this._renderEntity) {
-            this._renderEntity.setStencilStage(val);
-        }
-        this._updateStencilStage();
+        this._renderEntity.setStencilStage(val);
     }
 
     @override
@@ -294,16 +247,11 @@ export class UIRenderer extends Renderer {
     protected _renderDataFlag = true;
     protected _renderFlag = true;
 
-    protected _renderEntity: RenderEntity | null = null;
-    protected _batcher: Batcher2D | null = null;
+    protected _renderEntity: RenderEntity;
 
-    // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
-    // Special delegate node for the renderer component, it allows standalone component to be rendered as if it's attached to the delegate node
-    // It's used by graphics stencil component in Mask
-    protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = -1;
-    protected _blendState: BlendState = new BlendState();
-    protected _blendHash = 0;
+    protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
+    protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
     /**
      * @internal
      */
@@ -314,15 +262,12 @@ export class UIRenderer extends Renderer {
     public _internalId = -1;
 
     get batcher () {
-        if (!this._batcher) {
-            this._batcher = director.root!.batcher2D;
-        }
-        return this._batcher;
+        return director.root!.batcher2D;
     }
 
     get renderEntity () {
-        if (!this._renderEntity) {
-            this.initRenderEntity();
+        if (DEBUG) {
+            assert(this._renderEntity, 'this._renderEntity should not be invalid');
         }
         return this._renderEntity;
     }
@@ -335,9 +280,9 @@ export class UIRenderer extends Renderer {
 
     protected _lastParent: Node | null = null;
 
-    // public onLoad () {
-    //     this.initRenderEntity();
-    // }
+    public onLoad () {
+        this._renderEntity.setNode(this.node);
+    }
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -369,10 +314,11 @@ export class UIRenderer extends Renderer {
         this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         uiRendererManager.removeRenderer(this);
         this._renderFlag = false;
-        if (this._renderEntity) this._renderEntity.enabled = false;
+        this._renderEntity.enabled = false;
     }
 
     public onDestroy () {
+        this._renderEntity.setNode(null);
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
@@ -383,20 +329,6 @@ export class UIRenderer extends Renderer {
                 if (instance) { instance.destroy(); }
             }
         }
-        if (this._blendState) {
-            this._blendState.destroy();
-        }
-
-        this.disposeRenderEntity();
-    }
-
-    /**
-     * @en Update the hash for the blend states.
-     * @zh 更新混合模式的哈希值标记
-     */
-    public updateBlendHash () {
-        const dst = this._blendState.targets[0].blendDst << 4;
-        this._blendHash = dst | this._blendState.targets[0].blendSrc;
     }
 
     /**
@@ -419,10 +351,9 @@ export class UIRenderer extends Renderer {
      * @zh 请求新的渲染数据对象。
      * @return The new render data
      */
-    public requestRenderData () {
+    public requestRenderData (drawInfoType = RenderDrawInfoType.COMP) {
         const data = RenderData.add();
-        data.initRenderDrawInfo(this);
-        this.renderEntity!.assignExtraEntityAttrs(this);
+        data.initRenderDrawInfo(this, drawInfoType);
         this._renderData = data;
         return data;
     }
@@ -435,26 +366,9 @@ export class UIRenderer extends Renderer {
         if (!this.renderData) {
             return;
         }
+        this.renderData.removeRenderDrawInfo(this);
         RenderData.remove(this.renderData);
-        this.renderData = null;
-    }
-
-    /**
-     * @en Render data submission procedure, it update and assemble the render data to 2D data buffers before all children submission process.
-     * Usually called each frame when the ui flow assemble all render data to geometry buffers.
-     * Don't call it unless you know what you are doing.
-     * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
-     * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
-     * 注意：不要手动调用该函数，除非你理解整个流程。
-     */
-    public updateAssembler (render: IBatcher) {
-        if (this._renderDataFlag) {
-            this._assembler!.updateRenderData(this, render);
-            this._renderDataFlag = false;
-        }
-        if (this._renderFlag) {
-            this._render(render);
-        }
+        this._renderData = null;
     }
 
     // test code: to replace prev part updateAssembler
@@ -463,9 +377,7 @@ export class UIRenderer extends Renderer {
             this._assembler.updateRenderData(this);
         }
         this._renderFlag = this._canRender();
-        if (this._renderEntity) {
-            this._renderEntity.enabled = this._renderFlag;
-        }
+        this._renderEntity.enabled = this._renderFlag;
     }
 
     // test code: to replace after part updateAssembler
@@ -494,10 +406,11 @@ export class UIRenderer extends Renderer {
     protected _postRender (render: IBatcher) { }
 
     protected _canRender () {
-        return this.isValid
-            && this.getMaterial(0) !== null
-            && this.enabled
-            && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
+        if (DEBUG) {
+            assert(this.isValid, 'this component should not be invalid!');
+        }
+        return this.getMaterial(0) !== null
+            && this._enabled
             && this._color.a > 0;
     }
 
@@ -506,20 +419,10 @@ export class UIRenderer extends Renderer {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
-            if (this.renderData) {
-                this.renderData.material = this._customMaterial;
-                this.markForUpdateRenderData();
-                this.renderData.passDirty = true;
-            }
-            this._blendHash = -1; // a flag to check merge
             return;
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
-        if (this.renderData) {
-            this.renderData.material = mat;
-            this.markForUpdateRenderData();
-        }
         this._updateBlendFunc();
     }
 
@@ -533,28 +436,15 @@ export class UIRenderer extends Renderer {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
+            this.setEntityEnabled(this._renderFlag);
         }
     }
-
-    // // for uiOpacity
-    // public static setUIOpacityAttrsRecursively (node:Node, localOpacity:number, dirty:boolean) {
-    //     const render = node._uiProps.uiComp as UIRenderer;
-    //     if (render && render.renderEntity) {
-    //         render.renderEntity.localOpacity = localOpacity;// only for current node
-    //         render.renderEntity.colorDirty = dirty;
-    //         render.renderEntity.color = render.color;
-    //     }
-    //     for (let i = 0; i < node.children.length; i++) {
-    //         UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
-    //     }
-    // }
 
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render._renderEntity) {
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
             render._renderEntity.colorDirty = dirty;
-            render._renderEntity.color = render.color;// necessity to be considering
         }
         for (let i = 0; i < node.children.length; i++) {
             UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
@@ -567,47 +457,21 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    // public setEntityColorDirty (dirty: boolean) {
-    //     if (JSB) {
-    //         if (this._renderEntity) {
-    //             this._renderEntity.colorDirty = dirty;
-    //         }
-    //     }
-    // }
-
     public setEntityColor (color: Color) {
         if (JSB) {
-            if (this._renderEntity) {
-                this._renderEntity.color = color;
-            }
+            this._renderEntity.color = color;
         }
     }
 
     public setEntityOpacity (opacity: number) {
         if (JSB) {
-            if (this._renderEntity) {
-                this._renderEntity.localOpacity = opacity;
-            }
+            this._renderEntity.localOpacity = opacity;
         }
     }
 
-    protected _updateStencilStage () {
-        this.setEntityStencilStage(this._stencilStage);
-    }
-
-    protected setEntityStencilStage (stage: Stage) {
+    public setEntityEnabled (enabled: boolean) {
         if (JSB) {
-            UIRenderer.setEntityStencilStageRecursively(this.node);
-        }
-    }
-
-    public static setEntityStencilStageRecursively (node: Node) {
-        const render = node._uiProps.uiComp as UIRenderer;
-        if (render && render._renderEntity) {
-            render._renderEntity.setStencilStage(render._stencilStage);
-        }
-        for (let i = 0; i < node.children.length; i++) {
-            UIRenderer.setEntityStencilStageRecursively(node.children[i]);
+            this._renderEntity.enabled = enabled;
         }
     }
 
@@ -616,25 +480,22 @@ export class UIRenderer extends Renderer {
      */
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]
-        let target = this._blendState.targets[0];
-        if (!target) {
-            target = new BlendTarget();
-            this._blendState.setTarget(0, target);
-        }
-        if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+        let target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+        this._dstBlendFactorCache = target.blendDst;
+        this._srcBlendFactorCache = target.blendSrc;
+        if (this._dstBlendFactorCache !== this._dstBlendFactor || this._srcBlendFactorCache !== this._srcBlendFactor) {
+            target = this.getMaterialInstance(0)!.passes[0].blendState.targets[0];
             target.blend = true;
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            if (this.renderData) {
-                this.renderData.passDirty = true;
-            }
+            const targetPass = this.getMaterialInstance(0)!.passes[0];
+            targetPass.blendState.setTarget(0, target);
+            // @ts-expect-error hack for UI use pass object
+            targetPass._updatePassHash();
+            this._dstBlendFactorCache = this._dstBlendFactor;
+            this._srcBlendFactorCache = this._srcBlendFactor;
         }
-        this.updateBlendHash();
-    }
-
-    public getBlendState () {
-        return this._blendState;
     }
 
     // pos, rot, scale changed
@@ -703,13 +564,8 @@ export class UIRenderer extends Renderer {
 
     // RenderEntity
     // it should be overwritten by inherited classes
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.STATIC);
-    }
-
-    private disposeRenderEntity () {
-        this._renderEntity?.destroy();
-        this._renderEntity = null;
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.STATIC);
     }
 }
 

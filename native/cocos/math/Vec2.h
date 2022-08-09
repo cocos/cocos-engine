@@ -36,7 +36,8 @@ inline float clampf(float value, float minInclusive, float maxInclusive) {
     if (minInclusive > maxInclusive) {
         std::swap(minInclusive, maxInclusive);
     }
-    return value < minInclusive ? minInclusive : value < maxInclusive ? value : maxInclusive;
+    return value < minInclusive ? minInclusive : value < maxInclusive ? value
+                                                                      : maxInclusive;
 }
 
 class Mat4;

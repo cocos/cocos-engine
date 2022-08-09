@@ -96,7 +96,7 @@ static void localDownloaderCreateTask(const ccstd::string &url, const std::funct
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
     auto task = localDownloader()->createDataTask(url, key);
-    gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
+    gLocalDownloaderHandlers.emplace(task->identifier, callback);
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
@@ -577,8 +577,15 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
             if (loadSucceed) {
                 imgInfo = createImageInfo(img);
             }
-
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+            auto app = CC_CURRENT_APPLICATION();
+            if (!app) {
+                delete imgInfo;
+                delete img;
+                return;
+            }
+            auto engine = app->getEngine();
+            CC_ASSERT(engine != nullptr);
+            engine->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
 

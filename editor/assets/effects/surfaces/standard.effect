@@ -26,7 +26,7 @@ CCEffect %{
         metallicRoughnessMap:     { value: grey }
         occlusionMap:             { value: white }
         emissiveMap:              { value: grey }
-        anisotropyRotationMap:    { value: black, editor : { parent: IS_ANISOTROPY } }
+        anisotropyMap:            { value: black, editor : { parent: IS_ANISOTROPY } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -92,19 +92,13 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
-  #pragma define-meta USE_REFLECTION_DENOISE
   #pragma define-meta IS_ANISOTROPY
   #pragma define-meta USE_VERTEX_COLOR
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
-  #define CC_SURFACES_USE_REFLECTION_DENOISE USE_REFLECTION_DENOISE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
-
-  // if disabled, simulate convoluted IBL without convolution
-  #pragma define-meta USE_COMPATIBLE_LIGHTING
-  #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
 
   // depend on UI macros
 #if IS_ANISOTROPY || USE_NORMAL_MAP
@@ -170,8 +164,8 @@ CCProgram surface-fragment %{
     uniform sampler2D emissiveMap;
     #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
-  #if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
-    uniform sampler2D anisotropyRotationMap;
+  #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+    uniform sampler2D anisotropyMap;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r
@@ -193,7 +187,7 @@ CCProgram surface-fragment %{
       baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
       baseColor.a *= FSInput_vertexColor.a;
     #endif
-    
+
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
@@ -208,10 +202,26 @@ CCProgram surface-fragment %{
     return baseColor;
   }
 
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+    #if USE_ALPHA_TEST
+      float alpha = albedo.ALPHA_TEST_CHANNEL;
+      #if USE_VERTEX_COLOR
+        alpha *= FSInput_vertexColor.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
+      #endif
+  
+      if (alpha < albedoScaleAndCutoff.w) discard;
+    #endif
+  }
+
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
   vec3 SurfacesFragmentModifyWorldNormal()
   {
-      vec3 normal = FSInput_worldNormal;
+    vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
@@ -221,14 +231,20 @@ CCProgram surface-fragment %{
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
-  vec4 SurfacesFragmentModifyAnisotropyParams()
+  vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
   {
-      float anisotropyRotation = anisotropyParam.y;
-      float anisotropyShape = anisotropyParam.x;
-    #if IS_ANISOTROPY && USE_ANISOTROPY_ROTATION_MAP
-      anisotropyRotation = fract(anisotropyRotation + texture(anisotropyRotationMap, DEFAULT_UV).x);
+    float anisotropyRotation = anisotropyParam.y * PI;
+    float anisotropyShape = anisotropyParam.x;
+    #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+      // Rotation angle should disable trilinear filtering
+      vec4 tex = texture(anisotropyMap, DEFAULT_UV);
+      anisotropyRotation = fract(anisotropyRotation * 0.5 + tex.y) * PI2;
+      // less value is better for SP exported shape
+      anisotropyShape *= tex.x;
     #endif
-      return vec4(anisotropyRotation, anisotropyShape, 0.0, 0.0);
+
+    isRotation = 1.0;
+    return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE

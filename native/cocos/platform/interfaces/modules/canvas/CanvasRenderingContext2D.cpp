@@ -33,7 +33,9 @@
 #include "math/Math.h"
 #include "platform/FileUtils.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/CanvasRenderingContext2DDelegate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "platform/win32/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
@@ -161,14 +163,14 @@ void CanvasRenderingContext2D::fetchData() {
 
 void CanvasRenderingContext2D::setWidth(float width) {
     //SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
-    if (math::IsEqualF(width, _width)) return;
+    if (math::isEqualF(width, _width)) return;
     _width = width;
     _isBufferSizeDirty = true;
 }
 
 void CanvasRenderingContext2D::setHeight(float height) {
     //SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
-    if (math::IsEqualF(height, _height)) return;
+    if (math::isEqualF(height, _height)) return;
     _height = height;
     _isBufferSizeDirty = true;
 }
@@ -368,19 +370,30 @@ void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline
 
 void CanvasRenderingContext2D::setFillStyle(const ccstd::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
-    _delegate->setFillStyle(static_cast<float>(color.r) / 255.0F,
-                            static_cast<float>(color.g) / 255.0F,
-                            static_cast<float>(color.b) / 255.0F,
-                            color.a);
+    _delegate->setFillStyle(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
     //SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::setStrokeStyle(const ccstd::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
-    _delegate->setStrokeStyle(static_cast<float>(color.r) / 255.0F,
-                              static_cast<float>(color.g) / 255.0F,
-                              static_cast<float>(color.b) / 255.0F,
-                              color.a);
+    _delegate->setStrokeStyle(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
+}
+
+void CanvasRenderingContext2D::setShadowBlur(float blur) {
+    _delegate->setShadowBlur(blur);
+}
+
+void CanvasRenderingContext2D::setShadowColor(const ccstd::string &shadowColor) {
+    CSSColorParser::Color color = CSSColorParser::parse(shadowColor);
+    _delegate->setShadowColor(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
+}
+
+void CanvasRenderingContext2D::setShadowOffsetX(float offsetX) {
+    _delegate->setShadowOffsetX(offsetX);
+}
+
+void CanvasRenderingContext2D::setShadowOffsetY(float offsetY) {
+    _delegate->setShadowOffsetY(offsetY);
 }
 
 void CanvasRenderingContext2D::setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) {

@@ -40,7 +40,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device*  /*device*/, ccstd::vector<gfx::Attribute*>&& attrs, uint32_t  /*vFloatCount*/, uint32_t  /*iCount*/) {
+void UIMeshBuffer::initialize(gfx::Device* /*device*/, ccstd::vector<gfx::Attribute*>&& attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
     if (attrs.size() == 4) {
         _attributes.push_back(gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA32F});
     }
@@ -101,7 +101,6 @@ void UIMeshBuffer::uploadBuffers() {
 
     uint32_t indexCount = getIndexOffset();
     uint32_t byteCount = getByteOffset();
-    uint32_t dataCount = byteCount >> 2;
 
     gfx::InputAssembler* ia = _iaPool[0];
     gfx::BufferList vBuffers = ia->getVertexBuffers();
@@ -132,13 +131,13 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
 
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
         auto* indexBuffer = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });
@@ -181,4 +180,5 @@ void UIMeshBuffer::setDirty(bool dirty) const {
 void UIMeshBuffer::setFloatsPerVertex(uint32_t floatsPerVertex) {
     _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
+
 } // namespace cc

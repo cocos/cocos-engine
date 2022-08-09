@@ -268,7 +268,9 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
         if (player.status == AVPlayerStatusReadyToPlay) {
             [self addPlayerControllerSubView];
             _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::META_LOADED);
-            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::READY_TO_PLAY);
+            if (![self isPlaying]) {  //User may start playing after getting the META_LOADED message
+                _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::READY_TO_PLAY);
+            }
         } else if (player.status == AVPlayerStatusFailed) {
             // something went wrong. player.error should contain some information
             NSLog(@"Failed to load video");

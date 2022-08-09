@@ -27,7 +27,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
-import { Color, Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
+import { Color, Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '../../core/math';
 import { Asset } from '../../core/assets/asset';
 import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
@@ -357,6 +357,7 @@ export class SpriteFrame extends Asset {
         if (this._texture) {
             this._calculateUV();
         }
+        this._calcTrimmedBorder();
     }
 
     /**
@@ -376,6 +377,7 @@ export class SpriteFrame extends Asset {
         if (this._texture) {
             this._calculateUV();
         }
+        this._calcTrimmedBorder();
     }
 
     /**
@@ -391,6 +393,7 @@ export class SpriteFrame extends Asset {
 
     set offset (value) {
         this._offset.set(value);
+        this._calcTrimmedBorder();
     }
 
     /**
@@ -535,6 +538,13 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @internal
+     */
+    get trimmedBorder () {
+        return this._trimmedBorder;
+    }
+
+    /**
      * @en Vertex list for the mesh type sprite frame
      * @zh 网格类型精灵帧的所有顶点列表
      */
@@ -556,6 +566,8 @@ export class SpriteFrame extends Asset {
 
     // the location of the sprite on rendering texture
     protected _rect = new Rect();
+
+    protected _trimmedBorder = new Vec4();
 
     // for trimming
     protected _offset = new Vec2();
@@ -823,6 +835,7 @@ export class SpriteFrame extends Asset {
         if (calUV && this.texture) {
             this._calculateUV();
         }
+        this._calcTrimmedBorder();
     }
 
     /**
@@ -853,6 +866,23 @@ export class SpriteFrame extends Asset {
         }
 
         return true;
+    }
+
+    private _calcTrimmedBorder () {
+        const ow = this._originalSize.width;
+        const oh = this._originalSize.height;
+        const rw = this._rect.width;
+        const rh = this._rect.height;
+        const halfTrimmedWidth = (ow - rw) * 0.5;
+        const halfTrimmedHeight = (oh - rh) * 0.5;
+        // left
+        this._trimmedBorder.x = this._offset.x + halfTrimmedWidth;
+        // right
+        this._trimmedBorder.y = this._offset.x - halfTrimmedWidth;
+        // bottom
+        this._trimmedBorder.z = this._offset.y + halfTrimmedHeight;
+        // top
+        this._trimmedBorder.w = this._offset.y - halfTrimmedHeight;
     }
 
     /**
@@ -1397,13 +1427,16 @@ export class SpriteFrame extends Asset {
 
         if (isReset) {
             this.reset(config);
-            this.onLoaded();
         }
 
         this._checkPackable();
         if (this._mesh) {
             this._updateMesh();
         }
+    }
+
+    public onLoaded () {
+        this._calcTrimmedBorder();
     }
 
     public initDefault (uuid?: string) {

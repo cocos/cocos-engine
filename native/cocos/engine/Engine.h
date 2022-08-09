@@ -137,7 +137,7 @@ private:
     bool _close{false};
     bool _pause{false};
     bool _resune{false};
-    std::shared_ptr<Scheduler> _scheduler{nullptr};
+    SchedulerPtr _scheduler{nullptr};
     int64_t _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
     uint _totalFrames{0};
     cc::Vec2 _viewLogicalSize{0, 0};

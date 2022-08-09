@@ -386,6 +386,30 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
+    public getMacroString (name: string): string {
+        const str = this._macros[name];
+        if (str === undefined) {
+            return '';
+        }
+        return str as string;
+    }
+
+    public getMacroInt (name: string): number {
+        const value = this._macros[name];
+        if (value === undefined) {
+            return 0;
+        }
+        return value as number;
+    }
+
+    public getMacroBool (name: string): boolean {
+        const value = this._macros[name];
+        if (value === undefined) {
+            return false;
+        }
+        return value as boolean;
+    }
+
     public setMacroString (name: string, value: string): void {
         this._macros[name] = value;
     }

@@ -1,7 +1,7 @@
 #include "DragonBones.h"
-#include "../armature/Armature.h"
-#include "../animation/WorldClock.h"
 #include "../animation/Animation.h"
+#include "../animation/WorldClock.h"
+#include "../armature/Armature.h"
 #include "../event/EventObject.h"
 #include "../event/IEventDispatcher.h"
 
@@ -28,6 +28,7 @@ DragonBones::~DragonBones() {
     }
 
     _clock = nullptr;
+    delete _eventManager;
     _eventManager = nullptr;
 }
 

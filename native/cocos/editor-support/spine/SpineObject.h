@@ -30,8 +30,8 @@
 #ifndef Spine_Object_h
 #define Spine_Object_h
 
-#include <new>
 #include <stddef.h>
+#include <new>
 
 #include <spine/dll.h>
 

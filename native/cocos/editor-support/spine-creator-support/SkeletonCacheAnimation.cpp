@@ -326,13 +326,6 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
             vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
         }
 
-        cc::Vec3 *point = nullptr;
-        for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
-            point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
-            // force z value to zero
-            point->z = 0;
-            point->transformMat4(*point, nodeWorldMat);
-        }
         // handle vertex color
         if (needColor) {
             int srcVertexFloatOffset = static_cast<int16_t>(srcVertexBytesOffset / sizeof(float));

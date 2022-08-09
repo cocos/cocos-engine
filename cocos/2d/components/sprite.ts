@@ -25,7 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Vec2 } from '../../core/math';
@@ -211,8 +211,7 @@ export class Sprite extends UIRenderer {
 
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
-        // render & update render data flag will be triggered while applying new sprite frame
-        this.markForUpdateRenderData(false);
+        this.markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
@@ -268,7 +267,6 @@ export class Sprite extends UIRenderer {
         if (this._fillType !== value) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
-                this.renderData = null;
             } else if (this.renderData) {
                 this.markForUpdateRenderData(true);
             }
@@ -587,7 +585,7 @@ export class Sprite extends UIRenderer {
 
         if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
-                this.renderData = this._assembler.createData(this);
+                this._renderData = this._assembler.createData(this);
                 this.renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
@@ -618,7 +616,7 @@ export class Sprite extends UIRenderer {
 
     private _applySpriteSize () {
         if (this._spriteFrame) {
-            if (!this._spriteFrame.isDefault) {
+            if (BUILD || !this._spriteFrame.isDefault) {
                 if (SizeMode.RAW === this._sizeMode) {
                     const size = this._spriteFrame.originalSize;
                     this.node._uiProps.uiTransformComp!.setContentSize(size);
@@ -627,8 +625,6 @@ export class Sprite extends UIRenderer {
                     this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
                 }
             }
-
-            this._activateMaterial();
         }
     }
 
@@ -683,7 +679,6 @@ export class Sprite extends UIRenderer {
         if (oldFrame && this._type === SpriteType.SLICED) {
             oldFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
-        this._updateUVs();
 
         let textureChanged = false;
         if (spriteFrame) {

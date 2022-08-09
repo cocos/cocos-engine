@@ -40,6 +40,8 @@ import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
 
 const DELIMETER = attributeUtils.DELIMETER;
 const CCCLASS_TAG = '__ctors__'; // Still use this historical name to avoid unsynchronized version issue
+export const ENUM_TAG = 'Enum';
+export const BITMASK_TAG = 'BitMask';
 
 function pushUnique (array, item) {
     if (array.indexOf(item) < 0) {
@@ -359,6 +361,8 @@ export function isCCClassOrFastDefined<T> (constructor: Constructor<T>) {
     return  constructor?.hasOwnProperty?.('__values__');
 }
 
+CCClass.isCCClassOrFastDefined = isCCClassOrFastDefined;
+
 /**
  * Return all super classes.
  * @param constructor The Constructor.
@@ -442,10 +446,10 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         // }
         else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
-                (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Enum';
+                (attrs || initAttrs())[`${propertyNamePrefix}type`] = ENUM_TAG;
                 attrs![`${propertyNamePrefix}enumList`] = Enum.getList(type);
             } else if (BitMask.isBitMask(type)) {
-                (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'BitMask';
+                (attrs || initAttrs())[`${propertyNamePrefix}type`] = BITMASK_TAG;
                 attrs![`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
             } else if (DEV) {
                 errorID(3645, className, propertyName, type);

@@ -20,8 +20,8 @@ void main()  {
         {
             vec4 csmPos;
             vec4 shadowProjDepthInfo, shadowProjInfo;
-            mat4 matLightView;
-            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matLightView[0], matLightView[1], matLightView[2], matLightView[3], surfaceData.worldPos);
+            vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
+            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
             bool OutOfRange = csmLayer < 0;
             if (OutOfRange)
                 colDebugCSMLayer = vec3(1.0);
@@ -108,11 +108,15 @@ void main()  {
     CC_APPLY_FOG_BASE(color, fogFactor);
   #endif
 
-  // CSM Debug
   #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
+    // CSM Debug
     if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION) {
         color.rgb *= colDebugCSMLayer.rgb;
     }
+    // Invalid input data visualization
+    #if CC_SURFACES_USE_TANGENT_SPACE
+      color = CCSurfacesDebugDisplayInvalidInputData(color, FSInput_worldTangent);
+    #endif
   #endif
 #endif
 
@@ -127,9 +131,7 @@ void main()  {
     if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
   #endif
   color.rgb = LinearToSRGB(color.rgb);
+  
 
-
-  CCSurfacesDebugDisplayInvalidNumber(color);
-
-  fragColorX = color;
+  fragColorX = CCSurfacesDebugDisplayInvalidNumber(color);
 }

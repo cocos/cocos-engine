@@ -2467,6 +2467,10 @@ cc.ParticleSystem: not allowing create to be invoked twice with different partic
 
 cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
 
+### 6035
+
+cc.ParticleSystem: change material failed, please use proper particle material
+
 ### 6100
 
 <!-- DEPRECATED -->
@@ -3287,3 +3291,7 @@ The native folder may be generated from older versions, please refer https://doc
 ### 16003
 
 '%s' is removed since v%s, please use '%s' instead.
+
+### 16101
+
+The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html

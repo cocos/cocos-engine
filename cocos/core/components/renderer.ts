@@ -25,7 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import {
-    ccclass, type, displayOrder, displayName, serializable,
+    ccclass, type, displayOrder, displayName, serializable, disallowMultiple,
 } from 'cc.decorator';
 import { Material } from '../assets/material';
 import { Component } from './component';
@@ -55,6 +55,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * 默认情况下，渲染组件使用共享材质进行渲染，材质实例也不会被创建出来。仅在用户通过 [[material]]，[[materials]] 和 [[getMaterialInstance]] 接口获取材质时才会创建材质实例。
  */
 @ccclass('cc.Renderer')
+@disallowMultiple
 export class Renderer extends Component {
     /**
      * @en Get the default shared material

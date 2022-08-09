@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "../config.h"
 #include "../ValueArrayPool.h"
+#include "../config.h"
 
 //#define RECORD_JSB_INVOKING
 

@@ -95,14 +95,14 @@ public:
     void setOnSuccess(const std::function<void(const DownloadTask &task)> &callback) { onFileTaskSuccess = callback; };
 
     void setOnProgress(const std::function<void(const DownloadTask &task,
-                                                    uint32_t bytesReceived,
-                                                    uint32_t totalBytesReceived,
-                                                    uint32_t totalBytesExpected)> &callback) { onTaskProgress = callback; };
+                                                uint32_t bytesReceived,
+                                                uint32_t totalBytesReceived,
+                                                uint32_t totalBytesExpected)> &callback) { onTaskProgress = callback; };
 
     void setOnError(const std::function<void(const DownloadTask &task,
-                                                 int errorCode,
-                                                 int errorCodeInternal,
-                                                 const ccstd::string &errorStr)> &callback) { onTaskError = callback; };
+                                             int errorCode,
+                                             int errorCodeInternal,
+                                             const ccstd::string &errorStr)> &callback) { onTaskError = callback; };
 
     // CC_DEPRECATED(3.6, "Use setOnProgress instead") // needed for bindings, so not uncomment this line
     void setOnTaskProgress(const std::function<void(const DownloadTask &task,

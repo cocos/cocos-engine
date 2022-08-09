@@ -25,7 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { DEBUG, JSB } from 'internal:constants';
 import { ModelRenderer } from '../../core/components/model-renderer';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
@@ -37,6 +37,7 @@ import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { director } from '../../core/director';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
+import { assert } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
 /**
@@ -55,6 +56,14 @@ import { RenderDrawInfoType } from '../renderer/render-draw-info';
 @menu('UI/UIMeshRenderer')
 @executeInEditMode
 export class UIMeshRenderer extends Component {
+    constructor () {
+        super();
+        this._renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        if (JSB) {
+            this._UIModelNativeProxy = new NativeUIModelProxy();
+        }
+    }
+
     public get modelComponent () {
         return this._modelComponent;
     }
@@ -63,17 +72,13 @@ export class UIMeshRenderer extends Component {
 
     //nativeObj
     private declare _UIModelNativeProxy: NativeUIModelProxy;
-    protected _renderEntity: RenderEntity | null = null;
+    protected declare _renderEntity : RenderEntity;
     private modelCount = 0;
     public _dirtyVersion = -1;
     public _internalId = -1;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
-        if (JSB) {
-            this._UIModelNativeProxy = new NativeUIModelProxy();
-            this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
-        }
     }
 
     onEnable () {
@@ -83,7 +88,7 @@ export class UIMeshRenderer extends Component {
 
     onDisable () {
         uiRendererManager.removeRenderer(this);
-        if (this.renderEntity) this.renderEntity.enabled = false;
+        this.renderEntity.enabled = this._canRender();
     }
 
     public onLoad () {
@@ -98,12 +103,12 @@ export class UIMeshRenderer extends Component {
         }
         if (JSB) {
             this._UIModelNativeProxy.attachNode(this.node);
-            // @ts-expect-error temporary no care
-            this.renderEntity!.assignExtraEntityAttrs(this);
         }
+        this.renderEntity.setNode(this.node);
     }
 
     public onDestroy () {
+        this.renderEntity.setNode(null);
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
@@ -113,10 +118,6 @@ export class UIMeshRenderer extends Component {
         }
 
         this._modelComponent._sceneGetter = null;
-
-        if (JSB) {
-            this._UIModelNativeProxy.destroy();
-        }
     }
 
     /**
@@ -152,6 +153,7 @@ export class UIMeshRenderer extends Component {
     // Native updateAssembler
     public updateRenderer () {
         if (JSB) {
+            this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
                 // @ts-expect-error: UIMeshRenderer do not attachToScene
@@ -239,37 +241,20 @@ export class UIMeshRenderer extends Component {
     public setTextureDirty () {
     }
 
-    get renderEntity () {
-        if (!this._renderEntity) {
-            this.initRenderEntity();
-        }
-        return this._renderEntity;
+    protected _canRender () {
+        return (this.enabled && this._modelComponent !== null);
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(director.root!.batcher2D, RenderEntityType.DYNAMIC);
+    get renderEntity () {
+        if (DEBUG) {
+            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+        }
+        return this._renderEntity;
     }
 
     protected _renderData: RenderData | null = null;
     get renderData () {
         return this._renderData;
-    }
-
-    set renderData (val: RenderData | null) {
-        if (val === this._renderData) {
-            return;
-        }
-        this._renderData = val;
-        const entity = this.renderEntity;
-        if (entity) {
-            if (entity.renderDrawInfoArr.length === 0) {
-                entity.addDynamicRenderDrawInfo(this._renderData!.renderDrawInfo);
-            } else if (entity.renderDrawInfoArr.length > 0) {
-                if (entity.renderDrawInfoArr[0] !== this._renderData!.renderDrawInfo) {
-                    entity.setDynamicRenderDrawInfo(this._renderData!.renderDrawInfo, 0);
-                }
-            }
-        }
     }
 }
 

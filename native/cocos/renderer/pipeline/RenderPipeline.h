@@ -93,7 +93,13 @@ public:
     inline gfx::Device *getDevice() const { return _device; }
     RenderStage *getRenderstageByName(const ccstd::string &name) const;
     bool isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
-    bool isOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
+    bool isOcclusionQueryEnabled() const {
+#if CC_USE_OCCLUSION_QUERY
+        return _occlusionQueryEnabled && _device->getCapabilities().supportQuery;
+#else
+        return false;
+#endif
+    }
     void setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
     bool isEnvmapEnabled() const;
 
@@ -181,6 +187,7 @@ protected:
     bool _clusterEnabled{false};
     bool _bloomEnabled{false};
     bool _occlusionQueryEnabled{false};
+    bool _isResourceOwner{false};
 };
 
 } // namespace pipeline

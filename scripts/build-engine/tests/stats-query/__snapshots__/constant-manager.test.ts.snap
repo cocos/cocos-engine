@@ -62,13 +62,13 @@ tryDefineGlobal('CC_BUILD', true);
 export const DEBUG = true;
 tryDefineGlobal('CC_DEBUG', true);
 
-export const SERVER_MODE = false;
-
 export const MINIGAME = true;
 tryDefineGlobal('CC_MINIGAME', true);
 
 export const RUNTIME_BASED = false;
 tryDefineGlobal('CC_RUNTIME_BASED', false);
+
+export const NET_MODE = 0;
 
 "
 `;
@@ -152,6 +152,10 @@ tryDefineGlobal('CC_SUPPORT_JIT', false);
 export const JSB = false;
 tryDefineGlobal('CC_JSB', false);
 
+export const NOT_PACK_PHYSX_LIBS = false;
+
+export const NET_MODE = 0;
+
 "
 `;
 
@@ -188,17 +192,17 @@ exports[`generateCCEnv 1`] = `
 	export const ALIPAY: boolean;
 
 	/**
-	 * Running in the ByteDance's quick game.
+	 * Running in the ByteDance's mini game.
 	 */
 	export const BYTEDANCE: boolean;
 
 	/**
-	 * Running in the oppo's mini game.
+	 * Running in the oppo's quick game.
 	 */
 	export const OPPO: boolean;
 
 	/**
-	 * Running in the vivo's mini game.
+	 * Running in the vivo's quick game.
 	 */
 	export const VIVO: boolean;
 
@@ -248,11 +252,6 @@ exports[`generateCCEnv 1`] = `
 	export const DEBUG: boolean;
 
 	/**
-	 * Running in the server mode.
-	 */
-	export const SERVER_MODE: boolean;
-
-	/**
 	 * Running in the editor or preview.
 	 */
 	export const DEV: boolean;
@@ -273,9 +272,17 @@ exports[`generateCCEnv 1`] = `
 	export const SUPPORT_JIT: boolean;
 
 	/**
-	 * Running in native platform (mobile app, desktop app, or simulator).
+	 * Running in environment where using JSB as the JavaScript interface binding scheme.
 	 */
 	export const JSB: boolean;
+
+	/**
+	 * The network access mode.
+	 * - 0 Client
+	 * - 1 ListenServer
+	 * - 2 HostServer
+	 */
+	export const NET_MODE: number;
 
 }
 "
@@ -314,17 +321,17 @@ exports[`generateInternalConstants 1`] = `
 	export const ALIPAY: boolean;
 
 	/**
-	 * Running in the ByteDance's quick game.
+	 * Running in the ByteDance's mini game.
 	 */
 	export const BYTEDANCE: boolean;
 
 	/**
-	 * Running in the oppo's mini game.
+	 * Running in the oppo's quick game.
 	 */
 	export const OPPO: boolean;
 
 	/**
-	 * Running in the vivo's mini game.
+	 * Running in the vivo's quick game.
 	 */
 	export const VIVO: boolean;
 
@@ -399,9 +406,22 @@ exports[`generateInternalConstants 1`] = `
 	export const SUPPORT_JIT: boolean;
 
 	/**
-	 * Running in native platform (mobile app, desktop app, or simulator).
+	 * Running in environment where using JSB as the JavaScript interface binding scheme.
 	 */
 	export const JSB: boolean;
+
+	/**
+	 * This is an internal constant to determine whether pack physx libs.
+	 */
+	export const NOT_PACK_PHYSX_LIBS: boolean;
+
+	/**
+	 * The network access mode.
+	 * - 0 Client
+	 * - 1 ListenServer
+	 * - 2 HostServer
+	 */
+	export const NET_MODE: number;
 
 }
 "

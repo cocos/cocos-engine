@@ -5650,7 +5650,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.bones.length; ii++) {
                             var bone = skeletonData.findBone(skinMap.bones[ii]);
                             if (bone == null)
-                                throw new Error("Skin bone not found: " + skinMap.bones[i]);
+                                throw new Error("Skin bone not found: " + skinMap.bones[ii]);
                             skin.bones.push(bone);
                         }
                     }
@@ -5658,7 +5658,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.ik.length; ii++) {
                             var constraint = skeletonData.findIkConstraint(skinMap.ik[ii]);
                             if (constraint == null)
-                                throw new Error("Skin IK constraint not found: " + skinMap.ik[i]);
+                                throw new Error("Skin IK constraint not found: " + skinMap.ik[ii]);
                             skin.constraints.push(constraint);
                         }
                     }
@@ -5666,7 +5666,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.transform.length; ii++) {
                             var constraint = skeletonData.findTransformConstraint(skinMap.transform[ii]);
                             if (constraint == null)
-                                throw new Error("Skin transform constraint not found: " + skinMap.transform[i]);
+                                throw new Error("Skin transform constraint not found: " + skinMap.transform[ii]);
                             skin.constraints.push(constraint);
                         }
                     }
@@ -5674,7 +5674,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.path.length; ii++) {
                             var constraint = skeletonData.findPathConstraint(skinMap.path[ii]);
                             if (constraint == null)
-                                throw new Error("Skin path constraint not found: " + skinMap.path[i]);
+                                throw new Error("Skin path constraint not found: " + skinMap.path[ii]);
                             skin.constraints.push(constraint);
                         }
                     }
@@ -7735,7 +7735,7 @@ var spine;
             return _this;
         }
         BoundingBoxAttachment.prototype.copy = function () {
-            var copy = new BoundingBoxAttachment(name);
+            var copy = new BoundingBoxAttachment(this.name);
             this.copyTo(copy);
             copy.color.setFromColor(this.color);
             return copy;
@@ -7754,7 +7754,7 @@ var spine;
             return _this;
         }
         ClippingAttachment.prototype.copy = function () {
-            var copy = new ClippingAttachment(name);
+            var copy = new ClippingAttachment(this.name);
             this.copyTo(copy);
             copy.endSlot = this.endSlot;
             copy.color.setFromColor(this.color);
@@ -7898,7 +7898,7 @@ var spine;
             return _this;
         }
         PathAttachment.prototype.copy = function () {
-            var copy = new PathAttachment(name);
+            var copy = new PathAttachment(this.name);
             this.copyTo(copy);
             copy.lengths = new Array(this.lengths.length);
             spine.Utils.arrayCopy(this.lengths, 0, copy.lengths, 0, this.lengths.length);
@@ -7932,7 +7932,7 @@ var spine;
             return Math.atan2(y, x) * spine.MathUtils.radDeg;
         };
         PointAttachment.prototype.copy = function () {
-            var copy = new PointAttachment(name);
+            var copy = new PointAttachment(this.name);
             copy.x = this.x;
             copy.y = this.y;
             copy.rotation = this.rotation;
@@ -8040,7 +8040,7 @@ var spine;
             worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
         };
         RegionAttachment.prototype.copy = function () {
-            var copy = new RegionAttachment(name);
+            var copy = new RegionAttachment(this.name);
             copy.region = this.region;
             copy.rendererObject = this.rendererObject;
             copy.path = this.path;

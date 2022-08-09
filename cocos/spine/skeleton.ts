@@ -170,6 +170,8 @@ export class Skeleton extends UIRenderer {
     set customMaterial (val) {
         this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -622,8 +624,7 @@ export class Skeleton extends UIRenderer {
 
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
-            const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo(batch2d);
+            this._drawInfoList[idx] = new RenderDrawInfo();
         }
         return this._drawInfoList[idx];
     }
@@ -1376,11 +1377,7 @@ export class Skeleton extends UIRenderer {
                 }],
             },
         });
-        if (JSB) {
-            inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: false });
-        } else {
-            inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
-        }
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
         return inst;
     }
 
@@ -1389,18 +1386,6 @@ export class Skeleton extends UIRenderer {
     public onRestore () {
         this.updateMaterial();
         this.markForUpdateRenderData();
-    }
-
-    protected updateMaterial () {
-        if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
-            this._blendHash = -1; // a flag to check merge
-            return;
-        }
-        const mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
-        this._updateBlendFunc();
-        this._blendHash = -1;
     }
 
     public querySockets () {
@@ -1741,9 +1726,17 @@ export class Skeleton extends UIRenderer {
         this._materialCache = {};
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
+    protected createRenderEntity () {
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
+    }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugRenderer) {
+            this._debugRenderer.markForUpdateRenderData(enable);
+        }
     }
 }
 

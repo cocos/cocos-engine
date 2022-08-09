@@ -216,12 +216,14 @@ const ccstd::vector<NamedColor> NAMED_COLORS = {
 template <typename T>
 uint8_t clampCssByte(T i) {         // Clamp to integer 0 .. 255.
     i = static_cast<T>(::round(i)); // Seems to be what Chrome does (vs truncation).
-    return static_cast<uint8_t>(i < 0 ? 0 : i > 255 ? 255 : i);
+    return static_cast<uint8_t>(i < 0 ? 0 : i > 255 ? 255
+                                                    : i);
 }
 
 template <typename T>
 float clampCssFloat(T f) { // Clamp to float 0.0 .. 1.0.
-    return f < 0 ? 0 : f > 1 ? 1 : float(f);
+    return f < 0 ? 0 : f > 1 ? 1
+                             : float(f);
 }
 
 float parseFloat(const ccstd::string &str) {

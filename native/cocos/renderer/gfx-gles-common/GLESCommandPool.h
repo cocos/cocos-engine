@@ -78,15 +78,15 @@ public:
     virtual void clear() = 0;
 };
 
-#define INITIAL_CAPACITY 1
+#define GLES_COMMAND_POOL_INITIAL_CAPACITY 1
 
 template <typename T, typename = std::enable_if_t<std::is_base_of<GLESCmd, T>::value>>
 class CommandPool {
 public:
-    CommandPool() : _freeCmds(INITIAL_CAPACITY) {
-        _frees = ccnew T *[INITIAL_CAPACITY];
-        _count = INITIAL_CAPACITY;
-        _freeIdx = INITIAL_CAPACITY - 1;
+    CommandPool() : _freeCmds(GLES_COMMAND_POOL_INITIAL_CAPACITY) {
+        _frees = ccnew T *[GLES_COMMAND_POOL_INITIAL_CAPACITY];
+        _count = GLES_COMMAND_POOL_INITIAL_CAPACITY;
+        _freeIdx = GLES_COMMAND_POOL_INITIAL_CAPACITY - 1;
         for (uint32_t i = 0; i < _count; ++i) {
             _frees[i] = ccnew T;
         }

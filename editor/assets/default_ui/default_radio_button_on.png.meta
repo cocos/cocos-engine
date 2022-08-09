@@ -123,7 +123,11 @@
             15,
             0
           ]
-        }
+        },
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0
       },
       "displayName": "default_radio_button_on",
       "id": "f9941",

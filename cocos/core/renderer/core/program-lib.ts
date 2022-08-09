@@ -443,28 +443,9 @@ class ProgramLib {
         const tmpl = this._templates[name];
         const tmplInfo = this._templateInfos[tmpl.hash];
         if (!tmplInfo.pipelineLayout) {
-            const director = legacyCC.director;
-            if (director.root.usesCustomPipeline) {
-                const root = legacyCC.director.root;
-                const ppl: Pipeline = root.customPipeline;
-                insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
-                const globalDS = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_PASS);
-                const materialDS = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_BATCH);
-                const localDS = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_INSTANCE);
-                if (globalDS) {
-                    tmplInfo.setLayouts[SetIndex.GLOBAL] = globalDS;
-                }
-                if (materialDS) {
-                    tmplInfo.setLayouts[SetIndex.MATERIAL] = materialDS;
-                }
-                if (localDS) {
-                    tmplInfo.setLayouts[SetIndex.LOCAL] = localDS;
-                }
-            } else {
-                this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
-                insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
-                tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            }
+            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
+            insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
+            tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
             tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
         }
 

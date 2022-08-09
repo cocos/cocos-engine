@@ -951,7 +951,7 @@ export class Widget extends Component {
     }
 
     protected _setDirtyByMode () {
-        if (this.alignMode === AlignMode.ALWAYS || EDITOR) {
+        if (this.alignMode === AlignMode.ALWAYS || (EDITOR && !legacyCC.GAME_VIEW)) {
             this._recursiveDirty();
         }
     }

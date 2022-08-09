@@ -28,45 +28,54 @@
 #include "bindings/utils/BindingUtils.h"
 
 namespace cc {
-RenderEntity::RenderEntity() : RenderEntity(nullptr) {
-}
-
-RenderEntity::RenderEntity(Batcher2d* batcher) : _batcher(batcher) {
-    for (auto& drawInfo : _staticDrawInfos) {
-        drawInfo.setBatcher(_batcher);
+RenderEntity::RenderEntity(RenderEntityType type) : _renderEntityType(type) {
+    if (type == RenderEntityType::STATIC) {
+        ccnew_placement(&_staticDrawInfos) std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>();
+    } else {
+        ccnew_placement(&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
     }
-
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
 
-RenderEntity::~RenderEntity() = default;
+RenderEntity::~RenderEntity() {
+    if (_renderEntityType == RenderEntityType::STATIC) {
+        _staticDrawInfos.~array();
+    } else {
+        _dynamicDrawInfos.~vector();
+    }
+};
 
 void RenderEntity::addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo) {
+    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     _dynamicDrawInfos.push_back(drawInfo);
 }
 void RenderEntity::setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index) {
+    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     if (index < _dynamicDrawInfos.size()) {
         _dynamicDrawInfos[index] = drawInfo;
     }
 }
 void RenderEntity::removeDynamicRenderDrawInfo() {
+    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     if (_dynamicDrawInfos.empty()) return;
     _dynamicDrawInfos.pop_back(); // warning: memory leaking & crash
 }
 
 void RenderEntity::clearDynamicRenderDrawInfos() {
+    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     _dynamicDrawInfos.clear();
 }
 
-void RenderEntity::setIsMask(bool isMask) {
-    _isMask = isMask;
+void RenderEntity::clearStaticRenderDrawInfos() {
+    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
+
+    for (uint32_t i = 0; i < _staticDrawInfoSize; i++) {
+        RenderDrawInfo& drawInfo = _staticDrawInfos[i];
+        drawInfo.resetDrawInfo();
+    }
+    _staticDrawInfoSize = 0;
 }
-void RenderEntity::setIsSubMask(bool isSubMask) {
-    _isSubMask = isSubMask;
-}
-void RenderEntity::setIsMaskInverted(bool isMaskInverted) {
-    _isMaskInverted = isMaskInverted;
-}
+
 void RenderEntity::setNode(Node* node) {
     if (_node) {
         _node->setUserData(nullptr);
@@ -76,40 +85,28 @@ void RenderEntity::setNode(Node* node) {
         _node->setUserData(this);
     }
 }
-void RenderEntity::setStencilStage(uint32_t stage) {
-    _stencilStage = static_cast<StencilStage>(stage);
-}
-void RenderEntity::setEnumStencilStage(StencilStage stage) {
-    _stencilStage = stage;
-}
-void RenderEntity::setCustomMaterial(Material* mat) {
-    _customMaterial = mat;
-}
-void RenderEntity::setCommitModelMaterial(Material* mat) {
-    _commitModelMaterial = mat;
-}
-void RenderEntity::setRenderEntityType(uint32_t type) {
-    _renderEntityType = static_cast<RenderEntityType>(type);
-}
 
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {
+    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     if (index >= _dynamicDrawInfos.size()) {
         return nullptr;
     }
     return _dynamicDrawInfos[index];
 }
 ccstd::vector<RenderDrawInfo*>& RenderEntity::getDynamicRenderDrawInfos() {
+    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     return _dynamicDrawInfos;
 }
 void RenderEntity::setStaticDrawInfoSize(uint32_t size) {
-    CC_ASSERT(size < RenderEntity::STATIC_DRAW_INFO_CAPACITY);
+    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC && size <= RenderEntity::STATIC_DRAW_INFO_CAPACITY);
     _staticDrawInfoSize = size;
 }
 RenderDrawInfo* RenderEntity::getStaticRenderDrawInfo(uint32_t index) {
-    CC_ASSERT(index < _staticDrawInfoSize);
+    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC && index < _staticDrawInfoSize);
     return &(_staticDrawInfos[index]);
 }
 std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& RenderEntity::getStaticRenderDrawInfos() {
+    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
     return _staticDrawInfos;
 }
 } // namespace cc

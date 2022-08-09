@@ -860,6 +860,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._limitVelocityOvertimeModule) this._limitVelocityOvertimeModule.bindTarget(this.processor);
         if (this._velocityOvertimeModule) this._velocityOvertimeModule.bindTarget(this.processor);
         if (this._textureAnimationModule) this._textureAnimationModule.bindTarget(this.processor);
+        if (this._noiseModule) this._noiseModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
@@ -988,6 +989,14 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected onDestroy () {
+        this.stop();
+        if (this.processor.getModel()?.scene) {
+            this.processor.detachFromScene();
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule._detachFromScene();
+            }
+        }
+        
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();

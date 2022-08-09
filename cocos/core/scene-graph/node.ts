@@ -390,32 +390,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
-    protected _registerIfAttached = !EDITOR ? undefined : function _registerIfAttached (this: Node, register) {
-        if (EditorExtends.Node && EditorExtends.Component) {
-            if (register) {
-                EditorExtends.Node.add(this._id, this);
-
-                for (let i = 0; i < this._components.length; i++) {
-                    const comp = this._components[i];
-                    EditorExtends.Component.add(comp._id, comp);
-                }
-            } else {
-                for (let i = 0; i < this._components.length; i++) {
-                    const comp = this._components[i];
-                    EditorExtends.Component.remove(comp._id);
-                }
-
-                EditorExtends.Node.remove(this._id);
-            }
-        }
-
-        const children = this._children;
-        for (let i = 0, len = children.length; i < len; ++i) {
-            const child = children[i];
-            child._registerIfAttached!(register);
-        }
-    };
-
     /**
      * @en
      * Properties configuration function.
@@ -1314,12 +1288,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 // PrefabUtils.unlinkPrefab(cloned);
             }
         }
-        if (EDITOR && legacyCC.GAME_VIEW) {
-            const syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
-            if (!syncing) {
-                cloned._name += ' (Clone)';
-            }
-        }
 
         // reset and init
         cloned._parent = null;
@@ -1344,9 +1312,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
+                // @ts-expect-error Polyfilled functions in node-dev.ts
                 this._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
+                // @ts-expect-error Polyfilled functions in node-dev.ts
                 this._registerIfAttached!(false);
             }
 
@@ -1368,6 +1338,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
+            // @ts-expect-error Polyfilled functions in node-dev.ts
             this._registerIfAttached!(false);
         }
 

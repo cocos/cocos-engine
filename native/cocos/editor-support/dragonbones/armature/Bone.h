@@ -23,9 +23,9 @@
 #ifndef DRAGONBONES_BONE_H
 #define DRAGONBONES_BONE_H
 
-#include "TransformObject.h"
-#include "../model/ArmatureData.h"
 #include "../animation/AnimationState.h"
+#include "../model/ArmatureData.h"
+#include "TransformObject.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 /**

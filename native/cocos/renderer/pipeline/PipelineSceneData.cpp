@@ -60,6 +60,7 @@ PipelineSceneData::~PipelineSceneData() {
 
 void PipelineSceneData::activate(gfx::Device *device) {
     _device = device;
+
 #if CC_USE_GEOMETRY_RENDERER
     initGeometryRenderer();
 #endif
@@ -67,7 +68,10 @@ void PipelineSceneData::activate(gfx::Device *device) {
 #if CC_USE_DEBUG_RENDERER
     initDebugRenderer();
 #endif
+
+#if CC_USE_OCCLUSION_QUERY
     initOcclusionQuery();
+#endif
 }
 
 void PipelineSceneData::destroy() {
@@ -89,8 +93,10 @@ void PipelineSceneData::initOcclusionQuery() {
         IMaterialInfo info;
         info.effectName = "builtin-occlusion-query";
         _occlusionQueryMaterial->initialize(info);
-        _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
-        _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
+        if (!_occlusionQueryMaterial->getPasses()->empty()) {
+            _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
+            _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
+        }
     }
 }
 
@@ -129,15 +135,6 @@ void PipelineSceneData::initDebugRenderer() {
         _debugRendererPass = (*_debugRendererMaterial->getPasses())[0];
         _debugRendererShader = _debugRendererPass->getShaderVariant();
     }
-}
-
-scene::Pass *PipelineSceneData::getOcclusionQueryPass() {
-    if (_occlusionQueryMaterial) {
-        const auto &passes = *_occlusionQueryMaterial->getPasses();
-        return passes[0].get();
-    }
-
-    return nullptr;
 }
 
 gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {

@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <functional>
 #include <sstream>
+#include "application/ApplicationManager.h"
 #include "base/Config.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
@@ -41,9 +42,8 @@
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/engine/BaseEngine.h"
 #include "cocos/network/HttpClient.h"
-
-#include "application/ApplicationManager.h"
 
 using namespace cc;          //NOLINT
 using namespace cc::network; //NOLINT
@@ -172,6 +172,16 @@ public:
 
     bool isDiscardedByReset() const { return _isDiscardedByReset; }
 
+    inline void clearCallbacks() {
+        onloadstart = nullptr;
+        onload = nullptr;
+        onloadend = nullptr;
+        onreadystatechange = nullptr;
+        onabort = nullptr;
+        onerror = nullptr;
+        ontimeout = nullptr;
+    }
+
 private:
     ~XMLHttpRequest() override;
 
@@ -183,6 +193,7 @@ private:
     void sendRequest();
     void setHttpRequestHeader();
 
+    BaseEngine::SchedulerPtr _scheduler;
     ccstd::unordered_map<ccstd::string, ccstd::string> _httpHeader;
     ccstd::unordered_map<ccstd::string, ccstd::string> _requestHeader;
 
@@ -225,10 +236,14 @@ XMLHttpRequest::XMLHttpRequest()
   _httpRequest(ccnew HttpRequest()),
   _responseType(ResponseType::STRING),
   _readyState(ReadyState::UNSENT) {
+    _httpRequest->addRef();
+    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
 }
 
 XMLHttpRequest::~XMLHttpRequest() {
-    CC_CURRENT_ENGINE()->getScheduler()->unscheduleAllForTarget(this);
+    if (_scheduler) {
+        _scheduler->unscheduleAllForTarget(this);
+    }
     // Avoid HttpClient response call a released object!
     _httpRequest->setResponseCallback(nullptr);
     CC_SAFE_RELEASE(_httpRequest);
@@ -302,6 +317,9 @@ void XMLHttpRequest::abort() {
     _isSending = false;
 
     setReadyState(ReadyState::DONE);
+
+    // Unregister timeout timer while abort is invoked.
+    _scheduler->unscheduleAllForTarget(this);
 
     if (onabort != nullptr) {
         onabort();
@@ -377,7 +395,8 @@ void XMLHttpRequest::getHeader(const ccstd::string &header) {
 }
 
 void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response) {
-    CC_CURRENT_ENGINE()->getScheduler()->unscheduleAllForTarget(this);
+    CC_ASSERT(_scheduler);
+    _scheduler->unscheduleAllForTarget(this);
     _isSending = false;
 
     if (_isTimeout) {
@@ -478,14 +497,15 @@ void XMLHttpRequest::sendRequest() {
     _isSending = true;
     _isTimeout = false;
     if (_timeoutInMilliseconds > 0) {
-        CC_CURRENT_ENGINE()->getScheduler()->schedule([this](float /* dt */) {
+        CC_ASSERT(_scheduler);
+        _scheduler->schedule([this](float /* dt */) {
             if (ontimeout != nullptr) {
                 ontimeout();
             }
             _isTimeout = true;
             _readyState = ReadyState::UNSENT;
         },
-                                                      this, static_cast<float>(_timeoutInMilliseconds) / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
+                             this, static_cast<float>(_timeoutInMilliseconds) / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
     }
     setHttpRequestHeader();
 
@@ -576,6 +596,7 @@ se::Class *__jsb_XMLHttpRequest_class = nullptr; //NOLINT(readability-identifier
 static bool XMLHttpRequest_finalize(se::State &s) { //NOLINT(readability-identifier-naming, google-runtime-references)
     auto *request = static_cast<XMLHttpRequest *>(s.nativeThisObject());
     SE_LOGD("XMLHttpRequest_finalize, %p ... \n", request);
+    request->clearCallbacks();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(XMLHttpRequest_finalize)

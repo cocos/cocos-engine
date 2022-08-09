@@ -30,7 +30,7 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -516,8 +516,7 @@ export class ArmatureDisplay extends UIRenderer {
     private _drawInfoList : RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
-            const batch2d = director.root!.batcher2D;
-            this._drawInfoList[idx] = new RenderDrawInfo(batch2d);
+            this._drawInfoList[idx] = new RenderDrawInfo();
         }
         return this._drawInfoList[idx];
     }
@@ -543,6 +542,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     onLoad () {
+        super.onLoad();
         // Adapt to old code,remove unuse child which is created by old code.
         // This logic can be remove after 2.2 or later.
         const children = this.node.children;
@@ -585,11 +585,7 @@ export class ArmatureDisplay extends UIRenderer {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        if (JSB) {
-            inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
-        } else {
-            inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
-        }
+        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -601,9 +597,18 @@ export class ArmatureDisplay extends UIRenderer {
         return inst;
     }
 
-    protected updateMaterial () {
-        super.updateMaterial();
+    @override
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    get customMaterial () {
+        return this._customMaterial;
+    }
+    set customMaterial (val) {
+        this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.markForUpdateRenderData();
     }
 
     protected _render (batcher: Batcher2D) {
@@ -951,10 +956,6 @@ export class ArmatureDisplay extends UIRenderer {
             this._indexBoneSockets();
         }
         return Array.from(this._cachedSockets.keys()).sort();
-    }
-
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**
@@ -1337,9 +1338,17 @@ export class ArmatureDisplay extends UIRenderer {
         this._materialCache = {};
     }
 
-    protected initRenderEntity () {
-        this._renderEntity = new RenderEntity(this.batcher, RenderEntityType.DYNAMIC);
-        this._renderEntity.setCustomMaterial(this.customMaterial);
+    protected createRenderEntity () {
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
+    }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugDraw) {
+            this._debugDraw.markForUpdateRenderData(enable);
+        }
     }
 }
 

@@ -53,7 +53,7 @@ public:
     ThreadPool &operator=(ThreadPool &&) noexcept = delete;
 
     template <typename Function, typename... Args>
-    auto dispatchTask(Function &&func, Args &&... args) -> std::future<decltype(func(std::forward<Args>(args)...))>;
+    auto dispatchTask(Function &&func, Args &&...args) -> std::future<decltype(func(std::forward<Args>(args)...))>;
     void start();
     void stop();
 
@@ -70,7 +70,7 @@ private:
 };
 
 template <typename Function, typename... Args>
-auto ThreadPool::dispatchTask(Function &&func, Args &&... args) -> std::future<decltype(func(std::forward<Args>(args)...))> {
+auto ThreadPool::dispatchTask(Function &&func, Args &&...args) -> std::future<decltype(func(std::forward<Args>(args)...))> {
     CC_ASSERT(_running);
 
     using ReturnType = decltype(func(std::forward<Args>(args)...));

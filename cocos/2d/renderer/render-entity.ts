@@ -1,16 +1,16 @@
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
-import { UIRenderer } from '../framework/ui-renderer';
 import { Batcher2D } from './batcher-2d';
 import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
-import { color, Color, Material, Node } from '../../core';
+import { color, Color, director, Material, Node } from '../../core';
 import { EmitLocation } from '../../particle/enum';
 import { Stage } from './stencil-manager';
 
 export enum RenderEntityType {
     STATIC,
     DYNAMIC,
+    CROSSED,
 }
 
 export enum RenderEntityFloatSharedBufferView {
@@ -23,15 +23,23 @@ export enum RenderEntityUInt8SharedBufferView {
     colorG,
     colorB,
     colorA,
+    maskMode,
     count,
 }
 
 export enum RenderEntityBoolSharedBufferView{
     colorDirty,
     enabled,
-    padding0,
-    padding1,
+    useLocal,
     count,
+}
+
+export enum MaskMode {
+    NONE,
+    MASK,
+    MASK_INVERTED,
+    MASK_NODE,
+    MASK_NODE_INVERTED
 }
 
 export class RenderEntity {
@@ -39,19 +47,10 @@ export class RenderEntity {
 
     private _dynamicDrawInfoArr: RenderDrawInfo[] = [];
 
-    private _batcher: Batcher2D | undefined;
-
     protected _node: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
-    protected _customMaterial: Material | null = null;
-    protected _commitModelMaterial: Material | null = null;
-
-    // is it entity a mask node
-    protected _isMask = false;
-    // is it entity a sub mask node
-    protected _isSubMask = false;
-    // is mask inverted
-    protected _isMaskInverted = false;
+    protected _useLocal = false;
+    protected _maskMode = MaskMode.NONE;
 
     protected declare _floatSharedBuffer: Float32Array;
     protected declare _uint8SharedBuffer: Uint8Array;
@@ -120,14 +119,12 @@ export class RenderEntity {
         }
     }
 
-    constructor (batcher: Batcher2D, entityType: RenderEntityType) {
+    constructor (entityType: RenderEntityType) {
         if (JSB) {
-            this._batcher = batcher;
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
+                this._nativeObj = new NativeRenderEntity(entityType);
             }
-            this.setRenderEntityType(entityType);
-
+            this._renderEntityType = entityType;
             this.initSharedBuffer();
         }
     }
@@ -155,6 +152,12 @@ export class RenderEntity {
         }
     }
 
+    public clearStaticRenderDrawInfos () {
+        if (JSB) {
+            this._nativeObj.clearStaticRenderDrawInfos();
+        }
+    }
+
     public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number) {
         if (JSB) {
             if (renderDrawInfo) {
@@ -169,58 +172,20 @@ export class RenderEntity {
         }
     }
 
+    public setMaskMode (mode: MaskMode) {
+        if (JSB) {
+            this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.maskMode] = mode;
+        }
+        this._maskMode = mode;
+    }
+
     public getStaticRenderDrawInfo (): RenderDrawInfo | null {
         if (JSB) {
             const nativeDrawInfo = this._nativeObj.getStaticRenderDrawInfo(this._nativeObj.staticDrawInfoSize++);
-            const drawInfo = new RenderDrawInfo(this._batcher!, nativeDrawInfo);
+            const drawInfo = new RenderDrawInfo(nativeDrawInfo);
             return drawInfo;
         }
         return null;
-    }
-
-    public destroy () {
-        this.setNode(null);
-        this.enabled = false;
-        this.setCustomMaterial(null);
-        this.setStencilStage(0);
-        this.setCommitModelMaterial(null);
-        // @ts-expect-error temporary no care
-        this._nativeObj = null;
-        this._dynamicDrawInfoArr = [];
-    }
-
-    public assignExtraEntityAttrs (comp: UIRenderer) {
-        if (JSB) {
-            this.setNode(comp.node);
-            this.enabled = comp.enabled;
-        }
-    }
-
-    setIsMask (val:boolean) {
-        if (JSB) {
-            if (this._isMask !== val) {
-                this._nativeObj.isMask = val;
-            }
-        }
-        this._isMask = val;
-    }
-
-    setIsSubMask (val:boolean) {
-        if (JSB) {
-            if (this._isSubMask !== val) {
-                this._nativeObj.isSubMask = val;
-            }
-        }
-        this._isSubMask = val;
-    }
-
-    setIsMaskInverted (val:boolean) {
-        if (JSB) {
-            if (this._isMaskInverted !== val) {
-                this._nativeObj.isMaskInverted = val;
-            }
-        }
-        this._isMaskInverted = val;
     }
 
     setNode (node: Node | null) {
@@ -241,31 +206,11 @@ export class RenderEntity {
         this._stencilStage = stage;
     }
 
-    setCustomMaterial (mat: Material | null) {
+    setUseLocal (useLocal: boolean) {
         if (JSB) {
-            if (this._customMaterial !== mat) {
-                this._nativeObj.customMaterial = mat!;
-            }
+            this._boolSharedBuffer[RenderEntityBoolSharedBufferView.useLocal] = useLocal ? 1 : 0;
         }
-        this._customMaterial = mat;
-    }
-
-    setCommitModelMaterial (mat:Material|null) {
-        if (JSB) {
-            if (this._commitModelMaterial !== mat) {
-                this._nativeObj.commitModelMaterial = mat!;
-            }
-        }
-        this._commitModelMaterial = mat;
-    }
-
-    setRenderEntityType (type: RenderEntityType) {
-        if (JSB) {
-            if (this._renderEntityType !== type) {
-                this._nativeObj.setRenderEntityType(type);
-            }
-        }
-        this._renderEntityType = type;
+        this._useLocal = useLocal;
     }
 
     private initSharedBuffer () {

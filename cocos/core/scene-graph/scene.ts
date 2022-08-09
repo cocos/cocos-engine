@@ -186,6 +186,7 @@ export class Scene extends Node {
         active = (active !== false);
         if (EDITOR) {
             // register all nodes to editor
+            // @ts-expect-error Polyfilled functions in base-node-dev.ts
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);

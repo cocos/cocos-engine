@@ -153,6 +153,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
 // @ts-ignore
 export const FogInfo = jsb.FogInfo;
 legacyCC.FogInfo = FogInfo;
+FogInfo.FogType = FogType;
 
 // @ts-ignore
 export const ShadowsInfo = jsb.ShadowsInfo;
@@ -402,6 +403,10 @@ serializable(SkyboxInfoProto, '_enabled');
 serializable(SkyboxInfoProto, '_useHDR');
 type(Material)(SkyboxInfoProto, '_editableMaterial');
 serializable(SkyboxInfoProto, '_editableMaterial');
+type(TextureCube)(SkyboxInfoProto, '_reflectionHDR');
+serializable(SkyboxInfoProto, '_reflectionHDR');
+type(TextureCube)(SkyboxInfoProto, '_reflectionLDR');
+serializable(SkyboxInfoProto, '_reflectionLDR');
 const skyboxEnabledDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'enabled');
 tooltip('i18n:skybox.enabled')(SkyboxInfoProto, 'enabled', skyboxEnabledDescriptor);
 editable(SkyboxInfoProto, 'enabled', skyboxEnabledDescriptor);

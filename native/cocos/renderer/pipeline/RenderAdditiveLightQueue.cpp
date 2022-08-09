@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "RenderAdditiveLightQueue.h"
 #include "BatchedBuffer.h"
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
@@ -30,10 +31,8 @@
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
 #include "PipelineUBO.h"
-#include "RenderAdditiveLightQueue.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "SceneCulling.h"
 #include "base/Utils.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
@@ -79,8 +78,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
     for (uint32_t i = 0; i < _instancedLightPass.lights.size(); ++i) {
         const auto *light = _instancedLightPass.lights[i];
         _dynamicOffsets[0] = _instancedLightPass.dynamicOffsets[i];
-            auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-            _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
+        _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
     }
 
     for (size_t i = 0; i < _batchedLightPass.lights.size(); ++i) {
@@ -197,13 +196,13 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
 }
 
-bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
-    const auto &      subModels     = model->getSubModels();
-    const auto        subModelCount = subModels.size();
+bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model *model) {
+    const auto &subModels = model->getSubModels();
+    const auto subModelCount = subModels.size();
     for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-        const auto &subModel  = subModels[subModelIdx];
-        const auto &passes    = subModel->getPasses();
-        const auto  passCount = passes.size();
+        const auto &subModel = subModels[subModelIdx];
+        const auto &passes = subModel->getPasses();
+        const auto passCount = passes.size();
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             const auto &pass = passes[passIdx];
             if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
@@ -310,7 +309,9 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->isEnabled() &&
                                                                                                  spotLight->isShadowEnabled() &&
-                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
+                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP)
+                                                                                                    ? 1.0F
+                                                                                                    : 0.0F;
 
                 index = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction = spotLight->getDirection();
@@ -332,9 +333,9 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const auto *const scene = camera->getScene();
     const auto *device = gfx::Device::getInstance();
     const bool hFTexture = supportsR32FloatTexture(device);
-    const float linear = 0.0F;
     const float packing = hFTexture ? 0.0F : 1.0F;
     const scene::Light *mainLight = scene->getMainLight();
+    const auto cap = _pipeline->getDevice()->getCapabilities();
 
     for (const auto *light : _validPunctualLights) {
         auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
@@ -348,8 +349,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
             case scene::LightType::SPHERE: {
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
+                    PipelineUBO::updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 // Reserve sphere light shadow interface
@@ -364,15 +364,14 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
+                    PipelineUBO::updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();
                 const auto matShadowView = matShadowCamera.getInversed();
 
                 cc::Mat4 matShadowProj;
-                cc::Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
+                cc::Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0, &matShadowProj);
                 cc::Mat4 matShadowViewProj = matShadowProj;
                 cc::Mat4 matShadowInvProj = matShadowProj;
                 matShadowInvProj.inverse();
@@ -383,7 +382,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
-                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, 0.0F};
+                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), 0.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 const auto &shadowSize = shadowInfo->getSize();

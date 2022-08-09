@@ -25,8 +25,8 @@
 
 #include "scene/Ambient.h"
 #include "core/Root.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {

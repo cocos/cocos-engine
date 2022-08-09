@@ -33,9 +33,7 @@ export class IOSPackTool extends MacOSPackTool {
         await this.excuteCocosTemplateTask();
 
         await this.setOrientation();
-
         await this.encrypteScripts();
-        await this.generate();
         return true;
     }
 
@@ -242,7 +240,7 @@ export class IOSPackTool extends MacOSPackTool {
                 }
             }
         } else {
-            console.error(`Info.plist not found ${infoPlist}`);
+            throw new Error(`Info.plist not found ${infoPlist}`)
         }
         return null;
     }

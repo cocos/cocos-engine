@@ -438,14 +438,11 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
         ss << stackStr << std::endl;
     }
     //Check event immediately, for certain case throw exception.
-    const char *eventName;
     switch (event) {
         case v8::kPromiseRejectWithNoHandler:
-            eventName = "unhandledRejectedPromise";
             getInstance()->pushPromiseExeception(msg.GetPromise(), "unhandledRejectedPromise", ss.str().c_str());
             break;
         case v8::kPromiseHandlerAddedAfterReject:
-            eventName = "handlerAddedAfterPromiseRejected";
             getInstance()->pushPromiseExeception(msg.GetPromise(), "handlerAddedAfterPromiseRejected", ss.str().c_str());
             break;
         case v8::kPromiseRejectAfterResolved:
@@ -588,8 +585,12 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         _context.Reset(_isolate, context);
         _context.Get(isolate)->Enter();
     } else {
+        static v8::ArrayBuffer::Allocator *arrayBufferAllocator{nullptr};
+        if (arrayBufferAllocator == nullptr) {
+            arrayBufferAllocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+        }
         v8::Isolate::CreateParams createParams;
-        createParams.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+        createParams.array_buffer_allocator = arrayBufferAllocator;
         _isolate = v8::Isolate::New(createParams);
         v8::HandleScope hs(_isolate);
         _context.Reset(_isolate, v8::Context::New(_isolate));
@@ -662,6 +663,11 @@ void ScriptEngine::cleanup() {
     for (const auto &hook : _afterCleanupHookArray) {
         hook();
     }
+
+    // Cleanup all hooks
+    _beforeInitHookArray.clear();
+    _afterInitHookArray.clear();
+    _beforeCleanupHookArray.clear();
     _afterCleanupHookArray.clear();
 
     _isInCleanup = false;

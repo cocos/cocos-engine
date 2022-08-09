@@ -31,6 +31,7 @@
 #include "core/scene-graph/NodeEnum.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
+#include "math/Utils.h"
 
 namespace cc {
 
@@ -39,13 +40,7 @@ namespace cc {
 uint32_t Node::clearFrame{0};
 uint32_t Node::clearRound{1000};
 const uint32_t Node::TRANSFORM_ON{1 << 0};
-const uint32_t Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
-const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
-const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
-index_t Node::stackId{0};
-ccstd::vector<ccstd::vector<Node *>> Node::stacks;
 uint32_t Node::globalFlagChangeVersion{0};
-//
 
 namespace {
 const ccstd::string EMPTY_NODE_NAME;
@@ -161,7 +156,7 @@ void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-param
 }
 
 void Node::off(const CallbacksInvoker::KeyType &type, bool useCapture) {
-    _eventProcessor->off(type, useCapture);
+    _eventProcessor->offAll(type, useCapture);
     bool hasListeners = _eventProcessor->hasEventListener(type);
     if (!hasListeners) {
         if (type == NodeEventType::TRANSFORM_CHANGED) {
@@ -170,7 +165,7 @@ void Node::off(const CallbacksInvoker::KeyType &type, bool useCapture) {
     }
 }
 
-void Node::off(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID, bool useCapture) {
+void Node::off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture) {
     _eventProcessor->off(type, cbID, useCapture);
     bool hasListeners = _eventProcessor->hasEventListener(type);
     if (!hasListeners) {
@@ -198,13 +193,13 @@ bool Node::hasEventListener(const CallbacksInvoker::KeyType &type) const {
     return _eventProcessor->hasEventListener(type);
 }
 
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID) const {
+bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const {
     return _eventProcessor->hasEventListener(type, cbID);
 }
 bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const {
     return _eventProcessor->hasEventListener(type, target);
 }
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackInfoBase::ID cbID) const {
+bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const {
     return _eventProcessor->hasEventListener(type, target, cbID);
 }
 
@@ -279,98 +274,24 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
     onHierarchyChanged(oldParent);
 }
 
-Scene *Node::getScene() const {
-    return _scene;
-}
-
 void Node::walk(const WalkCallback &preFunc) {
     walk(preFunc, nullptr);
 }
 
-void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) {
-    index_t index{1};
-    index_t i{0};
-    const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
-    Node *curr{nullptr};
-    auto stacksCount = static_cast<index_t>(Node::stacks.size());
-    if (stackId >= stacksCount) {
-        stacks.resize(stackId + 1);
+void Node::walk(const WalkCallback &preFunc, const WalkCallback &postFunc) { //NOLINT(misc-no-recursion)
+    if (preFunc) {
+        preFunc(this);
     }
-    auto stack = stacks[stackId];
-    stackId++;
 
-    stack.clear();
-    stack.resize(1);
-    stack[0] = this;
-    Node *parent{nullptr};
-    bool afterChildren{false};
-    while (index) {
-        index--;
-        auto stackCount = static_cast<index_t>(stack.size());
-        if (index >= stackCount) {
-            continue;
-        }
-        curr = stack[index];
-        if (curr == nullptr) {
-            continue;
-        }
-        if (!afterChildren && preFunc != nullptr) {
-            // pre call
-            preFunc(curr);
-        } else if (afterChildren && postFunc != nullptr) {
-            // post call
-            postFunc(curr);
-        }
-        stack[index] = nullptr;
-        if (afterChildren) {
-            if (parent == _parent) {
-                break;
-            }
-            afterChildren = false;
-        } else {
-            if (static_cast<index_t>(curr->_children.size()) > 0) {
-                parent = curr;
-                children = &curr->_children;
-                i = 0;
-                stack[index] = (*children)[i];
-                stack.resize(++index);
-            } else {
-                stack[index] = curr;
-                stack.resize(++index);
-                afterChildren = true;
-            }
-            continue;
-        }
-
-        if (children != nullptr && !children->empty()) {
-            i++;
-            if (i < children->size() && children->at(i) != nullptr) {
-                stack[index] = children->at(i);
-                stack.resize(++index);
-            } else if (parent) {
-                stack[index] = parent;
-                stack.resize(++index);
-                afterChildren = true;
-                if (parent->_parent != nullptr) {
-                    children = &parent->_parent->_children;
-                    index_t idx = getIdxOfChild(*children, parent);
-                    if (idx != CC_INVALID_INDEX) {
-                        i = idx;
-                    }
-                    parent = parent->_parent;
-                } else {
-                    // At root
-                    parent = nullptr;
-                    children = nullptr;
-                }
-                if (i < 0) {
-                    break;
-                }
-            }
+    for (const auto &child : _children) {
+        if (child) {
+            child->walk(preFunc, postFunc);
         }
     }
-    stack.clear();
-    stackId--;
+
+    if (postFunc) {
+        postFunc(this);
+    }
 }
 
 //Component *Node::addComponent(Component *comp) {
@@ -626,16 +547,16 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
         auto *currChild = child;
         if (curr) {
             if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
-                currChild->_worldPosition.transformMat4(currChild->_localPosition, curr->getWorldMatrix());
+                currChild->_worldPosition.transformMat4(currChild->_localPosition, curr->_worldMatrix);
                 currChild->_worldMatrix.m[12] = currChild->_worldPosition.x;
                 currChild->_worldMatrix.m[13] = currChild->_worldPosition.y;
                 currChild->_worldMatrix.m[14] = currChild->_worldPosition.z;
             }
             if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
                 Mat4::fromRTS(currChild->_localRotation, currChild->_localPosition, currChild->_localScale, &currChild->_worldMatrix);
-                Mat4::multiply(curr->getWorldMatrix(), currChild->_worldMatrix, &currChild->_worldMatrix);
+                Mat4::multiply(curr->_worldMatrix, currChild->_worldMatrix, &currChild->_worldMatrix);
                 if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
-                    Quaternion::multiply(curr->getWorldRotation(), currChild->_localRotation, &currChild->_worldRotation);
+                    Quaternion::multiply(curr->_worldRotation, currChild->_localRotation, &currChild->_worldRotation);
                 }
                 quat = currChild->_worldRotation;
                 quat.conjugate();
@@ -713,7 +634,7 @@ void Node::setWorldPosition(float x, float y, float z) {
     _worldPosition.set(x, y, z);
     if (_parent) {
         _parent->updateWorldTransform();
-        Mat4 invertWMat{_parent->getWorldMatrix()};
+        Mat4 invertWMat{_parent->_worldMatrix};
         invertWMat.inverse();
         _localPosition.transformMat4(_worldPosition, invertWMat);
     } else {
@@ -737,7 +658,7 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
     _worldRotation.set(x, y, z, w);
     if (_parent) {
         _parent->updateWorldTransform();
-        _localRotation.set(_parent->getWorldRotation().getConjugated());
+        _localRotation.set(_parent->_worldRotation.getConjugated());
         _localRotation.multiply(_worldRotation);
     } else {
         _localRotation.set(_worldRotation);
@@ -764,9 +685,9 @@ void Node::setWorldScale(float x, float y, float z) {
     if (_parent != nullptr) {
         _parent->updateWorldTransform();
         Mat3 mat3;
-        Mat3::fromQuat(_parent->getWorldRotation().getConjugated(), &mat3);
+        Mat3::fromQuat(_parent->_worldRotation.getConjugated(), &mat3);
         Mat3 b;
-        Mat3::fromMat4(_parent->getWorldMatrix(), &b);
+        Mat3::fromMat4(_parent->_worldMatrix, &b);
         Mat3::multiply(mat3, b, &mat3);
         Mat3 mat3Scaling;
         mat3Scaling.m[0] = _worldScale.x;
@@ -795,6 +716,14 @@ const Vec3 &Node::getWorldScale() const {
     return _worldScale;
 }
 
+void Node::setForward(const Vec3 &dir) {
+    const float len = dir.length();
+    Vec3 v3Temp = dir * (-1.F / len);
+    Quaternion qTemp{Quaternion::identity()};
+    Quaternion::fromViewUp(v3Temp, &qTemp);
+    setWorldRotation(qTemp);
+}
+
 void Node::setAngle(float val) {
     _euler.set(0, 0, val);
     Quaternion::createFromAngleZ(val, &_localRotation);
@@ -815,13 +744,16 @@ void Node::onSetParent(Node *oldParent, bool keepWorldTransform) {
     }
 
     if (keepWorldTransform) {
-        Node *parent = _parent;
-        if (parent) {
-            parent->updateWorldTransform();
-            Mat4 mTemp{Mat4::IDENTITY}; // cjh FIXME: the logic is different from ts version.
-            Mat4::inverseTranspose(parent->getWorldMatrix(), &mTemp);
-            mTemp *= _worldMatrix;
-
+        if (_parent) {
+            _parent->updateWorldTransform();
+            if (mathutils::approx<float>(_parent->_worldMatrix.determinant(), 0.F, mathutils::EPSILON)) {
+                CC_LOG_WARNING("14300");
+                _dirtyFlag |= static_cast<uint32_t>(TransformBit::TRS);
+                updateWorldTransform();
+            } else {
+                Mat4 tmpMat4 = _parent->_worldMatrix.getInversed() * _worldMatrix;
+                Mat4::toRTS(tmpMat4, &_localRotation, &_localPosition, &_localScale);
+            }
         } else {
             _localPosition.set(_worldPosition);
             _localRotation.set(_worldRotation);
@@ -841,7 +773,7 @@ void Node::rotate(const Quaternion &rot, NodeSpace ns /* = NodeSpace::LOCAL*/, b
         _localRotation *= qTempA;
     } else if (ns == NodeSpace::WORLD) {
         Quaternion qTempB{Quaternion::identity()};
-        qTempB = qTempA * _worldRotation;
+        qTempB = qTempA * getWorldRotation();
         qTempA = _worldRotation;
         qTempA.inverse();
         qTempB = qTempA * qTempB;
@@ -899,7 +831,7 @@ void Node::setWorldRotationFromEuler(float x, float y, float z) {
     Quaternion::fromEuler(x, y, z, &_worldRotation);
     if (_parent) {
         _parent->updateWorldTransform();
-        _localRotation = _parent->getWorldRotation().getConjugated() * _worldRotation;
+        _localRotation = _parent->_worldRotation.getConjugated() * _worldRotation;
     } else {
         _localRotation = _worldRotation;
     }
@@ -952,6 +884,16 @@ void Node::clearNodeArray() {
         clearFrame = 0;
         dirtyNodes.clear();
     }
+}
+
+ccstd::string Node::getPathInHierarchy() const {
+    ccstd::string result = getName();
+    Node *curNode = getParent();
+    while (curNode && curNode->getParent()) {
+        result.insert(0, "/").insert(0, curNode->getName());
+        curNode = curNode->getParent();
+    }
+    return result;
 }
 
 void Node::translate(const Vec3 &trans, NodeSpace ns) {

@@ -61,10 +61,11 @@ const ErrorCodeIncompatible = 15004;
 export interface INativePlatformOptions {
     extends?: InternaleNativePlatform, //传入继承的平台，将会继承已有平台注册的一些代码
     overwrite?: InternaleNativePlatform, //传入继承但如果有同名的方法等会复写平台，将会继承已有平台注册的一些代码
-    create?: () => Promise<boolean>;
-    compile?: () => Promise<boolean>;
+    create: () => Promise<boolean>;
+    genrate: () => Promise<boolean>;
+    make?: () => Promise<boolean>;
     run?: () => Promise<boolean>;
-    init?: (params: CocosParams<Object>) => void;
+    init: (params: CocosParams<Object>) => void;
 }
 
 export abstract class NativePackTool {
@@ -432,7 +433,7 @@ export abstract class NativePackTool {
     }
 
     /**
-     * 加密脚本，加密后，会修改 cmake 参数，因而要在 cmake 命令执行之前
+     * 加密脚本，加密后，会修改 cmake 参数，因而需要再次执行 cmake 配置文件的生成
      * @returns 
      */
     protected async encrypteScripts() {
@@ -492,7 +493,8 @@ export abstract class NativePackTool {
         }
     }
 
-    create?(): Promise<boolean>;
+    abstract create(): Promise<boolean>;
+    generate?(): Promise<boolean>;
     make?(): Promise<boolean>;
     run?(): Promise<boolean>;
 }
