@@ -174,7 +174,6 @@ void CCWGPUDescriptorSet::update() {
             uint8_t textureIdx = texIter != _textureIdxMap.end() ? texIter->second : 255;
             uint8_t samplerIdx = smpIter != _samplerIdxMap.end() ? smpIter->second : 255;
 
-            bool flag = false;
             if (textureIdx != 255 && _textures[resourceIndex]) {
                 auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries[textureIdx];
                 auto *texture = static_cast<CCWGPUTexture *>(_textures[resourceIndex]);
@@ -182,7 +181,6 @@ void CCWGPUDescriptorSet::update() {
                 bindGroupEntry.textureView = texture->gpuTextureObject()->selfView;
                 dsLayout->updateTextureLayout(bindGroupEntry.binding, texture);
                 _gpuBindGroupObj->bindingSet.insert(binding.binding);
-                flag = true;
             }
             if (samplerIdx != 255 && _samplers[resourceIndex]) {
                 auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries[samplerIdx];
@@ -221,15 +219,9 @@ void CCWGPUDescriptorSet::prepare() {
     });
 
     bool forceUpdate = buffIter != _buffers.end() || texIter != _textures.end();
-    if (buffIter != _buffers.end()) {
-        printf("%p buffer inter\n", (*buffIter));
-    }
-    if (texIter != _textures.end()) {
-        printf("%p texture inter\n", (*texIter));
-    }
 
-    if (forceUpdate) {
-        _isDirty = true;
+    _isDirty |= forceUpdate;
+    if (_isDirty) {
         update();
     }
 
@@ -255,6 +247,7 @@ void CCWGPUDescriptorSet::prepare() {
             _gpuBindGroupObj->bindgroup = anoymous::defaultBindGroup;
             _bgl = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
             _ccbgl = nullptr;
+            _hash = 9527;
         } else {
             static uint32_t count = 0;
             _label = std::to_string(_objectID) + "-" + std::to_string(count++) + "-" + std::to_string(dsLayout->getHash());
@@ -268,8 +261,7 @@ void CCWGPUDescriptorSet::prepare() {
             _gpuBindGroupObj->bindgroup = wgpuDeviceCreateBindGroup(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &bindGroupDesc);
             _bgl = dsLayout->gpuLayoutEntryObject()->bindGroupLayout;
             _ccbgl = dsLayout;
-            printf("create new bgp %zu %d, %d, \n", dsLayout->getHash(), forceUpdate, _isDirty);
-            // _local = dsLayout;
+            _hash = dsLayout->getHash();
         }
         _isDirty = false;
         if (buffIter != _buffers.end())

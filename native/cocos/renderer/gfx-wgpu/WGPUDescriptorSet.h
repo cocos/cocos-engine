@@ -65,6 +65,8 @@ public:
     void *ccbgl() const { return _ccbgl; }
     ccstd::string _label;
 
+    ccstd::hash_t getHash() { return _hash; };
+
 protected:
     void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;

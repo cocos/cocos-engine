@@ -434,10 +434,8 @@ CommandBuffer.prototype.bindDescriptorSet = function (set: number, descriptorSet
         oldBindDescriptorSet.call(this, set, descriptorSet, []);
     } else if ('buffer' in dynamicOffsets) {
         oldBindDescriptorSet.call(this, set, descriptorSet, new Uint32Array((dynamicOffsets as any).buffer, (dynamicOffsets as any).byteOffset, (dynamicOffsets as any).byteLength));
-        console.log(dynamicOffsets[0]);
     } else {
         oldBindDescriptorSet.call(this, set, descriptorSet, new Uint32Array(dynamicOffsets));
-        console.log(dynamicOffsets[0]);
     }
 };
 

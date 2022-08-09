@@ -347,6 +347,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         };
 
         auto hashVal = hash(piplineDesc);
+        _hash = hashVal;
 
         auto iter = pipelineMap.find(hashVal);
         if (iter == pipelineMap.end()) {

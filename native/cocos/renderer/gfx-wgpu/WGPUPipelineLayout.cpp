@@ -54,7 +54,7 @@ void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
             // give it default bindgrouplayout if not in use
             layouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
             ccstd::hash_combine(hash, i);
-            ccstd::hash_combine(hash, "defaultBindgroupLayout");
+            ccstd::hash_combine(hash, 9527);
         } else {
             if (!descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout) {
                 printf("bgl in ppl is null\n");
@@ -63,7 +63,7 @@ void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
             }
             layouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
             ccstd::hash_combine(hash, i);
-            ccstd::hash_combine(hash, descriptorSetLayout->_label);
+            ccstd::hash_combine(hash, descriptorSetLayout->getHash());
         }
     }
 
