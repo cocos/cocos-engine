@@ -37,7 +37,6 @@ import { syncNodeValues } from "../utils/jsb-utils";
 import { property } from '../data/class-decorator';
 import { nodePolyfill } from './node-dev';
 import * as js from '../utils/js';
-import './base-node';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
