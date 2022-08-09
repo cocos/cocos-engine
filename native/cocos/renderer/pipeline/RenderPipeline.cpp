@@ -100,10 +100,6 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
         flow->activate(this);
     }
 
-    //for (auto *const flow : _flows) {
-    //    flow->activate(this);
-    //}
-
     return true;
 }
 
