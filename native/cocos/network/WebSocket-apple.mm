@@ -179,7 +179,7 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
     if (!_isDestroyed) {
         auto codeArg = static_cast<uint16_t>(code);
-        const ccstd::string& reasonArg = reason == nil ? "no_resaon" : ccstd::string([reason UTF8String]);
+        ccstd::string reasonArg = reason == nil ? "no_resaon" : ccstd::string([reason UTF8String]);
         bool wasCleanArg = static_cast<bool>(wasClean);
         _delegate->onClose(_ccws, codeArg, reasonArg, wasCleanArg);
     }
