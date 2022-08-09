@@ -319,7 +319,7 @@ public:
 
     void onOpen(WebSocket *ws) override;
     void onMessage(WebSocket *ws, const WebSocket::Data &data) override;
-    void onClose(WebSocket *ws, uint16_t code, ccstd::string reason, bool wasClean) override;
+    void onClose(WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) override;
     void onError(WebSocket *ws, const WebSocket::ErrorCode &error) override;
 
     void connect();
@@ -873,7 +873,7 @@ void SIOClientImpl::onMessage(WebSocket * /*ws*/, const WebSocket::Data &data) {
     }
 }
 
-void SIOClientImpl::onClose(WebSocket * /*ws*/, uint16_t /*code*/, ccstd::string /*reason*/, bool /*wasClean*/) {
+void SIOClientImpl::onClose(WebSocket * /*ws*/, uint16_t /*code*/, const ccstd::string & /*reason*/, bool /*wasClean*/) {
     if (!_clients.empty()) {
         for (auto &client : _clients) {
             client.second->socketClosed();
