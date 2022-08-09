@@ -53,7 +53,10 @@ export function parse (task: Task) {
             if (item.preset) {
                 js.addon(item, presets[item.preset]);
             }
-            for (const key in item) {
+            // HACK: there is a bug when using for-in statemenet on OpenHarmony
+            const keys = Object.keys(item);
+            for (let i = 0; i < keys.length; ++i) {
+                const key = keys[i];
                 switch (key) {
                 case RequestType.UUID: {
                     const uuid = out.uuid = decodeUuid(item.uuid);

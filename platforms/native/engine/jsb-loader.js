@@ -441,6 +441,9 @@ cc.assetManager.transformPipeline.append(function (task) {
 var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    initJsbDownloader(options.jsbDownloaderMaxTasks, options.jsbDownloaderTimeout);
-    cacheManager.init();
+    // TODO: JsbDownloader and cacheManager is not supported for OpenHarmony for now
+    if (!window.oh) {
+        initJsbDownloader(options.jsbDownloaderMaxTasks, options.jsbDownloaderTimeout);
+        cacheManager.init();
+    }
 };
