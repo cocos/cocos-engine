@@ -529,9 +529,6 @@ void Node::updateWorldTransform() { // NOLINT(misc-no-recursion)
 
     index_t i = 0;
     Node *curr = this;
-    Mat3 mat3;
-    Mat3 m43;
-    Quaternion quat;
     while (curr && curr->getDirtyFlag()) {
         setDirtyNode(i++, curr);
         curr = curr->getParent();
