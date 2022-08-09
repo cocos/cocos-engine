@@ -405,6 +405,10 @@ export class Shadows {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 0;
+        root.onGlobalPipelineStateChanged();
     }
 
     public destroy () {
