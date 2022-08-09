@@ -704,7 +704,7 @@ void Node::setWorldScale(float x, float y, float z) {
     }
 }
 
-const Vec3 &Node::getWorldScale() const {
+const Vec3 &Node::getWorldScale() const { //NOLINT(misc-no-recursion)
     const_cast<Node *>(this)->updateWorldTransform();
     return _worldScale;
 }
