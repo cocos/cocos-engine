@@ -75,7 +75,7 @@ public:
     std::string getExtensions() const { return _extensions; }
 
     void onOpen(const std::string &protocol, const std::string &headers);
-    void onClose(int code);
+    void onClose(int code, const std::string &reason, bool wasClean);
     void onError(int code, const std::string &reason);
     void onStringMessage(const std::string &message);
     void onBinaryMessage(const uint8_t *buf, size_t len);
@@ -218,18 +218,18 @@ void WebSocketImpl::onOpen(const std::string &protocol, const std::string &heade
     }
 }
 
-void WebSocketImpl::onClose(int /*code*/) {
+void WebSocketImpl::onClose(int code, const std::string &reason, bool wasClean) {
     _readyState = WebSocket::State::CLOSED; // update state -> CLOSED
-    _delegate->onClose(_socket);
+    _delegate->onClose(_socket, code, reason, wasClean);
 }
 
-void WebSocketImpl::onError(int code, const std::string & /*reason*/) {
+void WebSocketImpl::onError(int code, const std::string &reason) {
     CC_LOG_DEBUG("WebSocket (%p) onError, state: %d ...", this, (int)_readyState);
     if (_readyState != WebSocket::State::CLOSED) {
         _readyState = WebSocket::State::CLOSED; // update state -> CLOSED
         _delegate->onError(_socket, static_cast<WebSocket::ErrorCode>(code));
     }
-    onClose(code);
+    onClose(code, reason, false);
 }
 
 void WebSocketImpl::onBinaryMessage(const uint8_t *buf, size_t len) {
@@ -382,11 +382,12 @@ JNIEXPORT void JNICALL
 JNI_PATH(nativeOnClosed)(JNIEnv * /*env*/,
                          jobject /*ctx*/,
                          jint code,
-                         jstring /*reason*/,
+                         jstring reason,
                          jlong /*identifier*/,
                          jlong handler) {
     auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
-    RUN_IN_GAMETHREAD(wsOkHttp3->onClose(static_cast<int>(code)));
+    auto closeReason = JniHelper::jstring2string(reason);
+    RUN_IN_GAMETHREAD(wsOkHttp3->onClose(static_cast<int>(code), closeReason, true));
 }
 
 JNIEXPORT void JNICALL
