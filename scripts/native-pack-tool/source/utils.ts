@@ -538,7 +538,7 @@ export class Paths {
         if (params.platform === 'windows') {
             this.platformTemplateDirName = params.platformParams.targetPlatform === "win32" ? "win32" : "win64";
         } else {
-            this.platformTemplateDirName = this.platform;
+            this.platformTemplateDirName = this.platform === 'huawei-agc' ? 'android' : this.platform;
         }
     }
 

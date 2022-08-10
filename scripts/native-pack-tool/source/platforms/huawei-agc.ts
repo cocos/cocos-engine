@@ -23,4 +23,10 @@ export class HuaweiAGCPackTool extends AndroidPackTool {
             this.validateNativeDir();
         }
     }
+
+    protected validatePlatformDirectory(missing: string[]): void {
+        const srcDir = ps.join(this.paths.nativeTemplateDirInCocos, 'android', 'template');
+        const dstDir = this.paths.platformTemplateDirInPrj;
+        this.validateDirectory(srcDir, dstDir, missing);
+    }
 }
