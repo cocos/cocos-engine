@@ -2642,6 +2642,58 @@ static bool js_engine_CCObject_getName(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC_AS_PROP_GET(js_engine_CCObject_getName)
 
+static bool js_engine_Device_getInnerWidth(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cc::Device::getInnerWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getInnerWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getInnerWidth)
+
+static bool js_engine_Device_getInnerHeight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cc::Device::getInnerHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getInnerHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getInnerHeight)
+
+static bool js_engine_Device_getWindowHandler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cc::Device::getWindowHandler();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getWindowHandler : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getWindowHandler)
+
+bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier-naming)
 static bool js_engine_CCObject_isReplicated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
@@ -2702,6 +2754,20 @@ static bool js_engine_CCObject_setHideFlags(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC_AS_PROP_SET(js_engine_CCObject_setHideFlags)
 
+    cls->defineStaticFunction("getInnerWidth", _SE(js_engine_Device_getInnerWidth));
+    cls->defineStaticFunction("getInnerHeight", _SE(js_engine_Device_getInnerHeight));
+    cls->defineStaticFunction("getWindowHandler", _SE(js_engine_Device_getWindowHandler));
+    cls->defineStaticFunction("getDPI", _SE(js_engine_Device_getDPI));
+    cls->defineStaticFunction("getDevicePixelRatio", _SE(js_engine_Device_getDevicePixelRatio));
+    cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_engine_Device_setAccelerometerEnabled));
+    cls->defineStaticFunction("setAccelerometerInterval", _SE(js_engine_Device_setAccelerometerInterval));
+    cls->defineStaticFunction("getDeviceOrientation", _SE(js_engine_Device_getDeviceOrientation));
+    cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel));
+    cls->defineStaticFunction("setKeepScreenOn", _SE(js_engine_Device_setKeepScreenOn));
+    cls->defineStaticFunction("vibrate", _SE(js_engine_Device_vibrate));
+    cls->defineStaticFunction("getBatteryLevel", _SE(js_engine_Device_getBatteryLevel));
+    cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType));
+    cls->defineStaticFunction("getSafeAreaEdge", _SE(js_engine_Device_getSafeAreaEdge));
 static bool js_engine_CCObject_setName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);

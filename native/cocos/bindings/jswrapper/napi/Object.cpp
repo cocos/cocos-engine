@@ -177,6 +177,9 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
     napi_value           outputBuffer;
     void*                outputPtr = nullptr;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_arraybuffer(ScriptEngine::getEnv(), byteLength, &outputPtr, &outputBuffer));
+    if (outputPtr && data && byteLength > 0) {
+        memcpy(outputPtr, data, byteLength);
+    }
     size_t sizeOfEle = 0;
     switch (type) {
         case TypedArrayType::INT8:
@@ -499,7 +502,6 @@ void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /
         if (nativeObject == nullptr) {
             return;
         }
-
         auto iter = NativePtrToObjectMap::find(nativeObject);
         if (iter != NativePtrToObjectMap::end()) {
             Object* obj = iter->second;

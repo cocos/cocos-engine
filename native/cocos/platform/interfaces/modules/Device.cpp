@@ -31,8 +31,27 @@
 #include "platform/interfaces/modules/INetwork.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/IVibrator.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 
 namespace cc {
+
+int Device::getInnerWidth() {
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
+    auto viewSize = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize();
+    return static_cast<int>(viewSize.x);
+}
+
+int Device::getInnerHeight() {
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
+    auto viewSize = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize();
+    return static_cast<int>(viewSize.y);
+}
+
+uint32_t Device::getWindowHandler() {
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
+    auto handler = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler();
+    return static_cast<uint32_t>(handler);
+}
 
 int Device::getDPI() {
     CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
