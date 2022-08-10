@@ -191,7 +191,6 @@ export class Mask extends UIRenderer {
 
         if (JSB) {
             this._renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
-            this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
         }
     }
 
