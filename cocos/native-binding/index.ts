@@ -414,7 +414,13 @@ export declare namespace native {
          */
         constructor(hints: DownloaderHints);
 
+        /**
+         * @en abort a download task, which could be downloaded from last break point.
+         * @zh 中止一个下载任务. 被终止的任务可以在之后被续传.
+         * @param task @en DownloadTask need to abort  @zh 需要中止的下载任务
+         */
         abort(task: DownloadTask): void;
+
         /**
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
