@@ -91,17 +91,13 @@ void CCWGPUCommandBuffer::end() {
     if (pipelineState) {
         if (pipelineState->getBindPoint() == PipelineBindPoint::GRAPHICS) {
             auto *queue = _gpuCommandBufferObj->queue;
-            auto wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
-            wgpuQueueSubmit(queue->gpuQueueObject()->wgpuQueue, 1, &wgpuCommandBuffer);
+            _gpuCommandBufferObj->wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
             wgpuCommandEncoderRelease(_gpuCommandBufferObj->wgpuCommandEncoder);
-            wgpuCommandBufferRelease(wgpuCommandBuffer);
             _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDefaultHandle;
         } else {
             wgpuComputePassEncoderEnd(_gpuCommandBufferObj->wgpuComputeEncoder);
             wgpuComputePassEncoderRelease(_gpuCommandBufferObj->wgpuComputeEncoder);
-            auto wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
-            wgpuQueueSubmit(static_cast<CCWGPUQueue *>(_queue)->gpuQueueObject()->wgpuQueue, 1, &wgpuCommandBuffer);
-            wgpuCommandBufferRelease(wgpuCommandBuffer);
+            _gpuCommandBufferObj->wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
             wgpuCommandEncoderRelease(_gpuCommandBufferObj->wgpuCommandEncoder);
             _gpuCommandBufferObj->wgpuComputeEncoder = wgpuDefaultHandle;
             _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDefaultHandle;
@@ -585,35 +581,40 @@ void CCWGPUCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t 
     uint32_t alignedSize = ceil(size / 4.0) * 4;
     size_t buffSize = alignedSize;
 
-    WGPUBufferDescriptor descriptor = {
-        .nextInChain = nullptr,
-        .label = nullptr,
-        .usage = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc,
-        .size = alignedSize,
-        .mappedAtCreation = true,
-    };
-    WGPUBuffer stagingBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-    auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, alignedSize);
-    memcpy(mappedBuffer, data, size);
-
-    wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
-
     auto *ccBuffer = static_cast<CCWGPUBuffer *>(buff);
     size_t offset = ccBuffer->getOffset();
 
     CCWGPUBufferObject *bufferObj = ccBuffer->gpuBufferObject();
 
     if (_gpuCommandBufferObj->wgpuCommandEncoder) {
-        wgpuCommandEncoderCopyBufferToBuffer(_gpuCommandBufferObj->wgpuCommandEncoder, stagingBuffer, 0, bufferObj->wgpuBuffer, offset, alignedSize);
+        auto stagingBuffer = CCWGPUDevice::getInstance()->stagingBuffer();
+        auto stagingOffset = stagingBuffer->alloc(alignedSize);
+        auto *dst = stagingBuffer->getMappedData(stagingOffset);
+        memcpy(dst, data, size);
+        auto wgpuStagingBuffer = stagingBuffer->getBuffer();
+        wgpuCommandEncoderCopyBufferToBuffer(_gpuCommandBufferObj->wgpuCommandEncoder, wgpuStagingBuffer, static_cast<uint64_t>(stagingOffset), bufferObj->wgpuBuffer, offset, alignedSize);
     } else {
+        WGPUBufferDescriptor descriptor = {
+            .nextInChain = nullptr,
+            .label = nullptr,
+            .usage = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc,
+            .size = alignedSize,
+            .mappedAtCreation = true,
+        };
+        WGPUBuffer stagingBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+        auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, alignedSize);
+        memcpy(mappedBuffer, data, size);
+
+        wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
+
         WGPUCommandEncoder cmdEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
         wgpuCommandEncoderCopyBufferToBuffer(cmdEncoder, stagingBuffer, 0, bufferObj->wgpuBuffer, offset, alignedSize);
         WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(cmdEncoder, nullptr);
         wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &commandBuffer);
         wgpuCommandEncoderRelease(cmdEncoder);
         wgpuCommandBufferRelease(commandBuffer);
+        CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
     }
-    CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
 }
 
 void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
@@ -728,6 +729,17 @@ void CCWGPUCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const B
 
 void CCWGPUCommandBuffer::updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list) {
     buffer->update(list.data(), 0); // indirectBuffer calc size inside.
+}
+
+void CCWGPUCommandBuffer::reset() {
+    _gpuCommandBufferObj->renderPassBegan = false;
+
+    _gpuCommandBufferObj->wgpuCommandBuffer = wgpuDefaultHandle;
+    _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDefaultHandle;
+    _gpuCommandBufferObj->wgpuRenderPassEncoder = wgpuDefaultHandle;
+    _gpuCommandBufferObj->wgpuComputeEncoder = wgpuDefaultHandle;
+
+    CCWGPUStateCache stateCache = {};
 }
 
 } // namespace gfx

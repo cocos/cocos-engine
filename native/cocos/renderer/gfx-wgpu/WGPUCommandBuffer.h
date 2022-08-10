@@ -73,13 +73,15 @@ public:
     void resetQueryPool(QueryPool *queryPool) override{};
     void completeQueryPool(QueryPool *queryPool) override{};
 
-    inline CCWGPUCommandBufferObject *gpuCommandBufferObject() { return _gpuCommandBufferObj; }
+    inline CCWGPUCommandBufferObject *gpuCommandBufferObject() const { return _gpuCommandBufferObj; }
 
     void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
 
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
         this->CommandBuffer::beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
     }
+
+    void reset();
 
     // emscripten export
     EXPORT_EMS(

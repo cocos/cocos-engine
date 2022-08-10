@@ -66,7 +66,11 @@ public:
     }
 
     template <typename T>
-    void moveToTrash(T &t);
+    void moveToTrash(T t);
+
+    CCWGPUStagingBuffer *stagingBuffer() {
+        return _stagingBuffers[_currentFrameIndex];
+    }
 
     void debug();
 
@@ -146,20 +150,21 @@ protected:
     ccstd::vector<CCWGPUSwapchain *> _swapchains;
 
     CCWGPURecycleBin _recycleBin[CC_WGPU_MAX_FRAME_COUNT];
+    CCWGPUStagingBuffer *_stagingBuffers[CC_WGPU_MAX_FRAME_COUNT];
 };
 
 template <>
-inline void CCWGPUDevice::moveToTrash<WGPUBuffer>(WGPUBuffer &t) {
+inline void CCWGPUDevice::moveToTrash<WGPUBuffer>(WGPUBuffer t) {
     _recycleBin[_currentFrameIndex].bufferBin.collect(t);
 }
 
 template <>
-inline void CCWGPUDevice::moveToTrash<WGPUTexture>(WGPUTexture &t) {
+inline void CCWGPUDevice::moveToTrash<WGPUTexture>(WGPUTexture t) {
     _recycleBin[_currentFrameIndex].textureBin.collect(t);
 }
 
 template <>
-inline void CCWGPUDevice::moveToTrash<WGPUQuerySet>(WGPUQuerySet &t) {
+inline void CCWGPUDevice::moveToTrash<WGPUQuerySet>(WGPUQuerySet t) {
     _recycleBin[_currentFrameIndex].queryBin.collect(t);
 }
 

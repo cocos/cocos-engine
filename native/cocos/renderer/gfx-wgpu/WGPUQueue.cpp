@@ -79,12 +79,20 @@ void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     //     wgpuCommandBufferRelease(commandBuff->gpuCommandBufferObject()->wgpuCommandBuffer);
     // }
 
+    CCWGPUDevice::getInstance()->stagingBuffer()->unmap();
+
+    ccstd::vector<WGPUCommandBuffer> wgpuCmdBuffs(count);
     for (size_t i = 0; i < count; ++i) {
-        const auto *cmdBuff = cmdBuffs[i];
+        const auto *cmdBuff = static_cast<CCWGPUCommandBuffer *>(cmdBuffs[i]);
+        wgpuCmdBuffs[i] = cmdBuff->gpuCommandBufferObject()->wgpuCommandBuffer;
+
         _numDrawCalls += cmdBuff->getNumDrawCalls();
         _numInstances += cmdBuff->getNumInstances();
         _numTriangles += cmdBuff->getNumTris();
     }
+
+    wgpuQueueSubmit(_gpuQueueObject->wgpuQueue, count, wgpuCmdBuffs.data());
+    std::for_each(wgpuCmdBuffs.begin(), wgpuCmdBuffs.end(), [](auto wgpuCmdBuffer) { wgpuCommandBufferRelease(wgpuCmdBuffer); });
 
     auto *recycleBin = CCWGPUDevice::getInstance()->recycleBin();
     wgpuQueueOnSubmittedWorkDone(_gpuQueueObject->wgpuQueue, 0, wgpuQueueSubmitCallback, recycleBin);

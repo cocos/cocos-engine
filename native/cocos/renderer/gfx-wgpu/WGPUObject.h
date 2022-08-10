@@ -229,6 +229,7 @@ struct CCWGPUStateCache {
 struct CCWGPUCommandBufferObject {
     bool renderPassBegan = false;
 
+    WGPUCommandBuffer wgpuCommandBuffer = wgpuDefaultHandle;
     WGPUCommandEncoder wgpuCommandEncoder = wgpuDefaultHandle;
     WGPURenderPassEncoder wgpuRenderPassEncoder = wgpuDefaultHandle;
     WGPUComputePassEncoder wgpuComputeEncoder = wgpuDefaultHandle;
@@ -296,32 +297,33 @@ struct CCWGPURecycleBin {
     RecycleBin<WGPUQuerySet> queryBin;
 };
 
-void onStagingBufferMapDone(WGPUBufferMapAsyncStatus status, void *userdata) {
+namespace {
+inline void onStagingBufferMapDone(WGPUBufferMapAsyncStatus status, void *userdata) {
     if (status == WGPUBufferMapAsyncStatus_Success) {
         auto *semaphore = static_cast<Semaphore *>(userdata);
         semaphore->signal();
     }
 }
-
+} // namespace
 constexpr uint32_t INIT_BUFFER_SIZE = 1024 * 1024 * 1; // 1MB
 
 class CCWGPUStagingBuffer {
-    CCWGPUStagingBuffer() = default;
-    ~CCWGPUStagingBuffer() = default;
     CCWGPUStagingBuffer(const CCWGPUStagingBuffer &) = delete;
     CCWGPUStagingBuffer &operator=(const CCWGPUStagingBuffer &) = delete;
+    CCWGPUStagingBuffer() = default;
+    ~CCWGPUStagingBuffer() = default;
 
 public:
-    explicit CCWGPUStagingBuffer(WGPUDevice device, std::function<void(WGPUBuffer &)> recyleFunc)
+    explicit CCWGPUStagingBuffer(WGPUDevice device, std::function<void(WGPUBuffer)> recycleFunc)
     : _device(device), _size(INIT_BUFFER_SIZE), _recycleFunc(recycleFunc) {
-        _buffer = wgpuDeviceCreateBuffer(device, &(WGPUBufferDescriptor){
-                                                     .label = "staging buffer",
-                                                     .usage = WGPUBufferUsage_CopySrc | WGPUBufferUsage_MapWrite,
-                                                     .size = size,
-                                                     .mappedAtCreation = true,
-                                                 });
-
-        _mappedData = wgpuBufferGetMappedRange(_buffer, 0, size);
+        WGPUBufferDescriptor desc = {
+            .label = "staging buffer",
+            .usage = WGPUBufferUsage_CopySrc | WGPUBufferUsage_MapWrite,
+            .size = _size,
+            .mappedAtCreation = true,
+        };
+        _buffer = wgpuDeviceCreateBuffer(device, &desc);
+        _mappedData = wgpuBufferGetMappedRange(_buffer, 0, _size);
     }
 
     uint32_t alloc(uint32_t size) {
@@ -330,28 +332,29 @@ public:
             Semaphore sem{0};
             wgpuBufferMapAsync(_buffer, WGPUMapMode_Write, 0, _size, onStagingBufferMapDone, &sem);
             sem.wait();
-            _mappedData = wgpuBufferGetMappedRange(_buffer, 0, size);
+            _mappedData = wgpuBufferGetMappedRange(_buffer, 0, _size);
             _mapped = true;
         }
 
-        const oldOffset = _offset;
+        const auto oldOffset = _offset;
         if (_offset + size > _size) {
-            const oldBuffer = _buffer;
-            const oldSize = _size;
-            const oldMappedData = _mappedData;
+            const auto oldBuffer = _buffer;
+            const auto oldSize = _size;
+            const auto *oldMappedData = _mappedData;
 
-            _size = nextPOT(_offset + size);
-            _buffer = wgpuDeviceCreateBuffer(_device, &(WGPUBufferDescriptor){
-                                                          .label = "staging buffer",
-                                                          .usage = WGPUBufferUsage_CopySrc | WGPUBufferUsage_MapWrite,
-                                                          .size = _size,
-                                                          .mappedAtCreation = true,
-                                                      });
+            _size = utils::nextPOT(_offset + size);
+            WGPUBufferDescriptor desc = {
+                .label = "staging buffer",
+                .usage = WGPUBufferUsage_CopySrc | WGPUBufferUsage_MapWrite,
+                .size = _size,
+                .mappedAtCreation = true,
+            };
+            _buffer = wgpuDeviceCreateBuffer(_device, &desc);
             _mappedData = wgpuBufferGetMappedRange(_buffer, 0, _size);
             _offset = 0;
 
             if (_mapped) {
-                memccpy(_mappedData, oldMappedData, oldSize);
+                memcpy(_mappedData, oldMappedData, oldSize);
                 _offset = oldOffset;
             } else {
                 // do nothing, unmap means this buffer has flush its data to gpu
@@ -379,8 +382,12 @@ public:
         _offset = 0;
     }
 
-    void *getMappedData() {
-        return _mappedData;
+    void *getMappedData(uint32_t offset) {
+        return static_cast<uint8_t *>(_mappedData) + offset;
+    }
+
+    WGPUBuffer getBuffer() {
+        return _buffer;
     }
 
 private:
@@ -389,7 +396,7 @@ private:
     void *_mappedData{nullptr};
     uint32_t _size{0};
     uint32_t _offset{0};
-    std::function<void(WGPUBuffer &)> _recycleFunc;
+    std::function<void(WGPUBuffer)> _recycleFunc;
     bool _mapped{false};
 };
 
