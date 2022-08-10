@@ -958,10 +958,6 @@ export class ArmatureDisplay extends UIRenderer {
         return Array.from(this._cachedSockets.keys()).sort();
     }
 
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
-    }
-
     /**
      * @en Query socket path with slot or bone name.
      * @zh 查询 Socket 路径

@@ -611,7 +611,7 @@ int aabbFrustum(const AABB &aabb, const Frustum &frustum) {
     return 1;
 }
 
-int aabbFrustumCompletelyInside(const AABB& aabb, const Frustum& frustum) {
+int aabbFrustumCompletelyInside(const AABB &aabb, const Frustum &frustum) {
     for (const auto &plane : frustum.planes) {
         // frustum plane normal points to the inside
         if (aabbPlane(aabb, *plane) == 0) {

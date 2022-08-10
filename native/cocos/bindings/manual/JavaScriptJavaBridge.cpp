@@ -575,7 +575,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
                             jargs[i].l = nullptr;
                         } else {
                             ccstd::string str;
-                            sevalue_to_native(args[index], &str);
+                            seval_to_std_string(args[index], &str);
                             jargs[i].l = call.getEnv()->NewStringUTF(str.c_str());
                             toReleaseObjects.push_back(jargs[i].l);
                         }

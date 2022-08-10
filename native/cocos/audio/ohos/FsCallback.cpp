@@ -27,8 +27,8 @@
 
 #include <rawfile/raw_dir.h>
 #include <rawfile/raw_file.h>
-#include "platform/ohos/FileUtils-ohos.h"
 #include "base/memory/Memory.h"
+#include "platform/ohos/FileUtils-ohos.h"
 
 namespace {
 inline cc::FileUtilsOHOS *getFU() {

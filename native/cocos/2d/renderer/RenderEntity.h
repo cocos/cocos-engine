@@ -73,6 +73,7 @@ public:
     void setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index);
     void removeDynamicRenderDrawInfo();
     void clearDynamicRenderDrawInfos();
+    void clearStaticRenderDrawInfos();
 
     inline bool getIsMask() const {
         return static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK || static_cast<MaskMode>(_entityAttrLayout.maskMode) == MaskMode::MASK_INVERTED;

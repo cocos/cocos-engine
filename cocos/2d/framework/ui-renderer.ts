@@ -209,13 +209,6 @@ export class UIRenderer extends Renderer {
     /**
      * @internal
      */
-    get blendHash () {
-        return this._blendHash;
-    }
-
-    /**
-     * @internal
-     */
     get useVertexOpacity () {
         return this._useVertexOpacity;
     }
@@ -257,8 +250,8 @@ export class UIRenderer extends Renderer {
     protected _renderEntity: RenderEntity;
 
     protected _instanceMaterialType = -1;
-    protected _blendState: BlendState = new BlendState();
-    protected _blendHash = 0;
+    protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
+    protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
     /**
      * @internal
      */
@@ -336,18 +329,6 @@ export class UIRenderer extends Renderer {
                 if (instance) { instance.destroy(); }
             }
         }
-        if (this._blendState) {
-            this._blendState.destroy();
-        }
-    }
-
-    /**
-     * @en Update the hash for the blend states.
-     * @zh 更新混合模式的哈希值标记
-     */
-    public updateBlendHash () {
-        const dst = this._blendState.targets[0].blendDst << 4;
-        this._blendHash = dst | this._blendState.targets[0].blendSrc;
     }
 
     /**
@@ -385,6 +366,7 @@ export class UIRenderer extends Renderer {
         if (!this.renderData) {
             return;
         }
+        this.renderData.removeRenderDrawInfo(this);
         RenderData.remove(this.renderData);
         this._renderData = null;
     }
@@ -437,7 +419,6 @@ export class UIRenderer extends Renderer {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
-            this._blendHash = -1; // a flag to check merge
             return;
         }
         const mat = this._updateBuiltinMaterial();
@@ -464,7 +445,6 @@ export class UIRenderer extends Renderer {
         const render = node._uiProps.uiComp as UIRenderer;
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render._renderEntity.colorDirty = dirty;
-            render._renderEntity.color = render.color;// necessity to be considering
         }
         for (let i = 0; i < node.children.length; i++) {
             UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
@@ -500,25 +480,22 @@ export class UIRenderer extends Renderer {
      */
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]
-        let target = this._blendState.targets[0];
-        if (!target) {
-            target = new BlendTarget();
-            this._blendState.setTarget(0, target);
-        }
-        if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+        let target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+        this._dstBlendFactorCache = target.blendDst;
+        this._srcBlendFactorCache = target.blendSrc;
+        if (this._dstBlendFactorCache !== this._dstBlendFactor || this._srcBlendFactorCache !== this._srcBlendFactor) {
+            target = this.getMaterialInstance(0)!.passes[0].blendState.targets[0];
             target.blend = true;
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            if (this.renderData) {
-                this.renderData.passDirty = true;
-            }
+            const targetPass = this.getMaterialInstance(0)!.passes[0];
+            targetPass.blendState.setTarget(0, target);
+            // @ts-expect-error hack for UI use pass object
+            targetPass._updatePassHash();
+            this._dstBlendFactorCache = this._dstBlendFactor;
+            this._srcBlendFactorCache = this._srcBlendFactor;
         }
-        this.updateBlendHash();
-    }
-
-    public getBlendState () {
-        return this._blendState;
     }
 
     // pos, rot, scale changed

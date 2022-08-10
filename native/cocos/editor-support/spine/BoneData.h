@@ -30,9 +30,9 @@
 #ifndef Spine_BoneData_h
 #define Spine_BoneData_h
 
-#include <spine/TransformMode.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
+#include <spine/TransformMode.h>
 
 namespace spine {
 class SP_API BoneData : public SpineObject {

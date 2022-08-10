@@ -107,12 +107,12 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: IBatcher) {
+    public fillPasses (mat: Material | null, dss, dssHash, patches) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
 
-            let hashFactor = 0;
+            const hashFactor = 0;
             let dirty = false;
 
             this._shaders.length = passes.length;
@@ -127,14 +127,10 @@ export class DrawBatch2D {
                 mtlPass.update();
 
                 // Hack: Cause pass.hash can not check all pass value
-
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
-                if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
-                if (bsHash === -1) { bsHash = 0; }
 
-                hashFactor = (dssHash << 16) | bsHash;
                 // @ts-expect-error hack for UI use pass object
-                passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
+                passInUse._initPassFromTarget(mtlPass, dss, dssHash);
 
                 this._shaders[i] = passInUse.getShaderVariant(patches)!;
 

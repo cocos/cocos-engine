@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in TypeScript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
@@ -43,7 +43,7 @@
     "@types/yargs": "^12.0.14",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
-    "async": "^2.6.1",
+    "async": "^2.6.4",
     "chalk": "^2.4.1",
     "child_process": "^1.0.2",
     "commander": "^2.20.3",

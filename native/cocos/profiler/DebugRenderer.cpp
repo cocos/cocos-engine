@@ -66,9 +66,9 @@ inline uint32_t getFontIndex(bool bold, bool italic) {
 inline ccstd::string getFontPath(uint32_t index) {
     // stanley todo: use readable names later.
     static const ccstd::string UUIDS[DEBUG_FONT_COUNT] = {
-        "OpenSans-Regular", //"OpenSans-Regular",
-        "OpenSans-Bold", //"OpenSans-Bold",
-        "OpenSans-Italic", //"OpenSans-Italic",
+        "OpenSans-Regular",    //"OpenSans-Regular",
+        "OpenSans-Bold",       //"OpenSans-Bold",
+        "OpenSans-Italic",     //"OpenSans-Italic",
         "OpenSans-BoldItalic", //"OpenSans-BoldItalic"
     };
 

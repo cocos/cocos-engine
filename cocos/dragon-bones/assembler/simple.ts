@@ -114,7 +114,6 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
         dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
-    _comp!.setBlendHash();
     return _comp!.getMaterialForBlend(src, dst);
 }
 

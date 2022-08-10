@@ -57,7 +57,6 @@ Material::Material() {
 Material::~Material() = default;
 
 void Material::initialize(const IMaterialInfo &info) {
-
     auto &passes = *_passes;
     if (!passes.empty()) {
         debug::warnID(12005);

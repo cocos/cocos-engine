@@ -30,10 +30,10 @@
 #ifndef Spine_IkConstraintData_h
 #define Spine_IkConstraintData_h
 
-#include <spine/Vector.h>
+#include <spine/ConstraintData.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
-#include <spine/ConstraintData.h>
+#include <spine/Vector.h>
 
 namespace spine {
 class BoneData;

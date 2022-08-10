@@ -29,8 +29,8 @@
 namespace cc {
 class CC_DLL FileUtilsLinux : public FileUtils {
 public:
-	FileUtilsLinux();
-	~FileUtilsLinux() override = default;
+    FileUtilsLinux();
+    ~FileUtilsLinux() override = default;
 
     bool isFileExistInternal(const ccstd::string &filename) const override;
     ccstd::string getWritablePath() const override;

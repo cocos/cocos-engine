@@ -1,11 +1,11 @@
 #include "ArmatureData.h"
-#include "UserData.h"
-#include "DragonBonesData.h"
-#include "ConstraintData.h"
-#include "CanvasData.h"
-#include "SkinData.h"
-#include "DisplayData.h"
 #include "AnimationData.h"
+#include "CanvasData.h"
+#include "ConstraintData.h"
+#include "DisplayData.h"
+#include "DragonBonesData.h"
+#include "SkinData.h"
+#include "UserData.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 

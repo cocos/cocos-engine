@@ -46,6 +46,7 @@ export declare class NativeRenderEntity {
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);
     removeDynamicRenderDrawInfo();
     clearDynamicRenderDrawInfos();
+    clearStaticRenderDrawInfos();
 
     get node(): Node | null;
     set node(node: Node | null);
@@ -65,6 +66,8 @@ export declare class NativeUIMeshBuffer {
     set vData(val: Float32Array);
     get iData(): Uint16Array;
     set iData(val: Uint16Array);
+    get useLinkData(): boolean;
+    set useLinkData(val: boolean);
 
     syncSharedBufferToNative(data: TypedArray);
 

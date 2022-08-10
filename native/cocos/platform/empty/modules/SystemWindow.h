@@ -45,7 +45,7 @@ public:
     void setCursorEnabled(bool value) override;
     void copyTextToClipboard(const std::string& text) override;
 
-    int  init();
+    int init();
     void pollEvent(bool* quit);
     void swapWindow();
 

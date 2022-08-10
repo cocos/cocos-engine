@@ -39,11 +39,9 @@ enum class AudioDataFormat {
     FLOAT_64,
 };
 struct PCMHeader {
-    uint32_t totalFrames {0};
-    uint32_t bytesPerFrame {0};
-    uint32_t sampleRate {0};
-    uint32_t channelCount {0};
-    AudioDataFormat dataFormat {AudioDataFormat::UNKNOWN};
+    uint32_t totalFrames{0};
+    uint32_t bytesPerFrame{0};
+    uint32_t sampleRate{0};
+    uint32_t channelCount{0};
+    AudioDataFormat dataFormat{AudioDataFormat::UNKNOWN};
 };
-
-

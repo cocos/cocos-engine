@@ -1599,7 +1599,7 @@ DragonBonesData *JSONDataParser::_parseDragonBonesData(const rapidjson::Value &r
                 const auto l6 = _timelineArray.size() * 2;
 
                 // NOTE: binary is freed in DragonBonesData::_onClear
-                char* binary = static_cast<char*>(malloc((l1 + l2 + l3 + l4 + l5 + l6) * sizeof(char)));
+                char *binary = static_cast<char *>(malloc((l1 + l2 + l3 + l4 + l5 + l6) * sizeof(char)));
                 auto intArray = (int16_t *)binary;
                 auto floatArray = (float *)(binary + l1);
                 auto frameIntArray = (int16_t *)(binary + l1 + l2);

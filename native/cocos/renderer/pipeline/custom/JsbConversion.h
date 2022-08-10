@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #pragma once
+#include "base/std/container/map.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
-#include "base/std/container/map.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "renderer/pipeline/custom/Map.h"
 

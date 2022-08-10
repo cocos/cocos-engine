@@ -1388,18 +1388,6 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    protected updateMaterial () {
-        if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
-            this._blendHash = -1; // a flag to check merge
-            return;
-        }
-        const mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
-        this._updateBlendFunc();
-        this._blendHash = -1;
-    }
-
     public querySockets () {
         if (!this._skeleton) {
             return [];

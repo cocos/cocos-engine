@@ -272,7 +272,6 @@ void FileServer::loopReceiveFile() {
     char *protoBuf = new char[MAXPROTOLENGTH];
 
     while (!_receiveEndThread) {
-
         // recv start flag
         char startflag[13] = {0};
         recvBuf(fd, startflag, sizeof(startflag) - 1);

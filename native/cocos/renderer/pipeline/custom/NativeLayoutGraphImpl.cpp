@@ -49,7 +49,7 @@ uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uin
     return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
 }
 
-void NativeLayoutGraphBuilder::addShader(const ccstd::string& name, uint32_t parentPhaseID) {
+void NativeLayoutGraphBuilder::addShader(const ccstd::string &name, uint32_t parentPhaseID) {
     auto res = data->shaderLayoutIndex.emplace(name.c_str(), parentPhaseID);
     CC_ENSURES(res.second);
 }
@@ -103,7 +103,7 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
     layout.capacity += block.capacity;
 }
 
-void NativeLayoutGraphBuilder::addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const ccstd::string& name, const gfx::UniformBlock& uniformBlock) {
+void NativeLayoutGraphBuilder::addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const ccstd::string &name, const gfx::UniformBlock &uniformBlock) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
     auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;

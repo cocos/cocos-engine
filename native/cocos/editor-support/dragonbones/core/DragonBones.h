@@ -23,16 +23,16 @@
 #ifndef DRAGONBONES_H
 #define DRAGONBONES_H
 
+#include <assert.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <string>
-#include <algorithm>
-#include <vector>
-#include <map>
-#include <tuple>
 #include <functional>
+#include <map>
 #include <sstream>
-#include <assert.h>
+#include <string>
+#include <tuple>
+#include <vector>
 // dragonBones assert
 #define DRAGONBONES_ASSERT(cond, msg) \
     do {                              \

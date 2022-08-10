@@ -63,10 +63,10 @@
 
 using namespace cc;
 
-static WNDPROC   g_oldWindowProc = NULL;
+static WNDPROC g_oldWindowProc = NULL;
 INT_PTR CALLBACK AboutDialogCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     LOGFONT lf;
-    HFONT   hFont;
+    HFONT hFont;
 
     UNREFERENCED_PARAMETER(lParam);
     switch (message) {
@@ -94,7 +94,7 @@ INT_PTR CALLBACK AboutDialogCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 
 void onHelpAbout() {
     ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    HWND           windowHandler    = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
+    HWND windowHandler = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     DialogBox(GetModuleHandle(NULL),
               MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
               windowHandler,
@@ -103,7 +103,7 @@ void onHelpAbout() {
 
 void shutDownApp() {
     ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    HWND           windowHandler    = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
+    HWND windowHandler = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     ::SendMessage(windowHandler, WM_CLOSE, NULL, NULL);
 }
 
@@ -117,12 +117,12 @@ std::string getCurAppPath(void) {
             nEnd = i;
     }
     szAppDir[nEnd] = 0;
-    int   iLen     = 2 * wcslen(szAppDir);
-    char* chRtn    = new char[iLen + 1];
+    int iLen = 2 * wcslen(szAppDir);
+    char* chRtn = new char[iLen + 1];
     wcstombs(chRtn, szAppDir, iLen + 1);
     std::string strPath = chRtn;
     delete[] chRtn;
-    chRtn                 = NULL;
+    chRtn = NULL;
     char fuldir[MAX_PATH] = {0};
     _fullpath(fuldir, strPath.c_str(), MAX_PATH);
     return fuldir;
@@ -168,7 +168,7 @@ void SimulatorApp::openNewPlayer() {
 }
 
 void SimulatorApp::openNewPlayerWithProjectConfig(const ProjectConfig& config) {
-    static long  taskid = 100;
+    static long taskid = 100;
     stringstream buf;
     buf << taskid++;
 
@@ -181,11 +181,11 @@ void SimulatorApp::openNewPlayerWithProjectConfig(const ProjectConfig& config) {
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
     SECURITY_ATTRIBUTES sa = {0};
-    sa.nLength             = sizeof(sa);
+    sa.nLength = sizeof(sa);
 
     PROCESS_INFORMATION pi = {0};
-    STARTUPINFO         si = {0};
-    si.cb                  = sizeof(STARTUPINFO);
+    STARTUPINFO si = {0};
+    si.cb = sizeof(STARTUPINFO);
 
 #define MAX_COMMAND 1024 // lenth of commandLine is always beyond MAX_PATH
 
@@ -230,7 +230,7 @@ int SimulatorApp::run() {
     createFileUtils();
     INITCOMMONCONTROLSEX InitCtrls;
     InitCtrls.dwSize = sizeof(InitCtrls);
-    InitCtrls.dwICC  = ICC_WIN95_CLASSES;
+    InitCtrls.dwICC = ICC_WIN95_CLASSES;
     InitCommonControlsEx(&InitCtrls);
 
     parseCocosProjectConfig(_project);
@@ -239,7 +239,7 @@ int SimulatorApp::run() {
     std::vector<string> args;
     for (int i = 0; i < __argc; ++i) {
         wstring ws(__wargv[i]);
-        string  s;
+        string s;
         s.assign(ws.begin(), ws.end());
         args.push_back(s);
     }
@@ -276,7 +276,7 @@ int SimulatorApp::run() {
     // log file
     if (_project.isWriteDebugLogToFile()) {
         const string debugLogFilePath = _project.getDebugLogFilePath();
-        _writeDebugLogFile            = fopen(debugLogFilePath.c_str(), "w");
+        _writeDebugLogFile = fopen(debugLogFilePath.c_str(), "w");
         if (!_writeDebugLogFile) {
             CC_LOG_DEBUG("Cannot create debug log file %s", debugLogFilePath.c_str());
         }
@@ -289,7 +289,7 @@ int SimulatorApp::run() {
 
     // check screen DPI
     HDC screen = GetDC(0);
-    int dpi    = GetDeviceCaps(screen, LOGPIXELSX);
+    int dpi = GetDeviceCaps(screen, LOGPIXELSX);
     ReleaseDC(0, screen);
 
     // set scale with DPI
@@ -312,8 +312,8 @@ int SimulatorApp::run() {
     CC_LOG_DEBUG("SCREEN DPI = %d, SCREEN SCALE = %0.2f", dpi, screenScale);
 
     // check scale
-    cc::Size frameSize  = _project.getFrameSize();
-    float    frameScale = _project.getFrameScale();
+    cc::Size frameSize = _project.getFrameSize();
+    float frameScale = _project.getFrameScale();
     if (_project.isRetinaDisplay()) {
         frameSize.width *= screenScale;
         frameSize.height *= screenScale;
@@ -324,10 +324,10 @@ int SimulatorApp::run() {
     // check screen workarea
     RECT workareaSize;
     if (SystemParametersInfo(SPI_GETWORKAREA, NULL, &workareaSize, NULL)) {
-        float workareaWidth  = fabsf(workareaSize.right - workareaSize.left);
+        float workareaWidth = fabsf(workareaSize.right - workareaSize.left);
         float workareaHeight = fabsf(workareaSize.bottom - workareaSize.top);
-        float frameBorderCX  = GetSystemMetrics(SM_CXSIZEFRAME);
-        float frameBorderCY  = GetSystemMetrics(SM_CYSIZEFRAME);
+        float frameBorderCX = GetSystemMetrics(SM_CXSIZEFRAME);
+        float frameBorderCY = GetSystemMetrics(SM_CYSIZEFRAME);
         workareaWidth -= frameBorderCX * 2;
         workareaHeight -= (frameBorderCY * 2 + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU));
         CC_LOG_DEBUG("WORKAREA WIDTH %0.2f, HEIGHT %0.2f", workareaWidth, workareaHeight);
@@ -347,7 +347,7 @@ int SimulatorApp::run() {
     // create opengl view
     const Rect frameRect = Rect(0, 0, frameSize.width, frameSize.height);
     ConfigParser::getInstance()->setInitViewSize(frameSize);
-    const bool        isResize = _project.isResizeWindow();
+    const bool isResize = _project.isResizeWindow();
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
 
@@ -357,7 +357,7 @@ int SimulatorApp::run() {
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
     ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    _hwnd                           = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
+    _hwnd = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     player::PlayerWin::createWithHwnd(_hwnd);
     DragAcceptFiles(_hwnd, TRUE);
     // SendMessage(_hwnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
@@ -409,11 +409,11 @@ void SimulatorApp::setupUI() {
 
     // VIEW
     menuBar->addItem("VIEW_MENU", tr("View"));
-    SimulatorConfig* config  = SimulatorConfig::getInstance();
-    int              current = config->checkScreenSize(_project.getFrameSize());
+    SimulatorConfig* config = SimulatorConfig::getInstance();
+    int current = config->checkScreenSize(_project.getFrameSize());
     for (int i = 0; i < config->getScreenSizeCount(); i++) {
         SimulatorScreenSize size = config->getScreenSize(i);
-        std::stringstream   menuId;
+        std::stringstream menuId;
         menuId << "VIEWSIZE_ITEM_MENU_" << i;
         auto menuItem = menuBar->addItem(menuId.str(), size.title.c_str(), "VIEW_MENU");
 
@@ -423,8 +423,8 @@ void SimulatorApp::setupUI() {
     }
 
     // show FPs
-    bool   displayStats = true; // asume creator default show FPS
-    string fpsItemName  = displayStats ? tr("Hide FPS") : tr("Show FPS");
+    bool displayStats = true; // asume creator default show FPS
+    string fpsItemName = displayStats ? tr("Hide FPS") : tr("Show FPS");
     menuBar->addItem("FPS_MENU", fpsItemName);
 
     // About
@@ -439,11 +439,11 @@ void SimulatorApp::setupUI() {
 
     menuBar->addItem("VIEW_SCALE_MENU_SEP", "-", "VIEW_MENU");
     std::vector<player::PlayerMenuItem*> scaleMenuVector;
-    auto                                 scale100Menu = menuBar->addItem("VIEW_SCALE_MENU_100", tr("Zoom Out").append(" (100%)"), "VIEW_MENU");
-    auto                                 scale75Menu  = menuBar->addItem("VIEW_SCALE_MENU_75", tr("Zoom Out").append(" (75%)"), "VIEW_MENU");
-    auto                                 scale50Menu  = menuBar->addItem("VIEW_SCALE_MENU_50", tr("Zoom Out").append(" (50%)"), "VIEW_MENU");
-    auto                                 scale25Menu  = menuBar->addItem("VIEW_SCALE_MENU_25", tr("Zoom Out").append(" (25%)"), "VIEW_MENU");
-    int                                  frameScale   = int(_project.getFrameScale() * 100);
+    auto scale100Menu = menuBar->addItem("VIEW_SCALE_MENU_100", tr("Zoom Out").append(" (100%)"), "VIEW_MENU");
+    auto scale75Menu = menuBar->addItem("VIEW_SCALE_MENU_75", tr("Zoom Out").append(" (75%)"), "VIEW_MENU");
+    auto scale50Menu = menuBar->addItem("VIEW_SCALE_MENU_50", tr("Zoom Out").append(" (50%)"), "VIEW_MENU");
+    auto scale25Menu = menuBar->addItem("VIEW_SCALE_MENU_25", tr("Zoom Out").append(" (25%)"), "VIEW_MENU");
+    int frameScale = int(_project.getFrameScale() * 100);
 
     if (frameScale == 100) {
         scale100Menu->setChecked(true);
@@ -465,10 +465,10 @@ void SimulatorApp::setupUI() {
     menuBar->addItem("REFRESH_MENU_SEP", "-", "VIEW_MENU");
     menuBar->addItem("REFRESH_MENU", tr("Refresh"), "VIEW_MENU");
 
-    HWND&                                hwnd     = _hwnd;
-    ProjectConfig&                       project  = _project;
+    HWND& hwnd = _hwnd;
+    ProjectConfig& project = _project;
     EventDispatcher::CustomEventListener listener = [this, &hwnd, &project, scaleMenuVector](const CustomEvent& event) {
-        auto                menuEvent = dynamic_cast<const CustomAppEvent&>(event);
+        auto menuEvent = dynamic_cast<const CustomAppEvent&>(event);
         rapidjson::Document dArgParse;
         dArgParse.Parse<0>(menuEvent.getDataString().c_str());
         if (dArgParse.HasMember("name")) {
@@ -489,16 +489,16 @@ void SimulatorApp::setupUI() {
                         _instance->relaunch();
                     } else if (data.find("VIEW_SCALE_MENU_") == 0) // begin with VIEW_SCALE_MENU_
                     {
-                        string tmp   = data.erase(0, strlen("VIEW_SCALE_MENU_"));
-                        float  scale = atof(tmp.c_str()) / 100.0f;
+                        string tmp = data.erase(0, strlen("VIEW_SCALE_MENU_"));
+                        float scale = atof(tmp.c_str()) / 100.0f;
                         project.setFrameScale(scale);
 
                         _instance->openProjectWithProjectConfig(project);
                     } else if (data.find("VIEWSIZE_ITEM_MENU_") == 0) // begin with VIEWSIZE_ITEM_MENU_
                     {
-                        string              tmp   = data.erase(0, strlen("VIEWSIZE_ITEM_MENU_"));
-                        int                 index = atoi(tmp.c_str());
-                        SimulatorScreenSize size  = SimulatorConfig::getInstance()->getScreenSize(index);
+                        string tmp = data.erase(0, strlen("VIEWSIZE_ITEM_MENU_"));
+                        int index = atoi(tmp.c_str());
+                        SimulatorScreenSize size = SimulatorConfig::getInstance()->getScreenSize(index);
 
                         if (project.isLandscapeFrame()) {
                             std::swap(size.width, size.height);
@@ -516,8 +516,8 @@ void SimulatorApp::setupUI() {
                     } else if (data == "ABOUT_MENUITEM") {
                         onHelpAbout();
                     } else if (data == "FPS_MENU") {
-                        IScreen* screenIntf   = CC_GET_PLATFORM_INTERFACE(IScreen);
-                        bool     displayStats = !screenIntf->isDisplayStats();
+                        IScreen* screenIntf = CC_GET_PLATFORM_INTERFACE(IScreen);
+                        bool displayStats = !screenIntf->isDisplayStats();
                         screenIntf->setDisplayStats(displayStats);
                         menuItem->setTitle(displayStats ? tr("Hide FPS") : tr("Show FPS"));
                     }
@@ -556,7 +556,7 @@ void SimulatorApp::parseCocosProjectConfig(ProjectConfig& config) {
     std::vector<string> args;
     for (int i = 0; i < __argc; ++i) {
         wstring ws(__wargv[i]);
-        string  s;
+        string s;
         s.assign(ws.begin(), ws.end());
         args.push_back(s);
     }
@@ -613,7 +613,7 @@ void SimulatorApp::parseCocosProjectConfig(ProjectConfig& config) {
 //
 std::string SimulatorApp::convertPathFormatToUnixStyle(const std::string& path) {
     std::string ret = path;
-    int         len = ret.length();
+    int len = ret.length();
     for (int i = 0; i < len; ++i) {
         if (ret[i] == '\\') {
             ret[i] = '/';
@@ -628,7 +628,7 @@ std::string SimulatorApp::convertPathFormatToUnixStyle(const std::string& path) 
 std::string SimulatorApp::getUserDocumentPath() {
     TCHAR filePath[MAX_PATH];
     SHGetSpecialFolderPath(NULL, filePath, CSIDL_PERSONAL, FALSE);
-    int   length     = 2 * wcslen(filePath);
+    int length = 2 * wcslen(filePath);
     char* tempstring = new char[length + 1];
     wcstombs(tempstring, filePath, length + 1);
     string userDocumentPath(tempstring);
@@ -645,20 +645,20 @@ std::string SimulatorApp::getUserDocumentPath() {
 //
 char* SimulatorApp::convertTCharToUtf8(const TCHAR* src) {
 #ifdef UNICODE
-    WCHAR* tmp  = (WCHAR*)src;
+    WCHAR* tmp = (WCHAR*)src;
     size_t size = wcslen(src) * 3 + 1;
-    char*  dest = new char[size];
+    char* dest = new char[size];
     memset(dest, 0, size);
     WideCharToMultiByte(CP_UTF8, 0, tmp, -1, dest, size, NULL, NULL);
     return dest;
 #else
-    char*  tmp  = (char*)src;
+    char* tmp = (char*)src;
     uint32 size = strlen(tmp) + 1;
     WCHAR* dest = new WCHAR[size];
     memset(dest, 0, sizeof(WCHAR) * size);
     MultiByteToWideChar(CP_ACP, 0, src, -1, dest, (int)size); // convert local code to unicode.
 
-    size        = wcslen(dest) * 3 + 1;
+    size = wcslen(dest) * 3 + 1;
     char* dest2 = new char[size];
     memset(dest2, 0, size);
     WideCharToMultiByte(CP_UTF8, 0, dest, -1, dest2, size, NULL, NULL); // convert unicode to utf8.
@@ -672,8 +672,8 @@ std::string SimulatorApp::getApplicationExePath() {
     TCHAR szFileName[MAX_PATH];
     GetModuleFileName(NULL, szFileName, MAX_PATH);
     std::u16string u16ApplicationName;
-    char*          applicationExePath = convertTCharToUtf8(szFileName);
-    std::string    path(applicationExePath);
+    char* applicationExePath = convertTCharToUtf8(szFileName);
+    std::string path(applicationExePath);
     CC_SAFE_FREE(applicationExePath);
 
     return path;
@@ -681,7 +681,7 @@ std::string SimulatorApp::getApplicationExePath() {
 
 std::string SimulatorApp::getApplicationPath() {
     std::string path = getApplicationExePath();
-    size_t      pos;
+    size_t pos;
     while ((pos = path.find_first_of("\\")) != std::string::npos) {
         path.replace(pos, 1, "/");
     }
@@ -702,9 +702,9 @@ LRESULT CALLBACK SimulatorApp::windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
         case WM_COMMAND: {
             if (HIWORD(wParam) == 0) {
                 // menu
-                WORD menuId      = LOWORD(wParam);
+                WORD menuId = LOWORD(wParam);
                 auto menuService = dynamic_cast<player::PlayerMenuServiceWin*>(player::PlayerProtocol::getInstance()->getMenuService());
-                auto menuItem    = menuService->getItemByCommandId(menuId);
+                auto menuItem = menuService->getItemByCommandId(menuId);
                 if (menuItem) {
                     CustomAppEvent event(kAppEventName, APP_EVENT_MENU);
 
@@ -767,21 +767,21 @@ void SimulatorApp::onOpenFile(const std::string& filePath) {
         }
         openProjectWithProjectConfig(_project);
     } else {
-        auto title  = tr("Open File") + tr("Error");
-        auto msg    = tr("Only support") + " config.json;*.csb;*.csd";
+        auto title = tr("Open File") + tr("Error");
+        auto msg = tr("Only support") + " config.json;*.csb;*.csd";
         auto msgBox = player::PlayerProtocol::getInstance()->getMessageBoxService();
         msgBox->showMessageBox(title, msg);
     }
 }
 
 int SimulatorApp::getWidth() const {
-    cc::Size frameSize  = _project.getFrameSize();
-    float    frameScale = _project.getFrameScale();
+    cc::Size frameSize = _project.getFrameSize();
+    float frameScale = _project.getFrameScale();
     return (int)(frameScale * frameSize.width);
 }
 
 int SimulatorApp::getHegith() const {
-    cc::Size frameSize  = _project.getFrameSize();
-    float    frameScale = _project.getFrameScale();
+    cc::Size frameSize = _project.getFrameSize();
+    float frameScale = _project.getFrameScale();
     return (int)(frameScale * frameSize.height);
 }

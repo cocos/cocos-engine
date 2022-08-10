@@ -33,13 +33,13 @@
 
 #include <spine/DrawOrderTimeline.h>
 
-#include <spine/Skeleton.h>
 #include <spine/Event.h>
+#include <spine/Skeleton.h>
 
 #include <spine/Animation.h>
-#include <spine/TimelineType.h>
 #include <spine/Slot.h>
 #include <spine/SlotData.h>
+#include <spine/TimelineType.h>
 
 using namespace spine;
 

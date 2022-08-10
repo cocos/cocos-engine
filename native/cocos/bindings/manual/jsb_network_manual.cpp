@@ -321,7 +321,7 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
 }
 SE_BIND_FUNC_AS_PROP_SET(js_network_Downloader_setOnError)
 
-bool register_all_network_manual(se::Object * /*obj*/) {
+bool register_all_network_manual(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_network_Downloader_proto->defineProperty("onSuccess", nullptr, _SE(js_network_Downloader_setOnSuccess_asSetter));
     __jsb_cc_network_Downloader_proto->defineProperty("onError", nullptr, _SE(js_network_Downloader_setOnError_asSetter));
     __jsb_cc_network_Downloader_proto->defineFunction("createDownloadTask",

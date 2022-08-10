@@ -239,7 +239,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     using Edge = ResourceAccessGraph::edge_descriptor;
     using Graph = ResourceAccessGraph;
 
-    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap, ResourceNames &externalNames, const AccessTable& accessRecordIn)
+    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap, ResourceNames &externalNames, const AccessTable &accessRecordIn)
     : barrierMap(barriers), resourceGraph(rg), externalMap(extMap), externalResNames(externalNames), accessRecord(accessRecordIn) {
     }
 
@@ -257,7 +257,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         }
 
         const auto *srcAccess = &access;
- 
+
         auto *dstAccess = access.nextSubpass;
         auto &blockBarrier = barrierMap[u].blockBarrier;
         auto &barriers = barrierMap[u].subpassBarriers;
@@ -290,7 +290,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         }
 
         // last vertex front block barrier
-        if(!out_degree(u, g)) {
+        if (!out_degree(u, g)) {
             auto &rearBarriers = barrierMap[u].blockBarrier.rearBarriers;
             auto &frontBarriers = barrierMap[u].blockBarrier.frontBarriers;
             for (const auto &barriers : barrierMap[u].subpassBarriers) {
@@ -611,7 +611,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 auto iter = std::find_if(rearBarriers.begin(), rearBarriers.end(), findBarrierByResID);
                 auto resFinalPassID = accessRecord.at(resID).currStatus.vertID;
 
-                if(resFinalPassID > from) {
+                if (resFinalPassID > from) {
                     if (iter == rearBarriers.end()) {
                         rearBarriers.emplace_back(barrier);
                     } else {
@@ -636,7 +636,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         }
     }
 
-    const AccessTable& accessRecord;
+    const AccessTable &accessRecord;
     BarrierMap &barrierMap;
     const ResourceGraph &resourceGraph;
     ExternalResMap &externalMap;     // last frame to curr frame status transition
@@ -1451,7 +1451,7 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
     bool dependent = false;
     if (hasSubpass) {
         auto *lastNode = &node;
-        for(const auto &subpass : (*subpasses.container)) {
+        for (const auto &subpass : (*subpasses.container)) {
             lastNode->nextSubpass = new ResourceAccessNode;
             auto *head = lastNode->nextSubpass;
 

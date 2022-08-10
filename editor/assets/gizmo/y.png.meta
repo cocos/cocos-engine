@@ -111,7 +111,11 @@
             24.5,
             0
           ]
-        }
+        },
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0
       },
       "ver": "1.0.11",
       "imported": true,

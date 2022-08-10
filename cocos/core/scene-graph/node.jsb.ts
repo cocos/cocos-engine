@@ -35,6 +35,7 @@ import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
 import { property } from '../data/class-decorator';
+import * as js from '../utils/js';
 import './base-node';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
@@ -47,6 +48,10 @@ export type Node = jsb.Node;
 legacyCC.Node = Node;
 
 const NodeCls: any = Node;
+
+
+NodeCls.reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
+
 /**
  * @en Event types emitted by Node
  * @zh 节点可能发出的事件类型
@@ -89,6 +94,24 @@ function getConstructor<T> (typeOrClassName) {
     }
 
     return typeOrClassName;
+}
+
+/**
+ * @en
+ * Properties configuration function.
+ * All properties in attrs will be set to the node,
+ * when the setter of the node is available,
+ * the property will be set via setter function.
+ * @zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
+ * @param attrs - Properties to be set to node
+ * @example
+ * ```
+ * var attrs = { name: 'New Name', active: false };
+ * node.attr(attrs);
+ * ```
+ */
+nodeProto.attr = function(attrs: unknown) {
+    js.mixin(this, attrs);
 }
 
 nodeProto.getComponent = function (typeOrClassName) {

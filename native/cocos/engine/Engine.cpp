@@ -59,8 +59,8 @@
 #include "base/Scheduler.h"
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/UniversalPlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -140,6 +140,7 @@ int32_t Engine::init() {
 
 void Engine::destroy() {
     cc::DeferredReleasePool::clear();
+    cc::network::HttpClient::destroyInstance();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
     CCObject::deferredDestroy();
@@ -216,7 +217,7 @@ int Engine::restart() {
 }
 
 void Engine::close() { // NOLINT
-    
+
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
@@ -277,7 +278,7 @@ void Engine::tick() {
         ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(

@@ -30,8 +30,8 @@
 #ifndef Spine_VertexEffect_h
 #define Spine_VertexEffect_h
 
-#include <spine/SpineObject.h>
 #include <spine/MathUtil.h>
+#include <spine/SpineObject.h>
 
 namespace spine {
 

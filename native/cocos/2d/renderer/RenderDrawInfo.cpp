@@ -26,8 +26,8 @@
 #include "2d/renderer/RenderDrawInfo.h"
 #include "2d/renderer/Batcher2d.h"
 #include "base/TypeDef.h"
-#include "renderer/gfx-base/GFXDevice.h"
 #include "core/Root.h"
+#include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
 
@@ -55,7 +55,7 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
     if (!_iaPool) {
         _iaPool = ccnew ccstd::vector<gfx::InputAssembler*>;
     }
-    if (_nextFreeIAHandle >= _iaPool -> size()) {
+    if (_nextFreeIAHandle >= _iaPool->size()) {
         initIAInfo(device);
     }
     auto* ia = (*_iaPool)[_nextFreeIAHandle++];
@@ -112,7 +112,7 @@ void RenderDrawInfo::destroy() {
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     if (_iaPool->empty()) {
         _iaInfo = ccnew gfx::InputAssemblerInfo();
-        uint32_t vbStride = 9 * sizeof(float);// magic Number
+        uint32_t vbStride = 9 * sizeof(float); // magic Number
         uint32_t ibStride = sizeof(uint16_t);
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -140,7 +140,7 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
 void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout) {
     if (_localDSBF == nullptr) {
         _localDSBF = new LocalDSBF();
-        auto *device = Root::getInstance()->getDevice();
+        auto* device = Root::getInstance()->getDevice();
         gDsInfo.layout = dsLayout;
         _localDSBF->ds = device->createDescriptorSet(gDsInfo);
         _localDSBF->uboBuf = device->createBuffer({

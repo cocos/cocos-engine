@@ -35,9 +35,9 @@
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
-#include "scene/SpotLight.h"
 #include "scene/Light.h"
 #include "scene/Shadow.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -92,7 +92,7 @@ void ShadowStage::render(scene::Camera *camera) {
     const Vec2 &shadowMapSize = shadowInfo->getSize();
     switch (_light->getType()) {
         case scene::LightType::DIRECTIONAL: {
-            const auto* mainLight = static_cast<const scene::DirectionalLight *>(_light);
+            const auto *mainLight = static_cast<const scene::DirectionalLight *>(_light);
             if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1 || !sceneData->getCSMSupported()) {
                 _renderArea.x = 0;
                 _renderArea.y = 0;
@@ -151,7 +151,7 @@ void ShadowStage::destroy() {
     RenderStage::destroy();
 }
 
-void ShadowStage::clearFramebuffer(const scene::Camera* camera) {
+void ShadowStage::clearFramebuffer(const scene::Camera *camera) {
     if (!_light || !_framebuffer) {
         return;
     }

@@ -33,6 +33,7 @@
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/std/any.h"
+#include "base/std/container/map.h"
 #include "base/std/container/vector.h"
 #include "base/std/optional.h"
 #include "base/std/variant.h"
@@ -673,6 +674,9 @@ bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object
 /// ccstd::unordered_map<ccstd::string, V>
 template <typename V>
 bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
+/// ccstd::map<ccstd::string, V>
+template <typename V>
+bool sevalue_to_native(const se::Value &from, ccstd::map<ccstd::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
 // std::tuple
 template <typename... Args>
 bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
@@ -974,7 +978,6 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference>
             CC_ASSERT(false); // default construtor not provided
         }
         return sevalue_to_native(from, holder->ptr, ctx);
-
     } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
         void *ptr = from.toObject()->getPrivateData();
         if (ptr) {
@@ -982,7 +985,6 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference>
             return true;
         }
         return sevalue_to_native(from, &(holder->data), ctx);
-
     } else {
         return sevalue_to_native(from, &(holder->data), ctx);
     }
@@ -1156,6 +1158,23 @@ bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string
     return true;
 }
 
+////////////// ccstd::map
+template <typename V>
+bool sevalue_to_native(const se::Value &from, ccstd::map<ccstd::string, V> *to, se::Object *ctx) { //NOLINT
+    se::Object *jsmap = from.toObject();
+    ccstd::vector<ccstd::string> allKeys;
+    jsmap->getAllKeys(&allKeys);
+    bool ret = true;
+    se::Value property;
+    for (auto &it : allKeys) {
+        if (jsmap->getProperty(it.c_str(), &property)) {
+            auto &output = (*to)[it];
+            ret &= sevalue_to_native(property, &output, jsmap);
+        }
+    }
+    return true;
+}
+
 ///////////////// ccstd::optional
 template <typename T>
 bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object *ctx) { //NOLINT
@@ -1286,6 +1305,9 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
 template <typename K, typename V>
 inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
 
+template <typename K, typename V>
+inline bool nativevalue_to_se(const ccstd::map<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
+
 template <typename T>
 inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value &to, se::Object *ctx); // NOLINT
 
@@ -1347,6 +1369,18 @@ typename std::enable_if<!std::is_convertible<T, ccstd::string>::value, void>::ty
 
 template <typename K, typename V>
 inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject ret{se::Object::createPlainObject()};
+    se::Value value;
+    bool ok = true;
+    for (auto &it : from) {
+        ok &= nativevalue_to_se(it.second, value, ctx);
+        cc_tmp_set_property(ret, it.first, value);
+    }
+    to.setObject(ret);
+    return true;
+}
+template <typename K, typename V>
+inline bool nativevalue_to_se(const ccstd::map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject ret{se::Object::createPlainObject()};
     se::Value value;
     bool ok = true;
@@ -1504,7 +1538,7 @@ template <typename... ARGS>
 bool nativevalue_to_se(const ccstd::variant<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     bool ok = false;
     ccstd::visit(
-        [&](auto& param) {
+        [&](auto &param) {
             ok = nativevalue_to_se(param, to, ctx);
         },
         from);
@@ -1580,3 +1614,6 @@ bool nativevalue_to_se(const std::reference_wrapper<T> ref, se::Value &to, se::O
 #if __clang__ && defined(HAS_PUSH_DIAGNOSTI)
     #pragma clang diagnostic pop
 #endif
+
+// Remove this in near future.
+#include "jsb_conversions_deprecated.h"

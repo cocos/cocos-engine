@@ -36,9 +36,9 @@
     #include "unzip/unzip.h"
 #endif
 
-#include <memory>
 #include <zlib.h>
 #include <cstdlib>
+#include <memory>
 #include "base/Data.h"
 #include "base/Locked.h"
 #include "base/Log.h"
