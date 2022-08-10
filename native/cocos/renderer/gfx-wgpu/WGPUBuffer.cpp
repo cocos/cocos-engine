@@ -32,14 +32,18 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-CCWGPUBuffer *defaultUniformBuffer = nullptr;
-CCWGPUBuffer *defaultStorageBuffer = nullptr;
-} // namespace anoymous
+namespace {
+CCWGPUBuffer *dftUniformBuffer = nullptr;
+CCWGPUBuffer *dftStorageBuffer = nullptr;
+} // namespace
 
 using namespace emscripten;
 
 CCWGPUBuffer::CCWGPUBuffer() : Buffer() {
+}
+
+CCWGPUBuffer::~CCWGPUBuffer() {
+    doDestroy();
 }
 
 void CCWGPUBuffer::doInit(const BufferInfo &info) {
@@ -85,7 +89,7 @@ void CCWGPUBuffer::doInit(const BufferViewInfo &info) {
 void CCWGPUBuffer::doDestroy() {
     if (_gpuBufferObject) {
         if (_gpuBufferObject->wgpuBuffer) {
-            wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
+            CCWGPUDevice::getInstance()->moveToTrash(_gpuBufferObject->wgpuBuffer);
             CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
         }
         delete _gpuBufferObject;
@@ -99,7 +103,7 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         return;
     }
     if (_gpuBufferObject->wgpuBuffer) {
-        wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
+        CCWGPUDevice::getInstance()->moveToTrash(_gpuBufferObject->wgpuBuffer);
     }
     CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
 
@@ -213,31 +217,31 @@ void CCWGPUBuffer::stamp() {
 }
 
 CCWGPUBuffer *CCWGPUBuffer::defaultUniformBuffer() {
-    if (!anoymous::defaultUniformBuffer) {
+    if (!dftUniformBuffer) {
         BufferInfo info = {
             .usage = BufferUsageBit::UNIFORM,
             .memUsage = MemoryUsageBit::DEVICE,
             .size = 4,
             .flags = BufferFlagBit::NONE,
         };
-        anoymous::defaultUniformBuffer = ccnew CCWGPUBuffer;
-        anoymous::defaultUniformBuffer->initialize(info);
+        dftUniformBuffer = ccnew CCWGPUBuffer;
+        dftUniformBuffer->initialize(info);
     }
-    return anoymous::defaultUniformBuffer;
+    return dftUniformBuffer;
 }
 
 CCWGPUBuffer *CCWGPUBuffer::defaultStorageBuffer() {
-    if (!anoymous::defaultStorageBuffer) {
+    if (!dftStorageBuffer) {
         BufferInfo info = {
             .usage = BufferUsageBit::STORAGE,
             .memUsage = MemoryUsageBit::DEVICE,
             .size = 4,
             .flags = BufferFlagBit::NONE,
         };
-        anoymous::defaultStorageBuffer = ccnew CCWGPUBuffer;
-        anoymous::defaultStorageBuffer->initialize(info);
+        dftStorageBuffer = ccnew CCWGPUBuffer;
+        dftStorageBuffer->initialize(info);
     }
-    return anoymous::defaultStorageBuffer;
+    return dftStorageBuffer;
 }
 
 } // namespace gfx

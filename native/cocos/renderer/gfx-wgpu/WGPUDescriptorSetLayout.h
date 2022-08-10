@@ -41,7 +41,7 @@ class CCWGPUSampler;
 class CCWGPUDescriptorSetLayout final : public DescriptorSetLayout {
 public:
     CCWGPUDescriptorSetLayout();
-    ~CCWGPUDescriptorSetLayout() = default;
+    ~CCWGPUDescriptorSetLayout();
 
     inline CCWGPUBindGroupLayoutObject *gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
 

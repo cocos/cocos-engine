@@ -84,6 +84,10 @@ public:
 CCWGPURenderPass::CCWGPURenderPass() : RenderPass() {
 }
 
+CCWGPURenderPass::~CCWGPURenderPass() {
+    doDestroy();
+}
+
 void CCWGPURenderPass::doInit(const RenderPassInfo &info) {
     _renderPassObject = ccnew CCWGPURenderPassObject();
     _rpHelper = ccnew CCWGPURenderPassHelper(info);

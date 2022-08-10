@@ -38,7 +38,7 @@ struct CCWGPUBufferObject;
 class CCWGPUBuffer final : public Buffer {
 public:
     CCWGPUBuffer();
-    ~CCWGPUBuffer() = default;
+    ~CCWGPUBuffer();
 
     void update(const void *buffer, uint32_t size) override;
     inline CCWGPUBufferObject *gpuBufferObject() const { return _gpuBufferObject; }

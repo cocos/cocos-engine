@@ -36,13 +36,17 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-WGPUBindGroup defaultBindGroup = wgpuDefaultHandle;
+namespace {
+WGPUBindGroup dftBindGroup = wgpuDefaultHandle;
 }
 
 using namespace emscripten;
 
 CCWGPUDescriptorSet::CCWGPUDescriptorSet() : DescriptorSet() {
+}
+
+CCWGPUDescriptorSet::~CCWGPUDescriptorSet() {
+    doDestroy();
 }
 
 void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
@@ -239,14 +243,12 @@ void CCWGPUDescriptorSet::prepare() {
         const auto &entries = _gpuBindGroupObj->bindGroupEntries;
 
         CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
-        if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != anoymous::defaultBindGroup) {
+        if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != dftBindGroup) {
             wgpuBindGroupRelease(_gpuBindGroupObj->bindgroup);
         }
 
         if (entries.empty()) {
-            _gpuBindGroupObj->bindgroup = anoymous::defaultBindGroup;
-            _bgl = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
-            _ccbgl = nullptr;
+            _gpuBindGroupObj->bindgroup = dftBindGroup;
             _hash = 9527;
         } else {
             static uint32_t count = 0;
@@ -259,8 +261,7 @@ void CCWGPUDescriptorSet::prepare() {
                 .entries = entries.data(),
             };
             _gpuBindGroupObj->bindgroup = wgpuDeviceCreateBindGroup(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &bindGroupDesc);
-            _bgl = dsLayout->gpuLayoutEntryObject()->bindGroupLayout;
-            _ccbgl = dsLayout;
+            printf("create new bg\n");
             _hash = dsLayout->getHash();
         }
         _isDirty = false;
@@ -284,7 +285,7 @@ uint8_t CCWGPUDescriptorSet::dynamicOffsetCount() const {
 void *CCWGPUDescriptorSet::defaultBindGroup() {
     CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
 
-    if (!anoymous::defaultBindGroup) {
+    if (!dftBindGroup) {
         CCWGPUBuffer *buffer = deviceObj->defaultResources.uniformBuffer;
         WGPUBindGroupEntry bufferEntry = {
             .binding = 0,
@@ -300,9 +301,9 @@ void *CCWGPUDescriptorSet::defaultBindGroup() {
             .entryCount = 1,
             .entries = &bufferEntry,
         };
-        anoymous::defaultBindGroup = wgpuDeviceCreateBindGroup(deviceObj->wgpuDevice, &bindGroupDesc);
+        dftBindGroup = wgpuDeviceCreateBindGroup(deviceObj->wgpuDevice, &bindGroupDesc);
     }
-    return anoymous::defaultBindGroup;
+    return dftBindGroup;
 }
 
 } // namespace gfx

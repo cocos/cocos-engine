@@ -32,6 +32,10 @@ namespace gfx {
 CCWGPUInputAssembler::CCWGPUInputAssembler() : InputAssembler() {
 }
 
+CCWGPUInputAssembler::~CCWGPUInputAssembler() {
+    doDestroy();
+}
+
 void CCWGPUInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssemblerObj = ccnew CCWGPUInputAssemblerObject;
     // // typedef struct WGPUVertexState {

@@ -130,6 +130,10 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
 CCWGPUPipelineState::CCWGPUPipelineState() : PipelineState() {
 }
 
+CCWGPUPipelineState::~CCWGPUPipelineState() {
+    doDestroy();
+}
+
 void CCWGPUPipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineStateObj = ccnew CCWGPUPipelineStateObject;
 }
@@ -366,7 +370,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .module = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderComputeModule,
             .entryPoint = "main",
         };
-        pipelineLayout->prepare(setInUse);
+        // pipelineLayout->prepare(setInUse);
         WGPUComputePipelineDescriptor piplineDesc = {
             .layout = pipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout,
             .compute = psDesc,

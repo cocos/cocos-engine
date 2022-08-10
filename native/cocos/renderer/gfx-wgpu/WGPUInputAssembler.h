@@ -37,7 +37,7 @@ class CCWGPUBuffer;
 class CCWGPUInputAssembler final : public InputAssembler {
 public:
     CCWGPUInputAssembler();
-    ~CCWGPUInputAssembler() = default;
+    ~CCWGPUInputAssembler();
 
     using InputAssembler::destroy;
     using InputAssembler::initialize;

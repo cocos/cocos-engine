@@ -40,6 +40,10 @@ using namespace emscripten;
 CCWGPUPipelineLayout::CCWGPUPipelineLayout() : PipelineLayout() {
 }
 
+CCWGPUPipelineLayout::~CCWGPUPipelineLayout() {
+    doDestroy();
+}
+
 void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayoutObj = ccnew CCWGPUPipelineLayoutObject;
 }

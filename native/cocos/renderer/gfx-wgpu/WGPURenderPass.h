@@ -39,7 +39,7 @@ class CCWGPURenderPassHelper;
 class CCWGPURenderPass final : public RenderPass {
 public:
     CCWGPURenderPass();
-    ~CCWGPURenderPass() = default;
+    ~CCWGPURenderPass();
 
     inline CCWGPURenderPassObject *gpuRenderPassObject() { return _renderPassObject; }
 

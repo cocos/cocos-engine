@@ -33,6 +33,10 @@ namespace gfx {
 CCWGPUFramebuffer::CCWGPUFramebuffer() : Framebuffer() {
 }
 
+CCWGPUFramebuffer::~CCWGPUFramebuffer() {
+    doDestroy();
+}
+
 void CCWGPUFramebuffer::doInit(const FramebufferInfo &info) {
     for (auto *tex : info.colorTextures) {
         auto *ccTex = static_cast<CCWGPUTexture *>(tex);

@@ -37,16 +37,19 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-WGPUBindGroupLayout defaultBindgroupLayout = wgpuDefaultHandle;
+namespace {
+WGPUBindGroupLayout dftBindgroupLayout = wgpuDefaultHandle;
 
 ccstd::unordered_map<ccstd::hash_t, WGPUBindGroupLayout> layoutPool;
-} // namespace anoymous
+} // namespace
 
 using namespace emscripten;
-using namespace anoymous;
 
 CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : DescriptorSetLayout() {
+}
+
+CCWGPUDescriptorSetLayout::~CCWGPUDescriptorSetLayout() {
+    doDestroy();
 }
 
 void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
@@ -300,7 +303,7 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
 
     static uint64_t counter = 0;
     if (entries.empty()) {
-        _gpuLayoutEntryObj->bindGroupLayout = anoymous::defaultBindgroupLayout;
+        _gpuLayoutEntryObj->bindGroupLayout = dftBindgroupLayout;
     } else {
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
@@ -309,12 +312,13 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
             .entries = entries.data(),
         };
         _gpuLayoutEntryObj->bindGroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+        printf("create new bglayout\n");
     }
     layoutPool.insert({_hash, _gpuLayoutEntryObj->bindGroupLayout});
 }
 
 void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
-    if (!anoymous::defaultBindgroupLayout) {
+    if (!dftBindgroupLayout) {
         // default bindgroupLayout: for empty set
         WGPUBindGroupLayoutEntry layout = {
             .nextInChain = nullptr,
@@ -329,9 +333,9 @@ void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
             .entryCount = 1,
             .entries = &layout,
         };
-        anoymous::defaultBindgroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+        dftBindgroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
     }
-    return anoymous::defaultBindgroupLayout;
+    return dftBindgroupLayout;
 }
 
 void CCWGPUDescriptorSetLayout::doDestroy() {

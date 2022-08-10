@@ -38,7 +38,7 @@ struct CCWGPUQueueObject;
 class CCWGPUQueue final : public Queue {
 public:
     CCWGPUQueue();
-    ~CCWGPUQueue() = default;
+    ~CCWGPUQueue();
 
     void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     inline CCWGPUQueueObject *gpuQueueObject() { return _gpuQueueObject; }

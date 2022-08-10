@@ -45,6 +45,10 @@ SPIRVUtils *CCWGPUShader::spirv = nullptr;
 CCWGPUShader::CCWGPUShader() : Shader() {
 }
 
+CCWGPUShader::~CCWGPUShader() {
+    doDestroy();
+}
+
 void CCWGPUShader::initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs) {
     _gpuShaderObject = ccnew CCWGPUShaderObject;
 

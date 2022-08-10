@@ -37,6 +37,7 @@ CCWGPUSwapchain::CCWGPUSwapchain(CCWGPUDevice *device) {
 
 CCWGPUSwapchain::~CCWGPUSwapchain() {
     _device = nullptr;
+    doDestroy();
 }
 
 void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
@@ -133,6 +134,8 @@ CCWGPUTexture *CCWGPUSwapchain::getDepthStencilTexture() {
 }
 
 void CCWGPUSwapchain::update() {
+    auto swapchainView = static_cast<CCWGPUTexture *>(_colorTexture.get())->gpuTextureObject()->selfView;
+    wgpuTextureViewRelease(swapchainView);
     static_cast<CCWGPUTexture *>(_colorTexture.get())->gpuTextureObject()->selfView = wgpuSwapChainGetCurrentTextureView(_gpuSwapchainObj->wgpuSwapChain);
 }
 

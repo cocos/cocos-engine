@@ -84,6 +84,8 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
     return nullptr;     \
     }
 
+#define EMSArraysToU8Vec(v, i) (emscripten::convertJSArrayToNumberVector<uint8_t>(v[i]))
+
 const FramebufferInfo fromEmsFramebufferInfo(const val& info) {
     FramebufferInfo frameBufferInfo;
     const auto& ems_frameBufferInfo = info;

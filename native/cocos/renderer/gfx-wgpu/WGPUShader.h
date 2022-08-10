@@ -38,7 +38,7 @@ class SPIRVUtils;
 class CCWGPUShader final : public Shader {
 public:
     CCWGPUShader();
-    ~CCWGPUShader() = default;
+    ~CCWGPUShader();
 
     inline CCWGPUShaderObject *gpuShaderObject() { return _gpuShaderObject; }
 

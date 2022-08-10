@@ -41,7 +41,7 @@ typedef std::function<void(CCWGPUCommandBufferObject *)> EncodeFunc;
 class CCWGPUCommandBuffer final : public CommandBuffer {
 public:
     CCWGPUCommandBuffer();
-    ~CCWGPUCommandBuffer() = default;
+    ~CCWGPUCommandBuffer();
 
     void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) override;
     void end() override;

@@ -40,6 +40,7 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
     if (iter == ccPipelineLayout->layoutMap.end()) {
         ccPipelineLayout->layoutMap[hash] = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
         ccPipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout = static_cast<WGPUPipelineLayout>(ccPipelineLayout->layoutMap[hash]);
+        printf("create new ppl\n");
     } else {
         ccPipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout = static_cast<WGPUPipelineLayout>(iter->second);
     }

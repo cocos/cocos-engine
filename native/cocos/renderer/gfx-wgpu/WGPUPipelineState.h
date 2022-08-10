@@ -39,7 +39,7 @@ struct CCWGPUPipelineStateObject;
 class CCWGPUPipelineState final : public PipelineState {
 public:
     CCWGPUPipelineState();
-    ~CCWGPUPipelineState() = default;
+    ~CCWGPUPipelineState();
 
     inline CCWGPUPipelineStateObject *gpuPipelineStateObject() { return _gpuPipelineStateObj; }
 
