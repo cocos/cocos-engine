@@ -94,22 +94,22 @@ std::string Device::getDeviceModel() {
 }
 
 void Device::vibrate(float duration) {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IVibrator) != nullptr, "Vibrator interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IVibrator) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IVibrator)->vibrate(duration);
 }
 
 float Device::getBatteryLevel() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IBattery) != nullptr, "Battery interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IBattery) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IBattery)->getBatteryLevel();
 }
 
 INetwork::NetworkType Device::getNetworkType() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(INetwork) != nullptr, "Network interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(INetwork) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(INetwork)->getNetworkType();
 }
 
 Vec4 Device::getSafeAreaEdge() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr, "Screen interface does not exist");
+    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getSafeAreaEdge();
 }
 
