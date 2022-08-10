@@ -90,6 +90,7 @@ export class UIOpacity extends Component {
 
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = dirty;
+            render.renderEntity.color = render.color;// necessity to be considering
             if (uiOp) {
                 render.renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
             } else {
