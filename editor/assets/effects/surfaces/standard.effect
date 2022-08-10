@@ -231,7 +231,7 @@ CCProgram surface-fragment %{
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
-  vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
+  vec4 SurfacesFragmentModifyAnisotropyParams()
   {
     float anisotropyRotation = anisotropyParam.y * PI;
     float anisotropyShape = anisotropyParam.x;
@@ -242,9 +242,7 @@ CCProgram surface-fragment %{
       // less value is better for SP exported shape
       anisotropyShape *= tex.x;
     #endif
-
-    isRotation = 1.0;
-    return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
+      return vec4(anisotropyRotation, anisotropyShape, 0.0, 0.0);
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
