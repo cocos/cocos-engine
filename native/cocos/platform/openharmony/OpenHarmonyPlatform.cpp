@@ -60,8 +60,6 @@ int cocos_main(int argc, const char** argv) {
 namespace cc {
 
 int32_t OpenHarmonyPlatform::init() {
-    registerInterface(std::make_shared<SystemWindow>());
-    registerInterface(std::make_shared<System>());
     return 0;
 }
 
@@ -173,6 +171,8 @@ OpenHarmonyPlatform* OpenHarmonyPlatform::getInstance() {
 }
 
 OpenHarmonyPlatform::OpenHarmonyPlatform() {
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<System>());
 }
 
 int OpenHarmonyPlatform::getSdkVersion() const {

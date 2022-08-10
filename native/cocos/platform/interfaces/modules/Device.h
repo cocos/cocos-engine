@@ -72,6 +72,9 @@ public:
         float rotationRateGamma = 0.0F;
     };
 
+    static int getInnerWidth();
+    static int getInnerHeight();
+    static uint32_t getWindowHandler();
     /**
      *  Gets the DPI of device
      *  @return The DPI of device.
