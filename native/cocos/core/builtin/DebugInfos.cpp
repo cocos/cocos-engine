@@ -459,5 +459,6 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
 
+{ 17000, "Less than 4 probes, can not tetrahedralize." },
 };
 }//namespace cc

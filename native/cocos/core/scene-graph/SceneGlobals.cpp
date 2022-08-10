@@ -32,6 +32,7 @@
 #include "scene/Octree.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "gi/light-probe/LightProbe.h"
 
 namespace cc {
 
@@ -41,6 +42,7 @@ SceneGlobals::SceneGlobals() {
     _skyboxInfo = ccnew scene::SkyboxInfo();
     _fogInfo = ccnew scene::FogInfo();
     _octreeInfo = ccnew scene::OctreeInfo();
+    _lightProbeInfo = ccnew gi::LightProbeInfo();
 }
 
 void SceneGlobals::activate() {
@@ -65,6 +67,10 @@ void SceneGlobals::activate() {
         _octreeInfo->activate(sceneData->getOctree());
     }
 
+    if (_lightProbeInfo != nullptr) {
+        _lightProbeInfo->activate(sceneData->getLightProbe());
+    }
+
     Root::getInstance()->onGlobalPipelineStateChanged();
 }
 
@@ -73,5 +79,6 @@ void SceneGlobals::setShadowsInfo(scene::ShadowsInfo *info) { _shadowInfo = info
 void SceneGlobals::setSkyboxInfo(scene::SkyboxInfo *info) { _skyboxInfo = info; }
 void SceneGlobals::setFogInfo(scene::FogInfo *info) { _fogInfo = info; }
 void SceneGlobals::setOctreeInfo(scene::OctreeInfo *info) { _octreeInfo = info; }
+void SceneGlobals::setLightProbeInfo(gi::LightProbeInfo *info) { _lightProbeInfo = info; }
 
 } // namespace cc

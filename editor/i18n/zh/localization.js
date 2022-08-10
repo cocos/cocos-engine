@@ -66,6 +66,7 @@ module.exports = {
             TiledMap: ``,
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
+            LightProbe: ``,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -1006,5 +1007,21 @@ module.exports = {
         minPos: '世界包围盒最小顶点的坐标',
         maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
+    },
+    light_probe: {
+        enabled: '光照探针开关',
+        quality: '光照探针质量等级，Normal模式使用9个球谐系数，Fast模式使用4个球谐系数',
+        reduceRinging: '减少光照探针的振铃效果',
+        showProbe: '是否显示光照探针',
+        showWireframe: '是否显示光照探针连线',
+        showConvex: '是否显示光照探针凸包',
+    },
+    light_probe_group: {
+        method: '光照探针的自动生成算法',
+        nProbesX: 'X轴生成的光照探针数量',
+        nProbesY: 'Y轴生成的光照探针数量',
+        nProbesZ: 'Z轴生成的光照探针数量',
+        minPos: '生成光照探针的包围盒最小点',
+        maxPos: '生成光照探针的包围盒最大点',
     },
 };

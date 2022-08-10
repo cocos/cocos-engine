@@ -460,6 +460,20 @@ cocos_source_files(
     cocos/engine/Engine.h
 )
 
+############ gi
+cocos_source_files(
+    cocos/gi/light-probe/AutoPlacement.cpp
+    cocos/gi/light-probe/AutoPlacement.h
+    cocos/gi/light-probe/Delaunay.cpp
+    cocos/gi/light-probe/Delaunay.h
+    cocos/gi/light-probe/LightProbe.cpp
+    cocos/gi/light-probe/LightProbe.h
+    cocos/gi/light-probe/PolynomialSolver.cpp
+    cocos/gi/light-probe/PolynomialSolver.h
+    cocos/gi/light-probe/SH.cpp
+    cocos/gi/light-probe/SH.h
+)
+
 ############ main
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(

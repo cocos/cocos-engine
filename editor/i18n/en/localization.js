@@ -66,6 +66,7 @@ module.exports = {
             TiledMap: ``,
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
+            LightProbe: ``,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -1025,5 +1026,21 @@ module.exports = {
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    light_probe: {
+        enabled: 'The switch of light probe.',
+        quality: 'The quality of light probe, Normal mode uses 9 spherical harmonics coefficients, Fast mode uses 4 spherical harmonics coefficients.',
+        reduceRinging: 'The value to reduce ringing of light probe.',
+        showProbe: 'The switch of showing light probe.',
+        showWireframe: 'The switch of showing connection of light probe.',
+        showConvex: 'The switch of showing convex of light probe.',
+    },
+    light_probe_group: {
+        method: 'The automatic generation algorithm of light probe.',
+        nProbesX: 'The number of probes generated in X axis.',
+        nProbesY: 'The number of probes generated in Y axis.',
+        nProbesZ: 'The number of probes generated in Z axis.',
+        minPos: 'The minimum point of the bounding box of the generated probes.',
+        maxPos: 'The maximum point of the bounding box of the generated probes.',
     },
 };
