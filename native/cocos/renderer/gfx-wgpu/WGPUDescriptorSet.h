@@ -40,30 +40,22 @@ using Pairs = ccstd::vector<std::pair<uint8_t, uint8_t>>;
 class CCWGPUDescriptorSet final : public DescriptorSet {
 public:
     CCWGPUDescriptorSet();
-    ~CCWGPUDescriptorSet() = default;
+    ~CCWGPUDescriptorSet();
 
     inline CCWGPUBindGroupObject *gpuBindGroupObject() { return _gpuBindGroupObj; }
 
     void update() override;
-
     void forceUpdate() override{};
-
     uint8_t dynamicOffsetCount() const;
-
     void prepare();
 
     static void *defaultBindGroup();
 
     inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
-    // ems export
-
-    void *bgl() const { return _bgl; }
-
-    // DescriptorSetLayout* local()const {return _local;}
-
-    void *ccbgl() const { return _ccbgl; }
     ccstd::string _label;
+
+    ccstd::hash_t getHash() { return _hash; };
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
@@ -78,10 +70,6 @@ protected:
 
     // dynamic offsets, inuse ? 1 : 0;
     Pairs _dynamicOffsets;
-
-    void *_bgl = nullptr;
-
-    void *_ccbgl = nullptr;
 
     ccstd::hash_t _hash{0};
 

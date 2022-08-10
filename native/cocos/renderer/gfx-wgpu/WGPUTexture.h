@@ -39,7 +39,7 @@ class CCWGPUSwapchain;
 class CCWGPUTexture final : public Texture {
 public:
     CCWGPUTexture();
-    ~CCWGPUTexture() = default;
+    ~CCWGPUTexture();
 
     inline CCWGPUTextureObject *gpuTextureObject() const { return _gpuTextureObj; }
 

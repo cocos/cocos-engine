@@ -37,7 +37,7 @@ class CCWGPUSwapchain;
 class CCWGPUFramebuffer final : public Framebuffer {
 public:
     CCWGPUFramebuffer();
-    ~CCWGPUFramebuffer() = default;
+    ~CCWGPUFramebuffer();
 
     inline CCWGPUSwapchain *swapchain() { return _swapchain; }
 

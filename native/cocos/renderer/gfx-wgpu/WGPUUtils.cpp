@@ -19,8 +19,7 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
             descriptorSetLayouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
             lable += " " + static_cast<CCWGPUDescriptorSet*>(descriptorSet)->_label;
             ccstd::hash_combine(hash, i);
-            ccstd::hash_combine(hash, descriptorSetLayout->getHash());
-            printf("%d, %s, %zu\n", i, descriptorSetLayout->_label.c_str(), descriptorSetLayout->getHash());
+            ccstd::hash_combine(hash, descriptorSet->getHash());
         } else {
             descriptorSetLayouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
             ccstd::hash_combine(hash, i);
@@ -41,10 +40,9 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
     if (iter == ccPipelineLayout->layoutMap.end()) {
         ccPipelineLayout->layoutMap[hash] = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
         ccPipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout = static_cast<WGPUPipelineLayout>(ccPipelineLayout->layoutMap[hash]);
-        printf("Unexpected behavior: createPipelineLayoutFallback %s %zu\n", lable.c_str(), hash);
+        printf("create new ppl\n");
     } else {
         ccPipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout = static_cast<WGPUPipelineLayout>(iter->second);
-        printf("%s %zu\n", lable.c_str(), hash);
     }
     ccPipelineLayout->_hash = hash;
 }

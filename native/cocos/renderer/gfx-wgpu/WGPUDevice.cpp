@@ -79,9 +79,8 @@ CCWGPUDevice::CCWGPUDevice() : Device() {
 }
 
 CCWGPUDevice::~CCWGPUDevice() {
+    doDestroy();
     instance = nullptr;
-    delete _gpuDeviceObj;
-    delete this;
 }
 
 bool CCWGPUDevice::doInit(const DeviceInfo &info) {
@@ -115,6 +114,9 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCWGPUDevice::doDestroy() {
+    if (_gpuDeviceObj) {
+        delete _gpuDeviceObj;
+    }
 }
 
 Swapchain *CCWGPUDevice::createSwapchain() {
@@ -339,6 +341,8 @@ void CCWGPUDevice::present() {
     _numInstances = queue->getNumInstances();
     _numTriangles = queue->getNumTris();
     queue->resetStatus();
+
+    _currentFrameIndex = (++_currentFrameIndex) % CC_WGPU_MAX_FRAME_COUNT;
 }
 
 void CCWGPUDevice::getQueryPoolResults(QueryPool *queryPool) {

@@ -39,7 +39,7 @@ struct CCWGPUPipelineStateObject;
 class CCWGPUPipelineState final : public PipelineState {
 public:
     CCWGPUPipelineState();
-    ~CCWGPUPipelineState() = default;
+    ~CCWGPUPipelineState();
 
     inline CCWGPUPipelineStateObject *gpuPipelineStateObject() { return _gpuPipelineStateObj; }
 
@@ -51,6 +51,10 @@ public:
 
     static ccstd::map<ccstd::hash_t, void *> pipelineMap;
 
+    ccstd::hash_t getHash() {
+        return _hash;
+    }
+
 protected:
     void doInit(const PipelineStateInfo &info) override;
     void doDestroy() override;
@@ -59,6 +63,7 @@ protected:
 
     void *_ppl = nullptr;
     bool _forceUpdate = false;
+    ccstd::hash_t _hash{0};
 };
 
 } // namespace gfx

@@ -37,16 +37,19 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-WGPUBindGroupLayout defaultBindgroupLayout = wgpuDefaultHandle;
+namespace {
+WGPUBindGroupLayout dftBindgroupLayout = wgpuDefaultHandle;
 
 ccstd::unordered_map<ccstd::hash_t, WGPUBindGroupLayout> layoutPool;
-} // namespace anoymous
+} // namespace
 
 using namespace emscripten;
-using namespace anoymous;
 
 CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : DescriptorSetLayout() {
+}
+
+CCWGPUDescriptorSetLayout::~CCWGPUDescriptorSetLayout() {
+    doDestroy();
 }
 
 void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
@@ -129,6 +132,7 @@ void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
     (void)defaultBindGroupLayout();
 
     _hash = hash();
+    _label = std::to_string(_hash);
 }
 
 void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer) {
@@ -264,9 +268,9 @@ void CCWGPUDescriptorSetLayout::print() const {
 }
 
 void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate) {
-    if (_gpuLayoutEntryObj->bindGroupLayout && !forceUpdate) {
-        return;
-    }
+    // if (_gpuLayoutEntryObj->bindGroupLayout && !forceUpdate) {
+    //     return;
+    // }
     // ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
     // bindGroupLayoutEntries.assign(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end());
     // bindGroupLayoutEntries.erase(std::remove_if(
@@ -275,9 +279,10 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     //                                  }),
     //                              bindGroupLayoutEntries.end());
 
-    size_t hashVal = (!_hash || _internalChanged) ? hash() : _hash;
-    _hash = hashVal;
-    auto iter = layoutPool.find(hashVal);
+    _hash = hash();
+    _label = std::to_string(_hash);
+    auto iter = layoutPool.find(_hash);
+    // printf("dsl upd %zu\n", _hash);
     if (iter != layoutPool.end()) {
         _gpuLayoutEntryObj->bindGroupLayout = iter->second;
         return;
@@ -298,9 +303,8 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
 
     static uint64_t counter = 0;
     if (entries.empty()) {
-        _gpuLayoutEntryObj->bindGroupLayout = anoymous::defaultBindgroupLayout;
+        _gpuLayoutEntryObj->bindGroupLayout = dftBindgroupLayout;
     } else {
-        _label = std::to_string(_objectID) + " " + std::to_string(counter++) + " " + std::to_string(_hash);
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
             .label = _label.c_str(),
@@ -308,15 +312,13 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
             .entries = entries.data(),
         };
         _gpuLayoutEntryObj->bindGroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+        printf("create new bglayout\n");
     }
-    layoutPool.insert({hashVal, _gpuLayoutEntryObj->bindGroupLayout});
-    if (hashVal == 3403178261 || hashVal == 3974136007) {
-        print();
-    }
+    layoutPool.insert({_hash, _gpuLayoutEntryObj->bindGroupLayout});
 }
 
 void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
-    if (!anoymous::defaultBindgroupLayout) {
+    if (!dftBindgroupLayout) {
         // default bindgroupLayout: for empty set
         WGPUBindGroupLayoutEntry layout = {
             .nextInChain = nullptr,
@@ -331,9 +333,9 @@ void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
             .entryCount = 1,
             .entries = &layout,
         };
-        anoymous::defaultBindgroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+        dftBindgroupLayout = wgpuDeviceCreateBindGroupLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
     }
-    return anoymous::defaultBindgroupLayout;
+    return dftBindgroupLayout;
 }
 
 void CCWGPUDescriptorSetLayout::doDestroy() {

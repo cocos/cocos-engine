@@ -38,6 +38,10 @@ using namespace emscripten;
 CCWGPUQueue::CCWGPUQueue() : Queue() {
 }
 
+CCWGPUQueue::~CCWGPUQueue() {
+    doDestroy();
+}
+
 void CCWGPUQueue::doInit(const QueueInfo &info) {
     _gpuQueueObject = ccnew CCWGPUQueueObject;
     _gpuQueueObject->type = info.type;
@@ -52,6 +56,16 @@ void CCWGPUQueue::doDestroy() {
         delete _gpuQueueObject;
     }
 }
+
+namespace {
+
+void wgpuQueueSubmitCallback(WGPUQueueWorkDoneStatus status, void *userdata) {
+    auto *recycleBin = static_cast<CCWGPURecycleBin *>(userdata);
+    recycleBin->bufferBin.purge();
+    recycleBin->textureBin.purge();
+    recycleBin->queryBin.purge();
+}
+} // namespace
 
 void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     // ccstd::vector<WGPUCommandBuffer> commandBuffs(count);
@@ -71,6 +85,9 @@ void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
         _numInstances += cmdBuff->getNumInstances();
         _numTriangles += cmdBuff->getNumTris();
     }
+
+    auto *recycleBin = CCWGPUDevice::getInstance()->recycleBin();
+    wgpuQueueOnSubmittedWorkDone(_gpuQueueObject->wgpuQueue, 0, wgpuQueueSubmitCallback, recycleBin);
 }
 
 } // namespace gfx

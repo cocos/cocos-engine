@@ -33,15 +33,19 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-CCWGPUTexture *defaultCommonTexture = nullptr;
-CCWGPUTexture *defaultStorageTexture = nullptr;
-} // namespace anoymous
+namespace {
+CCWGPUTexture *dftCommonTexture = nullptr;
+CCWGPUTexture *dftStorageTexture = nullptr;
+} // namespace
 
 using namespace emscripten;
 
 CCWGPUTexture::CCWGPUTexture() : Texture() {
     _gpuTextureObj = ccnew CCWGPUTextureObject;
+}
+
+CCWGPUTexture::~CCWGPUTexture() {
+    doDestroy();
 }
 
 void CCWGPUTexture::doInit(const TextureInfo &info) {
@@ -140,8 +144,7 @@ void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
 void CCWGPUTexture::doDestroy() {
     if (_gpuTextureObj) {
         if (_gpuTextureObj->wgpuTexture) {
-            wgpuTextureDestroy(_gpuTextureObj->wgpuTexture);
-            wgpuTextureRelease(_gpuTextureObj->wgpuTexture);
+            CCWGPUDevice::getInstance()->moveToTrash(_gpuTextureObj->wgpuTexture);
             CCWGPUDevice::getInstance()->getMemoryStatus().textureSize -= _size;
         }
         if (_gpuTextureObj->wgpuTextureView) {
@@ -169,8 +172,7 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         return;
     }
     if (_gpuTextureObj->wgpuTexture) {
-        wgpuTextureDestroy(_gpuTextureObj->wgpuTexture);
-        wgpuTextureRelease(_gpuTextureObj->wgpuTexture);
+        CCWGPUDevice::getInstance()->moveToTrash(_gpuTextureObj->wgpuTexture);
     }
     if (_gpuTextureObj->wgpuTextureView) {
         wgpuTextureViewRelease(_gpuTextureObj->wgpuTextureView);
@@ -219,7 +221,7 @@ void CCWGPUTexture::stamp() {
 }
 
 CCWGPUTexture *CCWGPUTexture::defaultCommonTexture() {
-    if (!anoymous::defaultCommonTexture) {
+    if (!dftCommonTexture) {
         TextureInfo info = {
             .type = TextureType::TEX2D,
             .usage = TextureUsageBit::SAMPLED,
@@ -233,15 +235,15 @@ CCWGPUTexture *CCWGPUTexture::defaultCommonTexture() {
             .depth = 1,
             .externalRes = nullptr,
         };
-        anoymous::defaultCommonTexture = ccnew CCWGPUTexture;
-        anoymous::defaultCommonTexture->initialize(info);
+        dftCommonTexture = ccnew CCWGPUTexture;
+        dftCommonTexture->initialize(info);
     }
 
-    return anoymous::defaultCommonTexture;
+    return dftCommonTexture;
 }
 
 CCWGPUTexture *CCWGPUTexture::defaultStorageTexture() {
-    if (!anoymous::defaultStorageTexture) {
+    if (!dftStorageTexture) {
         TextureInfo info = {
             .type = TextureType::TEX2D,
             .usage = TextureUsageBit::STORAGE,
@@ -255,11 +257,11 @@ CCWGPUTexture *CCWGPUTexture::defaultStorageTexture() {
             .depth = 1,
             .externalRes = nullptr,
         };
-        anoymous::defaultStorageTexture = ccnew CCWGPUTexture;
-        anoymous::defaultStorageTexture->initialize(info);
+        dftStorageTexture = ccnew CCWGPUTexture;
+        dftStorageTexture->initialize(info);
     }
 
-    return anoymous::defaultStorageTexture;
+    return dftStorageTexture;
 }
 
 CCWGPUSwapchain *CCWGPUTexture::swapchain() {

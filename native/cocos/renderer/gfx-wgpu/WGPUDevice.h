@@ -31,10 +31,10 @@
 #ifdef CC_WGPU_WASM
     #include "WGPUDef.h"
 #endif
+#include "WGPUObject.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDevice.h"
 
-#define EMSArraysToU8Vec(v, i) (emscripten::convertJSArrayToNumberVector<uint8_t>(v[i]))
 namespace cc {
 namespace gfx {
 
@@ -51,12 +51,12 @@ public:
     CCWGPUDevice();
     ~CCWGPUDevice();
 
-    void acquire(const emscripten::val &swapchains);
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
     inline CCWGPUDeviceObject *gpuDeviceObject() { return _gpuDeviceObj; }
-
+    inline uint8_t getCurrentFrameIndex() const { return _currentFrameIndex; }
+    inline CCWGPURecycleBin *recycleBin() { return &_recycleBin[_currentFrameIndex]; }
     inline void registerSwapchain(CCWGPUSwapchain *swapchain) { _swapchains.push_back(swapchain); }
     inline void unRegisterSwapchain(CCWGPUSwapchain *swapchain) {
         auto iter = std::find(_swapchains.begin(), _swapchains.end(), swapchain);
@@ -65,25 +65,29 @@ public:
         }
     }
 
+    template <typename T>
+    void moveToTrash(T &t);
+
     void debug();
+
+    using Device::createBuffer;
+    using Device::createDescriptorSet;
+    using Device::createDescriptorSetLayout;
+    using Device::createFramebuffer;
+    using Device::createInputAssembler;
+    using Device::createPipelineLayout;
+    using Device::createPipelineState;
+    using Device::createRenderPass;
+    using Device::createShader;
+    using Device::createSwapchain;
+    using Device::createTexture;
+    using Device::getGeneralBarrier;
+    using Device::getSampler;
+    using Device::initialize;
 
     // ems export override
     EXPORT_EMS(
-        using Device::createTexture;
-        using Device::createBuffer;
-        using Device::createDescriptorSet;
-        using Device::createDescriptorSetLayout;
-        using Device::createFramebuffer;
-        using Device::createInputAssembler;
-        using Device::createPipelineLayout;
-        using Device::createPipelineState;
-        using Device::createRenderPass;
-        using Device::createShader;
-        using Device::createSwapchain;
-        using Device::getGeneralBarrier;
-        using Device::getSampler;
-        using Device::initialize;
-
+        void acquire(const emscripten::val &swapchains);
         void initialize(const emscripten::val &info);
         Swapchain * createSwapchain(const emscripten::val &info);
         Framebuffer * createFramebuffer(const emscripten::val &info);
@@ -137,9 +141,27 @@ protected:
 
     void initFormatFeatures();
 
+    uint8_t _currentFrameIndex{0};
     CCWGPUDeviceObject *_gpuDeviceObj = nullptr;
     ccstd::vector<CCWGPUSwapchain *> _swapchains;
+
+    CCWGPURecycleBin _recycleBin[CC_WGPU_MAX_FRAME_COUNT];
 };
+
+template <>
+inline void CCWGPUDevice::moveToTrash<WGPUBuffer>(WGPUBuffer &t) {
+    _recycleBin[_currentFrameIndex].bufferBin.collect(t);
+}
+
+template <>
+inline void CCWGPUDevice::moveToTrash<WGPUTexture>(WGPUTexture &t) {
+    _recycleBin[_currentFrameIndex].textureBin.collect(t);
+}
+
+template <>
+inline void CCWGPUDevice::moveToTrash<WGPUQuerySet>(WGPUQuerySet &t) {
+    _recycleBin[_currentFrameIndex].queryBin.collect(t);
+}
 
 } // namespace gfx
 

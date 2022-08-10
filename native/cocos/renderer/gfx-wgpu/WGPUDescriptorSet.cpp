@@ -36,13 +36,17 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-WGPUBindGroup defaultBindGroup = wgpuDefaultHandle;
+namespace {
+WGPUBindGroup dftBindGroup = wgpuDefaultHandle;
 }
 
 using namespace emscripten;
 
 CCWGPUDescriptorSet::CCWGPUDescriptorSet() : DescriptorSet() {
+}
+
+CCWGPUDescriptorSet::~CCWGPUDescriptorSet() {
+    doDestroy();
 }
 
 void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
@@ -174,7 +178,6 @@ void CCWGPUDescriptorSet::update() {
             uint8_t textureIdx = texIter != _textureIdxMap.end() ? texIter->second : 255;
             uint8_t samplerIdx = smpIter != _samplerIdxMap.end() ? smpIter->second : 255;
 
-            bool flag = false;
             if (textureIdx != 255 && _textures[resourceIndex]) {
                 auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries[textureIdx];
                 auto *texture = static_cast<CCWGPUTexture *>(_textures[resourceIndex]);
@@ -182,7 +185,6 @@ void CCWGPUDescriptorSet::update() {
                 bindGroupEntry.textureView = texture->gpuTextureObject()->selfView;
                 dsLayout->updateTextureLayout(bindGroupEntry.binding, texture);
                 _gpuBindGroupObj->bindingSet.insert(binding.binding);
-                flag = true;
             }
             if (samplerIdx != 255 && _samplers[resourceIndex]) {
                 auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries[samplerIdx];
@@ -221,15 +223,9 @@ void CCWGPUDescriptorSet::prepare() {
     });
 
     bool forceUpdate = buffIter != _buffers.end() || texIter != _textures.end();
-    if (buffIter != _buffers.end()) {
-        printf("%p buffer inter\n", (*buffIter));
-    }
-    if (texIter != _textures.end()) {
-        printf("%p texture inter\n", (*texIter));
-    }
 
-    if (forceUpdate) {
-        _isDirty = true;
+    _isDirty |= forceUpdate;
+    if (_isDirty) {
         update();
     }
 
@@ -247,14 +243,13 @@ void CCWGPUDescriptorSet::prepare() {
         const auto &entries = _gpuBindGroupObj->bindGroupEntries;
 
         CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
-        if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != anoymous::defaultBindGroup) {
+        if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != dftBindGroup) {
             wgpuBindGroupRelease(_gpuBindGroupObj->bindgroup);
         }
 
         if (entries.empty()) {
-            _gpuBindGroupObj->bindgroup = anoymous::defaultBindGroup;
-            _bgl = CCWGPUDescriptorSetLayout::defaultBindGroupLayout();
-            _ccbgl = nullptr;
+            _gpuBindGroupObj->bindgroup = dftBindGroup;
+            _hash = 9527;
         } else {
             static uint32_t count = 0;
             _label = std::to_string(_objectID) + "-" + std::to_string(count++) + "-" + std::to_string(dsLayout->getHash());
@@ -266,10 +261,8 @@ void CCWGPUDescriptorSet::prepare() {
                 .entries = entries.data(),
             };
             _gpuBindGroupObj->bindgroup = wgpuDeviceCreateBindGroup(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &bindGroupDesc);
-            _bgl = dsLayout->gpuLayoutEntryObject()->bindGroupLayout;
-            _ccbgl = dsLayout;
-            printf("create new bgp %zu %d, %d, \n", dsLayout->getHash(), forceUpdate, _isDirty);
-            // _local = dsLayout;
+            printf("create new bg\n");
+            _hash = dsLayout->getHash();
         }
         _isDirty = false;
         if (buffIter != _buffers.end())
@@ -292,7 +285,7 @@ uint8_t CCWGPUDescriptorSet::dynamicOffsetCount() const {
 void *CCWGPUDescriptorSet::defaultBindGroup() {
     CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
 
-    if (!anoymous::defaultBindGroup) {
+    if (!dftBindGroup) {
         CCWGPUBuffer *buffer = deviceObj->defaultResources.uniformBuffer;
         WGPUBindGroupEntry bufferEntry = {
             .binding = 0,
@@ -308,9 +301,9 @@ void *CCWGPUDescriptorSet::defaultBindGroup() {
             .entryCount = 1,
             .entries = &bufferEntry,
         };
-        anoymous::defaultBindGroup = wgpuDeviceCreateBindGroup(deviceObj->wgpuDevice, &bindGroupDesc);
+        dftBindGroup = wgpuDeviceCreateBindGroup(deviceObj->wgpuDevice, &bindGroupDesc);
     }
-    return anoymous::defaultBindGroup;
+    return dftBindGroup;
 }
 
 } // namespace gfx

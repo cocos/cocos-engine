@@ -40,7 +40,7 @@ class DescriptorSet;
 class CCWGPUPipelineLayout final : public PipelineLayout {
 public:
     CCWGPUPipelineLayout();
-    ~CCWGPUPipelineLayout() = default;
+    ~CCWGPUPipelineLayout();
 
     inline CCWGPUPipelineLayoutObject *gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
 
