@@ -1280,7 +1280,7 @@ int WebSocketImpl::onConnectionClosed(uint16_t code, const ccstd::string& reason
     }
 
     std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
-    wsHelper->sendMessageToCocosThread([this, isDestroyed]() {
+    wsHelper->sendMessageToCocosThread([this, isDestroyed, code, reason]() {
         if (*isDestroyed) {
             LOGD("WebSocket instance (%p) was destroyed!\n", this);
         } else {
