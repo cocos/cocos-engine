@@ -35,6 +35,7 @@ import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
+import { FillLight } from '../renderer/scene/fill-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
@@ -287,6 +288,9 @@ export class RenderAdditiveLightQueue {
             case LightType.SPOT:
                 if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
                 break;
+            case LightType.FILL:
+                isCulled = false;
+                break;
             default:
             }
             if (!isCulled) {
@@ -507,6 +511,35 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
                 } else {
                     _vec4Array[3] = (light as SpotLight).luminance;
+                }
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                break;
+            case LightType.FILL:
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, (light as FillLight).node!.getWorldPosition());
+                _vec4Array[3] = 2;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+
+                _vec4Array[0] = 0.0;
+                _vec4Array[1] = 0.0;
+                _vec4Array[2] = 0.0;
+                _vec4Array[3] = 0.0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+
+                Vec3.toArray(_vec4Array, (light as FillLight).direction);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
+
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (isHDR) {
+                    _vec4Array[3] = (light as FillLight).illuminance * exposure;
+                } else {
+                    _vec4Array[3] = (light as FillLight).illuminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;

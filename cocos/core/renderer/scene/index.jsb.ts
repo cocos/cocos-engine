@@ -65,6 +65,7 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    FILL,
     UNKNOWN,
 }
 
@@ -84,6 +85,10 @@ legacyCC.SpotLight = jsb.SpotLight;
 export const SphereLight = jsb.SphereLight;
 export type SphereLight = jsb.SphereLight;
 legacyCC.SphereLight = jsb.SphereLight;
+
+export const FillLight = jsb.FillLight;
+export type FillLight = jsb.FillLight;
+legacyCC.FillLight = jsb.FillLight;
 
 /**
  * Fog related.
@@ -285,8 +290,8 @@ export const EnvironmentLightingType = Enum({
 });
 export const ShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = jsb.ShadowsInfo;
-export const Shadows = jsb.Shadow;
-export type Shadows = jsb.Shadow;
+export const Shadows = jsb.Shadows;
+export type Shadows = jsb.Shadows;
 legacyCC.Shadows = Shadows;
 
 export const Skybox = jsb.Skybox;

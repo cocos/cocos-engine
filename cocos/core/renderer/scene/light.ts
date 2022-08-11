@@ -63,6 +63,7 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    FILL,
     UNKNOWN,
 }
 

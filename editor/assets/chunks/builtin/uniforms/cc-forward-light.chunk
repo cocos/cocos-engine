@@ -9,7 +9,7 @@
 #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
 #pragma builtin(local)
 layout(set = 2, binding = 1) uniform CCForwardLight {
-  highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight
+  highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: valid light type[0: sphere light, 1: spot light, 2: fill light]
   vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
   vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: cos(half outterAngle), w: enable shadow
   vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir, w: valid light count

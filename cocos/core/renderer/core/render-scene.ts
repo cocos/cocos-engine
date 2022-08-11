@@ -31,6 +31,7 @@ import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
+import { FillLight } from '../scene';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -112,6 +113,14 @@ export class RenderScene {
     }
 
     /**
+     * @en All fill light sources of the render scene
+     * @zh 渲染场景管理的所有补充光源
+     */
+    get fillLights (): FillLight[] {
+        return this._fillLights;
+    }
+
+    /**
      * @en All active models of the render scene
      * @zh 渲染场景管理的所有模型
      */
@@ -135,6 +144,7 @@ export class RenderScene {
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
+    private _fillLights: FillLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
 
@@ -365,6 +375,43 @@ export class RenderScene {
             this._spotLights[i].detachFromScene();
         }
         this._spotLights = [];
+    }
+
+    /**
+     * @en Add a fill light source.
+     * @zh 增加一个补充光源。
+     * @param sl The fill light.
+     */
+    public addFillLight (sl: FillLight) {
+        sl.attachToScene(this);
+        this._fillLights.push(sl);
+    }
+
+    /**
+     * @en Remove a fill light source.
+     * @zh 删除一个补充光源。
+     * @param sl The fill light.
+     */
+    public removeFillLight (sl: FillLight) {
+        for (let i = 0; i < this._fillLights.length; ++i) {
+            if (this._fillLights[i] === sl) {
+                sl.detachFromScene();
+                this._fillLights.splice(i, 1);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all fill light sources.
+     * @zh 删除所有补充光源。
+     */
+    public removeFillLights () {
+        for (let i = 0; i < this._fillLights.length; ++i) {
+            this._fillLights[i].detachFromScene();
+        }
+        this._fillLights = [];
     }
 
     /**

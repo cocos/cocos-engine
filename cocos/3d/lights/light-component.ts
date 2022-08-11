@@ -287,6 +287,9 @@ export class Light extends Component {
             case scene.LightType.SPOT:
                 renderScene.addSpotLight(this._light as scene.SpotLight);
                 break;
+            case scene.LightType.FILL:
+                renderScene.addFillLight(this._light as scene.FillLight);
+                break;
             default:
                 break;
             }
@@ -306,6 +309,9 @@ export class Light extends Component {
                 break;
             case scene.LightType.SPOT:
                 renderScene.removeSpotLight(this._light as scene.SpotLight);
+                break;
+            case scene.LightType.FILL:
+                renderScene.removeFillLight(this._light as scene.FillLight);
                 break;
             default:
                 break;
