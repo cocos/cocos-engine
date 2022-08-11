@@ -126,7 +126,7 @@ public:
      *
      * @see `AudioProfile`
      */
-    static int play2d(const ccstd::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
+    static int play2d(const std::string &filePath, bool loop = false, float volume = 1.0F, float playbackRate = 1.0F, const AudioProfile *profile = nullptr);
 
     /** 
      * Sets whether an audio instance loop or not.
@@ -165,6 +165,22 @@ public:
      * @return Volume value (range from 0.0 to 1.0).
      */
     static float getVolume(int audioID);
+
+    /** 
+     * Sets playbackRate for an audio instance.
+     *
+     * @param audioID An audioID returned by the play2d function.
+     * @param volume PlaybackRate value (range from 0.3 to 5.0).
+     */
+    static void setPlaybackRate(int audioID, float playbackRate);
+
+    /** 
+     * Gets the playbackRate value of an audio instance.
+     *
+     * @param audioID An audioID returned by the play2d function.
+     * @return PlaybackRate value (range from 0.3 to 5.0).
+     */
+    static float getPlaybackRate(int audioID);
 
     /** 
      * Pause an audio instance.
@@ -355,9 +371,10 @@ protected:
         const ccstd::string *filePath;
         ProfileHelper *profileHelper;
 
-        float volume;
-        bool loop;
-        float duration;
+        float      volume;
+        float      playbackRate;
+        bool       loop;
+        float      duration;
         AudioState state;
 
         AudioInfo();

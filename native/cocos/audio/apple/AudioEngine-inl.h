@@ -43,14 +43,15 @@ public:
     AudioEngineImpl();
     ~AudioEngineImpl();
 
-    bool init();
-    int play2d(const ccstd::string &fileFullPath, bool loop, float volume);
-    void setVolume(int audioID, float volume);
-    void setLoop(int audioID, bool loop);
-    bool pause(int audioID);
-    bool resume(int audioID);
-    void stop(int audioID);
-    void stopAll();
+    bool  init();
+    int   play2d(const std::string &fileFullPath, bool loop, float volume, float playbackRate);
+    void  setVolume(int audioID, float volume);
+    void  setPlaybackRate(int audioID, float playbackRate);
+    void  setLoop(int audioID, bool loop);
+    bool  pause(int audioID);
+    bool  resume(int audioID);
+    void  stop(int audioID);
+    void  stopAll();
     float getDuration(int audioID);
     float getDurationFromFile(const ccstd::string &fileFullPath);
     float getCurrentTime(int audioID);

@@ -60,6 +60,9 @@ public:
 
     void setVolume(float volume);
     float getVolume() const;
+    
+    void setPlaybackRate(float rate);
+    float getPlaybackRate() const;
 
     void setAudioFocus(bool isFocus);
 
@@ -89,6 +92,7 @@ private:
     std::mutex _stateMutex;
     int _name;
     float _volume;
+    float _playbackRate;
     bool _isVolumeDirty;
     std::mutex _volumeDirtyMutex;
     bool _isLoop;

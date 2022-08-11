@@ -56,7 +56,7 @@ public:
 };
 
 UrlAudioPlayer::UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils *callerThreadUtils)
-: _engineItf(engineItf), _outputMixObj(outputMixObject), _callerThreadUtils(callerThreadUtils), _id(-1), _assetFd(nullptr), _playObj(nullptr), _playItf(nullptr), _seekItf(nullptr), _volumeItf(nullptr), _volume(0.0f), _duration(0.0f), _isLoop(false), _isAudioFocus(true), _state(State::INVALID), _playEventCallback(nullptr), _isDestroyed(std::make_shared<bool>(false)) {
+: _engineItf(engineItf), _outputMixObj(outputMixObject), _callerThreadUtils(callerThreadUtils), _id(-1), _assetFd(nullptr), _playObj(nullptr), _playItf(nullptr), _seekItf(nullptr), _volumeItf(nullptr), _playbackRateItf(nullptr), _volume(0.0f), _playbackRate(0.0f), _duration(0.0f), _isLoop(false), _isAudioFocus(true), _state(State::INVALID), _playEventCallback(nullptr), _isDestroyed(std::make_shared<bool>(false)) {
     std::call_once(__onceFlag, []() {
         __playerContainer.reserve(10);
     });
@@ -198,6 +198,17 @@ float UrlAudioPlayer::getVolume() const {
     return _volume;
 }
 
+void UrlAudioPlayer::setPlaybackRate(float playbackRate) {
+    _playbackRate = playbackRate;
+
+    SLresult r = (*_playbackRateItf)->SetRate(_playbackRateItf, (SLpermille)playbackRate*1000);
+    SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::setPlaybackRate failed");
+}
+
+float UrlAudioPlayer::getPlaybackRate() const {
+    return _playbackRate;
+}
+
 void UrlAudioPlayer::setAudioFocus(bool isFocus) {
     _isAudioFocus = isFocus;
     float volume = _isAudioFocus ? _volume : 0.0f;
@@ -284,10 +295,10 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
     SLDataSink audioSnk = {&locOutmix, nullptr};
 
     // create audio player
-    const SLInterfaceID ids[3] = {SL_IID_SEEK, SL_IID_PREFETCHSTATUS, SL_IID_VOLUME};
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[4] = {SL_IID_SEEK, SL_IID_PREFETCHSTATUS, SL_IID_VOLUME, SL_IID_PLAYBACKRATE};
+    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
-    SLresult result = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &audioSrc, &audioSnk, 3, ids, req);
+    SLresult result = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &audioSrc, &audioSnk, 4, ids, req);
     SL_RETURN_VAL_IF_FAILED(result, false, "CreateAudioPlayer failed");
 
     // realize the player
@@ -306,6 +317,9 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
     result = (*_playObj)->GetInterface(_playObj, SL_IID_VOLUME, &_volumeItf);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_VOLUME failed");
 
+    result = (*_playObj)->GetInterface(_playObj, SL_IID_PLAYBACKRATE, &_playbackRateItf);
+    SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_PLAYBACKRATE failed");
+
     result = (*_playItf)->RegisterCallback(_playItf,
                                            SLUrlAudioPlayerCallbackProxy::playEventCallback, this);
     SL_RETURN_VAL_IF_FAILED(result, false, "RegisterCallback failed");
@@ -316,7 +330,7 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
     setState(State::INITIALIZED);
 
     setVolume(1.0f);
-
+    
     return true;
 }
 

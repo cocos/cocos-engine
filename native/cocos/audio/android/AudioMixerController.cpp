@@ -131,6 +131,9 @@ void AudioMixerController::initTrack(Track *track, ccstd::vector<Track *> &track
         _mixer->setParameter(name, AudioMixer::VOLUME, AudioMixer::VOLUME0, &lVolume);
         _mixer->setParameter(name, AudioMixer::VOLUME, AudioMixer::VOLUME1, &rVolume);
 
+        float playbackRate = track->getPlaybackRate();
+        _mixer->setParameter(name, AudioMixer::TIMESTRETCH, AudioMixer::PLAYBACK_RATE, &playbackRate);
+
         track->setVolumeDirty(false);
         track->setInitialized(true);
     }
@@ -193,6 +196,9 @@ void AudioMixerController::mixOneFrame() {
 
                 _mixer->setParameter(name, AudioMixer::VOLUME, AudioMixer::VOLUME0, &lVolume);
                 _mixer->setParameter(name, AudioMixer::VOLUME, AudioMixer::VOLUME1, &rVolume);
+
+                float playbackRate = track->getPlaybackRate();
+                _mixer->setParameter(name, AudioMixer::TIMESTRETCH, AudioMixer::PLAYBACK_RATE, &playbackRate);
 
                 track->setVolumeDirty(false);
             }

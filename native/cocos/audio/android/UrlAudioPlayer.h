@@ -62,6 +62,10 @@ public:
 
     virtual float getVolume() const override;
 
+    virtual void setPlaybackRate(float rate) override;
+
+    virtual float getPlaybackRate() const override;
+
     virtual void setAudioFocus(bool isFocus) override;
 
     virtual void setLoop(bool isLoop) override;
@@ -108,8 +112,10 @@ private:
     SLPlayItf _playItf;
     SLSeekItf _seekItf;
     SLVolumeItf _volumeItf;
+    SLPlaybackRateItf _playbackRateItf;
 
     float _volume;
+    float _playbackRate;
     float _duration;
     bool _isLoop;
     bool _isAudioFocus;

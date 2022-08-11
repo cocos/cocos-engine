@@ -103,6 +103,14 @@ float PcmAudioPlayer::getVolume() const {
     return _track->getVolume();
 }
 
+void PcmAudioPlayer::setPlaybackRate(float rate) {
+    _track->setPlaybackRate(rate);
+}
+
+float PcmAudioPlayer::getPlaybackRate() const {
+    return _track->getPlaybackRate();
+}
+
 void PcmAudioPlayer::setAudioFocus(bool isFocus) {
     _track->setAudioFocus(isFocus);
 }

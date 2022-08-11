@@ -81,6 +81,7 @@ AudioEngine::AudioInfo::AudioInfo()
 : filePath(nullptr),
   profileHelper(nullptr),
   volume(1.0F),
+  playbackRate(1.0F),
   loop(false),
   duration(TIME_UNKNOWN),
   state(AudioState::INITIALIZING) {
@@ -190,7 +191,7 @@ bool AudioEngine::lazyInit() {
     return true;
 }
 
-int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, const AudioProfile *profile) {
+int AudioEngine::play2d(const std::string &filePath, bool loop, float volume, float playbackRate, const AudioProfile *profile) {
     int ret = AudioEngine::INVALID_AUDIO_ID;
 
     do {
@@ -238,14 +239,15 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             volume = 1.0F;
         }
 
-        ret = sAudioEngineImpl->play2d(filePath, loop, volume);
+        ret = sAudioEngineImpl->play2d(filePath, loop, volume, playbackRate);
         if (ret != INVALID_AUDIO_ID) {
             sAudioPathIDMap[filePath].push_back(ret);
             auto it = sAudioPathIDMap.find(filePath);
 
-            auto &audioRef = sAudioIDInfoMap[ret];
-            audioRef.volume = volume;
-            audioRef.loop = loop;
+            auto &audioRef    = sAudioIDInfoMap[ret];
+            audioRef.volume   = volume;
+            audioRef.playbackRate = playbackRate;
+            audioRef.loop     = loop;
             audioRef.filePath = &it->first;
             audioRef.state = AudioState::PLAYING;
 
@@ -284,16 +286,19 @@ void AudioEngine::setVolume(int audioID, float volume) {
     }
 }
 
-void AudioEngine::setVolumeFactor(float factor) {
-    if (factor > 1.0F) {
-        factor = 1.0F;
-    }
-    if (factor < 0) {
-        factor = 0.0F;
-    }
-    sVolumeFactor = factor;
-    for (auto &item : sAudioIDInfoMap) {
-        sAudioEngineImpl->setVolume(item.first, item.second.volume * sVolumeFactor);
+void AudioEngine::setPlaybackRate(int audioID, float playbackRate) {
+    auto it = sAudioIDInfoMap.find(audioID);
+    if (it != sAudioIDInfoMap.end()) {
+        if (playbackRate < 0.3F) {
+            playbackRate = 0.3F;
+        } else if (playbackRate > 5.0F) {
+            playbackRate = 5.0F;
+        }
+
+        if (it->second.playbackRate != playbackRate) {
+            sAudioEngineImpl->setPlaybackRate(audioID, playbackRate);
+            it->second.playbackRate = playbackRate;
+        }
     }
 }
 
@@ -511,6 +516,16 @@ float AudioEngine::getVolume(int audioID) {
 
     CC_LOG_INFO("AudioEngine::getVolume-->The audio instance %d is non-existent", audioID);
     return 0.0F;
+}
+
+float AudioEngine::getPlaybackRate(int audioID) {
+    auto tmpIterator = sAudioIDInfoMap.find(audioID);
+    if (tmpIterator != sAudioIDInfoMap.end()) {
+        return tmpIterator->second.playbackRate;
+    }
+
+    CC_LOG_INFO("AudioEngine::getPlaybackRate-->The audio instance %d is non-existent", audioID);
+    return 1.0F;
 }
 
 AudioEngine::AudioState AudioEngine::getState(int audioID) {

@@ -50,14 +50,15 @@ public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;
 
-    bool init();
-    int play2d(const ccstd::string &filePath, bool loop, float volume);
-    void setVolume(int audioID, float volume);
-    void setLoop(int audioID, bool loop);
-    void pause(int audioID);
-    void resume(int audioID);
-    void stop(int audioID);
-    void stopAll();
+    bool  init();
+    int   play2d(const std::string &filePath, bool loop, float volume, float playbackRate);
+    void  setVolume(int audioID, float volume);
+    void  setPlaybackRate(int audioID, float playbackRate);
+    void  setLoop(int audioID, bool loop);
+    void  pause(int audioID);
+    void  resume(int audioID);
+    void  stop(int audioID);
+    void  stopAll();
     float getDuration(int audioID);
     float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int audioID);

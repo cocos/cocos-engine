@@ -67,6 +67,10 @@ public:
 
     virtual float getVolume() const = 0;
 
+    virtual void setPlaybackRate(float rate) = 0;
+
+    virtual float getPlaybackRate() const = 0;
+    
     virtual void setAudioFocus(bool isFocus) = 0;
 
     virtual void setLoop(bool isLoop) = 0;

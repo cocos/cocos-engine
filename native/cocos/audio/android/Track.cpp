@@ -33,7 +33,7 @@ THE SOFTWARE.
 namespace cc {
 
 Track::Track(const PcmData &pcmData)
-: onStateChanged(nullptr), _pcmData(pcmData), _prevState(State::IDLE), _state(State::IDLE), _name(-1), _volume(1.0f), _isVolumeDirty(true), _isLoop(false), _isInitialized(false), _isAudioFocus(true) {
+: onStateChanged(nullptr), _pcmData(pcmData), _prevState(State::IDLE), _state(State::IDLE), _name(-1), _volume(1.0f), _playbackRate(1.0f), _isVolumeDirty(true), _isLoop(false), _isInitialized(false), _isAudioFocus(true) {
     init(_pcmData.pcmBuffer->data(), _pcmData.numFrames, _pcmData.bitsPerSample / 8 * _pcmData.numChannels);
 }
 
@@ -67,6 +67,18 @@ void Track::setVolume(float volume) {
 
 float Track::getVolume() const {
     return _volume;
+}
+
+void Track::setPlaybackRate(float playbackRate) {
+    // std::lock_guard<std::mutex> lk(_volumeDirtyMutex);
+    if (fabs(_playbackRate - playbackRate) > 0.00001) {
+        _playbackRate = playbackRate;
+        // setVolumeDirty(true);
+    }
+}
+
+float Track::getPlaybackRate() const {
+    return _playbackRate;
 }
 
 void Track::setAudioFocus(bool isFocus) {

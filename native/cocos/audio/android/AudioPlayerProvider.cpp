@@ -446,4 +446,11 @@ void AudioPlayerProvider::resume() {
     }
 }
 
+void AudioPlayerProvider::setPlaybackRate(float rate)
+{
+    if (_pcmAudioService != nullptr) {
+        _pcmAudioService->setPlaybackRate(rate);
+    }
+}
+
 } // namespace cc

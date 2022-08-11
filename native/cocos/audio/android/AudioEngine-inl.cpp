@@ -199,7 +199,7 @@ void AudioEngineImpl::setAudioFocusForAllPlayers(bool isFocus) {
     }
 }
 
-int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
+int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume, float playbackRate) {
     ALOGV("play2d, _audioPlayers.size=%d", (int)_audioPlayers.size());
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
@@ -244,8 +244,10 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
                 }
             });
 
+            _audioPlayerProvider->setPlaybackRate(playbackRate);
             player->setLoop(loop);
             player->setVolume(volume);
+            player->setPlaybackRate(playbackRate);
             player->play();
         } else {
             ALOGE("Oops, player is null ...");
@@ -264,6 +266,14 @@ void AudioEngineImpl::setVolume(int audioID, float volume) {
     if (iter != _audioPlayers.end()) {
         auto *player = iter->second;
         player->setVolume(volume);
+    }
+}
+
+void AudioEngineImpl::setPlaybackRate(int audioID, float playbackRate) {
+    auto iter = _audioPlayers.find(audioID);
+    if (iter != _audioPlayers.end()) {
+        auto player = iter->second;
+        player->setPlaybackRate(playbackRate);
     }
 }
 

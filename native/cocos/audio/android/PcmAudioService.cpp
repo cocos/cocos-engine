@@ -43,7 +43,7 @@ public:
 };
 
 PcmAudioService::PcmAudioService(SLEngineItf engineItf, SLObjectItf outputMixObject)
-: _engineItf(engineItf), _outputMixObj(outputMixObject), _playObj(nullptr), _playItf(nullptr), _volumeItf(nullptr), _bufferQueueItf(nullptr), _numChannels(-1), _sampleRate(-1), _bufferSizeInBytes(0), _controller(nullptr) {
+: _engineItf(engineItf), _outputMixObj(outputMixObject), _playObj(nullptr), _playItf(nullptr), _volumeItf(nullptr), _playbackRateItf(nullptr), _bufferQueueItf(nullptr), _numChannels(-1), _sampleRate(-1), _bufferSizeInBytes(0), _controller(nullptr) {
 }
 
 PcmAudioService::~PcmAudioService() {
@@ -113,10 +113,12 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     const SLInterfaceID ids[] = {
         SL_IID_PLAY,
         SL_IID_VOLUME,
+        SL_IID_PLAYBACKRATE,
         SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
     };
 
     const SLboolean req[] = {
+        SL_BOOLEAN_TRUE,
         SL_BOOLEAN_TRUE,
         SL_BOOLEAN_TRUE,
         SL_BOOLEAN_TRUE,
@@ -136,6 +138,9 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     r = (*_playObj)->GetInterface(_playObj, SL_IID_VOLUME, &_volumeItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_VOLUME failed");
 
+    r = (*_playObj)->GetInterface(_playObj, SL_IID_PLAYBACKRATE, &_playbackRateItf);
+    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_PLAYBACKRATE failed");
+
     r = (*_playObj)->GetInterface(_playObj, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &_bufferQueueItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_ANDROIDSIMPLEBUFFERQUEUE failed");
 
@@ -153,6 +158,11 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     SL_RETURN_VAL_IF_FAILED(r, false, "SetPlayState failed");
 
     return true;
+}
+
+void PcmAudioService::setPlaybackRate(float rate) {
+    SLresult r = (*_playbackRateItf)->SetRate(_playbackRateItf, (SLpermille)1000*rate);
+    SL_RETURN_IF_FAILED(r, "PcmAudioService::setPlaybackRate failed");
 }
 
 void PcmAudioService::pause() {

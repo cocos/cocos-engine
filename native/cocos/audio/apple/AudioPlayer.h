@@ -61,7 +61,8 @@ protected:
 
     float _volume;
     bool _loop;
-    std::function<void(int, const ccstd::string &)> _finishCallbak;
+    float _playbackRate;
+    std::function<void(int, const std::string &)> _finishCallbak;
 
     bool _isDestroyed;
     bool _removeByAudioEngine;
