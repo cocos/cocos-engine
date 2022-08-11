@@ -38,7 +38,7 @@ public:
     CCVKShader();
     ~CCVKShader() override;
 
-    CCVKGPUShader *gpuShader();
+    CCVKGPUShader *gpuShader() const;
 
 protected:
     void doInit(const ShaderInfo &info) override;

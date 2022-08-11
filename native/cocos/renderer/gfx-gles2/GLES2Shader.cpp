@@ -55,7 +55,7 @@ void initGpuShader(GLES2GPUShader *gpuShader) {
 
 } // namespace
 
-GLES2GPUShader *GLES2Shader::gpuShader() {
+GLES2GPUShader *GLES2Shader::gpuShader() const {
     if (!_gpuShader->glProgram) {
         initGpuShader(_gpuShader);
     }

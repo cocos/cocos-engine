@@ -56,7 +56,7 @@ void initGpuShader(CCVKGPUShader* gpuShader) {
 
 } // namespace
 
-CCVKGPUShader *CCVKShader::gpuShader() {
+CCVKGPUShader *CCVKShader::gpuShader() const {
     if (!_gpuShader->initialized) {
         initGpuShader(_gpuShader);
     }
