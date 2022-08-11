@@ -517,16 +517,16 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { //NOLINT(misc-no
     dirtyBits |= currDirtyBits;
     if (parent) {
         if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
-            _worldPosition.transformMat4(_localPosition, parent->getWorldMatrix());
+            _worldPosition.transformMat4(_localPosition, parent->_worldMatrix);
             _worldMatrix.m[12] = _worldPosition.x;
             _worldMatrix.m[13] = _worldPosition.y;
             _worldMatrix.m[14] = _worldPosition.z;
         }
         if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &_worldMatrix);
-            Mat4::multiply(parent->getWorldMatrix(), _worldMatrix, &_worldMatrix);
+            Mat4::multiply(parent->_worldMatrix, _worldMatrix, &_worldMatrix);
             if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
-                Quaternion::multiply(parent->getWorldRotation(), _localRotation, &_worldRotation);
+                Quaternion::multiply(parent->_worldRotation, _localRotation, &_worldRotation);
             }
             Quaternion quat = _worldRotation;
             quat.conjugate();
