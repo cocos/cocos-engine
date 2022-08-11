@@ -30,13 +30,16 @@
 #include <array>
 #include <cstdint>
 #include <regex>
+#include <memory>
+
+#include <native_drawing/drawing_types.h>
+#include <native_drawing/drawing_bitmap.h>
+#include <native_drawing/drawing_text_declaration.h>
+
 #include "base/csscolorparser.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "math/Math.h"
 #include "platform/FileUtils.h"
-#include <native_drawing/drawing_types.h>
-#include <native_drawing/drawing_bitmap.h>
-#include <native_drawing/drawing_text_declaration.h>
 
 namespace cc {
 
@@ -87,10 +90,13 @@ private:
     void                 fillTextureData();
     std::array<float, 2> convertDrawPoint(Point point, const std::string &text);
 
+    class ScopedTypography;
+    std::unique_ptr<ScopedTypography> createTypography(const std::string &text);
 public:
     int          _screen{0};
 
 private:
+
     int32_t _x{0};
     int32_t _y{0};
     int32_t _lineCap{0};
@@ -101,8 +107,7 @@ private:
     OH_Drawing_BitmapFormat _format {COLOR_FORMAT_RGBA_8888, ALPHA_FORMAT_OPAQUE};
     OH_Drawing_Canvas* _canvas{nullptr};
     OH_Drawing_TypographyStyle* _typographyStyle{nullptr};
-    OH_Drawing_Typography*  _typography{nullptr};
-    OH_Drawing_TypographyCreate* _typograhyCreate{nullptr};
+    OH_Drawing_TypographyCreate* _typographyCreate{nullptr};
     OH_Drawing_FontCollection* _fontCollection{nullptr};
     OH_Drawing_TextStyle* _textStyle{nullptr};
     cc::Data    _imageData;
