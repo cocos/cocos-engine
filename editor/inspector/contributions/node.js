@@ -308,9 +308,7 @@ exports.template = /* html*/`
         <div class="node-section"></div>
     </ui-section>
 
-    <section class="section-header"></section>
     <section class="section-body"></section>
-    <section class="section-footer"></section>
     <section class="section-missing"></section>
 
     <footer class="footer">
@@ -366,9 +364,7 @@ exports.$ = {
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
 
-    sectionHeader: '.section-header',
     sectionBody: '.section-body',
-    sectionFooter: '.section-footer',
     sectionMissing: '.section-missing',
     sectionAsset: '.section-asset',
 
