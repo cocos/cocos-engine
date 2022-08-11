@@ -335,7 +335,7 @@ export class TerrainAsset extends Asset {
      * @en normal buffer
      * @zh 法线缓存
      */
-     set normals (value: Float32Array) {
+    set normals (value: Float32Array) {
         this._normals = value;
     }
 
@@ -460,7 +460,7 @@ export class TerrainAsset extends Asset {
         for (let i = 0; i < this.heights.length; ++i) {
             this.heights[i] = stream.readInt16();
         }
-        
+
         // normals
         if (this._version >= TERRAIN_DATA_VERSION6) {
             const normalBufferSize = stream.readInt();

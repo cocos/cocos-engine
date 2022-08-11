@@ -34,7 +34,7 @@ import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { Pass, scene } from '../core/renderer';
@@ -2109,9 +2109,7 @@ export class Terrain extends Component {
             ));
             gfxBuffer.update(this._lod._indexBuffer);
             return gfxBuffer;
-        }
-        
-        else {
+        } else {
             const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
 
             let index = 0;
@@ -2126,7 +2124,6 @@ export class Terrain extends Component {
                     indexData[index++] = a;
                     indexData[index++] = c;
                     indexData[index++] = b;
-
                     // face 2
                     indexData[index++] = b;
                     indexData[index++] = c;
@@ -2160,8 +2157,7 @@ export class Terrain extends Component {
         if (this._lod !== null) {
             this._sharedLodIndexBuffer = this._createSharedIndexBuffer();
             return this._sharedLodIndexBuffer;
-        }
-        else {
+        } else {
             this._sharedIndexBuffer = this._createSharedIndexBuffer();
             return this._sharedIndexBuffer;
         }
