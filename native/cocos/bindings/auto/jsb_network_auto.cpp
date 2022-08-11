@@ -21,6 +21,43 @@ static bool js_network_getter_return_true(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_network_getter_return_true)
 #endif
+se::Object* __jsb_cc_network_DownloadTask_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_network_DownloadTask_class = nullptr;  // NOLINT
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_network_DownloadTask_finalize)
+
+static bool js_network_DownloadTask_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::network::DownloadTask);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_network_DownloadTask_constructor, __jsb_cc_network_DownloadTask_class, js_cc_network_DownloadTask_finalize)
+
+static bool js_cc_network_DownloadTask_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_network_DownloadTask_finalize)
+
+bool js_register_network_DownloadTask(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DownloadTask", obj, nullptr, _SE(js_network_DownloadTask_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_network_getter_return_true), nullptr);
+#endif
+    cls->defineFinalizeFunction(_SE(js_cc_network_DownloadTask_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::network::DownloadTask>(cls);
+
+    __jsb_cc_network_DownloadTask_proto = cls->getProto();
+    __jsb_cc_network_DownloadTask_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_network_DownloaderHints_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;  // NOLINT
 
@@ -218,6 +255,26 @@ bool js_register_network_DownloaderHints(se::Object* obj) // NOLINT(readability-
 se::Object* __jsb_cc_network_Downloader_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_network_Downloader_class = nullptr;  // NOLINT
 
+static bool js_network_Downloader_abort(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::shared_ptr<const cc::network::DownloadTask>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->abort(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_network_Downloader_abort)
+
 static bool js_network_Downloader_setOnProgress(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
@@ -365,6 +422,7 @@ bool js_register_network_Downloader(se::Object* obj) // NOLINT(readability-ident
     cls->defineStaticProperty("isJSBClass", _SE(js_network_getter_return_true), nullptr);
 #endif
     cls->defineProperty("onProgress", nullptr, _SE(js_network_Downloader_setOnProgress_asSetter));
+    cls->defineFunction("abort", _SE(js_network_Downloader_abort));
     cls->defineFunction("setOnTaskProgress", _SE(js_network_Downloader_setOnTaskProgress));
     cls->defineFinalizeFunction(_SE(js_cc_network_Downloader_finalize));
     cls->install();
@@ -389,6 +447,7 @@ bool register_all_network(se::Object* obj)    // NOLINT
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_network_DownloadTask(ns);
     js_register_network_Downloader(ns);
     js_register_network_DownloaderHints(ns);
     return true;
