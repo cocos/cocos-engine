@@ -26,7 +26,6 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
-import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/core/render-scene';
 import { Node } from './node';
@@ -144,10 +143,6 @@ export class Scene extends Node {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        if (this._parent) {
-            this._siblingIndex = this._parent._children.indexOf(this);
-        }
-
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -193,14 +188,6 @@ export class Scene extends Node {
         // The test environment does not currently support the renderer
         if (!TEST) {
             this._globals.activate();
-        }
-    }
-
-    public _onSetParent (oldParent: this | null, keepWorldTransform = false) {
-        if (this._parent) {
-            if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
-                this.walk(Node._setScene);
-            }
         }
     }
 }
