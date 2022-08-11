@@ -84,20 +84,22 @@ export const simple: IAssembler = {
 
         const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
-        const matrix = node.worldMatrix;
+        const m = node.worldMatrix;
 
         const stride = renderData.floatStride;
-
-        const vec3_temp = vec3_temps[0];
         let offset = 0;
-        for (let i = 0; i < dataList.length; i++) {
+        const length = dataList.length;
+        for (let i = 0; i < length; i++) {
             const curData = dataList[i];
-            Vec3.set(vec3_temp, curData.x, curData.y, 0);
-            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            const x = curData.x;
+            const y = curData.y;
+            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            rhw = rhw ? Math.abs(1 / rhw) : 1;
+
             offset = i * stride;
-            vData[offset++] = vec3_temp.x;
-            vData[offset++] = vec3_temp.y;
-            vData[offset++] = vec3_temp.z;
+            vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
         }
     },
 
