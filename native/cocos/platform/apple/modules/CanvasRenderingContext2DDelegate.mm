@@ -75,6 +75,7 @@
     cc::ICanvasRenderingContext2D::TextBaseline _textBaseLine;
     ccstd::array<float, 4> _fillStyle;
     ccstd::array<float, 4> _strokeStyle;
+    NSColor *_shadowColor;
     float _lineWidth;
     bool _bold;
 }
@@ -85,6 +86,9 @@
 @property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextAlign textAlign;
 @property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextBaseline textBaseLine;
 @property (nonatomic, assign) float lineWidth;
+@property (nonatomic, assign) float shadowBlur;
+@property (nonatomic, assign) float shadowOffsetX;
+@property (nonatomic, assign) float shadowOffsetY;
 
 @end
 
@@ -103,6 +107,8 @@
         _textAlign = cc::ICanvasRenderingContext2D::TextAlign::LEFT;
         _textBaseLine = cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM;
         _width = _height = 0;
+        _shadowBlur = _shadowOffsetX = _shadowOffsetY = 0;
+        _shadowColor = nil;
         _context = nil;
         _colorSpace = nil;
 
@@ -122,6 +128,10 @@
     self.font = nil;
     self.tokenAttributesDict = nil;
     self.fontName = nil;
+    if (_shadowColor) {
+        [_shadowColor release];
+    }
+    _shadowColor = nil;
     CGColorSpaceRelease(_colorSpace);
     // release the context
     CGContextRelease(_context);
@@ -326,6 +336,13 @@
     return point;
 }
 
+- (bool) isShadowEnabled {
+    if (_shadowColor && (_shadowBlur > 0 || _shadowOffsetX > 0 || _shadowOffsetY > 0)) {
+        return true;
+    }
+    return false;
+}
+
 - (void)fillText:(NSString *)text x:(CGFloat)x y:(CGFloat)y maxWidth:(CGFloat)maxWidth {
     if (text.length == 0)
         return;
@@ -348,6 +365,9 @@
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
     CGContextSetTextDrawingMode(_context, kCGTextFill);
+    if ([self isShadowEnabled]) {
+        CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, _shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
+    }
 
     NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
                                                                                 attributes:_tokenAttributesDict] autorelease];
@@ -388,6 +408,9 @@
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
     CGContextSetTextDrawingMode(_context, kCGTextStroke);
+    if ([self isShadowEnabled]) {
+        CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, _shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
+    }
 
     NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
                                                                                 attributes:_tokenAttributesDict] autorelease];
@@ -411,6 +434,11 @@
     _strokeStyle[1] = g;
     _strokeStyle[2] = b;
     _strokeStyle[3] = a;
+}
+
+- (void)setShadowColorWithRed:(CGFloat)r green:(CGFloat)g blue:(CGFloat)b alpha:(CGFloat)a {
+    _shadowColor = [NSColor colorWithRed:r green:g blue:b alpha:a];
+    [_shadowColor retain];
 }
 
 - (const cc::Data &)getDataRef {
@@ -641,6 +669,22 @@ void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint3
             ptr[i + 2] = CLAMP((int)((float)ptr[i + 2] / alpha * 255), 255);
         }
     }
+}
+
+void CanvasRenderingContext2DDelegate::setShadowBlur(float blur) {
+    _impl.shadowBlur = blur * 0.5f;
+}
+
+void CanvasRenderingContext2DDelegate::setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    [_impl setShadowColorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a / 255.0f];
+}
+
+void CanvasRenderingContext2DDelegate::setShadowOffsetX(float offsetX) {
+    _impl.shadowOffsetX = offsetX;
+}
+
+void CanvasRenderingContext2DDelegate::setShadowOffsetY(float offsetY) {
+    _impl.shadowOffsetY = offsetY;
 }
 
 } // namespace cc
