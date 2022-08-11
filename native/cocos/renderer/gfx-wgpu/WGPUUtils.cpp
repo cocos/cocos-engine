@@ -8,7 +8,6 @@
 namespace cc::gfx {
 
 void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout) {
-    std::string lable = "";
     ccstd::hash_t hash = descriptorSets.size() * 2 + 1;
     ccstd::hash_combine(hash, descriptorSets.size());
     ccstd::vector<WGPUBindGroupLayout> descriptorSetLayouts;
@@ -17,7 +16,6 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
         if (descriptorSet) {
             auto* descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout*>(descriptorSet->getLayout());
             descriptorSetLayouts.push_back(descriptorSetLayout->gpuLayoutEntryObject()->bindGroupLayout);
-            lable += " " + static_cast<CCWGPUDescriptorSet*>(descriptorSet)->_label;
             ccstd::hash_combine(hash, i);
             ccstd::hash_combine(hash, descriptorSet->getHash());
         } else {
@@ -28,10 +26,9 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
     }
 
     auto* ccPipelineLayout = static_cast<CCWGPUPipelineLayout*>(pipelineLayout);
-    lable += " " + std::to_string(hash);
     WGPUPipelineLayoutDescriptor descriptor = {
         .nextInChain = nullptr,
-        .label = lable.c_str(),
+        .label = nullptr,
         .bindGroupLayoutCount = descriptorSetLayouts.size(),
         .bindGroupLayouts = descriptorSetLayouts.data(),
     };

@@ -132,7 +132,6 @@ void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
     (void)defaultBindGroupLayout();
 
     _hash = hash();
-    _label = std::to_string(_hash);
 }
 
 void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer) {
@@ -280,7 +279,6 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     //                              bindGroupLayoutEntries.end());
 
     _hash = hash();
-    _label = std::to_string(_hash);
     auto iter = layoutPool.find(_hash);
     // printf("dsl upd %zu\n", _hash);
     if (iter != layoutPool.end()) {
@@ -301,13 +299,12 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     //     // printf("l binding, b, t, s  %d, %d, %d, %d, %d\n", entry.binding, entry.buffer.type, entry.sampler.type, entry.texture.sampleType, entry.storageTexture.access);
     // }
 
-    static uint64_t counter = 0;
     if (entries.empty()) {
         _gpuLayoutEntryObj->bindGroupLayout = dftBindgroupLayout;
     } else {
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
-            .label = _label.c_str(),
+            .label = nullptr,
             .entryCount = entries.size(),
             .entries = entries.data(),
         };

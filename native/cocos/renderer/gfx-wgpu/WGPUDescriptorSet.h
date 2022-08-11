@@ -53,8 +53,6 @@ public:
 
     inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
-    ccstd::string _label;
-
     ccstd::hash_t getHash() { return _hash; };
 
 protected:
@@ -72,6 +70,8 @@ protected:
     Pairs _dynamicOffsets;
 
     ccstd::hash_t _hash{0};
+
+    ccstd::unordered_map<ccstd::hash_t, void *> _bindGroupMap;
 
     // DescriptorSetLayout* _local = nullptr;
 };

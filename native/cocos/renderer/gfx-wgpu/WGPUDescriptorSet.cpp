@@ -126,15 +126,32 @@ void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
     }
 
     (void)defaultBindGroup();
-
-    _hash = hash();
 }
 
 ccstd::hash_t CCWGPUDescriptorSet::hash() const {
-    ccstd::hash_t hash = 3;
-    ccstd::hash_combine(hash, _buffers);
-    ccstd::hash_combine(hash, _textures);
-    ccstd::hash_combine(hash, _samplers);
+    ccstd::hash_t hash = 9527;
+    for (const auto &buffer : _buffers) {
+        if (buffer) {
+            auto *wgpuBuffer = static_cast<CCWGPUBuffer *>(buffer)->gpuBufferObject()->wgpuBuffer;
+            ccstd::hash_combine(hash, wgpuBuffer);
+        }
+    }
+    for (const auto &texture : _textures) {
+        if (texture) {
+            auto *wgpuTextureView = static_cast<CCWGPUTexture *>(texture)->gpuTextureObject()->selfView;
+            ccstd::hash_combine(hash, wgpuTextureView);
+        }
+    }
+    for (const auto &sampler : _samplers) {
+        if (sampler) {
+            auto *wgpuSampler = static_cast<CCWGPUSampler *>(sampler)->gpuSampler();
+            ccstd::hash_combine(hash, wgpuSampler);
+        }
+    }
+    if (_layout) {
+        auto *ccLayout = static_cast<CCWGPUDescriptorSetLayout *>(_layout);
+        ccstd::hash_combine(hash, ccLayout->gpuLayoutEntryObject()->bindGroupLayout);
+    }
     return hash;
 }
 
@@ -240,41 +257,45 @@ void CCWGPUDescriptorSet::prepare() {
         //                            }),
         //                        bindGroupEntries.end());
 
+        _hash = hash();
         const auto &entries = _gpuBindGroupObj->bindGroupEntries;
-
-        CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
-        if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != dftBindGroup) {
-            wgpuBindGroupRelease(_gpuBindGroupObj->bindgroup);
-        }
-
         if (entries.empty()) {
             _gpuBindGroupObj->bindgroup = dftBindGroup;
-            _hash = 9527;
-        } else {
-            static uint32_t count = 0;
-            _label = std::to_string(_objectID) + "-" + std::to_string(count++) + "-" + std::to_string(dsLayout->getHash());
+            return;
+        }
+        auto iter = _bindGroupMap.find(_hash);
+        {
+            CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
+            // if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != dftBindGroup) {
+            //     wgpuBindGroupRelease(_gpuBindGroupObj->bindgroup);
+            // }
+
             WGPUBindGroupDescriptor bindGroupDesc = {
                 .nextInChain = nullptr,
-                .label = _label.c_str(),
+                .label = nullptr,
                 .layout = dsLayout->gpuLayoutEntryObject()->bindGroupLayout,
                 .entryCount = entries.size(),
                 .entries = entries.data(),
             };
             _gpuBindGroupObj->bindgroup = wgpuDeviceCreateBindGroup(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &bindGroupDesc);
-            printf("create new bg\n");
-            _hash = dsLayout->getHash();
+            // printf("create new bg\n");
+
+            _isDirty = false;
+            if (buffIter != _buffers.end())
+                std::for_each(_buffers.begin(), _buffers.end(), [](Buffer *buffer) {
+                    if (buffer)
+                        static_cast<CCWGPUBuffer *>(buffer)->stamp();
+                });
+            if (texIter != _textures.end())
+                std::for_each(_textures.begin(), _textures.end(), [](Texture *texture) {
+                    if (texture)
+                        static_cast<CCWGPUTexture *>(texture)->stamp();
+                });
+
+            _bindGroupMap.insert(std::make_pair(_hash, _gpuBindGroupObj->bindgroup));
+
+            // CCWGPUDevice::getInstance()->moveToTrash()
         }
-        _isDirty = false;
-        if (buffIter != _buffers.end())
-            std::for_each(_buffers.begin(), _buffers.end(), [](Buffer *buffer) {
-                if (buffer)
-                    static_cast<CCWGPUBuffer *>(buffer)->stamp();
-            });
-        if (texIter != _textures.end())
-            std::for_each(_textures.begin(), _textures.end(), [](Texture *texture) {
-                if (texture)
-                    static_cast<CCWGPUTexture *>(texture)->stamp();
-            });
     }
 }
 

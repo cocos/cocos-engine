@@ -777,7 +777,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
                     let funcTemplate = functionTemplates.get(str);
                     funcTemplate = funcTemplate!.replace(new RegExp(samplerReStr, 'g'), pair[2]);
                     funcTemplate = funcTemplate.replace(new RegExp(textureStr, 'g'), textureName);
-                    funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC', 'g'), `_${pair[2]}_specialized`);
+                    funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC', 'g'), `_${pair[1]}_${pair[2]}_specialized`);
                     funcTemplate = funcTemplate.replace(new RegExp(`texture${pair[1]}\\s+\\w+,`, 'g'), '');
                     // funcTemplate = funcTemplate.replace('SAMPLER_SPEC', `_${pair[2]}_specialized`);
 
@@ -808,6 +808,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
             funcDecls += `\n${key}\n`;
             funcImpls += `\n${value}\n`;
         }
+        // some function appears before it's defined so forward declaration is needed
         funcDecls += '\nvec3 SRGBToLinear (vec3 gamma);\nfloat getDisplacementWeight(int index);\n';
         let idx = code.indexOf('precision');
         idx = code.indexOf(';', idx);

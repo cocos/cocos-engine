@@ -67,7 +67,6 @@ public:
     ccstd::hash_t getHash() {
         return _hash;
     }
-    ccstd::string _label;
 
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
