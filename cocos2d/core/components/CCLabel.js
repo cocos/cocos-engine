@@ -642,6 +642,18 @@ let Label = cc.Class({
         this._super();
     },
 
+    onRestore: CC_EDITOR && function () {
+        // Because undo/redo will not call onEnable/onDisable,
+        // we need call onEnable/onDisable manually to active/disactive children nodes.
+        if (this.enabledInHierarchy) {
+            this.node._renderComponent = null;
+            this.onEnable();
+        }
+        else {
+            this.onDisable();
+        }
+    },
+
     _nodeSizeChanged () {
         // Because the content size is automatically updated when overflow is NONE.
         // And this will conflict with the alignment of the CCWidget.

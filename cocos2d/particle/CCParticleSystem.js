@@ -820,6 +820,18 @@ var ParticleSystem = cc.Class({
         }
     },
 
+    onRestore: CC_EDITOR && function () {
+        // Because undo/redo will not call onEnable/onDisable,
+        // we need call onEnable/onDisable manually to active/disactive children nodes.
+        if (this.enabledInHierarchy) {
+            this.node._renderComponent = null;
+            this.onEnable();
+        }
+        else {
+            this.onDisable();
+        }
+    },
+
     _startPreview: CC_EDITOR && function () {
         if (this.preview) {
             this.resetSystem();
