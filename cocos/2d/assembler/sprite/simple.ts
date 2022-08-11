@@ -28,22 +28,12 @@
  * @module ui-assembler
  */
 
-import { JSB } from 'internal:constants';
-import { Vec3, Vec2, Color } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
-import { RenderDrawInfo } from '../../renderer/render-draw-info';
-import { Batcher2D } from '../../renderer/batcher-2d';
-import { director } from '../../../core';
-
-const vec3_temps: Vec3[] = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(new Vec3());
-}
 
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
