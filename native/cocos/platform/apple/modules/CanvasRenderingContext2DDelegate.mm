@@ -128,6 +128,9 @@
     self.font = nil;
     self.tokenAttributesDict = nil;
     self.fontName = nil;
+    if (_shadowColor) {
+        [_shadowColor release];
+    }
     _shadowColor = nil;
     CGColorSpaceRelease(_colorSpace);
     // release the context
@@ -435,6 +438,7 @@
 
 - (void)setShadowColorWithRed:(CGFloat)r green:(CGFloat)g blue:(CGFloat)b alpha:(CGFloat)a {
     _shadowColor = [NSColor colorWithRed:r green:g blue:b alpha:a];
+    [_shadowColor retain];
 }
 
 - (const cc::Data &)getDataRef {
