@@ -277,6 +277,7 @@ struct CCVKGPUShader {
     ccstd::string name;
     AttributeList attributes;
     ccstd::vector<CCVKGPUShaderStage> gpuStages;
+    bool initialized = false;
 };
 
 struct CCVKGPUInputAssembler {
