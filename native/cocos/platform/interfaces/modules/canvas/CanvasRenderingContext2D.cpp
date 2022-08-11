@@ -307,8 +307,8 @@ void CanvasRenderingContext2D::setFont(const std::string &font) {
         float fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, !boldStr.empty());
         _delegate->updateFont(fontName, fontSize, isBold, isItalic, false, false);
-    }
-#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
+    } 
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (_font != font) {
         _font                                                       = font;
         std::string                                     fontName    = "sans-serif";
