@@ -861,6 +861,10 @@ module.exports = {
             label: "地形",
             description: "地形功能支持。",
         },
+        light_probe: {
+            label: "光照探针",
+            description: "光照探针功能支持。",
+        },
         audio: {
             label: "音频",
             description: "音频播放支持。",

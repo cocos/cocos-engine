@@ -131,6 +131,7 @@
             "modules": ["audio"]
         },
         "video": {
+        "light-probe": { "modules": [ "light-probe" ] },
             "modules": ["video"]
         },
         "terrain": {
