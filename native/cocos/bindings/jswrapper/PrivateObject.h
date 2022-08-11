@@ -94,7 +94,13 @@ public:
 
     constexpr bool isSharedPtr() const override { return true; }
 
-    void *getRaw() const override { return _data.get(); }
+    void *getRaw() const override {
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_data.get()));
+        } else {
+            return reinterpret_cast<void *>(_data.get());
+        }
+    }
 
 private:
     std::shared_ptr<T> _data{nullptr};
@@ -109,7 +115,11 @@ public:
     ~CCSharedPtrPrivateObject() override = default;
 
     inline void *getRaw() const override {
-        return _ptr.get();
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr.get()));
+        } else {
+            return reinterpret_cast<void *>(_ptr.get());
+        }
     }
     inline bool isCCShared() const override { return true; }
 
@@ -151,7 +161,11 @@ public:
 
     void *getRaw() const override {
         //CC_ASSERT(_validate);
-        return _ptr;
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr));
+        } else {
+            return reinterpret_cast<void *>(_ptr);
+        }
     }
 
 private:

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <type_traits>
 #include "base/std/container/unordered_map.h"
 
 namespace se {
@@ -52,6 +53,15 @@ public:
 
     static Map::iterator begin();
     static Map::iterator end();
+
+    template <typename T>
+    static std::enable_if_t<!std::is_void_v<T>, Map::iterator> find(T *v) {
+        if constexpr (std::is_const_v<T>) {
+            return find(reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(v)));
+        } else {
+            return find(reinterpret_cast<void *>(v));
+        }
+    }
 
 private:
     static void emplace(void *nativeObj, Object *seObj);
