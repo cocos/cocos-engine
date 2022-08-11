@@ -52,7 +52,7 @@ struct CC_DLL RenderStageInfo {
 class CC_DLL RenderStage : public RefCounted {
 public:
     RenderStage();
-    virtual ~RenderStage();
+    ~RenderStage() override;
 
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow);
     virtual bool initialize(const RenderStageInfo &info);

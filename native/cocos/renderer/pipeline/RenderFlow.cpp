@@ -71,7 +71,7 @@ void RenderFlow::destroy() {
 }
 
 RenderStage *RenderFlow::getRenderstageByName(const ccstd::string &name) const {
-    for (auto &node : _stages) {
+    for (auto const &node : _stages) {
         if (node->getName() == name) {
             return node;
         }

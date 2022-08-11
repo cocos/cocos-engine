@@ -48,7 +48,7 @@ struct CC_DLL RenderFlowInfo {
 class CC_DLL RenderFlow : public RefCounted {
 public:
     RenderFlow();
-    virtual ~RenderFlow();
+    ~RenderFlow() override;
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);
