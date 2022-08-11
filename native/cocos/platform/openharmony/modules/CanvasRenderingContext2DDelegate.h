@@ -30,6 +30,12 @@
 #include <array>
 #include <cstdint>
 #include <regex>
+#include <memory>
+
+#include <native_drawing/drawing_types.h>
+#include <native_drawing/drawing_bitmap.h>
+#include <native_drawing/drawing_text_declaration.h>
+
 #include "base/csscolorparser.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "math/Math.h"
@@ -84,22 +90,26 @@ private:
     void                 fillTextureData();
     std::array<float, 2> convertDrawPoint(Point point, const std::string &text);
 
+    class ScopedTypography;
+    std::unique_ptr<ScopedTypography> createTypography(const std::string &text);
 public:
     int          _screen{0};
 
 private:
+
     int32_t _x{0};
     int32_t _y{0};
     int32_t _lineCap{0};
     int32_t _lineJoin{0};
 
 private:
-#if defined(OPENHARMONY_DRAW)
     OH_Drawing_Bitmap* _bitmap{nullptr};
-    OH_Drawing_BitmapFormat _format {COLOR_FORMAT_RGBA_8888, ALPHA_FORMAT_OPAQUYE};
+    OH_Drawing_BitmapFormat _format {COLOR_FORMAT_RGBA_8888, ALPHA_FORMAT_OPAQUE};
     OH_Drawing_Canvas* _canvas{nullptr};
     OH_Drawing_TypographyStyle* _typographyStyle{nullptr};
-#endif
+    OH_Drawing_TypographyCreate* _typographyCreate{nullptr};
+    OH_Drawing_FontCollection* _fontCollection{nullptr};
+    OH_Drawing_TextStyle* _textStyle{nullptr};
     cc::Data    _imageData;
     std::string _curFontPath;
     int         _savedDC{0};
@@ -113,8 +123,8 @@ private:
     Size               _textSize;
     CanvasTextAlign    _textAlign{CanvasTextAlign::CENTER};
     CanvasTextBaseline _textBaseLine{CanvasTextBaseline::TOP};
-    unsigned long      _fillStyle{0};
-    unsigned long      _strokeStyle{0};
+    Color4F            _fillStyle{0};
+    Color4F            _strokeStyle{0};
 };
 
 } // namespace cc
