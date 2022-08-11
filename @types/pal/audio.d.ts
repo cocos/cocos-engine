@@ -105,6 +105,12 @@ declare module 'pal/audio' {
          */
         get volume (): number;
         set volume (val: number);
+        
+        /**
+         * The playbackRate of this player, ranged from 0.3 to 5.0.
+         */
+        get playbackRate (): number;
+        set playbackRate (val: number);
 
         /**
          * The duration of this audio player.

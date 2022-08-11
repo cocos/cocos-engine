@@ -126,8 +126,11 @@ if (cc.internal.VideoPlayer) {
             return this.video.duration();
         }
 
-        syncPlaybackRate() {
-            cc.warn('The platform does not support');
+        syncPlaybackRate(val) {
+            if (this.video)
+            {
+                this.video.setPlaybackRate(val);
+            }
         }
 
         syncVolume() {

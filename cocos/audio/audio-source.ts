@@ -67,6 +67,8 @@ export class AudioSource extends Component {
     protected _playOnAwake = true;
     @serializable
     protected _volume = 1;
+    @serializable
+    protected _playbackRate = 1.0;
 
     private _cachedCurrentTime = 0;
 
@@ -202,6 +204,30 @@ export class AudioSource extends Component {
         return this._volume;
     }
 
+    /**
+     * @en
+     * The playbackRate of this audio source (0.3 to 5.0).<br>
+     * Note: PlaybackRate control may be ineffective on some platforms.
+     * @zh
+     * 音频的倍速播放（大小范围为 0.3 到 5.0）。<br>
+     * 请注意，在某些平台上，倍速播放可能不起效。<br>
+     */
+     @range([0.3, 5.0])
+     @tooltip('i18n:audio.playbackRate')
+     set playbackRate (val) {
+         if (Number.isNaN(val)) { console.warn('illegal audio playbackRate!'); return; }
+        //  val = clamp(val, 0.3, 5.0);
+         if (this._player) {
+             this._player.playbackRate = val;
+             this._playbackRate = this._player.playbackRate;
+         } else {
+             this._playbackRate = val;
+         }
+     }
+     get playbackRate () {
+         return this._playbackRate;
+     }
+ 
     public onLoad () {
         this._syncPlayer();
     }
@@ -400,6 +426,7 @@ export class AudioSource extends Component {
             if (this._player) {
                 this._player.loop = this._loop;
                 this._player.volume = this._volume;
+                this._player.playbackRate = this._playbackRate;
                 this._operationsBeforeLoading.forEach((opName) => { this[opName]?.(); });
                 this._operationsBeforeLoading.length = 0;
             }

@@ -110,8 +110,7 @@ declare namespace jsb {
     }
     export namespace AudioEngine {
         export function preload (url: string, cb: (isSuccess: boolean) => void);
-
-        export function play2d (url: string, loop: boolean, volume: number): number;
+        export function play2d (url: string, loop: boolean, volume: number, playbackRate: number): number;
         export function pause (id: number);
         export function pauseAll ();
         export function resume (id: number);
@@ -124,10 +123,12 @@ declare namespace jsb {
         export function getState (id: number): any;
         export function getDuration (id: number): number;
         export function getVolume (id: number): number;
+        export function getPlaybackRate (id: number): number;
         export function isLoop (id: number): boolean;
         export function getCurrentTime (id: number): number;
 
         export function setVolume (id: number, val: number);
+        export function setPlaybackRate (id: number, val: number);
         export function setLoop (id: number, val: boolean);
         export function setCurrentTime (id: number, val: number);
 

@@ -65,7 +65,7 @@ export class OneShotAudio {
         this._volume = volume;
     }
     public play (): void {
-        this._id = jsb.AudioEngine.play2d(this._url, false, this._volume);
+        this._id = jsb.AudioEngine.play2d(this._url, false, this._volume, 1.0);
         jsb.AudioEngine.setFinishCallback(this._id, () => {
             this.onEnd?.();
         });
@@ -100,6 +100,7 @@ export class AudioPlayer implements OperationQueueable {
         loop: false,
         currentTime: 0,
         volume: 1,
+        playbackRate: 1,
     }
 
     constructor (url: string) {
@@ -204,6 +205,19 @@ export class AudioPlayer implements OperationQueueable {
         }
         this._cachedState.volume = val;
     }
+    get playbackRate (): number {
+        if (!this._isValid) {
+            return this._cachedState.playbackRate;
+        }
+        return audioEngine.getPlaybackRate(this._id);
+    }
+    set playbackRate (val: number) {
+        // val = clamp(val, 0.3, 5.0);
+        if (this._isValid) {
+            audioEngine.setPlaybackRate(this._id, val);
+        }
+        this._cachedState.playbackRate = val;
+    }
     get duration (): number {
         if (!this._isValid) {
             return this._cachedState.duration;
@@ -256,7 +270,7 @@ export class AudioPlayer implements OperationQueueable {
                     audioEngine.resume(this._id);
                 }
             } else {
-                this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume);
+                this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume, this._cachedState.playbackRate);
                 if (this._isValid) {
                     if (this._cachedState.currentTime !== 0) {
                         audioEngine.setCurrentTime(this._id, this._cachedState.currentTime);

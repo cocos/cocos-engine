@@ -190,6 +190,13 @@ export class AudioPlayerDOM implements OperationQueueable {
         val = clamp01(val);
         this._domAudio.volume = val;
     }
+    get playbackRate (): number {
+        return this._domAudio.playbackRate;
+    }
+    set playbackRate (val: number) {
+        // val = clamp(val, 0.3, 5.0);
+        this._domAudio.playbackRate = val;
+    }
     get duration (): number {
         return this._domAudio.duration;
     }
