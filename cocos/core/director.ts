@@ -358,7 +358,6 @@ export class Director extends EventTarget {
                 scene.insertChild(node, index);
             } else {
                 node.hideFlags |= CCObject.Flags.DontSave;
-                // @ts-expect-error insert to new scene
                 node.parent = scene;
             }
         }

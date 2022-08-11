@@ -23,9 +23,7 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, editable, serializable, type,
-} from 'cc.decorator';
+import { ccclass, editable, serializable, type } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
@@ -44,6 +42,7 @@ import IdGenerator from '../utils/id-generator';
 import type { Scene } from './scene';
 import { PrefabInfo } from '../utils/prefab/prefab-info';
 import { NodeEventType } from './node-event';
+import { Event } from '../../input/types';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
