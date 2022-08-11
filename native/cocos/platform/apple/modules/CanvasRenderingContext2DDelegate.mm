@@ -75,7 +75,7 @@
     cc::ICanvasRenderingContext2D::TextBaseline _textBaseLine;
     ccstd::array<float, 4> _fillStyle;
     ccstd::array<float, 4> _strokeStyle;
-    UIColor *_shadowColor;
+    NSColor *_shadowColor;
     float _lineWidth;
     bool _bold;
 }
@@ -333,6 +333,13 @@
     return point;
 }
 
+- (bool) isShadowEnabled {
+    if (_shadowColor && (_shadowBlur > 0 || _shadowOffsetX > 0 || _shadowOffsetY > 0)) {
+        return true;
+    }
+    return false;
+}
+
 - (void)fillText:(NSString *)text x:(CGFloat)x y:(CGFloat)y maxWidth:(CGFloat)maxWidth {
     if (text.length == 0)
         return;
@@ -355,7 +362,7 @@
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
     CGContextSetTextDrawingMode(_context, kCGTextFill);
-    if (_shadowColor && (_shadowBlur > 0 || _shadowOffsetX > 0 || _shadowOffsetY > 0)) {
+    if ([self isShadowEnabled]) {
         CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, _shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
     }
 
@@ -398,7 +405,7 @@
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
     CGContextSetTextDrawingMode(_context, kCGTextStroke);
-    if (_shadowColor && (_shadowBlur > 0 || _shadowOffsetX > 0 || _shadowOffsetY > 0)) {
+    if ([self isShadowEnabled]) {
         CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, _shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
     }
 
@@ -427,7 +434,7 @@
 }
 
 - (void)setShadowColorWithRed:(CGFloat)r green:(CGFloat)g blue:(CGFloat)b alpha:(CGFloat)a {
-    _shadowColor = [[UIColor alloc] initWithRed:r green:g blue:b alpha:a];
+    _shadowColor = [NSColor colorWithRed:r green:g blue:b alpha:a];
 }
 
 - (const cc::Data &)getDataRef {
