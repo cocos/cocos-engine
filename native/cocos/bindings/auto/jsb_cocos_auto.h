@@ -149,6 +149,9 @@ extern se::Class *__jsb_cc_Device_class;    // NOLINT
 bool js_register_cc_Device(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
+SE_DECLARE_FUNC(js_engine_Device_getInnerWidth);
+SE_DECLARE_FUNC(js_engine_Device_getInnerHeight);
+SE_DECLARE_FUNC(js_engine_Device_getWindowHandler);
 SE_DECLARE_FUNC(js_engine_Device_getDPI);
 SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
 SE_DECLARE_FUNC(js_engine_Device_getDeviceOrientation);
