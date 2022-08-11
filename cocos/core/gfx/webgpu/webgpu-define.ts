@@ -558,72 +558,60 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
                     smpFunc = reArr[2];
                 }
                 const searchTarget = code.slice(0, reArr.index);
-                const defValQueue: { str: string, b: boolean }[] = [];
+                const defValQueue: { str: string, b: boolean, condition: RegExpExecArray }[] = [];
                 let searchIndex = 1;
 
                 while (searchIndex > 0) {
-                    const qLen = defValQueue.length;
-                    const ifIndex = searchTarget.indexOf('#if', searchIndex);
-                    let elseIndex = searchTarget.indexOf('#else', ifIndex);
-                    let endIndex = searchTarget.indexOf('#endif', ifIndex);
-                    let nextIfIndex = searchTarget.indexOf('#if', ifIndex + 1);
+                    let ifIndex = searchTarget.indexOf('#if', searchIndex);
+                    let elseIndex = searchTarget.indexOf('#else', searchIndex);
+                    let endIndex = searchTarget.indexOf('#endif', searchIndex);
 
-                    if (ifIndex === -1) break;
+                    if (ifIndex === -1 && elseIndex === -1 && endIndex === -1) {
+                        break;
+                    }
+
+                    if (ifIndex === -1) ifIndex = Number.MAX_SAFE_INTEGER;
                     if (elseIndex === -1) elseIndex = Number.MAX_SAFE_INTEGER;
                     if (endIndex === -1) endIndex = Number.MAX_SAFE_INTEGER;
-                    if (nextIfIndex === -1) nextIfIndex = Number.MAX_SAFE_INTEGER;
 
-                    if (defValQueue.length > 0) {
-                        if (elseIndex < ifIndex) {
-                            defValQueue[defValQueue.length - 1].b = !defValQueue[defValQueue.length - 1].b;
-                            searchIndex = elseIndex + 1;
-                            continue;
-                        }
+                    // next start with '#' is #if(def)
+                    if (ifIndex < elseIndex && ifIndex < endIndex) {
+                        const ifdef = (new RegExp(`#if(def)?[\\s]+(!)?([\\S]+)([\\s+]?(==)?(!=)[\\s+]?([\\S]+))?`, 'gm')).exec(searchTarget.slice(ifIndex))!;
+                        defValQueue[defValQueue.length] = { str: ifdef[3], b: true, condition: ifdef };
+                        searchIndex = ifIndex + 1;
+                        continue;
                     }
 
-                    const firstIdx = searchTarget.indexOf('#if', searchIndex);
-                    if (firstIdx !== -1 && endIndex >= nextIfIndex) {
-                        //#if[\s]+(!)?([\S]+)([\s+]?==[\s+]?[\S]+)
-                        const ifdef = (new RegExp(`#if(def)?[\\s]+(!)?([\\S]+)([\\s+]?(==)?(!=)[\\s+]?([\\S]+))?`, 'gm')).exec(searchTarget.slice(firstIdx))!;
-                        // #if CC_FOG == 1 ...
-                        let evalRes = false;
-
-                        if (ifdef[1]) {
-                            evalRes = !!(new RegExp(`#define[\\s]+${ifdef[3]}`, 'gm')).exec(searchTarget);
-                        } else {
-                            const defVal = (new RegExp(`#define[\\s]+${ifdef[3]}[\\s]+([\\S]+).*`, 'gm')).exec(searchTarget)![1];
-                            if (ifdef[4]) {
-                                const conditionVal = ifdef[7];
-                                evalRes = ifdef[5] ? defVal === conditionVal : defVal !== conditionVal;
-                            } else if (ifdef[3]) {
-                                evalRes = (defVal !== '0' && !ifdef[2]);
-                            }
-                        }
-
-                        defValQueue[defValQueue.length] = { str: ifdef[3], b: evalRes };
+                    if (elseIndex < endIndex && elseIndex < ifIndex) {
+                        defValQueue[defValQueue.length - 1].b = false;
+                        searchIndex = elseIndex + 1;
+                        continue;
                     }
 
-                    const rawEndIndex = endIndex;
-                    endIndex = searchTarget.indexOf('#endif', rawEndIndex + 1);
-                    nextIfIndex = searchTarget.indexOf('#if', rawEndIndex + 1);
-                    if (endIndex < nextIfIndex) {
-                        if (defValQueue.length > 0) {
-                            defValQueue.length -= 1;
-                        }
+                    if (endIndex < elseIndex && endIndex < ifIndex) {
+                        defValQueue.pop();
+                        searchIndex = endIndex + 1;
+                        continue;
                     }
-
-                    searchIndex = firstIdx + 1;
-
-                    // if (defValQueue.length > 0) {
-                    //     if (endIndex < nextIfIndex) {
-                    //         defValQueue.length -= 1;
-                    //     }
-                    // }
                 }
 
                 let defCheck = true;
                 for (let i = 0; i < defValQueue.length; i++) {
-                    if (!defValQueue[i].b) {
+                    const ifdef = defValQueue[i].condition;
+                    let evalRes = false;
+                    if (ifdef[1]) {
+                        evalRes = !!(new RegExp(`#define[\\s]+${ifdef[3]}`, 'gm')).exec(searchTarget);
+                    } else {
+                        const defVal = (new RegExp(`#define[\\s]+${ifdef[3]}[\\s]+([\\S]+).*`, 'gm')).exec(searchTarget)![1];
+                        if (ifdef[4]) {
+                            const conditionVal = ifdef[7];
+                            evalRes = ifdef[5] ? defVal === conditionVal : defVal !== conditionVal;
+                        } else if (ifdef[3]) {
+                            evalRes = (defVal !== '0' && !ifdef[2]);
+                        }
+                    }
+
+                    if (defValQueue[i].b !== evalRes) {
                         defCheck = false;
                         break;
                     }
@@ -672,7 +660,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
         const fnDecl = fnDeclRe.exec(code);
 
         let redefFunc = '';
-        if (!functionTemplates.has(pair[0])) {
+        if (!functionTemplates.has(`${pair[0]}_${pair[1]}`)) {
             const funcBodyStart = code.slice(fnDecl!.index);
 
             const funcRedefine = (funcStr: string) => {
@@ -755,9 +743,9 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
                 redefFunc = funcRedefine(rawFunc);
             }
 
-            functionTemplates.set(pair[0], redefFunc);
+            functionTemplates.set(`${pair[0]}_${pair[1]}`, redefFunc);
         } else {
-            redefFunc = functionTemplates.get(pair[0])!;
+            redefFunc = functionTemplates.get(`${pair[0]}_${pair[1]}`)!;
         }
 
         const depsFuncs: string[] = [];
@@ -777,7 +765,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
         //         depsFuncs[depsFuncs.length] = referredFuncMap.values[i].fnName;
         //     }
         // }
-        functionDeps.set(pair[0], depsFuncs);
+        functionDeps.set(`${pair[0]}_${pair[1]}`, depsFuncs);
 
         const specializedFuncs = new Map<string, string>();
         const specialize = (funcs: string[]) => {
@@ -809,7 +797,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
             });
             return true;
         };
-        specialize([pair[0]]);
+        specialize([`${pair[0]}_${pair[1]}`]);
         //(?:.(?!layout))+cc_PositionDisplacementsSampler;
         const samplerDefReStr = `(?:.(?!layout))+${pair[2]};`;
         const samplerDef = (new RegExp(samplerDefReStr)).exec(code);

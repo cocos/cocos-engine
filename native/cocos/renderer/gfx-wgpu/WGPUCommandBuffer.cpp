@@ -581,40 +581,35 @@ void CCWGPUCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t 
     uint32_t alignedSize = ceil(size / 4.0) * 4;
     size_t buffSize = alignedSize;
 
+    WGPUBufferDescriptor descriptor = {
+        .nextInChain = nullptr,
+        .label = nullptr,
+        .usage = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc,
+        .size = alignedSize,
+        .mappedAtCreation = true,
+    };
+    WGPUBuffer stagingBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, alignedSize);
+    memcpy(mappedBuffer, data, size);
+
+    wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
+
     auto *ccBuffer = static_cast<CCWGPUBuffer *>(buff);
     size_t offset = ccBuffer->getOffset();
 
     CCWGPUBufferObject *bufferObj = ccBuffer->gpuBufferObject();
 
     if (_gpuCommandBufferObj->wgpuCommandEncoder) {
-        auto stagingBuffer = CCWGPUDevice::getInstance()->stagingBuffer();
-        auto stagingOffset = stagingBuffer->alloc(alignedSize);
-        auto *dst = stagingBuffer->getMappedData(stagingOffset);
-        memcpy(dst, data, size);
-        auto wgpuStagingBuffer = stagingBuffer->getBuffer();
-        wgpuCommandEncoderCopyBufferToBuffer(_gpuCommandBufferObj->wgpuCommandEncoder, wgpuStagingBuffer, static_cast<uint64_t>(stagingOffset), bufferObj->wgpuBuffer, offset, alignedSize);
+        wgpuCommandEncoderCopyBufferToBuffer(_gpuCommandBufferObj->wgpuCommandEncoder, stagingBuffer, 0, bufferObj->wgpuBuffer, offset, alignedSize);
     } else {
-        WGPUBufferDescriptor descriptor = {
-            .nextInChain = nullptr,
-            .label = nullptr,
-            .usage = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc,
-            .size = alignedSize,
-            .mappedAtCreation = true,
-        };
-        WGPUBuffer stagingBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-        auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, alignedSize);
-        memcpy(mappedBuffer, data, size);
-
-        wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
-
         WGPUCommandEncoder cmdEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
         wgpuCommandEncoderCopyBufferToBuffer(cmdEncoder, stagingBuffer, 0, bufferObj->wgpuBuffer, offset, alignedSize);
         WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(cmdEncoder, nullptr);
         wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &commandBuffer);
         wgpuCommandEncoderRelease(cmdEncoder);
         wgpuCommandBufferRelease(commandBuffer);
-        CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
     }
+    CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
 }
 
 void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {

@@ -68,9 +68,9 @@ public:
     template <typename T>
     void moveToTrash(T t);
 
-    CCWGPUStagingBuffer *stagingBuffer() {
-        return _stagingBuffers[_currentFrameIndex];
-    }
+    // CCWGPUStagingBuffer *stagingBuffer() {
+    //     return _stagingBuffers[_currentFrameIndex];
+    // }
 
     void debug();
 
@@ -150,7 +150,7 @@ protected:
     ccstd::vector<CCWGPUSwapchain *> _swapchains;
 
     CCWGPURecycleBin _recycleBin[CC_WGPU_MAX_FRAME_COUNT];
-    CCWGPUStagingBuffer *_stagingBuffers[CC_WGPU_MAX_FRAME_COUNT];
+    // CCWGPUStagingBuffer *_stagingBuffers[CC_WGPU_MAX_FRAME_COUNT];
 };
 
 template <>

@@ -109,12 +109,12 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     _caps.maxFragmentUniformVectors = 256;
     _caps.maxVertexUniformVectors = 256;
 
-    auto bufferRecycleFunc = [this](WGPUBuffer buffer) {
-        _recycleBin[getCurrentFrameIndex()].bufferBin.collect(buffer);
-    };
-    for (size_t i = 0; i < CC_WGPU_MAX_FRAME_COUNT; ++i) {
-        _stagingBuffers[i] = new CCWGPUStagingBuffer(_gpuDeviceObj->wgpuDevice, bufferRecycleFunc);
-    }
+    // auto bufferRecycleFunc = [this](WGPUBuffer buffer) {
+    //     _recycleBin[getCurrentFrameIndex()].bufferBin.collect(buffer);
+    // };
+    // for (size_t i = 0; i < CC_WGPU_MAX_FRAME_COUNT; ++i) {
+    //     _stagingBuffers[i] = new CCWGPUStagingBuffer(_gpuDeviceObj->wgpuDevice, bufferRecycleFunc);
+    // }
 
     initFormatFeatures();
     return true;

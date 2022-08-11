@@ -79,7 +79,7 @@ void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     //     wgpuCommandBufferRelease(commandBuff->gpuCommandBufferObject()->wgpuCommandBuffer);
     // }
 
-    CCWGPUDevice::getInstance()->stagingBuffer()->unmap();
+    // CCWGPUDevice::getInstance()->stagingBuffer()->unmap();
 
     ccstd::vector<WGPUCommandBuffer> wgpuCmdBuffs(count);
     for (size_t i = 0; i < count; ++i) {
