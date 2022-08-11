@@ -269,7 +269,18 @@ void AudioEngine::setLoop(int audioID, bool loop) {
         it->second.loop = loop;
     }
 }
-
+void AudioEngine::setVolumeFactor(float factor) {
+    if (factor > 1.0F) {
+        factor = 1.0F;
+    }
+    if (factor < 0) {
+        factor = 0.0F;
+    }
+    sVolumeFactor = factor;
+    for (auto &item : sAudioIDInfoMap) {
+        sAudioEngineImpl->setVolume(item.first, item.second.volume * sVolumeFactor);
+    }
+}
 void AudioEngine::setVolume(int audioID, float volume) {
     auto it = sAudioIDInfoMap.find(audioID);
     if (it != sAudioIDInfoMap.end()) {

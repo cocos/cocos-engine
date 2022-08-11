@@ -253,6 +253,8 @@ if(USE_AUDIO)
                          cocos/audio/android/AssetFd.h
                          cocos/audio/android/audio.h
                          cocos/audio/android/AudioBufferProvider.h
+                         cocos/audio/android/BufferProviders.cpp
+                         cocos/audio/android/BufferProviders.h
                          cocos/audio/android/AudioDecoder.cpp
                          cocos/audio/android/AudioDecoder.h
                          cocos/audio/android/AudioDecoderMp3.cpp
@@ -286,6 +288,8 @@ if(USE_AUDIO)
                          cocos/audio/android/audio_utils/minifloat.cpp
                          cocos/audio/android/audio_utils/primitives.c
                          cocos/audio/android/audio_utils/private/private.h
+                         cocos/audio/android/sonic/sonic.h
+                         cocos/audio/android/sonic/sonic.c
                          cocos/audio/android/cutils/bitops.h
                          cocos/audio/android/cutils/log.h
                          cocos/audio/android/IAudioPlayer.h

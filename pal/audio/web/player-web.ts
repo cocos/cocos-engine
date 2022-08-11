@@ -363,31 +363,8 @@ export class AudioPlayerWeb implements OperationQueueable {
     // so we define this method to ensure that the audio seeking works.
     private _doPlay (): Promise<void> {
         return new Promise((resolve) => {
-            // one AudioBufferSourceNode can't start twice
-            this._stopSourceNode();
-            this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
-            this._sourceNode.playbackRate.value = this.playbackRate;
-            this._sourceNode.connect(this._gainNode);
-            this._sourceNode.start(0, this._audioTimer.currentTime);
-            audioContextAgent!.runContext().then(() => {
-                this._state = AudioState.PLAYING;
-                this._audioTimer.start();
-
-                /* still not supported by all platforms *
-                this._sourceNode.onended = this._onEnded;
-                /* doing it manually for now */
-                const checkEnded = () => {
-                    if (this.loop) {
-                        this._currentTimer = window.setTimeout(checkEnded, this._audioBuffer.duration * 1000);
-                    } else {  // do ended
-                        this._audioTimer.stop();
-                        this._eventTarget.emit(AudioEvent.ENDED);
-                        this._state = AudioState.INIT;
-                    }
-                };
-                window.clearTimeout(this._currentTimer);
-                this._currentTimer = window.setTimeout(checkEnded, (this._audioBuffer.duration - this._audioTimer.currentTime) * 1000);
-                resolve();
+            if (audioContextAgent!.isRunning) {
+                this._startSourceNode();
             } else {
                 // Running event may be emit when:
                 // - manually resume audio context.
@@ -407,6 +384,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._stopSourceNode();
         this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
         this._sourceNode.connect(this._gainNode);
+        this._sourceNode.playbackRate.value = this.playbackRate;
         this._sourceNode.start(0, this._audioTimer.currentTime);
         this._state = AudioState.PLAYING;
         this._audioTimer.start();

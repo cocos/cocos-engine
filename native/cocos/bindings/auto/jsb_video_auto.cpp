@@ -288,14 +288,15 @@ SE_BIND_FUNC(js_video_VideoPlayer_setKeepAspectRatioEnabled)
 static bool js_video_VideoPlayer_setPlaybackRate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
-    SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_setPlaybackRate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_video_VideoPlayer_setPlaybackRate : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPlaybackRate(arg0.value());
         return true;
     }

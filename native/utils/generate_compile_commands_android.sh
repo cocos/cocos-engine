@@ -12,13 +12,13 @@ else
 fi
 
 GENERATER="Ninja"
-if [ -x "$(command -v ninja)" ]; then
-    MAKE_BIN=-DCMAKE_MAKE_PROGRAM="$(command -v ninja)"
-else
-    echo "Ninja is not find, use 'make' instead."
-    GENERATER="Unix Makefiles"
-    MAKE_BIN=""
-fi
+# if [ -x "$(command -v ninja)" ]; then
+#     MAKE_BIN=-DCMAKE_MAKE_PROGRAM="$(command -v ninja)"
+# else
+#     echo "Ninja is not find, use 'make' instead."
+#     GENERATER="Unix Makefiles"
+#     MAKE_BIN=""
+# fi
 
 mkdir -p build
 cp ./utils/CMakeLists.header.txt  build/CMakeLists.txt

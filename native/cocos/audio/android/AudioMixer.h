@@ -20,9 +20,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <pthread.h>
-
+#include <memory>
 #include "audio/android/AudioBufferProvider.h"
 #include "audio/android/AudioResamplerPublic.h"
+#include "audio/android/BufferProviders.h"
 
 #include "audio/android/AudioResampler.h"
 #include "audio/android/audio.h"
@@ -183,7 +184,7 @@ private:
         int16_t auxLevel; // 0 <= auxLevel <= MAX_GAIN_INT, but signed for mul performance
         uint16_t frameCount;
 
-        uint8_t channelCount;   // 1 or 2, redundant with (needs & NEEDS_CHANNEL_COUNT__MASK)
+        uint32_t channelCount;   // 1 or 2, redundant with (needs & NEEDS_CHANNEL_COUNT__MASK)
         uint8_t unused_padding; // formerly format, was always 16
         uint16_t enabled;       // actually bool
         audio_channel_mask_t channelMask;
@@ -229,7 +230,7 @@ private:
                                                    //        PassthruBufferProvider*  downmixerBufferProvider; // wrapper for channel conversion.
                                                    //        PassthruBufferProvider*  mPostDownmixReformatBufferProvider;
                                                    //        PassthruBufferProvider*  mTimestretchBufferProvider;
-
+        std::unique_ptr<PassthruBufferProvider> mTimestretchBufferProvider;
         int32_t sessionId;
 
         audio_format_t mMixerFormat;           // output mix format: AUDIO_FORMAT_PCM_(FLOAT|16_BIT)
