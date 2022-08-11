@@ -151,6 +151,9 @@ bool js_register_cc_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::Device);
+SE_DECLARE_FUNC(js_engine_Device_getInnerWidth);
+SE_DECLARE_FUNC(js_engine_Device_getInnerHeight);
+SE_DECLARE_FUNC(js_engine_Device_getWindowHandler);
 SE_DECLARE_FUNC(js_engine_Device_getDPI);
 SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
