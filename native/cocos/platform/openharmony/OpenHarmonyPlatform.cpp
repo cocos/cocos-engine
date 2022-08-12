@@ -39,6 +39,10 @@
 #include "bindings/jswrapper/napi/HelperMacros.h"
 #include "platform/openharmony/modules/System.h"
 #include "platform/empty/modules/Screen.h"
+#include "platform/empty/modules/Accelerometer.h"
+#include "platform/empty/modules/Battery.h"
+#include "platform/empty/modules/Network.h"
+#include "platform/empty/modules/Vibrator.h"
 
 #include <sstream>
 #include <chrono>
@@ -64,6 +68,10 @@ OpenHarmonyPlatform::OpenHarmonyPlatform() {
     registerInterface(std::make_shared<SystemWindow>());
     registerInterface(std::make_shared<System>());
     registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<Vibrator>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Accelerometer>());
 }
 
 int32_t OpenHarmonyPlatform::init() {

@@ -619,6 +619,14 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/modules/SystemWindow.h
         cocos/platform/empty/modules/Screen.cpp
         cocos/platform/empty/modules/Screen.h
+        cocos/platform/empty/modules/Accelerometer.cpp
+        cocos/platform/empty/modules/Accelerometer.h
+        cocos/platform/empty/modules/Battery.cpp
+        cocos/platform/empty/modules/Battery.h
+        cocos/platform/empty/modules/Network.cpp
+        cocos/platform/empty/modules/Network.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
     )
 elseif(ANDROID OR OHOS)
     cocos_source_files(
