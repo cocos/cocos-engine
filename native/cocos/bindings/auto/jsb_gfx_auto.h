@@ -900,6 +900,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_createSwapchain);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
+SE_DECLARE_FUNC(js_gfx_Device_destroySwapchains);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommands);
 SE_DECLARE_FUNC(js_gfx_Device_getBufferBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getFormatFeatures);
@@ -907,10 +908,12 @@ SE_DECLARE_FUNC(js_gfx_Device_getGeneralBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPoolResults);
 SE_DECLARE_FUNC(js_gfx_Device_getSampler);
+SE_DECLARE_FUNC(js_gfx_Device_getSwapchains);
 SE_DECLARE_FUNC(js_gfx_Device_getTextureBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_present);
+SE_DECLARE_FUNC(js_gfx_Device_removeSwapchain);
 
 extern se::Object *__jsb_cc_gfx_DeviceManager_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DeviceManager_class; // NOLINT

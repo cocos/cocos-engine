@@ -22971,6 +22971,22 @@ static bool js_gfx_Device_destroy(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_gfx_Device_destroy)
 
+static bool js_gfx_Device_destroySwapchains(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroySwapchains();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_destroySwapchains)
+
 static bool js_gfx_Device_flushCommands(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -23341,6 +23357,26 @@ static bool js_gfx_Device_getSampler(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_gfx_Device_getSampler)
 
+static bool js_gfx_Device_getSwapchains(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::Swapchain *>& result = cobj->getSwapchains();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_getSwapchains)
+
 static bool js_gfx_Device_getTextureBarrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -23446,6 +23482,26 @@ static bool js_gfx_Device_present(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_gfx_Device_present)
 
+static bool js_gfx_Device_removeSwapchain(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Swapchain*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->removeSwapchain(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_removeSwapchain)
+
 bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
@@ -23479,6 +23535,7 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("createShader", _SE(js_gfx_Device_createShader));
     cls->defineFunction("createSwapchain", _SE(js_gfx_Device_createSwapchain));
     cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
+    cls->defineFunction("destroySwapchains", _SE(js_gfx_Device_destroySwapchains));
     cls->defineFunction("flushCommands", _SE(js_gfx_Device_flushCommands));
     cls->defineFunction("getBufferBarrier", _SE(js_gfx_Device_getBufferBarrier));
     cls->defineFunction("getFormatFeatures", _SE(js_gfx_Device_getFormatFeatures));
@@ -23486,10 +23543,12 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getQueryPool", _SE(js_gfx_Device_getQueryPool));
     cls->defineFunction("getQueryPoolResults", _SE(js_gfx_Device_getQueryPoolResults));
     cls->defineFunction("getSampler", _SE(js_gfx_Device_getSampler));
+    cls->defineFunction("getSwapchains", _SE(js_gfx_Device_getSwapchains));
     cls->defineFunction("getTextureBarrier", _SE(js_gfx_Device_getTextureBarrier));
     cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
     cls->defineFunction("present", _SE(js_gfx_Device_present));
+    cls->defineFunction("removeSwapchain", _SE(js_gfx_Device_removeSwapchain));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Device>(cls);
 
