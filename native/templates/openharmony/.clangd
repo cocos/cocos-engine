@@ -1,8 +1,0 @@
-CompileFlags:
-  Add: [-Wunreachable-code-aggressive,-Wunused-variable]
-Diagnostics:
-  ClangTidy:
-    Add: [misc-unused-parameters]
-    Remove: []
-    CheckOptions:
-      misc-unused-parameters.StrictMode: 1
