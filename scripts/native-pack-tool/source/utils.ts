@@ -538,7 +538,7 @@ export class Paths {
         if (params.platform === 'windows') {
             this.platformTemplateDirName = params.platformParams.targetPlatform === "win32" ? "win32" : "win64";
         } else {
-            this.platformTemplateDirName = this.platform === 'huawei-agc' ? 'android' : this.platform;
+            this.platformTemplateDirName = this.platform;
         }
     }
 
@@ -590,5 +590,9 @@ export class Paths {
      */
     get nativePrjDir() {
         return ps.join(this.buildDir, 'proj');
+    }
+
+    setPlatformTemplateDirName(platform: string) {
+        this.platformTemplateDirName = platform;
     }
 }
