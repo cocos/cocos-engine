@@ -1,0 +1,7 @@
+Language: Cpp
+# BasedOnStyle: LLVM
+ColumnLimit: 0
+SortIncludes: false
+TabWidth: 4
+IndentWidth: 4
+UseTab: Never
