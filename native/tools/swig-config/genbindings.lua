@@ -88,20 +88,20 @@ for _, config in ipairs(swig_config_map) do
 
     local includeStr = table.concat(includeStrArr, " ")
 
-	local command = string.format('%s %s %s %s %s %s', 
+    local command = string.format('%s %s %s %s %s %s', 
         SWIG_EXE,
-		'-c++ -cocos -fvirtual -noexcept -cpperraswarn',
-		'-D__clang__ -Dfinal= -DCC_PLATFORM=3 -Dconstexpr=const -DCC_PLATFORM_ANDROID=3',
-		includeStr,
-		'-o ' .. COCOS_NATIVE_ROOT .. '/cocos/bindings/auto/' .. config[2],
-		COCOS_NATIVE_ROOT .. '/tools/swig-config/' .. config[1]
-	)
-	print('command: ' .. command)
-	local r = os.execute(command)
-	print('command execute returns: ' .. tostring(r))
-	if r ~= true then
-		print(string.format('ERROR: execute command (%s) failed!', command))
+        '-c++ -cocos -fvirtual -noexcept -cpperraswarn',
+        '-D__clang__ -Dfinal= -DCC_PLATFORM=3 -Dconstexpr=const -DCC_PLATFORM_ANDROID=3',
+        includeStr,
+        '-o ' .. COCOS_NATIVE_ROOT .. '/cocos/bindings/auto/' .. config[2],
+        COCOS_NATIVE_ROOT .. '/tools/swig-config/' .. config[1]
+    )
+    print('command: ' .. command)
+    local r = os.execute(command)
+    print('command execute returns: ' .. tostring(r))
+    if r ~= true then
+        print(string.format('ERROR: execute command (%s) failed!', command))
         os.exit(-1)
-		break
-	end
+        break
+    end
 end
