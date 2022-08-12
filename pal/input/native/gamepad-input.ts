@@ -371,11 +371,5 @@ export class GamepadInputDevice {
         this._buttonStart = new InputSourceButton();
         this._buttonStart.getValue = () => this._nativeButtonState[Button.ROKID_START];  // TODO: Rokid only for now
     }
-    
-    export class GamepadInputSource {
-    support: boolean;
 
-    constructor () {
-        this.support = false;
-    }
 }

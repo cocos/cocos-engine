@@ -153,11 +153,4 @@ export class GamepadInputDevice {
         this._buttonStart = new InputSourceButton();
         this._buttonStart.getValue = () => 0;
     }
-    
-    export class GamepadInputSource {
-    support: boolean;
-
-    constructor () {
-        this.support = false;
-    }
 }
