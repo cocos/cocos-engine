@@ -110,6 +110,9 @@ public:
     void walk(const WalkCallback &preFunc);
     void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
+    //NOTE: swig could not parse template function in a class.
+    // It will trigger an error: cocos/core/scene-graph/Node.h:115: Error: Syntax error in input(3).
+    // Therefore, hide them in swig environment.
 #ifndef SWIGCOCOS
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
