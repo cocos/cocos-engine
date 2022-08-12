@@ -79,7 +79,7 @@ void Root::initialize(gfx::Swapchain *swapchain) {
         // Xr: _mainWindow, _curWindow, _swapchain invalid.
         // Xr: splash screen use _mainWindow->_swapchain width, height, surfaceTransform. The left and right eyes must be the same.
         const ccstd::vector<gfx::Swapchain *> &swapchainArray = gfx::Device::getInstance()->getSwapchains();
-        for (int i = 0, size = swapchainArray.size(); i < size; i++) {
+        for (size_t i = 0, size = swapchainArray.size(); i < size; i++) {
             gfx::Swapchain *swapchainItem = swapchainArray[i];
             _mainWindow = createMainWindow(swapchainItem);
             _curWindow = _mainWindow;
