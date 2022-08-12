@@ -23,31 +23,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-'use strict';
-
 if (cc.internal.VideoPlayer) {
-
     const { EventType } = cc.internal.VideoPlayer;
 
-    let vec3 = cc.Vec3;
-    let mat4 = cc.Mat4;
-    let _mat4_temp = new mat4();
+    const vec3 = cc.Vec3;
+    const mat4 = cc.Mat4;
+    const _mat4_temp = new mat4();
 
-    let _topLeft = new vec3();
-    let _bottomRight = new vec3();
+    const _topLeft = new vec3();
+    const _bottomRight = new vec3();
 
-    cc.internal.VideoPlayerImplManager.getImpl = function(componenet) {
+    cc.internal.VideoPlayerImplManager.getImpl = function (componenet) {
         return new VideoPlayerImplJSB(componenet);
     };
 
     class VideoPlayerImplJSB extends cc.internal.VideoPlayerImpl {
-
-        constructor(componenet) {
+        constructor (componenet) {
             super(componenet);
             this._matViewProj_temp = new mat4();
         }
 
-        syncClip(clip) {
+        syncClip (clip) {
             this.removeVideoPlayer();
             if (!clip) {
                 return;
@@ -55,7 +51,7 @@ if (cc.internal.VideoPlayer) {
             this.createVideoPlayer(clip._nativeAsset);
         }
 
-        syncURL(url) {
+        syncURL (url) {
             this.removeVideoPlayer();
             if (!url) {
                 return;
@@ -73,7 +69,7 @@ if (cc.internal.VideoPlayer) {
             this.delayedPlay();
         }
 
-        _bindEvent() {
+        _bindEvent () {
             this.video.addEventListener('loadedmetadata', this.onLoadedMetadata.bind(this));
             this.video.addEventListener('suspend', this.onCanPlay.bind(this));
             this.video.addEventListener('play', this.onPlay.bind(this));
@@ -83,7 +79,7 @@ if (cc.internal.VideoPlayer) {
             this.video.addEventListener('ended', this.onEnded.bind(this));
         }
 
-        onLoadedMetadata() {
+        onLoadedMetadata () {
             this._loadedMeta = true;
             this._forceUpdate = true;
             if (this._visible) {
@@ -96,7 +92,7 @@ if (cc.internal.VideoPlayer) {
             this.delayedPlay();
         }
 
-        createVideoPlayer(url) {
+        createVideoPlayer (url) {
             this._video = new jsb.VideoPlayer();
             this._bindEvent();
             this._video.setVisible(this._visible);
@@ -104,8 +100,8 @@ if (cc.internal.VideoPlayer) {
             this._forceUpdate = true;
         }
 
-        removeVideoPlayer() {
-            let video = this.video;
+        removeVideoPlayer () {
+            const video = this.video;
             if (video) {
                 video.stop();
                 video.setVisible(false);
@@ -126,30 +122,27 @@ if (cc.internal.VideoPlayer) {
             return this.video.duration();
         }
 
-        syncPlaybackRate(val) {
-            if (this.video)
-            {
-                this.video.setPlaybackRate(val);
-            }
-        }
-
-        syncVolume() {
+        syncPlaybackRate () {
             cc.warn('The platform does not support');
         }
 
-        syncMute() {
+        syncVolume () {
             cc.warn('The platform does not support');
         }
 
-        syncLoop() {
+        syncMute () {
             cc.warn('The platform does not support');
         }
 
-        syncStayOnBottom() {
+        syncLoop () {
             cc.warn('The platform does not support');
         }
 
-        getCurrentTime() {
+        syncStayOnBottom () {
+            cc.warn('The platform does not support');
+        }
+
+        getCurrentTime () {
             if (this.video) {
                 this._cachedCurrentTime = this.video.currentTime();
                 return this._cachedCurrentTime;
@@ -158,13 +151,13 @@ if (cc.internal.VideoPlayer) {
         }
 
         seekTo (val) {
-            let video = this._video;
+            const video = this._video;
             if (!video) return;
             video.seekTo(val);
             this._cachedCurrentTime = val;
         }
 
-        disable(noPause) {
+        disable (noPause) {
             if (this.video) {
                 if (!noPause) {
                     this.video.pause();
@@ -174,7 +167,7 @@ if (cc.internal.VideoPlayer) {
             }
         }
 
-        enable() {
+        enable () {
             if (this.video) {
                 this.video.setVisible(true);
                 this._visible = true;
@@ -186,7 +179,7 @@ if (cc.internal.VideoPlayer) {
             this.syncCurrentTime();
         }
 
-        resume() {
+        resume () {
             if (this.video) {
                 this.video.resume();
                 this.syncCurrentTime();
@@ -194,14 +187,14 @@ if (cc.internal.VideoPlayer) {
             }
         }
 
-        pause() {
+        pause () {
             if (this.video) {
                 this._cachedCurrentTime = this.video.currentTime();
                 this.video.pause();
             }
         }
 
-        stop() {
+        stop () {
             if (this.video) {
                 this._ignorePause = true;
                 this.video.seekTo(0);
@@ -210,19 +203,19 @@ if (cc.internal.VideoPlayer) {
             }
         }
 
-        canFullScreen(enabled) {
+        canFullScreen (enabled) {
             if (this.video) {
                 this.video.setFullScreenEnabled(enabled);
             }
         }
 
-        syncKeepAspectRatio(enabled) {
+        syncKeepAspectRatio (enabled) {
             if (this.video) {
                 this.video.setKeepAspectRatioEnabled(enabled);
             }
         }
 
-        syncMatrix() {
+        syncMatrix () {
             if (!this._video || !this._component || !this._uiTrans) return;
 
             const camera = this.UICamera;
@@ -232,12 +225,12 @@ if (cc.internal.VideoPlayer) {
 
             this._component.node.getWorldMatrix(_mat4_temp);
             const { width, height } = this._uiTrans.contentSize;
-            if (!this._forceUpdate &&
-                camera.matViewProj.equals(this._matViewProj_temp) &&
-                this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
-                this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
-                this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
-                this._w === width && this._h === height) {
+            if (!this._forceUpdate
+                && camera.matViewProj.equals(this._matViewProj_temp)
+                && this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01
+                && this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05
+                && this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13
+                && this._w === width && this._h === height) {
                 return;
             }
 
@@ -252,10 +245,10 @@ if (cc.internal.VideoPlayer) {
             this._w = width;
             this._h = height;
 
-            let canvas_width = cc.game.canvas.width;
-            let canvas_height = cc.game.canvas.height;
+            const canvas_width = cc.game.canvas.width;
+            const canvas_height = cc.game.canvas.height;
 
-            let ap = this._uiTrans.anchorPoint;
+            const ap = this._uiTrans.anchorPoint;
             // Vectors in node space
             vec3.set(_topLeft, -ap.x * this._w, (1.0 - ap.y) * this._h, 0);
             vec3.set(_bottomRight, (1 - ap.x) * this._w, -ap.y * this._h, 0);
@@ -268,8 +261,8 @@ if (cc.internal.VideoPlayer) {
             camera.worldToScreen(_topLeft, _topLeft);
             camera.worldToScreen(_bottomRight, _bottomRight);
 
-            let finalWidth = _bottomRight.x - _topLeft.x;
-            let finalHeight = _topLeft.y - _bottomRight.y;
+            const finalWidth = _bottomRight.x - _topLeft.x;
+            const finalHeight = _topLeft.y - _bottomRight.y;
             this._video.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
             this._forceUpdate = false;
         }

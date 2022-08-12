@@ -75,7 +75,6 @@ public class CocosVideoHelper {
     private final static int VideoTaskKeepRatio = 11;
     private final static int VideoTaskFullScreen = 12;
     private final static int VideoTaskSetVolume = 13;
-    private final static int VideoTaskSetPlaybackRate = 14;
 
     final static int KeyEventBack = 1000;
 
@@ -155,11 +154,6 @@ public class CocosVideoHelper {
             case VideoTaskSetVolume: {
                 float volume = (float) msg.arg2 / 10;
                 helper._setVolume(msg.arg1, volume);
-                break;
-            }
-            case VideoTaskSetPlaybackRate: {
-                float rate = (float) msg.arg2 / 10;
-                helper._setPlaybackRate(msg.arg1, rate);
                 break;
             }
             default:
@@ -432,21 +426,6 @@ public class CocosVideoHelper {
         msg.what = VideoTaskSetVolume;
         msg.arg1 = index;
         msg.arg2 = (int) (volume * 10);
-        mVideoHandler.sendMessage(msg);
-    }
-
-    private void _setPlaybackRate(final int index, final float rate) {
-        CocosVideoView videoView = sVideoViews.get(index);
-        if (videoView != null) {
-            videoView.setPlaybackRate(rate);
-        }
-    }
-
-    public static void setPlaybackRate(final int index, final float rate) {
-        Message msg = new Message();
-        msg.what = VideoTaskSetPlaybackRate;
-        msg.arg1 = index;
-        msg.arg2 = (int) (rate * 10);
         mVideoHandler.sendMessage(msg);
     }
 }

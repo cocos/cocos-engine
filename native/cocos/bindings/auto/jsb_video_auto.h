@@ -28,7 +28,6 @@ SE_DECLARE_FUNC(js_video_VideoPlayer_seekTo);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setFrame);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setFullScreenEnabled);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setKeepAspectRatioEnabled);
-SE_DECLARE_FUNC(js_video_VideoPlayer_setPlaybackRate);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setURL);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setVisible);
 SE_DECLARE_FUNC(js_video_VideoPlayer_stop);

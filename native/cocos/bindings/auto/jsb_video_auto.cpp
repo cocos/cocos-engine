@@ -285,26 +285,6 @@ static bool js_video_VideoPlayer_setKeepAspectRatioEnabled(se::State& s) // NOLI
 }
 SE_BIND_FUNC(js_video_VideoPlayer_setKeepAspectRatioEnabled)
 
-static bool js_video_VideoPlayer_setPlaybackRate(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setPlaybackRate(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_video_VideoPlayer_setPlaybackRate)
-
 static bool js_video_VideoPlayer_setURL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
@@ -396,7 +376,6 @@ bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("setFrame", _SE(js_video_VideoPlayer_setFrame));
     cls->defineFunction("setFullScreenEnabled", _SE(js_video_VideoPlayer_setFullScreenEnabled));
     cls->defineFunction("setKeepAspectRatioEnabled", _SE(js_video_VideoPlayer_setKeepAspectRatioEnabled));
-    cls->defineFunction("setPlaybackRate", _SE(js_video_VideoPlayer_setPlaybackRate));
     cls->defineFunction("setURL", _SE(js_video_VideoPlayer_setURL));
     cls->defineFunction("setVisible", _SE(js_video_VideoPlayer_setVisible));
     cls->defineFunction("stop", _SE(js_video_VideoPlayer_stop));

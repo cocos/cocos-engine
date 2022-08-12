@@ -131,12 +131,6 @@ void VideoPlayer::setKeepAspectRatioEnabled(bool enable) {
     }
 }
 
-void VideoPlayer::setPlaybackRate(float rate) {
-    if (_playbackRate != rate) {
-        _playbackRate = rate;
-        JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setPlaybackRate", _videoPlayerIndex, rate);
-    }
-}
 
 void VideoPlayer::play() {
     if (!_videoURL.empty()) {

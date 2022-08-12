@@ -64,38 +64,38 @@ protected:
 // input data to a form acceptable by the mixer.
 // TODO: Make a ResamplerBufferProvider when integers are entirely removed from the
 // processing pipeline.
-class CopyBufferProvider : public PassthruBufferProvider {
-public:
-    // Use a private buffer of bufferFrameCount frames (each frame is outputFrameSize bytes).
-    // If bufferFrameCount is 0, no private buffer is created and in-place modification of
-    // the upstream buffer provider's buffers is performed by copyFrames().
-    CopyBufferProvider(size_t inputFrameSize, size_t outputFrameSize,
-            size_t bufferFrameCount);
-    virtual ~CopyBufferProvider();
-
-    // Overrides AudioBufferProvider methods
-    virtual int32_t getNextBuffer(Buffer *buffer);
-    virtual void releaseBuffer(Buffer *buffer);
-
-    // Overrides PassthruBufferProvider
-    virtual void reset();
-    void setBufferProvider(AudioBufferProvider *p) override;
-
-    // this function should be supplied by the derived class.  It converts
-    // #frames in the *src pointer to the *dst pointer.  It is public because
-    // some providers will allow this to work on arbitrary buffers outside
-    // of the internal buffers.
-    virtual void copyFrames(void *dst, const void *src, size_t frames) = 0;
-
-protected:
-    const size_t         mInputFrameSize;
-    const size_t         mOutputFrameSize;
-private:
-    AudioBufferProvider::Buffer mBuffer;
-    const size_t         mLocalBufferFrameCount;
-    void                *mLocalBufferData;
-    size_t               mConsumed;
-};
+//class CopyBufferProvider : public PassthruBufferProvider {
+//public:
+//    // Use a private buffer of bufferFrameCount frames (each frame is outputFrameSize bytes).
+//    // If bufferFrameCount is 0, no private buffer is created and in-place modification of
+//    // the upstream buffer provider's buffers is performed by copyFrames().
+//    CopyBufferProvider(size_t inputFrameSize, size_t outputFrameSize,
+//            size_t bufferFrameCount);
+//    virtual ~CopyBufferProvider();
+//
+//    // Overrides AudioBufferProvider methods
+//    virtual int32_t getNextBuffer(Buffer *buffer);
+//    virtual void releaseBuffer(Buffer *buffer);
+//
+//    // Overrides PassthruBufferProvider
+//    virtual void reset();
+//    void setBufferProvider(AudioBufferProvider *p) override;
+//
+//    // this function should be supplied by the derived class.  It converts
+//    // #frames in the *src pointer to the *dst pointer.  It is public because
+//    // some providers will allow this to work on arbitrary buffers outside
+//    // of the internal buffers.
+//    virtual void copyFrames(void *dst, const void *src, size_t frames) = 0;
+//
+//protected:
+//    const size_t         mInputFrameSize;
+//    const size_t         mOutputFrameSize;
+//private:
+//    AudioBufferProvider::Buffer mBuffer;
+//    const size_t         mLocalBufferFrameCount;
+//    void                *mLocalBufferData;
+//    size_t               mConsumed;
+//};
 
 // DownmixerBufferProvider derives from CopyBufferProvider to provide
 // position dependent downmixing by an Audio Effect.
@@ -197,14 +197,14 @@ public:
     TimestretchBufferProvider(int32_t channelCount,
             audio_format_t format, uint32_t sampleRate,
             const AudioPlaybackRate &playbackRate);
-    virtual ~TimestretchBufferProvider();
+    ~TimestretchBufferProvider() override;
 
     // Overrides AudioBufferProvider methods
-    virtual status_t getNextBuffer(Buffer* buffer, int64_t pts) override;
-    virtual void releaseBuffer(Buffer* buffer);
+    status_t getNextBuffer(Buffer* buffer, int64_t pts) override;
+    void releaseBuffer(Buffer* buffer) override;
 
     // Overrides PassthruBufferProvider
-    virtual void reset();
+    void reset() override;
     void setBufferProvider(AudioBufferProvider *p) override;
 
     virtual status_t setPlaybackRate(const AudioPlaybackRate &playbackRate);
