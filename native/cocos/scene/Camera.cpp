@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "scene/Camera.h"
+#include "Camera.h"
 #include "core/Root.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/Node.h"
@@ -236,7 +236,7 @@ void Camera::changeTargetWindow(RenderWindow *window) {
                 bindTargetWindow(window);
             } else {
                 // add ui camera(without rt) or hmd camera or other camera(without rt) to xr window
-                for (int i = 0, size = windows.size(); i < size; i++) {
+                for (size_t i = 0, size = windows.size(); i < size; i++) {
                     // 0,1 is left+right eye xr window
                     if (i <= 1) bindTargetWindow(windows[i]);
                 }
