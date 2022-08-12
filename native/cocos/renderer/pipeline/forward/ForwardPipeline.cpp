@@ -34,6 +34,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
 #include "scene/RenderScene.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
@@ -113,8 +114,11 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     decideProfilerCamera(cameras);
 
     for (auto *camera : cameras) {
-        validPunctualLightsCulling(this, camera);
-        sceneCulling(this, camera);
+        bool isCullingEnable = camera->isCullingEnabled();
+        if (isCullingEnable) {
+            validPunctualLightsCulling(this, camera);
+            sceneCulling(this, camera);
+        }
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
