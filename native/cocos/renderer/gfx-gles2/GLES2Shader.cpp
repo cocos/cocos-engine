@@ -56,8 +56,10 @@ void initGpuShader(GLES2GPUShader *gpuShader) {
 } // namespace
 
 GLES2GPUShader *GLES2Shader::gpuShader() const {
-    if (!_gpuShader->glProgram) {
-        initGpuShader(_gpuShader);
+    if constexpr (deferShaderCompile) {
+        if (!_gpuShader->glProgram) {
+            initGpuShader(_gpuShader);
+        }
     }
     return _gpuShader;
 }
@@ -77,6 +79,9 @@ void GLES2Shader::doInit(const ShaderInfo & /*info*/) {
     for (auto &stage : _stages) {
         stage.source.clear();
         stage.source.shrink_to_fit();
+    }
+    if constexpr (!deferShaderCompile) {
+        initGpuShader(_gpuShader);
     }
 }
 

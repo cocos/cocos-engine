@@ -53,6 +53,7 @@ public:
 protected:
     virtual void doInit(const ShaderInfo &info) = 0;
     virtual void doDestroy() = 0;
+    static constexpr bool deferShaderCompile = true;
 
     ccstd::string _name;
     ShaderStageList _stages;

@@ -57,8 +57,10 @@ void initGpuShader(CCVKGPUShader* gpuShader) {
 } // namespace
 
 CCVKGPUShader *CCVKShader::gpuShader() const {
-    if (!_gpuShader->initialized) {
-        initGpuShader(_gpuShader);
+    if constexpr (deferShaderCompile) {
+        if (!_gpuShader->initialized) {
+            initGpuShader(_gpuShader);
+        }
     }
     return _gpuShader;
 }
@@ -73,6 +75,9 @@ void CCVKShader::doInit(const ShaderInfo & /*info*/) {
     for (auto &stage : _stages) {
         stage.source.clear();
         stage.source.shrink_to_fit();
+    }
+    if constexpr (!deferShaderCompile) {
+        initGpuShader(_gpuShader);
     }
 }
 
