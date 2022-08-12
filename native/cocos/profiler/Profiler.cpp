@@ -49,8 +49,8 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, std::string_view name)
-    : _parent(parent), _name(std::move(name)) {}
+    ProfilerBlock(ProfilerBlock *parent, const std::string_view& name)
+    : _parent(parent), _name(name) {}
     ~ProfilerBlock();
 
     inline void begin() { _timer.reset(); }
