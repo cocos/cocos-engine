@@ -591,8 +591,4 @@ export class Paths {
     get nativePrjDir() {
         return ps.join(this.buildDir, 'proj');
     }
-
-    setPlatformTemplateDirName(platform: string) {
-        this.platformTemplateDirName = platform;
-    }
 }
