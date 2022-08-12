@@ -44,7 +44,8 @@ enum class OSEventType {
     DEVICE_OSEVENT = 4,
     WINDOW_OSEVENT = 5,
     APP_OSEVENT = 6,
-    UNKNOWN_OSEVENT = 7
+    CONTROLLER_OSEVENT = 7,
+    UNKNOWN_OSEVENT = 8
 };
 
 class OSEvent {
@@ -113,6 +114,66 @@ public:
 
     ccstd::vector<TouchInfo> touches;
     Type type = Type::UNKNOWN;
+};
+
+enum class StickKeyCode {
+    UNDEFINE = 0,
+    A,
+    B,
+    X,
+    Y,
+    L1,
+    R1,
+    MINUS,
+    PLUS,
+    L3,
+    R3,
+    MENU,
+    START,
+    LEFT_STICK,
+    RIGHT_STICK,
+};
+
+enum class StickAxisCode {
+    UNDEFINE = 0,
+    X,
+    Y,
+    LEFT_STICK_X,
+    LEFT_STICK_Y,
+    RIGHT_STICK_X,
+    RIGHT_STICK_Y,
+    L2,
+    R2,
+    LEFT_GRIP,
+    RIGHT_GRIP,
+};
+
+struct ControllerInfo {
+    struct AxisInfo {
+        StickAxisCode axis = StickAxisCode::UNDEFINE;
+        float         value = 0.0F;
+        AxisInfo(StickAxisCode axis, float value) : axis(axis), value(value) {}
+    };
+    struct ButtonInfo {
+        StickKeyCode key;
+        bool         isPress;
+        ButtonInfo(StickKeyCode key, bool isPress) : key(key), isPress(isPress) {}
+    };
+
+    int napdId{0};
+    std::vector<AxisInfo> axisInfos;
+    std::vector<ButtonInfo> buttonInfos;
+};
+
+struct ControllerEvent : public OSEvent {
+    CONSTRUCT_EVENT(ControllerEvent, OSEventType::CONTROLLER_OSEVENT)
+    enum class Type {
+        GAMEPAD,
+        HANDLE,
+        UNKNOWN
+    };
+    Type type = Type::UNKNOWN;
+    std::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
 };
 
 class MouseEvent : public OSEvent {
@@ -259,6 +320,7 @@ public:
     static void dispatchTouchEvent(const TouchEvent &touchEvent);
     static void dispatchMouseEvent(const MouseEvent &mouseEvent);
     static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
+    static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
     static void dispatchOrientationChangeEvent(int orientation);
@@ -277,9 +339,9 @@ public:
     static void removeAllCustomEventListeners(const ccstd::string &eventName);
     static void removeAllEventListeners();
     static void dispatchCustomEvent(const CustomEvent &event);
+    static void doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args);
 
 private:
-    static void doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args);
     static void dispatchCustomEvent(const char *eventName, int argNum, ...);
 
     struct Node {

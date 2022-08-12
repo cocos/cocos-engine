@@ -37,6 +37,7 @@ ccstd::vector<se::Object *> jsTouchObjPool;
 se::Object *jsTouchObjArray = nullptr;
 se::Object *jsMouseEventObj = nullptr;
 se::Object *jsKeyboardEventObj = nullptr;
+se::Object *jsControllerEventArray = nullptr;
 se::Object *jsResizeEventObj = nullptr;
 se::Object *jsOrientationEventObj = nullptr;
 bool inited = false;
@@ -70,6 +71,12 @@ void EventDispatcher::destroy() {
         jsTouchObjArray->unroot();
         jsTouchObjArray->decRef();
         jsTouchObjArray = nullptr;
+    }
+
+    if (jsControllerEventArray != nullptr) {
+        jsControllerEventArray->unroot();
+        jsControllerEventArray->decRef();
+        jsControllerEventArray = nullptr;
     }
 
     if (jsMouseEventObj != nullptr) {
@@ -234,6 +241,58 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
     jsKeyboardEventObj->setProperty("keyCode", se::Value(keyboardEvent.key));
     se::ValueArray args;
     args.emplace_back(se::Value(jsKeyboardEventObj));
+    EventDispatcher::doDispatchJsEvent(eventName, args);
+}
+
+void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerEvent) {
+    se::AutoHandleScope scope;
+    if (!jsControllerEventArray) {
+        jsControllerEventArray = se::Object::createArrayObject(0);
+        jsControllerEventArray->root();
+    }
+
+    const char *eventName = "onControllerInput";
+    if (controllerEvent.type == ControllerEvent::Type::HANDLE) {
+        eventName = "onHandleInput";
+    }
+    uint32_t    controllerIndex = 0;
+    jsControllerEventArray->setProperty("length", se::Value(static_cast<uint32_t>(controllerEvent.controllerInfos.size())));
+
+    for (const auto &controller : controllerEvent.controllerInfos) {
+        auto *jsController = se::Object::createPlainObject();
+        jsController->setProperty("number", se::Value(controller->napdId));
+
+        auto *jsButtonInfoList = se::Object::createArrayObject(0);
+        jsButtonInfoList->setProperty("length", se::Value(static_cast<uint32_t>(controller->buttonInfos.size())));
+
+        uint32_t buttonIndex       = 0;
+        for (const auto &buttonInfo : controller->buttonInfos) {
+            auto *jsButtonInfo = se::Object::createPlainObject();
+            jsButtonInfo->setProperty("code", se::Value(static_cast<uint32_t>(buttonInfo.key)));
+            jsButtonInfo->setProperty("isPressed", se::Value(static_cast<uint32_t>(buttonInfo.isPress)));
+            jsButtonInfoList->setArrayElement(buttonIndex, se::Value(jsButtonInfo));
+            buttonIndex++;
+        }
+
+        auto *jsAxisInfoList = se::Object::createArrayObject(0);
+        jsAxisInfoList->setProperty("length", se::Value(static_cast<uint32_t>(controller->axisInfos.size())));
+
+        uint32_t axisIndex = 0;
+        for (const auto &axisInfo : controller->axisInfos) {
+            auto *jsAxisInfo = se::Object::createPlainObject();
+            jsAxisInfo->setProperty("code", se::Value(static_cast<uint32_t>(axisInfo.axis)));
+            jsAxisInfo->setProperty("value", se::Value(axisInfo.value));
+            jsAxisInfoList->setArrayElement(axisIndex, se::Value(jsAxisInfo));
+            axisIndex++;
+        }
+        jsController->setProperty("axisInfoList", se::Value(jsAxisInfoList));
+        jsController->setProperty("buttonInfoList", se::Value(jsButtonInfoList));
+
+        jsControllerEventArray->setArrayElement(controllerIndex, se::Value(jsController));
+        controllerIndex++;
+    }
+    se::ValueArray args;
+    args.emplace_back(se::Value(jsControllerEventArray));
     EventDispatcher::doDispatchJsEvent(eventName, args);
 }
 

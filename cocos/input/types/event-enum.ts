@@ -373,6 +373,35 @@ export enum InputEventType {
      * 重力感应
      */
     DEVICEMOTION = 'devicemotion',
+
+    /**
+     * @en The event type for gamepad input
+     * @zh 手柄输入事件
+     */
+    GAMEPAD_INPUT = 'gamepad-input',
+    /**
+     * @en The event type for gamepad device change, including gamepad connecting and disconnecting
+     * @zh 手柄设备改变时触发的事件，包括手柄连接，手柄断开连接
+     */
+    GAMEPAD_CHANGE = 'gamepad-change',
+
+    /**
+     * @en The event type for 6DOF handle input
+     * @zh 6DOF手柄输入事件
+     */
+    HANDLE_INPUT = 'handle-input',
+
+    /**
+     * @en The event type for handle pose input
+     * @zh 手柄姿态输入事件
+     */
+    HANDLE_POSE_INPUT = 'handle-pose-input',
+
+    /**
+     * @en The event type for hmd pose input
+     * @zh 头戴显示器姿态输入事件
+     */
+    HMD_POSE_INPUT = 'hmd-pose-input'
 }
 
 export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;
