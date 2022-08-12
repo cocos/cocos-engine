@@ -1,7 +1,6 @@
 name: <Native> Run Tests
 
 on:
-  push:
   pull_request:
     paths:
     - 'templates/**'

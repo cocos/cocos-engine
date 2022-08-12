@@ -1,7 +1,6 @@
 name: <Native> Linux
 
 on:
-  push:
   pull_request:
     paths:
     - 'templates/**'

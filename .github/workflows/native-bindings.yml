@@ -1,7 +1,6 @@
 name: <Native> Glue
 
 on:
-  push:
   pull_request_target:
     types: [closed]
     paths:

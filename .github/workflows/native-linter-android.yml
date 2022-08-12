@@ -1,7 +1,6 @@
 name: <Native> Linter
 
 on:
-  push:
   pull_request:
     paths:
     - 'templates/**'

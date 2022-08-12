@@ -2,7 +2,6 @@ name: <Native> Simulator
 
 #on: [pull_request]
 on:
-  push:
   pull_request:
     paths:
     - 'native/**'
