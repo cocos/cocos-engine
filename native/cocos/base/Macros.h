@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include "cocos/base/Config.h"
+
 #include <cstdint> // To include uint8_t, uint16_t and so on.
 
 #include <cassert>
