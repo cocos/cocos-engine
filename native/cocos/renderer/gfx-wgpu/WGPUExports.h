@@ -449,6 +449,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("bindPipelineState", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::bindPipelineState), allow_raw_pointer<arg<0>>())
         .function("bindInputAssembler", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::bindInputAssembler), allow_raw_pointer<arg<0>>())
         .function("draw", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::draw))
+        .function("drawByInfo", select_overload<void(const DrawInfo &)>(&CCWGPUCommandBuffer::draw))
         .function("updateIndirectBuffer", select_overload<void(Buffer *, const DrawInfoList &)>(&CCWGPUCommandBuffer::updateIndirectBuffer), allow_raw_pointers())
         .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint32_t)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers())
         .function("getType", &CCWGPUCommandBuffer::getCommandBufferType);

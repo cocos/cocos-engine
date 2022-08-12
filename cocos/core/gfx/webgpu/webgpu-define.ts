@@ -34,7 +34,7 @@ import {
 } from '../override';
 import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, FramebufferInfo, RenderPassInfo,
-    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo,
+    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo, DrawInfo,
 } from '../base/define';
 import { murmurhash2_32_gc } from '../../utils';
 import { PipelineStateInfo } from '../base/pipeline-state';
@@ -344,6 +344,24 @@ CommandBuffer.prototype.begin = function (renderpass?: typeof RenderPass, subpas
         }
     } else {
         return this.begin3(renderpass, subpass, framebuffer);
+    }
+};
+
+const oldDraw = CommandBuffer.prototype.draw;
+CommandBuffer.prototype.draw = function (info: DrawInfo | typeof InputAssembler) {
+    if ('attributesHash' in info) {
+        return this.drawByInfo(info.drawInfo);
+    } else {
+        const gfxDrawInfo = new gfx.DrawInfo(
+            info.vertexCount,
+            info.firstVertex,
+            info.indexCount,
+            info.firstIndex,
+            info.vertexOffset,
+            info.instanceCount,
+            info.firstInstance,
+        );
+        return this.drawByInfo(gfxDrawInfo);
     }
 };
 
