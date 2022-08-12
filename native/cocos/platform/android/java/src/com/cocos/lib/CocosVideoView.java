@@ -270,7 +270,7 @@ public class CocosVideoView extends SurfaceView {
                 mCurrentState == State.PAUSED ||
                 mCurrentState == State.PLAYBACK_COMPLETED) &&
                 mMediaPlayer != null) {
-                    
+
             mCurrentState = State.STARTED;
             mMediaPlayer.start();
             this.sendEvent(EVENT_PLAYING);

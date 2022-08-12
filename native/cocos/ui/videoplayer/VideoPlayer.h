@@ -166,7 +166,6 @@ protected:
     bool _fullScreenDirty;
     bool _fullScreenEnabled;
     bool _keepAspectRatioEnabled;
-    float _playbackRate;
 
     ccstd::string _videoURL;
     Source _videoSource;

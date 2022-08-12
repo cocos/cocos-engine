@@ -131,7 +131,6 @@ void VideoPlayer::setKeepAspectRatioEnabled(bool enable) {
     }
 }
 
-
 void VideoPlayer::play() {
     if (!_videoURL.empty()) {
         JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "startVideo", _videoPlayerIndex);

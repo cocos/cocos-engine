@@ -487,7 +487,7 @@ static bool js_audio_AudioEngine_play2d_static(se::State& s) // NOLINT(readabili
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
 SE_BIND_FUNC(js_audio_AudioEngine_play2d_static)

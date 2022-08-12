@@ -184,7 +184,6 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
         self.playerController.videoGravity = AVLayerVideoGravityResize;
 }
 
-
 - (void)play {
     if (self.playerController.player && ![self isPlaying]) {
         [self.playerController.player play];
