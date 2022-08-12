@@ -28,7 +28,7 @@ import { EffectAsset } from '../../assets';
 import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, LayoutGraphVisitor, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
-import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
+import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor, IncidenceGraph, vertex_descriptor } from './graph';
 import { ccclass } from '../../data/decorators';
 
@@ -406,7 +406,7 @@ export class WebDescriptorHierarchy {
         }
     }
 
-    public addGlobal (vName: string, hasCCGlobal, hasCCCamera, hasCCShadow, hasShadowmap, hasEnv, hasDiffuse, hasSpot): number {
+    public addGlobal (vName: string, hasCCGlobal, hasCCCamera, hasCCShadow, hasCCCSM, hasShadowmap, hasEnv, hasDiffuse, hasSpot): number {
         const passDB: DescriptorDB = new DescriptorDB();
         // Add pass layout from define.ts
         const globalUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
@@ -420,7 +420,10 @@ export class WebDescriptorHierarchy {
             this.setUniform(globalDB, 'cc_time', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_screenSize', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_nativeSize', Type.FLOAT4, 1);
-
+            this.setUniform(globalDB, 'cc_debug_view_mode', Type.FLOAT, 4);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_1', Type.FLOAT, 4);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_2', Type.FLOAT, 4);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_3', Type.FLOAT, 4);
             this.setDescriptor(globalUniformTarget, 'CCGlobal', Type.UNKNOWN);
         }
 
@@ -467,17 +470,32 @@ export class WebDescriptorHierarchy {
             this.setDescriptor(globalUniformTarget, 'CCShadow', Type.UNKNOWN);
         }
 
+        if (hasCCCSM) {
+            const csmDB: UniformBlock = this.getUniformBlock(SetIndex.GLOBAL,
+                UBOCSM.BINDING, 'CCCSM', globalUniformTarget);
+            this.setUniform(csmDB, 'cc_csmViewDir0', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_csmViewDir1', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_csmViewDir2', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_csmAtlas', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_matCSMViewProj', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_csmProjDepthInfo', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_csmProjInfo', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT);
+            this.setUniform(csmDB, 'cc_csmSplitsInfo', Type.FLOAT4, 1);
+
+            this.setDescriptor(globalUniformTarget, 'CCCSM', Type.UNKNOWN);
+        }
+
         if (hasShadowmap) {
             this.setDescriptor(globalSamplerTexTarget, 'cc_shadowMap', Type.SAMPLER2D);
         }
         if (hasEnv) {
             this.setDescriptor(globalSamplerTexTarget, 'cc_environment', Type.SAMPLER_CUBE);
         }
-        if (hasDiffuse) {
-            this.setDescriptor(globalSamplerTexTarget, 'cc_diffuseMap', Type.SAMPLER_CUBE);
-        }
         if (hasSpot) {
             this.setDescriptor(globalSamplerTexTarget, 'cc_spotShadowMap', Type.SAMPLER2D);
+        }
+        if (hasDiffuse) {
+            this.setDescriptor(globalSamplerTexTarget, 'cc_diffuseMap', Type.SAMPLER_CUBE);
         }
 
         this.merge(passDB);

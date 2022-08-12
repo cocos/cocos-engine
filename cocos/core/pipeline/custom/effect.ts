@@ -70,7 +70,7 @@ function rebuildLayoutGraph (): void {
     const lgData = ppl.layoutGraphBuilder;
     lgData.clear();
 
-    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true);
+    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true, true);
 
     for (const n in effects) {
         const e: EffectAsset = effects[n];
@@ -203,7 +203,7 @@ export function buildForwardLayout (ppl: Pipeline) {
     if (bFromGlobalDescriptorSet) {
         buildForwardLayoutFromGlobal(ppl, lg);
     } else {
-        const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true);
+        const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
         lg.mergeDescriptors(defaultID);
     }
 
@@ -233,7 +233,7 @@ export class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor>
 
 export function buildDeferredLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
-    const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true);
+    const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
     lg.mergeDescriptors(defaultID);
     const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
     const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);
