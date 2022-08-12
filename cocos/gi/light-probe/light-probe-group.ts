@@ -154,7 +154,9 @@ export class LightProbeGroup extends Component {
     public update (deltaTime: number) {
     }
 
-    private generateLightProbes () {
+    public generateLightProbes () {
+        console.log('execute-component-method');
+
         this._probes = AutoPlacement.generate({
             method: this._method,
             nProbesX: this._nProbesX,

@@ -1891,4 +1891,5 @@ exports.beforeClose = async function beforeClose() {
 
 exports.config = {
     section: require('../components.js'),
+    footer: require('../components-footer.js'),
 };
