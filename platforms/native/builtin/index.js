@@ -107,19 +107,24 @@ function createTimeoutInfo(prevFuncArgs, isRepeat) {
     return info.id;
 }
 
-window.setTimeout = function(cb) {
-    return createTimeoutInfo(arguments, false);
-};
+if(!window.oh) {
+    // In openharmony, the setTimeout function will conflict with the timer of the worker thread and cause a crash, 
+    // so you need to use the default timer
+    window.setTimeout = function(cb) {
+        return createTimeoutInfo(arguments, false);
+    };
+    
+    window.clearTimeout = function(id) {
+        delete _timeoutInfos[id];
+    };
+    
+    window.setInterval = function(cb) {
+        return createTimeoutInfo(arguments, true);
+    };
+    
+    window.clearInterval = window.clearTimeout;
+}
 
-window.clearTimeout = function(id) {
-    delete _timeoutInfos[id];
-};
-
-window.setInterval = function(cb) {
-    return createTimeoutInfo(arguments, true);
-};
-
-window.clearInterval = window.clearTimeout;
 window.alert = console.error.bind(console);
 
 // File utils (Temporary, won't be accessible)
