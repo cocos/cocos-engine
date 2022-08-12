@@ -38,6 +38,11 @@
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "bindings/jswrapper/napi/HelperMacros.h"
 #include "platform/openharmony/modules/System.h"
+#include "platform/empty/modules/Screen.h"
+#include "platform/empty/modules/Accelerometer.h"
+#include "platform/empty/modules/Battery.h"
+#include "platform/empty/modules/Network.h"
+#include "platform/empty/modules/Vibrator.h"
 
 #include <sstream>
 #include <chrono>
@@ -58,6 +63,16 @@ int cocos_main(int argc, const char** argv) {
 }
 
 namespace cc {
+
+OpenHarmonyPlatform::OpenHarmonyPlatform() {
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<Vibrator>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Accelerometer>());
+}
 
 int32_t OpenHarmonyPlatform::init() {
     return 0;
@@ -168,11 +183,6 @@ napi_value OpenHarmonyPlatform::GetContext(napi_env env, napi_callback_info info
 
 OpenHarmonyPlatform* OpenHarmonyPlatform::getInstance() {
     return dynamic_cast<OpenHarmonyPlatform*>(BasePlatform::getPlatform());
-}
-
-OpenHarmonyPlatform::OpenHarmonyPlatform() {
-    registerInterface(std::make_shared<SystemWindow>());
-    registerInterface(std::make_shared<System>());
 }
 
 int OpenHarmonyPlatform::getSdkVersion() const {
