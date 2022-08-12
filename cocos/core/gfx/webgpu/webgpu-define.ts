@@ -639,6 +639,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
 
     const functionTemplates = new Map<string, string>();
     const functionDeps = new Map<string, string[]>();
+    let forwardDecls = '';
     // function
     referredFuncMap.forEach((pair) => {
         //pre: if existed, replace
@@ -648,7 +649,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
         const codePieceRe = new RegExp(codePieceStr);
         let res = codePieceRe.exec(code);
         while (res) {
-            let replaceStr = res[0].replace(`${pair[0]}(`, `${pair[0]}_${pair[2]}_specialized(`);
+            let replaceStr = res[0].replace(`${pair[0]}(`, `${pair[0]}_${pair[1]}_${pair[2]}_specialized(`);
             replaceStr = replaceStr.replace(`${textureStr},`, '');
             code = code.replace(codePieceRe, replaceStr);
             res = codePieceRe.exec(code);
@@ -783,7 +784,7 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
 
                     for (let i = 0; i < depsFuncs.length; ++i) {
                         const depFuncStr = `${depsFuncs[i]}([\\W]?)*\\([^,)]+(,)?`;
-                        funcTemplate = funcTemplate.replace(new RegExp(depFuncStr, 'g'), `${depsFuncs[i]}_${pair[2]}_specialized(`);
+                        funcTemplate = funcTemplate.replace(new RegExp(depFuncStr, 'g'), `${depsFuncs[i]}_${pair[1]}_${pair[2]}_specialized(`);
                     }
 
                     let declStr = fnDecl![0].replace(pair[0], `${str}_${pair[2]}_specialized`);
@@ -802,20 +803,21 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
         const samplerDefReStr = `(?:.(?!layout))+${pair[2]};`;
         const samplerDef = (new RegExp(samplerDefReStr)).exec(code);
 
-        let funcDecls = '';
         let funcImpls = '';
         for (const [key, value] of specializedFuncs) {
-            funcDecls += `\n${key}\n`;
+            forwardDecls += `\n${key}\n`;
             funcImpls += `\n${value}\n`;
         }
-        // some function appears before it's defined so forward declaration is needed
-        funcDecls += '\nvec3 SRGBToLinear (vec3 gamma);\nfloat getDisplacementWeight(int index);\n';
-        let idx = code.indexOf('precision');
-        idx = code.indexOf(';', idx);
-        idx += 1;
-        code = `${code.slice(0, idx)}\n${funcDecls}\n${code.slice(idx)}`;
+
         code = code.replace(samplerDef![0], `${samplerDef![0]}\n${funcImpls}`);
     });
+
+    // some function appears before it's defined so forward declaration is needed
+    forwardDecls += '\nvec3 SRGBToLinear (vec3 gamma);\nfloat getDisplacementWeight(int index);\n';
+    let idx = code.indexOf('precision');
+    idx = code.indexOf(';', idx);
+    idx += 1;
+    code = `${code.slice(0, idx)}\n${forwardDecls}\n${code.slice(idx)}`;
 
     return code;
 }
