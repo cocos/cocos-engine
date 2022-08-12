@@ -24,7 +24,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Camera, Model } from 'cocos/core/renderer/scene';
+import { Camera, Model } from '../../core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
