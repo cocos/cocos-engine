@@ -533,6 +533,7 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/modules/SystemWindow.cpp
         cocos/platform/interfaces/modules/Device.cpp
         cocos/platform/interfaces/modules/Device.h
+        cocos/platform/interfaces/modules/IScreen.h
     )
 endif()
 
@@ -616,6 +617,8 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/modules/System.h
         cocos/platform/openharmony/modules/SystemWindow.cpp
         cocos/platform/openharmony/modules/SystemWindow.h
+        cocos/platform/empty/modules/Screen.cpp
+        cocos/platform/empty/modules/Screen.h
     )
 elseif(ANDROID OR OHOS)
     cocos_source_files(

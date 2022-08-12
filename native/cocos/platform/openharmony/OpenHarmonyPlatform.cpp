@@ -38,6 +38,7 @@
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "bindings/jswrapper/napi/HelperMacros.h"
 #include "platform/openharmony/modules/System.h"
+#include "platform/empty/modules/Screen.h"
 
 #include <sstream>
 #include <chrono>
@@ -58,6 +59,12 @@ int cocos_main(int argc, const char** argv) {
 }
 
 namespace cc {
+
+OpenHarmonyPlatform::OpenHarmonyPlatform() {
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<Screen>());
+}
 
 int32_t OpenHarmonyPlatform::init() {
     return 0;
@@ -168,11 +175,6 @@ napi_value OpenHarmonyPlatform::GetContext(napi_env env, napi_callback_info info
 
 OpenHarmonyPlatform* OpenHarmonyPlatform::getInstance() {
     return dynamic_cast<OpenHarmonyPlatform*>(BasePlatform::getPlatform());
-}
-
-OpenHarmonyPlatform::OpenHarmonyPlatform() {
-    registerInterface(std::make_shared<SystemWindow>());
-    registerInterface(std::make_shared<System>());
 }
 
 int OpenHarmonyPlatform::getSdkVersion() const {
