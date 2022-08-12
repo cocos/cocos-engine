@@ -46,6 +46,8 @@
 #include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"
+#include "application/ApplicationManager.h"
+#include "platform/java/modules/XRInterface.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
 // renderdoc doesn't support this extension during replay
@@ -72,6 +74,8 @@ GLES3Device::~GLES3Device() {
 }
 
 bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
+    _xr = CC_GET_XR_INTERFACE();
+    if(_xr) _xr->preGFXDeviceInitialize(_api);
     _gpuContext = ccnew GLES3GPUContext;
     _gpuStateCache = ccnew GLES3GPUStateCache;
     _gpuFramebufferHub = ccnew GLES3GPUFramebufferHub;
@@ -224,6 +228,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
     CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
 
+    if (_xr) {
+        _xr->initializeGLESData(pfnGLES3wLoadProc(), GLES3Device::getInstance()->context());
+        _xr->postGFXDeviceInitialize(_api);
+    }
     return true;
 }
 
@@ -246,6 +254,24 @@ void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 
     _swapchains.clear();
+    if(_xr) {
+        GLuint _xrFramebuffer = 0;
+#if XR_OEM_HUAWEIVR
+        stateCache()->glTextures[stateCache()->texUint] = 0;
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, reinterpret_cast<GLint *>(&_xrFramebuffer));
+        stateCache()->glDrawFramebuffer = _xrFramebuffer;
+#else
+        xr::XRSwapchain xrSwapchain = _xr->doGFXDeviceAcquire(_api);
+        _xrFramebuffer = xrSwapchain.glDrawFramebuffer;
+#endif
+        for (uint32_t i = 0; i < count; ++i) {
+            GL_CHECK(_xr->attachGLESFramebufferTexture2D(););
+            static_cast<GLES3Swapchain *>(swapchains[i])->gpuSwapchain()->glFramebuffer = _xrFramebuffer;
+            _swapchains.push_back(static_cast<GLES3Swapchain *>(swapchains[i])->gpuSwapchain());
+        }
+        return;
+    }
+
     for (uint32_t i = 0; i < count; ++i) {
         _swapchains.push_back(static_cast<GLES3Swapchain *>(swapchains[i])->gpuSwapchain());
     }
@@ -258,9 +284,11 @@ void GLES3Device::present() {
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
 
+    bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
     for (auto *swapchain : _swapchains) {
-        _gpuContext->present(swapchain);
+        if(isGFXDeviceNeedsPresent) _gpuContext->present(swapchain);
     }
+    if (_xr) _xr->postGFXDevicePresent(_api);
 
     // Clear queue stats
     queue->_numDrawCalls = 0;

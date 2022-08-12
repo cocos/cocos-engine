@@ -61,6 +61,7 @@ bool Device::initialize(const DeviceInfo &info) {
     static_assert(sizeof(void *) == 8, "pointer size assumption broken");
 #endif
 
+    _xr = CC_GET_XR_INTERFACE();
     bool result = doInit(info);
 
     CC_SAFE_ADD_REF(_cmdBuff);
@@ -89,6 +90,10 @@ void Device::destroy() {
     }
     _bufferBarriers.clear();
 
+    if (_xr) {
+        destroySwapchains();
+    }
+
     doDestroy();
 
     CC_SAFE_DELETE(_onAcquire);
@@ -98,7 +103,6 @@ void Device::destroySurface(void *windowHandle) {
     for (const auto &swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
-            break;
         }
     }
 }
@@ -107,7 +111,6 @@ void Device::createSurface(void *windowHandle) {
     for (const auto &swapchain : _swapchains) {
         if (!swapchain->getWindowHandle()) {
             swapchain->createSurface(windowHandle);
-            break;
         }
     }
 }
@@ -138,6 +141,35 @@ BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
         _bufferBarriers[info] = createBufferBarrier(info);
     }
     return _bufferBarriers[info];
+}
+
+void Device::removeSwapchain(Swapchain *swapchain) {
+    if(!_xr || _swapchains.empty()) return;
+    auto it = _swapchains.begin();
+    while (it != _swapchains.end()) {
+        if (*it == swapchain) {
+            it = _swapchains.erase(it);
+        } else {
+            it++;
+        }
+    }
+}
+
+void Device::destroySwapchains() {
+    if(!_xr) return;
+    // xr has two swapchains, one release from ts, another one we need release manually
+    if (!_swapchains.empty()) {
+        auto it = _swapchains.begin();
+        while (it != _swapchains.end()) {
+            if (*it) {
+                Swapchain *swapchainTemp = *it;
+                it = _swapchains.erase(it);
+                delete swapchainTemp;
+            } else {
+                it++;
+            }
+        }
+    }
 }
 
 } // namespace gfx
