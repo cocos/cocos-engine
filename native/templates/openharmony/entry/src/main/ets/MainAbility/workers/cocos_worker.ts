@@ -30,40 +30,40 @@ var renderContext: any = undefined;
 parentPort.onmessage = function(e) {
     var data = e.data;
 
-    console.log("kee cocos worker type:" + data.type);
+    console.log("cocos worker type:" + data.type);
     switch(data.type) {
         case "AppLifecycle":
-            console.log("kee cocos worker: AppLifecycle");
+            console.log("cocos worker: AppLifecycle");
             const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
             switch(data.data) {
                 case "onCreate":
-                    console.log("kee cocos worker: onCreate");
+                    console.log("cocos worker: onCreate");
                     nativeAppLifecycle.onCreate();
                     break;
                 case "onShow":
-                    console.log("kee cocos worker: onShow");
+                    console.log("cocos worker: onShow");
                     nativeAppLifecycle.onShow();
                     break;
                 case "onHide":
-                    console.log("kee cocos worker: onHide");
+                    console.log("cocos worker: onHide");
                     nativeAppLifecycle.onHide();
                     break;
                 case "onDestroy":
-                    console.log("kee cocos worker: onDestroy");
+                    console.log("cocos worker: onDestroy");
                     nativeAppLifecycle.onDestroy();
                     break;
             }
             break;
         case "JSPageLifecycle":
             const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
-            console.log("kee cocos worker: JSPageLifecycle");
+            console.log("cocos worker: JSPageLifecycle");
             switch(data.data) {
                 case "onPageShow":
-                    console.log("kee cocos worker: onPageShow");
+                    console.log("cocos worker: onPageShow");
                     nativePageLifecycle.onPageShow();
                     break;
                 case "onPageHide":
-                    console.log("kee cocos worker: onPageHide");
+                    console.log("cocos worker: onPageHide");
                     nativePageLifecycle.onPageHide();
                     break;
             }
@@ -73,25 +73,25 @@ parentPort.onmessage = function(e) {
             log('start to launch CC engine');
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
-            console.log("kee cocos worker: onXCLoad");
+            console.log("cocos worker: onXCLoad");
             launchEngine().then(() => {
                 log('launch CC engien finished');
             }).catch(e => {
                 log('launch CC engien failed');
             });
-            console.log("kee cocos worker napi init ok");
+            console.log("cocos worker napi init ok");
             console.log(data.data);
             break;
         case "render":
-            console.log("kee cocos worker: render");
+            console.log("cocos worker: render");
             if (data.data == "changeColor") {
-                console.log("kee cocos worker: changeColor");
+                console.log("cocos worker: changeColor");
                 renderContext.changeColor()
             }
         //            nativerender.bindXComponent(data.data);
             break;
         case "normal":
-            console.log("kee cocos worker: data = " + data.date);
+            console.log("cocos worker: data = " + data.date);
             break;
         default:
             console.error("cocos worker: message type unknown")

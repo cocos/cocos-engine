@@ -1,8 +1,5 @@
 {
     "license": "ISC",
-    "devDependencies": {
-        "@types/libentry.so": "file:./src/main/cpp/types/libentry"
-    },
     "name": "entry",
     "ohos": {
         "org": "huawei",

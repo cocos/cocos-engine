@@ -27,12 +27,12 @@ export class WorkerManager {
             var filename = e.filename;
             var lineno = e.lineno;
             var colno = e.colno;
-            console.error(`pptest on Error ${msg} ${filename} ${lineno} ${colno}`);
+            console.error(`on Error ${msg} ${filename} ${lineno} ${colno}`);
         }
     }
 
     public static getInstance(): WorkerManager {
-        console.log("kee cocos WorkerManager getInstance");
+        console.log("cocos WorkerManager getInstance");
         if (AppStorage.Get(Constants.APP_KEY_WORKER_MANAGER) == null) {
             AppStorage.SetOrCreate(Constants.APP_KEY_WORKER_MANAGER, new WorkerManager);
         }

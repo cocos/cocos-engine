@@ -4,20 +4,16 @@ window.oh = {};
 
 module.exports = function systemReady () {
     return new Promise(resolve => {
-        // HACK: strange, can't share the same global variable jsb
-        if (typeof jsb !== 'undefined') {
-            let device = jsb.device = {};
-            device.getDevicePixelRatio = function () { return 1; }
-            device.getDeviceOrientation = function () { return 0; }
-        }
-
         if (typeof XMLHttpRequest === 'undefined') {
             window.XMLHttpRequest = function () {}
         }
-
         display.getDefaultDisplay((err, data) => {
             window.oh.display = data;
-            console.log('pptest display' +  data.width.toString()  + data.height.toString())
+            let device = jsb.device;
+            
+            //https://developer.harmonyos.com/cn/docs/documentation/doc-references/js-apis-display-0000001281001106
+            device.getDevicePixelRatio = function () { return data.densityPixels; }
+            device.getDeviceOrientation = function () { return data.rotation; }
         });
         resolve();
     })

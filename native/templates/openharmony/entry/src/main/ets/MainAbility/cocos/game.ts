@@ -48,22 +48,6 @@ console.timeEnd = function (tag) {
     delete startTimeList[tag];
 };
 
-//resourceManager.getResourceManager().then(result => {
-//    result.getMedia($r('app.media.test').id).then(media => {
-//        // @ts-ignore
-//        console.log("kee cocos getMedia buffer = " + String.fromCharCode.apply(null, new Uint8Array(media.buffer)));
-//        console.log("kee cocos getMedia byteLength = " + media.byteLength);
-//        console.log("kee cocos getMedia byteOffset = " + media.byteOffset);
-//        console.log("kee cocos getMedia BYTES_PER_ELEMENT = " + media.BYTES_PER_ELEMENT);
-//        console.log("kee cocos getMedia length = " + media.length);
-//        console.log("kee cocos media type = " + typeof(media));
-//    }).catch(e => {
-//        console.log('pptest ' + e.stack)
-//    })
-//}).catch(err => {
-//    console.log("kee cocos getResourceManager error = " + err);
-//});
-
 // @ts-ignore
 //const onTouch = () => new Promise<void>(resolve => jsb.onTouchStart = function () {
 //    log('promise onTouch')
@@ -84,9 +68,9 @@ export function launchEngine (): Promise<void> {
                 log('error in builtin ', e.stack, e.message);
             }
 
-            console.log('pptest window.require2')
+            console.log('window.require2')
             require("./src/<%= systemBundleUrl%>");
-            console.log('pptest window.require3')
+            console.log('window.require3')
             System.warmup({
                 importMap,
                 importMapUrl: './src/<%= importMapUrl%>',
@@ -95,7 +79,7 @@ export function launchEngine (): Promise<void> {
                     loadModule(urlNoSchema);
                 },
             });
-            console.log('pptest window.require4')
+            console.log('window.require4')
             System.import('./src/<%= applicationUrl%>').then(({ createApplication }) => {
                 log('imported createApplication', createApplication)
                 return createApplication({
@@ -126,7 +110,7 @@ export function launchEngine (): Promise<void> {
                                 },
                             });
                         }).catch(e => {
-                            console.log('pptest error in importing cc ' + e.stack)
+                            console.log('error in importing cc ' + e.stack)
                         });
 
                     })
