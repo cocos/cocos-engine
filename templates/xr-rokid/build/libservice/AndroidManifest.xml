@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cocos.service">
+    <queries>
+        <provider android:authorities="org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker" />
+
+        <package android:name="org.freedesktop.monado.openxr_runtime.in_process" />
+    </queries>
+
+    <application>
+        <meta-data
+            android:name="com.rokid.uxr.sdk.version"
+            android:value="10706" />
+        <meta-data
+            android:name="com.rokid.uxr.application.mode"
+            android:value="3d" />
+    </application>
+</manifest>

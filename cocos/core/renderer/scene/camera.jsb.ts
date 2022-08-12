@@ -89,6 +89,20 @@ export enum CameraShutter {
     D4000,
 }
 
+export enum CameraType {
+    DEFAULT = -1,
+    LEFT_CAMERA = 0,
+    RIGHT_CAMERA = 1,
+    MAIN = 2,
+}
+
+export enum TrackingType {
+    NO_TRACKING = 0,
+    POSITION_AND_ROTATION = 1,
+    POSITION = 2,
+    ROTATION = 3,
+}
+
 export interface ICameraInfo {
     name: string;
     node: Node;
@@ -97,6 +111,8 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
+    cameraType: CameraType;
+    trackingType: TrackingType;
 }
 
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;

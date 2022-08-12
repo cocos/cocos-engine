@@ -13,6 +13,7 @@ else:
     import ConfigParser as configparser
 
 defaultSections = [
+    'xr',
     'cocos',
     'video',
     'webview',

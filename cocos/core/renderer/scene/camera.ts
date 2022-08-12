@@ -94,6 +94,20 @@ export enum CameraShutter {
     D4000,
 }
 
+export enum CameraType {
+    DEFAULT = -1,
+    LEFT_CAMERA = 0,
+    RIGHT_CAMERA = 1,
+    MAIN = 2,
+}
+
+export enum TrackingType {
+    NO_TRACKING = 0,
+    POSITION_AND_ROTATION = 1,
+    POSITION = 2,
+    ROTATION = 3,
+}
+
 const FSTOPS: number[] = [1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5, 4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0, 11.0, 13.0, 14.0, 16.0, 18.0, 20.0, 22.0];
 const SHUTTERS: number[] = [1.0, 1.0 / 2.0, 1.0 / 4.0, 1.0 / 8.0, 1.0 / 15.0, 1.0 / 30.0, 1.0 / 60.0, 1.0 / 125.0,
     1.0 / 250.0, 1.0 / 500.0, 1.0 / 1000.0, 1.0 / 2000.0, 1.0 / 4000.0];
@@ -107,6 +121,8 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
+    cameraType: CameraType;
+    trackingType: TrackingType;
 }
 
 const v_a = new Vec3();
@@ -563,6 +579,8 @@ export class Camera {
     private _exposure = 0;
     private _clearStencil = 0;
     private _geometryRenderer: GeometryRenderer | null = null;
+    private _cameraType: CameraType = CameraType.DEFAULT;
+    private _trackingType: TrackingType = TrackingType.NO_TRACKING;
 
     constructor (device: Device) {
         this._device = device;
@@ -598,6 +616,8 @@ export class Camera {
      * @zh 初始化相机，开发者通常不应该使用这个方法，初始化流程是自动管理的。
      */
     public initialize (info: ICameraInfo) {
+        this._trackingType = info.trackingType;
+        this._cameraType = info.cameraType;
         this.node = info.node;
         this._width = 1;
         this._height = 1;
@@ -809,6 +829,22 @@ export class Camera {
      */
     get geometryRenderer () {
         return this._geometryRenderer;
+    }
+
+    get cameraType () : CameraType {
+        return this._cameraType;
+    }
+
+    set cameraType (type: CameraType) {
+        this._cameraType = type;
+    }
+
+    get trackingType () : TrackingType {
+        return this._trackingType;
+    }
+
+    set trackingType (type: TrackingType) {
+        this._trackingType = type;
     }
 
     /**
