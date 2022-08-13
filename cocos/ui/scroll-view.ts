@@ -196,7 +196,7 @@ enum XrhoverType {
     NONE = 0,
     LEFT = 1,
     RIGHT = 2
-} 
+}
 
 /**
  * @en
@@ -1856,7 +1856,7 @@ export class ScrollView extends ViewGroup {
         } else if (event instanceof EventHandle) {
             handleInputDevice = event.handleInputDevice;
         }
-        var value;
+        let value;
         if (!this.enabledInHierarchy) {
             return;
         }

@@ -35,7 +35,6 @@ import { SystemEventTypeUnion } from '../event-enum';
  * 头戴显示器事件。
  */
 export class EventHMD extends Event {
-
     /**
      * @en The hmd device which trigger the current hmd event
      * @zh 触发当前头戴显示器事件的头戴显示器设备

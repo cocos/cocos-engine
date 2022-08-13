@@ -35,7 +35,6 @@ import { SystemEventTypeUnion } from '../event-enum';
  * 6DOF手柄事件。
  */
 export class EventHandle extends Event {
-
     /**
      * @en The handle device which trigger the current handle event
      * @zh 触发当前手柄事件的手柄设备
