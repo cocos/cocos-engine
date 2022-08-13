@@ -259,27 +259,25 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
     jsControllerEventArray->setProperty("length", se::Value(static_cast<uint32_t>(controllerEvent.controllerInfos.size())));
 
     for (const auto &controller : controllerEvent.controllerInfos) {
-        auto *jsController = se::Object::createPlainObject();
+        se::HandleObject jsController{se::Object::createPlainObject()};
         jsController->setProperty("number", se::Value(controller->napdId));
 
-        auto *jsButtonInfoList = se::Object::createArrayObject(0);
-        jsButtonInfoList->setProperty("length", se::Value(static_cast<uint32_t>(controller->buttonInfos.size())));
+        se::HandleObject jsButtonInfoList{se::Object::createArrayObject(static_cast<uint32_t>(controller->buttonInfos.size()))};
 
         uint32_t buttonIndex       = 0;
         for (const auto &buttonInfo : controller->buttonInfos) {
-            auto *jsButtonInfo = se::Object::createPlainObject();
+            se::HandleObject jsButtonInfo{se::Object::createPlainObject()};
             jsButtonInfo->setProperty("code", se::Value(static_cast<uint32_t>(buttonInfo.key)));
             jsButtonInfo->setProperty("isPressed", se::Value(static_cast<uint32_t>(buttonInfo.isPress)));
             jsButtonInfoList->setArrayElement(buttonIndex, se::Value(jsButtonInfo));
             buttonIndex++;
         }
 
-        auto *jsAxisInfoList = se::Object::createArrayObject(0);
-        jsAxisInfoList->setProperty("length", se::Value(static_cast<uint32_t>(controller->axisInfos.size())));
+        se::HandleObject jsAxisInfoList{se::Object::createArrayObject(static_cast<uint32_t>(controller->axisInfos.size()))};
 
         uint32_t axisIndex = 0;
         for (const auto &axisInfo : controller->axisInfos) {
-            auto *jsAxisInfo = se::Object::createPlainObject();
+            se::HandleObject jsAxisInfo{se::Object::createPlainObject()};
             jsAxisInfo->setProperty("code", se::Value(static_cast<uint32_t>(axisInfo.axis)));
             jsAxisInfo->setProperty("value", se::Value(axisInfo.value));
             jsAxisInfoList->setArrayElement(axisIndex, se::Value(jsAxisInfo));

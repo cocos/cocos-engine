@@ -531,7 +531,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
                     // one camera add to left/right render window, so we need update camera's cur window
                     if(wndXREye == static_cast<xr::XREye>(xrEye)) {
                         const ccstd::vector<IntrusivePtr<scene::Camera>> &cams = window->getCameras();
-                        for (auto &cam : cams) {
+                        for (const auto &cam : cams) {
                             if (cam->getCameraType() == scene::CameraType::MAIN || cam->getCameraType() == scene::CameraType::DEFAULT) {
                                 cam->setWindow(window);
                             }
