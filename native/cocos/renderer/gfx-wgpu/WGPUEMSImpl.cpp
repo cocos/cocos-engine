@@ -1,6 +1,7 @@
 #pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <boost/core/span.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/fusion/include/for_each.hpp>
@@ -60,36 +61,6 @@ CACHE_EMS_VAL(
     blendDst, blendEq, blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask, prevAccesses, nextAccesses, left, top, minDepth, maxDepth, vertexCount,
     firstVertex, indexCount, vertexOffset, instanceCount, firstInstance, buffOffset, buffStride, buffTexHeight, mipLevel, baseArrayLayer, baseLevel)
 
-template <typename T>
-std::vector<T> convertJSArrayToNumberVector_local(const val& v) {
-    const size_t l = v[length_val].as<size_t>();
-
-    std::vector<T> rv;
-    rv.resize(l);
-
-    // Copy the array into our vector through the use of typed arrays.
-    // It will try to convert each element through Number().
-    // See https://www.ecma-international.org/ecma-262/6.0/#sec-%typedarray%.prototype.set-array-offset
-    // and https://www.ecma-international.org/ecma-262/6.0/#sec-tonumber
-    val memoryView{emscripten::typed_memory_view(l, rv.data())};
-    memoryView.call<void>("set", v);
-
-    return rv;
-}
-
-template <typename T>
-std::vector<T> vecFromJSArray_local(const val& v) {
-    const size_t l = v[length_val].as<size_t>();
-
-    std::vector<T> rv;
-    rv.reserve(l);
-    for (size_t i = 0; i < l; ++i) {
-        rv.push_back(v[i].as<T>());
-    }
-
-    return rv;
-}
-
 template <typename T, typename EnumFallBack = void>
 struct GetType {
     using type = T;
@@ -99,6 +70,100 @@ template <typename T>
 struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
     using type = typename std::underlying_type<T>::type;
 };
+
+template <typename T>
+struct EMSCachedArrayAllocator {
+    EMSCachedArrayAllocator() {
+        offset = 0;
+    }
+
+    auto vecFromJSArray_local(const val& v) {
+        const size_t l = v[length_val].as<size_t>();
+        auto test = v[0].as<T>();
+
+        std::vector<T>& rv = vec;
+        uint32_t upperBound = l + offset;
+        if (rv.size() < upperBound) {
+            rv.resize(upperBound);
+        }
+        for (size_t i = 0; i < l; ++i) {
+            rv[i + offset] = v[i].as<T>();
+        }
+
+        auto oldOffset = offset;
+        offset = upperBound;
+
+        struct Ret {
+            size_t offset;
+            size_t length;
+        };
+        return Ret{oldOffset, l};
+    }
+
+    // invalid after resize
+    auto getMaybeInvalidVecView(uint32_t offset, uint32_t length) {
+        boost::span<T> vecView(vec.data() + offset, length);
+        return vecView;
+    }
+
+private:
+    thread_local static std::vector<T> vec;
+    thread_local static uint32_t offset;
+};
+
+template <typename T>
+thread_local uint32_t EMSCachedArrayAllocator<T>::offset = 0;
+
+template <typename T>
+thread_local std::vector<T> EMSCachedArrayAllocator<T>::vec;
+
+template <typename T, typename En = typename std::enable_if<std::is_arithmetic<typename GetType<T>::type>::value>::type>
+struct EMSCachedNumbersAllocator {
+    EMSCachedNumbersAllocator() {
+        offset = 0;
+    }
+
+    auto convertJSArrayToNumberVector_local(const val& v) {
+        const size_t l = v[length_val].as<size_t>();
+
+        uint32_t upperBound = l + offset;
+        std::vector<T>& rv = vec;
+        if (rv.size() < upperBound) {
+            rv.resize(upperBound);
+        }
+
+        // Copy the array into our vector through the use of typed arrays.
+        // It will try to convert each element through Number().
+        // See https://www.ecma-international.org/ecma-262/6.0/#sec-%typedarray%.prototype.set-array-offset
+        // and https://www.ecma-international.org/ecma-262/6.0/#sec-tonumber
+        val memoryView{emscripten::typed_memory_view(l, rv.data() + offset)};
+        memoryView.call<void>("set", v);
+
+        auto oldOffset = offset;
+        offset += l;
+
+        struct Ret {
+            size_t offset;
+            size_t length;
+        };
+        return Ret{oldOffset, l};
+    }
+
+    // invalid after resize
+    auto getMaybeInvalidVecView(uint32_t offset, uint32_t length) {
+        boost::span<T> vecView(vec.data() + offset, length);
+        return vecView;
+    }
+
+private:
+    thread_local static std::vector<T> vec;
+    thread_local static uint32_t offset;
+};
+template <typename T, typename En>
+thread_local uint32_t EMSCachedNumbersAllocator<T, En>::offset = 0;
+
+template <typename T, typename En>
+thread_local std::vector<T> EMSCachedNumbersAllocator<T, En>::vec;
 
 #define UNREACHABLE_CONDITION CC_ASSERT(false);
 
@@ -122,13 +187,17 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
         BOOST_PP_SEQ_FOR_EACH(SET_PROERTY_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
-#define ASSIGN_VEC_BY_SEQ(r, obj, property) \
-    obj.property = std::move(convertJSArrayToNumberVector_local<decltype(obj.property)::value_type>(ems_##obj[#property]));
-
-#define ASSIGN_FROM_EMSARRAY(obj, ...)                                                        \
-    {                                                                                         \
-        BOOST_PP_SEQ_FOR_EACH(ASSIGN_VEC_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+#define ASSIGN_VEC_BY_SEQ(r, obj, property)                                                                                                                    \
+    {                                                                                                                                                          \
+        const auto& [vecOffset, len] = allocator.convertJSArrayToNumberVector_local<decltype(obj.property)::value_type>(ems_##obj[BOOST_STRINGIZE(property)]); \
+        auto vecView = allocator.getMaybeInvalidVecView(vecOffset, len);                                                                                       \
+        obj.property.assign(vecView.begin(), vecView.begin() + len);                                                                                           \
     }
+
+// #define ASSIGN_FROM_EMSARRAY(obj, ...)                                                        \
+//     {                                                                                         \
+//         BOOST_PP_SEQ_FOR_EACH(ASSIGN_VEC_BY_SEQ, obj, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+//     }
 
 #define CHECK_INCOMPLETE(v) \
     if (v.isUndefined() || v.isNull()) {
@@ -142,106 +211,40 @@ struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
     return nullptr;     \
     }
 
-#define EMSArraysToU8Vec(v, i) (convertJSArrayToNumberVector_local<uint8_t>(v[i]))
-
-const FramebufferInfo fromEmsFramebufferInfo(const val& info) {
-    FramebufferInfo frameBufferInfo;
-    const auto& ems_frameBufferInfo = info;
-    ASSIGN_FROM_EMS(frameBufferInfo, renderPass, depthStencilTexture);
-
-    const auto& ems_colorTextures = info[colorTextures_val];
-    if (!ems_colorTextures.isUndefined() || !ems_colorTextures.isNull()) {
-        const std::vector<val>& colorTexturesVec = vecFromJSArray_local<val>(ems_colorTextures);
-        size_t len = colorTexturesVec.size();
-        auto& gfxColorTextures = frameBufferInfo.colorTextures;
-        gfxColorTextures.resize(len);
-        for (size_t i = 0; i < len; ++i) {
-            gfxColorTextures[i] = colorTexturesVec[i].as<Texture*>(allow_raw_pointers());
-        }
-    }
-    return frameBufferInfo;
-}
-
-RenderPassInfo fromEmsRenderPassInfo(const val& info) {
-    RenderPassInfo renderPassInfo;
-    const auto& emsColors = info[colorAttachments_val];
-    const std::vector<val>& colorsVec = vecFromJSArray_local<val>(emsColors);
-    size_t len = colorsVec.size();
-    auto& gfxColors = renderPassInfo.colorAttachments;
-    gfxColors.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        gfxColors[i].format = Format{colorsVec[i][format_val].as<uint32_t>()};
-        gfxColors[i].sampleCount = SampleCount{colorsVec[i][sampleCount_val].as<uint32_t>()};
-        gfxColors[i].loadOp = LoadOp{colorsVec[i][loadOp_val].as<uint32_t>()};
-        gfxColors[i].storeOp = StoreOp{colorsVec[i][storeOp_val].as<uint32_t>()};
-        gfxColors[i].barrier = colorsVec[i][barrier_val].as<WGPUGeneralBarrier*>(allow_raw_pointers());
-        gfxColors[i].isGeneralLayout = colorsVec[i][isGeneralLayout_val].as<bool>();
-    }
-
-    const auto& ems_depthStencil = info[depthStencilAttachment_val];
-    auto& depthStencil = renderPassInfo.depthStencilAttachment;
-    // gfxDepthStencil.format = Format{colorsVec[i][format_val].as<uint32_t>()};
-    // gfxDepthStencil.sampleCount = SampleCount{colorsVec[i][sampleCount_val].as<uint32_t>()};
-    // gfxDepthStencil.depthLoadOp = LoadOp{colorsVec[i][depthLoadOp_val].as<uint32_t>()};
-    // gfxDepthStencil.depthStoreOp = StoreOp{colorsVec[i][depthStoreOp_val].as<uint32_t>()};
-    // gfxDepthStencil.stencilLoadOp = LoadOp{colorsVec[i][stencilLoadOp_val].as<uint32_t>()};
-    // gfxDepthStencil.stencilStoreOp = StoreOp{colorsVec[i][stencilStoreOp_val].as<uint32_t>()};
-    // gfxDepthStencil.barrier = colorsVec[i][barrier_val].as<GeneralBarrier*>();
-    // gfxDepthStencil.isGeneralLayout = colorsVec[i][isGeneralLayout_val].as<bool>();
-
-    ASSIGN_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, isGeneralLayout);
-
-    const auto& emsSubpasses = info[subpasses_val];
-    const std::vector<val>& subpassesVec = vecFromJSArray_local<val>(emsSubpasses);
-    len = subpassesVec.size();
-    auto& gfxSubpasses = renderPassInfo.subpasses;
-    gfxSubpasses.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& ems_subpass = subpassesVec[i];
-        auto& subpass = gfxSubpasses[i];
-        ASSIGN_FROM_EMSARRAY(subpass, inputs, colors, resolves, preserves);
-        ASSIGN_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
-    }
-
-    const auto& emsDependencies = info[dependencies_val];
-    const std::vector<val>& dependenciesVec = vecFromJSArray_local<val>(emsDependencies);
-    len = dependenciesVec.size();
-    auto& gfxDependencies = renderPassInfo.dependencies;
-    gfxDependencies.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& ems_dependency = dependenciesVec[i];
-        auto& dependency = gfxDependencies[i];
-        ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
-    }
-    return renderPassInfo;
-}
+template <typename T>
+void assignFromEmsArray(std::vector<T>& vec, const val emsVal, EMSCachedNumbersAllocator<T>& allocator) {
+    const auto& [emsVecOffset, len] = allocator.convertJSArrayToNumberVector_local(emsVal);
+    auto vecView = allocator.getMaybeInvalidVecView(emsVecOffset, len);
+    vec.assign(vecView.begin(), vecView.end());
+};
 
 Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     CHECK_PTR(emsInfo);
 
+    EMSCachedArrayAllocator<val> val_allocator;
+    EMSCachedNumbersAllocator<uint32_t> uint32_allocator;
     ShaderInfo shaderInfo;
     shaderInfo.name = emsInfo[name_val].as<std::string>();
-
     const auto& stages = emsInfo[stages_val];
-    size_t len = stages[length_val].as<size_t>();
-    const std::vector<val>& stagesVec = vecFromJSArray_local<val>(stages);
-    shaderInfo.stages.resize(len);
+    const auto& [stagesValOffset, stagesVecLen] = val_allocator.vecFromJSArray_local(stages);
+    shaderInfo.stages.resize(stagesVecLen);
     std::vector<std::vector<uint32_t>> spirvs;
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsStage = stagesVec[i];
+    for (size_t i = 0; i < stagesVecLen; ++i) {
+        const auto& emsStage = val_allocator.getMaybeInvalidVecView(stagesValOffset, stagesVecLen)[i];
         auto& gfxStage = shaderInfo.stages[i];
         gfxStage.stage = ShaderStageFlags{emsStage[stage_val].as<uint32_t>()};
         gfxStage.source = emsStage[source_val].as<std::string>();
-        std::vector<uint32_t> spirv = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsStage[spvData_val]));
-        spirvs.emplace_back(spirv);
+        const auto& [spvdataOffsetOffset, len] = uint32_allocator.convertJSArrayToNumberVector_local(emsStage[spvData_val]);
+        auto spvDataView = uint32_allocator.getMaybeInvalidVecView(spvdataOffsetOffset, len);
+        std::vector<uint32_t> spirv(spvDataView.begin(), spvDataView.end());
+        spirvs.emplace_back(std::move(spirv));
     }
 
     const auto& attrs = emsInfo[attributes_val];
-    len = attrs[length_val].as<size_t>();
-    const std::vector<val>& attrsVec = vecFromJSArray_local<val>(attrs);
-    shaderInfo.attributes.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsAttr = attrsVec[i];
+    const auto& [attrsVecOffset, attrsVecLen] = val_allocator.vecFromJSArray_local(attrs);
+    shaderInfo.attributes.resize(attrsVecLen);
+    for (size_t i = 0; i < attrsVecLen; ++i) {
+        const auto& emsAttr = val_allocator.getMaybeInvalidVecView(attrsVecOffset, attrsVecLen)[i];
         auto& gfxAttr = shaderInfo.attributes[i];
         gfxAttr.name = emsAttr[name_val].as<std::string>();
         gfxAttr.format = Format{emsAttr[format_val].as<uint32_t>()};
@@ -252,11 +255,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& blocks = emsInfo[blocks_val];
-    len = blocks[length_val].as<size_t>();
-    const std::vector<val>& blocksVec = vecFromJSArray_local<val>(blocks);
-    shaderInfo.blocks.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsBlock = blocksVec[i];
+    const auto& [blocksVecOffset, blocksVecLen] = val_allocator.vecFromJSArray_local(blocks);
+    shaderInfo.blocks.resize(blocksVecLen);
+    for (size_t i = 0; i < blocksVecLen; ++i) {
+        const auto& emsBlock = val_allocator.getMaybeInvalidVecView(blocksVecOffset, blocksVecLen)[i];
         auto& gfxBlock = shaderInfo.blocks[i];
         gfxBlock.set = emsBlock[set_val].as<uint32_t>();
         gfxBlock.binding = emsBlock[binding_val].as<uint32_t>();
@@ -264,11 +266,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
         gfxBlock.count = emsBlock[count_val].as<uint32_t>();
 
         const auto& members = emsBlock[members_val];
-        size_t size = members[length_val].as<size_t>();
-        const std::vector<val>& membersVec = vecFromJSArray_local<val>(members);
-        gfxBlock.members.resize(size);
-        for (size_t j = 0; j < size; ++j) {
-            const auto& emsMember = membersVec[j];
+        const auto& [membersVecOffset, membersVecLen] = val_allocator.vecFromJSArray_local(members);
+        gfxBlock.members.resize(membersVecLen);
+        for (size_t j = 0; j < membersVecLen; ++j) {
+            const auto& emsMember = val_allocator.getMaybeInvalidVecView(membersVecOffset, membersVecLen)[j];
             auto& gfxMember = gfxBlock.members[j];
             gfxMember.name = emsMember[name_val].as<std::string>();
             gfxMember.type = Type{emsMember[type_val].as<uint32_t>()};
@@ -277,11 +278,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& buffers = emsInfo[buffers_val];
-    len = buffers[length_val].as<size_t>();
-    const std::vector<val>& buffersVec = vecFromJSArray_local<val>(buffers);
-    shaderInfo.buffers.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsBuffer = buffersVec[i];
+    const auto& [buffersVecOffset, buffersVecLen] = val_allocator.vecFromJSArray_local(buffers);
+    shaderInfo.buffers.resize(buffersVecLen);
+    for (size_t i = 0; i < buffersVecLen; ++i) {
+        const auto& emsBuffer = val_allocator.getMaybeInvalidVecView(buffersVecOffset, buffersVecLen)[i];
         auto& gfxBuffer = shaderInfo.buffers[i];
         gfxBuffer.set = emsBuffer[set_val].as<uint32_t>();
         gfxBuffer.binding = emsBuffer[binding_val].as<uint32_t>();
@@ -291,11 +291,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& samplerTextures = emsInfo[samplerTextures_val];
-    len = samplerTextures[length_val].as<size_t>();
-    const std::vector<val>& samplerTexturesVec = vecFromJSArray_local<val>(samplerTextures);
-    shaderInfo.samplerTextures.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsSamplerTexture = samplerTexturesVec[i];
+    const auto& [samplerTexturesVecOffset, samplerTexturesVecLen] = val_allocator.vecFromJSArray_local(samplerTextures);
+    shaderInfo.samplerTextures.resize(samplerTexturesVecLen);
+    for (size_t i = 0; i < samplerTexturesVecLen; ++i) {
+        const auto& emsSamplerTexture = val_allocator.getMaybeInvalidVecView(samplerTexturesVecOffset, samplerTexturesVecLen)[i];
         auto& gfxSamplerTexture = shaderInfo.samplerTextures[i];
         gfxSamplerTexture.set = emsSamplerTexture[set_val].as<uint32_t>();
         gfxSamplerTexture.binding = emsSamplerTexture[binding_val].as<uint32_t>();
@@ -305,11 +304,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& samplers = emsInfo[samplers_val];
-    len = samplers[length_val].as<size_t>();
-    const std::vector<val>& samplersVec = vecFromJSArray_local<val>(samplers);
-    shaderInfo.samplers.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsSampler = samplersVec[i];
+    const auto& [samplersVecOffset, samplersVecLen] = val_allocator.vecFromJSArray_local(samplers);
+    shaderInfo.samplers.resize(samplersVecLen);
+    for (size_t i = 0; i < samplersVecLen; ++i) {
+        const auto& emsSampler = val_allocator.getMaybeInvalidVecView(samplersVecOffset, samplersVecLen)[i];
         auto& gfxSampler = shaderInfo.samplers[i];
         gfxSampler.set = emsSampler[set_val].as<uint32_t>();
         gfxSampler.binding = emsSampler[binding_val].as<uint32_t>();
@@ -318,11 +316,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& textures = emsInfo[textures_val];
-    len = textures[length_val].as<size_t>();
-    const std::vector<val>& texturesVec = vecFromJSArray_local<val>(textures);
-    shaderInfo.textures.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsTexture = texturesVec[i];
+    const auto& [texturesVecOffset, texturesVecLen] = val_allocator.vecFromJSArray_local(textures);
+    shaderInfo.textures.resize(texturesVecLen);
+    for (size_t i = 0; i < texturesVecLen; ++i) {
+        const auto& emsTexture = val_allocator.getMaybeInvalidVecView(texturesVecOffset, texturesVecLen)[i];
         auto& gfxTexture = shaderInfo.textures[i];
         gfxTexture.set = emsTexture[set_val].as<uint32_t>();
         gfxTexture.binding = emsTexture[binding_val].as<uint32_t>();
@@ -332,11 +329,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& images = emsInfo[images_val];
-    len = images[length_val].as<size_t>();
-    const std::vector<val>& imagesVec = vecFromJSArray_local<val>(images);
-    shaderInfo.images.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsImage = imagesVec[i];
+    const auto& [imagesVecOffset, imagesVecLen] = val_allocator.vecFromJSArray_local(images);
+    shaderInfo.images.resize(imagesVecLen);
+    for (size_t i = 0; i < imagesVecLen; ++i) {
+        const auto& emsImage = val_allocator.getMaybeInvalidVecView(imagesVecOffset, imagesVecLen)[i];
         auto& gfxImage = shaderInfo.images[i];
         gfxImage.set = emsImage[set_val].as<uint32_t>();
         gfxImage.binding = emsImage[binding_val].as<uint32_t>();
@@ -347,11 +343,10 @@ Shader* CCWGPUDevice::createShader(const val& emsInfo) {
     }
 
     const auto& subpassInputs = emsInfo[subpassInputs_val];
-    len = subpassInputs[length_val].as<size_t>();
-    const std::vector<val>& subpassInputsVec = vecFromJSArray_local<val>(subpassInputs);
-    shaderInfo.subpassInputs.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& emsSubpassInput = subpassInputsVec[i];
+    const auto& [subpassInputsVecOffset, subpassInputsVecLen] = val_allocator.vecFromJSArray_local(subpassInputs);
+    shaderInfo.subpassInputs.resize(subpassInputsVecLen);
+    for (size_t i = 0; i < subpassInputsVecLen; ++i) {
+        const auto& emsSubpassInput = val_allocator.getMaybeInvalidVecView(subpassInputsVecOffset, subpassInputsVecLen)[i];
         auto& gfxSubpassInput = shaderInfo.subpassInputs[i];
         gfxSubpassInput.set = emsSubpassInput[set_val].as<uint32_t>();
         gfxSubpassInput.binding = emsSubpassInput[binding_val].as<uint32_t>();
@@ -370,17 +365,17 @@ void CCWGPUDevice::initialize(const val& info) {
 
     DeviceInfo deviceInfo;
 
-    const auto& emsBindingMappingInfo = info[bindingMappingInfo_val];
-    auto& gfxBindingMappingInfo = deviceInfo.bindingMappingInfo;
-
-    gfxBindingMappingInfo.maxBlockCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxBlockCounts_val]));
-    gfxBindingMappingInfo.maxSamplerTextureCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxSamplerTextureCounts_val]));
-    gfxBindingMappingInfo.maxSamplerCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxSamplerCounts_val]));
-    gfxBindingMappingInfo.maxTextureCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxTextureCounts_val]));
-    gfxBindingMappingInfo.maxBufferCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxBufferCounts_val]));
-    gfxBindingMappingInfo.maxImageCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxImageCounts_val]));
-    gfxBindingMappingInfo.maxSubpassInputCounts = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[maxSubpassInputCounts_val]));
-    gfxBindingMappingInfo.setIndices = std::move(convertJSArrayToNumberVector_local<uint32_t>(emsBindingMappingInfo[setIndices_val]));
+    const auto& emsInfo = info[bindingMappingInfo_val];
+    auto& gfxInfo = deviceInfo.bindingMappingInfo;
+    EMSCachedNumbersAllocator<uint32_t> allocator;
+    assignFromEmsArray(gfxInfo.maxBlockCounts, emsInfo[maxBlockCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.maxSamplerTextureCounts, emsInfo[maxSamplerTextureCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.maxSamplerCounts, emsInfo[maxSamplerCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.maxTextureCounts, emsInfo[maxTextureCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.maxBufferCounts, emsInfo[maxBufferCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.maxImageCounts, emsInfo[maxImageCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.maxSubpassInputCounts, emsInfo[maxSubpassInputCounts_val], allocator);
+    assignFromEmsArray(gfxInfo.setIndices, emsInfo[setIndices_val], allocator);
 
     CCWGPUDevice::getInstance()->initialize(deviceInfo);
 }
@@ -452,40 +447,153 @@ Sampler* CCWGPUDevice::getSampler(const val& info) {
 
 RenderPass* CCWGPUDevice::createRenderPass(const val& info) {
     CHECK_PTR(info);
-    return this->createRenderPass(fromEmsRenderPassInfo(info));
+
+    EMSCachedArrayAllocator<val> allocator;
+    EMSCachedNumbersAllocator<uint32_t> uint32_allocator;
+    RenderPassInfo renderPassInfo;
+    const auto& emsColors = info[colorAttachments_val];
+    const auto& [colorsVecOffset, len] = allocator.vecFromJSArray_local(emsColors);
+    auto& gfxColors = renderPassInfo.colorAttachments;
+    gfxColors.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        auto colorsVec = allocator.getMaybeInvalidVecView(colorsVecOffset, len);
+        gfxColors[i].format = Format{colorsVec[i][format_val].as<uint32_t>()};
+        gfxColors[i].sampleCount = SampleCount{colorsVec[i][sampleCount_val].as<uint32_t>()};
+        gfxColors[i].loadOp = LoadOp{colorsVec[i][loadOp_val].as<uint32_t>()};
+        gfxColors[i].storeOp = StoreOp{colorsVec[i][storeOp_val].as<uint32_t>()};
+        gfxColors[i].barrier = colorsVec[i][barrier_val].as<WGPUGeneralBarrier*>(allow_raw_pointers());
+        gfxColors[i].isGeneralLayout = colorsVec[i][isGeneralLayout_val].as<bool>();
+    }
+
+    const auto& ems_depthStencil = info[depthStencilAttachment_val];
+    auto& depthStencil = renderPassInfo.depthStencilAttachment;
+
+    ASSIGN_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, isGeneralLayout);
+
+    const auto& emsSubpasses = info[subpasses_val];
+    const auto& [subpassesVecOffset, subpassesVecLen] = allocator.vecFromJSArray_local(emsSubpasses);
+    auto& gfxSubpasses = renderPassInfo.subpasses;
+    gfxSubpasses.resize(subpassesVecLen);
+    for (size_t i = 0; i < subpassesVecLen; ++i) {
+        auto subpassesVec = allocator.getMaybeInvalidVecView(subpassesVecOffset, subpassesVecLen);
+        const auto& ems_subpass = subpassesVec[i];
+        auto& subpass = gfxSubpasses[i];
+        assignFromEmsArray(subpass.inputs, ems_subpass[inputs_val], uint32_allocator);
+        assignFromEmsArray(subpass.colors, ems_subpass[colors_val], uint32_allocator);
+        assignFromEmsArray(subpass.resolves, ems_subpass[resolves_val], uint32_allocator);
+        assignFromEmsArray(subpass.preserves, ems_subpass[preserves_val], uint32_allocator);
+        ASSIGN_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
+    }
+
+    const auto& emsDependencies = info[dependencies_val];
+    const auto& [dependenciesVecOffset, dependenciesVecLen] = allocator.vecFromJSArray_local(emsDependencies);
+    auto& gfxDependencies = renderPassInfo.dependencies;
+    gfxDependencies.resize(dependenciesVecLen);
+    for (size_t i = 0; i < dependenciesVecLen; ++i) {
+        const auto& ems_dependency = allocator.getMaybeInvalidVecView(dependenciesVecOffset, dependenciesVecLen)[i];
+        auto& dependency = gfxDependencies[i];
+        ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
+    }
+
+    return this->createRenderPass(renderPassInfo);
 }
 
 void CCWGPURenderPass::initialize(const val& info) {
     CHECK_VOID(info);
-    this->initialize(fromEmsRenderPassInfo(info));
+
+    EMSCachedArrayAllocator<val> allocator;
+    EMSCachedNumbersAllocator<uint32_t> uint32_allocator;
+    RenderPassInfo renderPassInfo;
+    const auto& emsColors = info[colorAttachments_val];
+    const auto& [colorsVecOffset, len] = allocator.vecFromJSArray_local(emsColors);
+    auto& gfxColors = renderPassInfo.colorAttachments;
+    gfxColors.resize(len);
+    for (size_t i = 0; i < len; ++i) {
+        auto colorsVec = allocator.getMaybeInvalidVecView(colorsVecOffset, len);
+        gfxColors[i].format = Format{colorsVec[i][format_val].as<uint32_t>()};
+        gfxColors[i].sampleCount = SampleCount{colorsVec[i][sampleCount_val].as<uint32_t>()};
+        gfxColors[i].loadOp = LoadOp{colorsVec[i][loadOp_val].as<uint32_t>()};
+        gfxColors[i].storeOp = StoreOp{colorsVec[i][storeOp_val].as<uint32_t>()};
+        gfxColors[i].barrier = colorsVec[i][barrier_val].as<WGPUGeneralBarrier*>(allow_raw_pointers());
+        gfxColors[i].isGeneralLayout = colorsVec[i][isGeneralLayout_val].as<bool>();
+    }
+
+    const auto& ems_depthStencil = info[depthStencilAttachment_val];
+    auto& depthStencil = renderPassInfo.depthStencilAttachment;
+
+    ASSIGN_FROM_EMS(depthStencil, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, isGeneralLayout);
+
+    const auto& emsSubpasses = info[subpasses_val];
+    const auto& [subpassesVecOffset, subpassesVecLen] = allocator.vecFromJSArray_local(emsSubpasses);
+    auto& gfxSubpasses = renderPassInfo.subpasses;
+    gfxSubpasses.resize(subpassesVecLen);
+    for (size_t i = 0; i < subpassesVecLen; ++i) {
+        // dangerous, what we get by getMaybeInvalidVecView might be invalid after assignFromEmsArray
+        // so pay attention to the order of assignFromEmsArray and getMaybeInvalidVecView
+        // and do not reuse the result of getMaybeInvalidVecView again after assignFromEmsArray
+        const auto& ems_subpass = allocator.getMaybeInvalidVecView(subpassesVecOffset, subpassesVecLen)[i];
+        auto& subpass = gfxSubpasses[i];
+        assignFromEmsArray(subpass.inputs, ems_subpass[inputs_val], uint32_allocator);
+        assignFromEmsArray(subpass.colors, ems_subpass[colors_val], uint32_allocator);
+        assignFromEmsArray(subpass.resolves, ems_subpass[resolves_val], uint32_allocator);
+        assignFromEmsArray(subpass.preserves, ems_subpass[preserves_val], uint32_allocator);
+        ASSIGN_FROM_EMS(subpass, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
+    }
+
+    const auto& emsDependencies = info[dependencies_val];
+    const auto& [dependenciesVecOffset, dependenciesVecLen] = allocator.vecFromJSArray_local(emsDependencies);
+    auto& gfxDependencies = renderPassInfo.dependencies;
+    gfxDependencies.resize(dependenciesVecLen);
+    for (size_t i = 0; i < dependenciesVecLen; ++i) {
+        const auto& ems_dependency = allocator.getMaybeInvalidVecView(dependenciesVecOffset, dependenciesVecLen)[i];
+        auto& dependency = gfxDependencies[i];
+        ASSIGN_FROM_EMS(dependency, srcSubpass, dstSubpass, generalBarrier, bufferBarriers, buffers, bufferBarrierCount, textureBarriers, textures, textureBarrierCount);
+    }
+    this->initialize(renderPassInfo);
 }
 
 Framebuffer* CCWGPUDevice::createFramebuffer(const val& info) {
     CHECK_PTR(info);
-    return this->createFramebuffer(fromEmsFramebufferInfo(info));
+
+    EMSCachedArrayAllocator<val> allocator;
+    FramebufferInfo frameBufferInfo;
+    const auto& ems_frameBufferInfo = info;
+    ASSIGN_FROM_EMS(frameBufferInfo, renderPass, depthStencilTexture);
+
+    const auto& ems_colorTextures = info[colorTextures_val];
+    if (!ems_colorTextures.isUndefined() || !ems_colorTextures.isNull()) {
+        const auto& [colorTexturesVecOffset, len] = allocator.vecFromJSArray_local(ems_colorTextures);
+        auto& gfxColorTextures = frameBufferInfo.colorTextures;
+        gfxColorTextures.resize(len);
+        for (size_t i = 0; i < len; ++i) {
+            auto colorTexturesVec = allocator.getMaybeInvalidVecView(colorTexturesVecOffset, len);
+            gfxColorTextures[i] = colorTexturesVec[i].as<Texture*>(allow_raw_pointers());
+        }
+    }
+
+    return this->createFramebuffer(frameBufferInfo);
 }
 
 DescriptorSetLayout* CCWGPUDevice::createDescriptorSetLayout(const val& info) {
     CHECK_PTR(info);
 
+    EMSCachedArrayAllocator<val> allocator;
     DescriptorSetLayoutInfo descriptorSetLayoutInfo;
     const auto& ems_bindings = info[bindings_val];
-    const std::vector<val>& bindingsVec = vecFromJSArray_local<val>(ems_bindings);
+    const auto& [bindingsVecOffset, bindingsVecLen] = allocator.vecFromJSArray_local(ems_bindings);
     auto& bindings = descriptorSetLayoutInfo.bindings;
-    size_t len = bindingsVec.size();
-    bindings.resize(len);
-    for (size_t i = 0; i < len; ++i) {
-        const auto& ems_dsbinding = bindingsVec[i];
+    bindings.resize(bindingsVecLen);
+    for (size_t i = 0; i < bindingsVecLen; ++i) {
+        const auto& ems_dsbinding = allocator.getMaybeInvalidVecView(bindingsVecOffset, bindingsVecLen)[i];
         auto& dsbinding = bindings[i];
         ASSIGN_FROM_EMS(dsbinding, binding, descriptorType, count, stageFlags);
 
         const auto& ems_samplers = ems_dsbinding[immutableSamplers_val];
         auto& samplers = dsbinding.immutableSamplers;
-        const std::vector<val>& samplersVec = vecFromJSArray_local<val>(ems_samplers);
-        size_t samplerLen = samplersVec.size();
-        samplers.resize(samplerLen);
-
-        for (size_t j = 0; j < samplerLen; ++j) {
+        const auto& [samplersVecOffset, samplersVecLen] = allocator.vecFromJSArray_local(ems_samplers);
+        samplers.resize(samplersVecLen);
+        for (size_t j = 0; j < samplersVecLen; ++j) {
+            auto samplersVec = allocator.getMaybeInvalidVecView(samplersVecOffset, samplersVecLen);
             samplers[j] = samplersVec[j].as<Sampler*>(allow_raw_pointers());
         }
     }
@@ -526,12 +634,13 @@ PipelineLayout* CCWGPUDevice::createPipelineLayout(const val& info) {
     // static_assert failed due to requirement 'internal::typeSupportsMemoryView()' "type of typed_memory_view is invalid"
     // ASSIGN_FROM_EMSARRAY(pipelineLayoutInfo, setLayouts);
 
+    EMSCachedArrayAllocator<val> allocator;
     const auto& ems_setLayouts = info[setLayouts_val];
     auto& setLayouts = pipelineLayoutInfo.setLayouts;
-    const std::vector<val>& setLayoutsVec = vecFromJSArray_local<val>(ems_setLayouts);
-    size_t len = setLayoutsVec.size();
-    setLayouts.resize(len);
-    for (size_t i = 0; i < len; ++i) {
+    const auto& [setLayoutsVecOffset, setLayoutsVecLen] = allocator.vecFromJSArray_local(ems_setLayouts);
+    setLayouts.resize(setLayoutsVecLen);
+    for (size_t i = 0; i < setLayoutsVecLen; ++i) {
+        auto setLayoutsVec = allocator.getMaybeInvalidVecView(setLayoutsVecOffset, setLayoutsVecLen);
         setLayouts[i] = setLayoutsVec[i].as<DescriptorSetLayout*>(allow_raw_pointers());
     }
 
@@ -540,26 +649,28 @@ PipelineLayout* CCWGPUDevice::createPipelineLayout(const val& info) {
 
 InputAssembler* CCWGPUDevice::createInputAssembler(const val& info) {
     CHECK_PTR(info);
+    EMSCachedArrayAllocator<val> allocator;
+
     InputAssemblerInfo inputAssemblerInfo;
     const auto& ems_inputAssemblerInfo = info;
     ASSIGN_FROM_EMS(inputAssemblerInfo, indexBuffer, indirectBuffer);
 
     const auto& ems_vertexBuffers = info[vertexBuffers_val];
     auto& vertexBuffers = inputAssemblerInfo.vertexBuffers;
-    const std::vector<val>& vertexBuffersVec = vecFromJSArray_local<val>(ems_vertexBuffers);
-    size_t len = vertexBuffersVec.size();
-    vertexBuffers.resize(len);
-    for (size_t i = 0; i < len; ++i) {
+    const auto& [vertexBuffersVecOffset, vertexBuffersVecLen] = allocator.vecFromJSArray_local(ems_vertexBuffers);
+    vertexBuffers.resize(vertexBuffersVecLen);
+    for (size_t i = 0; i < vertexBuffersVecLen; ++i) {
+        auto vertexBuffersVec = allocator.getMaybeInvalidVecView(vertexBuffersVecOffset, vertexBuffersVecLen);
         vertexBuffers[i] = vertexBuffersVec[i].as<Buffer*>(allow_raw_pointers());
     }
     // ASSIGN_FROM_EMSARRAY(inputAssemblerInfo, vertexBuffers);
 
     const auto& ems_attributes = info[attributes_val];
     auto& attributes = inputAssemblerInfo.attributes;
-    const std::vector<val>& attributesVec = vecFromJSArray_local<val>(ems_attributes);
-    len = attributesVec.size();
-    attributes.resize(len);
-    for (size_t i = 0; i < len; ++i) {
+    const auto& [attributesVecOffset, attributesVecLen] = allocator.vecFromJSArray_local(ems_attributes);
+    attributes.resize(attributesVecLen);
+    for (size_t i = 0; i < attributesVecLen; ++i) {
+        auto attributesVec = allocator.getMaybeInvalidVecView(attributesVecOffset, attributesVecLen);
         const auto& ems_attr = attributesVec[i];
         auto& attr = attributes[i];
         ASSIGN_FROM_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
@@ -571,31 +682,35 @@ InputAssembler* CCWGPUDevice::createInputAssembler(const val& info) {
 void CCWGPUDevice::acquire(const val& info) {
     CHECK_VOID(info);
 
+    EMSCachedArrayAllocator<val> allocator;
     ccstd::vector<Swapchain*> swapchains;
-    const std::vector<val>& ems_swapchains = vecFromJSArray_local<val>(info);
-    size_t len = ems_swapchains.size();
+    const auto& [ems_swapchainsOffset, len] = allocator.vecFromJSArray_local(info);
     swapchains.resize(len);
     for (size_t i = 0; i < len; ++i) {
+        auto ems_swapchains = allocator.getMaybeInvalidVecView(ems_swapchainsOffset, len);
         swapchains[i] = ems_swapchains[i].as<Swapchain*>(allow_raw_pointers());
     }
     return this->acquire(swapchains.data(), swapchains.size());
 }
 
 void CCWGPUCommandBuffer::updateBuffer(Buffer* buff, const emscripten::val& v, uint32_t size) {
-    ccstd::vector<uint8_t> buffer = convertJSArrayToNumberVector_local<uint8_t>(v);
-    updateBuffer(buff, reinterpret_cast<const void*>(buffer.data()), size);
+    EMSCachedNumbersAllocator<uint8_t> uint8_allocator;
+    const auto& [vecOffset, len] = uint8_allocator.convertJSArrayToNumberVector_local(v);
+    auto vecView = uint8_allocator.getMaybeInvalidVecView(vecOffset, len);
+    updateBuffer(buff, vecView.data(), size);
 }
 
 void CCWGPUCommandBuffer::beginRenderPass(RenderPass* renderpass, Framebuffer* framebuffer, const emscripten::val& area, const emscripten::val& colors, float depth, uint32_t stencil) {
+    EMSCachedArrayAllocator<val> allocator;
     const auto& ems_rect = area;
     Rect rect;
     ASSIGN_FROM_EMS(rect, width, height, x, y);
 
     ccstd::vector<Color> clearColors;
-    const std::vector<val>& ems_clearColorsVec = vecFromJSArray_local<val>(colors);
-    size_t len = ems_clearColorsVec.size();
+    const auto& [ems_clearColorsVecOffset, len] = allocator.vecFromJSArray_local(colors);
     clearColors.resize(len);
     for (size_t i = 0; i < len; ++i) {
+        auto ems_clearColorsVec = allocator.getMaybeInvalidVecView(ems_clearColorsVecOffset, len);
         const auto& ems_color = ems_clearColorsVec[i];
         auto& color = clearColors[i];
         ASSIGN_FROM_EMS(color, x, y, z, w);
@@ -606,6 +721,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass* renderpass, Framebuffer* f
 
 PipelineState* CCWGPUDevice::createPipelineState(const emscripten::val& info) {
     CHECK_PTR(info);
+    EMSCachedArrayAllocator<val> allocator;
     PipelineStateInfo pipelineStateInfo;
     const auto& ems_pipelineStateInfo = info;
     ASSIGN_FROM_EMS(pipelineStateInfo, shader, pipelineLayout, renderPass, primitive, dynamicStates, bindPoint);
@@ -613,10 +729,10 @@ PipelineState* CCWGPUDevice::createPipelineState(const emscripten::val& info) {
     const auto& ems_inputState = info[inputState_val];
     const auto& ems_attrs = ems_inputState[attributes_val];
     auto& attributes = pipelineStateInfo.inputState.attributes;
-    const std::vector<val>& attributesVec = vecFromJSArray_local<val>(ems_attrs);
-    size_t len = attributesVec.size();
-    attributes.resize(len);
-    for (size_t i = 0; i < len; ++i) {
+    const auto& [attributesVecOffset, attributesVecLen] = allocator.vecFromJSArray_local(ems_attrs);
+    attributes.resize(attributesVecLen);
+    for (size_t i = 0; i < attributesVecLen; ++i) {
+        auto attributesVec = allocator.getMaybeInvalidVecView(attributesVecOffset, attributesVecLen);
         const auto& ems_attr = attributesVec[i];
         auto& attr = attributes[i];
         ASSIGN_FROM_EMS(attr, name, format, isNormalized, stream, isInstanced, location);
@@ -639,10 +755,10 @@ PipelineState* CCWGPUDevice::createPipelineState(const emscripten::val& info) {
     ASSIGN_FROM_EMS(blendColor, x, y, z, w);
     const auto& ems_targets = ems_blendState[targets_val];
     auto& targets = blendState.targets;
-    const std::vector<val>& targetsVec = vecFromJSArray_local<val>(ems_targets);
-    len = targetsVec.size();
-    targets.resize(len);
-    for (size_t i = 0; i < len; ++i) {
+    const auto& [targetsVecOffset, targetsVecLen] = allocator.vecFromJSArray_local(ems_targets);
+    targets.resize(targetsVecLen);
+    for (size_t i = 0; i < targetsVecLen; ++i) {
+        auto targetsVec = allocator.getMaybeInvalidVecView(targetsVecOffset, targetsVecLen);
         const auto& ems_target = targetsVec[i];
         auto& target = targets[i];
         ASSIGN_FROM_EMS(target, blend, blendSrc, blendDst, blendEq, blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
@@ -719,11 +835,12 @@ val CCWGPUDescriptorSetLayout::getDSLayoutIndices() const {
 }
 
 void CCWGPUQueue::submit(const val& info) {
+    EMSCachedArrayAllocator<val> allocator;
     ccstd::vector<CommandBuffer*> cmdBuffs;
-    const std::vector<val>& ems_cmdBuffs = vecFromJSArray_local<val>(info);
-    size_t len = ems_cmdBuffs.size();
+    const auto& [ems_cmdBuffsOffset, len] = allocator.vecFromJSArray_local(info);
     cmdBuffs.resize(len);
     for (size_t i = 0; i < len; ++i) {
+        auto ems_cmdBuffs = allocator.getMaybeInvalidVecView(ems_cmdBuffsOffset, len);
         cmdBuffs[i] = ems_cmdBuffs[i].as<CommandBuffer*>(allow_raw_pointers());
     }
     return this->submit(cmdBuffs.data(), cmdBuffs.size());
@@ -754,8 +871,10 @@ void CCWGPUCommandBuffer::setScissor(const val& info) {
 }
 
 void CCWGPUCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet* descriptorSet, const emscripten::val& dynamicOffsets) {
-    const auto& data = convertJSArrayToNumberVector_local<uint32_t>(dynamicOffsets);
-    return this->bindDescriptorSet(set, descriptorSet, data.size(), data.data());
+    EMSCachedNumbersAllocator<uint32_t> uint32_allocator;
+    const auto& [vecOffset, len] = uint32_allocator.convertJSArrayToNumberVector_local(dynamicOffsets);
+    auto vecView = uint32_allocator.getMaybeInvalidVecView(vecOffset, len);
+    return this->bindDescriptorSet(set, descriptorSet, len, vecView.data());
 }
 
 void CCWGPUCommandBuffer::draw(const val& info) {
@@ -787,10 +906,12 @@ void CCWGPUCommandBuffer::bindInputAssembler(const emscripten::val& info) {
 void CCWGPUDevice::copyBuffersToTexture(const emscripten::val& v, Texture* dst, const emscripten::val& vals) {
     CHECK_VOID(v);
 
-    const auto& regions = vecFromJSArray_local<val>(vals);
-    size_t len = regions.size();
-    ccstd::vector<BufferTextureCopy> copies(len);
-    for (size_t i = 0; i < len; ++i) {
+    EMSCachedArrayAllocator<val> allocator;
+    EMSCachedNumbersAllocator<uint8_t> uint8_allocator;
+    const auto& [regionsOffset, regionsLen] = allocator.vecFromJSArray_local(vals);
+    ccstd::vector<BufferTextureCopy> copies(regionsLen);
+    for (size_t i = 0; i < regionsLen; ++i) {
+        auto regions = allocator.getMaybeInvalidVecView(regionsOffset, regionsLen);
         const auto& ems_copy = regions[i];
         auto& copy = copies[i];
         ASSIGN_FROM_EMS(copy, buffOffset, buffStride, buffTexHeight);
@@ -805,12 +926,14 @@ void CCWGPUDevice::copyBuffersToTexture(const emscripten::val& v, Texture* dst, 
         ASSIGN_FROM_EMS(texSubres, mipLevel, baseArrayLayer, layerCount);
     }
 
-    len = v[length_val].as<unsigned>();
-    std::vector<std::vector<uint8_t>> lifeProlonger(len);
+    size_t len = v[length_val].as<unsigned>();
+    std::vector<std::vector<uint8_t>> lifeHolder(len);
     std::vector<const uint8_t*> buffers;
     for (size_t i = 0; i < len; i++) {
-        lifeProlonger[i] = EMSArraysToU8Vec(v, i);
-        buffers.push_back(lifeProlonger[i].data());
+        const auto& [vecOffset, vecLen] = uint8_allocator.convertJSArrayToNumberVector_local(v[i]);
+        auto vecView = uint8_allocator.getMaybeInvalidVecView(vecOffset, vecLen);
+        lifeHolder[i].assign(vecView.begin(), vecView.end());
+        buffers.push_back(lifeHolder[i].data());
     }
 
     return copyBuffersToTexture(buffers.data(), dst, copies.data(), copies.size());
@@ -834,7 +957,23 @@ val CCWGPUTexture::getTextureViewInfo() const {
 void CCWGPUFramebuffer::initialize(const val& info) {
     CHECK_VOID(info);
 
-    return this->initialize(fromEmsFramebufferInfo(info));
+    EMSCachedArrayAllocator<val> allocator;
+    FramebufferInfo frameBufferInfo;
+    const auto& ems_frameBufferInfo = info;
+    ASSIGN_FROM_EMS(frameBufferInfo, renderPass, depthStencilTexture);
+
+    const auto& ems_colorTextures = info[colorTextures_val];
+    if (!ems_colorTextures.isUndefined() || !ems_colorTextures.isNull()) {
+        const auto& [colorTexturesVecOffset, len] = allocator.vecFromJSArray_local(ems_colorTextures);
+        auto& gfxColorTextures = frameBufferInfo.colorTextures;
+        gfxColorTextures.resize(len);
+        for (size_t i = 0; i < len; ++i) {
+            auto colorTexturesVec = allocator.getMaybeInvalidVecView(colorTexturesVecOffset, len);
+            gfxColorTextures[i] = colorTexturesVec[i].as<Texture*>(allow_raw_pointers());
+        }
+    }
+
+    return this->initialize(frameBufferInfo);
 }
 
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {
