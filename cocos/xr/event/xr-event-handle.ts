@@ -201,5 +201,4 @@ export class XrUIPressEvent extends Event {
      * @en
      * @zh 碰撞检测点
      */
-    public hitPoint = new Vec3();
 }
