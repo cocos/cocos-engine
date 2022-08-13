@@ -203,4 +203,3 @@ export class XrUIPressEvent extends Event {
      */
     public hitPoint = new Vec3();
 }
-

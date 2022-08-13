@@ -227,20 +227,19 @@ Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
         for (int i = 0; i < viewCount; i++) {
             Swapchain *res = createSwapchain();
             _xr->updateXRSwapchainTypedID(i, res->getTypedID());
-            SwapchainInfo swapchain_info;
-            swapchain_info.copy(info);
-            swapchain_info.width = swapChainWidth;
-            swapchain_info.height = swapChainHeight;
-            res->initialize(swapchain_info);
+            SwapchainInfo swapchainInfo;
+            swapchainInfo.copy(info);
+            swapchainInfo.width = swapChainWidth;
+            swapchainInfo.height = swapChainHeight;
+            res->initialize(swapchainInfo);
             _swapchains.push_back(res);
         }
         return _swapchains.at(0);
-    } else {
-        Swapchain *res = createSwapchain();
-        res->initialize(info);
-        _swapchains.push_back(res);
-        return res;
-    }
+    } 
+    Swapchain *res = createSwapchain();
+    res->initialize(info);
+    _swapchains.push_back(res);
+    return res;
 }
 
 Buffer *Device::createBuffer(const BufferInfo &info) {

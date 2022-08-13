@@ -31,7 +31,7 @@
 
 static HMODULE libegl = NULL;
 static HMODULE libgles = NULL;
-static PFNGLES3WLOADPROC PFN_GLES3WLOAD = NULL;
+static PFNGLES3WLOADPROC pfnGles3wLoad = NULL;
 
 bool gles3wOpen() {
     libegl = LoadLibraryA("libEGL.dll");
@@ -71,7 +71,7 @@ void *gles3wLoad(const char *proc) {
 
 static void *libegl = nullptr;
 static void *libgles = nullptr;
-static PFNGLES3WLOADPROC PFN_GLES3WLOAD = nullptr;
+static PFNGLES3WLOADPROC pfnGles3wLoad = nullptr;
 
 bool gles3wOpen() {
     libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
@@ -103,7 +103,7 @@ void *gles3wLoad(const char *proc) {
 #endif
 
 PFNGLES3WLOADPROC pfnGLES3wLoadProc() {
-    return PFN_GLES3WLOAD;
+    return pfnGles3wLoad;
 }
 
 bool gles3wInit() {
@@ -114,7 +114,7 @@ bool gles3wInit() {
     gles2wLoadProcs(gles3wLoad);
     gles3wLoadProcs(gles3wLoad);
 
-    PFN_GLES3WLOAD = gles3wLoad;
+    pfnGles3wLoad = gles3wLoad;
     return true;
 }
 
