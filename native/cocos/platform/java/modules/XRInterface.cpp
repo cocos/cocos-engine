@@ -816,5 +816,4 @@ void XRInterface::bindXREyeWithRenderWindow(void *window, xr::XREye eye) {
         _xrWindowMap.emplace(std::make_pair(window, eye));
     }
 }
-
 } // namespace cc

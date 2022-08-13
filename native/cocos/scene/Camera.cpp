@@ -202,7 +202,7 @@ void Camera::update(bool forceUpdate /*false*/) {
         xr::XREye wndXREye = _xr->getXREyeByRenderWindow(_window);
         if (wndXREye != xr::XREye::NONE && _proj == CameraProjection::PERSPECTIVE && _xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool()) {
             // xr flow
-            const auto &projFloat = _xr->getXRViewProjectionData((uint32_t)wndXREye, _nearClip, _farClip);
+            const auto &projFloat = _xr->getXRViewProjectionData(static_cast<uint32_t>(wndXREye), _nearClip, _farClip);
             std::memcpy(_matProj.m, projFloat.data(), sizeof(float) * 16);
             _matProjInv = _matProj.getInversed();
             viewProjDirty = true;
@@ -222,8 +222,9 @@ void Camera::changeTargetWindow(RenderWindow *window) {
         _window->detachCamera(this);
     }
 
-    if(!_xr)
+    if(!_xr) {
         _xr= BasePlatform::getPlatform()->getInterface<class IXRInterface>();
+    }
     if (_xr) {
         if (_cameraType == CameraType::MAIN || _cameraType == CameraType::DEFAULT) {
             const auto &windows = Root::getInstance()->getWindows();
@@ -238,13 +239,15 @@ void Camera::changeTargetWindow(RenderWindow *window) {
                 // add ui camera(without rt) or hmd camera or other camera(without rt) to xr window
                 for (size_t i = 0, size = windows.size(); i < size; i++) {
                     // 0,1 is left+right eye xr window
-                    if (i <= 1) bindTargetWindow(windows[i]);
+                    if (i <= 1) {
+                        bindTargetWindow(windows[i]);
+                    }
                 }
             }
         } else {
             // hmd/left/right camera to xr window
             if ((uint32_t)_cameraType < Root::getInstance()->getWindows().size()) {
-                const auto &win = Root::getInstance()->getWindows().at((uint32_t)_cameraType);
+                const auto &win = Root::getInstance()->getWindows().at(static_cast<uint32_t>(_cameraType));
                 bindTargetWindow(win);
             }
         }

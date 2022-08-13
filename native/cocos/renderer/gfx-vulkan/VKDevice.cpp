@@ -97,8 +97,9 @@ CCVKDevice::~CCVKDevice() {
 
 bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _xr = CC_GET_XR_INTERFACE();
-    if (_xr)
+    if (_xr) {
         _xr->preGFXDeviceInitialize(_api);
+    }
     _gpuContext = ccnew CCVKGPUContext;
     if (!_gpuContext->initialize()) {
         CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
@@ -486,7 +487,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     if(_xr) {
         cc::gfx::CCVKGPUQueue* vkQueue = static_cast<cc::gfx::CCVKQueue *>(getQueue())->gpuQueue();
-        _xr->setXRConfig(xr::XRConfigKey::VK_QUEUE_FAMILY_INDEX, (int) vkQueue->queueFamilyIndex);
+        _xr->setXRConfig(xr::XRConfigKey::VK_QUEUE_FAMILY_INDEX, static_cast<int>(vkQueue->queueFamilyIndex));
         _xr->postGFXDeviceInitialize(_api);
     }
     return true;
@@ -625,17 +626,21 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     for (uint32_t i = 0U; i < count; ++i) {
         auto *swapchain = static_cast<CCVKSwapchain *>(swapchains[i]);
         if (swapchain->gpuSwapchain()->lastPresentResult == VK_NOT_READY) {
-            if (!swapchain->checkSwapchainStatus()) continue;
+            if (!swapchain->checkSwapchainStatus()) {
+                continue;
+            }
         }
 
         if(_xr) {
             xr::XRSwapchain xrSwapchain = _xr->doGFXDeviceAcquire(_api);
             swapchain->gpuSwapchain()->curImageIndex = xrSwapchain.swapchainImageIndex;
         }
-        if(swapchain->gpuSwapchain()->vkSwapchain)
+        if(swapchain->gpuSwapchain()->vkSwapchain) {
             vkSwapchains.push_back(swapchain->gpuSwapchain()->vkSwapchain);
-        if(swapchain->gpuSwapchain())
+        }
+        if(swapchain->gpuSwapchain()) {
             gpuSwapchains.push_back(swapchain->gpuSwapchain());
+        }
         vkSwapchainIndices.push_back(swapchain->gpuSwapchain()->curImageIndex);
     }
 
