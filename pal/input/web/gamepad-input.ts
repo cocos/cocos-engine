@@ -446,5 +446,4 @@ export class GamepadInputDevice {
         this._buttonStart = new InputSourceButton();
         this._buttonStart.getValue = () => 0;
     }
-
 }

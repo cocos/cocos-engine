@@ -71,46 +71,46 @@ export enum XrControlEventType {
 export class XrEventHandle extends Event {
     //  export class XrEventHandle {
     /**
-     * @en 
+     * @en
      * @zh 事件触发者（左右手柄等）
      */
     public deviceType = DeviceType.Other;
 
     /**
-     * @en 
+     * @en
      * @zh 碰撞检测点
      */
-    public hitPoint = new Vec3;
+    public hitPoint = new Vec3();
 
     /**
-     * @en 
+     * @en
      * @zh controller模型
      */
     public model: Node | null = null;
 
     /**
-     * @en 
+     * @en
      * @zh 手柄事件
      */
-    public eventHandle: number = 0;
+    public eventHandle = 0;
 
     /**
-     * @en 
+     * @en
      * @zh 触发者Id
      */
     public triggerId: string | undefined = "";
 
     /**
-     * @en 
+     * @en
      * @zh 被附着者node
      */
     public attachNode: Node | null = null;
 
     /**
-     * @en 
+     * @en
      * @zh 是否强制抓取
      */
-    public forceGrab: boolean = true;
+    public forceGrab = true;
 }
 
 /**
@@ -192,14 +192,14 @@ export enum XrKeyboardEventType {
  */
 export class XrUIPressEvent extends Event {
     /**
-     * @en 
+     * @en
      * @zh 事件触发者（左右手柄等）
      */
     public deviceType = DeviceType.Other;
 
     /**
-     * @en 
+     * @en
      * @zh 碰撞检测点
      */
-    public hitPoint = new Vec3;
+    public hitPoint = new Vec3();
 }

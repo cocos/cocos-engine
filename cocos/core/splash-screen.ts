@@ -287,9 +287,9 @@ export class SplashScreen {
         const { device, swapchain } = this;
 
         if (!sys.isXR || xr.XrEntry.getInstance().isRenderAllowable()) {
-            let renderSize = sys.isXR ? 2 : 1;
+            const renderSize = sys.isXR ? 2 : 1;
             for (let xrEye = 0; xrEye < renderSize; xrEye++) {
-                let swapchain = sys.isXR ? device.getSwapchains()[xrEye] : this.swapchain;
+                const swapchain = sys.isXR ? device.getSwapchains()[xrEye] : this.swapchain;
                 if (sys.isXR) {
                     xr.XrEntry.getInstance().renderLoopStart(xrEye);
                 }

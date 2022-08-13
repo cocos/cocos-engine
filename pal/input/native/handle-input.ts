@@ -211,10 +211,15 @@ export class HandleInputDevice {
                 axisValue = this._axisToButtons(value);
                 break;
             default:
-                if (code === 7) { this._nativeButtonState[Button.TRIGGER_LEFT] = value; }
-                else if (code === 8) { this._nativeButtonState[Button.TRIGGER_RIGHT] = value; }
-                else if (code === 9) { this._nativeButtonState[Button.GRIP_LEFT] = value; }
-                else if (code === 10) { this._nativeButtonState[Button.GRIP_RIGHT] = value; }
+                if (code === 7) {
+                    this._nativeButtonState[Button.TRIGGER_LEFT] = value;
+                } else if (code === 8) {
+                    this._nativeButtonState[Button.TRIGGER_RIGHT] = value;
+                } else if (code === 9) {
+                    this._nativeButtonState[Button.GRIP_LEFT] = value;
+                } else if (code === 10) {
+                    this._nativeButtonState[Button.GRIP_RIGHT] = value;
+                }
                 break;
             }
             if (negativeButton && positiveButton && axisValue) {

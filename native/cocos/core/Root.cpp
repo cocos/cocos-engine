@@ -83,7 +83,7 @@ void Root::initialize(gfx::Swapchain *swapchain) {
             gfx::Swapchain *swapchainItem = swapchainArray[i];
             _mainWindow = createMainWindow(swapchainItem);
             _curWindow = _mainWindow;
-            _xr->bindXREyeWithRenderWindow(_mainWindow, (xr::XREye)i);
+            _xr->bindXREyeWithRenderWindow(_mainWindow, static_cast<xr::XREye>(i));
         }
     } else {
         _mainWindow = createMainWindow(swapchain);
@@ -516,7 +516,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 
             for (auto *camera : _allCameraList) {
                 if (camera->getTrackingType() != cc::scene::TrackingType::NO_TRACKING) {
-                    const auto &viewPosition = _xr->getHMDViewPosition(xrEye, (uint32_t)camera->getTrackingType());
+                    const auto &viewPosition = _xr->getHMDViewPosition(xrEye, static_cast<uint32_t>(camera->getTrackingType()));
                     camera->setNodePosition({viewPosition[0], viewPosition[1], viewPosition[2]});
                 }
             }

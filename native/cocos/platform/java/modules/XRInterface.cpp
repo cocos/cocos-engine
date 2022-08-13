@@ -360,6 +360,7 @@ xr::XRConfigValue XRInterface::getXRConfig(xr::XRConfigKey key) {
 #if CC_USE_XR
     return xr::XrEntry::getInstance()->getXRConfig(key);
 #endif
+    CC_UNUSED_PARAM(key);
     cc::xr::XRConfigValue configValue;
     return configValue;
 }
@@ -369,6 +370,8 @@ void XRInterface::setXRConfig(xr::XRConfigKey key, xr::XRConfigValue value) {
     CC_LOG_INFO("[XR] setConfigParameterI %d", key);
     xr::XrEntry::getInstance()->setXRConfig(key, value);
 #endif
+    CC_UNUSED_PARAM(key);
+    CC_UNUSED_PARAM(value);
 }
 
 uint32_t XRInterface::getRuntimeVersion() {
@@ -394,6 +397,8 @@ void XRInterface::initialize(void *javaVM, void *activity) {
     xr::XrEntry::getInstance()->createXrInstance(graphicsApiName.c_str());
     #endif
 #endif
+    CC_UNUSED_PARAM(javaVM);
+    CC_UNUSED_PARAM(activity);
 }
 
 // render thread lifecycle
@@ -447,6 +452,7 @@ void XRInterface::preGFXDeviceInitialize(gfx::API gfxApi) {
     #endif
     }
 #endif
+    CC_UNUSED_PARAM(gfxApi);
 }
 
 void XRInterface::postGFXDeviceInitialize(gfx::API gfxApi) {
@@ -466,6 +472,7 @@ void XRInterface::postGFXDeviceInitialize(gfx::API gfxApi) {
     #endif
     }
 #endif
+    CC_UNUSED_PARAM(gfxApi);
 }
 
 const xr::XRSwapchain &XRInterface::doGFXDeviceAcquire(gfx::API gfxApi) {
@@ -475,6 +482,7 @@ const xr::XRSwapchain &XRInterface::doGFXDeviceAcquire(gfx::API gfxApi) {
         return xr::XrEntry::getInstance()->acquireXrSwapchain((uint32_t)gfxApi);
     }
 #endif
+    CC_UNUSED_PARAM(gfxApi);
     return _acquireSwapchain;
 }
 
@@ -485,6 +493,7 @@ bool XRInterface::isGFXDeviceNeedsPresent(gfx::API gfxApi) {
     // }
     return xr::XrEntry::getInstance()->getXRConfig(cc::xr::XRConfigKey::PRESENT_ENABLE).getBool();
 #endif
+    CC_UNUSED_PARAM(gfxApi);
     return true;
 }
 
@@ -494,6 +503,7 @@ void XRInterface::postGFXDevicePresent(gfx::API gfxApi) {
     if (gfxApi == gfx::API::GLES3 || gfxApi == gfx::API::VULKAN) {
     }
 #endif
+    CC_UNUSED_PARAM(gfxApi);
 }
 
 void XRInterface::createXRSwapchains() {
@@ -566,17 +576,19 @@ void XRInterface::updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) {
     _eglSurfaceTypeMap[typedID] = EGLSurfaceType::PBUFFER;
     #endif
 #endif
+    CC_UNUSED_PARAM(index);
+    CC_UNUSED_PARAM(typedID);
 }
 // gfx
 
 // vulkan
 #ifdef CC_USE_VULKAN
 uint32_t XRInterface::getXRVkApiVersion(uint32_t engineVkApiVersion) {
-    #if CC_USE_XR
+#if CC_USE_XR
     return xr::XrEntry::getInstance()->getXrVkApiVersion(engineVkApiVersion);
-    #else
+#else
     return engineVkApiVersion;
-    #endif
+#endif
 }
 
 void XRInterface::initializeVulkanData(const PFN_vkGetInstanceProcAddr &addr) {
@@ -584,19 +596,21 @@ void XRInterface::initializeVulkanData(const PFN_vkGetInstanceProcAddr &addr) {
 }
 
 VkInstance XRInterface::createXRVulkanInstance(const VkInstanceCreateInfo &instInfo) {
-    #if CC_USE_XR
+#if CC_USE_XR
     _vkInstance = xr::XrEntry::getInstance()->xrVkCreateInstance(instInfo, _vkGetInstanceProcAddr);
     _vkPhysicalDevice = xr::XrEntry::getInstance()->getXrVkGraphicsDevice(_vkInstance);
     return _vkInstance;
-    #else
+#else
+    CC_UNUSED_PARAM(instInfo);
     return nullptr;
-    #endif
+#endif
 }
 
 VkDevice XRInterface::createXRVulkanDevice(const VkDeviceCreateInfo *deviceInfo) {
-    #if CC_USE_XR
+#if CC_USE_XR
     VK_CHECK(xr::XrEntry::getInstance()->xrVkCreateDevice(deviceInfo, _vkGetInstanceProcAddr, _vkPhysicalDevice, &_vkDevice));
-    #endif
+#endif
+    CC_UNUSED_PARAM(deviceInfo);
     return _vkDevice;
 }
 
@@ -605,9 +619,11 @@ VkPhysicalDevice XRInterface::getXRVulkanGraphicsDevice() {
 }
 
 void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t ccSwapchainTypedID) {
-    #if CC_USE_XR
+#if CC_USE_XR
     xr::XrEntry::getInstance()->getSwapchainImages(vkImages, ccSwapchainTypedID);
-    #endif
+#endif
+    CC_UNUSED_PARAM(vkImages);
+    CC_UNUSED_PARAM(ccSwapchainTypedID);
 }
 #endif
 // vulkan
@@ -615,28 +631,31 @@ void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_
 // gles
 #ifdef CC_USE_GLES3
 void XRInterface::initializeGLESData(PFNGLES3WLOADPROC gles3wLoadFuncProc, gfx::GLES3GPUContext *gpuContext) {
-    #if CC_USE_XR
+#if CC_USE_XR
     _gles3wLoadFuncProc = gles3wLoadFuncProc;
     _gles3GPUContext = gpuContext;
     void *eglDisplay = gpuContext->eglDisplay;
     void *eglConfig = gpuContext->eglConfig;
     void *eglDefaultContext = gpuContext->eglDefaultContext;
     CC_LOG_INFO("[XR] initializeGLESData.egl.%p/%p/%p", eglDisplay, eglConfig, eglDefaultContext);
-    #endif
+#endif
+    CC_UNUSED_PARAM(gles3wLoadFuncProc);
+    CC_UNUSED_PARAM(gpuContext);
 }
 
 void XRInterface::attachGLESFramebufferTexture2D() {
-    #if CC_USE_XR
+#if CC_USE_XR
     xr::XrEntry::getInstance()->attachXrFramebufferTexture2D();
-    #endif
+#endif
 }
 
 EGLSurfaceType XRInterface::acquireEGLSurfaceType(uint32_t typedID) {
-    #if CC_USE_XR
+#if CC_USE_XR
     if (_eglSurfaceTypeMap.count(typedID) > 0) {
         return _eglSurfaceTypeMap[typedID];
     }
-    #endif
+#endif
+    CC_UNUSED_PARAM(typedID);
     return EGLSurfaceType::WINDOW;
 }
 #endif
@@ -701,6 +720,7 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
         xr::XrEntry::getInstance()->renderLoopStart(eye);
     }
 #endif
+    CC_UNUSED_PARAM(eye);
     return true;
 }
 
@@ -718,6 +738,7 @@ bool XRInterface::endRenderEyeFrame(uint32_t eye) {
         xr::XrEntry::getInstance()->renderLoopEnd(eye);
     }
 #endif
+    CC_UNUSED_PARAM(eye);
     return true;
 }
 
@@ -757,6 +778,8 @@ ccstd::vector<float> XRInterface::getHMDViewPosition(uint32_t eye, int trackingT
 #if CC_USE_XR
     return xr::XrEntry::getInstance()->getHMDViewPosition(eye, trackingType);
 #else
+    CC_UNUSED_PARAM(eye);
+    CC_UNUSED_PARAM(trackingType);
     ccstd::vector<float> res;
     res.reserve(3);
     return res;
@@ -767,6 +790,9 @@ ccstd::vector<float> XRInterface::getXRViewProjectionData(uint32_t eye, float ne
 #if CC_USE_XR
     return xr::XrEntry::getInstance()->computeViewProjection(eye, near, far, 1.0F);
 #else
+    CC_UNUSED_PARAM(eye);
+    CC_UNUSED_PARAM(near);
+    CC_UNUSED_PARAM(far);
     ccstd::vector<float> res;
     res.reserve(16);
     return res;

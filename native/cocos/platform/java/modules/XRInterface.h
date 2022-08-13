@@ -30,65 +30,65 @@ namespace cc {
 
 class XRInterface : public IXRInterface {
 public:
-    virtual xr::XRVendor getVendor() override;
-    virtual xr::XRConfigValue getXRConfig(xr::XRConfigKey key) override;
-    virtual void setXRConfig(xr::XRConfigKey key, xr::XRConfigValue value) override;
+    xr::XRVendor getVendor() override;
+    xr::XRConfigValue getXRConfig(xr::XRConfigKey key) override;
+    void setXRConfig(xr::XRConfigKey key, xr::XRConfigValue value) override;
 
-    virtual uint32_t getRuntimeVersion() override;
-    virtual void initialize(void *javaVM, void *activity) override;
+    uint32_t getRuntimeVersion() override;
+    void initialize(void *javaVM, void *activity) override;
 
     // render thread lifecycle
-    virtual void onRenderPause() override;
-    virtual void onRenderResume() override;
-    virtual void onRenderDestroy() override;
+    void onRenderPause() override;
+    void onRenderResume() override;
+    void onRenderDestroy() override;
     // render thread lifecycle
 
     // gfx
-    virtual void preGFXDeviceInitialize(gfx::API gfxApi) override;
-    virtual void postGFXDeviceInitialize(gfx::API gfxApi) override;
-    virtual const xr::XRSwapchain &doGFXDeviceAcquire(gfx::API gfxApi) override;
-    virtual bool isGFXDeviceNeedsPresent(gfx::API gfxApi) override;
-    virtual void postGFXDevicePresent(gfx::API gfxApi) override;
-    virtual void createXRSwapchains() override;
-    virtual const std::vector<cc::xr::XRSwapchain> &getXRSwapchains() override;
-    virtual gfx::Format getXRSwapchainFormat() override;
-    virtual void updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) override;
+    void preGFXDeviceInitialize(gfx::API gfxApi) override;
+    void postGFXDeviceInitialize(gfx::API gfxApi) override;
+    const xr::XRSwapchain &doGFXDeviceAcquire(gfx::API gfxApi) override;
+    bool isGFXDeviceNeedsPresent(gfx::API gfxApi) override;
+    void postGFXDevicePresent(gfx::API gfxApi) override;
+    void createXRSwapchains() override;
+    const std::vector<cc::xr::XRSwapchain> &getXRSwapchains() override;
+    gfx::Format getXRSwapchainFormat() override;
+    void updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) override;
     // gfx
 
     // vulkan
 #ifdef CC_USE_VULKAN
-    virtual uint32_t getXRVkApiVersion(uint32_t engineVkApiVersion) override;
-    virtual void initializeVulkanData(const PFN_vkGetInstanceProcAddr &addr) override;
-    virtual VkInstance createXRVulkanInstance(const VkInstanceCreateInfo &instInfo) override;
-    virtual VkDevice createXRVulkanDevice(const VkDeviceCreateInfo *deviceInfo) override;
-    virtual VkPhysicalDevice getXRVulkanGraphicsDevice() override;
-    virtual void getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t ccSwapchainTypedID) override;
+    uint32_t getXRVkApiVersion(uint32_t engineVkApiVersion) override;
+    void initializeVulkanData(const PFN_vkGetInstanceProcAddr &addr) override;
+    VkInstance createXRVulkanInstance(const VkInstanceCreateInfo &instInfo) override;
+    VkDevice createXRVulkanDevice(const VkDeviceCreateInfo *deviceInfo) override;
+    VkPhysicalDevice getXRVulkanGraphicsDevice() override;
+    void getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t ccSwapchainTypedID) override;
 #endif
     // vulkan
 
     // gles
 #ifdef CC_USE_GLES3
-    virtual void initializeGLESData(xr::PFNGLES3WLOADPROC gles3wLoadFuncProc, gfx::GLES3GPUContext *gpuContext) override;
-    virtual void attachGLESFramebufferTexture2D() override;
-    virtual EGLSurfaceType acquireEGLSurfaceType(uint32_t typedID) override;
+    void initializeGLESData(xr::PFNGLES3WLOADPROC gles3wLoadFuncProc, gfx::GLES3GPUContext *gpuContext) override;
+    void attachGLESFramebufferTexture2D() override;
+    EGLSurfaceType acquireEGLSurfaceType(uint32_t typedID) override;
 #endif
     // gles
 
     // stereo render loop
-    virtual bool platformLoopStart() override;
-    virtual bool beginRenderFrame() override;
-    virtual bool isRenderAllowable() override;
-    virtual bool beginRenderEyeFrame(uint32_t eye) override;
-    virtual bool endRenderEyeFrame(uint32_t eye) override;
-    virtual bool endRenderFrame() override;
-    virtual bool platformLoopEnd() override;
+    bool platformLoopStart() override;
+    bool beginRenderFrame() override;
+    bool isRenderAllowable() override;
+    bool beginRenderEyeFrame(uint32_t eye) override;
+    bool endRenderEyeFrame(uint32_t eye) override;
+    bool endRenderFrame() override;
+    bool platformLoopEnd() override;
     // stereo render loop
 
-    virtual ccstd::vector<float> getHMDViewPosition(uint32_t eye, int trackingType) override;
-    virtual ccstd::vector<float> getXRViewProjectionData(uint32_t eye, float near, float far) override;
+    ccstd::vector<float> getHMDViewPosition(uint32_t eye, int trackingType) override;
+    ccstd::vector<float> getXRViewProjectionData(uint32_t eye, float near, float far) override;
     // renderwindow
-    virtual xr::XREye getXREyeByRenderWindow(void *window) override;
-    virtual void bindXREyeWithRenderWindow(void *window, xr::XREye eye) override;
+    xr::XREye getXREyeByRenderWindow(void *window) override;
+    void bindXREyeWithRenderWindow(void *window, xr::XREye eye) override;
 
 private:
 #if CC_USE_VULKAN

@@ -32,7 +32,8 @@ import { Ray } from '../geometry';
 import { Color, Rect, toRadian, Vec3 } from '../math';
 import { CAMERA_DEFAULT_MASK } from '../pipeline/define';
 import { scene } from '../renderer';
-import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter, CameraType, TrackingType } from '../renderer/scene/camera';
+import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter, 
+    CameraType, TrackingType } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
@@ -492,11 +493,11 @@ export class Camera extends Component {
         }
     }
 
-    get cameraType() {
+    get cameraType () {
         return this._cameraType;
     }
 
-    set cameraType(val) {
+    set cameraType (val) {
         if (this._cameraType === val) {
             return;
         }
@@ -506,11 +507,11 @@ export class Camera extends Component {
         }
     }
 
-    get trackingType() {
+    get trackingType () {
         return this._trackingType;
     }
 
-    set trackingType(val) {
+    set trackingType (val) {
         if (this._trackingType === val) {
             return;
         }
@@ -520,7 +521,7 @@ export class Camera extends Component {
         }
     }
 
-    public onLoad() {
+    public onLoad () {
          this._createCamera();
     }
 
