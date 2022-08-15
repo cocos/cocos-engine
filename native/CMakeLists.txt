@@ -223,11 +223,17 @@ if(USE_AUDIO)
             cocos/audio/oalsoft/AudioDecoderMp3.h
             cocos/audio/oalsoft/AudioDecoderOgg.cpp
             cocos/audio/oalsoft/AudioDecoderOgg.h
+            cocos/audio/oalsoft/AudioDecoderWav.cpp
+            cocos/audio/oalsoft/AudioDecoderWav.h
             cocos/audio/oalsoft/AudioEngine-soft.cpp
             cocos/audio/oalsoft/AudioEngine-soft.h
             cocos/audio/oalsoft/AudioMacros.h
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
+            cocos/audio/oalsoft/tinysndfile.cpp
+            cocos/audio/oalsoft/tinysndfile.h
+            cocos/audio/oalsoft/primitives.h
+            cocos/audio/oalsoft/primitives.c
         )
     elseif(LINUX OR QNX)
         cocos_source_files(

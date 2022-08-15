@@ -30,7 +30,9 @@
 #include "audio/oalsoft/AudioDecoderMp3.h"
 #include "audio/oalsoft/AudioDecoderOgg.h"
 #if CC_PLATFORM == CC_PLATFORM_OHOS
-    #include "audio/ohos/AudioDecoderWav.h"
+#include "audio/android/AudioDecoderWav.h"
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+#include "audio/oalsoft/AudioDecoderWav.h"
 #endif
 #include "audio/oalsoft/AudioMacros.h"
 #include "base/memory/Memory.h"
@@ -56,11 +58,9 @@ AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
         return ccnew AudioDecoderMp3();
     }
 
-#if CC_PLATFORM == CC_PLATFORM_OHOS
     if (suffix == ".wav") {
         return ccnew AudioDecoderWav();
     }
-#endif
 
     return nullptr;
 }
