@@ -8,7 +8,7 @@ const assert = require('assert');
 const { execSync } = require('child_process');
 
 const nodeMainVersion = parseInt(process.version.match(/^v(\d+)\.\d+/)[1]);
-console.log('node main version: ' + nodeMainVersion);
+console.log('node main version: ' + nodeMainVersion + ', version: ' + process.version);
 if (nodeMainVersion < 8) {
     console.error(`Node version (${process.version}) is too low, require at least NodeJS 8`);
     process.exit(-1);
@@ -16,8 +16,14 @@ if (nodeMainVersion < 8) {
 
 console.log('platform: ' + os.platform());
 let hostName = os.platform();
+let exeSuffix = '';
 if (hostName == 'darwin') {
     hostName = 'mac';
+} else if (hostName == 'win32') {
+    // NOTE: The external folder name is win64 for windows platform
+    // hostName here is for searching platform folder in native/cocos/external
+    hostName = 'win64';
+    exeSuffix = '.exe';
 }
 
 const COCOS_NATIVE_ROOT = path.resolve('../..');
@@ -25,7 +31,7 @@ console.log('COCOS_NATIVE_ROOT:' + COCOS_NATIVE_ROOT);
 
 // Release
 const SWIG_ROOT=path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
-const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig');
+const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
 const SWIG_LIB_ARRAY=[
     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0', 'javascript', 'cocos'),
     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
@@ -65,7 +71,7 @@ for (const includePath of includes) {
 }
 const includeStr = '-I' + includes.join(' -I');
 
-const swig_config_map = [
+const swigConfigMap = [
     [ '2d.i', 'jsb_2d_auto.cpp' ],
     [ 'assets.i', 'jsb_assets_auto.cpp' ],
     [ 'audio.i', 'jsb_audio_auto.cpp' ],
@@ -86,7 +92,7 @@ const swig_config_map = [
 ];
 
 
-for (const config of swig_config_map) {
+for (const config of swigConfigMap) {
     console.log(`interface: ${config[0]}, cpp: ${config[1]}`);
     const command = util.format('%s %s %s %s %s %s', 
         SWIG_EXE,
