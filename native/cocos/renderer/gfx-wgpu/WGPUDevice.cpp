@@ -349,6 +349,8 @@ void CCWGPUDevice::present() {
     _numTriangles = queue->getNumTris();
     queue->resetStatus();
 
+    CCWGPUDescriptorSet::clearCache();
+
     _currentFrameIndex = (++_currentFrameIndex) % CC_WGPU_MAX_FRAME_COUNT;
 }
 

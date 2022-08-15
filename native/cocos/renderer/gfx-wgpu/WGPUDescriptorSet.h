@@ -43,17 +43,16 @@ public:
     ~CCWGPUDescriptorSet();
 
     inline CCWGPUBindGroupObject *gpuBindGroupObject() { return _gpuBindGroupObj; }
+    inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
     void update() override;
     void forceUpdate() override{};
     uint8_t dynamicOffsetCount() const;
     void prepare();
+    ccstd::hash_t getHash() { return _bornHash; };
 
     static void *defaultBindGroup();
-
-    inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
-
-    ccstd::hash_t getHash() { return _hash; };
+    static void clearCache();
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
@@ -68,12 +67,10 @@ protected:
 
     // dynamic offsets, inuse ? 1 : 0;
     Pairs _dynamicOffsets;
-
     ccstd::hash_t _hash{0};
+    ccstd::hash_t _bornHash{0}; // hash when created, this relate to reuse bindgroup layout
 
-    ccstd::unordered_map<ccstd::hash_t, void *> _bindGroupMap;
-
-    // DescriptorSetLayout* _local = nullptr;
+    thread_local static ccstd::unordered_map<ccstd::hash_t, void *> _bindGroupMap;
 };
 
 } // namespace gfx
