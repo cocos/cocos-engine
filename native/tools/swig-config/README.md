@@ -250,7 +250,7 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
   %include "cocos/my-new-module/MyNewModule.h"
   ```
 
-- Open`engine/cocos/native/tools/swig-config/genbindings.js` file
+- Open`engine/native/cocos/tools/swig-config/genbindings.js` file
 
 - Find the following code and add `my_new_module.i` at the end
 
@@ -272,7 +272,7 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
   node genbindings.js
   ```
 
-- Modify `engine/cocos/native/CMakeLists.txt`, add `jsb_my_new_module_auto.cpp`
+- Modify `engine/native/cocos/CMakeLists.txt`, add `jsb_my_new_module_auto.cpp`
 
   ```cmake
   ######## auto
