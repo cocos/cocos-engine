@@ -78,6 +78,7 @@
     NSColor *_shadowColor;
     float _lineWidth;
     bool _bold;
+    bool _italic;
 }
 
 @property (nonatomic, strong) NSFont *font;
@@ -118,7 +119,7 @@
 #endif
         _path = [NSBezierPath bezierPath];
         [_path retain];
-        [self updateFontWithName:@"Arial" fontSize:30 bold:false];
+        [self updateFontWithName:@"Arial" fontSize:30 bold:false italic:false];
     }
 
     return self;
@@ -146,6 +147,9 @@
 
 - (NSFont *)_createSystemFont {
     NSFontTraitMask mask = NSUnitalicFontMask;
+    if (_italic) {
+        mask = NSItalicFontMask;
+    }
     if (_bold) {
         mask |= NSBoldFontMask;
     } else {
@@ -211,12 +215,17 @@
 
 #endif
 
-- (void)updateFontWithName:(NSString *)fontName fontSize:(CGFloat)fontSize bold:(bool)bold {
+- (void)updateFontWithName:(NSString *)fontName fontSize:(CGFloat)fontSize bold:(bool)bold italic:(bool)italic {
     _fontSize = fontSize;
     _bold = bold;
+    _italic = italic;
 
     self.fontName = fontName;
     self.font = [self _createSystemFont];
+    float obliqueValue = 0.f;
+    if (_italic) {
+        obliqueValue = 0.25f;
+    }
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -232,6 +241,7 @@
     self.tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                         foregroundColor, NSForegroundColorAttributeName,
                                                         _font, NSFontAttributeName,
+                                                        @(obliqueValue), NSObliquenessAttributeName,
                                                         paragraphStyle, NSParagraphStyleAttributeName, nil];
 }
 
@@ -629,7 +639,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) {
     CGFloat gfloatFontSize = fontSize;
-    [_impl updateFontWithName:[NSString stringWithUTF8String:fontName.c_str()] fontSize:gfloatFontSize bold:bold];
+    [_impl updateFontWithName:[NSString stringWithUTF8String:fontName.c_str()] fontSize:gfloatFontSize bold:bold italic:italic];
 }
 
 void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
